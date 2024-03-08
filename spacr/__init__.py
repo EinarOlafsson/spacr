@@ -11,9 +11,9 @@ from . import timelapse
 from . import train
 from . import mask_app
 from . import annotate_app
-from . import gui_mask
-from . import gui_measure
 from . import gui_utils
+from . import gui_mask_app
+from . import gui_measure_app
 from . import logger
 
 __all__ = [
@@ -25,11 +25,11 @@ __all__ = [
     "sim",
     "timelapse",
     "train",
-    "mask_app",
     "annotate_app",
     "gui_utils",
-    "gui_mask",
-    "gui_measure",
+    "mask_app",
+    "gui_mask_app",
+    "gui_measure_app",
     "logger"
 ]
 

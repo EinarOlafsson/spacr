@@ -36,8 +36,8 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'gui_mask=spacr.gen_masks_gui:gui_mask',
-            'gui_measure=spacr.measure_crop_gui:gui_measure',
+            'gui_mask=spacr.gui_mask_app:gui_mask',
+            'gui_measure=spacr.gui_measure_app:gui_measure',
         ],
     },
     extras_require={

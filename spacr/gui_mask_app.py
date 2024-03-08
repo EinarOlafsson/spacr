@@ -21,6 +21,7 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults
+
 thread_control = {"run_thread": None, "stop_requested": False}
 
 class ScrollableFrame(ttk.Frame):
@@ -213,10 +214,10 @@ def initiate_mask_root(width, height):
     
     return root, vars_dict
 
-def mask_gui():
+def gui_mask():
     global vars_dict, root
     root, vars_dict = initiate_mask_root(1000, 1500)
     root.mainloop()
 
 if __name__ == "__main__":
-    mask_gui()
+    gui_mask()

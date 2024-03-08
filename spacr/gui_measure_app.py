@@ -263,10 +263,10 @@ def initiate_measure_root(width, height):
     root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
     return root, vars_dict
 
-def measure_gui():
+def gui_measure():
     global vars_dict, root
     root, vars_dict = initiate_measure_root(1000, 1500)
     root.mainloop()
 
 if __name__ == "__main__":
-    measure_gui()
+    gui_measure()
