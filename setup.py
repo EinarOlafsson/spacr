@@ -26,7 +26,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.0.01",
+    version="0.0.1",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="A brief description of your package",
@@ -36,8 +36,8 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'mask_gui=spacr.gen_masks_gui:mask_gui',
-            'measure_gui=spacr.measure_crop_gui:measure_gui',
+            'gui_mask=spacr.gen_masks_gui:gui_mask',
+            'gui_measure=spacr.measure_crop_gui:gui_measure',
         ],
     },
     extras_require={

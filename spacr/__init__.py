@@ -11,8 +11,8 @@ from . import timelapse
 from . import train
 from . import mask_app
 from . import annotate_app
-from . import gen_masks_gui
-from . import measure_crop_gui
+from . import gui_mask
+from . import gui_measure
 from . import gui_utils
 from . import logger
 
@@ -28,8 +28,8 @@ __all__ = [
     "mask_app",
     "annotate_app",
     "gui_utils",
-    "gen_masks_gui",
-    "measure_crop_gui",
+    "gui_mask",
+    "gui_measure",
     "logger"
 ]
 
