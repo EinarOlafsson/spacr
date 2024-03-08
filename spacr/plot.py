@@ -463,11 +463,9 @@ def plot_merged(src, settings):
         if settings['include_multiinfected'] is not True or settings['include_multinucleated'] is not True or settings['filter_min_max'] is not None:
             stack = _filter_objects_in_plot(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], mask_dims, settings['filter_min_max'], settings['include_multinucleated'], settings['include_multiinfected'])
 
-        #print(stack.shape)
-        #chan_dims_print = settings['channel_dims']
-        #print(chan_dims_print)
-        #image = np.take(stack, chan_dims_print, axis=2)
-        #print(image.shape)
+        #channels_to_keep = np.ones(stack.shape[-1], dtype=bool)
+        #channels_to_keep[mask_dims] = False
+        #channel_image = stack[:, :, channels_to_keep]
         
         overlayed_image, image, outlines = _normalize_and_outline(stack, settings['remove_background'], settings['backgrounds'], settings['normalize'], settings['normalization_percentiles'], settings['overlay'], settings['overlay_chans'], mask_dims, outline_colors, settings['outline_thickness'])
         
