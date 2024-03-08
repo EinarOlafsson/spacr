@@ -1,15 +1,14 @@
-import spacr, sys, queue, ctypes, csv, matplotlib
+import sys, ctypes, csv, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from ttkthemes import ThemedTk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from threading import Thread
 matplotlib.use('Agg')
-from threading import Thread
 from tkinter import filedialog
+from multiprocessing import Process, Queue, Value
+import traceback
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -17,87 +16,49 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults
-from .gui_utils import safe_literal_eval
+from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper, process_stdout_stderr
+from .gui_utils import safe_literal_eval, clear_canvas, main_thread_update_function
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
-class ScrollableFrame(ttk.Frame):
-    def __init__(self, container, *args, bg='#333333', **kwargs):
-        super().__init__(container, *args, **kwargs)
-        self.configure(style='TFrame')  # Ensure this uses the styled frame from dark mode
-        
-        canvas = tk.Canvas(self, bg=bg)  # Set canvas background to match dark mode
-        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
-        
-        self.scrollable_frame = ttk.Frame(canvas, style='TFrame')  # Ensure it uses the styled frame
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-        
-        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-        
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-
-def clear_canvas():
-    global canvas
-    # Clear each plot (axes) in the figure
-    for ax in canvas.figure.get_axes():
-        ax.clear()  # Clears the axes, but keeps them visible for new plots
-
-    # Redraw the now empty canvas without changing its size
-    canvas.draw_idle()  # Using draw_idle for efficiency in redrawing
-        
+@log_function_call
 def initiate_abort():
-    global thread_control, q
-    thread_control["stop_requested"] = True
-    if thread_control["run_thread"] is not None:
-        thread_control["run_thread"].join(timeout=1)  # Timeout after 1 second
-        if thread_control["run_thread"].is_alive():
-            q.put("Thread didn't terminate within timeout.")
-        thread_control["run_thread"] = None
-    
-def preprocess_generate_masks_wrapper(*args, **kwargs):
-    global fig_queue
-    def my_show():
-        fig = plt.gcf()
-        fig_queue.put(fig)  # Put the figure into the queue
-        plt.close(fig)  # Close the figure to prevent it from being shown by plt.show()
-
-    original_show = plt.show
-    plt.show = my_show
-
-    try:
-        spacr.core.preprocess_generate_masks(*args, **kwargs)
-    except Exception as e:
-        pass
-    finally:
-        plt.show = original_show
-        
-def run_mask_gui(q, fig_queue):
-    global vars_dict, thread_control
-    try:
-        while not thread_control["stop_requested"]:
-            settings = check_mask_gui_settings(vars_dict)
-            settings = add_mask_gui_defaults(settings)
-            preprocess_generate_masks_wrapper(settings['src'], settings=settings, advanced_settings={})
-            thread_control["stop_requested"] = True
-    except Exception as e:
-        pass
-        #q.put(f"Error during processing: {e}")
-    finally:
-        # Ensure the thread is marked as not running anymore
-        thread_control["run_thread"] = None
-        # Reset the stop_requested flag for future operations
-        thread_control["stop_requested"] = False
-
-def start_thread(q, fig_queue):
     global thread_control
-    thread_control["stop_requested"] = False  # Reset the stop signal
-    thread_control["run_thread"] = Thread(target=run_mask_gui, args=(q, fig_queue))
+    if thread_control.get("stop_requested") is not None:
+        thread_control["stop_requested"].value = 1
+
+    if thread_control.get("run_thread") is not None:
+        thread_control["run_thread"].join(timeout=5)
+        if thread_control["run_thread"].is_alive():
+            thread_control["run_thread"].terminate()
+        thread_control["run_thread"] = None
+        
+@log_function_call
+def run_mask_gui(q, fig_queue, stop_requested):
+    global vars_dict
+    process_stdout_stderr(q)
+    try:
+        settings = check_mask_gui_settings(vars_dict)
+        settings = add_mask_gui_defaults(settings)
+        #for key in settings:
+        #    value = settings[key]
+        #    print(key, value, type(value))
+        preprocess_generate_masks_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+    
+@log_function_call
+def start_process(q, fig_queue):
+    global thread_control
+    if thread_control.get("run_thread") is not None:
+        initiate_abort()
+
+    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
+    thread_control["stop_requested"] = stop_requested
+    thread_control["run_thread"] = Process(target=run_mask_gui, args=(q, fig_queue, stop_requested))
     thread_control["run_thread"].start()
     
 def import_settings(scrollable_frame):
@@ -145,13 +106,13 @@ def initiate_mask_root(width, height):
     root.attributes('-fullscreen', True)
     root.geometry(f"{width}x{height}")
     root.title("SpaCer: generate masks")
-    fig_queue = queue.Queue()
-    
+    fig_queue = Queue()
+            
     def _process_fig_queue():
         global canvas
         try:
             while not fig_queue.empty():
-                clear_canvas()
+                clear_canvas(canvas)
                 fig = fig_queue.get_nowait()
                 #set_fig_text_properties(fig, font_size=8)
                 for ax in fig.get_axes():
@@ -167,13 +128,12 @@ def initiate_mask_root(width, height):
                 fig_width, fig_height = canvas_widget.winfo_width(), canvas_widget.winfo_height()
                 fig.set_size_inches(fig_width / fig.dpi, fig_height / fig.dpi, forward=True)
                 canvas.draw_idle() 
-        except queue.Empty:
-            pass
         except Exception as e:
-            pass
+            traceback.print_exc()
+            #pass
         finally:
             canvas_widget.after(100, _process_fig_queue)
-    
+            
     # Process queue for console output
     def _process_console_queue():
         while not q.empty():
@@ -217,16 +177,19 @@ def initiate_mask_root(width, height):
     vertical_container.add(console_output, stretch="always")
 
     # Queue and redirection setup for updating console output safely
-    q = queue.Queue()
+    q = Queue()
     sys.stdout = StdoutRedirector(console_output)
     sys.stderr = StdoutRedirector(console_output)
     
     # This is your GUI setup where you create the Run button
-    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_thread(q, fig_queue))
+    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
     run_button.grid(row=40, column=0, pady=10)
     
     abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
     abort_button.grid(row=40, column=1, pady=10)
+    
+    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white")
+    progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
     
     # Create the Import Settings button
     import_btn = tk.Button(root, text="Import Settings", command=lambda: import_settings(scrollable_frame))
@@ -235,6 +198,8 @@ def initiate_mask_root(width, height):
     _process_console_queue()
     _process_fig_queue()
     create_dark_mode(root, style, console_output)
+    
+    root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
     
     return root, vars_dict
 

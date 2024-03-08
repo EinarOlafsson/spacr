@@ -115,7 +115,7 @@ def _extract_filename_metadata(filenames, src, images_by_key, regular_expression
                     orig_wellID = wellID
                     wellID = _convert_cq1_well_id(wellID)
                     clear_output(wait=True)
-                    print(f'\033[KConverted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
+                    print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
 
                 if pick_slice:
                     try:

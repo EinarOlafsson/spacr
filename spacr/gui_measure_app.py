@@ -20,7 +20,6 @@ from .gui_utils import process_stdout_stderr, measure_crop_wrapper, clear_canvas
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
-
 @log_function_call
 def run_measure_gui(q, fig_queue, stop_requested):
     global vars_dict
@@ -135,7 +134,7 @@ def initiate_measure_root(width, height):
             #pass
         finally:
             canvas_widget.after(100, _process_fig_queue)
-    
+            
     # Process queue for console output
     def _process_console_queue():
         while not q.empty():
@@ -190,7 +189,7 @@ def initiate_measure_root(width, height):
     abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
     abort_button.grid(row=40, column=1, pady=10)
     
-    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Progress: 0%", background="#333333", foreground="white")
+    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Progress: ", background="#333333", foreground="white")
     progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
     
     # Create the Import Settings button

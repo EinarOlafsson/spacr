@@ -854,7 +854,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                     stack_region.append(array)
                     filenames_region.append(os.path.basename(path))
                 clear_output(wait=True)
-                print(f'\033[KRegion {i+1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
+                print(f'Region {i+1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
                 np.savez(save_loc, data=stack, filenames=filenames_region)
@@ -880,14 +880,14 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             stack_ls.append(array)
             filenames_batch.append(os.path.basename(path))  # store the filename
             clear_output(wait=True)
-            print(f'\033[KConcatenated: {i+1}/{nr_files} files', end='\r', flush=True)
+            print(f'Concatenated: {i+1}/{nr_files} files', end='\r', flush=True)
 
             if (i+1) % batch_size == 0 or i+1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
                     clear_output(wait=True)
-                    print(f'\033[KWarning: arrays with multiple shapes found in batch {i+1}. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
+                    print(f'Warning: arrays with multiple shapes found in batch {i+1}. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
                     padded_stack_ls = []
                     for arr in stack_ls:
                         pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
@@ -904,7 +904,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 stack_ls = []  # empty the list for the next batch
                 filenames_batch = []  # empty the filenames list for the next batch
                 padded_stack_ls = []
-    #print(f'\nAll files concatenated and saved to:{channel_stack_loc}')
+    print(f'All files concatenated and saved to:{channel_stack_loc}')
     return channel_stack_loc
 
 def _get_lists_for_normalization(settings):
@@ -1014,7 +1014,7 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
                 time_ls.append(duration)
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
                 clear_output(wait=True)
-                print(f'\033[KProgress: files {file_index+1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1]-1}, arrays:{array_index+1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec', end='\r', flush=True)
+                print(f'Progress: files {file_index+1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1]-1}, arrays:{array_index+1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec', end='\r', flush=True)
             normalized_single_channel = exposure.rescale_intensity(arr_2d_normalized, out_range='dtype')
             normalized_stack[:, :, :, channel] = normalized_single_channel
         save_loc = output_fldr+'/'+name+'_norm_stack.npz'
@@ -1362,7 +1362,7 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     save_location = os.path.join(save_folder, fig_name)
     fig.savefig(save_location, bbox_inches='tight', dpi=dpi)
     clear_output(wait=True)
-    print(f'\033[KProgress: {i}/{all_folders}, Saved single cell figure: {os.path.basename(save_location)}', end='\r', flush=True)
+    print(f'Progress: {i}/{all_folders}, Saved single cell figure: {os.path.basename(save_location)}', end='\r', flush=True)
     # Close and delete the figure to free up memory
     plt.close(fig)
     del fig
@@ -1647,7 +1647,7 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                 # Now create a NumPy array and find the maximum dimensions
                 max_dims = np.max(np.array(padded_shapes), axis=0)
                 clear_output(wait=True)
-                print(f'\033[KWarning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
+                print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
                 padded_stack_ls = []
                 for arr in stack_ls:
                     pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
@@ -1665,7 +1665,7 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                 np.save(output_path, stack)
         
         clear_output(wait=True)
-        #print(f'\033[KFiles merged: {count}/{all_imgs}', end='\r', flush=True)
+        print(f'Files merged: {count}/{all_imgs}', end='\r', flush=True)
     return
     
 def _read_db(db_loc, tables):

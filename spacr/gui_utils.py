@@ -401,8 +401,6 @@ def set_dark_style(style):
     style.configure('TEntry', background='#333333', foreground='white')
     style.configure('TCheckbutton', background='#333333', foreground='white')
 
-
-
 @log_function_call   
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
     try:
@@ -410,12 +408,18 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_labe
             message = q.get_nowait()
             if message.startswith("Progress"):
                 progress_label.config(text=message)
+            elif message.startswith("Processing"):
+                progress_label.config(text=message)
             elif message == "" or message == "\r":
+                pass
+            elif message.startswith("/"):
+                pass
+            elif message.startswith("\\"):
+                pass
+            elif message.startswith(""):
                 pass
             else:
                 print(message)  # Or handle other messages differently
-                # For non-progress messages, you can still print them to the console or handle them as needed.
-
         while not fig_queue.empty():
             fig = fig_queue.get_nowait()
             clear_canvas(canvas_widget)
@@ -423,7 +427,7 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_labe
         print(f"Error updating GUI: {e}")
     finally:
         root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
-        
+
 def process_stdout_stderr(q):
     """
     Redirect stdout and stderr to the queue q.
@@ -486,3 +490,40 @@ def measure_crop_wrapper(settings, q, fig_queue):
         traceback.print_exc()
     finally:
         plt.show = original_show  # Restore the original plt.show function
+        
+@log_function_call
+def preprocess_generate_masks_wrapper(settings, q, fig_queue):
+    """
+    Wraps the measure_crop function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the measure_crop function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
+    
+    def my_show():
+        """
+        Replacement for plt.show() that queues figures instead of displaying them.
+        """
+        fig = plt.gcf()
+        fig_queue.put(fig)  # Queue the figure for GUI display
+        plt.close(fig)  # Prevent the figure from being shown by plt.show()
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = my_show
+
+    try:
+        # Assuming spacr.measure.measure_crop is your function that potentially generates matplotlib figures
+        # Pass settings as a named argument, along with any other needed arguments
+        spacr.core.preprocess_generate_masks(settings['src'], settings=settings, advanced_settings={})
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)  # Send the error message to the GUI via the queue
+        traceback.print_exc()
+    finally:
+        plt.show = original_show  # Restore the original plt.show function
+
+
+        
