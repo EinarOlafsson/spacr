@@ -1,17 +1,19 @@
 from queue import Queue
 from tkinter import Label
 import tkinter as tk
-import threading
+import os, threading, time, sqlite3
 import numpy as np
 from PIL import Image, ImageOps
-import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from PIL import ImageTk
-import os
 from IPython.display import display, HTML
-import time
+import tkinter as tk
+from tkinter import ttk
+from ttkthemes import ThemedTk
 
 from .logger import log_function_call
+
+from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode
 
 class ImageApp:
     """
@@ -416,3 +418,78 @@ def check_for_duplicates(db):
             c.execute('DELETE FROM png_list WHERE rowid = ?', (rowid[0],))
     conn.commit()
     conn.close()
+
+@log_function_call
+def initiate_annotation_app_root(width, height):
+    theme = 'breeze'
+    root = ThemedTk(theme=theme)
+    style = ttk.Style(root)
+    set_dark_style(style)
+    set_default_font(root, font_name="Arial", size=10)
+    root.geometry(f"{width}x{height}")
+    root.title("Annotation App")
+
+    container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
+    container.pack(fill=tk.BOTH, expand=True)
+
+    scrollable_frame = ScrollableFrame(container, bg='#333333')
+    container.add(scrollable_frame, stretch="always")
+
+    # Setup input fields
+    vars_dict = {
+        'db': ttk.Entry(scrollable_frame.scrollable_frame),
+        'image_type': ttk.Entry(scrollable_frame.scrollable_frame),
+        'channels': ttk.Entry(scrollable_frame.scrollable_frame),
+        'annotation_column': ttk.Entry(scrollable_frame.scrollable_frame),
+        'geom': ttk.Entry(scrollable_frame.scrollable_frame),
+        'img_size': ttk.Entry(scrollable_frame.scrollable_frame),
+        'rows': ttk.Entry(scrollable_frame.scrollable_frame),
+        'columns': ttk.Entry(scrollable_frame.scrollable_frame)
+    }
+
+    # Arrange input fields and labels
+    row = 0
+    for name, entry in vars_dict.items():
+        ttk.Label(scrollable_frame.scrollable_frame, text=f"{name.replace('_', ' ').capitalize()}:").grid(row=row, column=0)
+        entry.grid(row=row, column=1)
+        row += 1
+
+    # Function to be called when "Run" button is clicked
+    def run_app():
+        db = vars_dict['db'].get()
+        image_type = vars_dict['image_type'].get()
+        channels = vars_dict['channels'].get()
+        annotation_column = vars_dict['annotation_column'].get()
+        geom = vars_dict['geom'].get()
+        img_size_str = vars_dict['img_size'].get().split(',')  # Splitting the string by comma
+        img_size = (int(img_size_str[0]), int(img_size_str[1]))  # Converting each part to an integer
+        rows = int(vars_dict['rows'].get())
+        columns = int(vars_dict['columns'].get())
+        
+        # Destroy the initial settings window
+        root.destroy()
+        
+        # Create a new root window for the application
+        new_root = tk.Tk()
+        new_root.geometry(f"{width}x{height}")
+        new_root.title("Mask Application")
+
+        # Start the annotation application in the new root window
+        app_instance = annotate(db, image_type, channels, annotation_column, geom, img_size, rows, columns)
+        
+        new_root.mainloop()
+        
+    create_dark_mode(root, style, console_output=None)
+
+    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=run_app)
+    run_button.grid(row=row, column=0, columnspan=2, pady=10)
+
+    return root
+
+def gui_annotation():
+    root = initiate_annotation_app_root(500, 350)
+    root.mainloop()
+
+if __name__ == "__main__":
+    gui_annotation()
+

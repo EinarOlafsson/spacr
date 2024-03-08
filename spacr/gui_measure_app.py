@@ -1,18 +1,13 @@
-import os, io
-import sys
-import traceback
+import sys, traceback, matplotlib, ctypes, csv
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use the non-GUI Agg backend
-#from multiprocessing.queue import Empty
 from multiprocessing import Process, Queue, Value
-import ctypes
-import spacr
 from ttkthemes import ThemedTk
+from tkinter import filedialog
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -20,72 +15,12 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, set_dark_style, set_default_font, measure_variables, generate_fields, create_dark_mode, check_measure_gui_settings, add_measure_gui_defaults
+from .gui_utils import ScrollableFrame, StdoutRedirector, set_dark_style, set_default_font, measure_variables, generate_fields, create_dark_mode, check_measure_gui_settings, add_measure_gui_defaults, main_thread_update_function
+from .gui_utils import process_stdout_stderr, measure_crop_wrapper, clear_canvas, safe_literal_eval
+
 thread_control = {"run_thread": None, "stop_requested": False}
 
-def process_stdout_stderr(q):
-    """
-    Redirect stdout and stderr to the queue q.
-    """
-    sys.stdout = WriteToQueue(q)
-    sys.stderr = WriteToQueue(q)
 
-class WriteToQueue(io.TextIOBase):
-    """
-    A custom file-like class that writes any output to a given queue.
-    This can be used to redirect stdout and stderr.
-    """
-    def __init__(self, q):
-        self.q = q
-
-    def write(self, msg):
-        self.q.put(msg)
-
-    def flush(self):
-        pass
-
-def clear_canvas(canvas):
-    # Clear each plot (axes) in the figure
-    for ax in canvas.figure.get_axes():
-        ax.clear()
-
-    # Redraw the now empty canvas without changing its size
-    canvas.draw_idle()
-    
-@log_function_call
-def measure_crop_wrapper(settings, q, fig_queue):
-    """
-    Wraps the measure_crop function to integrate with GUI processes.
-    
-    Parameters:
-    - settings: dict, The settings for the measure_crop function.
-    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
-    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
-    """
-    
-    def my_show():
-        """
-        Replacement for plt.show() that queues figures instead of displaying them.
-        """
-        fig = plt.gcf()
-        fig_queue.put(fig)  # Queue the figure for GUI display
-        plt.close(fig)  # Prevent the figure from being shown by plt.show()
-
-    # Temporarily override plt.show
-    original_show = plt.show
-    plt.show = my_show
-
-    try:
-        # Assuming spacr.measure.measure_crop is your function that potentially generates matplotlib figures
-        # Pass settings as a named argument, along with any other needed arguments
-        spacr.measure.measure_crop(settings=settings, annotation_settings={}, advanced_settings={})
-    except Exception as e:
-        errorMessage = f"Error during processing: {e}"
-        q.put(errorMessage)  # Send the error message to the GUI via the queue
-        traceback.print_exc()
-    finally:
-        plt.show = original_show  # Restore the original plt.show function
-        
 @log_function_call
 def run_measure_gui(q, fig_queue, stop_requested):
     global vars_dict
@@ -125,31 +60,34 @@ def initiate_abort():
         if thread_control["run_thread"].is_alive():
             thread_control["run_thread"].terminate()
         thread_control["run_thread"] = None
-     
-@log_function_call   
-def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
-    try:
-        while not q.empty():
-            message = q.get_nowait()
-            if message.startswith("Progress"):
-                progress_label.config(text=message)
-            elif message == "" or message == "\r":
-                pass
-            else:
-                print(message)  # Or handle other messages differently
-                # For non-progress messages, you can still print them to the console or handle them as needed.
 
-        while not fig_queue.empty():
-            fig = fig_queue.get_nowait()
-            clear_canvas(canvas_widget)
-    except Exception as e:
-        print(f"Error updating GUI: {e}")
-    finally:
-        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+def import_settings(scrollable_frame):
+    global vars_dict, original_variables_structure
+
+    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    
+    if not csv_file_path:
+        return
+    
+    imported_variables = {}
+
+    with open(csv_file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            key = row['Key']
+            value = row['Value']
+            # Evaluate the value safely using safe_literal_eval
+            imported_variables[key] = safe_literal_eval(value)
+
+    # Track changed variables and apply the imported ones, printing changes as we go
+    for key, var in vars_dict.items():
+        if key in imported_variables and var.get() != imported_variables[key]:
+            print(f"Updating '{key}' from '{var.get()}' to '{imported_variables[key]}'")
+            var.set(imported_variables[key])
 
 @log_function_call
 def initiate_measure_root(width, height):
-    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control
+    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables
     
     theme = 'breeze'
     
@@ -205,7 +143,7 @@ def initiate_measure_root(width, height):
             console_output.insert(tk.END, message)
             console_output.see(tk.END)
         console_output.after(100, _process_console_queue)
-        
+
     # Vertical container for settings and console
     vertical_container = tk.PanedWindow(root, orient=tk.HORIZONTAL) #VERTICAL
     vertical_container.pack(fill=tk.BOTH, expand=True)
@@ -246,8 +184,6 @@ def initiate_measure_root(width, height):
     sys.stderr = StdoutRedirector(console_output)
     
     # This is your GUI setup where you create the Run button
-    #run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=lambda: threading.Thread(target=run_mask_gui, args=(q, fig_queue)).start())
-    #run_button.grid(row=40, column=0, pady=10)
     run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
     run_button.grid(row=40, column=0, pady=10)
     
@@ -255,12 +191,18 @@ def initiate_measure_root(width, height):
     abort_button.grid(row=40, column=1, pady=10)
     
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Progress: 0%", background="#333333", foreground="white")
-    progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))   
+    progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
+    
+    # Create the Import Settings button
+    import_btn = tk.Button(root, text="Import Settings", command=lambda: import_settings(scrollable_frame))
+    import_btn.pack(pady=20)
     
     _process_console_queue()
     _process_fig_queue()
     create_dark_mode(root, style, console_output)
+    
     root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+    
     return root, vars_dict
 
 def gui_measure():

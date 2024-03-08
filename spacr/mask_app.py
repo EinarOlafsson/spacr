@@ -7,8 +7,13 @@ from PIL import Image, ImageTk
 from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
+import tkinter as tk
+from tkinter import ttk
+from ttkthemes import ThemedTk
 
 from .logger import log_function_call
+
+from .gui_utils import ScrollableFrame, set_dark_style, set_default_font, create_dark_mode
 
 class modify_masks:
 
@@ -747,3 +752,67 @@ class modify_masks:
             if np.sum(labeled_mask == i) < min_area:
                 self.mask[labeled_mask == i] = 0  # Remove small objects
         self.update_display()
+
+@log_function_call
+def initiate_mask_app_root(width, height):
+    theme = 'breeze'
+    root = ThemedTk(theme=theme)
+    style = ttk.Style(root)
+    set_dark_style(style)
+    set_default_font(root, font_name="Arial", size=10)
+    root.geometry(f"{width}x{height}")
+    root.title("Mask App")
+
+    container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
+    container.pack(fill=tk.BOTH, expand=True)
+
+    scrollable_frame = ScrollableFrame(container, bg='#333333')
+    container.add(scrollable_frame, stretch="always")
+
+    # Setup input fields
+    vars_dict = {
+        'folder_path': ttk.Entry(scrollable_frame.scrollable_frame),
+        'scale_factor': ttk.Entry(scrollable_frame.scrollable_frame),
+        'width': ttk.Entry(scrollable_frame.scrollable_frame),
+        'height': ttk.Entry(scrollable_frame.scrollable_frame)
+    }
+
+    # Arrange input fields and labels
+    row = 0
+    for name, entry in vars_dict.items():
+        ttk.Label(scrollable_frame.scrollable_frame, text=f"{name.replace('_', ' ').capitalize()}:").grid(row=row, column=0)
+        entry.grid(row=row, column=1)
+        row += 1
+
+    # Function to be called when "Run" button is clicked
+    def run_app():
+        folder_path = vars_dict['folder_path'].get()
+        scale_factor = float(vars_dict['scale_factor'].get())
+        width = int(vars_dict['width'].get())
+        height = int(vars_dict['height'].get())
+        
+        # Destroy input fields and the "Run" button
+        root.destroy()
+        
+        # Since the original root window is destroyed, create a new root window for the application
+        new_root = tk.Tk()
+        new_root.geometry(f"{width}x{height}")
+        new_root.title("Mask Application")
+
+        # Start the modify_masks application in the new root window
+        app_instance = modify_masks(new_root, folder_path, scale_factor, width, height)
+        new_root.mainloop()
+        
+    create_dark_mode(root, style, console_output=None)
+
+    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=run_app)
+    run_button.grid(row=row, column=0, columnspan=2, pady=10)
+
+    return root
+
+def gui_make_masks():
+    root = initiate_mask_app_root(400, 200)
+    root.mainloop()
+
+if __name__ == "__main__":
+    gui_make_masks()

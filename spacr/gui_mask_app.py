@@ -1,19 +1,16 @@
-import os, spacr, sys, queue
+import spacr, sys, queue, ctypes, csv, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
-from tkinter.font import nametofont
 from ttkthemes import ThemedTk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from threading import Thread
-#matplotlib.use('TkAgg')
 matplotlib.use('Agg')
-import traceback
 from threading import Thread
-import ctypes
+from tkinter import filedialog
+
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
@@ -21,6 +18,7 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults
+from .gui_utils import safe_literal_eval
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -101,6 +99,30 @@ def start_thread(q, fig_queue):
     thread_control["stop_requested"] = False  # Reset the stop signal
     thread_control["run_thread"] = Thread(target=run_mask_gui, args=(q, fig_queue))
     thread_control["run_thread"].start()
+    
+def import_settings(scrollable_frame):
+    global vars_dict, original_variables_structure
+
+    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    
+    if not csv_file_path:
+        return
+    
+    imported_variables = {}
+
+    with open(csv_file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            key = row['Key']
+            value = row['Value']
+            # Evaluate the value safely using safe_literal_eval
+            imported_variables[key] = safe_literal_eval(value)
+
+    # Track changed variables and apply the imported ones, printing changes as we go
+    for key, var in vars_dict.items():
+        if key in imported_variables and var.get() != imported_variables[key]:
+            print(f"Updating '{key}' from '{var.get()}' to '{imported_variables[key]}'")
+            var.set(imported_variables[key])
     
 @log_function_call
 def initiate_mask_root(width, height):
@@ -200,13 +222,15 @@ def initiate_mask_root(width, height):
     sys.stderr = StdoutRedirector(console_output)
     
     # This is your GUI setup where you create the Run button
-    #run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=lambda: threading.Thread(target=run_mask_gui, args=(q, fig_queue)).start())
-    #run_button.grid(row=40, column=0, pady=10)
     run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_thread(q, fig_queue))
     run_button.grid(row=40, column=0, pady=10)
     
-    #abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
-    #abort_button.grid(row=40, column=1, pady=10)
+    abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
+    abort_button.grid(row=40, column=1, pady=10)
+    
+    # Create the Import Settings button
+    import_btn = tk.Button(root, text="Import Settings", command=lambda: import_settings(scrollable_frame))
+    import_btn.pack(pady=20)
     
     _process_console_queue()
     _process_fig_queue()

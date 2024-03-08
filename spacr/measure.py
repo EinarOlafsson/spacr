@@ -837,6 +837,12 @@ def measure_crop(settings, annotation_settings, advanced_settings):
     from .utils import _list_endpoint_subdirectories, _generate_representative_images
     
     settings = {**settings, **annotation_settings, **advanced_settings}
+    
+    dirname = os.path.dirname(settings['input_folder'])
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
+    os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
+    settings_df.to_csv(settings_csv, index=False)
 
     if settings['timelapse_objects'] == 'nucleus':
         if not settings['cell_mask_dim'] is None:

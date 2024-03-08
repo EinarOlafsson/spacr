@@ -6,6 +6,11 @@ import matplotlib
 matplotlib.use('Agg')
 import ctypes
 import ast
+import matplotlib.pyplot as plt
+import sys
+import io
+import traceback
+import spacr
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -13,6 +18,14 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
+
+def safe_literal_eval(value):
+    try:
+        # First, try to evaluate as a literal
+        return ast.literal_eval(value)
+    except (ValueError, SyntaxError):
+        # If it fails, return the value as it is (a string)
+        return value
 
 def disable_interactivity(fig):
     if hasattr(fig.canvas, 'toolbar'):
@@ -377,7 +390,9 @@ def create_dark_mode(root, style, console_output):
     style.map('Dark.TCheckbutton', background=[('active', dark_bg)], foreground=[('active', dark_text)])
     style.configure('TCombobox', fieldbackground=input_bg, foreground=dark_text, background=dark_bg, selectbackground=input_bg, selectforeground=dark_text)
     style.map('TCombobox', fieldbackground=[('readonly', input_bg)], selectbackground=[('readonly', input_bg)], foreground=[('readonly', dark_text)])
-    console_output.config(bg=dark_bg, fg=light_text, insertbackground=light_text) #, font=("Arial", 12)
+    
+    if console_output != None:
+        console_output.config(bg=dark_bg, fg=light_text, insertbackground=light_text) #, font=("Arial", 12)
     root.configure(bg=dark_bg)
     
 def set_dark_style(style):
@@ -385,4 +400,89 @@ def set_dark_style(style):
     style.configure('TLabel', background='#333333', foreground='white')
     style.configure('TEntry', background='#333333', foreground='white')
     style.configure('TCheckbutton', background='#333333', foreground='white')
+
+
+
+@log_function_call   
+def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
+    try:
+        while not q.empty():
+            message = q.get_nowait()
+            if message.startswith("Progress"):
+                progress_label.config(text=message)
+            elif message == "" or message == "\r":
+                pass
+            else:
+                print(message)  # Or handle other messages differently
+                # For non-progress messages, you can still print them to the console or handle them as needed.
+
+        while not fig_queue.empty():
+            fig = fig_queue.get_nowait()
+            clear_canvas(canvas_widget)
+    except Exception as e:
+        print(f"Error updating GUI: {e}")
+    finally:
+        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+        
+def process_stdout_stderr(q):
+    """
+    Redirect stdout and stderr to the queue q.
+    """
+    sys.stdout = WriteToQueue(q)
+    sys.stderr = WriteToQueue(q)
+
+class WriteToQueue(io.TextIOBase):
+    """
+    A custom file-like class that writes any output to a given queue.
+    This can be used to redirect stdout and stderr.
+    """
+    def __init__(self, q):
+        self.q = q
+
+    def write(self, msg):
+        self.q.put(msg)
+
+    def flush(self):
+        pass
+
+def clear_canvas(canvas):
+    # Clear each plot (axes) in the figure
+    for ax in canvas.figure.get_axes():
+        ax.clear()
+
+    # Redraw the now empty canvas without changing its size
+    canvas.draw_idle()
     
+@log_function_call
+def measure_crop_wrapper(settings, q, fig_queue):
+    """
+    Wraps the measure_crop function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the measure_crop function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
+    
+    def my_show():
+        """
+        Replacement for plt.show() that queues figures instead of displaying them.
+        """
+        fig = plt.gcf()
+        fig_queue.put(fig)  # Queue the figure for GUI display
+        plt.close(fig)  # Prevent the figure from being shown by plt.show()
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = my_show
+
+    try:
+        # Assuming spacr.measure.measure_crop is your function that potentially generates matplotlib figures
+        # Pass settings as a named argument, along with any other needed arguments
+        spacr.measure.measure_crop(settings=settings, annotation_settings={}, advanced_settings={})
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)  # Send the error message to the GUI via the queue
+        traceback.print_exc()
+    finally:
+        plt.show = original_show  # Restore the original plt.show function
