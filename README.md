@@ -1,15 +1,15 @@
 # SpaCr
-
-SpaCr is a Python package designed for morphological processing, specifically tailored for cellular analysis. It offers a comprehensive toolset for generating masks from cells' nuclei and pathogens, collecting measurements, cropping single cell images, and much more.
+Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating measurement and classification data from microscopy images from high content imaging screens.
 
 ## Features
 
-- **Generate Masks:** From cells' nuclei and pathogen images, enabling detailed morphological analysis.
+- **Generate Masks:** From cells' nuclei and pathogen images.
 - **Collect Measurements & Crop Images:** Automate the collection of measurements and crop single cell images for further analysis.
 - **Train CNNs or Transformers:** Utilize PyTorch to train Convolutional Neural Networks (CNNs) or Transformers for classifying single cell images.
-- **Manual Annotation:** Supports manual annotation of single cell images to refine training datasets or for detailed study.
+- **Manual Annotation:** Supports manual annotation of single cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
 - **Finetune Cellpose Models:** Adjust pre-existing Cellpose models to your specific dataset for improved performance.
 - **Timelapse Data Support:** Includes support for analyzing timelapse data.
+- **Simulations:** Simulate spatial phenotype screens.
 
 ## Installation
 
