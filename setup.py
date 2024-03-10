@@ -40,6 +40,7 @@ setup(
             'gui_measure=spacr.gui_measure_app:gui_measure',
             'gui_make_masks=spacr.mask_app:gui_make_masks',
             'gui_annotation=spacr.annotate_app:gui_annotation',
+            'gui_classify=spacr.gui_classify_app:gui_classify',
         ],
     },
     extras_require={

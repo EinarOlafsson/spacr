@@ -11,6 +11,8 @@ import sys
 import io
 import traceback
 import spacr
+from torchvision import models
+import inspect
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -105,60 +107,6 @@ def check_mask_gui_settings(vars_dict):
             settings[key] = value
     return settings
 
-def check_measure_gui_settings_v1(vars_dict):
-    settings = {}
-    for key, var in vars_dict.items():
-        value = var.get()  # This retrieves the string representation for entries or the actual value for checkboxes and combos
-
-        try:
-            # Special handling for 'channels' to convert into a list of integers
-            if key == 'channels':
-                settings[key] = [int(chan) for chan in eval(value)] if value else []
-                
-            elif key == 'png_size':
-                temp_val = ast.literal_eval(value) if value else []
-                settings[key] = [list(map(int, dim)) for dim in temp_val] if temp_val else None
-
-            elif key in ['cell_loc', 'pathogen_loc', 'treatment_loc']:
-                settings[key] = ast.literal_eval(value) if value else None
-
-            elif key == 'dialate_png_ratios':
-                settings[key] = [float(num) for num in eval(value)] if value else None
-
-            elif key in ['pathogens', 'treatments', 'cells', 'crop_mode']:
-                settings[key] = eval(value) if value else None
-
-            elif key == 'timelapse_objects':
-                # Ensure it's a list of strings
-                settings[key] = eval(value) if value else []
-
-            # Handling for keys that should be treated as strings directly
-            elif key in ['normalize_by', 'experiment', 'measurement']:
-                settings[key] = str(value) if value else None
-
-            # Handling for single values that are not strings (int, float, bool)
-            elif key in ['cell_mask_dim', 'cell_min_size', 'nucleus_mask_dim', 'nucleus_min_size', 'pathogen_mask_dim', 'pathogen_min_size', 'cytoplasm_min_size', 'max_workers', 'channel_of_interest', 'nr_imgs']:
-                settings[key] = int(value) if value else None
-
-            elif key == 'um_per_pixel':
-                settings[key] = float(value) if value else None
-
-            # Direct handling of boolean values based on checkboxes
-            elif key in ['save_png', 'use_bounding_box', 'save_measurements', 'plot', 'plot_filtration', 'include_uninfected', 'dialate_pngs', 'timelapse', 'representative_images']:
-                settings[key] = bool(value)
-
-            else:
-                settings[key] = value
-
-        except SyntaxError as e:
-            messagebox.showerror("Error", f"Syntax error processing {key}: {str(e)}")
-            return None
-        except Exception as e:
-            messagebox.showerror("Error", f"Error processing {key}: {str(e)}")
-            return None
-
-    return settings
-
 def check_measure_gui_settings(vars_dict):
     settings = {}
     for key, var in vars_dict.items():
@@ -227,12 +175,6 @@ def measure_variables():
         'input_folder':('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui/merged'),
         'channels': ('combo', ['[0,1,2,3]','[0,1,2]','[0,1]','[0]'], '[0,1,2,3]'),
         'cell_mask_dim':('entry', None, 4),
-        'cell_min_size':('entry', None, 0),
-        'nucleus_mask_dim':('entry', None, 5),
-        'nucleus_min_size':('entry', None, 0),
-        'pathogen_mask_dim':('entry', None, 6),
-        'pathogen_min_size':('entry', None, 0),
-        'cytoplasm_min_size':('entry', None, 0),
         'save_png':('check', None, True),
         'crop_mode':('entry', None, '["cell"]'),
         'use_bounding_box':('check', None, True),
@@ -261,6 +203,48 @@ def measure_variables():
         'measurement':('entry', None, 'mean_intensity'),
         'nr_imgs':('entry', None, 32),
         'um_per_pixel':('entry', None, 0.1)
+    }
+    return variables
+
+def get_torchvision_models():
+    # Fetch all public callable attributes from torchvision.models that are functions
+    model_names = [name for name, obj in inspect.getmembers(models) 
+                   if inspect.isfunction(obj) and not name.startswith("__")]
+    return model_names
+
+model_names = get_torchvision_models()
+
+def classify_variables():
+    variables = {
+        'src':('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui/merged'),
+        'cell_mask_dim':('entry', None, 4),
+        'classes':('entry', None, '["nc","pc"]'),
+        'measurement':('entry', None, 'mean_intensity'),
+        'model_type': ('combo', [model_names], 'resnet50'),
+        'optimizer_type': ('combo', ['adamw','adam'], 'adamw'),
+        'schedule': ('combo', ['reduce_lr_on_plateau','step_lr'], 'reduce_lr_on_plateau'),
+        'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),
+        'image_size': ('entry', None, 224),
+        'batch_size': ('entry', None, 12),
+        'epochs': ('entry', None, 2),
+        'val_split': ('entry', None, 0.1),
+        'train_mode': ('combo', ['erm', 'irm'], 'erm'),
+        'learning_rate': ('entry', None, 0.0001),
+        'weight_decay': ('entry', None, 0.00001),
+        'dropout_rate': ('entry', None, 0.1),
+        'gradient_accumulation': ('check', None, True),
+        'gradient_accumulation_steps': ('entry', None, 4),
+        'normalize': ('check', None, True),
+        'save': ('check', None, True), 
+        'plot': ('check', None, True),
+        'verbose': ('check', None, True),
+        'init_weights': ('check', None, True),
+        'amsgrad': ('check', None, True),
+        'use_checkpoint': ('check', None, True),
+        'intermedeate_save': ('check', None, True),
+        'pin_memory': ('check', None, True),
+        'num_workers': ('entry', None, 30),
+        'verbose': ('check', None, True),
     }
     return variables
     
@@ -467,7 +451,7 @@ def measure_crop_wrapper(settings, q, fig_queue):
     - q: multiprocessing.Queue, Queue for logging messages to the GUI.
     - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
     """
-    
+
     def my_show():
         """
         Replacement for plt.show() that queues figures instead of displaying them.
@@ -481,8 +465,6 @@ def measure_crop_wrapper(settings, q, fig_queue):
     plt.show = my_show
 
     try:
-        # Assuming spacr.measure.measure_crop is your function that potentially generates matplotlib figures
-        # Pass settings as a named argument, along with any other needed arguments
         spacr.measure.measure_crop(settings=settings, annotation_settings={}, advanced_settings={})
     except Exception as e:
         errorMessage = f"Error during processing: {e}"
@@ -501,7 +483,7 @@ def preprocess_generate_masks_wrapper(settings, q, fig_queue):
     - q: multiprocessing.Queue, Queue for logging messages to the GUI.
     - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
     """
-    
+
     def my_show():
         """
         Replacement for plt.show() that queues figures instead of displaying them.
@@ -515,8 +497,6 @@ def preprocess_generate_masks_wrapper(settings, q, fig_queue):
     plt.show = my_show
 
     try:
-        # Assuming spacr.measure.measure_crop is your function that potentially generates matplotlib figures
-        # Pass settings as a named argument, along with any other needed arguments
         spacr.core.preprocess_generate_masks(settings['src'], settings=settings, advanced_settings={})
     except Exception as e:
         errorMessage = f"Error during processing: {e}"
@@ -525,5 +505,34 @@ def preprocess_generate_masks_wrapper(settings, q, fig_queue):
     finally:
         plt.show = original_show  # Restore the original plt.show function
 
+def train_test_model_wrapper(settings, q, fig_queue):
+    """
+    Wraps the measure_crop function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the measure_crop function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
 
+    def my_show():
+        """
+        Replacement for plt.show() that queues figures instead of displaying them.
+        """
+        fig = plt.gcf()
+        fig_queue.put(fig)  # Queue the figure for GUI display
+        plt.close(fig)  # Prevent the figure from being shown by plt.show()
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = my_show
+
+    try:
+        spacr.core.train_test_model(settings['src'], settings=settings)
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)  # Send the error message to the GUI via the queue
+        traceback.print_exc()
+    finally:
+        plt.show = original_show  # Restore the original plt.show function
         

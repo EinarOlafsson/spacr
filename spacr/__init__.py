@@ -14,6 +14,7 @@ from . import annotate_app
 from . import gui_utils
 from . import gui_mask_app
 from . import gui_measure_app
+from . import gui_classify_app
 from . import logger
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "mask_app",
     "gui_mask_app",
     "gui_measure_app",
+    "gui_classify_app",
     "logger"
 ]
 

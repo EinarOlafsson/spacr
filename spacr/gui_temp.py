@@ -62,7 +62,7 @@ def start_process(q, fig_queue):
     thread_control["run_thread"].start()
     
 def import_settings(scrollable_frame):
-    global vars_dict
+    global vars_dict, original_variables_structure
 
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     

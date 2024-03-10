@@ -16,7 +16,7 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper, process_stdout_stderr
+from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, classify_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults, train_test_model_wrapper, process_stdout_stderr
 from .gui_utils import safe_literal_eval, clear_canvas, main_thread_update_function
 
 thread_control = {"run_thread": None, "stop_requested": False}
@@ -34,7 +34,7 @@ def initiate_abort():
         thread_control["run_thread"] = None
         
 @log_function_call
-def run_mask_gui(q, fig_queue, stop_requested):
+def run_classify_gui(q, fig_queue, stop_requested):
     global vars_dict
     process_stdout_stderr(q)
     try:
@@ -43,7 +43,7 @@ def run_mask_gui(q, fig_queue, stop_requested):
         #for key in settings:
         #    value = settings[key]
         #    print(key, value, type(value))
-        preprocess_generate_masks_wrapper(settings, q, fig_queue)
+        train_test_model_wrapper(settings['src'], settings)
     except Exception as e:
         q.put(f"Error during processing: {e}")
         traceback.print_exc()
@@ -58,7 +58,7 @@ def start_process(q, fig_queue):
 
     stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
     thread_control["stop_requested"] = stop_requested
-    thread_control["run_thread"] = Process(target=run_mask_gui, args=(q, fig_queue, stop_requested))
+    thread_control["run_thread"] = Process(target=run_classify_gui, args=(q, fig_queue, stop_requested))
     thread_control["run_thread"].start()
     
 def import_settings(scrollable_frame):
@@ -84,9 +84,9 @@ def import_settings(scrollable_frame):
         if key in imported_variables and var.get() != imported_variables[key]:
             print(f"Updating '{key}' from '{var.get()}' to '{imported_variables[key]}'")
             var.set(imported_variables[key])
-    
+
 @log_function_call
-def initiate_mask_root(width, height):
+def initiate_classify_root(width, height):
     global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control
         
     theme = 'breeze'
@@ -151,7 +151,7 @@ def initiate_mask_root(width, height):
     vertical_container.add(scrollable_frame, stretch="always")
 
     # Setup for user input fields (variables)
-    variables = mask_variables()
+    variables = classify_variables()
     vars_dict = generate_fields(variables, scrollable_frame)
     
     # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
@@ -203,10 +203,10 @@ def initiate_mask_root(width, height):
     
     return root, vars_dict
 
-def gui_mask():
+def gui_classify():
     global vars_dict, root
-    root, vars_dict = initiate_mask_root(1000, 1500)
+    root, vars_dict = initiate_classify_root(1000, 1500)
     root.mainloop()
 
 if __name__ == "__main__":
-    gui_mask()
+    gui_classify()
