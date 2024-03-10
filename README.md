@@ -1,3 +1,8 @@
+[![PyPI version](https://badge.fury.io/py/spacr.svg)](https://badge.fury.io/py/spacr)
+[![Python version](https://img.shields.io/pypi/pyversions/spacr)](https://pypistats.org/packages/spacr)
+[![Licence: GPL v3](https://img.shields.io/github/license/EinarOlafsson/spacr)](https://github.com/EinarOlafsson/spacr/blob/master/LICENSE)
+[![repo size](https://img.shields.io/github/repo-size/EinarOlafsson/spacr)](https://github.com/EinarOlafsson/spacr/)
+
 # SpaCr
 <table>
 <tr>
@@ -44,7 +49,7 @@ Before installing spacr, ensure Tkinter is installed:
 
 On Linux:
 
-```bash
+```
 sudo apt-get install python3-tk
 ```
 install spacr

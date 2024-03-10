@@ -176,26 +176,23 @@ def check_classify_gui_settings(vars_dict):
         value = var.get()  # This retrieves the string representation for entries or the actual value for checkboxes and combos
 
         try:
-            if widget_type == 'entry':
-                if key in ['src', 'measurement']:
-                    # Directly assign string values
-                    settings[key] = str(value) if value else default
-                elif key in ['cell_mask_dim', 'image_size', 'batch_size', 'epochs', 'gradient_accumulation_steps', 'num_workers']:
-                    # Convert to integer
-                    settings[key] = int(value) if value else default
-                elif key in ['val_split', 'learning_rate', 'weight_decay', 'dropout_rate']:
-                    # Convert to float
-                    settings[key] = float(value) if value else default
-                elif key == 'classes':
-                    # Evaluate as list
-                    settings[key] = ast.literal_eval(value) if value else default
+            if key in ['src', 'measurement']:
+                # Directly assign string values
+                settings[key] = str(value)
+            elif key in ['cell_mask_dim', 'image_size', 'batch_size', 'epochs', 'gradient_accumulation_steps', 'num_workers']:
+                # Convert to integer
+                settings[key] = int(value)
+            elif key in ['val_split', 'learning_rate', 'weight_decay', 'dropout_rate']:
+                # Convert to float
+                settings[key] = float(value)
+            elif key == 'classes':
+                # Evaluate as list
+                settings[key] = ast.literal_eval(value)
 
-            elif widget_type == 'combo':
-                # Direct assignment from combo selection
+            elif key in ['model_type','optimizer_type','schedule','loss_type','train_mode']:
                 settings[key] = value
 
-            elif widget_type == 'check':
-                # Assuming boolean value from checkbox
+            elif key in ['gradient_accumulation','normalize','save','plot', 'init_weights','amsgrad','use_checkpoint','intermedeate_save','pin_memory', 'num_workers','verbose']:
                 settings[key] = bool(value)
 
         except SyntaxError as e:
@@ -274,7 +271,6 @@ def classify_variables():
         'normalize': ('check', None, True),
         'save': ('check', None, True), 
         'plot': ('check', None, True),
-        'verbose': ('check', None, True),
         'init_weights': ('check', None, True),
         'amsgrad': ('check', None, True),
         'use_checkpoint': ('check', None, True),
