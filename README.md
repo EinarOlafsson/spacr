@@ -1,27 +1,31 @@
 # SpaCr
-Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating measurement and classification data from microscopy images from high content imaging screens.
+Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating cellpose masks -> single object images and measurements -> annotation and classification of single object imnages. Spacr uses batch normalization to facilitate accurate segmentation of objects with low foreground representation.  
 
 ## Features
 
-- **Generate Masks:** Generate cellpose masks from up to 3 object classes (e.g. cells, nuclei, pathogen).
-- **Measurements:** Collect object measurement data and save to sql database.
-- **Crop object images:** Crop object (e.g. single cell) PNG images for downstream training/classefication with CNNs/Transformers.
-- **Train CNNs/Transformers:** Train PyTorch Convolutional Neural Networks (CNNs) or Transformers to classify cropped PNGs.
-- **Manual Annotation:** Manually annotate cropped PNGs and manually curate segmentation masks to generate training datasets for CNNs/Transformers or Cellpose, respectively.
-- **Finetune Cellpose Models:** Fine-tune pre-existing Cellpose models to your specific dataset for improved performance.
-- **Models:** Use our fine-tuned models for segmentation of Toxoplasma gondii parasitopherous vacuole and plaques.
+- **Generate Masks:** Generate cellpose masks for cells, nuclei and pathogen images.
+
+- **Object Measurements:** Measurements for each object including scikit-image-regionprops, intensity quantiles, shannon-entropy, pearsons and manders correlation, homogenicity and radial distribution. Measurements are saved to a sql database in object level tables.
+
+- **Crop Images:** Objects (e.g. cells) can be saved as PNGs from the object area or bounding box area of each object. Object paths are saved in an sql database that can be annotated and used to train CNNs/Transformer models for classefication tasks.
+
+- **Train CNNs or Transformers:** Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images.
+
+- **Manual Annotation:** Supports manual annotation of single cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
+
+- **Finetune Cellpose Models:** Adjust pre-existing Cellpose models to your specific dataset for improved performance.
+
 - **Timelapse Data Support:** Includes support for analyzing timelapse data.
-- **Simulations:** Simulate pooled spatial phenotype screens to determine optimal paramiters in future screens. 
+
+- **Simulations:** Simulate spatial phenotype screens.
 
 ## Installation
 
-SpaCr requires Tkinter for its graphical user interface features.
+spacr requires Tkinter for its graphical user interface features.
 
 ### Ubuntu
 
-Before installing SpaCr, ensure Tkinter is installed:
-
-Microsoft Visual C++ 14.0 or greater required.
+Before installing spacr, ensure Tkinter is installed:
 
 (Tkinter is included with the standard Python installation on macOS, and Windows)
 
@@ -29,3 +33,28 @@ On Linux:
 
 ```bash
 sudo apt-get install python3-tk
+```
+install spacr
+
+```
+pip install spacr
+```
+
+To run spacr GUIs after installing spacr:
+
+To generate masks:
+```
+gui_mask
+```
+To generate measurements and cropped images:
+```
+gui_measure
+```
+To curate masks for finetuning cellpose models:
+```
+gui_make_masks
+```
+To annotate paths to images in sql database created in gui_measure:
+```
+gui_annotate
+```
