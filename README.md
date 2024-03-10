@@ -1,5 +1,18 @@
 # SpaCr
-Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating cellpose masks -> single object images and measurements -> annotation and classification of single object imnages. Spacr uses batch normalization to facilitate accurate segmentation of objects with low foreground representation.  
+<table>
+<tr>
+<td>
+  
+Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating cellpose masks -> single object images and measurements -> annotation and classification of single object images. Spacr uses batch normalization to facilitate accurate segmentation of objects with low foreground representation.
+
+</td>
+<td>
+
+<img src="spacr/logo_spacr.png" alt="SPACR Logo" title="SPACR Logo" width="600"/>
+
+</td>
+</tr>
+</table>
 
 ## Features
 
@@ -58,3 +71,11 @@ To annotate paths to images in sql database created in gui_measure:
 ```
 gui_annotate
 ```
+Train torch CNNs/Transformers to classify single object images.
+```
+gui_classify
+```
+#Simulate spatial phenotype screens.
+#```
+#gui_sim
+#```

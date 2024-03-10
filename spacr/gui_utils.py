@@ -170,6 +170,43 @@ def check_measure_gui_settings(vars_dict):
 
     return settings
 
+def check_classify_gui_settings(vars_dict):
+    settings = {}
+    for key, var in vars_dict.items():
+        value = var.get()  # This retrieves the string representation for entries or the actual value for checkboxes and combos
+
+        try:
+            if widget_type == 'entry':
+                if key in ['src', 'measurement']:
+                    # Directly assign string values
+                    settings[key] = str(value) if value else default
+                elif key in ['cell_mask_dim', 'image_size', 'batch_size', 'epochs', 'gradient_accumulation_steps', 'num_workers']:
+                    # Convert to integer
+                    settings[key] = int(value) if value else default
+                elif key in ['val_split', 'learning_rate', 'weight_decay', 'dropout_rate']:
+                    # Convert to float
+                    settings[key] = float(value) if value else default
+                elif key == 'classes':
+                    # Evaluate as list
+                    settings[key] = ast.literal_eval(value) if value else default
+
+            elif widget_type == 'combo':
+                # Direct assignment from combo selection
+                settings[key] = value
+
+            elif widget_type == 'check':
+                # Assuming boolean value from checkbox
+                settings[key] = bool(value)
+
+        except SyntaxError as e:
+            messagebox.showerror("Error", f"Syntax error processing {key}: {str(e)}")
+            return None
+        except Exception as e:
+            messagebox.showerror("Error", f"Error processing {key}: {str(e)}")
+            return None
+
+    return settings
+
 def measure_variables():
     variables = {
         'input_folder':('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui/merged'),
@@ -206,21 +243,21 @@ def measure_variables():
     }
     return variables
 
-def get_torchvision_models():
-    # Fetch all public callable attributes from torchvision.models that are functions
-    model_names = [name for name, obj in inspect.getmembers(models) 
-                   if inspect.isfunction(obj) and not name.startswith("__")]
-    return model_names
-
-model_names = get_torchvision_models()
-
 def classify_variables():
+    
+    def get_torchvision_models():
+        # Fetch all public callable attributes from torchvision.models that are functions
+        model_names = [name for name, obj in inspect.getmembers(models) 
+                    if inspect.isfunction(obj) and not name.startswith("__")]
+        return model_names
+    
+    model_names = get_torchvision_models()
     variables = {
         'src':('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui/merged'),
         'cell_mask_dim':('entry', None, 4),
         'classes':('entry', None, '["nc","pc"]'),
         'measurement':('entry', None, 'mean_intensity'),
-        'model_type': ('combo', [model_names], 'resnet50'),
+        'model_type': ('combo', model_names, 'resnet50'),
         'optimizer_type': ('combo', ['adamw','adam'], 'adamw'),
         'schedule': ('combo', ['reduce_lr_on_plateau','step_lr'], 'reduce_lr_on_plateau'),
         'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),

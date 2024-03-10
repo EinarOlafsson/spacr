@@ -16,7 +16,7 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, classify_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults, train_test_model_wrapper, process_stdout_stderr
+from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, classify_variables, generate_fields, check_classify_gui_settings, add_mask_gui_defaults, train_test_model_wrapper, process_stdout_stderr
 from .gui_utils import safe_literal_eval, clear_canvas, main_thread_update_function
 
 thread_control = {"run_thread": None, "stop_requested": False}
@@ -38,11 +38,11 @@ def run_classify_gui(q, fig_queue, stop_requested):
     global vars_dict
     process_stdout_stderr(q)
     try:
-        settings = check_mask_gui_settings(vars_dict)
-        settings = add_mask_gui_defaults(settings)
-        #for key in settings:
-        #    value = settings[key]
-        #    print(key, value, type(value))
+        settings = check_classify_gui_settings(vars_dict)
+        #settings = add_mask_gui_defaults(settings)
+        for key in settings:
+            value = settings[key]
+            print(key, value, type(value))
         train_test_model_wrapper(settings['src'], settings)
     except Exception as e:
         q.put(f"Error during processing: {e}")
