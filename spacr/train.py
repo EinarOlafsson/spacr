@@ -198,8 +198,14 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     from .utils import pick_best_model, test_model_performance
     from .core import generate_loaders
     
+    settings['src'] = src
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_csv = os.path.join(src,'settings','train_test_model_settings.csv')
+    os.makedirs(os.path.join(src,'settings'), exist_ok=True)
+    settings_df.to_csv(settings_csv, index=False)
+    
     if custom_model:
-        model = torch.load(custom_model_path) #if using a custom trained model
+        model = torch.load(custom_model_path)
     
     if settings['train']:
         save_settings(settings, src)

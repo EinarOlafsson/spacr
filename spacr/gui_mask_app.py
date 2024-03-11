@@ -16,8 +16,8 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper, process_stdout_stderr
-from .gui_utils import safe_literal_eval, clear_canvas, main_thread_update_function
+from .gui_utils import ScrollableFrame, StdoutRedirector, safe_literal_eval, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr
+from .gui_utils import mask_variables, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper
 
 thread_control = {"run_thread": None, "stop_requested": False}
 

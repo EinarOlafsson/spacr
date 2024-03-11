@@ -1,4 +1,4 @@
-import sys, ctypes, csv, matplotlib
+import sys, ctypes, csv, matplotlib, traceback
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from ttkthemes import ThemedTk
@@ -8,7 +8,6 @@ from matplotlib.figure import Figure
 matplotlib.use('Agg')
 from tkinter import filedialog
 from multiprocessing import Process, Queue, Value
-import traceback
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -16,10 +15,39 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, mask_variables, generate_fields, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper, process_stdout_stderr
-from .gui_utils import safe_literal_eval, clear_canvas, main_thread_update_function
+
+from .gui_utils import ScrollableFrame, StdoutRedirector
+from .gui_utils import create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr, safe_literal_eval, clear_canvas, main_thread_update_function
+from .gui_utils import sim_variables, check_sim_gui_settings, run_multiple_simulations_wrapper
 
 thread_control = {"run_thread": None, "stop_requested": False}
+
+@log_function_call
+def run_sim_gui(q, fig_queue, stop_requested):
+    global vars_dict
+    process_stdout_stderr(q)
+    try:
+        settings = check_sim_gui_settings(vars_dict)
+        for key in settings:
+            value = settings[key]
+            print(key, value, type(value))
+        run_multiple_simulations_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
+@log_function_call
+def start_process(q, fig_queue):
+    global thread_control
+    if thread_control.get("run_thread") is not None:
+        initiate_abort()
+
+    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
+    thread_control["stop_requested"] = stop_requested
+    thread_control["run_thread"] = Process(target=run_sim_gui, args=(q, fig_queue, stop_requested))
+    thread_control["run_thread"].start()
 
 @log_function_call
 def initiate_abort():
@@ -32,35 +60,7 @@ def initiate_abort():
         if thread_control["run_thread"].is_alive():
             thread_control["run_thread"].terminate()
         thread_control["run_thread"] = None
-        
-@log_function_call
-def run_mask_gui(q, fig_queue, stop_requested):
-    global vars_dict
-    process_stdout_stderr(q)
-    try:
-        settings = check_mask_gui_settings(vars_dict)
-        settings = add_mask_gui_defaults(settings)
-        #for key in settings:
-        #    value = settings[key]
-        #    print(key, value, type(value))
-        preprocess_generate_masks_wrapper(settings, q, fig_queue)
-    except Exception as e:
-        q.put(f"Error during processing: {e}")
-        traceback.print_exc()
-    finally:
-        stop_requested.value = 1
-    
-@log_function_call
-def start_process(q, fig_queue):
-    global thread_control
-    if thread_control.get("run_thread") is not None:
-        initiate_abort()
 
-    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
-    thread_control["stop_requested"] = stop_requested
-    thread_control["run_thread"] = Process(target=run_mask_gui, args=(q, fig_queue, stop_requested))
-    thread_control["run_thread"].start()
-    
 def import_settings(scrollable_frame):
     global vars_dict, original_variables_structure
 
@@ -86,7 +86,7 @@ def import_settings(scrollable_frame):
             var.set(imported_variables[key])
     
 @log_function_call
-def initiate_mask_root(width, height):
+def initiate_sim_root(width, height):
     global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control
         
     theme = 'breeze'
@@ -105,7 +105,7 @@ def initiate_mask_root(width, height):
     #root.state('zoomed')  # For Windows to maximize the window
     root.attributes('-fullscreen', True)
     root.geometry(f"{width}x{height}")
-    root.title("SpaCer: generate masks")
+    root.title("SpaCer: Simulate screen")
     fig_queue = Queue()
             
     def _process_fig_queue():
@@ -151,7 +151,7 @@ def initiate_mask_root(width, height):
     vertical_container.add(scrollable_frame, stretch="always")
 
     # Setup for user input fields (variables)
-    variables = mask_variables()
+    variables = sim_variables()
     vars_dict = generate_fields(variables, scrollable_frame)
     
     # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
@@ -200,13 +200,13 @@ def initiate_mask_root(width, height):
     create_dark_mode(root, style, console_output)
     
     root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
-    
+
     return root, vars_dict
 
-def gui_mask():
+def gui_sim():
     global vars_dict, root
-    root, vars_dict = initiate_mask_root(1000, 1500)
+    root, vars_dict = initiate_sim_root(1000, 1500)
     root.mainloop()
 
 if __name__ == "__main__":
-    gui_mask()
+    gui_sim()

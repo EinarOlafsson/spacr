@@ -21,15 +21,16 @@ dependencies = [
     'IPython',
     'opencv-python-headless',
     'umap',
-    'ttkthemes'
+    'ttkthemes',
+    'lxml'
 ]
 
 setup(
     name="spacr",
-    version="0.0.1",
+    version="0.0.11",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
-    description="A brief description of your package",
+    description="Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating cellpose masks -> single object images and measurements -> annotation and classification of single object images. Spacr uses batch normalization to facilitate accurate segmentation of objects with low foreground representation.",
     long_description=open('README.md').read(),
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
@@ -41,6 +42,7 @@ setup(
             'gui_make_masks=spacr.mask_app:gui_make_masks',
             'gui_annotation=spacr.annotate_app:gui_annotation',
             'gui_classify=spacr.gui_classify_app:gui_classify',
+            'gui_sim=spacr.gui_sim_app:gui_sim',
         ],
     },
     extras_require={
@@ -53,5 +55,3 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-)
-
