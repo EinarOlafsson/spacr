@@ -23,9 +23,11 @@ class TestFilterCPMasks(unittest.TestCase):
         # Call the function
         filtered_masks = _filter_cp_masks(masks, flows, filter_size, minimum_size, maximum_size, remove_border_objects, merge, filter_dimm, batch, moving_avg_q1, moving_avg_q3, moving_count, plot, figuresize)
 
+        # Add your assertions here
         self.assertEqual(len(filtered_masks), 2)
         self.assertTrue(np.array_equal(filtered_masks[0], np.array([[1, 1, 0], [1, 0, 0], [0, 0, 0]])))
         self.assertTrue(np.array_equal(filtered_masks[1], np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])))
+        # Add more assertions as needed
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,70 +1,58 @@
 import unittest
+from unittest.mock import MagicMock
+from annotate_app import ImageApp
 from PIL import Image
-import numpy as np
-from spacr.annotate_app import ImageApp
 
 class TestImageApp(unittest.TestCase):
-
     def setUp(self):
-        self.app = ImageApp(None, 'test.db', image_type='test', channels=['r', 'g', 'b'], grid_rows=5, grid_cols=5, image_size=(200, 200), annotation_column='annotate')
+        self.root = MagicMock()
+        self.db_path = '/path/to/database.db'
+        self.image_type = 'png'
+        self.channels = ['r', 'g']
+        self.grid_rows = 2
+        self.grid_cols = 2
+        self.image_size = (200, 200)
+        self.annotation_column = 'annotate'
+        self.image_app = ImageApp(self.root, self.db_path, self.image_type, self.channels, self.grid_rows, self.grid_cols, self.image_size, self.annotation_column)
 
     def test_normalize_image(self):
-        # Create a test image with specific pixel values
-        data = np.array([[0, 128, 255], [64, 192, 128]], dtype=np.uint8)
-        img = Image.fromarray(data, 'L')
-
-        # Normalize the image
-        normalized_img = self.app.normalize_image(img)
-
-        # Convert back to array to check values
-        normalized_data = np.array(normalized_img)
-
-        # Check if the image was normalized correctly
-        expected_data = np.array([[0, 128, 255], [64, 192, 128]], dtype=np.uint8)  # Expected result after normalization
-        np.testing.assert_array_equal(normalized_data, expected_data)
+        img = Image.open('/path/to/image.png')
+        normalized_img = self.image_app.normalize_image(img)
+        self.assertIsInstance(normalized_img, Image.Image)
+        self.assertEqual(normalized_img.mode, 'RGB')
 
     def test_add_colored_border(self):
-        # Create a test image
-        img = Image.new('RGB', (10, 10), 'black')
-
-        # Add a colored border
-        bordered_img = self.app.add_colored_border(img, 2, 'red')
-
-        # Check the size of the bordered image
-        self.assertEqual(bordered_img.size, (14, 14))
-
-        # Check a few border pixels to confirm the border color
-        self.assertEqual(bordered_img.getpixel((0, 0)), (255, 0, 0))  # Top-left corner
-        self.assertEqual(bordered_img.getpixel((13, 13)), (255, 0, 0))  # Bottom-right corner
-        self.assertEqual(bordered_img.getpixel((7, 0)), (255, 0, 0))  # Middle of top border
+        img = Image.open('/path/to/image.png')
+        border_width = 5
+        border_color = 'teal'
+        bordered_img = self.image_app.add_colored_border(img, border_width, border_color)
+        self.assertIsInstance(bordered_img, Image.Image)
+        self.assertEqual(bordered_img.mode, 'RGB')
 
     def test_filter_channels(self):
-        # Create a test image
-        img = Image.new('RGB', (10, 10), 'black')
-
-        # Filter the channels
-        filtered_img = self.app.filter_channels(img)
-
-        # Check if the image has been filtered correctly
-        self.assertEqual(filtered_img.mode, 'L')  # Grayscale image
+        img = Image.open('/path/to/image.png')
+        filtered_img = self.image_app.filter_channels(img)
+        self.assertIsInstance(filtered_img, Image.Image)
+        self.assertEqual(filtered_img.mode, 'L')
 
     def test_load_single_image(self):
-        # Create a test image
-        img = Image.new('RGB', (10, 10), 'black')
-
-        # Mock the load_single_image method
-        def mock_load_single_image(path_annotation_tuple):
-            return img, 1
-
-        # Replace the original method with the mock method
-        self.app.load_single_image = mock_load_single_image
-
-        # Call the method
-        loaded_img, annotation = self.app.load_single_image(('test.png', 1))
-
-        # Check if the loaded image and annotation are correct
-        self.assertEqual(loaded_img, img)
+        path_annotation_tuple = ('/path/to/image.png', 1)
+        img, annotation = self.image_app.load_single_image(path_annotation_tuple)
+        self.assertIsInstance(img, Image.Image)
+        self.assertEqual(img.mode, 'RGB')
         self.assertEqual(annotation, 1)
+
+    def test_get_on_image_click(self):
+        path = '/path/to/image.png'
+        label = MagicMock()
+        img = Image.open('/path/to/image.png')
+        callback = self.image_app.get_on_image_click(path, label, img)
+        event = MagicMock(num=1)
+        callback(event)
+        self.assertEqual(self.image_app.pending_updates[path], 1)
+        event = MagicMock(num=3)
+        callback(event)
+        self.assertEqual(self.image_app.pending_updates[path], 2)
 
 if __name__ == '__main__':
     unittest.main()

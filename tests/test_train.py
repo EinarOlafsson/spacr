@@ -32,7 +32,8 @@ class TestTrainModel(unittest.TestCase):
         # Call the function
         train_model('/path/to/save', 'model_type', train_loaders, ['loader1', 'loader2'], train_mode='irm', epochs=100)
 
-        # Add assertions here
+        # Add your assertions here
+        # ...
 
 if __name__ == '__main__':
     unittest.main()
