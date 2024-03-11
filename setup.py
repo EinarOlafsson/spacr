@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+# Ensure you have read the README.md content into a variable, e.g., `long_description`
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 dependencies = [
     'torch',
     'torchvision',
@@ -27,11 +31,11 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.0.11",
+    version="0.0.12",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
-    description="Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions for generating cellpose masks -> single object images and measurements -> annotation and classification of single object images. Spacr uses batch normalization to facilitate accurate segmentation of objects with low foreground representation.",
-    long_description=open('README.md').read(),
+    description="Spatial phenotype analysis of crisp screens (SpaCr)",
+    long_description=long_description,
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     install_requires=dependencies,
@@ -54,4 +58,5 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ],
+    ]
+)

@@ -52,7 +52,8 @@ On Linux:
 ```
 sudo apt-get install python3-tk
 ```
-install spacr
+
+install spacr with pip
 
 ```
 pip install spacr
