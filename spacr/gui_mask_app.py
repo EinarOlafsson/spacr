@@ -1,4 +1,4 @@
-import sys, ctypes, csv, matplotlib
+import spacr, sys, ctypes, csv, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from ttkthemes import ThemedTk
@@ -14,6 +14,7 @@ try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
+
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, safe_literal_eval, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr
@@ -203,7 +204,26 @@ def initiate_mask_root(width, height):
     
     return root, vars_dict
 
+#def gui_mask():
+#    global vars_dict, root
+#    root, vars_dict = initiate_mask_root(1000, 1500)
+#    root.mainloop()
+    
 def gui_mask():
+    from .cli import get_arg_parser
+    from .version import version_str
+
+    args = get_arg_parser().parse_args()
+    
+    if args.version:
+        print(version_str)
+        return
+
+    if args.headless:
+        settings = {}
+        spacr.core.preprocess_generate_masks(settings['src'], settings=settings, advanced_settings={})
+        return
+
     global vars_dict, root
     root, vars_dict = initiate_mask_root(1000, 1500)
     root.mainloop()

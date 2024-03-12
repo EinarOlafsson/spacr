@@ -7,6 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 dependencies = [
     'torch',
     'torchvision',
+    'torch-geometric',
     'numpy',
     'pandas',
     'statsmodels',
@@ -31,7 +32,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.0.14",
+    version="0.0.15",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
