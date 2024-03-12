@@ -172,6 +172,7 @@ def initiate_measure_root(width, height):
     canvas_widget = canvas.get_tk_widget()
     horizontal_container.add(canvas_widget, stretch="always")
     canvas.draw()
+    canvas.figure = figure
 
     # Console output setup below the settings
     console_output = scrolledtext.ScrolledText(vertical_container, height=10)
