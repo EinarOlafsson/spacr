@@ -15,8 +15,8 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, set_dark_style, set_default_font, measure_variables, generate_fields, create_dark_mode, check_measure_gui_settings, add_measure_gui_defaults, main_thread_update_function
-from .gui_utils import process_stdout_stderr, measure_crop_wrapper, clear_canvas, safe_literal_eval
+from .gui_utils import ScrollableFrame, StdoutRedirector, process_stdout_stderr, set_dark_style, set_default_font, generate_fields, create_dark_mode, main_thread_update_function
+from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, safe_literal_eval, check_measure_gui_settings, add_measure_gui_defaults
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -172,6 +172,7 @@ def initiate_measure_root(width, height):
     canvas_widget = canvas.get_tk_widget()
     horizontal_container.add(canvas_widget, stretch="always")
     canvas.draw()
+    canvas.figure = figure
 
     # Console output setup below the settings
     console_output = scrolledtext.ScrolledText(vertical_container, height=10)

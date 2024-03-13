@@ -1,18 +1,11 @@
+import spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter.font import nametofont
-import matplotlib
-#matplotlib.use('TkAgg')
-matplotlib.use('Agg')
-import ctypes
-import ast
-import matplotlib.pyplot as plt
-import sys
-import io
-import traceback
-import spacr
 from torchvision import models
-import inspect
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -203,6 +196,77 @@ def check_classify_gui_settings(vars_dict):
             return None
 
     return settings
+
+def check_sim_gui_settings(vars_dict):
+    settings = {}
+    for key, var in vars_dict.items():
+        value = var.get()  # This retrieves the string representation for entries or the actual value for checkboxes and combos
+
+        try:
+            if key in ['src', 'name', 'variable']:
+                # Directly assign string values
+                settings[key] = str(value)
+            
+            elif key in ['nr_plates', 'number_of_genes','number_of_active_genes','avg_genes_per_well','avg_cells_per_well','avg_reads_per_gene']:
+                #generate list of integers from list
+                ls = [int(num) for num in ast.literal_eval(value)]
+                if len(ls) == 3 and ls[2] > 0:
+                    list_of_integers = list(range(ls[0], ls[1], ls[2]))
+                    list_of_integers = [num + 1 if num == 0 else num for num in list_of_integers]
+                else:
+                    list_of_integers = [ls[0]]
+                settings[key] = list_of_integers
+                
+            elif key in ['sequencing_error','well_ineq_coeff','gene_ineq_coeff', 'positive_mean']:
+                #generate list of floats from list
+                ls = [float(num) for num in ast.literal_eval(value)]
+                if len(ls) == 3 and ls[2] > 0:
+                    list_of_floats = np.linspace(ls[0], ls[1], ls[2])
+                    list_of_floats.tolist()
+                    list_of_floats = [x if x != 0.0 else x + 0.01 for x in list_of_floats]
+                else:
+                    list_of_floats = [ls[0]]
+                settings[key] = list_of_floats
+
+            elif key in ['plot', 'random_seed']:
+                # Evaluate as bool
+                settings[key] = bool(value)
+                
+            elif key in ['number_of_control_genes', 'replicates', 'max_workers']:
+                # Convert to integer
+                settings[key] = int(value)
+                
+        except SyntaxError as e:
+            messagebox.showerror("Error", f"Syntax error processing {key}: {str(e)}")
+            return None
+        except Exception as e:
+            messagebox.showerror("Error", f"Error processing {key}: {str(e)}")
+            return None
+
+    return settings
+
+def sim_variables():
+    variables = {
+        'name':('entry', None, 'plates_2_4_8'),
+        'variable':('entry', None, 'all'),
+        'src':('entry', None, '/home/olafsson/Desktop/simulations'),
+        'number_of_control_genes':('entry', None, 30),
+        'replicates':('entry', None, 4),
+        'max_workers':('entry', None, 1),
+        'plot':('check', None, True),
+        'random_seed':('check', None, True),
+        'nr_plates': ('entry', None, '[8,8,0]'),# '[2,2,8]'
+        'number_of_genes': ('entry', None, '[100, 100, 0]'), #[1384, 1384, 0]
+        'number_of_active_genes': ('entry', None, '[10,10,0]'),
+        'avg_genes_per_well': ('entry', None, '[2, 10, 2]'),
+        'avg_cells_per_well': ('entry', None, '[100, 100, 0]'),
+        'positive_mean': ('entry', None, '[0.8, 0.8, 0]'),
+        'avg_reads_per_gene': ('entry', None, '[1000,1000, 0]'),
+        'sequencing_error': ('entry', None, '[0.01, 0.01, 0]'),
+        'well_ineq_coeff': ('entry', None, '[0.3,0.3,0]'),
+        'gene_ineq_coeff': ('entry', None, '[0.8,0.8,0]'),
+    }
+    return variables
 
 def measure_variables():
     variables = {
@@ -569,3 +633,34 @@ def train_test_model_wrapper(settings, q, fig_queue):
     finally:
         plt.show = original_show  # Restore the original plt.show function
         
+        
+def run_multiple_simulations_wrapper(settings, q, fig_queue):
+    """
+    Wraps the run_multiple_simulations function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the run_multiple_simulations function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
+
+    def my_show():
+        """
+        Replacement for plt.show() that queues figures instead of displaying them.
+        """
+        fig = plt.gcf()
+        fig_queue.put(fig)  # Queue the figure for GUI display
+        plt.close(fig)  # Prevent the figure from being shown by plt.show()
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = my_show
+
+    try:
+        spacr.sim.run_multiple_simulations(settings=settings)
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)  # Send the error message to the GUI via the queue
+        traceback.print_exc()
+    finally:
+        plt.show = original_show  # Restore the original plt.show function   

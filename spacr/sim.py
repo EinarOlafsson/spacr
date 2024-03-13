@@ -35,6 +35,7 @@ def generate_gene_list(number_of_genes, number_of_all_genes):
 
 # plate_map is a table with a row for each well, containing well metadata: plate_id, row_id, and column_id
 def generate_plate_map(nr_plates):
+    print('nr_plates',nr_plates)
     """
     Generate a plate map based on the number of plates.
 
@@ -1023,6 +1024,8 @@ def save_plot(fig, src, variable, i):
     return
     
 def run_and_save(i, settings, time_ls, total_sims):
+    
+
     """
     Run the simulation and save the results.
 
@@ -1035,6 +1038,9 @@ def run_and_save(i, settings, time_ls, total_sims):
     Returns:
         tuple: A tuple containing the simulation index, simulation time, and None.
     """
+    #print(f'Runnings simulation with the following paramiters')
+    #print(settings)
+    
     if settings['random_seed']:
         random.seed(42) # sims will be too similar with random seed
     src = settings['src']
@@ -1185,3 +1191,4 @@ def run_multiple_simulations(settings):
                 time_left = (((total_sims - sims_processed) * average_time) / max_workers) / 60
                 print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
             result.get()
+            

@@ -52,7 +52,8 @@ On Linux:
 ```
 sudo apt-get install python3-tk
 ```
-install spacr
+
+install spacr with pip
 
 ```
 pip install spacr
@@ -80,7 +81,7 @@ Train torch CNNs/Transformers to classify single object images.
 ```
 gui_classify
 ```
-#Simulate spatial phenotype screens.
-#```
-#gui_sim
-#```
+Simulate spatial phenotype screens.
+```
+gui_sim
+```

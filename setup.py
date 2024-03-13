@@ -1,8 +1,13 @@
 from setuptools import setup, find_packages
 
+# Ensure you have read the README.md content into a variable, e.g., `long_description`
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 dependencies = [
     'torch',
     'torchvision',
+    'torch-geometric',
     'numpy',
     'pandas',
     'statsmodels',
@@ -21,16 +26,17 @@ dependencies = [
     'IPython',
     'opencv-python-headless',
     'umap',
-    'ttkthemes'
+    'ttkthemes',
+    'lxml'
 ]
 
 setup(
     name="spacr",
-    version="0.0.1",
+    version="0.0.18",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
-    description="A brief description of your package",
-    long_description=open('README.md').read(),
+    description="Spatial phenotype analysis of crisp screens (SpaCr)",
+    long_description=long_description,
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     install_requires=dependencies,
@@ -41,6 +47,7 @@ setup(
             'gui_make_masks=spacr.mask_app:gui_make_masks',
             'gui_annotation=spacr.annotate_app:gui_annotation',
             'gui_classify=spacr.gui_classify_app:gui_classify',
+            'gui_sim=spacr.gui_sim_app:gui_sim',
         ],
     },
     extras_require={
@@ -52,6 +59,5 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ],
+    ]
 )
-
