@@ -1,95 +1,82 @@
-import pandas as pd
 import torch
-from torch_geometric.data import Data, Dataset, DataLoader
-from torch_geometric.nn import GCNConv, GATConv, global_mean_pool
-import numpy as np
+from torch_geometric.data import Data
+from torch_geometric.nn import GCNConv, global_mean_pool
+import torch.nn.functional as F
+from torch.nn import Linear
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
-class BasicGNN(torch.nn.Module):
-    def __init__(self, num_node_features, num_classes):
-        super(BasicGNN, self).__init__()
-        self.conv1 = GCNConv(num_node_features, 16)
-        self.conv2 = GCNConv(16, num_classes)
+#1. Cell Nodes: Represent individual cells. Each cell node could have attributes like cell area, nuclear area, and a CNN-based phenotype score. These nodes could be visualized as circles labeled with "C".
+#2. Well Nodes: Represent wells in the 384-well plates. Wells are intermediary nodes that link cells to genes based on the experimental setup. Each well could contain multiple cells and be associated with certain gene knockouts. These nodes might not have direct attributes in the schematic but serve to connect cell nodes to gene nodes. These can be visualized as squares labeled with "W".
+#3. Gene Nodes: Represent genes that have been knocked out. Gene nodes are connected to well nodes, indicating which genes are knocked out in each well. Attributes might include the fraction of sequencing reads for that gene, indicating its relative abundance or importance in the well. These nodes can be visualized as diamonds labeled with "G".
+    
+# Define a simple GNN model
+class GNN(torch.nn.Module):
+    def __init__(self):
+        super(GNN, self).__init__()
+        self.conv1 = GCNConv(1, 16)  # Assume node features are 1-dimensional for simplicity
+        self.conv2 = GCNConv(16, 32)
+        self.out = Linear(32, 1)  # Predicting a single score for each cell/well
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
         
-        x = self.conv1(x, edge_index)
-        x = torch.relu(x)
+        # Two layers of GCN convolution
+        x = F.relu(self.conv1(x, edge_index))
+        x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
         
+        # Global mean pooling
+        x = global_mean_pool(x, batch=torch.tensor([0, 0, 0]))  # Assume all nodes belong to the same graph
+        x = self.out(x)
         return x
-    
-def create_graph(cells_df, wells_df, well_id='prc', infer_id='gene'):
-    # Nodes: Combine cell and well nodes
-    num_cells = cells_df.shape[0]
-    num_wells = len(wells_df[well_id].unique())
-    num_genes = len(wells_df[infer_id].unique())
-    
-    # Edges: You need to define edges based on your cells' and wells' relationships
-    edge_index = [...]  # Fill with (source, target) index pairs
-    
-    # Node features: Depending on your data, this might include measurements for cells, and gene fractions for wells
-    x = [...]  # Feature matrix
-    
-    # Labels: If you're predicting something specific, like gene knockouts
-    y = [...]  # Target labels for nodes
-    
-    data = Data(x=torch.tensor(x, dtype=torch.float), edge_index=torch.tensor(edge_index, dtype=torch.long), y=torch.tensor(y))
-    
-    return data
 
-def create_graph(cells_df, wells_df, well_id='prc', infer_id='gene'):
-    # Assume cells_df and wells_df are preprocessed to include 'well_id' and 'gene_id' as encoded fields
+def construct_graph(cell_data_loc, well_data_loc, well_id='prc', infer_id='gene', features=[]):
     
-    # Node feature creation (this is highly data-dependent; consider cells_df features like cell area, intensity, etc.)
-    cell_features = [...]  # Extract cell features into a matrix
-    well_features = [...]  # Optional: Aggregate or represent well features
-    gene_features = [...]  # Optional: Represent gene features
-    
-    x = np.concatenate([cell_features, well_features, gene_features], axis=0)
-    
-    # Edge index construction
-    edge_index = [...]  # You'll need to construct this based on your data relationships
-    
-    # Labels (assuming you have a column 'label' in cells_df for cell-level labels)
-    y = cells_df['label'].values
-    
-    # If y needs to include well and gene nodes, you'll have to expand it appropriately, possibly with dummy labels
-    
-    data = Data(x=torch.tensor(x, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                y=torch.tensor(y, dtype=torch.long))  # Adjust dtype as needed
-    
-    return data
-
-
-def train_gnn(cell_data_loc, well_data_loc, well_id='prc', infer_id='gene', lr=0.01):
-
     # Example loading step
     cells_df = pd.read_csv(cell_data_loc)
     wells_df = pd.read_csv(well_data_loc)
-
+    
+    # Encode categorical data
     well_encoder = LabelEncoder()
-    cells_df['well_id'] = well_encoder.fit_transform(cells_df[well_id])
-
     gene_encoder = LabelEncoder()
+    
+    cells_df['well_id'] = well_encoder.fit_transform(cells_df[well_id])
     wells_df['gene_id'] = gene_encoder.fit_transform(wells_df[infer_id])
+    
+    # Assume cell features are in columns ['feature1', 'feature2', ...]
+    cell_features = torch.tensor(cells_df[[features]].values, dtype=torch.float)
+    
+    # Creating nodes for cells and assigning phenotype scores as labels
+    y = torch.tensor(cells_df['phenotype_score'].values, dtype=torch.float).unsqueeze(1)
+    
+    # Constructing edges (this is simplified; you should define edges based on your data structure)
+    edge_index = torch.tensor([[0, 1], [1, 2], [2, 0]], dtype=torch.long).t().contiguous()
+    
+    graphdata = Data(x=cell_features, edge_index=torch.tensor(edge_index, dtype=torch.long), y=y)
+    return graphdata, len(features)
 
-    graph_data = create_graph(cells_df, wells_df)
 
-
-    # Example instantiation and use
-    model = BasicGNN(num_node_features=..., num_classes=...)
+def train_gnn(cell_data_loc, well_data_loc, well_id='prc', infer_id='gene', lr=0.01, epochs=100):
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    data, nr_of_features = construct_graph(cell_data_loc, well_data_loc).to(device)
+    
+    model = GNN(feature_size=nr_of_features).to(device)
 
     # Assuming binary classification for simplicity
-    criterion = torch.nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    criterion = torch.nn.BCELoss()
 
-    for epoch in range(200):
+    for epoch in range(epochs):
+        model.train()
         optimizer.zero_grad()
-        out = model(graph_data)
-        loss = criterion(out, graph_data.y)
+        out = model(data)
+        loss = criterion(out[data.train_mask], data.y[data.train_mask])
         loss.backward()
         optimizer.step()
-        print(f'Epoch {epoch}, Loss: {loss.item()}')
+        
+        if epoch % 10 == 0:
+            print(f'Epoch {epoch}, Loss: {loss.item()}')
+            
+    return model

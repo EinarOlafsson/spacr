@@ -11,6 +11,7 @@ from . import timelapse
 from . import train
 from . import mask_app
 from . import annotate_app
+from . import graph_learning
 from . import gui_utils
 from . import gui_mask_app
 from . import gui_measure_app
@@ -27,6 +28,7 @@ __all__ = [
     "timelapse",
     "train",
     "annotate_app",
+    "graph_learning",
     "gui_utils",
     "mask_app",
     "gui_mask_app",
