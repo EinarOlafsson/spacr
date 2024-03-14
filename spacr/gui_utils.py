@@ -1,4 +1,4 @@
-import spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib
+import spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib, re
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -273,6 +273,12 @@ def measure_variables():
         'input_folder':('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui/merged'),
         'channels': ('combo', ['[0,1,2,3]','[0,1,2]','[0,1]','[0]'], '[0,1,2,3]'),
         'cell_mask_dim':('entry', None, 4),
+        'cell_min_size':('entry', None, 0),
+        'cytoplasm_min_size':('entry', None, 0),
+        'nucleus_mask_dim':('entry', None, 5),
+        'nucleus_min_size':('entry', None, 0),
+        'pathogen_mask_dim':('entry', None, 6),
+        'pathogen_min_size':('entry', None, 0),
         'save_png':('check', None, True),
         'crop_mode':('entry', None, '["cell"]'),
         'use_bounding_box':('check', None, True),
@@ -485,27 +491,26 @@ def set_dark_style(style):
 @log_function_call   
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
     try:
+        ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
         while not q.empty():
             message = q.get_nowait()
-            if message.startswith("Progress"):
-                progress_label.config(text=message)
-            elif message.startswith("Processing"):
-                progress_label.config(text=message)
-            elif message == "" or message == "\r":
+            clean_message = ansi_escape_pattern.sub('', message)
+            if clean_message.startswith("Progress"):
+                progress_label.config(text=clean_message)
+            elif clean_message.startswith("Successfully"):
+                progress_label.config(text=clean_message)
+            elif clean_message.startswith("Processing"):
+                progress_label.config(text=clean_message)
+            elif clean_message.startswith("scale"):
                 pass
-            elif message.startswith("/"):
+            elif clean_message.startswith("plot_cropped_arrays"):
                 pass
-            elif message.startswith("\\"):
-                pass
-            elif message.startswith(""):
+            elif clean_message == "" or clean_message == "\r" or clean_message.strip() == "":
                 pass
             else:
-                print(message)  # Or handle other messages differently
-        while not fig_queue.empty():
-            fig = fig_queue.get_nowait()
-            clear_canvas(canvas_widget)
+                print(clean_message)
     except Exception as e:
-        print(f"Error updating GUI: {e}")
+        print(f"Error updating GUI canvas: {e}")
     finally:
         root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
 

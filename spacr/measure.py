@@ -983,7 +983,7 @@ def measure_crop(settings, annotation_settings, advanced_settings):
             img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
             sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
             _scmovie(sc_img_fldrs)
-            
+    print("Successfully completed run")
             
 def generate_cellpose_train_set(folders, dst, min_objects=5):
     os.makedirs(dst, exist_ok=True)

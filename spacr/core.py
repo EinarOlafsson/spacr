@@ -1088,7 +1088,7 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
             batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
             prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
             filenames_list.extend(filenames)
-            print(f'\rbatch: {batch_idx}/{len(data_loader)}', end='\r', flush=True)
+            print(f'batch: {batch_idx}/{len(data_loader)}', end='\r', flush=True)
 
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
     df = pd.DataFrame(data, index=None)
@@ -1747,6 +1747,7 @@ def preprocess_generate_masks(src, settings={},advanced_settings={}):
             
     torch.cuda.empty_cache()
     gc.collect()
+    print("Successfully completed run")
     return
 
 def identify_masks_finetune(src, dst, model_name, channels, diameter, batch_size, flow_threshold=30, cellprob_threshold=1, figuresize=25, cmap='inferno', verbose=False, plot=False, save=False, custom_model=None, signal_thresholds=1000, normalize=True, resize=False, target_height=None, target_width=None, rescale=True, resample=True, net_avg=False, invert=False, circular=False, percentiles=None, overlay=True, grayscale=False):
@@ -1961,7 +1962,8 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
                 if not plot:
                     batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
                 if batch.size == 0:
-                    print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}', end='\r', flush=True)
+                    print(f'Processing: {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}')
+                    #print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}', end='\r', flush=True)
                     continue
                 if batch.max() > 1:
                     batch = batch / batch.max()
@@ -2032,7 +2034,8 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
             average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
             time_in_min = average_time/60
             time_per_mask = average_time/batch_size
-            print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2', end='\r', flush=True)
+            print(f'Processing: {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
+            #print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2', end='\r', flush=True)
             if not timelapse:
                 if plot:
                     plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap=cmap, nr=batch_size, file_type='.npz')
@@ -2133,7 +2136,8 @@ def generate_cellpose_masks(src, settings, object_type):
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
             if batch.size == 0:
-                print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}', end='\r', flush=True)
+                print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}')
+                #print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}', end='\r', flush=True)
                 continue
             if batch.max() > 1:
                 batch = batch / batch.max()
@@ -2235,7 +2239,8 @@ def generate_cellpose_masks(src, settings, object_type):
         average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
         time_in_min = average_time/60
         time_per_mask = average_time/batch_size
-        print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2', end='\r', flush=True)
+        print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
+        #print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2', end='\r', flush=True)
         if not timelapse:
             if settings['plot']:
                 plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap='inferno', nr=batch_size)

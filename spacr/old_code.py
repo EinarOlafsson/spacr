@@ -51,7 +51,7 @@ def resize_figure_to_canvas(fig, canvas):
         
     return fig
     
-    def process_fig_queue_v1():
+def process_fig_queue_v1():
     global canvas
     while not fig_queue.empty():
         try:
@@ -102,3 +102,35 @@ def run_mask_gui(q):
         preprocess_generate_masks_wrapper(settings['src'], settings=settings, advanced_settings={})
     except Exception as e:
         q.put(f"Error during processing: {e}\n")
+
+@log_function_call   
+def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
+    try:
+        while not q.empty():
+            message = q.get_nowait()
+            if message.startswith("Progress"):
+                progress_label.config(text=message)
+            elif message.startswith("Processing"):
+                progress_label.config(text=message)
+            elif message == "" or message == "\r":
+                pass
+            elif message.startswith("/"):
+                pass
+            elif message.startswith("\\"):
+                pass
+            elif message.startswith(""):
+                pass
+            else:
+                print(message)
+    except Exception as e:
+        print(f"Error updating GUI canvas: {e}")
+    #try:    
+    #    while not fig_queue.empty():
+    #        fig = fig_queue.get_nowait()
+    #        #if hasattr(canvas_widget, 'figure'):
+    #        #clear_canvas(canvas_widget)
+    #        canvas_widget.figure = fig
+    #except Exception as e:
+    #    print(f"Error updating GUI figure: {e}")
+    finally:
+        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))

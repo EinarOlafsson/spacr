@@ -8,6 +8,8 @@ dependencies = [
     'torch',
     'torchvision',
     'torch-geometric',
+    #'torch-sparse',
+    #'torch-scatter',
     'numpy',
     'pandas',
     'statsmodels',
