@@ -134,3 +134,89 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_labe
     #    print(f"Error updating GUI figure: {e}")
     finally:
         root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+        
+    class MPNN(MessagePassing):
+    def __init__(self, node_in_features, edge_in_features, out_features):
+        super(MPNN, self).__init__(aggr='mean')  # 'mean' aggregation.
+        self.message_mlp = Sequential(
+            Linear(node_in_features + edge_in_features, 128),
+            ReLU(),
+            Linear(128, out_features)
+        )
+        self.update_mlp = Sequential(
+            Linear(out_features, out_features),
+            ReLU(),
+            Linear(out_features, out_features)
+        )
+
+    def forward(self, x, edge_index, edge_attr):
+        # x: Node features [N, node_in_features]
+        # edge_index: Graph connectivity [2, E]
+        # edge_attr: Edge attributes/features [E, edge_in_features]
+        return self.propagate(edge_index, x=x, edge_attr=edge_attr)
+
+    def message(self, x_j, edge_attr):
+        # x_j: Input features of neighbors [E, node_in_features]
+        # edge_attr: Edge attributes [E, edge_in_features]
+        tmp = torch.cat([x_j, edge_attr], dim=-1)  # Concatenate node features with edge attributes
+        return self.message_mlp(tmp)
+
+    def update(self, aggr_out):
+        # aggr_out: Aggregated messages [N, out_features]
+        return self.update_mlp(aggr_out)
+    
+def weighted_mse_loss(output, target, score_threshold=0.8, high_score_weight=10):
+    # Assumes output and target are the predicted and true scores, respectively
+    weights = torch.ones_like(target)
+    high_score_mask = target >= score_threshold
+    weights[high_score_mask] = high_score_weight
+    return ((output - target) ** 2 * weights).mean()
+
+def generate_single_graph(sequencing, scores):
+    # Load and preprocess sequencing data
+    gene_df = pd.read_csv(sequencing)
+    gene_df = gene_df.rename(columns={"prc": "well_id", "grna": "gene_id", "count": "read_count"})
+    total_reads_per_well = gene_df.groupby('well_id')['read_count'].sum().reset_index(name='total_reads')
+    gene_df = gene_df.merge(total_reads_per_well, on='well_id')
+    gene_df['well_read_fraction'] = gene_df['read_count']/gene_df['total_reads']
+
+    # Load and preprocess cell score data
+    cell_df = pd.read_csv(scores)
+    cell_df = cell_df[['prcfo', 'prc', 'pred']].rename(columns={'prcfo': 'cell_id', 'prc': 'well_id', 'pred': 'score'})
+
+    # Initialize mappings
+    gene_id_to_index = {gene: i for i, gene in enumerate(gene_df['gene_id'].unique())}
+    cell_id_to_index = {cell: i + len(gene_id_to_index) for i, cell in enumerate(cell_df['cell_id'].unique())}
+
+    # Initialize edge indices and attributes
+    edge_index = []
+    edge_attr = []
+
+    # Associate each cell with all genes in the same well
+    for well_id, group in gene_df.groupby('well_id'):
+        if well_id in cell_df['well_id'].values:
+            cell_indices = cell_df[cell_df['well_id'] == well_id]['cell_id'].map(cell_id_to_index).values
+            gene_indices = group['gene_id'].map(gene_id_to_index).values
+            fractions = group['well_read_fraction'].values
+            
+            for cell_idx in cell_indices:
+                for gene_idx, fraction in zip(gene_indices, fractions):
+                    edge_index.append([cell_idx, gene_idx])
+                    edge_attr.append([fraction])
+
+    # Convert lists to PyTorch tensors
+    edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
+    edge_attr = torch.tensor(edge_attr, dtype=torch.float)
+    cell_scores = torch.tensor(cell_df['score'].values, dtype=torch.float)
+
+    # One-hot encoding for genes, and zero features for cells (could be replaced with real features if available)
+    gene_features = torch.eye(len(gene_id_to_index))
+    cell_features = torch.zeros(len(cell_id_to_index), gene_features.size(1))
+
+    # Combine features
+    x = torch.cat([cell_features, gene_features], dim=0)
+
+    # Create the graph data object
+    data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=cell_scores)
+
+    return data, gene_id_to_index, len(gene_id_to_index)

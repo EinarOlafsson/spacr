@@ -1,82 +1,171 @@
-import torch
-from torch_geometric.data import Data
-from torch_geometric.nn import GCNConv, global_mean_pool
-import torch.nn.functional as F
-from torch.nn import Linear
+import pickle
+import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+from torch_geometric.data import Data
+from collections import defaultdict
+import torch
+from torch.nn import Sequential, Linear, ReLU
+import torch.nn.functional as F
+from torch_geometric.data import Data
+from torch_geometric.utils import degree, add_self_loops, softmax
+from torch_geometric.loader import DataLoader, NeighborSampler
+from sklearn.metrics import mean_squared_error
+from torch_geometric.nn import SAGEConv, global_mean_pool, Linear, TransformerConv, GCNConv, GATConv, MessagePassing
+from torch import Tensor, nn
+from torch_geometric.data import Batch
+from torch.utils.data import DataLoader as TorchDataLoader
+from torch.nn import Linear, Module
+import torch
+import torch.nn.functional as F
+from torch.nn import Linear, Module
+from torch_geometric.nn import global_mean_pool
+from torch_geometric.nn.inits import reset
+from torch_geometric.nn.conv import MessagePassing
 
-#1. Cell Nodes: Represent individual cells. Each cell node could have attributes like cell area, nuclear area, and a CNN-based phenotype score. These nodes could be visualized as circles labeled with "C".
-#2. Well Nodes: Represent wells in the 384-well plates. Wells are intermediary nodes that link cells to genes based on the experimental setup. Each well could contain multiple cells and be associated with certain gene knockouts. These nodes might not have direct attributes in the schematic but serve to connect cell nodes to gene nodes. These can be visualized as squares labeled with "W".
-#3. Gene Nodes: Represent genes that have been knocked out. Gene nodes are connected to well nodes, indicating which genes are knocked out in each well. Attributes might include the fraction of sequencing reads for that gene, indicating its relative abundance or importance in the well. These nodes can be visualized as diamonds labeled with "G".
+def collate(batch):
+    data_list = [data for _, data in batch]
+    return Batch.from_data_list(data_list)
+
+
+def generate_well_graphs(sequencing, scores):
+    # Load and preprocess sequencing data
+    gene_df = pd.read_csv(sequencing)
+    gene_df = gene_df.rename(columns={'prc': 'well_id', 'grna': 'gene_id', 'count': 'read_count'})
+    total_reads_per_well = gene_df.groupby('well_id')['read_count'].sum().reset_index(name='total_reads')
+    gene_df = gene_df.merge(total_reads_per_well, on='well_id')
+    gene_df['well_read_fraction'] = gene_df['read_count'] / gene_df['total_reads']
+
+    # Load and preprocess cell score data
+    cell_df = pd.read_csv(scores)
+    cell_df = cell_df[['prcfo', 'prc', 'pred']].rename(columns={'prcfo': 'cell_id', 'prc': 'well_id', 'pred': 'score'})
+
+    # Initialize mappings
+    gene_id_to_index = {gene: i for i, gene in enumerate(gene_df['gene_id'].unique())}
+    cell_id_to_index = {cell: i + len(gene_id_to_index) for i, cell in enumerate(cell_df['cell_id'].unique())}
+
+    # Initialize a dictionary to store edge information for each well subgraph
+    wells_subgraphs = defaultdict(lambda: {'edge_index': [], 'edge_attr': []})
+
+    # Associate each cell with all genes in the same well
+    for well_id, group in gene_df.groupby('well_id'):
+        if well_id in cell_df['well_id'].values:
+            cell_indices = cell_df[cell_df['well_id'] == well_id]['cell_id'].map(cell_id_to_index).values
+            gene_indices = group['gene_id'].map(gene_id_to_index).values
+            fractions = group['well_read_fraction'].values
+
+            for cell_idx in cell_indices:
+                for gene_idx, fraction in zip(gene_indices, fractions):
+                    wells_subgraphs[well_id]['edge_index'].append([cell_idx, gene_idx])
+                    wells_subgraphs[well_id]['edge_attr'].append([fraction])
+
+    # Process well subgraphs into PyTorch Geometric Data objects
+    well_data_list = []
+    for well_id, subgraph in wells_subgraphs.items():
+        edge_index = torch.tensor(subgraph['edge_index'], dtype=torch.long).t().contiguous()
+        edge_attr = torch.tensor(subgraph['edge_attr'], dtype=torch.float)
+        num_nodes = max(max(edge) for edge in subgraph['edge_index']) + 1
+        x = torch.ones((num_nodes, 1))  # Feature matrix with a single feature set to 1 for each node
+
+        # Retrieve cell scores for the current well
+        cell_scores = cell_df[cell_df['well_id'] == well_id]['score'].values
+        # Create a tensor for cell scores, ensuring the order matches that of the nodes in the graph
+        y = torch.tensor(cell_scores, dtype=torch.float)
+        
+        subgraph_data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
+        well_data_list.append((well_id, subgraph_data))
     
-# Define a simple GNN model
-class GNN(torch.nn.Module):
-    def __init__(self):
-        super(GNN, self).__init__()
-        self.conv1 = GCNConv(1, 16)  # Assume node features are 1-dimensional for simplicity
-        self.conv2 = GCNConv(16, 32)
-        self.out = Linear(32, 1)  # Predicting a single score for each cell/well
+    return well_data_list, gene_id_to_index, len(gene_id_to_index), cell_id_to_index
+
+class CustomTransformerConv(MessagePassing):
+    def __init__(self, in_channels, out_channels, heads=1, concat=True, beta=False, dropout=0.0, edge_dim=None):
+        super().__init__(node_dim=0, aggr='add')  # Specify 'add' as the aggregation method
+        # Initialize the layers and parameters...
+        # Rest of init...
+        
+        # Ensure that the scale is a tensor and properly moved to the device during initialization
+        self.scale = torch.sqrt(torch.tensor(out_channels / heads, dtype=torch.float))
+        
+    def reset_parameters(self):
+        # Reset parameters...
+        self.scale.data = torch.sqrt(torch.tensor(self.out_channels / self.heads, dtype=torch.float))
+
+    def forward(self, x, edge_index, edge_attr=None):
+        query = self.lin_query(x).view(-1, self.heads, self.out_channels)
+        key = self.lin_key(x).view(-1, self.heads, self.out_channels)
+        value = self.lin_value(x).view(-1, self.heads, self.out_channels)
+        
+        # Propagate the messages
+        out = self.propagate(edge_index, x=(query, key, value), edge_attr=edge_attr, size=None)
+        
+        # Reshape and concatenate head outputs if required
+        if self.concat:
+            out = out.view(-1, self.heads * self.out_channels)
+        else:
+            out = out.mean(dim=1)
+        
+        # Apply root node transformation with skip connection if required
+        if self.root_weight:
+            out = out + self.lin_root(x[:out.size(0), :])
+        
+        return out
+
+    def message(self, x_j, x_i, edge_attr, index, ptr, size_i):
+        # Compute messages
+        # This needs to be implemented based on your model's specifics
+        query, key, value = x_i[0], x_j[1], x_j[2]
+        # Compute the attention scores
+        alpha = (query * key).sum(dim=-1) / self.scale
+        alpha = softmax(alpha, index, ptr, size_i)
+        
+        # Apply attention scores to the values
+        out = value * alpha.view(-1, self.heads, 1)
+        return out.view(-1, self.heads * self.out_channels)
+
+
+class GraphTransformer(torch.nn.Module):
+    def __init__(self, num_node_features, dropout_rate=0.1):
+        super(GraphTransformer, self).__init__()
+        # Assuming you want to predict a single value per graph, adjust the out_channels as needed.
+        num_heads = 4  # Example: 4 attention heads
+        out_channels = 1  # Example: predicting a single score per graph
+        self.conv1 = CustomTransformerConv(num_node_features, 128, heads=num_heads, dropout=dropout_rate, edge_dim=1)
+        self.conv2 = CustomTransformerConv(128 * num_heads, 256, heads=num_heads, dropout=dropout_rate, edge_dim=1)
+        self.lin = Linear(256 * num_heads, out_channels)  # Adjusted for a single output feature
 
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
-        
-        # Two layers of GCN convolution
-        x = F.relu(self.conv1(x, edge_index))
-        x = F.dropout(x, training=self.training)
-        x = self.conv2(x, edge_index)
-        
-        # Global mean pooling
-        x = global_mean_pool(x, batch=torch.tensor([0, 0, 0]))  # Assume all nodes belong to the same graph
-        x = self.out(x)
+        x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
+
+        x = F.relu(self.conv1(x, edge_index, edge_attr))
+        x = F.dropout(x, p=0.1, training=self.training)
+        x = F.relu(self.conv2(x, edge_index, edge_attr))
+
+        # Assuming you want to pool graph features to predict a single value per graph
+        x = global_mean_pool(x, batch)  # Pool to get one graph-level representation
+        x = self.lin(x)  # Predict a single value per graph
+
         return x
 
-def construct_graph(cell_data_loc, well_data_loc, well_id='prc', infer_id='gene', features=[]):
-    
-    # Example loading step
-    cells_df = pd.read_csv(cell_data_loc)
-    wells_df = pd.read_csv(well_data_loc)
-    
-    # Encode categorical data
-    well_encoder = LabelEncoder()
-    gene_encoder = LabelEncoder()
-    
-    cells_df['well_id'] = well_encoder.fit_transform(cells_df[well_id])
-    wells_df['gene_id'] = gene_encoder.fit_transform(wells_df[infer_id])
-    
-    # Assume cell features are in columns ['feature1', 'feature2', ...]
-    cell_features = torch.tensor(cells_df[[features]].values, dtype=torch.float)
-    
-    # Creating nodes for cells and assigning phenotype scores as labels
-    y = torch.tensor(cells_df['phenotype_score'].values, dtype=torch.float).unsqueeze(1)
-    
-    # Constructing edges (this is simplified; you should define edges based on your data structure)
-    edge_index = torch.tensor([[0, 1], [1, 2], [2, 0]], dtype=torch.long).t().contiguous()
-    
-    graphdata = Data(x=cell_features, edge_index=torch.tensor(edge_index, dtype=torch.long), y=y)
-    return graphdata, len(features)
-
-
-def train_gnn(cell_data_loc, well_data_loc, well_id='prc', infer_id='gene', lr=0.01, epochs=100):
-    
+def train_graph_network(graph_data_list, feature_size, model_path, batch_size=8, epochs=100, lr=0.001):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    data, nr_of_features = construct_graph(cell_data_loc, well_data_loc).to(device)
+    model = GraphTransformer(num_node_features=feature_size).to(device)
     
-    model = GNN(feature_size=nr_of_features).to(device)
-
-    # Assuming binary classification for simplicity
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    criterion = torch.nn.BCELoss()
+    criterion = torch.nn.MSELoss(reduction='mean')
 
+    data_loader = TorchDataLoader(graph_data_list, batch_size=batch_size, shuffle=True, collate_fn=collate)
+    
+    model.train()
     for epoch in range(epochs):
-        model.train()
-        optimizer.zero_grad()
-        out = model(data)
-        loss = criterion(out[data.train_mask], data.y[data.train_mask])
-        loss.backward()
-        optimizer.step()
+        total_loss = 0
+        for data in data_loader:
+            data = data.to(device)
+            optimizer.zero_grad()
+            out = model(data)
+            loss = criterion(out.view(-1), data.y.view(-1))
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
         
-        if epoch % 10 == 0:
-            print(f'Epoch {epoch}, Loss: {loss.item()}')
-            
-    return model
+        print(f'Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(data_loader)}')
+    
+    torch.save(model.state_dict(), model_path)
