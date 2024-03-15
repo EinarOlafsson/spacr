@@ -6,11 +6,15 @@ from collections import defaultdict
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
+import torch.optim as optim
 
-def generate_graphs(sequencing, scores, cell_min):
+
+def generate_graphs(sequencing, scores, cell_min, gene_min_read):
     # Load and preprocess sequencing (gene) data
     gene_df = pd.read_csv(sequencing)
     gene_df = gene_df.rename(columns={'prc': 'well_id', 'grna': 'gene_id', 'count': 'read_count'})
+    # Filter out genes with read counts less than gene_min_read
+    gene_df = gene_df[gene_df['read_count'] >= gene_min_read]
     total_reads_per_well = gene_df.groupby('well_id')['read_count'].sum().reset_index(name='total_reads')
     gene_df = gene_df.merge(total_reads_per_well, on='well_id')
     gene_df['well_read_fraction'] = gene_df['read_count'] / gene_df['total_reads']
@@ -53,7 +57,7 @@ def generate_graphs(sequencing, scores, cell_min):
             'num_genes': num_genes
         }
         graphs.append(graph)
-    
+    print(f'Generated dataset with {len(graphs)} graphs, and {len(gene_id_to_index)} genes')
     return graphs, feature_size, gene_id_to_index
 
 class Attention(nn.Module):
@@ -78,9 +82,9 @@ class Attention(nn.Module):
         # Apply dropout to attention weights
         attn_weights = self.dropout(attn_weights)  
 
-
         # Apply attention weights to the values
         attn_output = torch.matmul(attn_weights, v)
+        
         return attn_output, attn_weights
 
 class GraphTransformer(nn.Module):
@@ -125,12 +129,15 @@ class GraphTransformer(nn.Module):
         cell_scores = self.cell_output(message_passed_features[-cell_features.size(0):])
 
         return cell_scores, attn_weights
-
-def train_graph_transformer(graphs, lr=0.01, dropout_rate=0.1, epochs=100, save_fldr='', acc_threshold = 0.1):
+    
+def train_graph_transformer(graphs, lr=0.01, dropout_rate=0.1, weight_decay=0.00001, epochs=100, save_fldr='', acc_threshold = 0.1):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = GraphTransformer(gene_feature_size=1, cell_feature_size=1, hidden_dim=64, output_dim=1, attn_dim=64, dropout_rate=dropout_rate).to(device)
+    model = GraphTransformer(gene_feature_size=1, cell_feature_size=1, hidden_dim=256, output_dim=1, attn_dim=128, dropout_rate=dropout_rate).to(device)
+
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    #optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+
     training_log = []
     
     accumulate_grad_batches=1
