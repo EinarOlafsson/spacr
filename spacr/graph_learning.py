@@ -1,171 +1,223 @@
-import pickle
-import numpy as np
-import pandas as pd
-from torch_geometric.data import Data
+import os
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from collections import defaultdict
-import torch
-from torch.nn import Sequential, Linear, ReLU
-import torch.nn.functional as F
-from torch_geometric.data import Data
-from torch_geometric.utils import degree, add_self_loops, softmax
-from torch_geometric.loader import DataLoader, NeighborSampler
-from sklearn.metrics import mean_squared_error
-from torch_geometric.nn import SAGEConv, global_mean_pool, Linear, TransformerConv, GCNConv, GATConv, MessagePassing
-from torch import Tensor, nn
-from torch_geometric.data import Batch
-from torch.utils.data import DataLoader as TorchDataLoader
-from torch.nn import Linear, Module
-import torch
-import torch.nn.functional as F
-from torch.nn import Linear, Module
-from torch_geometric.nn import global_mean_pool
-from torch_geometric.nn.inits import reset
-from torch_geometric.nn.conv import MessagePassing
+from torch.utils.data import Dataset, DataLoader
+import pandas as pd
+import numpy as np
 
-def collate(batch):
-    data_list = [data for _, data in batch]
-    return Batch.from_data_list(data_list)
-
-
-def generate_well_graphs(sequencing, scores):
-    # Load and preprocess sequencing data
+def generate_graphs(sequencing, scores, cell_min):
+    # Load and preprocess sequencing (gene) data
     gene_df = pd.read_csv(sequencing)
     gene_df = gene_df.rename(columns={'prc': 'well_id', 'grna': 'gene_id', 'count': 'read_count'})
     total_reads_per_well = gene_df.groupby('well_id')['read_count'].sum().reset_index(name='total_reads')
     gene_df = gene_df.merge(total_reads_per_well, on='well_id')
     gene_df['well_read_fraction'] = gene_df['read_count'] / gene_df['total_reads']
 
+    # Mapping genes to indices
+    gene_id_to_index = {gene: i for i, gene in enumerate(gene_df['gene_id'].unique())}
+    feature_size = len(gene_id_to_index)
+
     # Load and preprocess cell score data
     cell_df = pd.read_csv(scores)
     cell_df = cell_df[['prcfo', 'prc', 'pred']].rename(columns={'prcfo': 'cell_id', 'prc': 'well_id', 'pred': 'score'})
 
-    # Initialize mappings
-    gene_id_to_index = {gene: i for i, gene in enumerate(gene_df['gene_id'].unique())}
-    cell_id_to_index = {cell: i + len(gene_id_to_index) for i, cell in enumerate(cell_df['cell_id'].unique())}
-
-    # Initialize a dictionary to store edge information for each well subgraph
-    wells_subgraphs = defaultdict(lambda: {'edge_index': [], 'edge_attr': []})
-
-    # Associate each cell with all genes in the same well
-    for well_id, group in gene_df.groupby('well_id'):
-        if well_id in cell_df['well_id'].values:
-            cell_indices = cell_df[cell_df['well_id'] == well_id]['cell_id'].map(cell_id_to_index).values
-            gene_indices = group['gene_id'].map(gene_id_to_index).values
-            fractions = group['well_read_fraction'].values
-
-            for cell_idx in cell_indices:
-                for gene_idx, fraction in zip(gene_indices, fractions):
-                    wells_subgraphs[well_id]['edge_index'].append([cell_idx, gene_idx])
-                    wells_subgraphs[well_id]['edge_attr'].append([fraction])
-
-    # Process well subgraphs into PyTorch Geometric Data objects
-    well_data_list = []
-    for well_id, subgraph in wells_subgraphs.items():
-        edge_index = torch.tensor(subgraph['edge_index'], dtype=torch.long).t().contiguous()
-        edge_attr = torch.tensor(subgraph['edge_attr'], dtype=torch.float)
-        num_nodes = max(max(edge) for edge in subgraph['edge_index']) + 1
-        x = torch.ones((num_nodes, 1))  # Feature matrix with a single feature set to 1 for each node
-
-        # Retrieve cell scores for the current well
-        cell_scores = cell_df[cell_df['well_id'] == well_id]['score'].values
-        # Create a tensor for cell scores, ensuring the order matches that of the nodes in the graph
-        y = torch.tensor(cell_scores, dtype=torch.float)
+    graphs = []
+    for well_id in pd.unique(gene_df['well_id']):
+        well_genes = gene_df[gene_df['well_id'] == well_id]
+        well_cells = cell_df[cell_df['well_id'] == well_id]
         
-        subgraph_data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
-        well_data_list.append((well_id, subgraph_data))
+        # Skip this well if the number of cells is less than cell_min
+        if well_cells.empty or well_genes.empty or len(well_cells) < cell_min:
+            continue
+        
+        # Prepare gene features (well_read_fraction)
+        gene_features = torch.tensor(well_genes['well_read_fraction'].values, dtype=torch.float).view(-1, 1)
+        # Prepare cell features (scores)
+        cell_features = torch.tensor(well_cells['score'].values, dtype=torch.float).view(-1, 1)
+
+        num_genes = gene_features.size(0)
+        num_cells = cell_features.size(0)
+        num_nodes = num_genes + num_cells
+        
+        # Create dense adjacency matrix connecting each cell to all genes
+        adj = torch.zeros((num_nodes, num_nodes), dtype=torch.float)
+        adj[num_genes:, :num_genes] = 1  # Assuming cells come after genes in node ordering
+
+        graph = {
+            'adjacency_matrix': adj,
+            'gene_features': gene_features,
+            'cell_features': cell_features,
+            'num_cells': num_cells,
+            'num_genes': num_genes
+        }
+        graphs.append(graph)
     
-    return well_data_list, gene_id_to_index, len(gene_id_to_index), cell_id_to_index
+    return graphs, feature_size, gene_id_to_index
 
-class CustomTransformerConv(MessagePassing):
-    def __init__(self, in_channels, out_channels, heads=1, concat=True, beta=False, dropout=0.0, edge_dim=None):
-        super().__init__(node_dim=0, aggr='add')  # Specify 'add' as the aggregation method
-        # Initialize the layers and parameters...
-        # Rest of init...
-        
-        # Ensure that the scale is a tensor and properly moved to the device during initialization
-        self.scale = torch.sqrt(torch.tensor(out_channels / heads, dtype=torch.float))
-        
-    def reset_parameters(self):
-        # Reset parameters...
-        self.scale.data = torch.sqrt(torch.tensor(self.out_channels / self.heads, dtype=torch.float))
+class Attention(nn.Module):
+    def __init__(self, feature_dim, attn_dim, dropout_rate=0.1):
+        super(Attention, self).__init__()
+        self.query = nn.Linear(feature_dim, attn_dim)
+        self.key = nn.Linear(feature_dim, attn_dim)
+        self.value = nn.Linear(feature_dim, feature_dim)
+        self.scale = 1.0 / (attn_dim ** 0.5)
+        self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, x, edge_index, edge_attr=None):
-        query = self.lin_query(x).view(-1, self.heads, self.out_channels)
-        key = self.lin_key(x).view(-1, self.heads, self.out_channels)
-        value = self.lin_value(x).view(-1, self.heads, self.out_channels)
+    def forward(self, gene_features, cell_features):
+        # Queries come from the cell features
+        q = self.query(cell_features)
+        # Keys and values come from the gene features
+        k = self.key(gene_features)
+        v = self.value(gene_features)
         
-        # Propagate the messages
-        out = self.propagate(edge_index, x=(query, key, value), edge_attr=edge_attr, size=None)
-        
-        # Reshape and concatenate head outputs if required
-        if self.concat:
-            out = out.view(-1, self.heads * self.out_channels)
-        else:
-            out = out.mean(dim=1)
-        
-        # Apply root node transformation with skip connection if required
-        if self.root_weight:
-            out = out + self.lin_root(x[:out.size(0), :])
-        
-        return out
-
-    def message(self, x_j, x_i, edge_attr, index, ptr, size_i):
-        # Compute messages
-        # This needs to be implemented based on your model's specifics
-        query, key, value = x_i[0], x_j[1], x_j[2]
-        # Compute the attention scores
-        alpha = (query * key).sum(dim=-1) / self.scale
-        alpha = softmax(alpha, index, ptr, size_i)
-        
-        # Apply attention scores to the values
-        out = value * alpha.view(-1, self.heads, 1)
-        return out.view(-1, self.heads * self.out_channels)
+        # Compute attention weights
+        attn_weights = torch.matmul(q, k.transpose(-2, -1)) * self.scale
+        attn_weights = F.softmax(attn_weights, dim=-1)
+        # Apply dropout to attention weights
+        attn_weights = self.dropout(attn_weights)  
 
 
-class GraphTransformer(torch.nn.Module):
-    def __init__(self, num_node_features, dropout_rate=0.1):
+        # Apply attention weights to the values
+        attn_output = torch.matmul(attn_weights, v)
+        return attn_output, attn_weights
+
+class GraphTransformer(nn.Module):
+    def __init__(self, gene_feature_size, cell_feature_size, hidden_dim, output_dim, attn_dim, dropout_rate=0.1):
         super(GraphTransformer, self).__init__()
-        # Assuming you want to predict a single value per graph, adjust the out_channels as needed.
-        num_heads = 4  # Example: 4 attention heads
-        out_channels = 1  # Example: predicting a single score per graph
-        self.conv1 = CustomTransformerConv(num_node_features, 128, heads=num_heads, dropout=dropout_rate, edge_dim=1)
-        self.conv2 = CustomTransformerConv(128 * num_heads, 256, heads=num_heads, dropout=dropout_rate, edge_dim=1)
-        self.lin = Linear(256 * num_heads, out_channels)  # Adjusted for a single output feature
+        self.gene_transform = nn.Linear(gene_feature_size, hidden_dim)
+        self.cell_transform = nn.Linear(cell_feature_size, hidden_dim)
+        self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, data):
-        x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
+        # Attention layer to let each cell attend to all genes
+        self.attention = Attention(hidden_dim, attn_dim)
 
-        x = F.relu(self.conv1(x, edge_index, edge_attr))
-        x = F.dropout(x, p=0.1, training=self.training)
-        x = F.relu(self.conv2(x, edge_index, edge_attr))
+        # This layer is used to transform the combined features after attention
+        self.combine_transform = nn.Linear(2 * hidden_dim, hidden_dim)
 
-        # Assuming you want to pool graph features to predict a single value per graph
-        x = global_mean_pool(x, batch)  # Pool to get one graph-level representation
-        x = self.lin(x)  # Predict a single value per graph
+        # Output layer for predicting cell scores, ensuring it matches the number of cells
+        self.cell_output = nn.Linear(hidden_dim, output_dim)
 
-        return x
+    def forward(self, adjacency_matrix, gene_features, cell_features):
+        # Apply initial transformation to gene and cell features
+        transformed_gene_features = F.relu(self.gene_transform(gene_features))
+        transformed_cell_features = F.relu(self.cell_transform(cell_features))
 
-def train_graph_network(graph_data_list, feature_size, model_path, batch_size=8, epochs=100, lr=0.001):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = GraphTransformer(num_node_features=feature_size).to(device)
-    
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    criterion = torch.nn.MSELoss(reduction='mean')
+        # Incorporate attention mechanism
+        attn_output, attn_weights = self.attention(transformed_gene_features, transformed_cell_features)
 
-    data_loader = TorchDataLoader(graph_data_list, batch_size=batch_size, shuffle=True, collate_fn=collate)
-    
-    model.train()
-    for epoch in range(epochs):
-        total_loss = 0
-        for data in data_loader:
-            data = data.to(device)
-            optimizer.zero_grad()
-            out = model(data)
-            loss = criterion(out.view(-1), data.y.view(-1))
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
+        # Combine the transformed cell features with the attention output features
+        combined_cell_features = torch.cat((transformed_cell_features, attn_output), dim=1)
         
-        print(f'Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(data_loader)}')
+        # Apply dropout here as well
+        combined_cell_features = self.dropout(combined_cell_features)  
+
+        combined_cell_features = F.relu(self.combine_transform(combined_cell_features))
+
+        # Combine gene and cell features for message passing
+        combined_features = torch.cat((transformed_gene_features, combined_cell_features), dim=0)
+
+        # Apply message passing via adjacency matrix multiplication
+        message_passed_features = torch.matmul(adjacency_matrix, combined_features)
+
+        # Predict cell scores from the post-message passed cell features
+        cell_scores = self.cell_output(message_passed_features[-cell_features.size(0):])
+
+        return cell_scores, attn_weights
+
+def train_graph_transformer(graphs, lr=0.01, dropout_rate=0.1, epochs=100, save_fldr='', acc_threshold = 0.1):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = GraphTransformer(gene_feature_size=1, cell_feature_size=1, hidden_dim=64, output_dim=1, attn_dim=64, dropout_rate=dropout_rate).to(device)
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    training_log = []
     
+    accumulate_grad_batches=1
+    threshold=acc_threshold
+    
+    for epoch in range(epochs):
+        model.train()
+        total_loss = 0
+        total_correct = 0
+        total_samples = 0
+        optimizer.zero_grad()
+        batch_count = 0  # Initialize batch_count
+        
+        for graph in graphs:
+            adjacency_matrix = graph['adjacency_matrix'].to(device)
+            gene_features = graph['gene_features'].to(device)
+            cell_features = graph['cell_features'].to(device)
+            num_cells = graph['num_cells']
+            predictions, attn_weights = model(adjacency_matrix, gene_features, cell_features)
+            predictions = predictions.squeeze()
+            true_scores = cell_features[:num_cells, 0]
+            loss = criterion(predictions, true_scores) / accumulate_grad_batches
+            loss.backward()
+
+            # Calculate "accuracy"
+            with torch.no_grad():
+                correct_predictions = (torch.abs(predictions - true_scores) / true_scores <= threshold).sum().item()
+                total_correct += correct_predictions
+                total_samples += num_cells
+
+            batch_count += 1  # Increment batch_count
+            if batch_count % accumulate_grad_batches == 0 or batch_count == len(graphs):
+                optimizer.step()
+                optimizer.zero_grad()
+
+            total_loss += loss.item() * accumulate_grad_batches
+        
+        accuracy = total_correct / total_samples
+        training_log.append({"Epoch": epoch+1, "Average Loss": total_loss / len(graphs), "Accuracy": accuracy})
+        print(f"Epoch {epoch+1}, Loss: {total_loss / len(graphs)}, Accuracy: {accuracy}", end="\r", flush=True)
+    
+    # Save the training log and model as before
+    os.makedirs(save_fldr, exist_ok=True)
+    log_path = os.path.join(save_fldr, 'training_log.csv')
+    training_log_df = pd.DataFrame(training_log)
+    training_log_df.to_csv(log_path, index=False)
+    print(f"Training log saved to {log_path}")
+    
+    model_path = os.path.join(save_fldr, 'model.pth')
     torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
+
+    return model
+        
+def annotate_cells_with_genes(graphs, model, gene_id_to_index):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+    model.eval()
+    annotated_data = []
+    with torch.no_grad():  # Disable gradient computation
+        for graph in graphs:
+            adjacency_matrix = graph['adjacency_matrix'].to(device)
+            gene_features = graph['gene_features'].to(device)
+            cell_features = graph['cell_features'].to(device)
+
+            predictions, attn_weights = model(adjacency_matrix, gene_features, cell_features)
+            predictions = np.atleast_1d(predictions.squeeze().cpu().numpy())
+            attn_weights = np.atleast_2d(attn_weights.squeeze().cpu().numpy())
+
+            if attn_weights.shape[0] != cell_features.size(0):
+                # Skip if the first dimension of attn_weights does not match the number of cells
+                continue
+            
+            for cell_idx in range(cell_features.size(0)):
+                true_score = cell_features[cell_idx, 0].item()
+                predicted_score = predictions[cell_idx]
+                most_probable_gene_idx = attn_weights[cell_idx].argmax()
+                most_probable_gene_score = attn_weights[cell_idx, most_probable_gene_idx]
+
+                gene_id = list(gene_id_to_index.keys())[most_probable_gene_idx]
+
+                annotated_data.append({
+                    "Cell ID": cell_idx,
+                    "Most Probable Gene": gene_id,
+                    "Cell Score": true_score,
+                    "Predicted Cell Score": predicted_score,
+                    "Probability Score for Highest Gene": most_probable_gene_score
+                })
+
+    return pd.DataFrame(annotated_data)
