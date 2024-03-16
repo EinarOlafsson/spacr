@@ -19,35 +19,42 @@ def generate_graphs(sequencing, scores, cell_min, gene_min_read):
     gene_df = gene_df.merge(total_reads_per_well, on='well_id')
     gene_df['well_read_fraction'] = gene_df['read_count'] / gene_df['total_reads']
 
-    # Mapping genes to indices
-    gene_id_to_index = {gene: i for i, gene in enumerate(gene_df['gene_id'].unique())}
-    feature_size = len(gene_id_to_index)
-
     # Load and preprocess cell score data
     cell_df = pd.read_csv(scores)
     cell_df = cell_df[['prcfo', 'prc', 'pred']].rename(columns={'prcfo': 'cell_id', 'prc': 'well_id', 'pred': 'score'})
+
+    # Create a global mapping of gene IDs to indices
+    unique_genes = gene_df['gene_id'].unique()
+    gene_id_to_index = {gene_id: index for index, gene_id in enumerate(unique_genes)}
 
     graphs = []
     for well_id in pd.unique(gene_df['well_id']):
         well_genes = gene_df[gene_df['well_id'] == well_id]
         well_cells = cell_df[cell_df['well_id'] == well_id]
-        
-        # Skip this well if the number of cells is less than cell_min
+
         if well_cells.empty or well_genes.empty or len(well_cells) < cell_min:
             continue
-        
-        # Prepare gene features (well_read_fraction)
-        gene_features = torch.tensor(well_genes['well_read_fraction'].values, dtype=torch.float).view(-1, 1)
+
+        # Initialize gene features tensor with zeros for all unique genes
+        gene_features = torch.zeros((len(gene_id_to_index), 1), dtype=torch.float)
+
+        # Update gene features tensor with well_read_fraction for genes present in this well
+        for _, row in well_genes.iterrows():
+            gene_index = gene_id_to_index[row['gene_id']]
+            gene_features[gene_index] = torch.tensor([[row['well_read_fraction']]])
+
         # Prepare cell features (scores)
         cell_features = torch.tensor(well_cells['score'].values, dtype=torch.float).view(-1, 1)
 
-        num_genes = gene_features.size(0)
+        num_genes = len(gene_id_to_index)
         num_cells = cell_features.size(0)
         num_nodes = num_genes + num_cells
-        
-        # Create dense adjacency matrix connecting each cell to all genes
+
+        # Create adjacency matrix connecting each cell to all genes in the well
         adj = torch.zeros((num_nodes, num_nodes), dtype=torch.float)
-        adj[num_genes:, :num_genes] = 1  # Assuming cells come after genes in node ordering
+        for _, row in well_genes.iterrows():
+            gene_index = gene_id_to_index[row['gene_id']]
+            adj[num_genes:, gene_index] = 1
 
         graph = {
             'adjacency_matrix': adj,
@@ -57,8 +64,40 @@ def generate_graphs(sequencing, scores, cell_min, gene_min_read):
             'num_genes': num_genes
         }
         graphs.append(graph)
-    print(f'Generated dataset with {len(graphs)} graphs, and {len(gene_id_to_index)} genes')
-    return graphs, feature_size, gene_id_to_index
+
+    print(f'Generated dataset with {len(graphs)} graphs')
+    return graphs, gene_id_to_index
+
+def print_graphs_info(graphs, gene_id_to_index):
+    # Invert the gene_id_to_index mapping for easy lookup
+    index_to_gene_id = {v: k for k, v in gene_id_to_index.items()}
+
+    for i, graph in enumerate(graphs, start=1):
+        print(f"Graph {i}:")
+        num_genes = graph['num_genes']
+        num_cells = graph['num_cells']
+        gene_features = graph['gene_features']
+        cell_features = graph['cell_features']
+
+        print(f"  Number of Genes: {num_genes}")
+        print(f"  Number of Cells: {num_cells}")
+
+        # Identify genes present in the graph based on non-zero feature values
+        present_genes = [index_to_gene_id[idx] for idx, feature in enumerate(gene_features) if feature.item() > 0]
+        print("  Genes present in this Graph:", present_genes)
+
+        # Display gene features for genes present in the graph
+        print("  Gene Features:")
+        for gene_id in present_genes:
+            idx = gene_id_to_index[gene_id]
+            print(f"    {gene_id}: {gene_features[idx].item()}")
+
+        # Display a sample of cell features, for brevity
+        print("  Cell Features (sample):")
+        for idx, feature in enumerate(cell_features[:min(5, len(cell_features))]):
+            print(f"    Cell {idx+1}: {feature.item()}")
+
+        print("-" * 40)
 
 class Attention(nn.Module):
     def __init__(self, feature_dim, attn_dim, dropout_rate=0.1):
@@ -197,7 +236,8 @@ def annotate_cells_with_genes(graphs, model, gene_id_to_index):
     model.to(device)
     model.eval()
     annotated_data = []
-    with torch.no_grad():  # Disable gradient computation
+
+    with torch.no_grad():
         for graph in graphs:
             adjacency_matrix = graph['adjacency_matrix'].to(device)
             gene_features = graph['gene_features'].to(device)
@@ -207,24 +247,30 @@ def annotate_cells_with_genes(graphs, model, gene_id_to_index):
             predictions = np.atleast_1d(predictions.squeeze().cpu().numpy())
             attn_weights = np.atleast_2d(attn_weights.squeeze().cpu().numpy())
 
-            if attn_weights.shape[0] != cell_features.size(0):
-                # Skip if the first dimension of attn_weights does not match the number of cells
-                continue
-            
+            # This approach assumes all genes in gene_id_to_index are used in the model.
+            # Create a list of gene IDs present in this specific graph.
+            present_gene_ids = [key for key, value in gene_id_to_index.items() if value < gene_features.size(0)]
+
             for cell_idx in range(cell_features.size(0)):
                 true_score = cell_features[cell_idx, 0].item()
                 predicted_score = predictions[cell_idx]
+                
+                # Find the index of the most probable gene. 
                 most_probable_gene_idx = attn_weights[cell_idx].argmax()
-                most_probable_gene_score = attn_weights[cell_idx, most_probable_gene_idx]
 
-                gene_id = list(gene_id_to_index.keys())[most_probable_gene_idx]
+                if len(present_gene_ids) > most_probable_gene_idx:  # Ensure index is within the range
+                    most_probable_gene_id = present_gene_ids[most_probable_gene_idx]
+                    most_probable_gene_score = attn_weights[cell_idx, most_probable_gene_idx] if attn_weights.ndim > 1 else attn_weights[most_probable_gene_idx]
 
-                annotated_data.append({
-                    "Cell ID": cell_idx,
-                    "Most Probable Gene": gene_id,
-                    "Cell Score": true_score,
-                    "Predicted Cell Score": predicted_score,
-                    "Probability Score for Highest Gene": most_probable_gene_score
-                })
+                    annotated_data.append({
+                        "Cell ID": cell_idx,
+                        "Most Probable Gene": most_probable_gene_id,
+                        "Cell Score": true_score,
+                        "Predicted Cell Score": predicted_score,
+                        "Probability Score for Highest Gene": most_probable_gene_score
+                    })
+                else:
+                    # Handle the case where the index is out of bounds - this should not happen but is here for robustness
+                    print("Error: Gene index out of bounds. This might indicate a mismatch in the model's output.")
 
     return pd.DataFrame(annotated_data)
