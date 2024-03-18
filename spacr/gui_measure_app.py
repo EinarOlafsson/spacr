@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use the non-GUI Agg backend
 from multiprocessing import Process, Queue, Value
 from ttkthemes import ThemedTk
-from tkinter import filedialog
+from tkinter import filedialog, StringVar, BooleanVar, IntVar, DoubleVar, Tk
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -16,7 +16,7 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, process_stdout_stderr, set_dark_style, set_default_font, generate_fields, create_dark_mode, main_thread_update_function
-from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, safe_literal_eval, check_measure_gui_settings, add_measure_gui_defaults
+from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, safe_literal_eval, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -26,7 +26,7 @@ def run_measure_gui(q, fig_queue, stop_requested):
     process_stdout_stderr(q)
     try:
         settings = check_measure_gui_settings(vars_dict)
-        settings = add_measure_gui_defaults(settings)
+        #settings = add_measure_gui_defaults(settings)
         #for key in settings:
         #    value = settings[key]
         #    print(key, value, type(value))
@@ -61,28 +61,13 @@ def initiate_abort():
         thread_control["run_thread"] = None
 
 def import_settings(scrollable_frame):
-    global vars_dict, original_variables_structure
+    global vars_dict
 
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
-    
-    if not csv_file_path:
-        return
-    
-    imported_variables = {}
-
-    with open(csv_file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            key = row['Key']
-            value = row['Value']
-            # Evaluate the value safely using safe_literal_eval
-            imported_variables[key] = safe_literal_eval(value)
-
-    # Track changed variables and apply the imported ones, printing changes as we go
-    for key, var in vars_dict.items():
-        if key in imported_variables and var.get() != imported_variables[key]:
-            print(f"Updating '{key}' from '{var.get()}' to '{imported_variables[key]}'")
-            var.set(imported_variables[key])
+    csv_settings = read_settings_from_csv(csv_file_path)
+    variables = measure_variables()
+    new_settings = update_settings_from_csv(variables, csv_settings)
+    vars_dict = generate_fields(new_settings, scrollable_frame)
 
 @log_function_call
 def initiate_measure_root(width, height):

@@ -17,7 +17,7 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, safe_literal_eval, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr
-from .gui_utils import mask_variables, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper
+from .gui_utils import mask_variables, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -65,25 +65,11 @@ def import_settings(scrollable_frame):
     global vars_dict
 
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
-    
-    if not csv_file_path:
-        return
-    
-    imported_variables = {}
-
-    with open(csv_file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            key = row['Key']
-            value = row['Value']
-            # Evaluate the value safely using safe_literal_eval
-            imported_variables[key] = safe_literal_eval(value)
-
-    # Track changed variables and apply the imported ones, printing changes as we go
-    for key, var in vars_dict.items():
-        if key in imported_variables and var.get() != imported_variables[key]:
-            print(f"Updating '{key}' from '{var.get()}' to '{imported_variables[key]}'")
-            var.set(imported_variables[key])
+    csv_settings = read_settings_from_csv(csv_file_path)
+    variables = mask_variables()
+    variables = add_mask_gui_defaults(variables)
+    new_settings = update_settings_from_csv(variables, csv_settings)
+    vars_dict = generate_fields(new_settings, scrollable_frame)
     
 @log_function_call
 def initiate_mask_root(width, height):

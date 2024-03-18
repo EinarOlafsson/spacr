@@ -16,5 +16,3 @@ def gui_mask():
     global vars_dict, root
     root, vars_dict = initiate_mask_root(1000, 1500)
     root.mainloop()
-
-    #test

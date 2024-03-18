@@ -1,4 +1,4 @@
-import spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib, re
+import spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib, re, csv
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +13,26 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
+
+def read_settings_from_csv(csv_file_path):
+    settings = {}
+    with open(csv_file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            key = row['Key']
+            value = row['Value']
+            settings[key] = value
+    return settings
+
+def update_settings_from_csv(variables, csv_settings):
+    new_settings = variables.copy()  # Start with a copy of the original settings
+    for key, value in csv_settings.items():
+        if key in new_settings:
+            # Get the variable type and options from the original settings
+            var_type, options, _ = new_settings[key]
+            # Update the default value with the CSV value, keeping the type and options unchanged
+            new_settings[key] = (var_type, options, value)
+    return new_settings
 
 def safe_literal_eval(value):
     try:
@@ -103,56 +123,44 @@ def check_mask_gui_settings(vars_dict):
 def check_measure_gui_settings(vars_dict):
     settings = {}
     for key, var in vars_dict.items():
-        value = var.get()  # This retrieves the string representation for entries or the actual value for checkboxes and combos
+        value = var.get()  # Retrieves the string representation for entries or the actual value for checkboxes and combos.
 
         try:
-            if key == 'channels' or key == 'png_dims':
-                # Converts string representation to a list of integers
+            if key in ['channels', 'png_dims']:
                 settings[key] = [int(chan) for chan in ast.literal_eval(value)] if value else []
                 
             elif key in ['cell_loc', 'pathogen_loc', 'treatment_loc']:
-                settings[key] = ast.literal_eval(value) if value else None
-                
+                # Convert to a list of lists of strings, ensuring all structures are lists.
+                settings[key] = [list(map(str, sublist)) for sublist in ast.literal_eval(value)] if value else []
+
             elif key == 'dialate_png_ratios':
-                settings[key] = [float(num) for num in eval(value)] if value else None
+                settings[key] = [float(num) for num in ast.literal_eval(value)] if value else []
 
             elif key == 'normalize':
-                # Converts 'normalize' into a list of two integers
-                settings[key] = [int(num) for num in ast.literal_eval(value)] if value else None
+                settings[key] = [int(num) for num in ast.literal_eval(value)] if value else []
 
-            elif key == 'normalize_by':
-                # 'normalize_by' is a string, so directly assign the value
+            # Directly assign string values for these specific keys
+            elif key in ['normalize_by', 'experiment', 'measurement', 'input_folder']:
                 settings[key] = value
 
             elif key == 'png_size':
-                # Converts string representation into a list of lists of integers
-                temp_val = ast.literal_eval(value) if value else []
-                settings[key] = [list(map(int, dim)) for dim in temp_val] if temp_val else None
-
-            # Handling for other keys as in your original function...
+                settings[key] = [list(map(int, dim)) for dim in ast.literal_eval(value)] if value else []
             
-            elif key in ['pathogens', 'treatments', 'cells', 'crop_mode', 'timelapse_objects']:
-                # Ensuring these are evaluated correctly as lists or other structures
-                settings[key] = ast.literal_eval(value) if value else None
+            # Ensure these are lists of strings, converting from tuples if necessary
+            elif key in ['timelapse_objects', 'crop_mode', 'cells', 'pathogens', 'treatments']:
+                eval_value = ast.literal_eval(value) if value else []
+                settings[key] = list(map(str, eval_value)) if isinstance(eval_value, (list, tuple)) else [str(eval_value)]
 
-            elif key == 'timelapse_objects':
-                # Ensure it's a list of strings
-                settings[key] = eval(value) if value else []
-
-            # Handling for keys that should be treated as strings directly
-            elif key in ['normalize_by', 'experiment', 'measurement', 'input_folder']:
-                settings[key] = str(value) if value else None
-
-            # Handling for single values that are not strings (int, float, bool)
+            # Handling for single non-string values (int, float, bool)
             elif key in ['cell_mask_dim', 'cell_min_size', 'nucleus_mask_dim', 'nucleus_min_size', 'pathogen_mask_dim', 'pathogen_min_size', 'cytoplasm_min_size', 'max_workers', 'channel_of_interest', 'nr_imgs']:
                 settings[key] = int(value) if value else None
 
             elif key == 'um_per_pixel':
                 settings[key] = float(value) if value else None
 
-            # Direct handling of boolean values based on checkboxes
+            # Handling boolean values based on checkboxes
             elif key in ['save_png', 'use_bounding_box', 'save_measurements', 'plot', 'plot_filtration', 'include_uninfected', 'dialate_pngs', 'timelapse', 'representative_images']:
-                settings[key] = bool(value)
+                settings[key] = bool(ast.literal_eval(value))
 
         except SyntaxError as e:
             messagebox.showerror("Error", f"Syntax error processing {key}: {str(e)}")
@@ -268,6 +276,10 @@ def sim_variables():
     }
     return variables
 
+def add_measure_gui_defaults(settings):
+    settings['compartments'] = ['pathogen', 'cytoplasm']
+    return settings
+
 def measure_variables():
     variables = {
         'input_folder':('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui/merged'),
@@ -304,6 +316,7 @@ def measure_variables():
         'treatments': ('entry', None, '["cm","lovastatin_20uM"]'),
         'treatment_loc': ('entry', None, '[["c1","c2"], ["c3","c4"]]'),
         'channel_of_interest':('entry', None, 3),
+        'compartments':('entry', None, '["pathogen","cytoplasm"]'),
         'measurement':('entry', None, 'mean_intensity'),
         'nr_imgs':('entry', None, 32),
         'um_per_pixel':('entry', None, 0.1)
@@ -376,10 +389,6 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         var = None  # Placeholder in case of an undefined var_type
     
     return var
-
-def add_measure_gui_defaults(settings):
-    settings['compartments'] = ['pathogen', 'cytoplasm']
-    return settings
     
 def mask_variables():
     variables = {
