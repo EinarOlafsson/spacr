@@ -264,6 +264,54 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
 
     return stack
 
+def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
+    """
+    Plot randomly selected arrays from a given directory.
+
+    Parameters:
+    - src (str): The directory path containing the arrays.
+    - figuresize (int): The size of the figure (default: 50).
+    - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
+    - nr (int): The number of arrays to plot (default: 1).
+    - normalize (bool): Whether to normalize the arrays (default: True).
+    - q1 (int): The lower percentile for normalization (default: 1).
+    - q2 (int): The upper percentile for normalization (default: 99).
+
+    Returns:
+    None
+    """
+    from .utils import normalize_to_dtype
+    
+    mask_cmap = random_cmap()
+    paths = []
+    for file in os.listdir(src):
+        if file.endswith('.npy'):
+            path = os.path.join(src, file)
+            paths.append(path)
+    paths = random.sample(paths, nr)
+    for path in paths:
+        print(f'Image path:{path}')
+        img = np.load(path)
+        if normalize:
+            img = normalize_to_dtype(array=img, q1=q1, q2=q2)
+        dim = img.shape
+        if len(img.shape)>2:
+            array_nr = img.shape[2]
+            fig, axs = plt.subplots(1, array_nr,figsize=(figuresize,figuresize))
+            for channel in range(array_nr):
+                i = np.take(img, [channel], axis=2)
+                axs[channel].imshow(i, cmap=plt.get_cmap(cmap)) #_imshow
+                axs[channel].set_title('Channel '+str(channel),size=24)
+                axs[channel].axis('off')
+        else:
+            fig, ax = plt.subplots(1, 1,figsize=(figuresize,figuresize))
+            ax.imshow(img, cmap=plt.get_cmap(cmap)) #_imshow
+            ax.set_title('Channel 0',size=24)
+            ax.axis('off')
+        fig.tight_layout()
+        plt.show()
+    return
+
 def _normalize_and_outline(image, remove_background, backgrounds, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
     """
     Normalize and outline an image.
@@ -284,7 +332,7 @@ def _normalize_and_outline(image, remove_background, backgrounds, normalize, nor
         tuple: A tuple containing the overlayed image, the original image, and a list of outlines.
     """
     from .utils import normalize_to_dtype
-    
+
     outlines = []
     if remove_background:
         for chan_index, channel in enumerate(range(image.shape[-1])):
@@ -292,6 +340,9 @@ def _normalize_and_outline(image, remove_background, backgrounds, normalize, nor
             background = backgrounds[chan_index]
             single_channel[single_channel < background] = 0
             image[:, :, channel] = single_channel
+
+    
+
     if normalize:
         image = normalize_to_dtype(array=image, q1=normalization_percentiles[0], q2=normalization_percentiles[1])
     rgb_image = np.take(image, overlay_chans, axis=-1)
@@ -315,11 +366,20 @@ def _normalize_and_outline(image, remove_background, backgrounds, normalize, nor
             # Overlay the outlines onto the RGB image
             for j in np.unique(outline)[1:]:
                 overlayed_image[outline == j] = outline_colors[i % len(outline_colors)]
+        
+        # Remove mask_dims from image
+        channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
+        image = np.take(image, channels_to_keep, axis=-1)
+        
         return overlayed_image, image, outlines
     else:
+        # Remove mask_dims from image
+        channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
+        image = np.take(image, channels_to_keep, axis=-1)
         return [], image, []
 
 def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_image, outlines, cmap, outline_colors, print_object_number):
+    
     """
     Plot the merged plot with overlay, image channels, and masks.
 
@@ -378,60 +438,12 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
     plt.show()
     return fig
 
-def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
-    """
-    Plot randomly selected arrays from a given directory.
-
-    Parameters:
-    - src (str): The directory path containing the arrays.
-    - figuresize (int): The size of the figure (default: 50).
-    - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
-    - nr (int): The number of arrays to plot (default: 1).
-    - normalize (bool): Whether to normalize the arrays (default: True).
-    - q1 (int): The lower percentile for normalization (default: 1).
-    - q2 (int): The upper percentile for normalization (default: 99).
-
-    Returns:
-    None
-    """
-    from .utils import normalize_to_dtype
-    
-    mask_cmap = random_cmap()
-    paths = []
-    for file in os.listdir(src):
-        if file.endswith('.npy'):
-            path = os.path.join(src, file)
-            paths.append(path)
-    paths = random.sample(paths, nr)
-    for path in paths:
-        print(f'Image path:{path}')
-        img = np.load(path)
-        if normalize:
-            img = normalize_to_dtype(array=img, q1=q1, q2=q2)
-        dim = img.shape
-        if len(img.shape)>2:
-            array_nr = img.shape[2]
-            fig, axs = plt.subplots(1, array_nr,figsize=(figuresize,figuresize))
-            for channel in range(array_nr):
-                i = np.take(img, [channel], axis=2)
-                axs[channel].imshow(i, cmap=plt.get_cmap(cmap)) #_imshow
-                axs[channel].set_title('Channel '+str(channel),size=24)
-                axs[channel].axis('off')
-        else:
-            fig, ax = plt.subplots(1, 1,figsize=(figuresize,figuresize))
-            ax.imshow(img, cmap=plt.get_cmap(cmap)) #_imshow
-            ax.set_title('Channel 0',size=24)
-            ax.axis('off')
-        fig.tight_layout()
-        plt.show()
-    return
-
 def plot_merged(src, settings):
     """
     Plot the merged images after applying various filters and modifications.
 
     Args:
-        src (ndarray): The source images.
+        src (path): Path to folder with images.
         settings (dict): The settings for the plot.
 
     Returns:
@@ -463,15 +475,28 @@ def plot_merged(src, settings):
         if settings['include_multiinfected'] is not True or settings['include_multinucleated'] is not True or settings['filter_min_max'] is not None:
             stack = _filter_objects_in_plot(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], mask_dims, settings['filter_min_max'], settings['include_multinucleated'], settings['include_multiinfected'])
 
-        #channels_to_keep = np.ones(stack.shape[-1], dtype=bool)
-        #channels_to_keep[mask_dims] = False
-        #channel_image = stack[:, :, channels_to_keep]
-        
-        overlayed_image, image, outlines = _normalize_and_outline(stack, settings['remove_background'], settings['backgrounds'], settings['normalize'], settings['normalization_percentiles'], settings['overlay'], settings['overlay_chans'], mask_dims, outline_colors, settings['outline_thickness'])
-        
+        overlayed_image, image, outlines = _normalize_and_outline(image=stack, 
+                                                                  remove_background=settings['remove_background'],
+                                                                  backgrounds=settings['backgrounds'],
+                                                                  normalize=settings['normalize'],
+                                                                  normalization_percentiles=settings['normalization_percentiles'],
+                                                                  overlay=settings['overlay'],
+                                                                  overlay_chans=settings['overlay_chans'],
+                                                                  mask_dims=mask_dims,
+                                                                  outline_colors=outline_colors,
+                                                                  outline_thickness=settings['outline_thickness'])
         if index < settings['nr']:
             index += 1
-            fig = _plot_merged_plot(settings['overlay'], image, stack, mask_dims, settings['figuresize'], overlayed_image, outlines, settings['cmap'], outline_colors, settings['print_object_number'])
+            fig = _plot_merged_plot(overlay=settings['overlay'],
+                                    image=image,
+                                    stack=stack,
+                                    mask_dims=mask_dims,
+                                    figuresize=settings['figuresize'],
+                                    overlayed_image=overlayed_image,
+                                    outlines=outlines,
+                                    cmap=settings['cmap'],
+                                    outline_colors=outline_colors,
+                                    print_object_number=settings['print_object_number'])
         else:
             return fig
 

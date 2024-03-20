@@ -25,8 +25,8 @@ def run_measure_gui(q, fig_queue, stop_requested):
     global vars_dict
     process_stdout_stderr(q)
     try:
+        print('hello')
         settings = check_measure_gui_settings(vars_dict)
-        #settings = add_measure_gui_defaults(settings)
         #for key in settings:
         #    value = settings[key]
         #    print(key, value, type(value))
@@ -60,6 +60,7 @@ def initiate_abort():
             thread_control["run_thread"].terminate()
         thread_control["run_thread"] = None
 
+@log_function_call
 def import_settings(scrollable_frame):
     global vars_dict
 
@@ -186,7 +187,7 @@ def initiate_measure_root(width, height):
     _process_fig_queue()
     create_dark_mode(root, style, console_output)
     
-    root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+    #root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
     
     return root, vars_dict
 

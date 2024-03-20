@@ -757,6 +757,7 @@ def _merge_channels(src, plot=False):
 
     # Create the 'stack' directory if it doesn't exist
     stack_dir.mkdir(exist_ok=True)
+    print(f'generated folder with merged arrays: {stack_dir}')
 
     if _is_dir_empty(stack_dir):
         with Pool(cpu_count()) as pool:
@@ -1125,6 +1126,28 @@ def _create_movies_from_npy_per_channel(src, fps=10):
         channel_save_path = os.path.join(save_path, f'{plate}_{well}_{field}_channel_{channel}.mp4')
         _npz_to_movie(normalized_channel_arrays_3d, filenames, channel_save_path, fps)
 
+def delete_empty_subdirectories(folder_path):
+    """
+    Deletes all empty subdirectories in the specified folder.
+
+    Args:
+    - folder_path (str): The path to the folder in which to look for empty subdirectories.
+    """
+    # Check each item in the specified folder
+    for dirpath, dirnames, filenames in os.walk(folder_path, topdown=False):
+        # os.walk is used with topdown=False to start from the innermost directories and work upwards.
+        for dirname in dirnames:
+            # Construct the full path to the subdirectory
+            full_dir_path = os.path.join(dirpath, dirname)
+            # Try to remove the directory and catch any error (like if the directory is not empty)
+            try:
+                os.rmdir(full_dir_path)
+                print(f"Deleted empty directory: {full_dir_path}")
+            except OSError as e:
+                continue
+                # An error occurred, likely because the directory is not empty
+                #print(f"Skipping non-empty directory: {full_dir_path}")
+
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays, _plot_4D_arrays
@@ -1158,6 +1181,7 @@ def preprocess_img_data(settings):
     Returns:
         None
     """
+
     src = settings['src']
     valid_ext = ['tif', 'tiff', 'png', 'jpeg']
     files = os.listdir(src)
@@ -1165,14 +1189,19 @@ def preprocess_img_data(settings):
     extension_counts = Counter(extensions)
     most_common_extension = extension_counts.most_common(1)[0][0]
 
+    img_format = None
+
+    delete_empty_subdirectories(src)
+
     # Check if the most common extension is one of the specified image formats
     if most_common_extension in valid_ext:
         img_format = f'.{most_common_extension}'
         print(f'Found {extension_counts[most_common_extension]} {most_common_extension} files')
     else:
         print(f'Could not find any {valid_ext} files in {src} only found {extension_counts[0]}')
-        return
-
+        if os.path.exists(src+'/stack'):
+            return
+        
     cmap = 'inferno'
     figuresize = 20
     normalize = True
@@ -1194,43 +1223,59 @@ def preprocess_img_data(settings):
     all_to_mip = settings['all_to_mip']
     pick_slice = settings['pick_slice']
     skip_mode = settings['skip_mode']
-    
-    if metadata_type == 'cellvoyager':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'cq1':
-        regex = f'W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'nikon':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'zeis':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'leica':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'custom':
-        regex = f'({custom_regex}){img_format}'
+
+
+    if not img_format == None:
+        if metadata_type == 'cellvoyager':
+            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        elif metadata_type == 'cq1':
+            regex = f'W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        elif metadata_type == 'nikon':
+            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        elif metadata_type == 'zeis':
+            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        elif metadata_type == 'leica':
+            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        elif metadata_type == 'custom':
+            regex = f'({custom_regex}){img_format}'
         
-    print(f'regex mode:{metadata_type} regex:{regex}')
+        print(f'regex mode:{metadata_type} regex:{regex}')
     
     if not os.path.exists(src+'/stack'):
-        if timelapse:
-            _move_to_chan_folder(src, regex, timelapse, metadata_type)
-        else:
-            #_z_to_mip(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
-            _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
-            
-            #Make sure no batches will be of only one image
-            all_imgs = len(src+'/stack')
-            full_batches = all_imgs // batch_size
-            last_batch_size = all_imgs % batch_size
-            
-            # Check if the last batch is of size 1
-            if last_batch_size == 1:
-                # If there's only one batch and its size is 1, it's also an issue
-                if full_batches == 0:
-                    raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
-                # If the last batch is of size 1, merge it with the second last batch
-                elif full_batches > 0:
-                    raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
+        if not img_format == None:
+            if timelapse:
+                _move_to_chan_folder(src, regex, timelapse, metadata_type)
+            else:
+                #_z_to_mip(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
+                _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
+                
+                #Make sure no batches will be of only one image
+                all_imgs = len(src+'/stack')
+                full_batches = all_imgs // batch_size
+                last_batch_size = all_imgs % batch_size
+                
+                # Check if the last batch is of size 1
+                if last_batch_size == 1:
+                    # If there's only one batch and its size is 1, it's also an issue
+                    if full_batches == 0:
+                        raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
+                    # If the last batch is of size 1, merge it with the second last batch
+                    elif full_batches > 0:
+                        raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
     
+            _merge_channels(src, plot=False)
+            if timelapse:
+                _create_movies_from_npy_per_channel(src+'/stack', fps=2)
+
+            if plot:
+                print(f'plotting {nr} images from {src}/stack')
+                plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+            if all_to_mip:
+                _mip_all(src+'/stack')
+                if plot:
+                    print(f'plotting {nr} images from {src}/stack')
+                    plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+    if not os.path.exists(src+'/stack'):
         _merge_channels(src, plot=False)
         if timelapse:
             _create_movies_from_npy_per_channel(src+'/stack', fps=2)
@@ -1243,7 +1288,6 @@ def preprocess_img_data(settings):
             if plot:
                 print(f'plotting {nr} images from {src}/stack')
                 plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-    #nr_of_stacks = len(src+'/channel_stack')
 
     _concatenate_channel(src+'/stack', 
                         channels=mask_channels, 

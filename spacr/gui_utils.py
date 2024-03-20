@@ -1,6 +1,6 @@
 import spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib, re, csv
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 import numpy as np
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -160,13 +160,15 @@ def check_measure_gui_settings(vars_dict):
 
             # Handling boolean values based on checkboxes
             elif key in ['save_png', 'use_bounding_box', 'save_measurements', 'plot', 'plot_filtration', 'include_uninfected', 'dialate_pngs', 'timelapse', 'representative_images']:
-                settings[key] = bool(ast.literal_eval(value))
+                settings[key] = var.get()
 
         except SyntaxError as e:
-            messagebox.showerror("Error", f"Syntax error processing {key}: {str(e)}")
+            print(f"Syntax error processing {key}: {str(e)}")
+            #messagebox.showerror("Error", f"Syntax error processing {key}: {str(e)}")
             return None
         except Exception as e:
-            messagebox.showerror("Error", f"Error processing {key}: {str(e)}")
+            print(f"Error processing {key}: {str(e)}")
+            #messagebox.showerror("Error", f"Error processing {key}: {str(e)}")
             return None
 
     return settings
@@ -365,7 +367,7 @@ def classify_variables():
     return variables
     
 
-@log_function_call
+#@log_function_call
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     label = ttk.Label(frame, text=label_text, style='TLabel')  # Assuming you have a dark mode style for labels too
     label.grid(column=0, row=row, sticky=tk.W, padx=5, pady=5)
@@ -410,10 +412,10 @@ def mask_variables():
         'pathogen_background': ('entry', None, 100),
         'pathogen_Signal_to_noise': ('entry', None, 3),
         'pathogen_CP_prob': ('entry', None, 0),
-        #'preprocess': ('check', None, True),
-        #'masks': ('check', None, True),
-        #'examples_to_plot': ('entry', None, 1),
-        #'randomize': ('check', None, True),
+        'preprocess': ('check', None, True),
+        'masks': ('check', None, True),
+        'examples_to_plot': ('entry', None, 1),
+        'randomize': ('check', None, True),
         'batch_size': ('entry', None, 50),
         'timelapse': ('check', None, False),
         'timelapse_displacement': ('entry', None, None),
@@ -422,14 +424,14 @@ def mask_variables():
         'timelapse_remove_transient': ('check', None, True),
         'timelapse_mode': ('combo',  ['trackpy', 'btrack'], 'trackpy'),
         'timelapse_objects': ('combo', ['cell','nucleus','pathogen','cytoplasm', None], None),
-        #'fps': ('entry', None, 2),
-        #'remove_background': ('check', None, True),
+        'fps': ('entry', None, 2),
+        'remove_background': ('check', None, True),
         'lower_quantile': ('entry', None, 0.01),
-        #'merge': ('check', None, False),
-        #'normalize_plots': ('check', None, True),
-        #'all_to_mip': ('check', None, False),
-        #'pick_slice': ('check', None, False),
-        #'skip_mode': ('entry', None, None),
+        'merge': ('check', None, False),
+        'normalize_plots': ('check', None, True),
+        'all_to_mip': ('check', None, False),
+        'pick_slice': ('check', None, False),
+        'skip_mode': ('entry', None, None),
         'save': ('check', None, True),
         'plot': ('check', None, True),
         'workers': ('entry', None, 30),
@@ -497,7 +499,7 @@ def set_dark_style(style):
     style.configure('TEntry', background='#333333', foreground='white')
     style.configure('TCheckbutton', background='#333333', foreground='white')
 
-@log_function_call   
+#@log_function_call   
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
     try:
         ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
@@ -505,6 +507,8 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_labe
             message = q.get_nowait()
             clean_message = ansi_escape_pattern.sub('', message)
             if clean_message.startswith("Progress"):
+                progress_label.config(text=clean_message)
+            if clean_message.startswith("\rProgress"):
                 progress_label.config(text=clean_message)
             elif clean_message.startswith("Successfully"):
                 progress_label.config(text=clean_message)
@@ -552,7 +556,6 @@ def clear_canvas(canvas):
     # Redraw the now empty canvas without changing its size
     canvas.draw_idle()
     
-@log_function_call
 def measure_crop_wrapper(settings, q, fig_queue):
     """
     Wraps the measure_crop function to integrate with GUI processes.
@@ -576,6 +579,7 @@ def measure_crop_wrapper(settings, q, fig_queue):
     plt.show = my_show
 
     try:
+        print('start')
         spacr.measure.measure_crop(settings=settings, annotation_settings={}, advanced_settings={})
     except Exception as e:
         errorMessage = f"Error during processing: {e}"

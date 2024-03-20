@@ -17,7 +17,7 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, safe_literal_eval, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr
-from .gui_utils import mask_variables, check_mask_gui_settings, add_mask_gui_defaults, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv
+from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv #, add_mask_gui_defaults
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -39,7 +39,7 @@ def run_mask_gui(q, fig_queue, stop_requested):
     process_stdout_stderr(q)
     try:
         settings = check_mask_gui_settings(vars_dict)
-        settings = add_mask_gui_defaults(settings)
+        #settings = add_mask_gui_defaults(settings)
         #for key in settings:
         #    value = settings[key]
         #    print(key, value, type(value))
@@ -67,7 +67,7 @@ def import_settings(scrollable_frame):
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     csv_settings = read_settings_from_csv(csv_file_path)
     variables = mask_variables()
-    variables = add_mask_gui_defaults(variables)
+    #variables = add_mask_gui_defaults(variables)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
     
@@ -170,10 +170,10 @@ def initiate_mask_root(width, height):
     
     # This is your GUI setup where you create the Run button
     run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
-    run_button.grid(row=40, column=0, pady=10)
+    run_button.grid(row=45, column=0, pady=10)
     
     abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
-    abort_button.grid(row=40, column=1, pady=10)
+    abort_button.grid(row=45, column=1, pady=10)
     
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white")
     progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
