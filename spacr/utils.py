@@ -18,6 +18,8 @@ from functools import reduce
 from IPython.display import display, clear_output
 from multiprocessing import Pool, cpu_count
 from skimage.transform import resize as resizescikit
+from skimage.morphology import dilation, square
+from skimage.measure import find_contours
 import torch.nn as nn
 import torch.nn.functional as F
 #from torchsummary import summary
@@ -44,6 +46,53 @@ from .logger import log_function_call
 #from .timelapse import _btrack_track_cells, _trackpy_track_cells
 #from .plot import _plot_images_on_grid, plot_masks, _plot_histograms_and_stats, plot_resize, _plot_plates, _reg_v_plot, plot_masks
 #from .core import identify_masks
+
+
+def _gen_rgb_image(image, cahnnels):
+    rgb_image = np.take(image, cahnnels, axis=-1)
+    rgb_image = rgb_image.astype(float)
+    rgb_image -= rgb_image.min()
+    rgb_image /= rgb_image.max()
+    return rgb_image
+
+def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness):
+    from concurrent.futures import ThreadPoolExecutor
+    import cv2
+
+    outlines = []
+    overlayed_image = rgb_image.copy()
+
+    def process_dim(mask_dim):
+        mask = np.take(image, mask_dim, axis=-1)
+        outline = np.zeros_like(mask, dtype=np.uint8)  # Use uint8 for contour detection efficiency
+
+        # Find and draw contours
+        for j in np.unique(mask)[1:]:
+            contours = find_contours(mask == j, 0.5)
+            # Convert contours for OpenCV format and draw directly to optimize
+            cv_contours = [np.flip(contour.astype(int), axis=1) for contour in contours]
+            cv2.drawContours(outline, cv_contours, -1, color=int(j), thickness=outline_thickness)
+
+        return dilation(outline, square(outline_thickness))
+
+    # Parallel processing
+    with ThreadPoolExecutor() as executor:
+        outlines = list(executor.map(process_dim, mask_dims))
+
+    # Overlay outlines onto the RGB image in a batch/vectorized manner if possible
+    for i, outline in enumerate(outlines):
+        # This part may need to be adapted to your specific use case and available functions
+        # The goal is to overlay each outline with its respective color more efficiently
+        color = outline_colors[i % len(outline_colors)]
+        for j in np.unique(outline)[1:]:
+            mask = outline == j
+            overlayed_image[mask] = color  # Direct assignment with broadcasting
+
+    # Remove mask_dims from image
+    channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
+    image = np.take(image, channels_to_keep, axis=-1)
+
+    return overlayed_image, outlines, image
 
 def _convert_cq1_well_id(well_id):
     """

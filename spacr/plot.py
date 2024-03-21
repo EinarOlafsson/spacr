@@ -312,7 +312,7 @@ def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, 
         plt.show()
     return
 
-def _normalize_and_outline(image, remove_background, backgrounds, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
+def _normalize_and_outline(image, remove_background, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
     """
     Normalize and outline an image.
 
@@ -331,46 +331,25 @@ def _normalize_and_outline(image, remove_background, backgrounds, normalize, nor
     Returns:
         tuple: A tuple containing the overlayed image, the original image, and a list of outlines.
     """
-    from .utils import normalize_to_dtype
+    from .utils import normalize_to_dtype, _outline_and_overlay, _gen_rgb_image
 
-    outlines = []
     if remove_background:
-        for chan_index, channel in enumerate(range(image.shape[-1])):
-            single_channel = image[:, :, channel]  # Extract the specific channel
-            background = backgrounds[chan_index]
-            single_channel[single_channel < background] = 0
-            image[:, :, channel] = single_channel
-
-    
+        backgrounds = np.percentile(image, 1, axis=(0, 1))
+        backgrounds = backgrounds[:, np.newaxis, np.newaxis]
+        mask = np.zeros_like(image, dtype=bool)
+        for chan_index in range(image.shape[-1]):
+            if chan_index not in mask_dims:
+                mask[:, :, chan_index] = image[:, :, chan_index] < backgrounds[chan_index]
+        image[mask] = 0
 
     if normalize:
         image = normalize_to_dtype(array=image, q1=normalization_percentiles[0], q2=normalization_percentiles[1])
-    rgb_image = np.take(image, overlay_chans, axis=-1)
-    rgb_image = rgb_image.astype(float)
-    rgb_image -= rgb_image.min()
-    rgb_image /= rgb_image.max()
+
+    rgb_image = _gen_rgb_image(image, cahnnels=overlay_chans)
+
     if overlay:
-        overlayed_image = rgb_image.copy()
-        for i, mask_dim in enumerate(mask_dims):
-            mask = np.take(image, mask_dim, axis=2)
-            outline = np.zeros_like(mask)
-            # Find the contours of the objects in the mask
-            for j in np.unique(mask)[1:]:
-                contours = find_contours(mask == j, 0.5)
-                for contour in contours:
-                    contour = contour.astype(int)
-                    outline[contour[:, 0], contour[:, 1]] = j
-            # Make the outline thicker
-            outline = dilation(outline, square(outline_thickness))
-            outlines.append(outline)
-            # Overlay the outlines onto the RGB image
-            for j in np.unique(outline)[1:]:
-                overlayed_image[outline == j] = outline_colors[i % len(outline_colors)]
-        
-        # Remove mask_dims from image
-        channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
-        image = np.take(image, channels_to_keep, axis=-1)
-        
+        overlayed_image, outlines, image = _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness)
+
         return overlayed_image, image, outlines
     else:
         # Remove mask_dims from image
@@ -398,6 +377,7 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
     Returns:
         fig (Figure): The generated matplotlib figure.
     """
+    
     if overlay:
         fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims) + 1, figsize=(4 * figuresize, figuresize))
         ax[0].imshow(overlayed_image) #_imshow
@@ -477,7 +457,6 @@ def plot_merged(src, settings):
 
         overlayed_image, image, outlines = _normalize_and_outline(image=stack, 
                                                                   remove_background=settings['remove_background'],
-                                                                  backgrounds=settings['backgrounds'],
                                                                   normalize=settings['normalize'],
                                                                   normalization_percentiles=settings['normalization_percentiles'],
                                                                   overlay=settings['overlay'],
