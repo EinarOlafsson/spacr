@@ -92,6 +92,7 @@ def _calculate_zernike(mask, df, degree=8):
     else:
         return df
 
+@log_function_call
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings, zernike=True, degree=8):
     """
     Calculate morphological measurements for cells, nucleus, pathogens, and cytoplasms based on the given masks.
@@ -435,6 +436,7 @@ def _estimate_blur(image):
     # Compute and return the variance of the Laplacian
     return lap.var()
 
+@log_function_call
 def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
     """
     Calculate various intensity measurements for different regions in the image.

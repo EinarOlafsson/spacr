@@ -8,7 +8,6 @@ import pandas as pd
 import numpy as np
 import torch.optim as optim
 
-
 def generate_graphs(sequencing, scores, cell_min, gene_min_read):
     # Load and preprocess sequencing (gene) data
     gene_df = pd.read_csv(sequencing)
@@ -32,6 +31,7 @@ def generate_graphs(sequencing, scores, cell_min, gene_min_read):
         well_genes = gene_df[gene_df['well_id'] == well_id]
         well_cells = cell_df[cell_df['well_id'] == well_id]
 
+        # Skip wells with no cells or genes or with fewer cells than threshold
         if well_cells.empty or well_genes.empty or len(well_cells) < cell_min:
             continue
 

@@ -220,3 +220,71 @@ def generate_single_graph(sequencing, scores):
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=cell_scores)
 
     return data, gene_id_to_index, len(gene_id_to_index)
+
+# in _normalize_and_outline
+    outlines = []
+    
+        overlayed_image = rgb_image.copy()
+        for i, mask_dim in enumerate(mask_dims):
+            mask = np.take(image, mask_dim, axis=2)
+            outline = np.zeros_like(mask)
+            # Find the contours of the objects in the mask
+            for j in np.unique(mask)[1:]:
+                contours = find_contours(mask == j, 0.5)
+                for contour in contours:
+                    contour = contour.astype(int)
+                    outline[contour[:, 0], contour[:, 1]] = j
+            # Make the outline thicker
+            outline = dilation(outline, square(outline_thickness))
+            outlines.append(outline)
+            # Overlay the outlines onto the RGB image
+            for j in np.unique(outline)[1:]:
+                overlayed_image[outline == j] = outline_colors[i % len(outline_colors)]
+
+def _extract_filename_metadata(filenames, src, images_by_key, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
+    for filename in filenames:
+        match = regular_expression.match(filename)
+        if match:
+            try:
+                try:
+                    plate = match.group('plateID')
+                except:
+                    plate = os.path.basename(src)
+
+                well = match.group('wellID')
+                field = match.group('fieldID')
+                channel = match.group('chanID')
+                mode = None
+
+                if well[0].isdigit():
+                    well = str(_safe_int_convert(well))
+                if field[0].isdigit():
+                    field = str(_safe_int_convert(field))
+                if channel[0].isdigit():
+                    channel = str(_safe_int_convert(channel))
+
+                if metadata_type =='cq1':
+                    orig_wellID = wellID
+                    wellID = _convert_cq1_well_id(wellID)
+                    clear_output(wait=True)
+                    print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
+
+                if pick_slice:
+                    try:
+                        mode = match.group('AID')
+                    except IndexError:
+                        sliceid = '00'
+
+                    if mode == skip_mode:
+                        continue      
+                        
+                key = (plate, well, field, channel, mode)
+                with Image.open(os.path.join(src, filename)) as img:
+                    images_by_key[key].append(np.array(img))
+            except IndexError:
+                print(f"Could not extract information from filename {filename} using provided regex")
+        else:
+            print(f"Filename {filename} did not match provided regex")
+            continue
+        
+    return images_by_key

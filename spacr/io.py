@@ -24,7 +24,6 @@ from torchvision.transforms import ToTensor
 
 from .logger import log_function_call
 
-@log_function_call
 def _load_images_and_labels(image_files, label_files, circular=False, invert=False, image_extension="*.tif", label_extension="*.tif"):
     
     from .utils import invert_image, apply_mask
@@ -87,7 +86,6 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
         print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {labels[0].shape}, image type: labels[0].shape')
     return images, labels, image_names, label_names
 
-@log_function_call
 def _load_normalized_images_and_labels(image_files, label_files, signal_thresholds=[1000], channels=None, percentiles=None,  circular=False, invert=False, visualize=False):
     
     from .plot import normalize_and_visualize
@@ -527,6 +525,7 @@ class TarImageDataset(Dataset):
         
         return img, m.name
 
+@log_function_call
 def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=False, skip_mode='01', metadata_type='', img_format='.tif'):
     """
     Convert z-stack images to maximum intensity projection (MIP) images.
@@ -820,6 +819,7 @@ def _mip_all(src, include_first_chan=True):
             np.save(os.path.join(src, filename), concatenated)
     return
 
+@log_function_call
 def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
     """
     Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.
@@ -1073,8 +1073,6 @@ def _normalize_timelapse(src, lower_quantile=0.01, save_dtype=np.float32):
 
     print(f'\nSaved normalized stacks: {output_fldr}')
 
-
-    
 def _create_movies_from_npy_per_channel(src, fps=10):
     """
     Create movies from numpy files per channel.
@@ -1339,8 +1337,7 @@ def _check_masks(batch, batch_filenames, output_folder):
     filtered_filenames = [f for f, exists in zip(batch_filenames, existing_files_mask) if exists]
 
     return np.array(filtered_batch), filtered_filenames
-    
-    
+
 def _get_avg_object_size(masks):
     """
     Calculate the average size of objects in a list of masks.

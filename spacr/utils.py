@@ -31,6 +31,7 @@ from skimage.segmentation import clear_border
 import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndi
+from scipy.spatial import distance
 from scipy.stats import fisher_exact
 from scipy.ndimage import binary_erosion, binary_dilation
 from skimage.exposure import rescale_intensity
@@ -38,6 +39,7 @@ from sklearn.metrics import auc, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.cluster import KMeans
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 
 from .logger import log_function_call
@@ -722,9 +724,6 @@ def _crop_center(img, cell_mask, new_width, new_height, normalize=(2,98)):
     img = img[start_y:end_y, start_x:end_x, :]
     return img
     
-    
-
-    
 def _masks_to_masks_stack(masks):
     """
     Convert a list of masks into a stack of masks.
@@ -741,53 +740,50 @@ def _masks_to_masks_stack(masks):
     return mask_stack
     
 def _get_diam(mag, obj):
-    if obj == 'cell':
-        if mag == 20:
-            scale = 6
-        if mag == 40:
-            scale = 4.5
-        if mag == 60:
-            scale = 3
-    elif obj == 'nucleus':
-        if mag == 20:
-            scale = 3
-        if mag == 40:
-            scale = 2
-        if mag == 60:
-            scale = 1.5
-    elif obj == 'pathogen':
-        if mag == 20:
-            scale = 1.5
-        if mag == 40:
-            scale = 1
-        if mag == 60:
-            scale = 1.25
-    elif obj == 'pathogen_nucleus':
-        if mag == 20:
-            scale = 0.25
-        if mag == 40:
-            scale = 0.2
-        if mag == 60:
-            scale = 0.2
+
+    if mag == 20:
+        if obj == 'cell':
+            diamiter = 120
+        elif obj == 'nucleus':
+            diamiter = 60
+        elif obj == 'pathogen':
+            diamiter = 30
+        else:
+            raise ValueError("Invalid magnification: Use 20, 40 or 60")
+
+    elif mag == 40:
+        if obj == 'cell':
+            diamiter = 160
+        elif obj == 'nucleus':
+            diamiter = 80
+        elif obj == 'pathogen':
+            diamiter = 40
+        else:
+            raise ValueError("Invalid magnification: Use 20, 40 or 60")
+
+    elif mag == 60:
+        if obj == 'cell':
+            diamiter = 200
+        if obj == 'nucleus':
+            diamiter = 90
+        if obj == 'pathogen':
+            diamiter = 75
+        else:
+            raise ValueError("Invalid magnification: Use 20, 40 or 60")
     else:
-        raise ValueError("Invalid object type")
-    diamiter = mag*scale
+        raise ValueError("Invalid magnification: Use 20, 40 or 60")
+    
     return diamiter
 
 def _get_object_settings(object_type, settings):
-    
     object_settings = {}
-    object_settings['refine_masks'] = False
-    object_settings['filter_size'] = False
-    object_settings['filter_dimm'] = False
-    print(object_type)
+
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
-    object_settings['remove_border_objects'] = False
-    object_settings['minimum_size'] = (object_settings['diameter']**2)/10
-    object_settings['maximum_size'] = object_settings['minimum_size']*50
+    object_settings['minimum_size'] = (object_settings['diameter']**2)/5
+    object_settings['maximum_size'] = (object_settings['diameter']**2)*3
     object_settings['merge'] = False
-    object_settings['net_avg'] = True
     object_settings['resample'] = True
+    object_settings['remove_border_objects'] = False
     object_settings['model_name'] = 'cyto'
     
     if object_type == 'cell':
@@ -795,20 +791,24 @@ def _get_object_settings(object_type, settings):
             object_settings['model_name'] = 'cyto'
         else:
             object_settings['model_name'] = 'cyto2'
-        
+        object_settings['filter_size'] = True
+        object_settings['filter_intensity'] = True
+
     elif object_type == 'nucleus':
         object_settings['model_name'] = 'nuclei'
+        object_settings['filter_size'] = True
+        object_settings['filter_intensity'] = True
 
     elif object_type == 'pathogen':
-        object_settings['model_name'] = 'cyto3'
-
-    elif object_type == 'pathogen_nucleus':
-        object_settings['filter_size'] = True
         object_settings['model_name'] = 'cyto'
+        object_settings['filter_size'] = True
+        object_settings['filter_intensity'] = True
         
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
-        print(f'using settings: {object_settings}')
+
+    if settings['verbose']:
+        print(object_settings)
         
     return object_settings
     
@@ -835,6 +835,7 @@ def _pivot_counts_table(db_path):
         return df
 
     def _pivot_dataframe(df):
+
         """
         Pivot the DataFrame.
 
@@ -861,43 +862,6 @@ def _pivot_counts_table(db_path):
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
-def _get_cellpose_channels_v1(mask_channels, nucleus_chann_dim, pathogen_chann_dim, cell_chann_dim):
-    cellpose_channels = {}
-    if nucleus_chann_dim in mask_channels:
-        cellpose_channels['nucleus'] = [0, mask_channels.index(nucleus_chann_dim)]
-    if pathogen_chann_dim in mask_channels:
-        cellpose_channels['pathogen'] = [0, mask_channels.index(pathogen_chann_dim)]
-    if cell_chann_dim in mask_channels:
-        cellpose_channels['cell'] = [0, mask_channels.index(cell_chann_dim)]
-    return cellpose_channels
-
-def _get_cellpose_channels_v1(cell_channel, nucleus_channel, pathogen_channel):
-    # Initialize a dictionary to hold the new indices for the specified channels
-    cellpose_channels = {}
-
-    # Initialize a list to keep track of the channels in their new order
-    new_channel_order = []
-
-    # Add each channel to the new order list if it is not None
-    if cell_channel is not None:
-        new_channel_order.append(('cell', cell_channel))
-    if nucleus_channel is not None:
-        new_channel_order.append(('nucleus', nucleus_channel))
-    if pathogen_channel is not None:
-        new_channel_order.append(('pathogen', pathogen_channel))
-
-    # Sort the list based on the original channel indices to maintain the original order
-    new_channel_order.sort(key=lambda x: x[1])
-    print(new_channel_order)
-    # Assign new indices based on the sorted order
-    for new_index, (channel_name, _) in enumerate(new_channel_order):
-        cellpose_channels[channel_name] = [new_index, 0]
-        
-    if cell_channel is not None and nucleus_channel is not None:
-        cellpose_channels['cell'][1] = cellpose_channels['nucleus'][0]
-        
-    return cellpose_channels
-
 def _get_cellpose_channels(nucleus_channel, pathogen_channel, cell_channel):
     cellpose_channels = {}
     if not nucleus_channel is None:
@@ -1076,9 +1040,6 @@ def _group_by_well(df):
     # Apply mean function to numeric columns and first to non-numeric
     df_grouped = df.groupby(['plate', 'row', 'col']).agg({**{col: np.mean for col in numeric_cols}, **{col: 'first' for col in non_numeric_cols}})
     return df_grouped
-    
-
-
 
 ###################################################
 #  Classify
@@ -2661,24 +2622,21 @@ def _filter_object(mask, min_value):
     mask[np.isin(mask, to_remove)] = 0
     return mask
 
-def _filter_cp_masks(masks, flows, filter_size, minimum_size, maximum_size, remove_border_objects, merge, filter_dimm, batch, moving_avg_q1, moving_avg_q3, moving_count, plot, figuresize):
+def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize):
+    
     """
     Filter the masks based on various criteria such as size, border objects, merging, and intensity.
 
     Args:
         masks (list): List of masks.
         flows (list): List of flows.
-        refine_masks (bool): Flag indicating whether to refine masks.
         filter_size (bool): Flag indicating whether to filter based on size.
+        filter_intensity (bool): Flag indicating whether to filter based on intensity.
         minimum_size (int): Minimum size of objects to keep.
         maximum_size (int): Maximum size of objects to keep.
         remove_border_objects (bool): Flag indicating whether to remove border objects.
         merge (bool): Flag indicating whether to merge adjacent objects.
-        filter_dimm (bool): Flag indicating whether to filter based on intensity.
         batch (ndarray): Batch of images.
-        moving_avg_q1 (float): Moving average of the first quartile of object intensities.
-        moving_avg_q3 (float): Moving average of the third quartile of object intensities.
-        moving_count (int): Count of moving averages.
         plot (bool): Flag indicating whether to plot the masks.
         figuresize (tuple): Size of the figure.
 
@@ -2690,51 +2648,67 @@ def _filter_cp_masks(masks, flows, filter_size, minimum_size, maximum_size, remo
     
     mask_stack = []
     for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
+        
         if plot and idx == 0:
             num_objects = mask_object_count(mask)
             print(f'Number of objects before filtration: {num_objects}')
             plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
         if filter_size:
-            props = measure.regionprops_table(mask, properties=['label', 'area'])  # Measure properties of labeled image regions.
-            valid_labels = props['label'][np.logical_and(props['area'] > minimum_size, props['area'] < maximum_size)]  # Select labels of valid size.
-            masks[idx] = np.isin(mask, valid_labels) * mask  # Keep only valid objects.
+            props = measure.regionprops_table(mask, properties=['label', 'area'])
+            valid_labels = props['label'][np.logical_and(props['area'] > minimum_size, props['area'] < maximum_size)] 
+            mask = np.isin(mask, valid_labels) * mask
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
                 print(f'Number of objects after size filtration >{minimum_size} and <{maximum_size} : {num_objects}')
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+
+        if filter_intensity:
+            intensity_image = image[:, :, 1]  
+            props = measure.regionprops_table(mask, intensity_image=intensity_image, properties=['label', 'mean_intensity'])
+            mean_intensities = np.array(props['mean_intensity']).reshape(-1, 1)
+            kmeans = KMeans(n_clusters=2, random_state=0).fit(mean_intensities)
+            centroids = kmeans.cluster_centers_
+            
+            # Calculate the Euclidean distance between the two centroids
+            dist_between_centroids = distance.euclidean(centroids[0], centroids[1])
+            
+            # Set a threshold for the minimum distance to consider clusters distinct
+            distance_threshold = 0.25 
+            
+            if dist_between_centroids > distance_threshold:
+                high_intensity_cluster = np.argmax(centroids)
+                valid_labels = np.array(props['label'])[kmeans.labels_ == high_intensity_cluster]
+                mask = np.isin(mask, valid_labels) * mask
+            #else:
+            #    # Clusters are too close; skip filtering
+            #    print("Clusters too close. Skipping intensity filtration.")
+
+            if plot and idx == 0:
+                num_objects = mask_object_count(mask)
+                props_after = measure.regionprops_table(mask, intensity_image=intensity_image, properties=['label', 'mean_intensity'])
+                mean_intensities_after = np.mean(np.array(props_after['mean_intensity']))
+                average_intensity_before = np.mean(mean_intensities)
+                print(f'Number of objects after potential intensity clustering: {num_objects}. Mean intensity before:{average_intensity_before:.4f}. After:{mean_intensities_after:.4f}.')
+                plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+
+
         if remove_border_objects:
             mask = clear_border(mask)
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
                 print(f'Number of objects after removing border objects, : {num_objects}')
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+        
         if merge:
             mask = merge_touching_objects(mask, threshold=0.25)
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
                 print(f'Number of objects after merging adjacent objects, : {num_objects}')
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
-        if filter_dimm:
-            unique_labels = np.unique(mask)
-            if len(unique_labels) == 1 and unique_labels[0] == 0:
-                continue
-            object_intensities = [np.mean(batch[idx, :, :, 1][mask == label]) for label in unique_labels if label != 0]
-            object_q1s = [np.percentile(intensities, 25) for intensities in object_intensities if intensities.size > 0]
-            object_q3s = [np.percentile(intensities, 75) for intensities in object_intensities if intensities.size > 0]
-            if object_q1s:
-                object_q1_mean = np.mean(object_q1s)
-                object_q3_mean = np.mean(object_q3s)
-                moving_avg_q1 = (moving_avg_q1 * moving_count + object_q1_mean) / (moving_count + 1)
-                moving_avg_q3 = (moving_avg_q3 * moving_count + object_q3_mean) / (moving_count + 1)
-                moving_count += 1
-            mask = remove_intensity_objects(batch[idx, :, :, 1], mask, intensity_threshold=moving_avg_q1, mode='low')
-            mask = remove_intensity_objects(batch[idx, :, :, 1], mask, intensity_threshold=moving_avg_q3, mode='high')
-            if plot and idx == 0:
-                num_objects = mask_object_count(mask)
-                print(f'Objects after intensity filtration > {moving_avg_q1} and <{moving_avg_q3}: {num_objects}')
-                plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+        
         mask_stack.append(mask)
+
     return mask_stack
     
 def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mask_chan):

@@ -220,10 +220,11 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         if not filter_min_max is None:
             min_max = filter_min_max[i]
         else:
-            min_max = [0, 100000]
+            min_max = [0, 100000000]
 
         mask = np.take(stack, mask_dim, axis=2)
         props = measure.regionprops_table(mask, properties=['label', 'area'])
+        #props = measure.regionprops_table(mask, intensity_image=intensity_image, properties=['label', 'area', 'mean_intensity'])
         avg_size_before = np.mean(props['area'])
         total_count_before = len(props['label'])
 

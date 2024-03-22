@@ -39,7 +39,6 @@ from .logger import log_function_call
 #from .utils import get_paths_from_db, pick_best_model, test_model_performance, evaluate_model_performance, compute_irm_penalty
 #from .utils import _pivot_counts_table, _generate_masks, _get_cellpose_channels, annotate_conditions, _calculate_recruitment, calculate_loss, _group_by_well, choose_model
 
-@log_function_call
 def analyze_plaques(folder):
     summary_data = []
     details_data = []
@@ -76,7 +75,6 @@ def analyze_plaques(folder):
     
     print(f"Analysis completed and saved to database '{db_name}'.")
 
-@log_function_call
 def compare_masks(dir1, dir2, dir3, verbose=False):
     
     from .io import _read_mask
@@ -178,10 +176,9 @@ def generate_cp_masks(settings):
     
     dst = os.path.join(src,'masks')
     os.makedirs(dst, exist_ok=True)
-		   
+	   
     identify_masks(src, dst, model_name, channels, diameter, batch_size, flow_threshold, cellprob_threshold, figuresize, cmap, verbose, plot, save, custom_model, signal_thresholds, normalize, resize, target_height, target_width, rescale, resample, net_avg, invert, circular, percentiles, overlay, grayscale)
 
-@log_function_call
 def train_cellpose(settings):
     
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
@@ -281,7 +278,6 @@ def train_cellpose(settings):
 
     return print(f"Model saved at: {model_save_path}/{model_name}")
 
-@log_function_call
 def analyze_data_reg(sequencing_loc, dv_loc, agg_type = 'mean', dv_col='pred', transform=None, min_cell_count=50, min_reads=100, min_wells=2, max_wells=1000, min_frequency=0.0,remove_outlier_genes=False, refine_model=False,by_plate=False, regression_type='mlr', alpha_value=0.01, fishers=False, fisher_threshold=0.9):
     
     from .plot import _reg_v_plot
@@ -430,7 +426,6 @@ def analyze_data_reg(sequencing_loc, dv_loc, agg_type = 'mean', dv_col='pred', t
         
         return result
 
-@log_function_call
 def analyze_data_reg(sequencing_loc, dv_loc, agg_type = 'mean', min_cell_count=50, min_reads=100, min_wells=2, max_wells=1000, remove_outlier_genes=False, refine_model=False, by_plate=False, threshold=0.5, fishers=False):
     
     from .plot import _reg_v_plot
@@ -609,7 +604,6 @@ def analyze_data_reg(sequencing_loc, dv_loc, agg_type = 'mean', min_cell_count=5
 
     return max_effects, max_effects_pvalues, model, df
 
-@log_function_call
 def regression_analasys(dv_df,sequencing_loc, min_reads=75, min_wells=2, max_wells=0, model_type = 'mlr', min_cells=100, transform='logit', min_frequency=0.05, gene_column='gene', effect_size_threshold=0.25, fishers=True, clean_regression=False, VIF_threshold=10):
     
     from .utils import generate_fraction_map, fishers_odds, model_metrics, check_multicollinearity
@@ -777,7 +771,6 @@ def regression_analasys(dv_df,sequencing_loc, min_reads=75, min_wells=2, max_wel
     
     return
 
-@log_function_call
 def merge_pred_mes(src,
                    pred_loc,
                    target='protein of interest', 
@@ -1649,15 +1642,27 @@ def analyze_recruitment(src, metadata_settings, advanced_settings):
     cells,wells = _results_to_csv(src, df, df_well)
     return [cells,wells]
 
-@log_function_call
-def preprocess_generate_masks(src, settings={},advanced_settings={}):
+def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_merged, plot_arrays
     from .utils import _pivot_counts_table
-    
-    settings = {**settings, **advanced_settings}
+
+    settings['fps'] = 2
+    settings['remove_background'] = True
+    settings['lower_quantile'] = 0.02
+    settings['merge'] = False
+    settings['normalize_plots'] = True
+    settings['all_to_mip'] = False
+    settings['pick_slice'] = False
+    settings['skip_mode'] = src
+    settings['workers'] = os.cpu_count()-4
+    settings['verbose'] = True
+    settings['preprocess'] = True
+    settings['masks'] = True
+    settings['examples_to_plot'] = 1
     settings['src'] = src
+
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_csv = os.path.join(src,'settings','preprocess_generate_masks_settings.csv')
     os.makedirs(os.path.join(src,'settings'), exist_ok=True)
@@ -1837,8 +1842,7 @@ def identify_masks_finetune(src, dst, model_name, channels, diameter, batch_size
                 cv2.imwrite(output_filename, mask)
     return
 
-@log_function_call
-def identify_masks(src, object_type, model_name, batch_size, channels, diameter, minimum_size, maximum_size, flow_threshold=30, cellprob_threshold=1, figuresize=25, cmap='inferno', refine_masks=True, filter_size=True, filter_dimm=True, remove_border_objects=False, verbose=False, plot=False, merge=False, save=True, start_at=0, file_type='.npz', net_avg=True, resample=True, timelapse=False, timelapse_displacement=None, timelapse_frame_limits=None, timelapse_memory=3, timelapse_remove_transient=False, timelapse_mode='btrack', timelapse_objects='cell'):
+def identify_masks(src, object_type, model_name, batch_size, channels, diameter, minimum_size, maximum_size, filter_intensity, flow_threshold=30, cellprob_threshold=1, figuresize=25, cmap='inferno', refine_masks=True, filter_size=True, filter_dimm=True, remove_border_objects=False, verbose=False, plot=False, merge=False, save=True, start_at=0, file_type='.npz', net_avg=True, resample=True, timelapse=False, timelapse_displacement=None, timelapse_frame_limits=None, timelapse_memory=3, timelapse_remove_transient=False, timelapse_mode='btrack', timelapse_objects='cell'):
     """
     Identify masks from the source images.
 
@@ -1919,9 +1923,6 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
     
     average_sizes = []
     time_ls = []
-    moving_avg_q1 = 0
-    moving_avg_q3 = 0
-    moving_count = 0
     for file_index, path in enumerate(paths):
 
         name = os.path.basename(path)
@@ -1991,9 +1992,9 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
                                                 cellprob_threshold=cellprob_threshold,
                                                 rescale=None,
                                                 resample=resample,
-                                                #net_avg=net_avg,
                                                 stitch_threshold=stitch_threshold,
                                                 progress=None)
+                
                 print('Masks shape',masks.shape)                
                 if timelapse:
                     _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
@@ -2017,7 +2018,7 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
 
                 else:
                     _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
-                    mask_stack = _filter_cp_masks(masks, flows, refine_masks, filter_size, minimum_size, maximum_size, remove_border_objects, merge, filter_dimm, batch, moving_avg_q1, moving_avg_q3, moving_count, plot, figuresize)
+                    mask_stack = _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize)
                     _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
 
                 if not np.any(mask_stack):
@@ -2049,7 +2050,6 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
         gc.collect()
     return
 
-@log_function_call
 def generate_cellpose_masks(src, settings, object_type):
     
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels
@@ -2097,9 +2097,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     average_sizes = []
     time_ls = []
-    moving_avg_q1 = 0
-    moving_avg_q3 = 0
-    moving_count = 0
     
     for file_index, path in enumerate(paths):
         name = os.path.basename(path)
@@ -2211,15 +2208,12 @@ def generate_cellpose_masks(src, settings, object_type):
                 mask_stack = _filter_cp_masks(masks=masks,
                                               flows=flows,
                                               filter_size=object_settings['filter_size'],
+                                              filter_intensity=object_settings['filter_intensity'],
                                               minimum_size=object_settings['minimum_size'],
                                               maximum_size=object_settings['maximum_size'],
                                               remove_border_objects=object_settings['remove_border_objects'],
                                               merge=False,
-                                              filter_dimm=object_settings['filter_dimm'], 
                                               batch=batch,
-                                              moving_avg_q1=moving_avg_q1,
-                                              moving_avg_q3=moving_avg_q3,
-                                              moving_count=moving_count,
                                               plot=settings['plot'],
                                               figuresize=figuresize)
                 
