@@ -862,7 +862,17 @@ def _pivot_counts_table(db_path):
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
-def _get_cellpose_channels(nucleus_channel, pathogen_channel, cell_channel):
+def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+
+    cell_mask_path = os.path.join(src, 'norm_chan_stack', 'cell_mask_stack')
+    nucleus_mask_path = os.path.join(src, 'norm_chan_stack', 'nucleus_mask_stack')
+    pathogen_mask_path = os.path.join(src, 'norm_chan_stack', 'pathogen_mask_stack')
+
+
+    if os.path.exists(cell_mask_path) or os.path.exists(nucleus_mask_path) or os.path.exists(pathogen_mask_path):
+        if nucleus_channel is None or nucleus_channel is None or nucleus_channel is None:
+            print('Warning: Cellpose masks already exist. Unexpected behaviour when setting any object dimention to None when the object masks have been created.')
+        
     cellpose_channels = {}
     if not nucleus_channel is None:
         cellpose_channels['nucleus'] = [0,0]

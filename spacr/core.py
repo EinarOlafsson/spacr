@@ -2079,7 +2079,9 @@ def generate_cellpose_masks(src, settings, object_type):
     object_settings = _get_object_settings(object_type, settings)
     model_name = object_settings['model_name']
     
-    cellpose_channels = _get_cellpose_channels(settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel'])
+    cellpose_channels = _get_cellpose_channels(src, settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel'])
+    if settings['verbose']:
+        print(cellpose_channels)
     channels = cellpose_channels[object_type]
     cellpose_batch_size = _get_cellpose_batch_size()
     
