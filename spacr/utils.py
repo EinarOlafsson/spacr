@@ -864,9 +864,9 @@ def _pivot_counts_table(db_path):
     
 def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
 
-    cell_mask_path = os.path.join(src, 'norm_chan_stack', 'cell_mask_stack')
-    nucleus_mask_path = os.path.join(src, 'norm_chan_stack', 'nucleus_mask_stack')
-    pathogen_mask_path = os.path.join(src, 'norm_chan_stack', 'pathogen_mask_stack')
+    cell_mask_path = os.path.join(src, 'norm_channel_stack', 'cell_mask_stack')
+    nucleus_mask_path = os.path.join(src, 'norm_channel_stack', 'nucleus_mask_stack')
+    pathogen_mask_path = os.path.join(src, 'norm_channel_stack', 'pathogen_mask_stack')
 
 
     if os.path.exists(cell_mask_path) or os.path.exists(nucleus_mask_path) or os.path.exists(pathogen_mask_path):
