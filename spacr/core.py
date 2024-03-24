@@ -1658,8 +1658,6 @@ def preprocess_generate_masks(src, settings={}):
     settings['skip_mode'] = src
     settings['workers'] = os.cpu_count()-4
     settings['verbose'] = True
-    settings['preprocess'] = True
-    settings['masks'] = True
     settings['examples_to_plot'] = 1
     settings['src'] = src
 

@@ -1198,6 +1198,11 @@ def preprocess_img_data(settings):
     else:
         print(f'Could not find any {valid_ext} files in {src} only found {extension_counts[0]}')
         if os.path.exists(src+'/stack'):
+            print('Found existing stack folder.')
+        if os.path.exists(src+'/channel_stack'):
+            print('Found existing channel_stack folder.')
+        if os.path.exists(src+'/norm_channel_stack'):
+            print('Found existing norm_channel_stack folder. Skipping preprocessing')
             return
         
     cmap = 'inferno'
@@ -1244,7 +1249,6 @@ def preprocess_img_data(settings):
             if timelapse:
                 _move_to_chan_folder(src, regex, timelapse, metadata_type)
             else:
-                #_z_to_mip(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
                 _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
                 
                 #Make sure no batches will be of only one image
@@ -1262,6 +1266,7 @@ def preprocess_img_data(settings):
                         raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
     
             _merge_channels(src, plot=False)
+
             if timelapse:
                 _create_movies_from_npy_per_channel(src+'/stack', fps=2)
 
@@ -1273,20 +1278,21 @@ def preprocess_img_data(settings):
                 if plot:
                     print(f'plotting {nr} images from {src}/stack')
                     plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-    if not os.path.exists(src+'/stack'):
-        _merge_channels(src, plot=False)
-        if timelapse:
-            _create_movies_from_npy_per_channel(src+'/stack', fps=2)
-
-        if plot:
-            print(f'plotting {nr} images from {src}/stack')
-            plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-        if all_to_mip:
-            _mip_all(src+'/stack')
-            if plot:
-                print(f'plotting {nr} images from {src}/stack')
-                plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-
+    
+    #if os.path.exists(src+'/stack'):
+    #    _merge_channels(src, plot=False)
+    #    if timelapse:
+    #        _create_movies_from_npy_per_channel(src+'/stack', fps=2)
+    #    if plot:
+    #        print(f'plotting {nr} images from {src}/stack')
+    #        plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+    #    if all_to_mip:
+    #        _mip_all(src+'/stack')
+    #        if plot:
+    #            print(f'plotting {nr} images from {src}/stack')
+    #            plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+    
+    print('concatinating cahnnels')
     _concatenate_channel(src+'/stack', 
                         channels=mask_channels, 
                         randomize=randomize, 
@@ -1296,6 +1302,7 @@ def preprocess_img_data(settings):
     if plot:
         print(f'plotting {nr} images from {src}/channel_stack')
         _plot_4D_arrays(src+'/channel_stack', figuresize, cmap, nr_npz=1, nr=nr)
+    
     nr_of_chan_stacks = len(src+'/channel_stack')
         
     backgrounds, signal_to_noise, signal_thresholds = _get_lists_for_normalization(settings=settings)
