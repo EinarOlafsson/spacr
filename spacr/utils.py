@@ -165,7 +165,7 @@ def _extract_filename_metadata(filenames, src, images_by_key, regular_expression
                 if metadata_type =='cq1':
                     orig_wellID = wellID
                     wellID = _convert_cq1_well_id(wellID)
-                    clear_output(wait=True)
+                    #clear_output(wait=True)
                     print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
 
                 if pick_slice:
@@ -2677,22 +2677,21 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
             intensity_image = image[:, :, 1]  
             props = measure.regionprops_table(mask, intensity_image=intensity_image, properties=['label', 'mean_intensity'])
             mean_intensities = np.array(props['mean_intensity']).reshape(-1, 1)
-            kmeans = KMeans(n_clusters=2, random_state=0).fit(mean_intensities)
-            centroids = kmeans.cluster_centers_
+
+            if mean_intensities.shape[0] >= 2:
+                kmeans = KMeans(n_clusters=2, random_state=0).fit(mean_intensities)
+                centroids = kmeans.cluster_centers_
             
-            # Calculate the Euclidean distance between the two centroids
-            dist_between_centroids = distance.euclidean(centroids[0], centroids[1])
-            
-            # Set a threshold for the minimum distance to consider clusters distinct
-            distance_threshold = 0.25 
-            
-            if dist_between_centroids > distance_threshold:
-                high_intensity_cluster = np.argmax(centroids)
-                valid_labels = np.array(props['label'])[kmeans.labels_ == high_intensity_cluster]
-                mask = np.isin(mask, valid_labels) * mask
-            #else:
-            #    # Clusters are too close; skip filtering
-            #    print("Clusters too close. Skipping intensity filtration.")
+                # Calculate the Euclidean distance between the two centroids
+                dist_between_centroids = distance.euclidean(centroids[0], centroids[1])
+                
+                # Set a threshold for the minimum distance to consider clusters distinct
+                distance_threshold = 0.25 
+                
+                if dist_between_centroids > distance_threshold:
+                    high_intensity_cluster = np.argmax(centroids)
+                    valid_labels = np.array(props['label'])[kmeans.labels_ == high_intensity_cluster]
+                    mask = np.isin(mask, valid_labels) * mask
 
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)

@@ -612,7 +612,7 @@ def preprocess_generate_masks_wrapper(settings, q, fig_queue):
     plt.show = my_show
 
     try:
-        spacr.core.preprocess_generate_masks(settings['src'], settings=settings, advanced_settings={})
+        spacr.core.preprocess_generate_masks(settings['src'], settings=settings)
     except Exception as e:
         errorMessage = f"Error during processing: {e}"
         q.put(errorMessage)  # Send the error message to the GUI via the queue

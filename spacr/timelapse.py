@@ -1,4 +1,4 @@
-import cv2, os, re, glob, random, btrack
+import cv2, os, re, glob, random, btrack, sqlite3
 import numpy as np
 import pandas as pd
 from collections import defaultdict
@@ -9,6 +9,9 @@ from IPython.display import Image as ipyimage
 import trackpy as tp
 from btrack import datasets as btrack_datasets
 from skimage.measure import regionprops
+from scipy.signal import find_peaks
+from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 
 from .logger import log_function_call
 
@@ -144,56 +147,6 @@ def _sort_key(file_path):
         # Return a tuple that sorts this file as "earliest" or "lowest"
         return ('', '', '', 0)
 
-def _save_mask_timelapse_as_gif(masks, path, cmap, norm, filenames):
-    """
-    Save a timelapse of masks as a GIF.
-
-    Parameters:
-    masks (list): List of mask frames.
-    path (str): Path to save the GIF.
-    cmap: Colormap for displaying the masks.
-    norm: Normalization for the masks.
-    filenames (list): List of filenames corresponding to each mask frame.
-
-    Returns:
-    None
-    """
-    def _update(frame):
-        """
-        Update the plot with the given frame.
-
-        Parameters:
-        frame (int): The frame number to update the plot with.
-
-        Returns:
-        None
-        """
-        nonlocal filename_text_obj
-        if filename_text_obj is not None:
-            filename_text_obj.remove()
-        ax.clear()
-        ax.axis('off')
-        current_mask = masks[frame]
-        ax.imshow(current_mask, cmap=cmap, norm=norm)
-        ax.set_title(f'Frame: {frame}', fontsize=24, color='white')
-        filename_text = filenames[frame]
-        filename_text_obj = fig.text(0.5, 0.01, filename_text, ha='center', va='center', fontsize=20, color='white')
-        for label_value in np.unique(current_mask):
-            if label_value == 0: continue  # Skip background
-            y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
-
-    fig, ax = plt.subplots(figsize=(50, 50), facecolor='black')
-    ax.set_facecolor('black')
-    ax.axis('off')
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
-
-    filename_text_obj = None
-    anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
-    anim.save(path, writer='pillow', fps=2, dpi=80)  # Adjust DPI for size/quality
-    plt.close(fig)
-    print(f'Saved timelapse to {path}')
-
 def _masks_to_gif(masks, gif_folder, name, filenames, object_type):
     """
     Converts a sequence of masks into a GIF file.
@@ -208,6 +161,9 @@ def _masks_to_gif(masks, gif_folder, name, filenames, object_type):
     Returns:
         None
     """
+
+    from .io import _save_mask_timelapse_as_gif
+
     def _display_gif(path):
         with open(path, 'rb') as file:
             display(ipyimage(file.read()))
@@ -220,7 +176,7 @@ def _masks_to_gif(masks, gif_folder, name, filenames, object_type):
     norm = plt.cm.colors.Normalize(vmin=0, vmax=highest_label)
 
     save_path_gif = os.path.join(gif_folder, f'timelapse_masks_{object_type}_{name}.gif')
-    _save_mask_timelapse_as_gif(masks, save_path_gif, cmap, norm, filenames)
+    _save_mask_timelapse_as_gif(masks, None, save_path_gif, cmap, norm, filenames)
     #_display_gif(save_path_gif)
     
 def _timelapse_masks_to_gif(folder_path, mask_channels, object_types):
@@ -450,6 +406,8 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
         from .plot import _visualize_and_save_timelapse_stack_with_tracks
         from .utils import _masks_to_masks_stack
         
+        print(f'Tracking objects with trackpy')
+
         if timelapse_displacement is None:
             features = _prepare_for_tracking(masks)
             timelapse_displacement = _find_optimal_search_range(features, initial_search_range=500, increment=10, max_attempts=49, memory=3)
@@ -574,3 +532,175 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
     mask_stack = _masks_to_masks_stack(masks)
     return mask_stack
+
+def exponential_decay(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+def preprocess_pathogen_data(pathogen_df):
+    # Group by identifiers and count the number of parasites
+    parasite_counts = pathogen_df.groupby(['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id']).size().reset_index(name='parasite_count')
+
+    # Aggregate numerical columns and take the first of object columns
+    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in ['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id', 'parasite_count']}
+    pathogen_agg = pathogen_df.groupby(['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id']).agg(agg_funcs).reset_index()
+
+    # Merge the counts back into the aggregated data
+    pathogen_agg = pathogen_agg.merge(parasite_counts, on=['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id'])
+
+    # Remove the object_label column as it corresponds to the pathogen ID not the cell ID
+    if 'object_label' in pathogen_agg.columns:
+        pathogen_agg.drop(columns=['object_label'], inplace=True)
+    
+    # Change the name of pathogen_cell_id to object_label
+    pathogen_agg.rename(columns={'pathogen_cell_id': 'object_label'}, inplace=True)
+
+    return pathogen_agg
+
+def plot_data(measurement, group, ax, label, marker='o', linestyle='-'):
+    ax.plot(group['time'], group['delta_' + measurement], marker=marker, linestyle=linestyle, label=label)
+
+def infected_vs_noninfected(result_df, measurement):
+    # Separate the merged dataframe into two groups based on pathogen_count
+    infected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') > 0]
+    uninfected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]
+
+    # Plotting
+    fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
+
+    # Plot for cells that were infected at some time
+    for group_id in infected_cells_df['plate_row_column_field_object'].unique():
+        group = infected_cells_df[infected_cells_df['plate_row_column_field_object'] == group_id]
+        plot_data(measurement, group, axs[0], 'Infected', marker='x')
+
+    # Plot for cells that were never infected
+    for group_id in uninfected_cells_df['plate_row_column_field_object'].unique():
+        group = uninfected_cells_df[uninfected_cells_df['plate_row_column_field_object'] == group_id]
+        plot_data(measurement, group, axs[1], 'Uninfected')
+
+    # Set the titles and labels
+    axs[0].set_title('Cells Infected at Some Time')
+    axs[1].set_title('Cells Never Infected')
+    for ax in axs:
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Normalized Delta ' + measurement)
+        all_timepoints = sorted(result_df['time'].unique())
+        ax.set_xticks(all_timepoints)
+        ax.set_xticklabels(all_timepoints, rotation=45, ha="right")
+
+    plt.tight_layout()
+    plt.show()
+
+def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None):
+    # Load data
+    conn = sqlite3.connect(db_loc)
+    # Load cell table
+    cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
+    
+    if pathogen:
+        pathogen_df = pd.read_sql("SELECT * FROM pathogen", conn)
+        pathogen_df['pathogen_cell_id'] = pathogen_df['pathogen_cell_id'].astype('Int64').dropna()  # Ensure correct type and drop NaNs
+        pathogen_df = preprocess_pathogen_data(pathogen_df)
+        cell_df = cell_df.merge(pathogen_df, on=['plate', 'row', 'col', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_pathogen'))
+        cell_df['parasite_count'] = cell_df['parasite_count'].fillna(0)  # Fill NaN with 0 for cells with no parasites
+
+    # Optionally load cytoplasm table and merge
+    if cytoplasm:
+        cytoplasm_df = pd.read_sql(f"SELECT * FROM {'cytoplasm'}", conn)
+        # Merge on specified columns
+        cell_df = cell_df.merge(cytoplasm_df, on=['plate', 'row', 'col', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_cytoplasm'))
+    
+    conn.close()
+
+    # Continue with your existing processing on cell_df now containing merged data...
+    # Prepare DataFrame (use cell_df instead of df)
+    prcf_components = cell_df['prcf'].str.split('_', expand=True)
+    cell_df['plate'] = prcf_components[0]
+    cell_df['row'] = prcf_components[1]
+    cell_df['column'] = prcf_components[2]
+    cell_df['field'] = prcf_components[3]
+    cell_df['time'] = prcf_components[4].str.extract('t(\d+)').astype(int)
+    cell_df['object_number'] = cell_df['object_label']
+    cell_df['plate_row_column_field_object'] = cell_df['plate'].astype(str) + '_' + cell_df['row'].astype(str) + '_' + cell_df['column'].astype(str) + '_' + cell_df['field'].astype(str) + '_' + cell_df['object_label'].astype(str)
+
+    df = cell_df.copy()
+    
+    # Fit exponential decay model to all scaled fluorescence data
+    try:
+        params, _ = curve_fit(exponential_decay, df['time'], df[measurement], p0=[max(df[measurement]), 0.01, min(df[measurement])], maxfev=10000)
+        df['corrected_' + measurement] = df[measurement] / exponential_decay(df['time'], *params)
+    except RuntimeError as e:
+        print(f"Curve fitting failed for the entire dataset with error: {e}")
+        return
+    
+    # Normalizing corrected fluorescence for each cell
+    corrected_dfs = []
+    peak_details_list = []
+    total_timepoints = df['time'].nunique()
+    
+    for unique_id, group in df.groupby('plate_row_column_field_object'):
+        group = group.sort_values('time')
+        if len(group) == total_timepoints and group[size_filter].std() / group[size_filter].mean() <= fluctuation_threshold:
+            group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
+            corrected_dfs.append(group)
+            
+            # Detect peaks
+            peaks, properties = find_peaks(group['delta_' + measurement], height=peak_height)
+            # Inside the for loop where peaks are detected
+            for i, peak in enumerate(peaks):
+                amplitude = properties['peak_heights'][i]  # Correctly access the amplitude
+                peak_time = group['time'].iloc[peak]  # Time corresponding to the peak
+                # Get the number of pathogens in the cell at the time of the peak
+                pathogen_count_at_peak = group['parasite_count'].iloc[peak]
+                peak_details_list.append({
+                    'ID': unique_id,
+                    'plate': group['plate'].iloc[0],
+                    'row': group['row'].iloc[0],
+                    'column': group['column'].iloc[0],
+                    'field': group['field'].iloc[0],
+                    'object_number': group['object_number'].iloc[0],
+                    'time': peak_time,  # The time of the peak
+                    'amplitude': amplitude,
+                    'delta': group['delta_' + measurement].iloc[peak],
+                    'infected': pathogen_count_at_peak  # The number of pathogens in the cell at the time of the peak
+                })
+    
+    result_df = pd.concat(corrected_dfs)
+    peak_details_df = pd.DataFrame(peak_details_list)
+    
+    # Plotting
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sampled_groups = result_df['plate_row_column_field_object'].unique()
+    if num_lines is not None and 0 < num_lines < len(sampled_groups):
+        sampled_groups = np.random.choice(sampled_groups, size=num_lines, replace=False)
+
+    for group_id in sampled_groups:
+        group = result_df[result_df['plate_row_column_field_object'] == group_id]
+        ax.plot(group['time'], group['delta_' + measurement], marker='o', linestyle='-')
+
+    ax.set_xticks(sorted(df['time'].unique()))
+    ax.set_xticklabels(sorted(df['time'].unique()), rotation=45, ha="right")
+    ax.set_title(f'Normalized Delta of {measurement} Over Time (Corrected for Photobleaching)')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Normalized Delta ' + measurement)
+    plt.tight_layout()
+    plt.show()
+    
+    if pathogen:
+        infected_vs_noninfected(result_df, measurement)
+
+        # Identifying cells with and without infection
+        infected_cells = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') > 0]['plate_row_column_field_object'].unique()
+        noninfected_cells = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]['plate_row_column_field_object'].unique()
+
+        # Peaks in infected and noninfected cells
+        infected_peaks = peak_details_df[peak_details_df['ID'].isin(infected_cells)]
+        noninfected_peaks = peak_details_df[peak_details_df['ID'].isin(noninfected_cells)]
+
+        # Calculate the average number of peaks per cell
+        avg_inf_peaks_per_cell = len(infected_peaks) / len(infected_cells) if len(infected_cells) > 0 else 0
+        avg_non_inf_peaks_per_cell = len(noninfected_peaks) / len(noninfected_cells) if len(noninfected_cells) > 0 else 0
+
+        print(f'Average number of peaks per infected cell: {avg_inf_peaks_per_cell:.2f}')
+        print(f'Average number of peaks per non-infected cell: {avg_non_inf_peaks_per_cell:.2f}')
+
+    return result_df, peak_details_df

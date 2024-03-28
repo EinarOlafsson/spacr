@@ -707,7 +707,7 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         interactive (bool, optional): Flag indicating whether to display the timelapse stack interactively. Defaults to False.
     """
     
-    from .timelapse import _save_mask_timelapse_as_gif
+    from .io import _save_mask_timelapse_as_gif
     
     highest_label = max(np.max(mask) for mask in masks)
     # Generate random colors for each label, including the background

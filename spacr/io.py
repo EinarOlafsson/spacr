@@ -1,6 +1,7 @@
 import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose
 import numpy as np
 import pandas as pd
+import tifffile
 from PIL import Image
 from collections import defaultdict, Counter
 from pathlib import Path
@@ -21,6 +22,7 @@ from torch.utils.data import Dataset
 import seaborn as sns
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
+
 
 from .logger import log_function_call
 
@@ -705,7 +707,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         if metadata_type =='cq1':
                             orig_wellID = wellID
                             wellID = _convert_cq1_well_id(wellID)
-                            print(f'Converted Well ID: {orig_wellID} to {wellID}')
+                            print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
 
                         newname = f"{plateID}_{wellID}_{fieldID}_{timeID if timelapse else ''}{ext}"
                         newpath = src / chanID
@@ -854,7 +856,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                     array = np.take(array, channels, axis=2)
                     stack_region.append(array)
                     filenames_region.append(os.path.basename(path))
-                clear_output(wait=True)
+                #clear_output(wait=True)
                 print(f'Region {i+1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
@@ -880,7 +882,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             array = np.take(array, channels, axis=2)
             stack_ls.append(array)
             filenames_batch.append(os.path.basename(path))  # store the filename
-            clear_output(wait=True)
+            #clear_output(wait=True)
             print(f'Concatenated: {i+1}/{nr_files} files')
             #print(f'Concatenated: {i+1}/{nr_files} files', end='\r', flush=True)
 
@@ -888,7 +890,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
-                    clear_output(wait=True)
+                    #clear_output(wait=True)
                     print(f'Warning: arrays with multiple shapes found in batch {i+1}. Padding arrays to max X,Y dimentions {max_dims}')
                     #print(f'Warning: arrays with multiple shapes found in batch {i+1}. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
                     padded_stack_ls = []
@@ -1016,7 +1018,7 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
                 duration = (stop - start)*single_channel.shape[0]
                 time_ls.append(duration)
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-                clear_output(wait=True)
+                #clear_output(wait=True)
                 print(f'Progress: files {file_index+1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1]-1}, arrays:{array_index+1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
                 #print(f'Progress: files {file_index+1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1]-1}, arrays:{array_index+1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec', end='\r', flush=True)
             normalized_single_channel = exposure.rescale_intensity(arr_2d_normalized, out_range='dtype')
@@ -1146,6 +1148,7 @@ def delete_empty_subdirectories(folder_path):
                 # An error occurred, likely because the directory is not empty
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
+@log_function_call
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays, _plot_4D_arrays
@@ -1279,19 +1282,6 @@ def preprocess_img_data(settings):
                     print(f'plotting {nr} images from {src}/stack')
                     plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
     
-    #if os.path.exists(src+'/stack'):
-    #    _merge_channels(src, plot=False)
-    #    if timelapse:
-    #        _create_movies_from_npy_per_channel(src+'/stack', fps=2)
-    #    if plot:
-    #        print(f'plotting {nr} images from {src}/stack')
-    #        plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-    #    if all_to_mip:
-    #        _mip_all(src+'/stack')
-    #        if plot:
-    #            print(f'plotting {nr} images from {src}/stack')
-    #            plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-    
     print('concatinating cahnnels')
     _concatenate_channel(src+'/stack', 
                         channels=mask_channels, 
@@ -1302,8 +1292,6 @@ def preprocess_img_data(settings):
     if plot:
         print(f'plotting {nr} images from {src}/channel_stack')
         _plot_4D_arrays(src+'/channel_stack', figuresize, cmap, nr_npz=1, nr=nr)
-    
-    nr_of_chan_stacks = len(src+'/channel_stack')
         
     backgrounds, signal_to_noise, signal_thresholds = _get_lists_for_normalization(settings=settings)
     
@@ -1498,6 +1486,56 @@ def _save_settings_to_db(settings):
     settings_df.to_sql('settings', conn, if_exists='replace', index=False)  # Replace the table if it already exists
     conn.close()
 
+def _save_mask_timelapse_as_gif_v1(masks, path, cmap, norm, filenames):
+    """
+    Save a timelapse of masks as a GIF.
+
+    Parameters:
+    masks (list): List of mask frames.
+    path (str): Path to save the GIF.
+    cmap: Colormap for displaying the masks.
+    norm: Normalization for the masks.
+    filenames (list): List of filenames corresponding to each mask frame.
+
+    Returns:
+    None
+    """
+    def _update(frame):
+        """
+        Update the plot with the given frame.
+
+        Parameters:
+        frame (int): The frame number to update the plot with.
+
+        Returns:
+        None
+        """
+        nonlocal filename_text_obj
+        if filename_text_obj is not None:
+            filename_text_obj.remove()
+        ax.clear()
+        ax.axis('off')
+        current_mask = masks[frame]
+        ax.imshow(current_mask, cmap=cmap, norm=norm)
+        ax.set_title(f'Frame: {frame}', fontsize=24, color='white')
+        filename_text = filenames[frame]
+        filename_text_obj = fig.text(0.5, 0.01, filename_text, ha='center', va='center', fontsize=20, color='white')
+        for label_value in np.unique(current_mask):
+            if label_value == 0: continue  # Skip background
+            y, x = np.mean(np.where(current_mask == label_value), axis=1)
+            ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
+
+    fig, ax = plt.subplots(figsize=(50, 50), facecolor='black')
+    ax.set_facecolor('black')
+    ax.axis('off')
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
+
+    filename_text_obj = None
+    anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
+    anim.save(path, writer='pillow', fps=2, dpi=80)  # Adjust DPI for size/quality
+    plt.close(fig)
+    print(f'Saved timelapse to {path}')
+
 def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     """
     Save a timelapse animation of masks as a GIF.
@@ -1552,9 +1590,10 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
             ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
 
         # Overlay tracks
-        for track in tracks_df['track_id'].unique():
-            _track = tracks_df[tracks_df['track_id'] == track]
-            ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
+        if tracks_df is not None:
+            for track in tracks_df['track_id'].unique():
+                _track = tracks_df[tracks_df['track_id'] == track]
+                ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
 
     anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
     anim.save(path, writer='pillow', fps=2, dpi=80)  # Adjust DPI for size/quality
@@ -1668,56 +1707,63 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
 
     # Iterate through each file in the reference folder
     for filename in os.listdir(reference_folder):
-
         stack_ls = []
-        array_path = []
-
         if filename.endswith('.npy'):
-            count+=1
-            # Initialize the concatenated array with the array from the reference folder
-            concatenated_array = np.load(os.path.join(reference_folder, filename))
-            if channels is not None:
-                concatenated_array = np.take(concatenated_array, channels, axis=2)
+            count += 1
+
+            # Check if this file exists in all the other specified folders
+            exists_in_all_folders = all(os.path.isfile(os.path.join(folder, filename)) for folder in folder_paths)
+
+            if exists_in_all_folders:
+                # Load and potentially modify the array from the reference folder
+                ref_array_path = os.path.join(reference_folder, filename)
+                concatenated_array = np.load(ref_array_path)
+
+                if channels is not None:
+                    concatenated_array = np.take(concatenated_array, channels, axis=2)
+
+                # Add the array from the reference folder to 'stack_ls'
                 stack_ls.append(concatenated_array)
-            # For each of the other folders, load the array and concatenate it
-            for folder in folder_paths[1:]:
-                array_path = os.path.join(folder, filename)
-                if os.path.isfile(array_path):
+
+                # For each of the other folders, load the array and add it to 'stack_ls'
+                for folder in folder_paths[1:]:
+                    array_path = os.path.join(folder, filename)
                     array = np.load(array_path)
                     if array.ndim == 2:
-                        array = np.expand_dims(array, axis=-1)  # add an extra dimension if the array is 2D
+                        array = np.expand_dims(array, axis=-1)  # Add an extra dimension if the array is 2D
                     stack_ls.append(array)
 
-            stack_ls = [np.expand_dims(arr, axis=-1) if arr.ndim == 2 else arr for arr in stack_ls]
-            unique_shapes = {arr.shape[:-1] for arr in stack_ls}
-            if len(unique_shapes) > 1:
-                #max_dims = np.max(np.array(list(unique_shapes)), axis=0)
-                # Determine the maximum length of tuples in unique_shapes
-                max_tuple_length = max(len(shape) for shape in unique_shapes)
-                # Pad shorter tuples with zeros to make them all the same length
-                padded_shapes = [shape + (0,) * (max_tuple_length - len(shape)) for shape in unique_shapes]
-                # Now create a NumPy array and find the maximum dimensions
-                max_dims = np.max(np.array(padded_shapes), axis=0)
-                clear_output(wait=True)
-                print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}')
-                #print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
-                padded_stack_ls = []
-                for arr in stack_ls:
-                    pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
-                    pad_width.append((0, 0))
-                    padded_arr = np.pad(arr, pad_width)
-                    padded_stack_ls.append(padded_arr)
-                # Concatenate the padded arrays along the channel dimension (last dimension)
-                stack = np.concatenate(padded_stack_ls, axis=-1)
+            if len(stack_ls) > 0:
+                stack_ls = [np.expand_dims(arr, axis=-1) if arr.ndim == 2 else arr for arr in stack_ls]
+                unique_shapes = {arr.shape[:-1] for arr in stack_ls}
+                if len(unique_shapes) > 1:
+                    #max_dims = np.max(np.array(list(unique_shapes)), axis=0)
+                    # Determine the maximum length of tuples in unique_shapes
+                    max_tuple_length = max(len(shape) for shape in unique_shapes)
+                    # Pad shorter tuples with zeros to make them all the same length
+                    padded_shapes = [shape + (0,) * (max_tuple_length - len(shape)) for shape in unique_shapes]
+                    # Now create a NumPy array and find the maximum dimensions
+                    max_dims = np.max(np.array(padded_shapes), axis=0)
+                    #clear_output(wait=True)
+                    print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}')
+                    #print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
+                    padded_stack_ls = []
+                    for arr in stack_ls:
+                        pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
+                        pad_width.append((0, 0))
+                        padded_arr = np.pad(arr, pad_width)
+                        padded_stack_ls.append(padded_arr)
+                    # Concatenate the padded arrays along the channel dimension (last dimension)
+                    stack = np.concatenate(padded_stack_ls, axis=-1)
 
-            else:
-                stack = np.concatenate(stack_ls, axis=-1)
+                else:
+                    stack = np.concatenate(stack_ls, axis=-1)
 
-            if stack.shape[-1] > concatenated_array.shape[-1]:
-                output_path = os.path.join(output_folder, filename)
-                np.save(output_path, stack)
+                if stack.shape[-1] > concatenated_array.shape[-1]:
+                    output_path = os.path.join(output_folder, filename)
+                    np.save(output_path, stack)
         
-        clear_output(wait=True)
+        #clear_output(wait=True)
         print(f'Files merged: {count}/{all_imgs}')
         #print(f'Files merged: {count}/{all_imgs}', end='\r', flush=True)
     return
@@ -2193,7 +2239,42 @@ def _read_mask(mask_path):
     if mask.dtype != np.uint16:
         mask = img_as_uint(mask)
     return mask
+
+
+def convert_numpy_to_tiff(folder_path, limit=None):
+    """
+    Converts all numpy files in a folder to TIFF format and saves them in a subdirectory 'tiff'.
     
+    Args:
+    folder_path (str): The path to the folder containing numpy files.
+    """
+    # Create the subdirectory 'tiff' within the specified folder if it doesn't already exist
+    tiff_subdir = os.path.join(folder_path, 'tiff')
+    os.makedirs(tiff_subdir, exist_ok=True)
+
+    files = os.listdir(folder_path)
+
+    npy_files = [f for f in files if f.endswith('.npy')]
+    
+    # Iterate over all files in the folder
+    for i, filename in enumerate(files):
+        if limit is not None and i >= limit:
+            break
+
+        # Construct the full file path
+        file_path = os.path.join(folder_path, filename)
+        # Load the numpy file
+        numpy_array = np.load(file_path)
+        
+        # Construct the output TIFF file path
+        tiff_filename = os.path.splitext(filename)[0] + '.tif'
+        tiff_file_path = os.path.join(tiff_subdir, tiff_filename)
+        
+        # Save the numpy array as a TIFF file
+        tifffile.imwrite(tiff_file_path, numpy_array)
+        
+        print(f"Converted {filename} to {tiff_filename} and saved in 'tiff' subdirectory.")
+    return
     
     
     

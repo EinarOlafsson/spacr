@@ -33,9 +33,11 @@ Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions f
 
 - **Finetune Cellpose Models:** Adjust pre-existing Cellpose models to your specific dataset for improved performance.
 
-- **Timelapse Data Support:** Includes support for analyzing timelapse data.
+- **Timelapse Data Support:** Track objects in timelapse image data.
 
 - **Simulations:** Simulate spatial phenotype screens.
+
+- **Misc:** Analyze Ca ossylation, recruitment, infection rate.
 
 ## Installation
 

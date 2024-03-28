@@ -678,7 +678,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                 crop_ls = settings['crop_mode']
                 size_ls = settings['png_size']
                 for crop_idx, crop_mode in enumerate(crop_ls):
-                    print(crop_idx, crop_mode)
+                    #print(crop_idx, crop_mode)
                     width, height = size_ls[crop_idx]
                     if crop_mode == 'cell':
                         crop_mask = cell_mask.copy()
@@ -915,21 +915,6 @@ def measure_crop(settings, annotation_settings, advanced_settings):
                 time_left = (((files_to_process-files_processed)*average_time)/max_workers)/60
                 print(f'Progress: {files_processed}/{files_to_process} Time/img {average_time:.3f}sec, Time Remaining {time_left:.3f} min.', end='\r', flush=True)
             result.get()
-            
-    #if settings['save_png']:
-    #    img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
-    #    sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
-    #    for well_src in sc_img_fldrs:
-    #        if len(os.listdir(well_src)) < 16:
-    #            nr_imgs = len(os.listdir(well_src))
-    #            standardize = False
-    #        else:
-    #            nr_imgs = 16
-    #            standardize = True
-    #        try:
-    #            _save_scimg_plot(src=well_src, nr_imgs=nr_imgs, channel_indices=settings['png_dims'], um_per_pixel=0.1, scale_bar_length_um=10, standardize=standardize, fontsize=12, show_filename=True, channel_names=['red','green','blue'], dpi=300, plot=False)    
-    #        except Exception as e:  # Consider catching a more specific exception if possible
-    #            print(f"Unable to generate figure for folder {well_src}: {e}", flush=True)
     
     if settings['save_png']:
         img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')

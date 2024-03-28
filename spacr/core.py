@@ -2048,6 +2048,10 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
         gc.collect()
     return
 
+def all_elements_match(list1, list2):
+    # Check if all elements in list1 are in list2
+    return all(element in list2 for element in list1)
+
 def generate_cellpose_masks(src, settings, object_type):
     
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels
@@ -2108,16 +2112,22 @@ def generate_cellpose_masks(src, settings, object_type):
             stack = data['data']
             filenames = data['filenames']
         if settings['timelapse']:
+
+            trackable_objects = ['cell','nucleus','pathogen']
+            if not all_elements_match(settings['timelapse_objects'], trackable_objects):
+                print(f'timelapse_objects {settings["timelapse_objects"]} must be a subset of {trackable_objects}')
+                return
+
             if len(stack) != batch_size:
                 print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
-                settings['batch_size'] = len(stack)
+                settings['timelapse_batch_size'] = len(stack)
                 batch_size = len(stack)
                 if isinstance(timelapse_frame_limits, list):
                     if len(timelapse_frame_limits) >= 2:
                         stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1], :, :, :].astype(stack.dtype)
                         filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
                         batch_size = len(stack)
-                        print(f'Cut batch an indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
+                        print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
 
         for i in range(0, stack.shape[0], batch_size):
             mask_stack = []
@@ -2133,7 +2143,7 @@ def generate_cellpose_masks(src, settings, object_type):
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
             if batch.size == 0:
-                print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}')
+                print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
                 #print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}', end='\r', flush=True)
                 continue
             if batch.max() > 1:
@@ -2151,6 +2161,7 @@ def generate_cellpose_masks(src, settings, object_type):
             #batch, _, _, _ = dn.eval(x=batch, channels=chans, diameter=object_settings['diameter'])
             #batch = np.stack((batch, batch), axis=-1)
             #print(f'object: {object_type} chans : {chans} channels : {channels} model: {model_name}')
+            print('batch.shape',batch.shape)
             masks, flows, _, _ = model.eval(x=batch,
                                             batch_size=cellpose_batch_size,
                                             normalize=False,
@@ -2193,13 +2204,13 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           name=name,
                                                           batch_filenames=batch_filenames,
                                                           object_type=object_type,
-                                                          masks_3D=masks,
+                                                          masks=masks,
                                                           timelapse_displacement=timelapse_displacement,
                                                           timelapse_memory=timelapse_memory,
                                                           timelapse_remove_transient=timelapse_remove_transient,
                                                           plot=settings['plot'],
                                                           save=settings['save'],
-                                                          timelapse_mode=timelapse_mode)
+                                                          mode=timelapse_mode)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
 
@@ -2234,7 +2245,6 @@ def generate_cellpose_masks(src, settings, object_type):
         time_in_min = average_time/60
         time_per_mask = average_time/batch_size
         print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
-        #print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2', end='\r', flush=True)
         if not timelapse:
             if settings['plot']:
                 plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap='inferno', nr=batch_size)
