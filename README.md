@@ -27,7 +27,7 @@ Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions f
 
 - **Crop Images:** Objects (e.g. cells) can be saved as PNGs from the object area or bounding box area of each object. Object paths are saved in an sql database that can be annotated and used to train CNNs/Transformer models for classefication tasks.
 
-- **Train CNNs or Transformers:** Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images. Train Torch models with IRM/ERM, checkpointing, 
+- **Train CNNs or Transformers:** Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images. Train Torch models with IRM/ERM, checkpointing.
 
 - **Manual Annotation:** Supports manual annotation of single cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
 
@@ -37,7 +37,7 @@ Spatial phenotype analysis of crisp screens (SpaCr). A collection of functions f
 
 - **Simulations:** Simulate spatial phenotype screens.
 
-- **Misc:** Analyze Ca ossylation, recruitment, infection rate.
+- **Misc:** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
 ## Installation
 

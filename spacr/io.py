@@ -707,7 +707,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         if metadata_type =='cq1':
                             orig_wellID = wellID
                             wellID = _convert_cq1_well_id(wellID)
-                            print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
+                            print(f'Converted Well ID: {orig_wellID} to {wellID}')#, end='\r', flush=True)
 
                         newname = f"{plateID}_{wellID}_{fieldID}_{timeID if timelapse else ''}{ext}"
                         newpath = src / chanID
@@ -1152,6 +1152,7 @@ def delete_empty_subdirectories(folder_path):
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays, _plot_4D_arrays
+    from .utils import _run_test_mode
     
     """
     Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
@@ -1189,7 +1190,6 @@ def preprocess_img_data(settings):
     extensions = [file.split('.')[-1] for file in files]
     extension_counts = Counter(extensions)
     most_common_extension = extension_counts.most_common(1)[0][0]
-
     img_format = None
 
     delete_empty_subdirectories(src)
@@ -1246,41 +1246,54 @@ def preprocess_img_data(settings):
             regex = f'({custom_regex}){img_format}'
         
         print(f'regex mode:{metadata_type} regex:{regex}')
+
+    if settings.get('test_mode', False):
+        try:
+            os.rmdir(os.path.join(src, 'test'))
+            print(f"Deleted test directory: {os.path.join(src, 'test')}")
+        except OSError as e:
+            pass
+
+        src = _run_test_mode(settings['src'], regex, timelapse=timelapse)
+        settings['src'] = src
     
     if not os.path.exists(src+'/stack'):
-        if not img_format == None:
-            if timelapse:
-                _move_to_chan_folder(src, regex, timelapse, metadata_type)
-            else:
-                _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
-                
-                #Make sure no batches will be of only one image
-                all_imgs = len(src+'/stack')
-                full_batches = all_imgs // batch_size
-                last_batch_size = all_imgs % batch_size
-                
-                # Check if the last batch is of size 1
-                if last_batch_size == 1:
-                    # If there's only one batch and its size is 1, it's also an issue
-                    if full_batches == 0:
-                        raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
-                    # If the last batch is of size 1, merge it with the second last batch
-                    elif full_batches > 0:
-                        raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
-    
-            _merge_channels(src, plot=False)
+        try:
+            if not img_format == None:
+                if timelapse:
+                    _move_to_chan_folder(src, regex, timelapse, metadata_type)
+                else:
+                    _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
+                    
+                    #Make sure no batches will be of only one image
+                    all_imgs = len(src+'/stack')
+                    full_batches = all_imgs // batch_size
+                    last_batch_size = all_imgs % batch_size
+                    
+                    # Check if the last batch is of size 1
+                    if last_batch_size == 1:
+                        # If there's only one batch and its size is 1, it's also an issue
+                        if full_batches == 0:
+                            raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
+                        # If the last batch is of size 1, merge it with the second last batch
+                        elif full_batches > 0:
+                            raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
+        
+                _merge_channels(src, plot=False)
 
-            if timelapse:
-                _create_movies_from_npy_per_channel(src+'/stack', fps=2)
+                if timelapse:
+                    _create_movies_from_npy_per_channel(src+'/stack', fps=2)
 
-            if plot:
-                print(f'plotting {nr} images from {src}/stack')
-                plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
-            if all_to_mip:
-                _mip_all(src+'/stack')
                 if plot:
                     print(f'plotting {nr} images from {src}/stack')
                     plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+                if all_to_mip:
+                    _mip_all(src+'/stack')
+                    if plot:
+                        print(f'plotting {nr} images from {src}/stack')
+                        plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+        except Exception as e:
+            print(f"Error: {e}")
     
     print('concatinating cahnnels')
     _concatenate_channel(src+'/stack', 
@@ -1310,7 +1323,7 @@ def preprocess_img_data(settings):
     if plot:
         _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)
 
-    return
+    return settings, src
     
 def _check_masks(batch, batch_filenames, output_folder):
     """

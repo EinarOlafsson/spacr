@@ -678,7 +678,6 @@ def _measure_crop_core(index, time_ls, file, settings):
                 crop_ls = settings['crop_mode']
                 size_ls = settings['png_size']
                 for crop_idx, crop_mode in enumerate(crop_ls):
-                    #print(crop_idx, crop_mode)
                     width, height = size_ls[crop_idx]
                     if crop_mode == 'cell':
                         crop_mask = cell_mask.copy()
@@ -832,6 +831,14 @@ def measure_crop(settings, annotation_settings, advanced_settings):
     Returns:
         None
     """
+
+    if settings.get('test_mode', False):
+        if not os.basename(settings['src']) == 'test':
+            src = os.path.join(src, 'test')
+            settings['src'] = src
+            print(f'Changed source folder to {src} for test mode')
+        else:
+            print(f'Test mode enabled, using source folder {settings["src"]}')
     
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif, _scmovie

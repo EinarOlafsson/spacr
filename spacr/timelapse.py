@@ -590,7 +590,7 @@ def infected_vs_noninfected(result_df, measurement):
     plt.tight_layout()
     plt.show()
 
-def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None):
+def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9):
     # Load data
     conn = sqlite3.connect(db_loc)
     # Load cell table
@@ -598,16 +598,19 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     
     if pathogen:
         pathogen_df = pd.read_sql("SELECT * FROM pathogen", conn)
-        pathogen_df['pathogen_cell_id'] = pathogen_df['pathogen_cell_id'].astype('Int64').dropna()  # Ensure correct type and drop NaNs
+        pathogen_df['pathogen_cell_id'] = pathogen_df['pathogen_cell_id'].astype(float).astype('Int64')
         pathogen_df = preprocess_pathogen_data(pathogen_df)
         cell_df = cell_df.merge(pathogen_df, on=['plate', 'row', 'col', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_pathogen'))
-        cell_df['parasite_count'] = cell_df['parasite_count'].fillna(0)  # Fill NaN with 0 for cells with no parasites
+        cell_df['parasite_count'] = cell_df['parasite_count'].fillna(0)
+        print(f'After pathogen merge: {len(cell_df)} objects')
 
     # Optionally load cytoplasm table and merge
     if cytoplasm:
         cytoplasm_df = pd.read_sql(f"SELECT * FROM {'cytoplasm'}", conn)
         # Merge on specified columns
         cell_df = cell_df.merge(cytoplasm_df, on=['plate', 'row', 'col', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_cytoplasm'))
+
+        print(f'After cytoplasm merge: {len(cell_df)} objects')
     
     conn.close()
 
@@ -631,20 +634,37 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     except RuntimeError as e:
         print(f"Curve fitting failed for the entire dataset with error: {e}")
         return
+    if verbose:
+        print(f'Analyzing: {len(df)} objects')
     
     # Normalizing corrected fluorescence for each cell
     corrected_dfs = []
     peak_details_list = []
     total_timepoints = df['time'].nunique()
+    size_filter_removed = 0
+    transience_removed = 0
     
     for unique_id, group in df.groupby('plate_row_column_field_object'):
         group = group.sort_values('time')
-        if len(group) == total_timepoints and group[size_filter].std() / group[size_filter].mean() <= fluctuation_threshold:
+        if remove_transient:
+
+            threshold = int(transience_threshold * total_timepoints)
+
+            if verbose:
+                print(f'Group length: {len(group)} Timelapse length: {total_timepoints}, threshold:{threshold}')
+
+            if not len(group) <= threshold:
+                transience_removed += 1
+                continue
+        
+        size_diff = group[size_filter].std() / group[size_filter].mean()
+        if size_diff <= fluctuation_threshold:
             group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
             corrected_dfs.append(group)
             
             # Detect peaks
             peaks, properties = find_peaks(group['delta_' + measurement], height=peak_height)
+
             # Inside the for loop where peaks are detected
             for i, peak in enumerate(peaks):
                 amplitude = properties['peak_heights'][i]  # Correctly access the amplitude
@@ -661,10 +681,21 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
                     'time': peak_time,  # The time of the peak
                     'amplitude': amplitude,
                     'delta': group['delta_' + measurement].iloc[peak],
-                    'infected': pathogen_count_at_peak  # The number of pathogens in the cell at the time of the peak
+                    'infected': pathogen_count_at_peak  
                 })
+        else:
+            size_filter_removed += 1
+
+    if verbose:
+        print(f'Removed {size_filter_removed} objects due to size filter fluctuation')
+        print(f'Removed {transience_removed} objects due to transience')
+
+    if len(corrected_dfs) > 0:
+        result_df = pd.concat(corrected_dfs)
+    else:
+        print("No suitable cells found for analysis")
+        return
     
-    result_df = pd.concat(corrected_dfs)
     peak_details_df = pd.DataFrame(peak_details_list)
     
     # Plotting

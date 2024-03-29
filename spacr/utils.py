@@ -1,6 +1,8 @@
 import os, re, sqlite3, gc, torch, torchvision, time, random, string, shutil, cv2, tarfile, glob
 
 import numpy as np
+from cellpose import models as cp_models
+from cellpose import denoise
 from skimage import morphology
 from skimage.measure import label, regionprops_table, regionprops
 import skimage.measure as measure
@@ -793,16 +795,19 @@ def _get_object_settings(object_type, settings):
             object_settings['model_name'] = 'cyto2'
         object_settings['filter_size'] = True
         object_settings['filter_intensity'] = True
+        object_settings['restore_type'] = settings.get('cell_restore_type', None)
 
     elif object_type == 'nucleus':
         object_settings['model_name'] = 'nuclei'
         object_settings['filter_size'] = True
         object_settings['filter_intensity'] = True
+        object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
 
     elif object_type == 'pathogen':
         object_settings['model_name'] = 'cyto'
         object_settings['filter_size'] = True
         object_settings['filter_intensity'] = True
+        object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
@@ -2753,6 +2758,70 @@ def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mas
                 print(f'After {object_type} maximum mean intensity filter: {len(df)}')
     return df
 
-###################################################
-#  Classify
-###################################################
+def _run_test_mode(src, regex, timelapse=False):
+    if timelapse:
+        test_images = 1  # Use only 1 set for timelapse to ensure full sequence inclusion
+    else:
+        test_images = 10  # Use 10 sets for non-timelapse scenarios
+
+    test_folder_path = os.path.join(src, 'test')
+    os.makedirs(test_folder_path, exist_ok=True)
+    regular_expression = re.compile(regex)
+    
+    all_filenames = [filename for filename in os.listdir(src) if regular_expression.match(filename)]
+    print(f'Found {len(all_filenames)} files')
+    images_by_set = defaultdict(list)
+
+    for filename in all_filenames:
+        match = regular_expression.match(filename)
+        if match:
+            plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
+            well = match.group('wellID')
+            field = match.group('fieldID')
+            # For timelapse experiments, group images by plate, well, and field only
+            if timelapse:
+                set_identifier = (plate, well, field)
+            else:
+                # For non-timelapse, you might want to distinguish sets more granularly
+                # Here, assuming you're grouping by plate, well, and field for simplicity
+                set_identifier = (plate, well, field)
+            images_by_set[set_identifier].append(filename)
+    
+    # Prepare for random selection
+    set_identifiers = list(images_by_set.keys())
+    random.shuffle(set_identifiers)  # Randomize the order
+    
+    # Select a subset based on the test_images count
+    selected_sets = set_identifiers[:test_images]
+
+    # Print information about the number of sets used
+    print(f'Using {test_images} random image set(s) for test model')
+
+    # Copy files for selected sets to the test folder
+    for set_identifier in selected_sets:
+        for filename in images_by_set[set_identifier]:
+            shutil.copy(os.path.join(src, filename), test_folder_path)
+
+    return test_folder_path
+
+def _choose_model(model_name, device, object_type='cell', restore_type=None):
+    restore_list = ['denoise', 'deblur', 'upsample', None]
+    if restore_type not in restore_list:
+        print(f"Invalid restore type. Choose from {restore_list} defaulting to None")
+        restore_type = None
+
+    if restore_type == None:
+        model = cp_models.Cellpose(gpu=True, model_type=model_name, device=device)
+    else:
+        if object_type == 'nucleus':
+            restore = f'{type}_nuclei'
+            model = denoise.CellposeDenoiseModel(gpu=True, model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
+        else:
+            restore = f'{type}_cyto3'
+            if model_name =='cyto2':
+                chan2_restore = True
+            if model_name =='cyto':
+                chan2_restore = False
+            model = denoise.CellposeDenoiseModel(gpu=True, model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
+    
+    return model
