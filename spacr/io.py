@@ -600,7 +600,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     shutil.move(os.path.join(src, filename), move)
     return
 
-def _merge_file(chan_dirs, stack_dir, file):
+def _merge_file_v1(chan_dirs, stack_dir, file):
     """
     Merge multiple channels into a single stack and save it as a numpy array.
 
@@ -625,15 +625,80 @@ def _merge_file(chan_dirs, stack_dir, file):
         stack = np.concatenate(channels, axis=2)
         np.save(new_file, stack)
 
-def _is_dir_empty(dir_path):
+def _merge_file_v1(chan_dirs, stack_dir, file):
     """
-    Check if a directory is empty.
-
+    Merge multiple channels into a single stack and save it as a numpy array.
     Args:
-        dir_path (str): The path to the directory.
+        chan_dirs (list): List of directories containing channel images.
+        stack_dir (str): Directory to save the merged stack.
+        file (str): File name of the channel image.
 
     Returns:
-        bool: True if the directory is empty, False otherwise.
+        None
+    """
+    new_file = stack_dir / (file.stem + '.npy')
+    if not new_file.exists():
+        stack_dir.mkdir(exist_ok=True)
+        channels = []
+        for i, chan_dir in enumerate(chan_dirs):
+            img_path = str(chan_dir / file.name)
+            img = cv2.imread(img_path, -1)
+            if img is None:
+                print(f"Warning: Failed to read image {img_path}")
+                continue
+            chan = np.expand_dims(img, axis=2)
+            channels.append(chan)
+            del img  # Explicitly delete the reference to the image to free up memory
+            if i % 10 == 0:  # Periodically suggest garbage collection
+                gc.collect()
+
+        if channels:
+            stack = np.concatenate(channels, axis=2)
+            np.save(new_file, stack)
+        else:
+            print(f"No valid channels to merge for file {file.name}")
+
+def _merge_file(chan_dirs, stack_dir, file_name):
+    """
+    Merge multiple channels into a single stack and save it as a numpy array, using os module for path handling.
+    
+    Args:
+        chan_dirs (list): List of directories containing channel images.
+        stack_dir (str): Directory to save the merged stack.
+        file_name (str): File name of the channel image.
+
+    Returns:
+        None
+    """
+    # Construct new file path
+    file_root, file_ext = os.path.splitext(file_name)
+    new_file = os.path.join(stack_dir, file_root + '.npy')
+    
+    # Check if the new file exists and create the stack directory if it doesn't
+    if not os.path.exists(new_file):
+        os.makedirs(stack_dir, exist_ok=True)
+        channels = []
+        for i, chan_dir in enumerate(chan_dirs):
+            img_path = os.path.join(chan_dir, file_name)
+            img = cv2.imread(img_path, -1)
+            if img is None:
+                print(f"Warning: Failed to read image {img_path}")
+                continue
+            chan = np.expand_dims(img, axis=2)
+            channels.append(chan)
+            del img  # Explicitly delete the reference to the image to free up memory
+            if i % 10 == 0:  # Periodically suggest garbage collection
+                gc.collect()
+
+        if channels:
+            stack = np.concatenate(channels, axis=2)
+            np.save(new_file, stack)
+        else:
+            print(f"No valid channels to merge for file {file_name}")
+
+def _is_dir_empty(dir_path):
+    """
+    Check if a directory is empty using os module.
     """
     return len(os.listdir(dir_path)) == 0
 
@@ -733,7 +798,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                     shutil.move(os.path.join(src, filename), move)
     return
 
-def _merge_channels(src, plot=False):
+def _merge_channels_v2(src, plot=False):
     from .plot import plot_arrays
     """
     Merge the channels in the given source directory and save the merged files in a 'stack' directory.
@@ -761,7 +826,8 @@ def _merge_channels(src, plot=False):
     print(f'generated folder with merged arrays: {stack_dir}')
 
     if _is_dir_empty(stack_dir):
-        with Pool(cpu_count()) as pool:
+        with Pool(max(cpu_count() // 2, 1)) as pool:
+        #with Pool(cpu_count()) as pool:
             merge_func = partial(_merge_file, chan_dirs, stack_dir)
             pool.map(merge_func, dir_files)
 
@@ -770,6 +836,44 @@ def _merge_channels(src, plot=False):
 
     if plot:
         plot_arrays(src+'/stack')
+
+    return
+
+def _merge_channels(src, plot=False):
+    """
+    Merge the channels in the given source directory and save the merged files in a 'stack' directory without using multiprocessing.
+    """
+    stack_dir = os.path.join(src, 'stack')
+    allowed_names = ['01', '02', '03', '04', '00', '1', '2', '3', '4', '0']
+    
+    # List directories that match the allowed names
+    chan_dirs = [d for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d in allowed_names]
+    chan_dirs.sort()
+
+    print(f'List of folders in src: {chan_dirs}. Single channel folders.')
+    start_time = time.time()
+
+    # Assuming chan_dirs[0] is not empty and exists, adjust according to your logic
+    first_dir_path = os.path.join(src, chan_dirs[0])
+    dir_files = os.listdir(first_dir_path)
+
+    # Create the 'stack' directory if it doesn't exist
+    if not os.path.exists(stack_dir):
+        os.makedirs(stack_dir, exist_ok=True)
+    print(f'Generated folder with merged arrays: {stack_dir}')
+
+    if _is_dir_empty(stack_dir):
+        for file_name in dir_files:
+            full_file_path = os.path.join(first_dir_path, file_name)
+            if os.path.isfile(full_file_path):
+                _merge_file([os.path.join(src, d) for d in chan_dirs], stack_dir, file_name)
+
+    elapsed_time = time.time() - start_time
+    avg_time = elapsed_time / len(dir_files) if dir_files else 0
+    print(f'Average Time: {avg_time:.3f} sec, Total Elapsed Time: {elapsed_time:.3f} sec')
+
+    if plot:
+        plot_arrays(os.path.join(src, 'stack'))
 
     return
 
@@ -1256,6 +1360,10 @@ def preprocess_img_data(settings):
 
         src = _run_test_mode(settings['src'], regex, timelapse=timelapse)
         settings['src'] = src
+
+    if img_format == None:
+        if not os.path.exists(src+'/stack'):
+            _merge_channels(src, plot=False)   
     
     if not os.path.exists(src+'/stack'):
         try:
