@@ -1334,7 +1334,6 @@ def preprocess_img_data(settings):
     pick_slice = settings['pick_slice']
     skip_mode = settings['skip_mode']
 
-
     if not img_format == None:
         if metadata_type == 'cellvoyager':
             regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'

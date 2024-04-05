@@ -11,6 +11,7 @@ from btrack import datasets as btrack_datasets
 from skimage.measure import regionprops
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit
+from scipy.integrate import trapz
 import matplotlib.pyplot as plt
 
 from .logger import log_function_call
@@ -590,6 +591,71 @@ def infected_vs_noninfected(result_df, measurement):
     plt.tight_layout()
     plt.show()
 
+def save_figure(fig, src, figure_number):
+    source = os.path.dirname(src)
+    results_fldr = os.path.join(source,'results')
+    os.makedirs(results_fldr, exist_ok=True)
+    fig_loc = os.path.join(results_fldr, f'figure_{figure_number}.pdf')
+    fig.savefig(fig_loc)
+    print(f'Saved figure:{fig_loc}')
+
+def save_results_dataframe(df, src, results_name):
+    source = os.path.dirname(src)
+    results_fldr = os.path.join(source,'results')
+    os.makedirs(results_fldr, exist_ok=True)
+    csv_loc = os.path.join(results_fldr, f'{results_name}.csv')
+    df.to_csv(csv_loc, index=True)
+    print(f'Saved results:{csv_loc}')
+
+def summarize_per_well(peak_details_df):
+    # Step 1: Split the 'ID' column
+    split_columns = peak_details_df['ID'].str.split('_', expand=True)
+    peak_details_df[['plate', 'row', 'column', 'field', 'object_number']] = split_columns
+
+    # Step 2: Create 'well_ID' by combining 'row' and 'column'
+    peak_details_df['well_ID'] = peak_details_df['row'] + '_' + peak_details_df['column']
+
+    # Preparation for Step 3: Identify numeric columns for averaging
+    numeric_cols = peak_details_df.select_dtypes(include=['number']).columns
+
+    # Step 3: Calculate summary statistics
+    summary_df = peak_details_df.groupby('well_ID').agg(
+        cells_per_well=('object_number', 'nunique'),
+        peaks_per_well=('ID', 'size'),
+        **{col: (col, 'mean') for col in numeric_cols}
+    ).reset_index()
+
+    summary_df['peaks_per_cell'] = summary_df['peaks_per_well'] / summary_df['cells_per_well']
+    
+    return summary_df
+
+def summarize_per_well_inf_non_inf(peak_details_df):
+    # Step 1: Split the 'ID' column
+    split_columns = peak_details_df['ID'].str.split('_', expand=True)
+    peak_details_df[['plate', 'row', 'column', 'field', 'object_number']] = split_columns
+
+    # Step 2: Create 'well_ID' by combining 'row' and 'column'
+    peak_details_df['well_ID'] = peak_details_df['row'] + '_' + peak_details_df['column']
+
+    # Assume 'pathogen_count' indicates infection if > 0
+    # Add an 'infected_status' column to classify cells
+    peak_details_df['infected_status'] = peak_details_df['infected'].apply(lambda x: 'infected' if x > 0 else 'non_infected')
+
+    # Preparation for Step 3: Identify numeric columns for averaging
+    numeric_cols = peak_details_df.select_dtypes(include=['number']).columns
+
+    # Step 3: Calculate summary statistics
+    summary_df = peak_details_df.groupby(['well_ID', 'infected_status']).agg(
+        cells_per_well=('object_number', 'nunique'),
+        peaks_per_well=('ID', 'size'),
+        **{col: (col, 'mean') for col in numeric_cols}
+    ).reset_index()
+
+    # Calculate peaks per cell
+    summary_df['peaks_per_cell'] = summary_df['peaks_per_well'] / summary_df['cells_per_well']
+
+    return summary_df
+
 def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9):
     # Load data
     conn = sqlite3.connect(db_loc)
@@ -626,7 +692,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     cell_df['plate_row_column_field_object'] = cell_df['plate'].astype(str) + '_' + cell_df['row'].astype(str) + '_' + cell_df['column'].astype(str) + '_' + cell_df['field'].astype(str) + '_' + cell_df['object_label'].astype(str)
 
     df = cell_df.copy()
-    
+
     # Fit exponential decay model to all scaled fluorescence data
     try:
         params, _ = curve_fit(exponential_decay, df['time'], df[measurement], p0=[max(df[measurement]), 0.01, min(df[measurement])], maxfev=10000)
@@ -653,11 +719,14 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
             if verbose:
                 print(f'Group length: {len(group)} Timelapse length: {total_timepoints}, threshold:{threshold}')
 
-            if not len(group) <= threshold:
+            if len(group) <= threshold:
                 transience_removed += 1
+                if verbose:
+                    print(f'removed group {unique_id} due to transience')
                 continue
         
         size_diff = group[size_filter].std() / group[size_filter].mean()
+
         if size_diff <= fluctuation_threshold:
             group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
             corrected_dfs.append(group)
@@ -665,12 +734,50 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
             # Detect peaks
             peaks, properties = find_peaks(group['delta_' + measurement], height=peak_height)
 
+            # Set values < 0 to 0
+            group_filtered = group.copy()
+            group_filtered['delta_' + measurement] = group['delta_' + measurement].clip(lower=0)
+            above_zero_auc = trapz(y=group_filtered['delta_' + measurement], x=group_filtered['time'])
+            auc = trapz(y=group['delta_' + measurement], x=group_filtered['time'])
+            is_infected = (group['parasite_count'] > 0).any()
+            
+            if is_infected:
+                is_infected = 1
+            else:
+                is_infected = 0
+
+            if len(peaks) == 0:
+                peak_details_list.append({
+                    'ID': unique_id,
+                    'plate': group['plate'].iloc[0],
+                    'row': group['row'].iloc[0],
+                    'column': group['column'].iloc[0],
+                    'field': group['field'].iloc[0],
+                    'object_number': group['object_number'].iloc[0],
+                    'time': np.nan,  # The time of the peak
+                    'amplitude': np.nan,
+                    'delta': np.nan,
+                    'AUC': auc,
+                    'AUC_positive': above_zero_auc,
+                    'AUC_peak': np.nan,
+                    'infected': is_infected  
+                })
+
             # Inside the for loop where peaks are detected
             for i, peak in enumerate(peaks):
-                amplitude = properties['peak_heights'][i]  # Correctly access the amplitude
-                peak_time = group['time'].iloc[peak]  # Time corresponding to the peak
-                # Get the number of pathogens in the cell at the time of the peak
+
+                amplitude = properties['peak_heights'][i]
+                peak_time = group['time'].iloc[peak]
                 pathogen_count_at_peak = group['parasite_count'].iloc[peak]
+
+                start_idx = max(peak - 1, 0)
+                end_idx = min(peak + 1, len(group) - 1)
+
+                # Using indices to slice for AUC calculation
+                peak_segment_y = group['delta_' + measurement].iloc[start_idx:end_idx + 1]
+                peak_segment_x = group['time'].iloc[start_idx:end_idx + 1]
+                peak_auc = trapz(y=peak_segment_y, x=peak_segment_x)
+
                 peak_details_list.append({
                     'ID': unique_id,
                     'plate': group['plate'].iloc[0],
@@ -681,6 +788,9 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
                     'time': peak_time,  # The time of the peak
                     'amplitude': amplitude,
                     'delta': group['delta_' + measurement].iloc[peak],
+                    'AUC': auc,
+                    'AUC_positive': above_zero_auc,
+                    'AUC_peak': peak_auc,
                     'infected': pathogen_count_at_peak  
                 })
         else:
@@ -697,7 +807,14 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         return
     
     peak_details_df = pd.DataFrame(peak_details_list)
-    
+    summary_df = summarize_per_well(peak_details_df)
+    summary_df_inf_non_inf = summarize_per_well_inf_non_inf(peak_details_df)
+
+    save_results_dataframe(df=peak_details_df, src=db_loc, results_name='peak_details')
+    save_results_dataframe(df=result_df, src=db_loc, results_name='results')
+    save_results_dataframe(df=summary_df, src=db_loc, results_name='well_results')
+    save_results_dataframe(df=summary_df_inf_non_inf, src=db_loc, results_name='well_results_inf_non_inf')
+
     # Plotting
     fig, ax = plt.subplots(figsize=(10, 8))
     sampled_groups = result_df['plate_row_column_field_object'].unique()
@@ -714,12 +831,16 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     ax.set_xlabel('Time')
     ax.set_ylabel('Normalized Delta ' + measurement)
     plt.tight_layout()
+    
     plt.show()
+
+    save_figure(fig, src=db_loc, figure_number=1)
     
     if pathogen:
         infected_vs_noninfected(result_df, measurement)
+        save_figure(fig, src=db_loc, figure_number=2)
 
-        # Identifying cells with and without infection
+        # Identify cells with and without pathogens
         infected_cells = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') > 0]['plate_row_column_field_object'].unique()
         noninfected_cells = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]['plate_row_column_field_object'].unique()
 
@@ -733,5 +854,5 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
         print(f'Average number of peaks per infected cell: {avg_inf_peaks_per_cell:.2f}')
         print(f'Average number of peaks per non-infected cell: {avg_non_inf_peaks_per_cell:.2f}')
-
-    return result_df, peak_details_df
+    print(f'done')
+    return result_df, peak_details_df, fig
