@@ -2255,8 +2255,8 @@ def dice_coefficient(mask1, mask2):
 def extract_boundaries(mask, dilation_radius=1):
     binary_mask = (mask > 0).astype(np.uint8)
     struct_elem = np.ones((dilation_radius*2+1, dilation_radius*2+1))
-    dilated = binary_dilation(binary_mask, footprint=struct_elem)
-    eroded = binary_erosion(binary_mask, footprint=struct_elem)
+    dilated = morphology.binary_dilation(binary_mask, footprint=struct_elem)
+    eroded = morphology.binary_erosion(binary_mask, footprint=struct_elem)
     boundary = dilated ^ eroded
     return boundary
 

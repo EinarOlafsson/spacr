@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob
 import numpy as np
 import pandas as pd
 import tifffile
@@ -45,19 +45,19 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
 
     if not image_files is None and not label_files is None: 
         for img_file, lbl_file in zip(image_files, label_files):
-            image = cellpose.imread(img_file)
+            image = cellpose.io.imread(img_file)
             if invert:
                 image = invert_image(image)
             if circular:
                 image = apply_mask(image, output_value=0)
-            label = cellpose.imread(lbl_file)
+            label = cellpose.io.imread(lbl_file)
             if image.max() > 1:
                 image = image / image.max()
             images.append(image)
             labels.append(label)
     elif not image_files is None:
         for img_file in image_files:
-            image = cellpose.imread(img_file)
+            image = cellpose.io.imread(img_file)
             if invert:
                 image = invert_image(image)
             if circular:
@@ -67,7 +67,7 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
             images.append(image)
     elif not image_files is None:
             for lbl_file in label_files:
-                label = cellpose.imread(lbl_file)
+                label = cellpose.io.imread(lbl_file)
                 if circular:
                     label = apply_mask(label, output_value=0)
             labels.append(label)
@@ -109,15 +109,17 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
     
     if label_files is not None:
         label_names = [os.path.basename(f) for f in label_files]
+        label_dir = os.path.dirname(label_files[0])
 
     # Load images and check percentiles
     for i,img_file in enumerate(image_files):
-        image = cellpose.imread(img_file)
+        #print(img_file)
+        image = cellpose.io.imread(img_file)
         if invert:
             image = invert_image(image)
         if circular:
             image = apply_mask(image, output_value=0)
-            
+        #print(image.shape)
         # If specific channels are specified, select them
         if channels is not None and image.ndim == 3:
             image = image[..., channels]
@@ -169,7 +171,7 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
             
     if label_files is not None:
         for lbl_file in label_files:
-            labels.append(cellpose.imread(lbl_file))
+            labels.append(cellpose.io.imread(lbl_file))
     else:
         label_names = []
         label_dir = None
@@ -843,6 +845,9 @@ def _merge_channels(src, plot=False):
     """
     Merge the channels in the given source directory and save the merged files in a 'stack' directory without using multiprocessing.
     """
+
+    from .plot import plot_arrays
+    
     stack_dir = os.path.join(src, 'stack')
     allowed_names = ['01', '02', '03', '04', '00', '1', '2', '3', '4', '0']
     
@@ -2396,7 +2401,47 @@ def convert_numpy_to_tiff(folder_path, limit=None):
         print(f"Converted {filename} to {tiff_filename} and saved in 'tiff' subdirectory.")
     return
     
+def generate_cellpose_train_test(src, test_split=0.1):
     
+    mask_src = os.path.join(src, 'masks')
+    img_paths = glob.glob(os.path.join(src, '*.tif'))
+    img_filenames = [os.path.basename(file) for file in img_paths + img_paths]
+    img_filenames = [file for file in img_filenames if os.path.exists(os.path.join(mask_src, file))]
+    print(f'Found {len(img_filenames)} images with masks')
+    
+    random.shuffle(img_filenames)
+    split_index = int(len(img_filenames) * test_split)
+    train_files = img_filenames[split_index:]
+    test_files = img_filenames[:split_index]
+    list_of_lists = [test_files, train_files]
+    print(f'Split dataset into Train {len(train_files)} and Test {len(test_files)} files')
+    
+    train_dir = os.path.join(os.path.dirname(src), 'train')
+    train_dir_masks = os.path.join(train_dir, 'mask')
+    test_dir = os.path.join(os.path.dirname(src), 'test')
+    test_dir_masks = os.path.join(test_dir, 'mask')
+    
+    os.makedirs(train_dir_masks, exist_ok=True)
+    os.makedirs(test_dir_masks, exist_ok=True)
+    for i, ls in enumerate(list_of_lists):
+        
+        if i == 0:
+            dst = test_dir
+            dst_mask = test_dir_masks
+            _type = 'Test'
+        if i == 1:
+            dst = train_dir
+            dst_mask = train_dir_masks
+            _type = 'Train'
+            
+        for idx, filename in enumerate(ls):
+            img_path = os.path.join(src, filename)
+            mask_path = os.path.join(mask_src, filename)
+            new_img_path = os.path.join(dst, filename)
+            new_mask_path = os.path.join(dst_mask, filename)            
+            shutil.copy(img_path, new_img_path)
+            shutil.copy(mask_path, new_mask_path)
+            print(f'Copied {idx+1}/{len(ls)} images to {_type} set', end='\r', flush=True)
     
     
     

@@ -1236,6 +1236,35 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
         ax.axis('off')
     plt.suptitle(title)
     plt.show()
+
+def visualize_cellpose_masks(masks, titles=None, comparison_title="Masks Comparison"):
+    """
+    Visualize multiple masks with optional titles.
+    
+    Parameters:
+        masks (list of np.ndarray): A list of masks to visualize.
+        titles (list of str, optional): A list of titles for the masks. If None, default titles will be used.
+        comparison_title (str): Title for the entire figure.
+    """
+    if titles is None:
+        titles = [f'Mask {i+1}' for i in range(len(masks))]
+    
+    # Ensure the length of titles matches the number of masks
+    assert len(titles) == len(masks), "Number of titles and masks must match"
+    
+    num_masks = len(masks)
+    fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))  # Adjusting figure size dynamically
+    
+    for ax, mask, title in zip(axs, masks, titles):
+        cmap = generate_mask_random_cmap(mask)
+        # Normalize and display the mask
+        norm = plt.Normalize(vmin=0, vmax=mask.max())
+        ax.imshow(mask, cmap=cmap, norm=norm)
+        ax.set_title(title)
+        ax.axis('off')
+    
+    plt.suptitle(comparison_title)
+    plt.show()
     
 def plot_comparison_results(comparison_results):
     df = pd.DataFrame(comparison_results)

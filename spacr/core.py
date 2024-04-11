@@ -4,8 +4,10 @@ import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime
 import numpy as np
 import pandas as pd
 
+from cellpose import train
 import cellpose
 from cellpose import models as cp_models
+from cellpose.models import CellposeModel
 
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
@@ -67,74 +69,6 @@ def analyze_plaques(folder):
     
     print(f"Analysis completed and saved to database '{db_name}'.")
 
-def compare_masks(dir1, dir2, dir3, verbose=False):
-    
-    from .io import _read_mask
-    from .plot import visualize_masks, plot_comparison_results
-    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index, dice_coefficient
-    
-    filenames = os.listdir(dir1)
-    results = []
-    cond_1 = os.path.basename(dir1)
-    cond_2 = os.path.basename(dir2)
-    cond_3 = os.path.basename(dir3)
-    for index, filename in enumerate(filenames):
-        print(f'Processing image:{index+1}', end='\r', flush=True)
-        path1, path2, path3 = os.path.join(dir1, filename), os.path.join(dir2, filename), os.path.join(dir3, filename)
-        if os.path.exists(path2) and os.path.exists(path3):
-            
-            mask1, mask2, mask3 = _read_mask(path1), _read_mask(path2), _read_mask(path3)
-            boundary_true1, boundary_true2, boundary_true3 = extract_boundaries(mask1), extract_boundaries(mask2), extract_boundaries(mask3)
-            
-            
-            true_masks, pred_masks = [mask1], [mask2, mask3]  # Assuming mask1 is the ground truth for simplicity
-            true_labels, pred_labels_1, pred_labels_2 = label(mask1), label(mask2), label(mask3)
-            average_precision_0, average_precision_1 = compute_segmentation_ap(mask1, mask2), compute_segmentation_ap(mask1, mask3)
-            ap_scores = [average_precision_0, average_precision_1]
-
-            if verbose:
-                unique_values1, unique_values2, unique_values3 = np.unique(mask1),  np.unique(mask2), np.unique(mask3)
-                print(f"Unique values in mask 1: {unique_values1}, mask 2: {unique_values2}, mask 3: {unique_values3}")
-                visualize_masks(boundary_true1, boundary_true2, boundary_true3, title=f"Boundaries - {filename}")
-            
-            boundary_f1_12, boundary_f1_13, boundary_f1_23 = boundary_f1_score(mask1, mask2), boundary_f1_score(mask1, mask3), boundary_f1_score(mask2, mask3)
-
-            if (np.unique(mask1).size == 1 and np.unique(mask1)[0] == 0) and \
-               (np.unique(mask2).size == 1 and np.unique(mask2)[0] == 0) and \
-               (np.unique(mask3).size == 1 and np.unique(mask3)[0] == 0):
-                continue
-            
-            if verbose:
-                unique_values4, unique_values5, unique_values6 = np.unique(boundary_f1_12), np.unique(boundary_f1_13), np.unique(boundary_f1_23)
-                print(f"Unique values in boundary mask 1: {unique_values4}, mask 2: {unique_values5}, mask 3: {unique_values6}")
-                visualize_masks(mask1, mask2, mask3, title=filename)
-            
-            jaccard12 = jaccard_index(mask1, mask2)
-            dice12 = dice_coefficient(mask1, mask2)
-            jaccard13 = jaccard_index(mask1, mask3)
-            dice13 = dice_coefficient(mask1, mask3)
-            jaccard23 = jaccard_index(mask2, mask3)
-            dice23 = dice_coefficient(mask2, mask3)    
-
-            results.append({
-                f'filename': filename,
-                f'jaccard_{cond_1}_{cond_2}': jaccard12,
-                f'dice_{cond_1}_{cond_2}': dice12,
-                f'jaccard_{cond_1}_{cond_3}': jaccard13,
-                f'dice_{cond_1}_{cond_3}': dice13,
-                f'jaccard_{cond_2}_{cond_3}': jaccard23,
-                f'dice_{cond_2}_{cond_3}': dice23,
-                f'boundary_f1_{cond_1}_{cond_2}': boundary_f1_12,
-                f'boundary_f1_{cond_1}_{cond_3}': boundary_f1_13,
-                f'boundary_f1_{cond_2}_{cond_3}': boundary_f1_23,
-                f'average_precision_{cond_1}_{cond_2}': ap_scores[0],
-                f'average_precision_{cond_1}_{cond_3}': ap_scores[1]
-            })
-        else:
-            print(f'Cannot find {path1} or {path2} or {path3}')
-    fig = plot_comparison_results(results)
-    return results, fig
-
 def generate_cp_masks(settings):
     
     src = settings['src']
@@ -177,8 +111,150 @@ def train_cellpose(settings):
     from .utils import resize_images_and_labels
 
     img_src = settings['img_src'] 
-    mask_src= settings['mask_src']
-    secondary_image_dir = None
+    mask_src = os.path.join(img_src, 'mask')
+    
+    model_name = settings['model_name']
+    model_type = settings['model_type']
+    learning_rate = settings['learning_rate']
+    weight_decay = settings['weight_decay']
+    batch_size = settings['batch_size']
+    n_epochs = settings['n_epochs']
+    from_scratch = settings['from_scratch']
+    diameter = settings['diameter']
+    verbose = settings['verbose']
+
+    channels = [0,0]
+    signal_thresholds = 1000
+    normalize = True
+    percentiles = [2,98]
+    circular = False
+    invert = False
+    resize = False
+    settings['width_height'] = [1000,1000]
+    target_height = settings['width_height'][1]
+    target_width = settings['width_height'][0]
+    rescale = False
+    grayscale = True
+    test = False
+
+    if test:
+        test_img_src = os.path.join(os.path.dirname(img_src), 'test')
+        test_mask_src = os.path.join(test_img_src, 'mask')
+
+    test_images, test_masks, test_image_names, test_mask_names = None,None,None,None,
+    print(settings)
+
+    if from_scratch:
+        model_name=f'scratch_{model_name}_{model_type}_e{n_epochs}_X{target_width}_Y{target_height}.CP_model'
+    else:
+        if resize:
+            model_name=f'{model_name}_{model_type}_e{n_epochs}_X{target_width}_Y{target_height}.CP_model'
+        else:
+            model_name=f'{model_name}_{model_type}_e{n_epochs}.CP_model'
+
+    model_save_path = os.path.join(mask_src, 'models', 'cellpose_model')
+    print(model_save_path)
+    os.makedirs(model_save_path, exist_ok=True)
+    
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_csv = os.path.join(model_save_path,f'{model_name}_settings.csv')
+    settings_df.to_csv(settings_csv, index=False)
+    
+    if model_type =='cyto':
+        if from_scratch:
+            model = cp_models.CellposeModel(gpu=True, model_type=model_type, diam_mean=diameter, pretrained_model=None)
+        else:
+            model = cp_models.CellposeModel(gpu=True, model_type=model_type)
+
+    if model_type !='cyto':
+        model = cp_models.CellposeModel(gpu=True, model_type=model_type)
+        
+    if normalize:
+
+        image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
+        label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
+        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
+        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
+        
+        if test:
+            test_image_files = [os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')]
+            test_label_files = [os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')]
+            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(image_files=test_image_files, label_files=test_label_files, signal_thresholds=signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
+            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
+            
+        
+    else:
+        images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, circular, invert)
+        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
+        
+        if test:
+            test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(img_src=test_img_src, mask_src=test_mask_src, circular=circular, invert=circular)
+            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
+    
+    if resize:
+        images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
+
+    if model_type == 'cyto':
+        cp_channels = [0,1]
+    if model_type == 'cyto2':
+        cp_channels = [0,2]
+    if model_type == 'nucleus':
+        cp_channels = [0,0]
+    if grayscale:
+        cp_channels = [0,0]
+        images = [np.squeeze(img) if img.ndim == 3 and 1 in img.shape else img for img in images]
+    
+    masks = [np.squeeze(mask) if mask.ndim == 3 and 1 in mask.shape else mask for mask in masks]
+
+    print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {masks[0].shape}, image type: masks[0].shape')
+    save_every = int(n_epochs/10)
+    if save_every < 10:
+        save_every = n_epochs
+
+    train.train_seg(model.net,
+                    train_data=images,
+                    train_labels=masks,
+                    train_files=image_names,
+                    train_labels_files=mask_names,
+                    train_probs=None,
+                    test_data=test_images,
+                    test_labels=test_masks,
+                    test_files=test_image_names,
+                    test_labels_files=test_mask_names, 
+                    test_probs=None,
+                    load_files=True,
+                    batch_size=batch_size,
+                    learning_rate=learning_rate,
+                    n_epochs=n_epochs,
+                    weight_decay=weight_decay,
+                    momentum=0.9,
+                    SGD=False,
+                    channels=cp_channels,
+                    channel_axis=None,
+                    #rgb=False,
+                    normalize=False, 
+                    compute_flows=False,
+                    save_path=model_save_path,
+                    save_every=save_every,
+                    nimg_per_epoch=None,
+                    nimg_test_per_epoch=None,
+                    rescale=rescale,
+                    #scale_range=None,
+                    #bsize=224,
+                    min_train_masks=1,
+                    model_name=model_name)
+
+    return print(f"Model saved at: {model_save_path}/{model_name}")
+
+def train_cellpose_v1(settings):
+    
+    from .io import _load_normalized_images_and_labels, _load_images_and_labels
+    from .utils import resize_images_and_labels
+
+    img_src = settings['img_src'] 
+    
+    mask_src = os.path.join(img_src, 'mask')
+    
     model_name = settings['model_name']
     model_type = settings['model_type']
     learning_rate = settings['learning_rate']
@@ -186,7 +262,9 @@ def train_cellpose(settings):
     batch_size = settings['batch_size']
     n_epochs = settings['n_epochs']
     verbose = settings['verbose']
-    signal_thresholds = settings['signal_thresholds']
+
+    signal_thresholds = 100 #settings['signal_thresholds']
+
     channels = settings['channels']
     from_scratch = settings['from_scratch']
     diameter = settings['diameter']
@@ -208,7 +286,8 @@ def train_cellpose(settings):
         model_name=f'{model_name}_{model_type}_e{n_epochs}_X{target_width}_Y{target_height}.CP_model'
 
     model_save_path = os.path.join(mask_src, 'models', 'cellpose_model')
-    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
+    print(model_save_path)
+    os.makedirs(model_save_path, exist_ok=True)
     
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_csv = os.path.join(model_save_path,f'{model_name}_settings.csv')
@@ -222,10 +301,11 @@ def train_cellpose(settings):
     if model_type !='cyto':
         model = cp_models.CellposeModel(gpu=True, model_type=model_type)
         
-    
-    
-    if normalize:    	
-        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_dir=img_src, label_dir=mask_src, secondary_image_dir=secondary_image_dir, signal_thresholds=signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
+    if normalize:
+        image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
+        label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
+
+        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
         images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
     else:
         images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, circular, invert)
@@ -248,25 +328,86 @@ def train_cellpose(settings):
 
     print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {masks[0].shape}, image type: masks[0].shape')
     save_every = int(n_epochs/10)
-    print('cellpose image input dtype', images[0].dtype)
-    print('cellpose mask input dtype', masks[0].dtype)
+    if save_every < 10:
+        save_every = n_epochs
+
+
+    #print('cellpose image input dtype', images[0].dtype)
+    #print('cellpose mask input dtype', masks[0].dtype)
+    
     # Train the model
-    model.train(train_data=images, #(list of arrays (2D or 3D)) – images for training
-                train_labels=masks, #(list of arrays (2D or 3D)) – labels for train_data, where 0=no masks; 1,2,…=mask labels can include flows as additional images
-                train_files=image_names, #(list of strings) – file names for images in train_data (to save flows for future runs)
-                channels=cp_channels, #(list of ints (default, None)) – channels to use for training
-                normalize=False, #(bool (default, True)) – normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel
-                save_path=model_save_path, #(string (default, None)) – where to save trained model, if None it is not saved
-                save_every=save_every, #(int (default, 100)) – save network every [save_every] epochs
-                learning_rate=learning_rate, #(float or list/np.ndarray (default, 0.2)) – learning rate for training, if list, must be same length as n_epochs
-                n_epochs=n_epochs, #(int (default, 500)) – how many times to go through whole training set during training
-                weight_decay=weight_decay, #(float (default, 0.00001)) –
-                SGD=True, #(bool (default, True)) – use SGD as optimization instead of RAdam
-                batch_size=batch_size, #(int (optional, default 8)) – number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)
-                nimg_per_epoch=None, #(int (optional, default None)) – minimum number of images to train on per epoch, with a small training set (< 8 images) it may help to set to 8
-                rescale=rescale, #(bool (default, True)) – whether or not to rescale images to diam_mean during training, if True it assumes you will fit a size model after training or resize your images accordingly, if False it will try to train the model to be scale-invariant (works worse)
-                min_train_masks=1, #(int (default, 5)) – minimum number of masks an image must have to use in training set
-                model_name=model_name) #(str (default, None)) – name of network, otherwise saved with name as params + training start time 
+    #model.train(train_data=images, #(list of arrays (2D or 3D)) – images for training
+
+    #model.train(train_data=images, #(list of arrays (2D or 3D)) – images for training
+    #            train_labels=masks, #(list of arrays (2D or 3D)) – labels for train_data, where 0=no masks; 1,2,…=mask labels can include flows as additional images
+    #            train_files=image_names, #(list of strings) – file names for images in train_data (to save flows for future runs)
+    #            channels=cp_channels, #(list of ints (default, None)) – channels to use for training
+    #            normalize=False, #(bool (default, True)) – normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel
+    #            save_path=model_save_path, #(string (default, None)) – where to save trained model, if None it is not saved
+    #            save_every=save_every, #(int (default, 100)) – save network every [save_every] epochs
+    #            learning_rate=learning_rate, #(float or list/np.ndarray (default, 0.2)) – learning rate for training, if list, must be same length as n_epochs
+    #            n_epochs=n_epochs, #(int (default, 500)) – how many times to go through whole training set during training
+    #            weight_decay=weight_decay, #(float (default, 0.00001)) –
+    #            SGD=True, #(bool (default, True)) – use SGD as optimization instead of RAdam
+    #            batch_size=batch_size, #(int (optional, default 8)) – number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)
+    #            nimg_per_epoch=None, #(int (optional, default None)) – minimum number of images to train on per epoch, with a small training set (< 8 images) it may help to set to 8
+    #            rescale=rescale, #(bool (default, True)) – whether or not to rescale images to diam_mean during training, if True it assumes you will fit a size model after training or resize your images accordingly, if False it will try to train the model to be scale-invariant (works worse)
+    #            min_train_masks=1, #(int (default, 5)) – minimum number of masks an image must have to use in training set
+    #            model_name=model_name) #(str (default, None)) – name of network, otherwise saved with name as params + training start time 
+
+
+    train.train_seg(model.net,
+                    train_data=images,
+                    train_labels=masks,
+                    train_files=image_names,
+                    train_labels_files=None,
+                    train_probs=None,
+                    test_data=None,
+                    test_labels=None,
+                    test_files=None,
+                    test_labels_files=None, 
+                    test_probs=None,
+                    load_files=True,
+                    batch_size=batch_size,
+                    learning_rate=learning_rate,
+                    n_epochs=n_epochs,
+                    weight_decay=weight_decay,
+                    momentum=0.9,
+                    SGD=False,
+                    channels=cp_channels,
+                    channel_axis=None,
+                    #rgb=False,
+                    normalize=False, 
+                    compute_flows=False,
+                    save_path=model_save_path,
+                    save_every=save_every,
+                    nimg_per_epoch=None,
+                    nimg_test_per_epoch=None,
+                    rescale=rescale,
+                    #scale_range=None,
+                    #bsize=224,
+                    min_train_masks=1,
+                    model_name=model_name)
+
+    #model_save_path = train.train_seg(model.net,
+    #                                  train_data=images,
+    #                                  train_files=image_names,
+    #                                  train_labels=masks,
+    #                                  channels=cp_channels,
+    #                                  normalize=False,
+    #                                  save_every=save_every,
+    #                                  learning_rate=learning_rate,
+    #                                  n_epochs=n_epochs,
+    #                                  #test_data=test_images,
+    #                                  #test_labels=test_labels,
+    #                                  weight_decay=weight_decay,
+    #                                  SGD=True,
+    #                                  batch_size=batch_size, 
+    #                                  nimg_per_epoch=None,
+    #                                  rescale=rescale,
+    #                                  min_train_masks=1,
+    #                                  model_name=model_name)
+ 
 
     return print(f"Model saved at: {model_save_path}/{model_name}")
 
@@ -1747,11 +1888,44 @@ def preprocess_generate_masks(src, settings={}):
     print("Successfully completed run")
     return
 
-def identify_masks_finetune(src, dst, model_name, channels, diameter, batch_size, flow_threshold=30, cellprob_threshold=1, figuresize=25, cmap='inferno', verbose=False, plot=False, save=False, custom_model=None, signal_thresholds=1000, normalize=True, resize=False, target_height=None, target_width=None, rescale=True, resample=True, net_avg=False, invert=False, circular=False, percentiles=None, overlay=True, grayscale=False):
+def identify_masks_finetune(settings):
     
     from .plot import print_mask_and_flows
     from .utils import get_files_from_dir, resize_images_and_labels
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
+    
+    src=settings['src']
+    dst=settings['dst']
+    model_name=settings['model_name']
+    diameter=settings['diameter']
+    batch_size=settings['batch_size']
+    flow_threshold=settings['flow_threshold']
+    cellprob_threshold=settings['cellprob_threshold']
+
+    verbose=settings['verbose']
+    plot=settings['plot']
+    save=settings['save']
+    custom_model=settings['custom_model']
+    overlay=settings['overlay']
+
+    figuresize=25
+    cmap='inferno'
+    channels = [0,0]
+    signal_thresholds = 1000
+    normalize = True
+    percentiles = [2,98]
+    circular = False
+    invert = False
+    resize = False
+    settings['width_height'] = [1000,1000]
+    target_height = settings['width_height'][1]
+    target_width = settings['width_height'][0]
+    rescale = False
+    resample = False
+    grayscale = True
+    test = False
+
+    os.makedirs(dst, exist_ok=True)
     
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
@@ -1759,14 +1933,12 @@ def identify_masks_finetune(src, dst, model_name, channels, diameter, batch_size
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if custom_model == None:
-        if model_name =='cyto':
-            model = cp_models.CellposeModel(gpu=True, model_type=model_name, net_avg=False, diam_mean=diameter, pretrained_model=None)
-        else:
-            model = cp_models.CellposeModel(gpu=True, model_type=model_name)
-
-    if custom_model != None:
-        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diameter, device=device, net_avg=False)  #Assuming diameter is defined elsewhere 
-        print(f'loaded custom model:{custom_model}')
+        #torch.cuda.is_available()
+        model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
+        print(f'Loaded model: {model_name}')
+    else:
+        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diameter, device=device)
+        print("Pretrained Model Loaded:", model.pretrained_model)
 
     chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [1,0] if model_name == 'cyto' else [2, 0]
     
@@ -1778,14 +1950,16 @@ def identify_masks_finetune(src, dst, model_name, channels, diameter, batch_size
     if verbose == True:
         print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
         
-    all_image_files = get_files_from_dir(src, file_extension="*.tif")
+    all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
+
     random.shuffle(all_image_files)
     
     time_ls = []
     for i in range(0, len(all_image_files), batch_size):
         image_files = all_image_files[i:i+batch_size]
+
         if normalize:
-            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, signal_thresholds=signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
+            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, signal_thresholds=signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=plot)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
@@ -1806,8 +1980,7 @@ def identify_masks_finetune(src, dst, model_name, channels, diameter, batch_size
                          cellprob_threshold=cellprob_threshold,
                          rescale=rescale,
                          resample=resample,
-                         net_avg=net_avg,
-                         progress=False)
+                         progress=True)
 
             if len(output) == 4:
                 mask, flows, _, _ = output
@@ -1882,7 +2055,6 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
     
     #Note add logic that handles batches of size 1 as these will break the code batches must all be > 2 images
     gc.collect()
-    #print('========== generating masks ==========')
     
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
@@ -2459,3 +2631,305 @@ def generate_cellpose_masks(src, settings, object_type):
         gc.collect()
     torch.cuda.empty_cache()
     return
+
+def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, verbose):
+    from .io import _load_images_and_labels, _load_normalized_images_and_labels
+    from .utils import resize_images_and_labels, resizescikit
+    from .plot import print_mask_and_flows
+
+    dst = os.path.join(src, model_name)
+    os.makedirs(dst, exist_ok=True)
+    
+    flow_threshold = 30
+    chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [1,0] if model_name == 'cyto' else [2, 0]
+
+    if grayscale:
+        chans=[0, 0]
+    
+    all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
+    random.shuffle(all_image_files)
+    
+        
+    if verbose == True:
+        print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
+    
+    time_ls = []
+    for i in range(0, len(all_image_files), batch_size):
+        image_files = all_image_files[i:i+batch_size]
+
+        if normalize:
+            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, signal_thresholds=100, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=plot)
+            images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
+            orig_dims = [(image.shape[0], image.shape[1]) for image in images]
+        else:
+            images, _, image_names, _ = _load_images_and_labels(image_files=image_files, label_files=None, circular=circular, invert=invert) 
+            images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
+            orig_dims = [(image.shape[0], image.shape[1]) for image in images]
+        if resize:
+            images, _ = resize_images_and_labels(images, None, target_height, target_width, True)
+
+        for file_index, stack in enumerate(images):
+            start = time.time()
+            output = model.eval(x=stack,
+                         normalize=False,
+                         channels=chans,
+                         channel_axis=3,
+                         diameter=diameter,
+                         flow_threshold=flow_threshold,
+                         cellprob_threshold=cellprob_threshold,
+                         rescale=False,
+                         resample=False,
+                         progress=True)
+
+            if len(output) == 4:
+                mask, flows, _, _ = output
+            elif len(output) == 3:
+                mask, flows, _ = output
+            else:
+                raise ValueError("Unexpected number of return values from model.eval()")
+
+            if resize:
+                dims = orig_dims[file_index]
+                mask = resizescikit(mask, dims, order=0, preserve_range=True, anti_aliasing=False).astype(mask.dtype)
+
+            stop = time.time()
+            duration = (stop - start)
+            time_ls.append(duration)
+            average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+            print(f'Processing {file_index+1}/{len(images)} images : Time/image {average_time:.3f} sec', end='\r', flush=True)
+            if plot:
+                if resize:
+                    stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)
+                print_mask_and_flows(stack, mask, flows, overlay=True)
+            if save:
+                output_filename = os.path.join(dst, image_names[file_index])
+                cv2.imwrite(output_filename, mask)
+
+
+def check_cellpose_models(settings):
+    
+    src = settings['src']
+    batch_size = settings['batch_size']
+    cellprob_threshold = settings['cellprob_threshold']
+    save = settings['save']
+    normalize = settings['normalize']
+    channels = settings['channels']
+    percentiles = settings['percentiles']
+    circular = settings['circular']
+    invert = settings['invert']
+    plot = settings['plot']
+    diameter = settings['diameter']
+    resize = settings['resize']
+    grayscale = settings['grayscale']
+    verbose = settings['verbose']
+    target_height = settings['width_height'][0]
+    target_width = settings['width_height'][1]
+    
+    cellpose_models = ['cyto', 'nuclei', 'cyto2', 'cyto3']
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    
+    for model_name in cellpose_models:
+
+        model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
+        print(f'Using {model_name}')
+        generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, verbose)
+    
+    return
+
+def compare_masks_v1(dir1, dir2, dir3, verbose=False):
+    
+    from .io import _read_mask
+    from .plot import visualize_masks, plot_comparison_results
+    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index, dice_coefficient
+    
+    filenames = os.listdir(dir1)
+    results = []
+    cond_1 = os.path.basename(dir1)
+    cond_2 = os.path.basename(dir2)
+    cond_3 = os.path.basename(dir3)
+
+    for index, filename in enumerate(filenames):
+        print(f'Processing image:{index+1}', end='\r', flush=True)
+        path1, path2, path3 = os.path.join(dir1, filename), os.path.join(dir2, filename), os.path.join(dir3, filename)
+
+        print(path1)
+        print(path2)
+        print(path3)
+        
+        if os.path.exists(path2) and os.path.exists(path3):
+            
+            mask1, mask2, mask3 = _read_mask(path1), _read_mask(path2), _read_mask(path3)
+            boundary_true1, boundary_true2, boundary_true3 = extract_boundaries(mask1), extract_boundaries(mask2), extract_boundaries(mask3)
+            
+            
+            true_masks, pred_masks = [mask1], [mask2, mask3]  # Assuming mask1 is the ground truth for simplicity
+            true_labels, pred_labels_1, pred_labels_2 = label(mask1), label(mask2), label(mask3)
+            average_precision_0, average_precision_1 = compute_segmentation_ap(mask1, mask2), compute_segmentation_ap(mask1, mask3)
+            ap_scores = [average_precision_0, average_precision_1]
+
+            if verbose:
+                #unique_values1, unique_values2, unique_values3 = np.unique(mask1),  np.unique(mask2), np.unique(mask3)
+                #print(f"Unique values in mask 1: {unique_values1}, mask 2: {unique_values2}, mask 3: {unique_values3}")
+                visualize_masks(boundary_true1, boundary_true2, boundary_true3, title=f"Boundaries - {filename}")
+            
+            boundary_f1_12, boundary_f1_13, boundary_f1_23 = boundary_f1_score(mask1, mask2), boundary_f1_score(mask1, mask3), boundary_f1_score(mask2, mask3)
+
+            if (np.unique(mask1).size == 1 and np.unique(mask1)[0] == 0) and \
+               (np.unique(mask2).size == 1 and np.unique(mask2)[0] == 0) and \
+               (np.unique(mask3).size == 1 and np.unique(mask3)[0] == 0):
+                continue
+            
+            if verbose:
+                #unique_values4, unique_values5, unique_values6 = np.unique(boundary_f1_12), np.unique(boundary_f1_13), np.unique(boundary_f1_23)
+                #print(f"Unique values in boundary mask 1: {unique_values4}, mask 2: {unique_values5}, mask 3: {unique_values6}")
+                visualize_masks(mask1, mask2, mask3, title=filename)
+            
+            jaccard12 = jaccard_index(mask1, mask2)
+            dice12 = dice_coefficient(mask1, mask2)
+            
+            jaccard13 = jaccard_index(mask1, mask3)
+            dice13 = dice_coefficient(mask1, mask3)
+            
+            jaccard23 = jaccard_index(mask2, mask3)
+            dice23 = dice_coefficient(mask2, mask3)    
+
+            results.append({
+                f'filename': filename,
+                f'jaccard_{cond_1}_{cond_2}': jaccard12,
+                f'dice_{cond_1}_{cond_2}': dice12,
+                f'jaccard_{cond_1}_{cond_3}': jaccard13,
+                f'dice_{cond_1}_{cond_3}': dice13,
+                f'jaccard_{cond_2}_{cond_3}': jaccard23,
+                f'dice_{cond_2}_{cond_3}': dice23,
+                f'boundary_f1_{cond_1}_{cond_2}': boundary_f1_12,
+                f'boundary_f1_{cond_1}_{cond_3}': boundary_f1_13,
+                f'boundary_f1_{cond_2}_{cond_3}': boundary_f1_23,
+                f'average_precision_{cond_1}_{cond_2}': ap_scores[0],
+                f'average_precision_{cond_1}_{cond_3}': ap_scores[1]
+            })
+        else:
+            print(f'Cannot find {path1} or {path2} or {path3}')
+    fig = plot_comparison_results(results)
+    return results, fig
+
+def compare_cellpose_masks_v1(src, verbose=False):
+    from .io import _read_mask
+    from .plot import visualize_masks, plot_comparison_results, visualize_cellpose_masks
+    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index
+
+    import os
+    import numpy as np
+    from skimage.measure import label
+
+    # Collect all subdirectories in src
+    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
+
+    dirs.sort()  # Optional: sort directories if needed
+
+    # Get common files in all directories
+    common_files = set(os.listdir(dirs[0]))
+    for d in dirs[1:]:
+        common_files.intersection_update(os.listdir(d))
+    common_files = list(common_files)
+
+    results = []
+    conditions = [os.path.basename(d) for d in dirs]
+
+    for index, filename in enumerate(common_files):
+        print(f'Processing image {index+1}/{len(common_files)}', end='\r', flush=True)
+        paths = [os.path.join(d, filename) for d in dirs]
+
+        # Check if file exists in all directories
+        if not all(os.path.exists(path) for path in paths):
+            print(f'Skipping {filename} as it is not present in all directories.')
+            continue
+
+        masks = [_read_mask(path) for path in paths]
+        boundaries = [extract_boundaries(mask) for mask in masks]
+
+        if verbose:
+            visualize_cellpose_masks(masks, titles=conditions, comparison_title=f"Masks Comparison for {filename}")
+
+        # Initialize data structure for results
+        file_results = {'filename': filename}
+
+        # Compare each mask with each other
+        for i in range(len(masks)):
+            for j in range(i + 1, len(masks)):
+                condition_i = conditions[i]
+                condition_j = conditions[j]
+                mask_i = masks[i]
+                mask_j = masks[j]
+
+                # Compute metrics
+                boundary_f1 = boundary_f1_score(mask_i, mask_j)
+                jaccard = jaccard_index(mask_i, mask_j)
+                average_precision = compute_segmentation_ap(mask_i, mask_j)
+
+                # Store results
+                file_results[f'jaccard_{condition_i}_{condition_j}'] = jaccard
+                file_results[f'boundary_f1_{condition_i}_{condition_j}'] = boundary_f1
+                file_results[f'average_precision_{condition_i}_{condition_j}'] = average_precision
+
+        results.append(file_results)
+
+    fig = plot_comparison_results(results)
+    return results, fig
+
+def compare_mask(args):
+    src, filename, dirs, conditions = args
+    paths = [os.path.join(d, filename) for d in dirs]
+
+    if not all(os.path.exists(path) for path in paths):
+        return None
+
+    from .io import _read_mask  # Import here to avoid issues in multiprocessing
+    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index
+
+    masks = [_read_mask(path) for path in paths]
+    file_results = {'filename': filename}
+
+    for i in range(len(masks)):
+        for j in range(i + 1, len(masks)):
+            mask_i, mask_j = masks[i], masks[j]
+            f1_score = boundary_f1_score(mask_i, mask_j)
+            jac_index = jaccard_index(mask_i, mask_j)
+            ap_score = compute_segmentation_ap(mask_i, mask_j)
+
+            file_results.update({
+                f'jaccard_{conditions[i]}_{conditions[j]}': jac_index,
+                f'boundary_f1_{conditions[i]}_{conditions[j]}': f1_score,
+                f'ap_{conditions[i]}_{conditions[j]}': ap_score
+            })
+    
+    return file_results
+
+def compare_cellpose_masks(src, verbose=False, processes=None):
+    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
+    dirs.sort()  # Optional: sort directories if needed
+    conditions = [os.path.basename(d) for d in dirs]
+
+    # Get common files in all directories
+    common_files = set(os.listdir(dirs[0]))
+    for d in dirs[1:]:
+        common_files.intersection_update(os.listdir(d))
+    common_files = list(common_files)
+
+    # Create a pool of workers
+    with Pool(processes=processes) as pool:
+        args = [(src, filename, dirs, conditions) for filename in common_files]
+        results = pool.map(compare_mask, args)
+
+    # Filter out None results (from skipped files)
+    results = [res for res in results if res is not None]
+
+    if verbose:
+        from .plot import visualize_cellpose_masks, plot_comparison_results
+        for result in results:
+            filename = result['filename']
+            masks = [_read_mask(os.path.join(d, filename)) for d in dirs]
+            visualize_cellpose_masks(masks, titles=conditions, comparison_title=f"Masks Comparison for {filename}")
+
+    fig = plot_comparison_results(results)
+    return results, fig
+

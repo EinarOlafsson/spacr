@@ -615,16 +615,25 @@ def summarize_per_well(peak_details_df):
     # Step 2: Create 'well_ID' by combining 'row' and 'column'
     peak_details_df['well_ID'] = peak_details_df['row'] + '_' + peak_details_df['column']
 
-    # Preparation for Step 3: Identify numeric columns for averaging
-    numeric_cols = peak_details_df.select_dtypes(include=['number']).columns
+    # Filter entries where 'amplitude' is not null
+    filtered_df = peak_details_df[peak_details_df['amplitude'].notna()]
+
+    # Preparation for Step 3: Identify numeric columns for averaging from the filtered dataframe
+    numeric_cols = filtered_df.select_dtypes(include=['number']).columns
 
     # Step 3: Calculate summary statistics
-    summary_df = peak_details_df.groupby('well_ID').agg(
-        cells_per_well=('object_number', 'nunique'),
+    summary_df = filtered_df.groupby('well_ID').agg(
         peaks_per_well=('ID', 'size'),
-        **{col: (col, 'mean') for col in numeric_cols}
+        unique_IDs_with_amplitude=('ID', 'nunique'),  # Count unique IDs per well with non-null amplitude
+        **{col: (col, 'mean') for col in numeric_cols}  # exclude 'amplitude' from averaging if it's numeric
     ).reset_index()
 
+    # Step 3: Calculate summary statistics
+    summary_df_2 = peak_details_df.groupby('well_ID').agg(
+        cells_per_well=('object_number', 'nunique'),
+    ).reset_index()
+
+    summary_df['cells_per_well'] = summary_df_2['cells_per_well']
     summary_df['peaks_per_cell'] = summary_df['peaks_per_well'] / summary_df['cells_per_well']
     
     return summary_df
