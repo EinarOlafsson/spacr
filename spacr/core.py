@@ -160,13 +160,9 @@ def train_cellpose(settings):
     settings_csv = os.path.join(model_save_path,f'{model_name}_settings.csv')
     settings_df.to_csv(settings_csv, index=False)
     
-    if model_type =='cyto':
-        if from_scratch:
-            model = cp_models.CellposeModel(gpu=True, model_type=model_type, diam_mean=diameter, pretrained_model=None)
-        else:
-            model = cp_models.CellposeModel(gpu=True, model_type=model_type)
-
-    if model_type !='cyto':
+    if from_scratch:
+        model = cp_models.CellposeModel(gpu=True, model_type=model_type, diam_mean=diameter, pretrained_model=None)
+    else:
         model = cp_models.CellposeModel(gpu=True, model_type=model_type)
         
     if normalize:
@@ -277,7 +273,17 @@ def train_cellpose_v1(settings):
     invert = settings['invert']
     percentiles = settings['percentiles']
     grayscale = settings['grayscale']
-    
+
+    if model_type == 'cyto':
+        settings['diameter'] = 30
+        diameter = settings['diameter']
+        print(f'Cyto model must have diamiter 30. Diameter set the 30')
+
+    if model_type == 'nuclei':
+        settings['diameter'] = 17
+        diameter = settings['diameter']
+        print(f'Nuclei model must have diamiter 17. Diameter set the 17')
+
     print(settings)
 
     if from_scratch:
@@ -293,14 +299,12 @@ def train_cellpose_v1(settings):
     settings_csv = os.path.join(model_save_path,f'{model_name}_settings.csv')
     settings_df.to_csv(settings_csv, index=False)
     
-    if model_type =='cyto':
-        if not from_scratch:
-            model = cp_models.CellposeModel(gpu=True, model_type=model_type)
-        else:
-            model = cp_models.CellposeModel(gpu=True, model_type=model_type, net_avg=False, diam_mean=diameter, pretrained_model=None)
-    if model_type !='cyto':
+    if not from_scratch:
         model = cp_models.CellposeModel(gpu=True, model_type=model_type)
-        
+
+    else:
+        model = cp_models.CellposeModel(gpu=True, model_type=model_type, pretrained_model=None)
+            
     if normalize:
         image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
         label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
@@ -2885,6 +2889,7 @@ def compare_mask(args):
 
     from .io import _read_mask  # Import here to avoid issues in multiprocessing
     from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index
+    from .plot import plot_comparison_results
 
     masks = [_read_mask(path) for path in paths]
     file_results = {'filename': filename}
@@ -2905,6 +2910,7 @@ def compare_mask(args):
     return file_results
 
 def compare_cellpose_masks(src, verbose=False, processes=None):
+    from .plot import visualize_cellpose_masks, plot_comparison_results
     dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
     dirs.sort()  # Optional: sort directories if needed
     conditions = [os.path.basename(d) for d in dirs]
@@ -2924,7 +2930,6 @@ def compare_cellpose_masks(src, verbose=False, processes=None):
     results = [res for res in results if res is not None]
 
     if verbose:
-        from .plot import visualize_cellpose_masks, plot_comparison_results
         for result in results:
             filename = result['filename']
             masks = [_read_mask(os.path.join(d, filename)) for d in dirs]

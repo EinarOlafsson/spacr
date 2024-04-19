@@ -1,16 +1,19 @@
 
-import os, gc, random, warnings, traceback, itertools, matplotlib, sqlite3
-import time as tm
+import os, random, warnings, traceback, sqlite3, shap, math
 from time import time, sleep
 from datetime import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import seaborn as sns
 import sklearn.metrics as metrics
-from sklearn.metrics import roc_curve, auc, roc_auc_score, confusion_matrix, precision_recall_curve
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.inspection import PartialDependenceDisplay, permutation_importance
+from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_curve
 import statsmodels.api as sm
-from multiprocessing import cpu_count, Value, Array, Lock, Pool, Manager
+from multiprocessing import cpu_count, Pool, Manager
+from copy import deepcopy
 
 from .logger import log_function_call
 
@@ -35,7 +38,7 @@ def generate_gene_list(number_of_genes, number_of_all_genes):
 
 # plate_map is a table with a row for each well, containing well metadata: plate_id, row_id, and column_id
 def generate_plate_map(nr_plates):
-    print('nr_plates',nr_plates)
+    #print('nr_plates',nr_plates)
     """
     Generate a plate map based on the number of plates.
 
@@ -241,6 +244,7 @@ def run_experiment(plate_map, number_of_genes, active_gene_list, avg_genes_per_w
             - df_ls (list): A list containing gene counts per well, well counts per gene, Gini coefficients for wells,
               Gini coefficients for genes, gene weights array, and well weights.
     """
+
     #generate primary distributions and genes
     cpw, _ = dist_gen(avg_cells_per_well, sd_cells_per_well, plate_map)
     gpw, _ = dist_gen(avg_genes_per_well, sd_genes_per_well, plate_map)
@@ -251,14 +255,18 @@ def run_experiment(plate_map, number_of_genes, active_gene_list, avg_genes_per_w
     gene_weights_array = np.array(list(gene_weights.values())) # Convert the values to an array
     
     well_weights = generate_power_law_distribution(len(plate_map), well_ineq_coeff)
-
+    
     gene_to_well_mapping = {}
-    
-    for gene in genes:
-        gene_to_well_mapping[gene] = np.random.choice(plate_map['plate_row_column'], size=int(gpw[gene-1]), p=well_weights) # Generate a number of wells for each gene according to well_weights
-    
-    gene_to_well_mapping = {gene: wells for gene, wells in gene_to_well_mapping.items() if len(wells) >= 2}
-    
+    for gene in range(1, number_of_genes + 1):  # ensures gene-1 is within bounds
+        if gene-1 < len(gpw):
+            max_index = len(plate_map['plate_row_column'])  # this should be the number of choices available from plate_map
+            num_samples = int(gpw[gene-1])
+            if num_samples >= max_index:
+                num_samples = max_index - 1  # adjust to maximum possible index
+            gene_to_well_mapping[gene] = np.random.choice(plate_map['plate_row_column'], size=num_samples, replace=False, p=well_weights)
+        else:
+            break  # break the loop if gene-1 is out of bounds for gpw
+
     cells = []
     for i in [*range(0,len(plate_map))]:
         ciw = random.choice(cpw)
@@ -316,9 +324,80 @@ def run_experiment(plate_map, number_of_genes, active_gene_list, avg_genes_per_w
     df_ls = [gene_counts_per_well, well_counts_per_gene, gini_well, gini_gene, gene_weights_array, well_weights]
     return cell_df, genes_per_well_df, wells_per_gene_df, df_ls
 
-# classifier is a function that takes a cell state (active=1/inactive=0) and produces a score in [0, 1]
-# For the input cell, it checks if it is active or inactive, and then samples from an appropriate beta distribution to give a score
-def classifier(positive_mean, positive_variance, negative_mean, negative_variance, df):
+def classifier(positive_mean, positive_variance, negative_mean, negative_variance, classifier_accuracy, df):
+    """
+    Classifies the data in the DataFrame based on the given parameters and a classifier error rate.
+
+    Args:
+        positive_mean (float): The mean of the positive distribution.
+        positive_variance (float): The variance of the positive distribution.
+        negative_mean (float): The mean of the negative distribution.
+        negative_variance (float): The variance of the negative distribution.
+        classifier_accuracy (float): The likelihood (0 to 1) that a gene is correctly classified according to its true label.
+        df (pandas.DataFrame): The DataFrame containing the data to be classified.
+
+    Returns:
+        pandas.DataFrame: The DataFrame with an additional 'score' column containing the classification scores.
+    """
+    def calc_alpha_beta(mean, variance):
+        if mean <= 0 or mean >= 1:
+            raise ValueError("Mean must be between 0 and 1 exclusively.")
+        max_variance = mean * (1 - mean)
+        if variance <= 0 or variance >= max_variance:
+            raise ValueError(f"Variance must be positive and less than {max_variance}.")
+        
+        alpha = mean * (mean * (1 - mean) / variance - 1)
+        beta = alpha * (1 - mean) / mean
+        return alpha, beta
+    
+    # Apply the beta distribution based on 'is_active' status with consideration for classifier error
+    def get_score(is_active):
+        if np.random.rand() < classifier_accuracy:  # With classifier_accuracy probability, choose the correct distribution
+            return np.random.beta(a1, b1) if is_active else np.random.beta(a2, b2)
+        else:  # With 1-classifier_accuracy probability, choose the incorrect distribution
+            return np.random.beta(a2, b2) if is_active else np.random.beta(a1, b1)
+
+    # Calculate alpha and beta for both distributions
+    a1, b1 = calc_alpha_beta(positive_mean, positive_variance)
+    a2, b2 = calc_alpha_beta(negative_mean, negative_variance)
+    df['score'] = df['is_active'].apply(get_score)
+
+    return df
+
+def classifier_v2(positive_mean, positive_variance, negative_mean, negative_variance, df):
+    """
+    Classifies the data in the DataFrame based on the given parameters.
+
+    Args:
+        positive_mean (float): The mean of the positive distribution.
+        positive_variance (float): The variance of the positive distribution.
+        negative_mean (float): The mean of the negative distribution.
+        negative_variance (float): The variance of the negative distribution.
+        df (pandas.DataFrame): The DataFrame containing the data to be classified.
+
+    Returns:
+        pandas.DataFrame: The DataFrame with an additional 'score' column containing the classification scores.
+    """
+    def calc_alpha_beta(mean, variance):
+        if mean <= 0 or mean >= 1:
+            raise ValueError("Mean must be between 0 and 1 exclusively.")
+        max_variance = mean * (1 - mean)
+        if variance <= 0 or variance >= max_variance:
+            raise ValueError(f"Variance must be positive and less than {max_variance}.")
+        
+        alpha = mean * (mean * (1 - mean) / variance - 1)
+        beta = alpha * (1 - mean) / mean
+        return alpha, beta
+
+    # Calculate alpha and beta for both distributions
+    a1, b1 = calc_alpha_beta(positive_mean, positive_variance)
+    a2, b2 = calc_alpha_beta(negative_mean, negative_variance)
+
+    # Apply the beta distribution based on 'is_active' status
+    df['score'] = df['is_active'].apply(lambda is_active: np.random.beta(a1, b1) if is_active else np.random.beta(a2, b2))
+    return df
+
+def classifier_v1(positive_mean, positive_variance, negative_mean, negative_variance, df):
     """
     Classifies the data in the DataFrame based on the given parameters.
 
@@ -446,6 +525,7 @@ def generate_well_score(cell_scores):
     return well_score
 
 def sequence_plates(well_score, number_of_genes, avg_reads_per_gene, sd_reads_per_gene, sequencing_error=0.01):
+
     """
     Simulates the sequencing of plates and calculates gene fractions and metadata.
 
@@ -460,6 +540,7 @@ def sequence_plates(well_score, number_of_genes, avg_reads_per_gene, sd_reads_pe
     gene_fraction_map (pd.DataFrame): DataFrame containing gene fractions for each well.
     metadata (pd.DataFrame): DataFrame containing metadata for each well.
     """
+
     reads, _ = dist_gen(avg_reads_per_gene, sd_reads_per_gene, well_score)
     gene_names = [f'gene_{v}' for v in range(number_of_genes+1)]
     all_wells = well_score.index
@@ -612,8 +693,12 @@ def plot_histogram(data, x_label, ax, color, title, binwidth=0.01, log=False):
     Returns:
     None
     """
-    sns.histplot(data=data, x=x_label, ax=ax, color=color, binwidth=binwidth, kde=False, stat='density', 
-                 legend=False, fill=True, element='step', palette='dark')
+    if not binwidth:
+        sns.histplot(data=data, x=x_label, ax=ax, color=color, kde=False, stat='density', 
+                    legend=False, fill=True, element='step', palette='dark')
+    else:
+        sns.histplot(data=data, x=x_label, ax=ax, color=color, binwidth=binwidth, kde=False, stat='density', 
+                    legend=False, fill=True, element='step', palette='dark')
     if log:
         ax.set_yscale('log')
     ax.set_title(title)
@@ -700,7 +785,7 @@ def run_simulation(settings):
     plate_map = plate_map[~plate_map['column_id'].isin(['c1', 'c2', 'c3', 'c23', 'c24'])] # Extract rows where 'column_id' is not in [1,2,3,23,24]
 
     cell_level, genes_per_well_df, wells_per_gene_df, dists = run_experiment(plate_map, settings['number_of_genes'], active_gene_list, settings['avg_genes_per_well'], settings['sd_genes_per_well'], settings['avg_cells_per_well'], settings['sd_cells_per_well'], settings['well_ineq_coeff'], settings['gene_ineq_coeff'])
-    cell_scores = classifier(settings['positive_mean'], settings['positive_variance'], settings['negative_mean'], settings['negative_variance'], df=cell_level)
+    cell_scores = classifier(settings['positive_mean'], settings['positive_variance'], settings['negative_mean'], settings['negative_variance'], settings['classifier_accuracy'], df=cell_level)
     cell_roc_dict_df, cell_pr_dict_df, cell_scores, cell_cm = cell_level_roc_auc(cell_scores)
     well_score = generate_well_score(cell_scores)
     gene_fraction_map, metadata = sequence_plates(well_score, settings['number_of_genes'], settings['avg_reads_per_gene'], settings['sd_reads_per_gene'], sequencing_error=settings['sequencing_error'])
@@ -744,7 +829,6 @@ def vis_dists(dists, src, v, i):
     for index, dist in enumerate(dists):
         temp = pd.DataFrame(dist, columns = [f'{names[index]}'])
         sns.histplot(data=temp, x=f'{names[index]}', kde=False, binwidth=None, stat='count', element="step", ax=ax[n], color='teal', log_scale=False)
-        #plot_histogram(temp, f'{names[index]}', ax[n], 'slategray', f'{names[index]}', binwidth=None, log=False)
         n+=1
     save_plot(fig2, src, 'dists', i)
     return
@@ -773,6 +857,7 @@ def visualize_all(output):
     Returns:
         fig (matplotlib.figure.Figure): The generated figure object.
     """
+
     cell_scores = output[0]
     cell_roc_dict_df = output[1]
     cell_pr_dict_df = output[2]
@@ -810,24 +895,35 @@ def visualize_all(output):
     #plot cell classification score by inactive and active
     active_distribution = cell_scores[cell_scores['is_active'] == 1] 
     inactive_distribution = cell_scores[cell_scores['is_active'] == 0]
-    plot_histogram(active_distribution, "score", ax[n], 'slategray', 'Cell scores', binwidth=0.01, log=False)
-    plot_histogram(inactive_distribution, "score", ax[n], 'teal', 'Cell scores', binwidth=0.01, log=False)
+    plot_histogram(active_distribution, "score", ax[n], 'slategray', 'Cell scores', log=False)#, binwidth=0.01, log=False)
+    plot_histogram(inactive_distribution, "score", ax[n], 'teal', 'Cell scores', log=False)#, binwidth=0.01, log=False)
+
+    legend_elements = [Patch(facecolor='slategray', edgecolor='slategray', label='Inactive'),
+                   Patch(facecolor='teal', edgecolor='teal', label='Active')]
+    
+    ax[n].legend(handles=legend_elements, loc='upper right')
+
+
     ax[n].set_xlim([0, 1])
     n+=1
     
     #plot classifier cell predictions by inactive and active well average
-    ##inactive_distribution_well['score'] = pd.to_numeric(inactive_distribution['score'], errors='coerce')
-    ##inactive_distribution_well = inactive_distribution_well.groupby('plate_row_column')['score'].mean()
+    inactive_distribution_well = inactive_distribution.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
+    active_distribution_well = active_distribution.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
+    mixed_distribution_well = cell_scores.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
+
+    plot_histogram(inactive_distribution_well, "score", ax[n], 'slategray', 'Well scores', log=False)#, binwidth=0.01, log=False)
+    plot_histogram(active_distribution_well, "score", ax[n], 'teal', 'Well scores', log=False)#, binwidth=0.01, log=False)
+    plot_histogram(mixed_distribution_well, "score", ax[n], 'red', 'Well scores', log=False)#, binwidth=0.01, log=False)
     
-    ##active_distribution_well['score'] = pd.to_numeric(active_distribution['score'], errors='coerce')
-    ##active_distribution_well = active_distribution_well.groupby('plate_row_column')['score'].mean()
+    legend_elements = [Patch(facecolor='slategray', edgecolor='slategray', label='Inactive'),
+                   Patch(facecolor='teal', edgecolor='teal', label='Active'),
+                   Patch(facecolor='red', edgecolor='red', label='Mixed')]
     
-    #inactive_distribution_well = inactive_distribution.groupby(['plate_row_column']).mean()
-    #active_distribution_well = active_distribution.groupby(['plate_row_column']).mean()
-    
-    plot_histogram(active_distribution, "score", ax[n], 'slategray', 'Well scores', binwidth=0.01, log=False)
-    plot_histogram(inactive_distribution, "score", ax[n], 'teal', 'Well scores', binwidth=0.01, log=False)
+    ax[n].legend(handles=legend_elements, loc='upper right')
+
     ax[n].set_xlim([0, 1])
+    #ax[n].legend()
     n+=1
     
     #plot ROC (cell classification)
@@ -846,8 +942,8 @@ def visualize_all(output):
     n+=1
     
     #plot well score
-    plot_histogram(well_score, "score", ax[n], 'teal', 'Well score', binwidth=0.005, log=False)
-    ax[n].set_xlim([0, 1])
+    plot_histogram(well_score, "score", ax[n], 'teal', 'Well score', binwidth=0.005, log=True)
+    #ax[n].set_xlim([0, 1])
     n+=1
 
     control_df = results_df[results_df['color'] == 'control']
@@ -1003,6 +1099,7 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
                 append_database(src, df, table_names[i])
     except Exception as e:
         print(f"An error occurred while saving data: {e}")
+        print(traceback.format_exc())
     return
 
 def save_plot(fig, src, variable, i):
@@ -1025,7 +1122,6 @@ def save_plot(fig, src, variable, i):
     
 def run_and_save(i, settings, time_ls, total_sims):
     
-
     """
     Run the simulation and save the results.
 
@@ -1040,7 +1136,7 @@ def run_and_save(i, settings, time_ls, total_sims):
     """
     #print(f'Runnings simulation with the following paramiters')
     #print(settings)
-    
+    settings['random_seed'] = False
     if settings['random_seed']:
         random.seed(42) # sims will be too similar with random seed
     src = settings['src']
@@ -1073,7 +1169,37 @@ def run_and_save(i, settings, time_ls, total_sims):
     time_ls.append(sim_time)
     return i, sim_time, None
     
+def validate_and_adjust_beta_params(sim_params):
+    """
+    Validates and adjusts Beta distribution parameters in simulation settings to ensure they are possible.
+    
+    Args:
+    sim_params (list of dict): List of dictionaries, each containing the simulation parameters.
+    
+    Returns:
+    list of dict: The adjusted list of simulation parameter sets.
+    """
+    adjusted_params = []
+    for params in sim_params:
+        max_pos_variance = params['positive_mean'] * (1 - params['positive_mean'])
+        max_neg_variance = params['negative_mean'] * (1 - params['negative_mean'])
+
+        # Adjust positive variance
+        if params['positive_variance'] >= max_pos_variance:
+            print(f'changed positive variance from {params["positive_variance"]} to {max_pos_variance * 0.99}')
+            params['positive_variance'] = max_pos_variance * 0.99  # Adjust to 99% of the maximum allowed variance
+
+        # Adjust negative variance
+        if params['negative_variance'] >= max_neg_variance:
+            print(f'changed negative variance from {params["negative_variance"]} to {max_neg_variance * 0.99}')
+            params['negative_variance'] = max_neg_variance * 0.99  # Adjust to 99% of the maximum allowed variance
+
+        adjusted_params.append(params)
+        
+    return adjusted_params
+
 def generate_paramiters(settings):
+
     """
     Generate a list of parameter sets for simulation based on the given settings.
 
@@ -1083,88 +1209,52 @@ def generate_paramiters(settings):
     Returns:
         list: A list of parameter sets for simulation.
     """
+    
+    settings['positive_mean'] = [0.8]
+
     sim_ls = []
     for avg_genes_per_well in settings['avg_genes_per_well']:
         replicates = settings['replicates']
-        sett = settings.copy()
-        sett['avg_genes_per_well'] = avg_genes_per_well
-        sett['sd_genes_per_well'] = int(avg_genes_per_well / 2)
         for avg_cells_per_well in settings['avg_cells_per_well']:
-            sett['avg_cells_per_well'] = avg_cells_per_well
-            sett['sd_cells_per_well'] = int(avg_cells_per_well / 2)
-            for positive_mean in settings['positive_mean']:
-                sett['positive_mean'] = positive_mean
-                sett['negative_mean'] = 1-positive_mean
-                sett['positive_variance'] = (1-positive_mean)/2
-                sett['negative_variance'] = (1-positive_mean)/2
-                for avg_reads_per_gene in settings['avg_reads_per_gene']:
-                    sett['avg_reads_per_gene'] = int(avg_reads_per_gene)
-                    sett['sd_reads_per_gene'] = int(avg_reads_per_gene/2)
-                    for sequencing_error in settings['sequencing_error']:
-                        sett['sequencing_error'] = sequencing_error
-                        for well_ineq_coeff in settings['well_ineq_coeff']:
-                            sett['well_ineq_coeff'] = well_ineq_coeff
-                            for gene_ineq_coeff in settings['gene_ineq_coeff']:
-                                sett['gene_ineq_coeff'] = gene_ineq_coeff
-                                for nr_plates in settings['nr_plates']:
-                                    sett['nr_plates'] = nr_plates
-                                    for number_of_genes in settings['number_of_genes']:
-                                        sett['number_of_genes'] = number_of_genes
-                                        for number_of_active_genes in settings['number_of_active_genes']:
-                                            sett['number_of_active_genes'] = number_of_active_genes
-                                            for i in [*range(1,replicates+1)]:
-                                                sim_ls.append(sett)
-                                                #print(sett)
-    #print('Number of simulations:',len(sim_ls))
-    return sim_ls
+            for classifier_accuracy in settings['classifier_accuracy']:
+                for positive_mean in settings['positive_mean']:
+                    for avg_reads_per_gene in settings['avg_reads_per_gene']:
+                        for sequencing_error in settings['sequencing_error']:
+                            for well_ineq_coeff in settings['well_ineq_coeff']:
+                                for gene_ineq_coeff in settings['gene_ineq_coeff']:
+                                    for nr_plates in settings['nr_plates']:
+                                        for number_of_genes in settings['number_of_genes']:
+                                            for number_of_active_genes in settings['number_of_active_genes']:
+                                                for i in range(1, replicates+1):
+                                                    sett = deepcopy(settings)
+                                                    sett['avg_genes_per_well'] = avg_genes_per_well
+                                                    sett['sd_genes_per_well'] = avg_genes_per_well / 2
+                                                    sett['avg_cells_per_well'] = avg_cells_per_well
+                                                    sett['sd_cells_per_well'] = avg_cells_per_well / 2
+                                                    sett['classifier_accuracy'] = classifier_accuracy
+                                                    sett['positive_mean'] = positive_mean
+                                                    sett['negative_mean'] = 1-positive_mean
+                                                    sett['positive_variance'] = (1-positive_mean)/2
+                                                    sett['negative_variance'] = (1-positive_mean)/2
+                                                    sett['avg_reads_per_gene'] = avg_reads_per_gene
+                                                    sett['sd_reads_per_gene'] = avg_reads_per_gene / 2
+                                                    sett['sequencing_error'] = sequencing_error
+                                                    sett['well_ineq_coeff'] = well_ineq_coeff
+                                                    sett['gene_ineq_coeff'] = gene_ineq_coeff
+                                                    sett['nr_plates'] = nr_plates
+                                                    sett['number_of_genes'] = number_of_genes
+                                                    sett['number_of_active_genes'] = number_of_active_genes
+                                                    sim_ls.append(sett)
 
-#altered for one set of settings see negative_mean and variance
-def generate_paramiters_single(settings):
-    """
-    Generate a list of parameter sets for single simulations based on the given settings.
-
-    Args:
-        settings (dict): A dictionary containing the simulation settings.
-
-    Returns:
-        list: A list of parameter sets for single simulations.
-    """
-    sim_ls = []
-    for avg_genes_per_well in settings['avg_genes_per_well']:
-        replicates = settings['replicates']
-        sett = settings.copy()
-        sett['avg_genes_per_well'] = avg_genes_per_well
-        sett['sd_genes_per_well'] = int(avg_genes_per_well / 2)
-        for avg_cells_per_well in settings['avg_cells_per_well']:
-            sett['avg_cells_per_well'] = avg_cells_per_well
-            sett['sd_cells_per_well'] = int(avg_cells_per_well / 2)
-            for positive_mean in settings['positive_mean']:
-                sett['positive_mean'] = positive_mean
-                sett['negative_mean'] = 0.2
-                sett['positive_variance'] = 0.13
-                sett['negative_variance'] = 0.13
-                for avg_reads_per_gene in settings['avg_reads_per_gene']:
-                    sett['avg_reads_per_gene'] = int(avg_reads_per_gene)
-                    sett['sd_reads_per_gene'] = int(avg_reads_per_gene/2)
-                    for sequencing_error in settings['sequencing_error']:
-                        sett['sequencing_error'] = sequencing_error
-                        for well_ineq_coeff in settings['well_ineq_coeff']:
-                            sett['well_ineq_coeff'] = well_ineq_coeff
-                            for gene_ineq_coeff in settings['gene_ineq_coeff']:
-                                sett['gene_ineq_coeff'] = gene_ineq_coeff
-                                for nr_plates in settings['nr_plates']:
-                                    sett['nr_plates'] = nr_plates
-                                    for number_of_genes in settings['number_of_genes']:
-                                        sett['number_of_genes'] = number_of_genes
-                                        for number_of_active_genes in settings['number_of_active_genes']:
-                                            sett['number_of_active_genes'] = number_of_active_genes
-                                            for i in [*range(1,replicates+1)]:
-                                                sim_ls.append(sett)
-                                                #print(sett)
-    #print('Number of simulations:',len(sim_ls))
+    random.shuffle(sim_ls)
+    sim_ls = validate_and_adjust_beta_params(sim_ls)
+    print(f'Running {len(sim_ls)} simulations.')
+    #for x in sim_ls: 
+    #    print(x['positive_mean'])
     return sim_ls
 
 def run_multiple_simulations(settings):
+
     """
     Run multiple simulations in parallel using the provided settings.
 
@@ -1176,7 +1266,7 @@ def run_multiple_simulations(settings):
     """
 
     sim_ls = generate_paramiters(settings)
-    print(f'Running {len(sim_ls)} simulations. Standard deviations for each variable are variable / 2')
+    #print(f'Running {len(sim_ls)} simulations.')
 
     max_workers = settings['max_workers'] or cpu_count() - 4
     with Manager() as manager:
@@ -1192,3 +1282,368 @@ def run_multiple_simulations(settings):
                 print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
             result.get()
             
+def generate_integers(start, stop, step):
+    return list(range(start, stop + 1, step))
+
+def generate_floats(start, stop, step):
+    # Determine the number of decimal places in 'step'
+    num_decimals = str(step)[::-1].find('.')
+    
+    current = start
+    floats_list = []
+    while current <= stop:
+        # Round each float to the appropriate number of decimal places
+        floats_list.append(round(current, num_decimals))
+        current += step
+    
+    return floats_list
+
+def remove_columns_with_single_value(df):
+    """
+    Removes columns from the DataFrame that have the same value in all rows.
+
+    Args:
+    df (pandas.DataFrame): The original DataFrame.
+
+    Returns:
+    pandas.DataFrame: A DataFrame with the columns removed that contained only one unique value.
+    """
+    
+    df=df.copy()
+    
+    for column in df.columns:
+        if len(df[column].unique()) == 1:
+            df.drop(column, axis=1, inplace=True)
+    
+    return df
+
+def read_simulations_table(db_path):
+    """
+    Reads the 'simulations' table from an SQLite database into a pandas DataFrame.
+    
+    Args:
+    db_path (str): The file path to the SQLite database.
+    
+    Returns:
+    pandas.DataFrame: DataFrame containing the 'simulations' table data.
+    """
+    # Create a connection object using the connect function
+    conn = sqlite3.connect(db_path)
+    
+    # Read the 'simulations' table into a pandas DataFrame
+    try:
+        df = pd.read_sql_query("SELECT * FROM simulations", conn)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+    finally:
+        # Close the connection to SQLite database
+        conn.close()
+    
+    return df
+
+def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, verbose=False):
+    
+    """
+    Creates separate line plots for 'prauc' against a specified 'variable', 
+    for each unique combination of conditions defined by 'grouping_vars', displayed on a grid.
+
+    Args:
+    df (pandas.DataFrame): DataFrame containing the necessary columns.
+    variable (str): Name of the column to use as the x-axis for grouping and plotting.
+    x_rotation (int, optional): Degrees to rotate the x-axis labels.
+    legend (bool, optional): Whether to display a legend.
+    grid (bool, optional): Whether to display grid lines.
+    verbose (bool, optional): Whether to print the filter conditions.
+
+    Returns:
+    None
+    """
+    
+    grouping_vars = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
+                     'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
+                     'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    grouping_vars = [col for col in grouping_vars if col != variable]
+    
+    # Check if the necessary columns are present in the DataFrame
+    required_columns = {variable, 'prauc'} | set(grouping_vars)
+    if not required_columns.issubset(df.columns):
+        missing_cols = required_columns - set(df.columns)
+        raise ValueError(f"DataFrame must contain {missing_cols} columns")
+        
+    #if not dependent is None:
+    
+    # Get unique combinations of conditions from grouping_vars
+    unique_combinations = df[grouping_vars].drop_duplicates()
+    num_combinations = len(unique_combinations)
+
+    # Determine the layout of the subplots
+    num_rows = math.ceil(np.sqrt(num_combinations))
+    num_cols = math.ceil(num_combinations / num_rows)
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows))
+    if num_rows * num_cols > 1:
+        axes = axes.flatten()
+    else:
+        axes = [axes]
+
+    for idx, (ax, (_, row)) in enumerate(zip(axes, unique_combinations.iterrows())):
+
+        # Filter the DataFrame for the current combination of variables
+        condition = {var: row[var] for var in grouping_vars}
+        subset_df = df[df[grouping_vars].eq(row).all(axis=1)]
+        
+        # Group by 'variable' and calculate mean and std dev of 'prauc'
+        grouped = subset_df.groupby(variable)['prauc'].agg(['mean', 'std'])
+        grouped = grouped.sort_index()  # Sort by the variable for orderly plots
+
+        # Plotting the mean of 'prauc' with std deviation as shaded area
+        ax.plot(grouped.index, grouped['mean'], marker='o', linestyle='-', color='b', label='Mean PRAUC')
+        ax.fill_between(grouped.index, grouped['mean'] - grouped['std'], grouped['mean'] + grouped['std'], color='gray', alpha=0.5, label='Std Dev')
+
+        # Setting plot labels and title
+        title_details = ', '.join([f"{var}={row[var]}" for var in grouping_vars])
+        ax.set_xlabel(variable)
+        ax.set_ylabel('Precision-Recall AUC (PRAUC)')
+        #ax.set_title(f'PRAUC vs. {variable} | {title_details}')
+        ax.grid(grid)
+
+        if legend:
+            ax.legend()
+
+        # Set x-ticks and rotate them as specified
+        ax.set_xticks(grouped.index)
+        ax.set_xticklabels(grouped.index, rotation=x_rotation if x_rotation is not None else 45)
+        
+        if verbose:
+            verbose_text = '\n'.join([f"{var}: {val}" for var, val in condition.items()])
+            ax.text(0.95, 0.05, verbose_text, transform=ax.transAxes, fontsize=9, verticalalignment='bottom', horizontalalignment='right', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+    
+    # Hide any unused axes if there are any
+    for ax in axes[idx+1:]:
+        ax.set_visible(False)
+
+    plt.tight_layout()
+    plt.show()
+    return fig
+    
+def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True):
+    """
+    Plots a correlation matrix for the specified variables and the target variable.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    variables (list): List of column names to include in the correlation matrix.
+    target_variable (str): The target variable column name.
+
+    Returns:
+    None
+    """
+    cmap = sns.diverging_palette(240, 10, as_cmap=True)
+    grouping_vars = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
+                     'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
+                     'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    grouping_vars = grouping_vars + ['optimal_threshold', 'accuracy', 'prauc', 'roc_auc','genes_per_well_gini', 'wells_per_gene_gini']
+    # 'inactive_mean', 'inactive_std', 'inactive_var', 'active_mean', 'active_std', 'inactive_var', 'cutoff', 'TP', 'FP', 'TN', 'FN', 
+    
+    # Subsetting the DataFrame to include only the relevant variables
+    relevant_data = df[grouping_vars]
+    
+    if clean:
+        relevant_data = remove_columns_with_single_value(relevant_data)
+    
+    # Calculating the correlation matrix
+    corr_matrix = relevant_data.corr()
+    mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+    
+    # Plotting the correlation matrix
+    plt.figure(figsize=(12, 8))
+    fig = sns.heatmap(corr_matrix, mask=mask, annot=annot, cmap=cmap, fmt=".2f", linewidths=.5, robust=True)
+    #plt.title('Correlation Matrix with Heatmap')
+
+    plt.tight_layout()
+    plt.show()
+    return fig
+
+def plot_feature_importance(df, target='prauc', exclude=None):
+    """
+    Trains a RandomForestRegressor to determine the importance of each feature in predicting the target.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    target (str): The target variable column name.
+    exclude (list or str, optional): Column names to exclude from features.
+
+    Returns:
+    matplotlib.figure.Figure: The figure object containing the feature importance plot.
+    """
+    
+    # Define the features for the model
+    features = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
+                     'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
+                     'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    # Remove excluded features if specified
+    if isinstance(exclude, list):
+        features = [feature for feature in features if feature not in exclude]
+    elif exclude is not None:
+        features = [feature for feature in features if feature != exclude]
+    
+    # Train the model
+    model = RandomForestRegressor(n_estimators=1000, random_state=42)
+    model.fit(df[features], df[target])
+    
+    # Get feature importances
+    importances = model.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    
+    # Plot horizontal bar chart
+    plt.figure(figsize=(12, 6))
+    fig = plt.barh(range(len(indices)), importances[indices], color="teal", align="center", alpha=0.6)
+    plt.yticks(range(len(indices)), [features[i] for i in indices[::-1]])  # Invert y-axis to match the order
+    plt.gca().invert_yaxis()  # Invert the axis to have the highest importance at the top
+    plt.xlabel('Feature Importance')
+    plt.title('Feature Importances')
+    plt.tight_layout()
+    plt.show()
+    return fig
+
+def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10):
+    """
+    Calculates permutation importance for the given features in the dataframe.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    features (list): List of column names to include as features.
+    target (str): The name of the target variable column.
+
+    Returns:
+    dict: Dictionary containing the importances and standard deviations.
+    """
+    
+    features = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
+                'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
+                'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    if isinstance(exclude, list):
+        for ex in exclude:
+            features.remove(ex)
+    if not exclude is None:
+        features.remove(exclude)
+    
+    X = df[features]
+    y = df[target]
+
+    # Initialize a model (you could pass it as an argument if you'd like to use a different one)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X, y)
+
+    perm_importance = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=42)
+
+    # Plotting
+    sorted_idx = perm_importance.importances_mean.argsort()
+    plt.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx], color="teal", align="center", alpha=0.6)
+    plt.yticks(range(len(sorted_idx)), [X.columns[i] for i in sorted_idx])
+    plt.xlabel('Permutation Importance')
+    plt.tight_layout()
+    plt.show()
+
+    return perm_importance
+    
+def plot_partial_dependences(df, target='prauc'):
+    
+    """
+    Creates partial dependence plots for the specified features, with improved layout to avoid text overlap.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    target (str): The target variable.
+
+    Returns:
+    None
+    """
+    
+    features = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
+                'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
+                'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    X = df[features]
+    y = df[target]
+    
+    # Train a model
+    model = GradientBoostingRegressor()
+    model.fit(X, y)
+    
+    # Determine the number of rows and columns for subplots
+    n_cols = 4  # Number of columns in subplot grid
+    n_rows = (len(features) + n_cols - 1) // n_cols  # Calculate rows needed
+    
+    # Plot partial dependence
+    fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(5 * n_cols, 5 * n_rows))
+    fig.suptitle('Partial Dependence Plots', fontsize=20, y=1.03)
+    
+    # Flatten the array of axes if it's multidimensional
+    axs = axs.flatten() if n_rows > 1 else [axs]
+    
+    for i, feature in enumerate(features):
+        ax = axs[i]
+        disp = PartialDependenceDisplay.from_estimator(model, X, features=[feature], ax=ax)
+        ax.set_title(feature)  # Set title to the name of the feature
+
+    # Hide unused axes if any
+    for ax in axs[len(features):]:
+        ax.set_visible(False)
+    
+    plt.tight_layout()
+    plt.show()
+    return fig
+
+def generate_shap_summary_plot(df,target='prauc'):
+    """
+    Generates a SHAP summary plot for the given features in the dataframe.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    features (list): List of column names to include as features.
+    target (str): The name of the target variable column.
+
+    Returns:
+    None
+    """
+    
+    features = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
+                'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
+                'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    X = df[features]
+    y = df[target]
+
+    # Initialize a model (you could pass it as an argument if you'd like to use a different one)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X, y)
+
+    # Calculate SHAP values
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X)
+
+    # Summary plot
+    fig = shap.summary_plot(shap_values, X)
+    return fig
+
+# to justify using beta for sim classifier
+
+# Fit a Beta distribution to these outputs
+#a, b, loc, scale = beta.fit(predicted_probs, floc=0, fscale=1)  # Fix location and scale to match the support of the sigmoid
+
+# Sample from this fitted Beta distribution
+#simulated_probs = beta.rvs(a, b, size=1000)
+
+# Plot the empirical vs simulated distribution
+#plt.hist(predicted_probs, bins=30, alpha=0.5, label='Empirical')
+#plt.hist(simulated_probs, bins=30, alpha=0.5, label='Simulated from Beta')
+#plt.legend()
+#plt.show()
+
+
