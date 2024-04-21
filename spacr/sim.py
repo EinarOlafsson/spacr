@@ -1,5 +1,5 @@
 
-import os, random, warnings, traceback, sqlite3, shap, math
+import os, random, warnings, traceback, sqlite3, shap, math, gc
 from time import time, sleep
 from datetime import datetime
 import numpy as np
@@ -805,7 +805,10 @@ def run_simulation(settings):
     results_df, reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats = regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha = 0.05, optimal=False)
     #except Exception as e:
     #    print(f"An error occurred while saving data: {e}")
-    return [cell_scores, cell_roc_dict_df, cell_pr_dict_df, cell_cm, well_score, gene_fraction_map, metadata, results_df, reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats, genes_per_well_df, wells_per_gene_df], dists
+    output = [cell_scores, cell_roc_dict_df, cell_pr_dict_df, cell_cm, well_score, gene_fraction_map, metadata, results_df, reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats, genes_per_well_df, wells_per_gene_df]
+    del cell_scores, cell_roc_dict_df, cell_pr_dict_df, cell_cm, well_score, gene_fraction_map, metadata, results_df, reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats, genes_per_well_df, wells_per_gene_df
+    gc.collect()
+    return output, dists
 
 def vis_dists(dists, src, v, i):
     """
@@ -831,6 +834,12 @@ def vis_dists(dists, src, v, i):
         sns.histplot(data=temp, x=f'{names[index]}', kde=False, binwidth=None, stat='count', element="step", ax=ax[n], color='teal', log_scale=False)
         n+=1
     save_plot(fig2, src, 'dists', i)
+    plt.close(fig2)
+    plt.figure().clear() 
+    plt.cla() 
+    plt.clf()
+    del dists
+
     return
 
 def visualize_all(output):
@@ -1007,6 +1016,7 @@ def visualize_all(output):
 
     plt.tight_layout()
     plt.show()
+    gc.collect()
     return fig
 
 def create_database(db_path):
@@ -1088,6 +1098,7 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
             df_concat[f'variable_{variable}_sim_nr'] = i
 
             append_database(src, df_concat, 'simulations')
+            del gini_genes_per_well, gini_wells_per_gene, df_concat
 
         if save_all:
             for i, df in enumerate(output):
@@ -1097,9 +1108,12 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
                 if not isinstance(df, pd.DataFrame):
                     df = pd.DataFrame(df)
                 append_database(src, df, table_names[i])
+            del df
     except Exception as e:
         print(f"An error occurred while saving data: {e}")
         print(traceback.format_exc())
+    
+    del output, settings_df
     return
 
 def save_plot(fig, src, variable, i):
@@ -1143,17 +1157,17 @@ def run_and_save(i, settings, time_ls, total_sims):
     plot = settings['plot']
     v = settings['variable']
     start_time = time()  # Start time of the simulation
-    now = datetime.now() # get current date
-    date_string = now.strftime("%y%m%d") # format as a string in 'ddmmyy' format        
+    #now = datetime.now() # get current date
+    #date_string = now.strftime("%y%m%d") # format as a string in 'ddmmyy' format        
+    date_string = settings['start_time']
     #try:
     output, dists = run_simulation(settings)
     sim_time = time() - start_time  # Elapsed time for the simulation
     settings['sim_time'] = sim_time
     src = os.path.join(f'{src}/{date_string}',settings['name'])
     save_data(src, output, settings, save_all=False, i=i, variable=v)
-    if vis_dists:
-        vis_dists(dists,src, v, i)
     if plot:
+        vis_dists(dists,src, v, i)
         fig = visualize_all(output)
         save_plot(fig, src, v, i)
         plt.close(fig)
@@ -1162,6 +1176,7 @@ def run_and_save(i, settings, time_ls, total_sims):
         plt.clf()
         del fig
     del output, dists
+    gc.collect()
     #except Exception as e:
     #    print(e, end='\r', flush=True)
     #    sim_time = time() - start_time
@@ -1265,6 +1280,10 @@ def run_multiple_simulations(settings):
         None
     """
 
+    now = datetime.now() # get current date
+    start_time = now.strftime("%y%m%d") # format as a string in 'ddmmyy' format 
+    settings['start_time'] = start_time
+
     sim_ls = generate_paramiters(settings)
     #print(f'Running {len(sim_ls)} simulations.')
 
@@ -1280,6 +1299,7 @@ def run_multiple_simulations(settings):
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
                 time_left = (((total_sims - sims_processed) * average_time) / max_workers) / 60
                 print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
+                gc.collect()
             result.get()
             
 def generate_integers(start, stop, step):
