@@ -1318,7 +1318,7 @@ def generate_floats(start, stop, step):
     
     return floats_list
 
-def remove_columns_with_single_value(df):
+def remove_columns_with_single_value_v1(df):
     """
     Removes columns from the DataFrame that have the same value in all rows.
 
@@ -1336,6 +1336,19 @@ def remove_columns_with_single_value(df):
             df.drop(column, axis=1, inplace=True)
     
     return df
+
+def remove_columns_with_single_value(df):
+    """
+    Removes columns from the DataFrame that have the same value in all rows.
+
+    Args:
+    df (pandas.DataFrame): The original DataFrame.
+
+    Returns:
+    pandas.DataFrame: A DataFrame with the columns removed that contained only one unique value.
+    """
+    to_drop = [column for column in df.columns if df[column].nunique() == 1]
+    return df.drop(to_drop, axis=1)
 
 def read_simulations_table(db_path):
     """
@@ -1362,7 +1375,7 @@ def read_simulations_table(db_path):
     
     return df
 
-def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, verbose=False):
+def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, clean=True, verbose=False):
     
     """
     Creates separate line plots for 'prauc' against a specified 'variable', 
@@ -1383,6 +1396,9 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, ve
     grouping_vars = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
                      'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                      'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    if clean:
+        relevant_data = remove_columns_with_single_value(relevant_data)
     
     grouping_vars = [col for col in grouping_vars if col != variable]
     
@@ -1467,27 +1483,32 @@ def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True):
     
     grouping_vars = grouping_vars + ['optimal_threshold', 'accuracy', 'prauc', 'roc_auc','genes_per_well_gini', 'wells_per_gene_gini']
     # 'inactive_mean', 'inactive_std', 'inactive_var', 'active_mean', 'active_std', 'inactive_var', 'cutoff', 'TP', 'FP', 'TN', 'FN', 
-    
+
+    if clean:
+        df = remove_constant_columns(df)
+        grouping_vars = [feature for feature in grouping_vars if feature in df.columns]
+
     # Subsetting the DataFrame to include only the relevant variables
     relevant_data = df[grouping_vars]
     
     if clean:
         relevant_data = remove_columns_with_single_value(relevant_data)
-    
+        
     # Calculating the correlation matrix
     corr_matrix = relevant_data.corr()
     mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
     
     # Plotting the correlation matrix
-    plt.figure(figsize=(12, 8))
-    fig = sns.heatmap(corr_matrix, mask=mask, annot=annot, cmap=cmap, fmt=".2f", linewidths=.5, robust=True)
+    fig = plt.figure(figsize=(12, 8))
+    sns.heatmap(corr_matrix, mask=mask, annot=annot, cmap=cmap, fmt=".2f", linewidths=.5, robust=True)
     #plt.title('Correlation Matrix with Heatmap')
 
     plt.tight_layout()
     plt.show()
+    save_plot(fig, src='figures', variable='correlation_matrix', i=1)
     return fig
 
-def plot_feature_importance(df, target='prauc', exclude=None):
+def plot_feature_importance(df, target='prauc', exclude=None, clean=True):
     """
     Trains a RandomForestRegressor to determine the importance of each feature in predicting the target.
 
@@ -1505,6 +1526,10 @@ def plot_feature_importance(df, target='prauc', exclude=None):
                      'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                      'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
     
+    if clean:
+        df = remove_columns_with_single_value(df)
+        features = [feature for feature in features if feature in df.columns]
+    
     # Remove excluded features if specified
     if isinstance(exclude, list):
         features = [feature for feature in features if feature not in exclude]
@@ -1520,17 +1545,18 @@ def plot_feature_importance(df, target='prauc', exclude=None):
     indices = np.argsort(importances)[::-1]
     
     # Plot horizontal bar chart
-    plt.figure(figsize=(12, 6))
-    fig = plt.barh(range(len(indices)), importances[indices], color="teal", align="center", alpha=0.6)
+    fig = plt.figure(figsize=(12, 6))
+    plt.barh(range(len(indices)), importances[indices], color="teal", align="center", alpha=0.6)
     plt.yticks(range(len(indices)), [features[i] for i in indices[::-1]])  # Invert y-axis to match the order
     plt.gca().invert_yaxis()  # Invert the axis to have the highest importance at the top
     plt.xlabel('Feature Importance')
     plt.title('Feature Importances')
     plt.tight_layout()
     plt.show()
+    save_plot(fig, src='figures', variable='feature_importance', i=1)
     return fig
 
-def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10):
+def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10, clean=True):
     """
     Calculates permutation importance for the given features in the dataframe.
 
@@ -1546,6 +1572,10 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     features = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
                 'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                 'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
+    
+    if clean:
+        df = remove_columns_with_single_value(df)
+        features = [feature for feature in features if feature in df.columns]
     
     if isinstance(exclude, list):
         for ex in exclude:
@@ -1564,15 +1594,19 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
 
     # Plotting
     sorted_idx = perm_importance.importances_mean.argsort()
-    plt.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx], color="teal", align="center", alpha=0.6)
-    plt.yticks(range(len(sorted_idx)), [X.columns[i] for i in sorted_idx])
-    plt.xlabel('Permutation Importance')
+    
+    # Create a figure and a set of subplots
+    fig, ax = plt.subplots()
+    ax.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx], color="teal", align="center", alpha=0.6)
+    ax.set_yticks(range(len(sorted_idx)))
+    ax.set_yticklabels([df.columns[i] for i in sorted_idx])
+    ax.set_xlabel('Permutation Importance')
     plt.tight_layout()
     plt.show()
-
-    return perm_importance
+    save_plot(fig, src='figures', variable='permutation_importance', i=1)
+    return fig
     
-def plot_partial_dependences(df, target='prauc'):
+def plot_partial_dependences(df, target='prauc', clean=True):
     
     """
     Creates partial dependence plots for the specified features, with improved layout to avoid text overlap.
@@ -1589,6 +1623,10 @@ def plot_partial_dependences(df, target='prauc'):
                 'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                 'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
     
+    if clean:
+        df = remove_columns_with_single_value(df)
+        features = [feature for feature in features if feature in df.columns]
+
     X = df[features]
     y = df[target]
     
@@ -1618,9 +1656,17 @@ def plot_partial_dependences(df, target='prauc'):
     
     plt.tight_layout()
     plt.show()
+    save_plot(fig, src='figures', variable='partial_dependences', i=1)
     return fig
 
-def generate_shap_summary_plot(df,target='prauc'):
+def save_shap_plot(fig, src, variable, i):
+    import os
+    os.makedirs(f'{src}/{variable}', exist_ok=True)
+    filename_fig = f'{src}/{variable}/{str(i)}_figure.pdf'
+    fig.savefig(filename_fig, dpi=600, format='pdf', bbox_inches='tight')
+    print(f"Saved figure as {filename_fig}")
+
+def generate_shap_summary_plot(df,target='prauc', clean=True):
     """
     Generates a SHAP summary plot for the given features in the dataframe.
 
@@ -1637,6 +1683,10 @@ def generate_shap_summary_plot(df,target='prauc'):
                 'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                 'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
     
+    if clean:
+        df = remove_columns_with_single_value(df)
+        features = [feature for feature in features if feature in df.columns]
+
     X = df[features]
     y = df[target]
 
@@ -1649,8 +1699,24 @@ def generate_shap_summary_plot(df,target='prauc'):
     shap_values = explainer.shap_values(X)
 
     # Summary plot
-    fig = shap.summary_plot(shap_values, X)
-    return fig
+    shap.summary_plot(shap_values, X)
+    save_shap_plot(plt.gcf(), src='figures', variable='shap', i=1)
+    #save_shap_plot(fig, src, variable, i)
+    return plt.gcf()
+
+
+def remove_constant_columns(df):
+    """
+    Removes columns in the DataFrame where all entries have the same value.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame from which to remove constant columns.
+
+    Returns:
+    pd.DataFrame: A DataFrame with the constant columns removed.
+    """
+    return df.loc[:, df.nunique() > 1]
+
 
 # to justify using beta for sim classifier
 
@@ -1665,5 +1731,3 @@ def generate_shap_summary_plot(df,target='prauc'):
 #plt.hist(simulated_probs, bins=30, alpha=0.5, label='Simulated from Beta')
 #plt.legend()
 #plt.show()
-
-
