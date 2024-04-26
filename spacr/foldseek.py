@@ -247,7 +247,7 @@ def process_protein_data(data, verbose=False):
     if verbose:
         print(protein_data)
     return protein_data
-
+    
 def fetch_data_for_uniprot_id(uniprot_id):
     """ Fetch data for a single UniProt ID from the UniProt API. """
     base_url = "https://www.ebi.ac.uk/proteins/api/proteins"
@@ -283,184 +283,265 @@ def fetch_and_aggregate_functional_data(uniprot_ids, num_workers=4):
 
     # Convert the accumulated dictionary into a pandas DataFrame
     df = pd.DataFrame.from_dict(protein_data, orient='index')
-    
-    # Handle multi-value fields that are lists
-    #for col in df.columns:
-    #    if any(isinstance(x, list) for x in df[col]):
-    #        df[col] = df[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
-    #for col in df.columns:
-    #    if col in df.columns:
-    #        df[col] = df[col].apply(lambda x: x if isinstance(x, list) else [])
             
     return df
 
 def get_unique_uniprot_ids(mapping):
-    # Extract all UniProt IDs from the mapping and flatten the list
-    all_uniprot_ids = set()
-    for uniprot_list in mapping.values():
-        all_uniprot_ids.update(uniprot_list)
+    # Extract all UniProt IDs from the mapping
+    all_uniprot_ids = set(mapping.values())  # This gets all the unique values (UniProt IDs)
     return list(all_uniprot_ids)
 
-def send_chunked_request(pdb_ids, base_url, headers, chunk_size=10000):
-    print(f'Fetching Uniprot IDs for {len(pdb_ids)} PDB files', end='\r', flush=True)
-    uniprot_mapping = {}
-    query_template = '''{
-        entries(entry_ids: [%s]) {
-            rcsb_id
-            polymer_entities {
-                uniprots {
-                    rcsb_id
-                }
-            }
-        }
-    }'''
+def pdb_to_uniprot(pdb_chain_map = {}):
+    
+    import re, time, json, zlib, requests
+    from xml.etree import ElementTree
+    from urllib.parse import urlparse, parse_qs, urlencode
+    from requests.adapters import HTTPAdapter, Retry
+    
+    POLLING_INTERVAL = 3
+    API_URL = "https://rest.uniprot.org"
+    retries = Retry(total=5, backoff_factor=0.25, status_forcelist=[500, 502, 503, 504])
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+    
+    # The maximum number of IDs we can submit in one request
+    MAX_IDS_PER_REQUEST = 90000
+    
+    def check_response(response):
+        try:
+            response.raise_for_status()
+        except requests.HTTPError:
+            print(response.json())
+            raise
+            
+    def submit_id_mapping(from_db, to_db, ids):
+        request = requests.post(
+            f"{API_URL}/idmapping/run",
+            data={"from": from_db, "to": to_db, "ids": ",".join(ids)},
+        )
+        check_response(request)
+        return request.json()["jobId"]
 
-    retry_delay = 1 # Start with a 1 second delay
-    max_retries = 5 # Maximum number of retries before giving up on a chunk
+    def get_next_link(headers):
+        re_next_link = re.compile(r'<(.+)>; rel="next"')
+        if "Link" in headers:
+            match = re_next_link.match(headers["Link"])
+            if match:
+                return match.group(1)
 
-    for i in range(0, len(pdb_ids), chunk_size):
-        retries = 0
-        while retries < max_retries:
-            chunk = pdb_ids[i:i + chunk_size]
-            query_ids = ', '.join(f'"{pdb_id.upper()}"' for pdb_id in chunk)
-            query = query_template % query_ids
-
-            response = requests.post(base_url, json={'query': query}, headers=headers)
-
-            if response.status_code == 200:
-                response_json = response.json()
-                entries = response_json.get('data', {}).get('entries', [])
-                for entry in entries:
-                    pdb_id = entry.get('rcsb_id')
-                    uniprots = [u['rcsb_id'] for entity in entry.get('polymer_entities', []) if entity.get('uniprots') for u in entity['uniprots'] if u]
-                    if uniprots: 
-                        uniprot_mapping[pdb_id] = uniprots
-                break  # Success, break out of the retry loop
-            else:
-                if response.status_code == 504:
-                    retries += 1
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # Exponential back-off
-                    print(f"Retrying chunk ({retries}/{max_retries}). Delay: {retry_delay} seconds")
+    def check_id_mapping_results_ready(job_id):
+        while True:
+            request = session.get(f"{API_URL}/idmapping/status/{job_id}")
+            check_response(request)
+            j = request.json()
+            if "jobStatus" in j:
+                if j["jobStatus"] == "RUNNING":
+                    print(f"Retrying in {POLLING_INTERVAL}s")
+                    time.sleep(POLLING_INTERVAL)
                 else:
-                    print(f"Failed to retrieve data for chunk; HTTP {response.status_code}")
-                    print("Response content:", response.text)
-                    break  # For non-504 errors, break out of the retry loop
+                    raise Exception(j["jobStatus"])
+            else:
+                return bool(j["results"] or j["failedIds"])
 
-    return uniprot_mapping
+    def get_batch(batch_response, file_format, compressed):
+        batch_url = get_next_link(batch_response.headers)
+        while batch_url:
+            batch_response = session.get(batch_url)
+            batch_response.raise_for_status()
+            yield decode_results(batch_response, file_format, compressed)
+            batch_url = get_next_link(batch_response.headers)
 
-def pdb_to_uniprot(pdb_ids):
-    base_url = "https://data.rcsb.org/graphql"
-    headers = {'Content-Type': 'application/json'}
-    # Call the chunked request function
-    return send_chunked_request(pdb_ids, base_url, headers)
+    def combine_batches(all_results, batch_results, file_format):
+        if file_format == "json":
+            for key in ("results", "failedIds"):
+                if key in batch_results and batch_results[key]:
+                    all_results[key] += batch_results[key]
+        elif file_format == "tsv":
+            return all_results + batch_results[1:]
+        else:
+            return all_results + batch_results
+        return all_results
+
+    def get_id_mapping_results_link(job_id):
+        url = f"{API_URL}/idmapping/details/{job_id}"
+        request = session.get(url)
+        check_response(request)
+        return request.json()["redirectURL"]
+
+    def decode_results(response, file_format, compressed):
+        if compressed:
+            decompressed = zlib.decompress(response.content, 16 + zlib.MAX_WBITS)
+            if file_format == "json":
+                j = json.loads(decompressed.decode("utf-8"))
+                return j
+            elif file_format == "tsv":
+                return [line for line in decompressed.decode("utf-8").split("\n") if line]
+            elif file_format == "xlsx":
+                return [decompressed]
+            elif file_format == "xml":
+                return [decompressed.decode("utf-8")]
+            else:
+                return decompressed.decode("utf-8")
+        elif file_format == "json":
+            return response.json()
+        elif file_format == "tsv":
+            return [line for line in response.text.split("\n") if line]
+        elif file_format == "xlsx":
+            return [response.content]
+        elif file_format == "xml":
+            return [response.text]
+        return response.text
+
+    def get_xml_namespace(element):
+        m = re.match(r"\{(.*)\}", element.tag)
+        return m.groups()[0] if m else ""
+
+    def merge_xml_results(xml_results):
+        merged_root = ElementTree.fromstring(xml_results[0])
+        for result in xml_results[1:]:
+            root = ElementTree.fromstring(result)
+            for child in root.findall("{http://uniprot.org/uniprot}entry"):
+                merged_root.insert(-1, child)
+        ElementTree.register_namespace("", get_xml_namespace(merged_root[0]))
+        return ElementTree.tostring(merged_root, encoding="utf-8", xml_declaration=True)
+
+    def print_progress_batches(batch_index, size, total):
+        n_fetched = min((batch_index + 1) * size, total)
+        print(f"Fetched: {n_fetched} / {total}")
+
+    def get_id_mapping_results_search(url):
+        parsed = urlparse(url)
+        query = parse_qs(parsed.query)
+        file_format = query["format"][0] if "format" in query else "json"
+        if "size" in query:
+            size = int(query["size"][0])
+        else:
+            size = 500
+            query["size"] = size
+        compressed = (
+            query["compressed"][0].lower() == "true" if "compressed" in query else False
+        )
+        parsed = parsed._replace(query=urlencode(query, doseq=True))
+        url = parsed.geturl()
+        request = session.get(url)
+        check_response(request)
+        results = decode_results(request, file_format, compressed)
+        total = int(request.headers["x-total-results"])
+        print_progress_batches(0, size, total)
+        for i, batch in enumerate(get_batch(request, file_format, compressed), 1):
+            results = combine_batches(results, batch, file_format)
+            print_progress_batches(i, size, total)
+        if file_format == "xml":
+            return merge_xml_results(results)
+        return results
+
+    def get_id_mapping_results_stream(url):
+        if "/stream/" not in url:
+            url = url.replace("/results/", "/results/stream/")
+        request = session.get(url)
+        check_response(request)
+        parsed = urlparse(url)
+        query = parse_qs(parsed.query)
+        file_format = query["format"][0] if "format" in query else "json"
+        compressed = (
+            query["compressed"][0].lower() == "true" if "compressed" in query else False
+        )
+        return decode_results(request, file_format, compressed)
+    
+    def extract_uniprot_names(results):
+        uniprot_mapping = {}
+        for result in results.get('results', []):
+            pdb_name = result['from']
+            #print(result['to'])
+            #time.sleep(1)
+            uniprot_name = result['to'].get('primaryAccession', '') #uniProtkbId
+            if uniprot_name:
+                uniprot_mapping[pdb_name] = uniprot_name
+        return uniprot_mapping
+    
+    def chunks(lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+    
+    uniprot_names = {}
+    formatted_ids = [f"{pdb_id}:{chain}" for pdb_id, chain in pdb_chain_map.items()]
+    
+    # Iterate over each chunk of formatted IDs and submit separate jobs
+    for formatted_ids_chunk in chunks(formatted_ids, MAX_IDS_PER_REQUEST):
+        #print('chunk',formatted_ids_chunk)
+        job_id = submit_id_mapping("PDB", "UniProtKB", formatted_ids_chunk)
+        #accession, UniProtKB
+        if check_id_mapping_results_ready(job_id):
+            link = get_id_mapping_results_link(job_id)
+            results = get_id_mapping_results_search(link)
+            uniprot_names.update(extract_uniprot_names(results))
+    return uniprot_names
 
 def functionally_annotate_foldseek_hits(csv_file_path, num_workers=25, limit=None, threshold=None):
     
     foldseek_df = pd.read_csv(csv_file_path)
     
     if not threshold is None:
-        foldseek_df = foldseek_df[foldseek_df['evalue'] < threshold] #0.0001
-
-    # Extract PDB IDs and convert them to uppercase
-    foldseek_df['target_pdbID'] = foldseek_df['target'].str.split('-').str[0].str.upper()
-    
-    # Get unique PDB IDs from the DataFrame
-    unique_pdb_ids = foldseek_df['target_pdbID'].unique().tolist()
-    
-    if not limit is None:
-        #unique_pdb_ids = unique_pdb_ids[:limit]
-        unique_pdb_ids = random.sample(unique_pdb_ids, limit)
+        foldseek_df = foldseek_df[foldseek_df['evalue'] < threshold]
         
+    if not limit is None:
+        foldseek_df = foldseek_df.sample(n=limit)
+
+    # Extract PDB IDs and chain and convert them to uppercase
+    foldseek_df['target_pdbID'] = foldseek_df['target'].str.split('-').str[0].str.upper()
+    foldseek_df['chain'] = foldseek_df['target'].str.split('_').str[-1]
+    unique_pdb_ids = dict(zip(foldseek_df['target_pdbID'], foldseek_df['chain']))
+    
     print(f'Found {len(unique_pdb_ids)} unique target proteins')
 
     # Fetch UniProt mapping for the unique PDB IDs
     unique_pdb_mapping = pdb_to_uniprot(unique_pdb_ids)
+    #print(unique_pdb_mapping)
 
-    # Map the target PDB IDs to UniProt IDs using the unique_pdb_mapping
-    foldseek_df['target_uniprotID'] = foldseek_df['target_pdbID'].apply(
-        lambda pdb_id: unique_pdb_mapping.get(pdb_id, [pd.NA])[0])
-    
-    unique_pdb_ids = get_unique_uniprot_ids(unique_pdb_mapping)
-    target_metadata_df = fetch_and_aggregate_functional_data(unique_pdb_ids, num_workers=20)
-    
-    #display(target_metadata_df)
+    # Map the target PDB IDs and chains to UniProt IDs using the unique_pdb_mapping
+    foldseek_df['target_uniprotID'] = foldseek_df.apply(
+        lambda row: unique_pdb_mapping.get(f"{row['target_pdbID']}:{row['chain']}", pd.NA),
+        axis=1
+    )
+
     #display(foldseek_df)
-    
+    #display(unique_pdb_mapping)
+    unique_pdb_ids = get_unique_uniprot_ids(unique_pdb_mapping)
+    #print(unique_pdb_ids)
+    target_metadata_df = fetch_and_aggregate_functional_data(unique_pdb_ids, num_workers=20)
+    #display(target_metadata_df)
     merged_df = pd.merge(foldseek_df, target_metadata_df, left_on='target_uniprotID', right_on='UniProt ID')
-    
     return merged_df
 
-def perform_enrichment_analysis_v1(df, feature_columns):
+def _analyze_group(args):
+    group, total, feature_columns, query = args
     results = []
-    # Isolating each query
-    for query, group in df.groupby('query'):
-        total = df.shape[0]
-        group_total = group.shape[0]
-        
-        # Checking each feature category
-        for feature in feature_columns:
-            all_features = set(df[feature].explode().dropna().unique())
-            query_features = set(group[feature].explode().dropna().unique())
-            
-            for specific_feature in all_features:
-                observed_present = group[feature].apply(lambda x: specific_feature in x).sum()
-                observed_absent = group_total - observed_present
-                expected_present = df[feature].apply(lambda x: specific_feature in x).sum()
-                expected_absent = total - expected_present
-                
-                # Constructing the contingency table
-                contingency_table = [[observed_present, observed_absent],
-                                     [expected_present, expected_absent]]
-                
-                # Performing Fisher's Exact Test
-                odds_ratio, p_value = fisher_exact(contingency_table, 'greater')
-                
-                results.append({
-                    'query': query,
-                    'feature': specific_feature,
-                    'p_value': p_value,
-                    'category': feature
-                })
-    
-    # Converting results to DataFrame
-    results_df = pd.DataFrame(results)
-    
-    # Adjusting p-values for multiple testing
-    correction_method = 'fdr_bh'  # Benjamini/Hochberg (non-negative)
-    p_adjust = multipletests(results_df['p_value'], method=correction_method)
-    results_df['adjusted_p_value'] = p_adjust[1]
-    
-    return results_df
+    group_total = group.shape[0]
+    for feature in feature_columns:
+        try:
+            all_features = set(group[feature].explode().dropna().unique())
+        except TypeError:
+            all_features = set(group[feature].dropna().apply(lambda x: x if isinstance(x, list) else [x]).explode().unique())
+
+        for specific_feature in all_features:
+            observed_present = group[feature].apply(lambda x: specific_feature in x if isinstance(x, list) else specific_feature == x).sum()
+            observed_absent = group_total - observed_present
+            expected_present = group[feature].apply(lambda x: specific_feature in x if isinstance(x, list) else specific_feature == x).sum()
+            expected_absent = total - expected_present
+
+            contingency_table = [[observed_present, observed_absent], [expected_present, expected_absent]]
+            odds_ratio, p_value = fisher_exact(contingency_table, 'greater')
+
+            results.append({
+                'query': query,
+                'feature': specific_feature,
+                'p_value': p_value,
+                'category': feature
+            })
+    return results
 
 def perform_enrichment_analysis(df, num_workers=4):
-    
-    def _analyze_group(args):
-        group, total, feature_columns, query = args
-        results = []
-        group_total = group.shape[0]
-        for feature in feature_columns:
-            try:
-                all_features = set(group[feature].explode().dropna().unique())
-            except TypeError:
-                all_features = set(group[feature].dropna().apply(lambda x: x if isinstance(x, list) else [x]).explode().unique())
-
-            for specific_feature in all_features:
-                observed_present = group[feature].apply(lambda x: specific_feature in x if isinstance(x, list) else specific_feature == x).sum()
-                observed_absent = group_total - observed_present
-                expected_present = group[feature].apply(lambda x: specific_feature in x if isinstance(x, list) else specific_feature == x).sum()
-                expected_absent = total - expected_present
-
-                contingency_table = [[observed_present, observed_absent], [expected_present, expected_absent]]
-                odds_ratio, p_value = fisher_exact(contingency_table, 'greater')
-
-                results.append({
-                    'query': query,
-                    'feature': specific_feature,
-                    'p_value': p_value,
-                    'category': feature
-                })
-        return results
 
     exclude_columns = [
         'query', 'target', 'fident', 'alnlen', 'mismatch', 'gapopen', 'qstart', 'qend', 
@@ -483,68 +564,6 @@ def perform_enrichment_analysis(df, num_workers=4):
     results_df['adjusted_p_value'] = p_adjust[1]
     
     return results_df
-
-def visualize_heatmap(data, pivot_index, pivot_columns, values):
-    # Pivoting the data for heatmap
-    heatmap_data = data.pivot_table(index=pivot_index, columns=pivot_columns, values=values, aggfunc='first')
-    
-    # Create a figure and axes object
-    fig, ax = plt.subplots(figsize=(10, 8))
-    
-    # Create the heatmap on the specified axes
-    sns.heatmap(heatmap_data, annot=True, cmap='viridis', fmt=".2g", linewidths=.5, ax=ax)
-    
-    ax.set_title('Heatmap of Enriched Features Across Queries')
-    ax.set_ylabel('Query')
-    ax.set_xlabel('Feature')
-
-    # Return the figure object
-    return fig
-
-def visualize_bar_chart(data):
-    # Counting occurrences of significant features
-    feature_counts = data['feature'].value_counts().reset_index()
-    feature_counts.columns = ['feature', 'counts']
-    
-    # Create a figure and axes object
-    fig, ax = plt.subplots(figsize=(12, 8))
-    
-    # Create the bar plot on the specified axes
-    bar_plot = sns.barplot(x='counts', y='feature', data=feature_counts.head(20), ax=ax)
-    
-    # Optional: set color palette manually if needed
-    #bar_plot.set_palette(sns.color_palette("viridis", n_colors=20))
-    
-    ax.set_title('Top Enriched Features Across All Queries')
-    ax.set_xlabel('Counts of Significant Enrichment')
-    ax.set_ylabel('Features')
-    
-    # Properly setting the x-ticks and rotating them
-    ax.set_xticks(ax.get_xticks())  # This ensures the ticks are explicitly set
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-
-    # Return the figure object
-    return fig
-
-def visualize_dot_plot(data):
-    # Adjusting data for visualization
-    data['-log10(p_value)'] = -np.log10(data['adjusted_p_value'])
-
-    # Create a figure object
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    # Create the plot on the specified axes
-    sns.scatterplot(data=data, x='feature', y='query', size='-log10(p_value)', 
-                    legend=None, sizes=(20, 200), hue='category', ax=ax)
-
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-    ax.set_title('Dot Plot of Feature Enrichment Across Queries')
-    ax.set_xlabel('Feature')
-    ax.set_ylabel('Query')
-    ax.grid(True)
-
-    # Return the figure object
-    return fig
 
 def compare_features(enrichment_results, verbose=False):
     
@@ -630,6 +649,68 @@ def calculate_feature_metrics(comparison_df):
     metrics_df = pd.DataFrame(metrics)
 
     return metrics_df
+
+def visualize_heatmap(data, pivot_index, pivot_columns, values):
+    # Pivoting the data for heatmap
+    heatmap_data = data.pivot_table(index=pivot_index, columns=pivot_columns, values=values, aggfunc='first')
+    
+    # Create a figure and axes object
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    # Create the heatmap on the specified axes
+    sns.heatmap(heatmap_data, annot=True, cmap='viridis', fmt=".2g", linewidths=.5, ax=ax)
+    
+    ax.set_title('Heatmap of Enriched Features Across Queries')
+    ax.set_ylabel('Query')
+    ax.set_xlabel('Feature')
+
+    # Return the figure object
+    return fig
+
+def visualize_bar_chart(data):
+    # Counting occurrences of significant features
+    feature_counts = data['feature'].value_counts().reset_index()
+    feature_counts.columns = ['feature', 'counts']
+    
+    # Create a figure and axes object
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Create the bar plot on the specified axes
+    bar_plot = sns.barplot(x='counts', y='feature', data=feature_counts.head(20), ax=ax)
+    
+    # Optional: set color palette manually if needed
+    #bar_plot.set_palette(sns.color_palette("viridis", n_colors=20))
+    
+    ax.set_title('Top Enriched Features Across All Queries')
+    ax.set_xlabel('Counts of Significant Enrichment')
+    ax.set_ylabel('Features')
+    
+    # Properly setting the x-ticks and rotating them
+    ax.set_xticks(ax.get_xticks())  # This ensures the ticks are explicitly set
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+
+    # Return the figure object
+    return fig
+
+def visualize_dot_plot(data):
+    # Adjusting data for visualization
+    data['-log10(p_value)'] = -np.log10(data['adjusted_p_value'])
+
+    # Create a figure object
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    # Create the plot on the specified axes
+    sns.scatterplot(data=data, x='feature', y='query', size='-log10(p_value)', 
+                    legend=None, sizes=(20, 200), hue='category', ax=ax)
+
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    ax.set_title('Dot Plot of Feature Enrichment Across Queries')
+    ax.set_xlabel('Feature')
+    ax.set_ylabel('Query')
+    ax.grid(True)
+
+    # Return the figure object
+    return fig
     
 
 # Set up directories
@@ -640,12 +721,12 @@ align_to_database(structure_fldr_path, base_dir, cores=25)
 
 foldseek_csv_path = f'{base_dir}/results/pdb/aln_tmscore.csv'
 
-results = functionally_annotate_foldseek_hits(foldseek_csv_path, limit=1000)
+results = functionally_annotate_foldseek_hits(foldseek_csv_path, limit=None, threshold=None)
 #display(results)
 
-feature_columns = ['GO Biological Process', 'GO Cellular Component', 'GO Molecular Function']
-enrichment_results = perform_enrichment_analysis(results, feature_columns)
+enrichment_results = perform_enrichment_analysis(results, num_workers=25)
 filtered_results = enrichment_results[enrichment_results['adjusted_p_value'] < 0.05]
+filtered_results = filtered_results[filtered_results['feature'].str.strip().astype(bool)]
 #display(filtered_results)
 
 fldr = os.path.dirname(foldseek_csv_path)
