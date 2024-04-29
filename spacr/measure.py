@@ -731,7 +731,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                             png_channels = data[:, :, settings['png_dims']].astype(data_type)
 
                             if settings['normalize_by'] == 'fov':
-                                percentiles_list = _get_percentiles(png_channels, settings['normalize_percentiles'][0],q2=settings['normalize_percentiles'][1])
+                                percentiles_list = _get_percentiles(png_channels, settings['normalize'][0],q2=settings['normalize'][1])
 
                             png_channels = _crop_center(png_channels, region, new_width=width, new_height=height)
 

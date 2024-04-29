@@ -1315,7 +1315,7 @@ def preprocess_img_data(settings):
             print('Found existing channel_stack folder.')
         if os.path.exists(src+'/norm_channel_stack'):
             print('Found existing norm_channel_stack folder. Skipping preprocessing')
-            return
+            return settings, src
         
     cmap = 'inferno'
     figuresize = 20

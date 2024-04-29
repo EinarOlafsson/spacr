@@ -15,6 +15,7 @@ dependencies = [
     'scikit-learn>=1.4.1',
     'seaborn>=0.13.2',
     'matplotlib>=3.8.3',
+    'shap'>='0.45.0',
     'pillow>=10.2.0',
     'imageio>=2.34.0',
     'scipy>=1.12.0',
