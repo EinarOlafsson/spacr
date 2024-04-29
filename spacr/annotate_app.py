@@ -38,7 +38,7 @@ class ImageApp:
     - db_update_thread (threading.Thread): A thread for updating the database.
     """
 
-    def _init_(self, root, db_path, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate'):
+    def __init__(self, root, db_path, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate'):
         """
         Initializes an instance of the ImageApp class.
 
@@ -383,7 +383,7 @@ def annotate(db, image_type=None, channels=None, geom="1000x1100", img_size=(200
     root = tk.Tk()
     root.geometry(geom)
     app = ImageApp(root, db, image_type=image_type, channels=channels, image_size=img_size, grid_rows=rows, grid_cols=columns, annotation_column=annotation_column)
-    
+    #app = ImageApp()
     next_button = tk.Button(root, text="Next", command=app.next_page)
     next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
     back_button = tk.Button(root, text="Back", command=app.previous_page)

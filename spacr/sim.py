@@ -1294,13 +1294,21 @@ def run_multiple_simulations(settings):
         with Pool(max_workers) as pool:
             result = pool.starmap_async(run_and_save, [(index, settings, time_ls, total_sims) for index, settings in enumerate(sim_ls)])
             while not result.ready():
-                sleep(0.01)
-                sims_processed = len(time_ls)
-                average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-                time_left = (((total_sims - sims_processed) * average_time) / max_workers) / 60
-                print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
-                gc.collect()
-            result.get()
+                try:
+                    sleep(0.01)
+                    sims_processed = len(time_ls)
+                    average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+                    time_left = (((total_sims - sims_processed) * average_time) / max_workers) / 60
+                    print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
+                    gc.collect()
+                except Exception as e:
+                    print(e)
+                    print(traceback.format_exc())
+            try:
+                result.get()
+            except Exception as e:
+                print(e)
+                print(traceback.format_exc())
             
 def generate_integers(start, stop, step):
     return list(range(start, stop + 1, step))

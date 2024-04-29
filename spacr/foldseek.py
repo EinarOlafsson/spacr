@@ -7,6 +7,21 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
+import requests, time, random
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+import pandas as pd
+from scipy.stats import fisher_exact
+from statsmodels.stats.multitest import multipletests
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import pandas as pd
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import FixedLocator
+
 def run_command(command):
     print(f"Executing: {command}")
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
@@ -121,7 +136,10 @@ def align_to_database(structure_fldr_path, base_dir='/home/carruthers/foldseek',
         if not run_command(f"foldseek aln2tmscore {queryDB} {targetDB} {aln} {aln_tmscore} --threads {cores}"):
             raise Exception("Foldseek aln2tmscore against PDB failed.")
 
-        if not run_command(f"foldseek createtsv {queryDB} {targetDB} {aln} {aln_tmscore} {aln_tmscore_tsv}"):
+        
+        output_format = "query,target,fident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
+        
+        if not run_command(f"foldseek createtsv {queryDB} {targetDB} {aln} {aln_tmscore} {aln_tmscore_tsv} --format-output {output_format}"):
             raise Exception("Foldseek createtsv against PDB failed.")
 
         input_tsv_path = f"{results_dir}/aln_tmscore"
@@ -712,54 +730,64 @@ def visualize_dot_plot(data):
     # Return the figure object
     return fig
     
+def analyze_results(foldseek_csv_path, base_dir):
+
+    results = functionally_annotate_foldseek_hits(foldseek_csv_path, limit=None, threshold=None)
+    #display(results)
+
+    enrichment_results = perform_enrichment_analysis(results, num_workers=25)
+    filtered_results = enrichment_results[enrichment_results['adjusted_p_value'] < 0.05]
+    filtered_results = filtered_results[filtered_results['feature'].str.strip().astype(bool)]
+    #display(filtered_results)
+
+    fldr = os.path.dirname(foldseek_csv_path)
+
+    heatmap_path = os.path.join(fldr, 'heatmap.pdf')
+    bar_path = os.path.join(fldr, 'bar.pdf')
+    dot_path = os.path.join(fldr, 'dot.pdf')
+
+    heatmap_fig = visualize_heatmap(filtered_results, 'query', 'feature', 'adjusted_p_value')
+    bar_fig = visualize_bar_chart(filtered_results)
+    dot_fig = visualize_dot_plot(filtered_results)
+
+    heatmap_fig.savefig(heatmap_path, bbox_inches='tight')
+    bar_fig.savefig(bar_path, bbox_inches='tight')
+    dot_fig.savefig(dot_path, bbox_inches='tight')
+
+    comparison_results = compare_features(filtered_results)
+    #display(comparison_results)
+    feature_metrics_results = calculate_feature_metrics(comparison_results)
+    #display(feature_metrics_results)
+
+    fldr = os.path.dirname(foldseek_csv_path)
+
+    merged_path = os.path.join(fldr, 'merged.csv')
+    enrichment_path = os.path.join(fldr, 'enrichment.csv')
+    comparison_path = os.path.join(fldr, 'comparison.csv')
+
+    results.to_csv(merged_path, index=False)
+    filtered_results.to_csv(enrichment_path, index=False)
+    comparison_results.to_csv(comparison_path, index=False)
+
+    print(f'saved to results to {merged_path}')
+    print(f'saved to enrichment results to {enrichment_path}')
+    print(f'saved to comparison results to {comparison_path}')
+
+    #display(functional_data_df)
 
 # Set up directories
 structure_fldr_path = "/home/carruthers/Downloads/ME49_proteome/cif"
 base_dir='/home/carruthers/foldseek/me49'
 
 align_to_database(structure_fldr_path, base_dir, cores=25)
+#foldseek_csv_path = f'{base_dir}/results/pdb/aln_tmscore.csv'
+#analyze_results(foldseek_csv_path, base_dir)
 
-foldseek_csv_path = f'{base_dir}/results/pdb/aln_tmscore.csv'
+# Set up directories
+structure_fldr_path = "/home/carruthers/Downloads/GT1_proteome/cif"
+base_dir='/home/carruthers/foldseek/gt1'
 
-results = functionally_annotate_foldseek_hits(foldseek_csv_path, limit=None, threshold=None)
-#display(results)
+align_to_database(structure_fldr_path, base_dir, cores=25)
+#foldseek_csv_path = f'{base_dir}/results/pdb/aln_tmscore.csv'
+#analyze_results(foldseek_csv_path, base_dir)
 
-enrichment_results = perform_enrichment_analysis(results, num_workers=25)
-filtered_results = enrichment_results[enrichment_results['adjusted_p_value'] < 0.05]
-filtered_results = filtered_results[filtered_results['feature'].str.strip().astype(bool)]
-#display(filtered_results)
-
-fldr = os.path.dirname(foldseek_csv_path)
-
-heatmap_path = os.path.join(fldr, 'heatmap.pdf')
-bar_path = os.path.join(fldr, 'bar.pdf')
-dot_path = os.path.join(fldr, 'dot.pdf')
-
-heatmap_fig = visualize_heatmap(filtered_results, 'query', 'feature', 'adjusted_p_value')
-bar_fig = visualize_bar_chart(filtered_results)
-dot_fig = visualize_dot_plot(filtered_results)
-
-heatmap_fig.savefig(heatmap_path, bbox_inches='tight')
-bar_fig.savefig(bar_path, bbox_inches='tight')
-dot_fig.savefig(dot_path, bbox_inches='tight')
-
-comparison_results = compare_features(filtered_results)
-#display(comparison_results)
-feature_metrics_results = calculate_feature_metrics(comparison_results)
-#display(feature_metrics_results)
-
-fldr = os.path.dirname(foldseek_csv_path)
-
-merged_path = os.path.join(fldr, 'merged.csv')
-enrichment_path = os.path.join(fldr, 'enrichment.csv')
-comparison_path = os.path.join(fldr, 'comparison.csv')
-
-results.to_csv(merged_path, index=False)
-filtered_results.to_csv(enrichment_path, index=False)
-comparison_results.to_csv(comparison_path, index=False)
-
-print(f'saved to results to {merged_path}')
-print(f'saved to enrichment results to {enrichment_path}')
-print(f'saved to comparison results to {comparison_path}')
-
-#display(functional_data_df)
