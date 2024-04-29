@@ -1930,14 +1930,18 @@ def identify_masks_finetune(settings):
     test = False
 
     os.makedirs(dst, exist_ok=True)
-    
+
+    if not custom_model is None:
+        if not os.path.exists(custom_model):
+            print(f'Custom model not found: {custom_model}')
+            return 
+
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if custom_model == None:
-        #torch.cuda.is_available()
         model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
         print(f'Loaded model: {model_name}')
     else:
@@ -2911,6 +2915,7 @@ def compare_mask(args):
 
 def compare_cellpose_masks(src, verbose=False, processes=None):
     from .plot import visualize_cellpose_masks, plot_comparison_results
+    from .io import _read_mask
     dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
     dirs.sort()  # Optional: sort directories if needed
     conditions = [os.path.basename(d) for d in dirs]
