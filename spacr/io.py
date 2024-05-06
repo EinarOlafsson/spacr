@@ -2385,6 +2385,8 @@ def convert_numpy_to_tiff(folder_path, limit=None):
     for i, filename in enumerate(files):
         if limit is not None and i >= limit:
             break
+        if not filename.endswith('.npy'):
+            continue
 
         # Construct the full file path
         file_path = os.path.join(folder_path, filename)
