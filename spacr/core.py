@@ -1785,6 +1785,7 @@ def preprocess_generate_masks(src, settings={}):
     from .plot import plot_merged, plot_arrays
     from .utils import _pivot_counts_table
 
+    settings['plot'] = False
     settings['fps'] = 2
     settings['remove_background'] = True
     settings['lower_quantile'] = 0.02
@@ -1799,6 +1800,15 @@ def preprocess_generate_masks(src, settings={}):
     settings['src'] = src
     settings['upscale'] = False
     settings['upscale_factor'] = 2.0
+
+    settings['randomize'] = True
+    settings['timelapse'] = False
+    settings['timelapse_displacement'] = None
+    settings['timelapse_memory'] = 3
+    settings['timelapse_frame_limits'] = None
+    settings['timelapse_remove_transient'] = False
+    settings['timelapse_mode'] = 'trackpy'
+    settings['timelapse_objects'] = ['cells']
 
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_csv = os.path.join(src,'settings','preprocess_generate_masks_settings.csv')
@@ -1868,7 +1878,6 @@ def preprocess_generate_masks(src, settings={}):
                                  'cell_mask_dim':cell_mask_dim,
                                  'nucleus_mask_dim':nucleus_mask_dim,
                                  'pathogen_mask_dim':pathogen_mask_dim,
-                                 'overlay_chans':[0,2,3],
                                  'outline_thickness':3,
                                  'outline_color':'gbr',
                                  'overlay_chans':overlay_channels,
@@ -1880,6 +1889,10 @@ def preprocess_generate_masks(src, settings={}):
                                  'figuresize':20,
                                  'cmap':'inferno',
                                  'verbose':False}
+                
+                if settings['test_mode'] == True:
+                    plot_settings['nr'] = len(os.path.join(src,'merged'))
+
                 try:
                     fig = plot_merged(src=os.path.join(src,'merged'), settings=plot_settings)
                 except Exception as e:
@@ -2227,214 +2240,6 @@ def all_elements_match(list1, list2):
     # Check if all elements in list1 are in list2
     return all(element in list2 for element in list1)
 
-def generate_cellpose_masks_v1(src, settings, object_type):
-    
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels, mask_object_count
-    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
-    from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
-    from .plot import plot_masks
-    
-    gc.collect()
-    if not torch.cuda.is_available():
-        print(f'Torch CUDA is not available, using CPU')
-        
-    figuresize=25
-    timelapse = settings['timelapse']
-    
-    if timelapse:
-        timelapse_displacement = settings['timelapse_displacement']
-        timelapse_frame_limits = settings['timelapse_frame_limits']
-        timelapse_memory = settings['timelapse_memory']
-        timelapse_remove_transient = settings['timelapse_remove_transient']
-        timelapse_mode = settings['timelapse_mode']
-        timelapse_objects = settings['timelapse_objects']
-    
-    batch_size = settings['batch_size']
-    cellprob_threshold = settings[f'{object_type}_CP_prob']
-    flow_threshold = 30
-    
-    object_settings = _get_object_settings(object_type, settings)
-    model_name = object_settings['model_name']
-    
-    cellpose_channels = _get_cellpose_channels(src, settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel'])
-    if settings['verbose']:
-        print(cellpose_channels)
-    channels = cellpose_channels[object_type]
-    cellpose_batch_size = _get_cellpose_batch_size()
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = cp_models.Cellpose(gpu=True, model_type=model_name, device=device) #net_avg=net_avg
-    #dn = denoise.CellposeDenoiseModel(model_type=f"denoise_{model_name}", gpu=True, device=device)
-    
-    chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
-    
-    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
-    
-    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
-    os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
-    _create_database(count_loc)
-    
-    average_sizes = []
-    time_ls = []
-
-    for file_index, path in enumerate(paths):
-        name = os.path.basename(path)
-        name, ext = os.path.splitext(name)
-        output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
-        os.makedirs(output_folder, exist_ok=True)
-        overall_average_size = 0
-        with np.load(path) as data:
-            stack = data['data']
-            filenames = data['filenames']
-        if settings['timelapse']:
-
-            trackable_objects = ['cell','nucleus','pathogen']
-            if not all_elements_match(settings['timelapse_objects'], trackable_objects):
-                print(f'timelapse_objects {settings["timelapse_objects"]} must be a subset of {trackable_objects}')
-                return
-
-            if len(stack) != batch_size:
-                print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
-                settings['timelapse_batch_size'] = len(stack)
-                batch_size = len(stack)
-                if isinstance(timelapse_frame_limits, list):
-                    if len(timelapse_frame_limits) >= 2:
-                        stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1], :, :, :].astype(stack.dtype)
-                        filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
-                        batch_size = len(stack)
-                        print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
-
-        for i in range(0, stack.shape[0], batch_size):
-            mask_stack = []
-            start = time.time()
-
-            if stack.shape[3] == 1:
-                batch = stack[i: i+batch_size, :, :, [0,0]].astype(stack.dtype)
-            else:
-                batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
-
-            batch_filenames = filenames[i: i+batch_size].tolist()
-
-            if not settings['plot']:
-                batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
-            if batch.size == 0:
-                print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
-                continue
-            if batch.max() > 1:
-                batch = batch / batch.max()
-
-            if timelapse:
-                stitch_threshold=100.0
-                movie_path = os.path.join(os.path.dirname(src), 'movies')
-                os.makedirs(movie_path, exist_ok=True)
-                save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
-                _npz_to_movie(batch, batch_filenames, save_path, fps=2)
-            else:
-                stitch_threshold=0.0
-
-            print('batch.shape',batch.shape)
-            masks, flows, _, _ = model.eval(x=batch,
-                                            batch_size=cellpose_batch_size,
-                                            normalize=False,
-                                            channels=chans,
-                                            channel_axis=3,
-                                            diameter=object_settings['diameter'],
-                                            flow_threshold=flow_threshold,
-                                            cellprob_threshold=cellprob_threshold,
-                                            rescale=None,
-                                            resample=object_settings['resample'],
-                                            stitch_threshold=stitch_threshold)
-            
-            if timelapse:
-                if settings['plot']:
-                    for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
-                        if idx == 0:
-                            num_objects = mask_object_count(mask)
-                            print(f'Number of objects: {num_objects}')
-                            plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
-
-                _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
-                if object_type in timelapse_objects:
-                    if timelapse_mode == 'btrack':
-                        if not timelapse_displacement is None:
-                            radius = timelapse_displacement
-                        else:
-                            radius = 100
-
-                        workers = os.cpu_count()-2
-                        if workers < 1:
-                            workers = 1
-
-                        mask_stack = _btrack_track_cells(src=src,
-                                                         name=name,
-                                                         batch_filenames=batch_filenames,
-                                                         object_type=object_type,
-                                                         plot=settings['plot'],
-                                                         save=settings['save'],
-                                                         masks_3D=masks,
-                                                         mode=timelapse_mode,
-                                                         timelapse_remove_transient=timelapse_remove_transient,
-                                                         radius=radius,
-                                                         workers=workers)
-                    if timelapse_mode == 'trackpy':
-                        mask_stack = _trackpy_track_cells(src=src,
-                                                          name=name,
-                                                          batch_filenames=batch_filenames,
-                                                          object_type=object_type,
-                                                          masks=masks,
-                                                          timelapse_displacement=timelapse_displacement,
-                                                          timelapse_memory=timelapse_memory,
-                                                          timelapse_remove_transient=timelapse_remove_transient,
-                                                          plot=settings['plot'],
-                                                          save=settings['save'],
-                                                          mode=timelapse_mode)
-                else:
-                    mask_stack = _masks_to_masks_stack(masks)
-
-            else:
-                _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
-                mask_stack = _filter_cp_masks(masks=masks,
-                                              flows=flows,
-                                              filter_size=object_settings['filter_size'],
-                                              filter_intensity=object_settings['filter_intensity'],
-                                              minimum_size=object_settings['minimum_size'],
-                                              maximum_size=object_settings['maximum_size'],
-                                              remove_border_objects=object_settings['remove_border_objects'],
-                                              merge=False,
-                                              batch=batch,
-                                              plot=settings['plot'],
-                                              figuresize=figuresize)
-                
-                _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
-
-            if not np.any(mask_stack):
-                average_obj_size = 0
-            else:
-                average_obj_size = _get_avg_object_size(mask_stack)
-
-            average_sizes.append(average_obj_size) 
-            overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
-
-        stop = time.time()
-        duration = (stop - start)
-        time_ls.append(duration)
-        average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-        time_in_min = average_time/60
-        time_per_mask = average_time/batch_size
-        print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
-        if not timelapse:
-            if settings['plot']:
-                plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap='inferno', nr=batch_size)
-        if settings['save']:
-            for mask_index, mask in enumerate(mask_stack):
-                output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                np.save(output_filename, mask)
-            mask_stack = []
-            batch_filenames = []
-        gc.collect()
-    torch.cuda.empty_cache()
-    return
-
 def generate_cellpose_masks(src, settings, object_type):
     
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels, _choose_model, mask_object_count
@@ -2598,20 +2403,43 @@ def generate_cellpose_masks(src, settings, object_type):
 
             else:
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
-                mask_stack = _filter_cp_masks(masks=masks,
-                                              flows=flows,
-                                              filter_size=object_settings['filter_size'],
-                                              filter_intensity=object_settings['filter_intensity'],
-                                              minimum_size=object_settings['minimum_size'],
-                                              maximum_size=object_settings['maximum_size'],
-                                              remove_border_objects=object_settings['remove_border_objects'],
-                                              merge=False,
-                                              batch=batch,
-                                              plot=settings['plot'],
-                                              figuresize=figuresize)
-                
-                _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
+                if object_settings['merge'] and not settings['filter']:
+                    mask_stack = _filter_cp_masks(masks=masks,
+                                                flows=flows,
+                                                filter_size=False,
+                                                filter_intensity=False,
+                                                minimum_size=object_settings['minimum_size'],
+                                                maximum_size=object_settings['maximum_size'],
+                                                remove_border_objects=False,
+                                                merge=object_settings['merge'],
+                                                batch=batch,
+                                                plot=settings['plot'],
+                                                figuresize=figuresize)
 
+                if settings['filter']:
+                    mask_stack = _filter_cp_masks(masks=masks,
+                                                flows=flows,
+                                                filter_size=object_settings['filter_size'],
+                                                filter_intensity=object_settings['filter_intensity'],
+                                                minimum_size=object_settings['minimum_size'],
+                                                maximum_size=object_settings['maximum_size'],
+                                                remove_border_objects=object_settings['remove_border_objects'],
+                                                merge=object_settings['merge'],
+                                                batch=batch,
+                                                plot=settings['plot'],
+                                                figuresize=figuresize)
+                    
+                    _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
+                else:
+                    mask_stack = _masks_to_masks_stack(masks)
+
+                    if settings['plot']:
+                        for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
+                            if idx == 0:
+                                num_objects = mask_object_count(mask)
+                                print(f'Number of objects, : {num_objects}')
+                                plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+        
             if not np.any(mask_stack):
                 average_obj_size = 0
             else:

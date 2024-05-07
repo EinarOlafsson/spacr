@@ -526,6 +526,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
 
 @log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
+
     """
     Measure and crop the images based on specified settings.
 
@@ -624,9 +625,8 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cytoplasm_min_size'] is not None and settings['cytoplasm_min_size'] != 0:
             cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
 
-        if settings['cell_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
-            if settings['include_uninfected'] == False:
-                cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, include_uninfected=False)
+        #if settings['cell_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
+        cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, include_uninfected=settings['include_uninfected'])
 
         # Update data with the new masks
         if settings['cell_mask_dim'] is not None:
@@ -788,6 +788,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                                     conn.commit()
                                 except sqlite3.OperationalError as e:
                                     print(f"SQLite error: {e}", flush=True)
+                                    traceback.print_exc()
 
                             if settings['plot']:
                                 _plot_cropped_arrays(png_channels)
@@ -819,14 +820,13 @@ def _measure_crop_core(index, time_ls, file, settings):
     return average_time, cells
 
 @log_function_call
-def measure_crop(settings, annotation_settings, advanced_settings):
+def measure_crop(settings):
+    
     """
     Measure the crop of an image based on the provided settings.
 
     Args:
         settings (dict): The settings for measuring the crop.
-        annotation_settings (dict): The annotation settings.
-        advanced_settings (dict): The advanced settings.
 
     Returns:
         None
@@ -845,19 +845,6 @@ def measure_crop(settings, annotation_settings, advanced_settings):
     from .plot import _save_scimg_plot
     from .utils import _list_endpoint_subdirectories, _generate_representative_images
     
-    settings = {**settings, **annotation_settings, **advanced_settings}
-    
-    dirname = os.path.dirname(settings['input_folder'])
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
-    os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
-    settings_df.to_csv(settings_csv, index=False)
-
-    if settings['timelapse_objects'] == 'nucleus':
-        if not settings['cell_mask_dim'] is None:
-            tlo = settings['timelapse_objects']
-            print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
-
     #general settings
     settings['merge_edge_pathogen_cells'] = True
     settings['radial_dist'] = True
@@ -866,6 +853,26 @@ def measure_crop(settings, annotation_settings, advanced_settings):
     settings['homogeneity'] = True
     settings['homogeneity_distances'] = [8,16,32]
     settings['save_arrays'] = False
+
+    settings['dialate_pngs'] = False
+    settings['dialate_png_ratios'] = [0.2]
+    settings['timelapse'] = False
+    settings['representative_images'] = False
+    settings['timelapse_objects'] = 'cell'
+    settings['max_workers'] = os.cpu_count()-2
+    settings['experiment'] = 'test'
+    settings['cells'] = 'HeLa'
+    settings['cell_loc'] = None
+    settings['pathogens'] = ['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO']
+    settings['pathogen_loc'] = [['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], ['c7', 'c8', 'c9', 'c10', 'c11', 'c12'], ['c13', 'c14', 'c15', 'c16', 'c17', 'c18'], ['c19', 'c20', 'c21', 'c22', 'c23', 'c24']]
+    settings['treatments'] = ['BR1', 'BR2', 'BR3']
+    settings['treatment_loc'] = [['c1', 'c2', 'c7', 'c8', 'c13', 'c14', 'c19', 'c20'], ['c3', 'c4', 'c9', 'c10', 'c15', 'c16', 'c21', 'c22'], ['c5', 'c6', 'c11', 'c12', 'c17', 'c18', 'c23', 'c24']]
+    settings['channel_of_interest'] = 2
+    settings['compartments'] = ['pathogen', 'cytoplasm']
+    settings['measurement'] = 'mean_intensity'
+    settings['nr_imgs'] = 32
+    settings['um_per_pixel'] = 0.1
+    settings['center_crop'] = True
     
     if settings['cell_mask_dim'] is None:
         settings['include_uninfected'] = True
@@ -878,7 +885,18 @@ def measure_crop(settings, annotation_settings, advanced_settings):
     else:
         settings['cytoplasm'] = False
 
-    settings['center_crop'] = True
+    #settings = {**settings, **annotation_settings, **advanced_settings}
+    
+    dirname = os.path.dirname(settings['input_folder'])
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
+    os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
+    settings_df.to_csv(settings_csv, index=False)
+
+    if settings['timelapse_objects'] == 'nucleus':
+        if not settings['cell_mask_dim'] is None:
+            tlo = settings['timelapse_objects']
+            print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
 
     int_setting_keys = ['cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim', 'cell_min_size', 'nucleus_min_size', 'pathogen_min_size', 'cytoplasm_min_size']
     
