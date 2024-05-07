@@ -1356,6 +1356,8 @@ def preprocess_img_data(settings):
         print(f'regex mode:{metadata_type} regex:{regex}')
 
     if settings.get('test_mode', False):
+        print(f'Running spacr in test mode')
+        settings['plot'] = True
         try:
             os.rmdir(os.path.join(src, 'test'))
             print(f"Deleted test directory: {os.path.join(src, 'test')}")

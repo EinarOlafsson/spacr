@@ -580,7 +580,7 @@ def measure_crop_wrapper(settings, q, fig_queue):
 
     try:
         print('start')
-        spacr.measure.measure_crop(settings=settings, annotation_settings={}, advanced_settings={})
+        spacr.measure.measure_crop(settings=settings)
     except Exception as e:
         errorMessage = f"Error during processing: {e}"
         q.put(errorMessage)  # Send the error message to the GUI via the queue

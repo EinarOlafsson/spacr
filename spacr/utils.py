@@ -782,7 +782,7 @@ def _get_object_settings(object_type, settings):
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
     object_settings['minimum_size'] = (object_settings['diameter']**2)/5
-    object_settings['maximum_size'] = (object_settings['diameter']**2)*3
+    object_settings['maximum_size'] = (object_settings['diameter']**2)*10
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
@@ -808,6 +808,7 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_size'] = True
         object_settings['filter_intensity'] = True
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
+        object_settings['merge'] = settings['merge_pathogens']
         
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
@@ -2669,6 +2670,13 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
             print(f'Number of objects before filtration: {num_objects}')
             plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
+        if merge:
+            mask = merge_touching_objects(mask, threshold=0.33)
+            if plot and idx == 0:
+                num_objects = mask_object_count(mask)
+                print(f'Number of objects after merging adjacent objects, : {num_objects}')
+                plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+
         if filter_size:
             props = measure.regionprops_table(mask, properties=['label', 'area'])
             valid_labels = props['label'][np.logical_and(props['area'] > minimum_size, props['area'] < maximum_size)] 
@@ -2712,13 +2720,6 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
                 print(f'Number of objects after removing border objects, : {num_objects}')
-                plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
-        
-        if merge:
-            mask = merge_touching_objects(mask, threshold=0.25)
-            if plot and idx == 0:
-                num_objects = mask_object_count(mask)
-                print(f'Number of objects after merging adjacent objects, : {num_objects}')
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
         
         mask_stack.append(mask)
@@ -2789,6 +2790,7 @@ def _run_test_mode(src, regex, timelapse=False):
     
     # Prepare for random selection
     set_identifiers = list(images_by_set.keys())
+    random.seed(42)
     random.shuffle(set_identifiers)  # Randomize the order
     
     # Select a subset based on the test_images count
