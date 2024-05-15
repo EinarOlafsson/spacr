@@ -12,6 +12,8 @@ from scipy.ndimage import binary_dilation
 from skimage.segmentation import find_boundaries
 from skimage.feature import graycomatrix, graycoprops
 from mahotas.features import zernike_moments
+from skimage import morphology, measure, filters
+from skimage.util import img_as_bool
 
 from .logger import log_function_call
 
@@ -91,6 +93,69 @@ def _calculate_zernike(mask, df, degree=8):
         return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
     else:
         return df
+
+def _analyze_cytoskeleton(array, mask, channel):
+    """
+    Analyzes and extracts skeleton properties from labeled objects in a masked image based on microtubule staining intensities.
+
+    Parameters:
+    image : numpy array
+        Intensity image where the microtubules are stained.
+    mask : numpy array
+        Mask where objects are labeled for analysis. Each label corresponds to a unique object.
+
+    Returns:
+    DataFrame
+        A pandas DataFrame containing the measured properties of each object's skeleton.
+    """
+
+    image = array[:, :, channel]
+
+    properties_list = []
+
+    # Process each object in the mask based on its label
+    for label in np.unique(mask):
+        if label == 0:
+            continue  # Skip background
+
+        # Isolate the object using the label
+        object_region = mask == label
+        region_intensity = np.where(object_region, image, 0)  # Use np.where for more efficient masking
+
+        # Ensure there are non-zero values to process
+        if np.any(region_intensity):
+            # Calculate adaptive offset based on intensity percentiles within the object
+            valid_pixels = region_intensity[region_intensity > 0]
+            if len(valid_pixels) > 1:  # Ensure there are enough pixels to compute percentiles
+                offset = np.percentile(valid_pixels, 90) - np.percentile(valid_pixels, 50)
+                block_size = 35  # Adjust this based on your object sizes and detail needs
+                local_thresh = filters.threshold_local(region_intensity, block_size=block_size, offset=offset)
+                cytoskeleton = region_intensity > local_thresh
+
+                # Skeletonize the thresholded cytoskeleton
+                skeleton = morphology.skeletonize(img_as_bool(cytoskeleton))
+
+                # Measure properties of the skeleton
+                skeleton_props = measure.regionprops(measure.label(skeleton), intensity_image=image)
+                skeleton_length = sum(prop.area for prop in skeleton_props)  # Sum of lengths of all skeleton segments
+                branch_data = morphology.skeleton_branch_analysis(skeleton)
+
+                # Store properties
+                properties = {
+                    "object_label": label,
+                    "skeleton_length": skeleton_length,
+                    "skeleton_branch_points": len(branch_data['branch_points'])
+                }
+                properties_list.append(properties)
+            else:
+                # Handle cases with insufficient pixels
+                properties_list.append({
+                    "object_label": label,
+                    "skeleton_length": 0,
+                    "skeleton_branch_points": 0
+                })
+
+    return pd.DataFrame(properties_list)
 
 @log_function_call
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings, zernike=True, degree=8):
@@ -625,8 +690,8 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cytoplasm_min_size'] is not None and settings['cytoplasm_min_size'] != 0:
             cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
 
-        #if settings['cell_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
-        cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, include_uninfected=settings['include_uninfected'])
+        if settings['cell_mask_dim'] is not None:
+            cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, include_uninfected=settings['include_uninfected'])
 
         # Update data with the new masks
         if settings['cell_mask_dim'] is not None:
@@ -645,6 +710,10 @@ def _measure_crop_core(index, time_ls, file, settings):
 
             cell_df, nucleus_df, pathogen_df, cytoplasm_df = _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings)
 
+            #if settings['skeleton']:
+                #skeleton_df = _analyze_cytoskeleton(image=channel_arrays, mask=cell_mask, channel=1)
+                #merge skeleton_df with cell_df here
+
             cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
             if settings['cell_mask_dim'] is not None:
                 cell_merged_df = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'])
@@ -658,7 +727,6 @@ def _measure_crop_core(index, time_ls, file, settings):
             if settings['cytoplasm']:
                 cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'])
 
-        
         if settings['save_png'] or settings['save_arrays'] or settings['plot']:
 
             if isinstance(settings['dialate_pngs'], bool):

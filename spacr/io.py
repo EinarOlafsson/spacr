@@ -1323,8 +1323,10 @@ def preprocess_img_data(settings):
     save_dtype = 'uint16'
     correct_illumination = False
     
-    mask_channels = [settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel']]
-    backgrounds = [settings['nucleus_background'], settings['pathogen_background'], settings['cell_background']]
+    #mask_channels = [settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel']]
+    #backgrounds = [settings['nucleus_background'], settings['pathogen_background'], settings['cell_background']]
+    mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
+    backgrounds = [settings['nucleus_background'], settings['cell_background'], settings['pathogen_background']]
     
     metadata_type = settings['metadata_type']
     custom_regex = settings['custom_regex']

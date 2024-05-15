@@ -1043,7 +1043,7 @@ def _reg_v_plot(df, grouping, variable, plate_number):
     plt.axhline(y=-np.log10(0.05), color='gray', linestyle='--')  # line for p=0.05
     plt.show()
     
-def generate_plate_heatmap(df, plate_number, variable, grouping, min_max):
+def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
     df = df.copy()  # Work on a copy to avoid SettingWithCopyWarning
     df['plate'], df['row'], df['col'] = zip(*df['prc'].str.split('_'))
     
@@ -1056,15 +1056,21 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max):
     
     df['row'] = pd.Categorical(df['row'], categories=row_order, ordered=True)
     df['col'] = pd.Categorical(df['col'], categories=col_order, ordered=True)
-    
+    df['count'] = df.groupby(['row', 'col'])['row'].transform('count')
+
+    if min_count > 0:
+        df = df[df['count'] >= min_count]
+
     # Explicitly set observed=True to avoid FutureWarning
-    grouped = df.groupby(['row', 'col'], observed=True)  
+    grouped = df.groupby(['row', 'col'], observed=True) 
+
     
     if grouping == 'mean':
         plate = grouped[variable].mean().reset_index()
     elif grouping == 'sum':
         plate = grouped[variable].sum().reset_index()
     elif grouping == 'count':
+        variable = 'count'
         plate = grouped[variable].count().reset_index()
     else:
         raise ValueError(f"Unsupported grouping: {grouping}")
@@ -1074,21 +1080,24 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max):
     if min_max == 'all':
         min_max = [plate_map.min().min(), plate_map.max().max()]
     elif min_max == 'allq':
-        min_max = np.quantile(plate_map.values, [0.2, 0.98])
-    elif min_max == 'plate':
-        min_max = [plate_map.min().min(), plate_map.max().max()]
+        min_max = np.quantile(plate_map.values, [0.02, 0.98])
+    elif isinstance(min_max, (list, tuple)) and len(min_max) == 2:
+        if isinstance(min_max[0], (float)) and isinstance(min_max[1], (float)):
+            min_max = np.quantile(plate_map.values, [min_max[0], min_max[1]])
+        if isinstance(min_max[0], (int)) and isinstance(min_max[1], (int)): 
+            min_max = [min_max[0], min_max[1]]
         
     return plate_map, min_max
 
-def _plot_plates(df, variable, grouping, min_max, cmap):
+def _plot_plates(df, variable, grouping, min_max, cmap, min_count=0):
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
     ax = ax.flatten()
 
     for index, plate in enumerate(plates):
-        plate_map, min_max_values = generate_plate_heatmap(df, plate, variable, grouping, min_max)
-        sns.heatmap(plate_map, cmap=cmap, vmin=0, vmax=2, ax=ax[index])
+        plate_map, min_max_values = generate_plate_heatmap(df, plate, variable, grouping, min_max, min_count)
+        sns.heatmap(plate_map, cmap=cmap, vmin=min_max_values[0], vmax=min_max_values[1], ax=ax[index])
         ax[index].set_title(plate)
         
     for i in range(len(plates), n_rows * n_cols):
@@ -1096,7 +1105,26 @@ def _plot_plates(df, variable, grouping, min_max, cmap):
     
     plt.subplots_adjust(wspace=0.1, hspace=0.4)
     plt.show()
-    return
+    return fig
+
+#def plate_heatmap(src, variable='recruitment', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, verbose=False):
+#    db_loc = [src+'/measurements/measurements.db']
+#    tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
+#    include_multinucleated, include_multiinfected, include_noninfected = True, 2.0, True
+#    df, _ = spacr.io._read_and_merge_data(db_loc, 
+#                                 tables,
+#                                 verbose=verbose,
+#                                 include_multinucleated=include_multinucleated,
+#                                 include_multiinfected=include_multiinfected,
+#                                 include_noninfected=include_noninfected)
+#    
+#    df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_outside_75_percentile']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
+#
+#    spacr.plot._plot_plates(df, variable, grouping, min_max, cmap, min_count)
+#    #display(df)
+#    #for col in df.columns:
+#    #    print(col)
+#    return
 
 #from finetune cellpose
 #def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
