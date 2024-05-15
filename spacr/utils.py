@@ -71,7 +71,8 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
         outline = np.zeros_like(mask, dtype=np.uint8)  # Use uint8 for contour detection efficiency
 
         # Find and draw contours
-        for j in np.unique(mask)[1:]:
+        for j in np.unique(mask):
+        #for j in np.unique(mask)[1:]:
             contours = find_contours(mask == j, 0.5)
             # Convert contours for OpenCV format and draw directly to optimize
             cv_contours = [np.flip(contour.astype(int), axis=1) for contour in contours]
