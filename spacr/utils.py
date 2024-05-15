@@ -781,7 +781,7 @@ def _get_object_settings(object_type, settings):
     object_settings = {}
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
-    object_settings['minimum_size'] = (object_settings['diameter']**2)/5
+    object_settings['minimum_size'] = (object_settings['diameter']**2)/4
     object_settings['maximum_size'] = (object_settings['diameter']**2)*10
     object_settings['merge'] = False
     object_settings['resample'] = True
@@ -793,20 +793,20 @@ def _get_object_settings(object_type, settings):
             object_settings['model_name'] = 'cyto'
         else:
             object_settings['model_name'] = 'cyto2'
-        object_settings['filter_size'] = True
-        object_settings['filter_intensity'] = True
+        object_settings['filter_size'] = False
+        object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
 
     elif object_type == 'nucleus':
         object_settings['model_name'] = 'nuclei'
-        object_settings['filter_size'] = True
-        object_settings['filter_intensity'] = True
+        object_settings['filter_size'] = False
+        object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
 
     elif object_type == 'pathogen':
         object_settings['model_name'] = 'cyto'
         object_settings['filter_size'] = True
-        object_settings['filter_intensity'] = True
+        object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         object_settings['merge'] = settings['merge_pathogens']
         
@@ -885,17 +885,15 @@ def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel)
         
     if not pathogen_channel is None:
         if not nucleus_channel is None:
-            cellpose_channels['pathogen'] = [0,1]
+            if not pathogen_channel is None:
+                cellpose_channels['pathogen'] = [0,2]
+            else:
+                cellpose_channels['pathogen'] = [0,1]
         else:
             cellpose_channels['pathogen'] = [0,0]
         
     if not cell_channel is None:
         if not nucleus_channel is None:
-            if not pathogen_channel is None:
-                cellpose_channels['cell'] = [0,2]
-            else:
-                cellpose_channels['cell'] = [0,1]
-        elif not pathogen_channel is None:
             cellpose_channels['cell'] = [0,1]
         else:
             cellpose_channels['cell'] = [0,0]
@@ -2671,7 +2669,7 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
             plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
         if merge:
-            mask = merge_touching_objects(mask, threshold=0.33)
+            mask = merge_touching_objects(mask, threshold=0.66)
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
                 print(f'Number of objects after merging adjacent objects, : {num_objects}')

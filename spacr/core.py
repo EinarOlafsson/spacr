@@ -1,4 +1,4 @@
-import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime
+import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap
 
 # image and array processing
 import numpy as np
@@ -29,9 +29,17 @@ matplotlib.use('Agg')
 
 import torchvision.transforms as transforms
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import  IsolationForest
+from sklearn.ensemble import  IsolationForest, RandomForestClassifier, HistGradientBoostingClassifier
 from .logger import log_function_call
 
+from sklearn.linear_model import LogisticRegression
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
+from xgboost import XGBClassifier
+
+from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
+from sklearn.preprocessing import StandardScaler
+import shap
 
 def analyze_plaques(folder):
     summary_data = []
@@ -1714,15 +1722,30 @@ def analyze_recruitment(src, metadata_settings, advanced_settings):
     df = df.dropna(subset=['condition'])
     print(f'After dropping non-annotated wells: {len(df)} rows')
     files = df['file_name'].tolist()
+    print(f'found: {len(files)} files')
     files = [item + '.npy' for item in files]
     random.shuffle(files)
-    
+
+    _max = 10**100
+
+    if cell_size_range is None and nucleus_size_range is None and pathogen_size_range is None:
+        filter_min_max = None
+    else:
+        if cell_size_range is None:
+            cell_size_range = [0,_max]
+        if nucleus_size_range is None:
+            nucleus_size_range = [0,_max]
+        if pathogen_size_range is None:
+            pathogen_size_range = [0,_max]
+
+        filter_min_max = [[cell_size_range[0],cell_size_range[1]],[nucleus_size_range[0],nucleus_size_range[1]],[pathogen_size_range[0],pathogen_size_range[1]]]
+
     if plot:
         plot_settings = {'include_noninfected':include_noninfected, 
                          'include_multiinfected':include_multiinfected,
                          'include_multinucleated':include_multinucleated,
                          'remove_background':remove_background,
-                         'filter_min_max':[[cell_size_range[0],cell_size_range[1]],[nucleus_size_range[0],nucleus_size_range[1]],[pathogen_size_range[0],pathogen_size_range[1]]],
+                         'filter_min_max':filter_min_max,
                          'channel_dims':channel_dims,
                          'backgrounds':backgrounds,
                          'cell_mask_dim':mask_dims[0],
@@ -2355,7 +2378,6 @@ def generate_cellpose_masks(src, settings, object_type):
                                             stitch_threshold=stitch_threshold)
             
             if timelapse:
-
                 if settings['plot']:
                     for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
                         if idx == 0:
@@ -2400,7 +2422,6 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           mode=timelapse_mode)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
-
             else:
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 if object_settings['merge'] and not settings['filter']:
@@ -2771,3 +2792,340 @@ def compare_cellpose_masks(src, verbose=False, processes=None):
     fig = plot_comparison_results(results)
     return results, fig
 
+
+def _calculate_similarity(df, features, col_to_compare, val1, val2):
+    """
+    Calculate similarity scores of each well to the positive and negative controls using various metrics.
+    
+    Args:
+    df (pandas.DataFrame): DataFrame containing the data.
+    features (list): List of feature columns to use for similarity calculation.
+    col_to_compare (str): Column name to use for comparing groups.
+    val1, val2 (str): Values in col_to_compare to create subsets for comparison.
+
+    Returns:
+    pandas.DataFrame: DataFrame with similarity scores.
+    """
+    # Separate positive and negative control wells
+    pos_control = df[df[col_to_compare] == val1][features].mean()
+    neg_control = df[df[col_to_compare] == val2][features].mean()
+    
+    # Standardize features for Mahalanobis distance
+    scaler = StandardScaler()
+    scaled_features = scaler.fit_transform(df[features])
+    
+    # Regularize the covariance matrix to avoid singularity
+    cov_matrix = np.cov(scaled_features, rowvar=False)
+    inv_cov_matrix = None
+    try:
+        inv_cov_matrix = np.linalg.inv(cov_matrix)
+    except np.linalg.LinAlgError:
+        # Add a small value to the diagonal elements for regularization
+        epsilon = 1e-5
+        inv_cov_matrix = np.linalg.inv(cov_matrix + np.eye(cov_matrix.shape[0]) * epsilon)
+    
+    # Calculate similarity scores
+    df['similarity_to_pos_euclidean'] = df[features].apply(lambda row: euclidean(row, pos_control), axis=1)
+    df['similarity_to_neg_euclidean'] = df[features].apply(lambda row: euclidean(row, neg_control), axis=1)
+    df['similarity_to_pos_cosine'] = df[features].apply(lambda row: cosine(row, pos_control), axis=1)
+    df['similarity_to_neg_cosine'] = df[features].apply(lambda row: cosine(row, neg_control), axis=1)
+    df['similarity_to_pos_mahalanobis'] = df[features].apply(lambda row: mahalanobis(row, pos_control, inv_cov_matrix), axis=1)
+    df['similarity_to_neg_mahalanobis'] = df[features].apply(lambda row: mahalanobis(row, neg_control, inv_cov_matrix), axis=1)
+    df['similarity_to_pos_manhattan'] = df[features].apply(lambda row: cityblock(row, pos_control), axis=1)
+    df['similarity_to_neg_manhattan'] = df[features].apply(lambda row: cityblock(row, neg_control), axis=1)
+    df['similarity_to_pos_minkowski'] = df[features].apply(lambda row: minkowski(row, pos_control, p=3), axis=1)
+    df['similarity_to_neg_minkowski'] = df[features].apply(lambda row: minkowski(row, neg_control, p=3), axis=1)
+    df['similarity_to_pos_chebyshev'] = df[features].apply(lambda row: chebyshev(row, pos_control), axis=1)
+    df['similarity_to_neg_chebyshev'] = df[features].apply(lambda row: chebyshev(row, neg_control), axis=1)
+    df['similarity_to_pos_hamming'] = df[features].apply(lambda row: hamming(row, pos_control), axis=1)
+    df['similarity_to_neg_hamming'] = df[features].apply(lambda row: hamming(row, neg_control), axis=1)
+    df['similarity_to_pos_jaccard'] = df[features].apply(lambda row: jaccard(row, pos_control), axis=1)
+    df['similarity_to_neg_jaccard'] = df[features].apply(lambda row: jaccard(row, neg_control), axis=1)
+    df['similarity_to_pos_braycurtis'] = df[features].apply(lambda row: braycurtis(row, pos_control), axis=1)
+    df['similarity_to_neg_braycurtis'] = df[features].apply(lambda row: braycurtis(row, neg_control), axis=1)
+    
+    return df
+
+def _permutation_importance(df, feature_string='channel_3', col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, n_estimators=100, test_size=0.2, random_state=42, model_type='xgboost', n_jobs=-1):
+    
+    """
+    Calculates permutation importance for numerical features in the dataframe,
+    comparing groups based on specified column values and uses the model to predict 
+    the class for all other rows in the dataframe.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    feature_string (str): String to filter features that contain this substring.
+    col_to_compare (str): Column name to use for comparing groups.
+    pos, neg (str): Values in col_to_compare to create subsets for comparison.
+    exclude (list or str, optional): Columns to exclude from features.
+    n_repeats (int): Number of repeats for permutation importance.
+    clean (bool): Whether to remove columns with a single value.
+    nr_to_plot (int): Number of top features to plot based on permutation importance.
+    n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
+    test_size (float): Proportion of the dataset to include in the test split.
+    random_state (int): Random seed for reproducibility.
+    model_type (str): Type of model to use ('random_forest', 'logistic_regression', 'gradient_boosting', 'xgboost').
+    n_jobs (int): Number of jobs to run in parallel for applicable models.
+
+    Returns:
+    pandas.DataFrame: The original dataframe with added prediction and data usage columns.
+    pandas.DataFrame: DataFrame containing the importances and standard deviations.
+    """
+
+    # Subset the dataframe based on specified column values
+    df1 = df[df[col_to_compare] == pos].copy()
+    df2 = df[df[col_to_compare] == neg].copy()
+
+    # Create target variable
+    df1['target'] = 1
+    df2['target'] = 0
+
+    # Combine the subsets for analysis
+    combined_df = pd.concat([df1, df2])
+
+    # Automatically select numerical features
+    features = combined_df.select_dtypes(include=[np.number]).columns.tolist()
+    features.remove('target')
+
+    if clean:
+        combined_df = combined_df.loc[:, combined_df.nunique() > 1]
+        features = [feature for feature in features if feature in combined_df.columns]
+        
+    if feature_string is not None:
+        features = [feature for feature in features if feature_string in feature]
+
+    if exclude:
+        if isinstance(exclude, list):
+            features = [feature for feature in features if feature not in exclude]
+        else:
+            features.remove(exclude)
+
+    X = combined_df[features]
+    y = combined_df['target']
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    
+    # Label the data in the original dataframe
+    combined_df['data_usage'] = 'train'
+    combined_df.loc[X_test.index, 'data_usage'] = 'test'
+
+    # Initialize the model based on model_type
+    if model_type == 'random_forest':
+        model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
+    elif model_type == 'logistic_regression':
+        model = LogisticRegression(max_iter=1000, random_state=random_state, n_jobs=n_jobs)
+    elif model_type == 'gradient_boosting':
+        model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)  # Supports n_jobs internally
+    elif model_type == 'xgboost':
+        model = XGBClassifier(n_estimators=n_estimators, random_state=random_state, nthread=n_jobs, use_label_encoder=False, eval_metric='logloss')
+    else:
+        raise ValueError(f"Unsupported model_type: {model_type}")
+
+    model.fit(X_train, y_train)
+
+    perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
+
+    # Create a DataFrame for permutation importances
+    permutation_df = pd.DataFrame({
+        'feature': [features[i] for i in perm_importance.importances_mean.argsort()],
+        'importance_mean': perm_importance.importances_mean[perm_importance.importances_mean.argsort()],
+        'importance_std': perm_importance.importances_std[perm_importance.importances_mean.argsort()]
+    }).tail(nr_to_plot)
+
+    # Plotting
+    fig, ax = plt.subplots()
+    ax.barh(permutation_df['feature'], permutation_df['importance_mean'], xerr=permutation_df['importance_std'], color="teal", align="center", alpha=0.6)
+    ax.set_xlabel('Permutation Importance')
+    plt.tight_layout()
+    plt.show()
+    
+    # Feature importance for models that support it
+    if model_type in ['random_forest', 'xgboost', 'gradient_boosting']:
+        feature_importances = model.feature_importances_
+        feature_importance_df = pd.DataFrame({
+            'feature': features,
+            'importance': feature_importances
+        }).sort_values(by='importance', ascending=False).head(nr_to_plot)
+        
+        # Plotting feature importance
+        fig, ax = plt.subplots()
+        ax.barh(feature_importance_df['feature'], feature_importance_df['importance'], color="blue", align="center", alpha=0.6)
+        ax.set_xlabel('Feature Importance')
+        plt.tight_layout()
+        plt.show()
+    else:
+        feature_importance_df = pd.DataFrame()
+
+    # Predicting the target variable for the test set
+    predictions_test = model.predict(X_test)
+    combined_df.loc[X_test.index, 'predictions'] = predictions_test
+
+    # Predicting the target variable for the training set
+    predictions_train = model.predict(X_train)
+    combined_df.loc[X_train.index, 'predictions'] = predictions_train
+
+    # Predicting the target variable for all other rows in the dataframe
+    X_all = df[features]
+    all_predictions = model.predict(X_all)
+    df['predictions'] = all_predictions
+
+    # Combine data usage labels back to the original dataframe
+    combined_data_usage = pd.concat([combined_df[['data_usage']], df[['predictions']]], axis=0)
+    df = df.join(combined_data_usage, how='left', rsuffix='_model')
+
+    # Calculating and printing the accuracy metrics
+    accuracy = accuracy_score(y_test, predictions_test)
+    precision = precision_score(y_test, predictions_test)
+    recall = recall_score(y_test, predictions_test)
+    f1 = f1_score(y_test, predictions_test)
+    print(f"Accuracy: {accuracy}")
+    print(f"Precision: {precision}")
+    print(f"Recall: {recall}")
+    print(f"F1 Score: {f1}")
+    
+    # Printing class-specific accuracy metrics
+    print("\nClassification Report:")
+    print(classification_report(y_test, predictions_test))
+
+    df = _calculate_similarity(df, features, col_to_compare, pos, neg)
+
+    return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test]
+
+def _shap_analysis(model, X_train, X_test):
+    
+    """
+    Performs SHAP analysis on the given model and data.
+
+    Args:
+    model: The trained model.
+    X_train (pandas.DataFrame): Training feature set.
+    X_test (pandas.DataFrame): Testing feature set.
+    """
+
+    explainer = shap.Explainer(model, X_train)
+    shap_values = explainer(X_test)
+
+    # Summary plot
+    shap.summary_plot(shap_values, X_test)
+
+def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, feature_string='channel_3', col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
+    from .io import _read_and_merge_data
+    from .plot import _plot_plates
+
+    db_loc = [src+'/measurements/measurements.db']
+    tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
+    include_multinucleated, include_multiinfected, include_noninfected = True, 2.0, True
+    
+    df, _ = _read_and_merge_data(db_loc, 
+                                 tables,
+                                 verbose=verbose,
+                                 include_multinucleated=include_multinucleated,
+                                 include_multiinfected=include_multiinfected,
+                                 include_noninfected=include_noninfected)
+    
+    df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_mean_intensity']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
+    feature_string = f'channel_{channel_of_interest}'
+    output = _permutation_importance(df, feature_string, col_to_compare, pos, neg, exclude, n_repeats, clean, nr_to_plot, n_estimators=n_estimators, random_state=42, model_type=model_type, n_jobs=n_jobs)
+    
+    _shap_analysis(output[3], output[4], output[5])
+
+    features = output[0].select_dtypes(include=[np.number]).columns.tolist()
+
+    if not variable in features:
+        raise ValueError(f"Variable {variable} not found in the dataframe. Please choose one of the following: {features}")
+    
+    plate_heatmap = _plot_plates(output[0], variable, grouping, min_max, cmap, min_count)
+    return [output, plate_heatmap]
+
+def join_measurments_and_annotation(src, tables = ['cell', 'nucleus', 'pathogen','cytoplasm']):
+    
+    from .io import _read_and_merge_data, _read_db
+    
+    db_loc = [src+'/measurements/measurements.db']
+    loc = src+'/measurements/measurements.db'
+    df, _ = _read_and_merge_data(db_loc, 
+                                 tables, 
+                                 verbose=True, 
+                                 include_multinucleated=True, 
+                                 include_multiinfected=True, 
+                                 include_noninfected=True)
+    
+    paths_df = _read_db(loc, tables=['png_list'])
+
+    merged_df = pd.merge(df, paths_df[0], on='prcfo', how='left')
+
+    return merged_df
+
+def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', output_path=None, filter_column=None, filter_values=None):
+    """
+    Reads a CSV file and creates a jitter plot of one column grouped by another column.
+    
+    Args:
+    src (str): Path to the source data.
+    x_column (str): Name of the column to be used for the x-axis.
+    y_column (str): Name of the column to be used for the y-axis.
+    plot_title (str): Title of the plot. Default is 'Jitter Plot'.
+    output_path (str): Path to save the plot image. If None, the plot will be displayed. Default is None.
+    
+    Returns:
+    pd.DataFrame: The filtered and balanced DataFrame.
+    """
+    # Read the CSV file into a DataFrame
+    df = join_measurments_and_annotation(src, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+
+    # Print column names for debugging
+    print(f"Generated dataframe with: {df.shape[1]} columns and {df.shape[0]} rows")
+    #print("Columns in DataFrame:", df.columns.tolist())
+
+    # Replace NaN values with a specific label in x_column
+    df[x_column] = df[x_column].fillna('NaN')
+
+    # Filter the DataFrame if filter_column and filter_values are provided
+    if not filter_column is None:
+        if isinstance(filter_column, str):
+            df = df[df[filter_column].isin(filter_values)]
+        if isinstance(filter_column, list):
+            for i,val in enumerate(filter_column):
+                print(f'hello {len(df)}')
+                df = df[df[val].isin(filter_values[i])]
+
+    # Use the correct column names based on your DataFrame
+    required_columns = ['plate_x', 'row_x', 'col_x']
+    if not all(column in df.columns for column in required_columns):
+        raise KeyError(f"DataFrame does not contain the necessary columns: {required_columns}")
+
+    # Filter to retain rows with non-NaN values in x_column and with matching plate, row, col values
+    non_nan_df = df[df[x_column] != 'NaN']
+    retained_rows = df[df[['plate_x', 'row_x', 'col_x']].apply(tuple, axis=1).isin(non_nan_df[['plate_x', 'row_x', 'col_x']].apply(tuple, axis=1))]
+
+    # Determine the minimum count of examples across all groups in x_column
+    min_count = retained_rows[x_column].value_counts().min()
+    print(f'Found {min_count} annotated images')
+
+    # Randomly sample min_count examples from each group in x_column
+    balanced_df = retained_rows.groupby(x_column).apply(lambda x: x.sample(min_count, random_state=42)).reset_index(drop=True)
+
+    # Create the jitter plot
+    plt.figure(figsize=(10, 6))
+    jitter_plot = sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column, jitter=True, palette='viridis', dodge=False)
+    plt.title(plot_title)
+    plt.xlabel(x_column)
+    plt.ylabel(y_column)
+    
+    # Customize the x-axis labels
+    plt.xticks(rotation=45, ha='right')
+    
+    # Adjust the position of the x-axis labels to be centered below the data
+    ax = plt.gca()
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='center')
+    
+    # Save the plot to a file or display it
+    if output_path:
+        plt.savefig(output_path, bbox_inches='tight')
+        print(f"Jitter plot saved to {output_path}")
+    else:
+        plt.show()
+
+    return balanced_df
