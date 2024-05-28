@@ -1,4 +1,4 @@
-import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap
+import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap, string
 
 # image and array processing
 import numpy as np
@@ -1079,30 +1079,38 @@ def annotate_results(pred_loc):
     display(df)
     return df
 
-def generate_dataset(src, file_type=None, experiment='TSG101_screen', sample=None):
+def generate_dataset(src, file_metadata=None, experiment='TSG101_screen', sample=None):
     
-    from .utils import init_globals, add_images_to_tar
-	
-    db_path = os.path.join(src, 'measurements','measurements.db')
+    from .utils import initiate_counter, add_images_to_tar
+    
+    db_path = os.path.join(src, 'measurements', 'measurements.db')
     dst = os.path.join(src, 'datasets')
-	
-    global total_images
     all_paths = []
-    
+
     # Connect to the database and retrieve the image paths
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path) as conn:
-        cursor = conn.cursor()
-        if file_type:
-            cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_type}%",))
-        else:
-            cursor.execute("SELECT png_path FROM png_list")
-        while True:
-            rows = cursor.fetchmany(1000)
-            if not rows:
-                break
-            all_paths.extend([row[0] for row in rows])
-    
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            if file_metadata:
+                if isinstance(file_metadata, str):
+                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
+            else:
+                cursor.execute("SELECT png_path FROM png_list")
+
+            while True:
+                rows = cursor.fetchmany(1000)
+                if not rows:
+                    break
+                all_paths.extend([row[0] for row in rows])
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+
     if isinstance(sample, int):
         selected_paths = random.sample(all_paths, sample)
         print(f'Random selection of {len(selected_paths)} paths')
@@ -1110,23 +1118,18 @@ def generate_dataset(src, file_type=None, experiment='TSG101_screen', sample=Non
         selected_paths = all_paths
         random.shuffle(selected_paths)
         print(f'All paths: {len(selected_paths)} paths')
-        
+
     total_images = len(selected_paths)
-    print(f'found {total_images} images')
-    
+    print(f'Found {total_images} images')
+
     # Create a temp folder in dst
     temp_dir = os.path.join(dst, "temp_tars")
     os.makedirs(temp_dir, exist_ok=True)
 
     # Chunking the data
-    if len(selected_paths) > 10000:
-        num_procs = cpu_count()-2
-        chunk_size = len(selected_paths) // num_procs
-        remainder = len(selected_paths) % num_procs
-    else:
-        num_procs = 2
-        chunk_size = len(selected_paths) // 2
-        remainder = 0
+    num_procs = max(2, cpu_count() - 2)
+    chunk_size = len(selected_paths) // num_procs
+    remainder = len(selected_paths) % num_procs
 
     paths_chunks = []
     start = 0
@@ -1136,45 +1139,43 @@ def generate_dataset(src, file_type=None, experiment='TSG101_screen', sample=Non
         start = end
 
     temp_tar_files = [os.path.join(temp_dir, f'temp_{i}.tar') for i in range(num_procs)]
-    
-    # Initialize the shared objects
-    counter_ = Value('i', 0)
-    lock_ = Lock()
 
-    ctx = multiprocessing.get_context('spawn')
-    
     print(f'Generating temporary tar files in {dst}')
-    
+
+    # Initialize shared counter and lock
+    counter = Value('i', 0)
+    lock = Lock()
+
+    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
+        pool.starmap(add_images_to_tar, [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)])
+
     # Combine the temporary tar files into a final tar
     date_name = datetime.date.today().strftime('%y%m%d')
-    tar_name = f'{date_name}_{experiment}_{file_type}.tar'
+    if not file_metadata is None:
+        tar_name = f'{date_name}_{experiment}_{file_metadata}.tar'
+    else:
+        tar_name = f'{date_name}_{experiment}.tar'
+    tar_name = os.path.join(dst, tar_name)
     if os.path.exists(tar_name):
         number = random.randint(1, 100)
-        tar_name_2 = f'{date_name}_{experiment}_{file_type}_{number}.tar'
-        print(f'Warning: {os.path.basename(tar_name)} exists saving as {os.path.basename(tar_name_2)} ')
-        tar_name = tar_name_2
-    
-    # Add the counter and lock to the arguments for pool.map
-    print(f'Merging temporary files')
-    #with Pool(processes=num_procs, initializer=init_globals, initargs=(counter_, lock_)) as pool:
-    #    results = pool.map(add_images_to_tar, zip(paths_chunks, temp_tar_files))
+        tar_name_2 = f'{date_name}_{experiment}_{file_metadata}_{number}.tar'
+        print(f'Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ')
+        tar_name = os.path.join(dst, tar_name_2)
 
-    with ctx.Pool(processes=num_procs, initializer=init_globals, initargs=(counter_, lock_)) as pool:
-        results = pool.map(add_images_to_tar, zip(paths_chunks, temp_tar_files))
-    
-    with tarfile.open(os.path.join(dst, tar_name), 'w') as final_tar:
-        for tar_path in results:
-            with tarfile.open(tar_path, 'r') as t:
-                for member in t.getmembers():
-                    t.extract(member, path=dst)
-                    final_tar.add(os.path.join(dst, member.name), arcname=member.name)
-                    os.remove(os.path.join(dst, member.name))
-            os.remove(tar_path)
+    print(f'Merging temporary files')
+
+    with tarfile.open(tar_name, 'w') as final_tar:
+        for temp_tar_path in temp_tar_files:
+            with tarfile.open(temp_tar_path, 'r') as temp_tar:
+                for member in temp_tar.getmembers():
+                    file_obj = temp_tar.extractfile(member)
+                    final_tar.addfile(member, file_obj)
+            os.remove(temp_tar_path)
 
     # Delete the temp folder
     shutil.rmtree(temp_dir)
-    print(f"\nSaved {total_images} images to {os.path.join(dst, tar_name)}")
-    
+    print(f"\nSaved {total_images} images to {tar_name}")
+
 def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', num_workers=10, verbose=False):
     
     from .io import TarImageDataset, DataLoader
@@ -1410,7 +1411,14 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
     
     db_path = os.path.join(src, 'measurements','measurements.db')
     dst = os.path.join(src, 'datasets', 'training')
-    
+
+    if os.path.exists(dst):
+        for i in range(1, 1000):
+            dst = os.path.join(src, 'datasets', f'training_{i}')
+            if not os.path.exists(dst):
+                print(f'Creating new directory for training: {dst}')
+                break
+                
     if mode == 'annotation':
         class_paths_ls_2 = []
         class_paths_ls = training_dataset_from_annotation(db_path, dst, annotation_column, annotated_classes=annotated_classes)
@@ -1421,6 +1429,7 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
 
     elif mode == 'metadata':
         class_paths_ls = []
+        class_len_ls = []
         [df] = _read_db(db_loc=db_path, tables=['png_list'])
         df['metadata_based_class'] = pd.NA
         for i, class_ in enumerate(classes):
@@ -1428,7 +1437,18 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
             df.loc[df[metadata_type_by].isin(ls), 'metadata_based_class'] = class_
             
         for class_ in classes:
+            if size == None:
+                c_s = []
+                for c in classes:
+                    c_s_t_df = df[df['metadata_based_class'] == c]
+                    c_s.append(len(c_s_t_df))
+                    print(f'Found {len(c_s_t_df)} images for class {c}')
+                size = min(c_s)
+                print(f'Using the smallest class size: {size}')
+
             class_temp_df = df[df['metadata_based_class'] == class_]
+            class_len_ls.append(len(class_temp_df))
+            print(f'Found {len(class_temp_df)} images for class {class_}')
             class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), size)
             class_paths_ls.append(class_paths_temp)
     
@@ -1485,7 +1505,7 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
     
     return
 
-def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, verbose=False):
+def generate_loaders_v1(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, verbose=False):
     """
     Generate data loaders for training and validation/test datasets.
 
@@ -1604,6 +1624,173 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
                 label_strings = [str(label.item()) for label in labels]
                 _imshow(images, label_strings, nrow=20, fontsize=12)
 
+        elif train_mode == 'irm':
+            for plate_name, train_loader in zip(plate_names, train_loaders):
+                print(f'Plate: {plate_name} with {len(train_loader.dataset)} images')
+                for idx, (images, labels, filenames) in enumerate(train_loader):
+                    if idx >= max_show:
+                        break
+                    images = images.cpu()
+                    label_strings = [str(label.item()) for label in labels]
+                    _imshow(images, label_strings, nrow=20, fontsize=12)
+    
+    return train_loaders, val_loaders, plate_names
+
+def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], verbose=False):
+    
+    """
+    Generate data loaders for training and validation/test datasets.
+
+    Parameters:
+    - src (str): The source directory containing the data.
+    - train_mode (str): The training mode. Options are 'erm' (Empirical Risk Minimization) or 'irm' (Invariant Risk Minimization).
+    - mode (str): The mode of operation. Options are 'train' or 'test'.
+    - image_size (int): The size of the input images.
+    - batch_size (int): The batch size for the data loaders.
+    - classes (list): The list of classes to consider.
+    - num_workers (int): The number of worker threads for data loading.
+    - validation_split (float): The fraction of data to use for validation when train_mode is 'erm'.
+    - max_show (int): The maximum number of images to show when verbose is True.
+    - pin_memory (bool): Whether to pin memory for faster data transfer.
+    - normalize (bool): Whether to normalize the input images.
+    - verbose (bool): Whether to print additional information and show images.
+    - channels (list): The list of channels to retain. Options are [1, 2, 3] for all channels, [1, 2] for blue and green, etc.
+
+    Returns:
+    - train_loaders (list): List of data loaders for training datasets.
+    - val_loaders (list): List of data loaders for validation datasets.
+    - plate_names (list): List of plate names (only applicable when train_mode is 'irm').
+    """
+
+    from .io import MyDataset
+    from .plot import _imshow
+    from torchvision import transforms
+    from torch.utils.data import DataLoader, random_split
+    from collections import defaultdict
+    import os
+    import random
+    from PIL import Image
+    from torchvision.transforms import ToTensor
+
+    chans = []
+
+    if 'r' in channels:
+        chans.append(1)
+    if 'g' in channels:
+        chans.append(2)
+    if 'b' in channels:
+        chans.append(3)
+
+    channels = chans
+
+    if verbose:
+        print(f'Training a network on channels: {channels}')
+        print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
+
+    class SelectChannels:
+        def __init__(self, channels):
+            self.channels = channels
+        
+        def __call__(self, img):
+            img = img.clone()
+            if 1 not in self.channels:
+                img[0, :, :] = 0  # Zero out the red channel
+            if 2 not in self.channels:
+                img[1, :, :] = 0  # Zero out the green channel
+            if 3 not in self.channels:
+                img[2, :, :] = 0  # Zero out the blue channel
+            return img
+
+    plate_to_filenames = defaultdict(list)
+    plate_to_labels = defaultdict(list)
+    train_loaders = []
+    val_loaders = []
+    plate_names = []
+
+    if normalize:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels)])
+
+    if mode == 'train':
+        data_dir = os.path.join(src, 'train')
+        shuffle = True
+        print('Generating Train and validation datasets')
+    elif mode == 'test':
+        data_dir = os.path.join(src, 'test')
+        val_loaders = []
+        validation_split = 0.0
+        shuffle = True
+        print('Generating test dataset')
+    else:
+        print(f'mode:{mode} is not valid, use mode = train or test')
+        return
+
+    if train_mode == 'erm':
+        data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
+        if validation_split > 0:
+            train_size = int((1 - validation_split) * len(data))
+            val_size = len(data) - train_size
+
+            print(f'Train data:{train_size}, Validation data:{val_size}')
+
+            train_dataset, val_dataset = random_split(data, [train_size, val_size])
+
+            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+        else:
+            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+        
+    elif train_mode == 'irm':
+        data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
+        
+        for filename, label in zip(data.filenames, data.labels):
+            plate = data.get_plate(filename)
+            plate_to_filenames[plate].append(filename)
+            plate_to_labels[plate].append(label)
+
+        for plate, filenames in plate_to_filenames.items():
+            labels = plate_to_labels[plate]
+            plate_data = MyDataset(data_dir, classes, specific_files=filenames, specific_labels=labels, transform=transform, shuffle=False, pin_memory=pin_memory)
+            plate_names.append(plate)
+
+            if validation_split > 0:
+                train_size = int((1 - validation_split) * len(plate_data))
+                val_size = len(plate_data) - train_size
+
+                print(f'Train data:{train_size}, Validation data:{val_size}')
+
+                train_dataset, val_dataset = random_split(plate_data, [train_size, val_size])
+
+                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+
+                train_loaders.append(train_loader)
+                val_loaders.append(val_loader)
+            else:
+                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+                train_loaders.append(train_loader)
+                val_loaders.append(None)
+    
+    else:
+        print(f'train_mode:{train_mode} is not valid, use: train_mode = irm or erm')
+        return
+
+    if verbose:
+        if train_mode == 'erm':
+            for idx, (images, labels, filenames) in enumerate(train_loaders):
+                if idx >= max_show:
+                    break
+                images = images.cpu()
+                label_strings = [str(label.item()) for label in labels]
+                _imshow(images, label_strings, nrow=20, fontsize=12)
         elif train_mode == 'irm':
             for plate_name, train_loader in zip(plate_names, train_loaders):
                 print(f'Plate: {plate_name} with {len(train_loader.dataset)} images')
@@ -2846,7 +3033,7 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     
     return df
 
-def _permutation_importance(df, feature_string='channel_3', col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, n_estimators=100, test_size=0.2, random_state=42, model_type='xgboost', n_jobs=-1):
+def _permutation_importance(df, feature_string='channel_3', col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=30, n_estimators=100, test_size=0.2, random_state=42, model_type='xgboost', n_jobs=-1):
     
     """
     Calculates permutation importance for numerical features in the dataframe,
@@ -2873,13 +3060,16 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
     pandas.DataFrame: DataFrame containing the importances and standard deviations.
     """
 
+    if 'cells_per_well' in df.columns:
+        df = df.drop(columns=['cells_per_well'])
+
     # Subset the dataframe based on specified column values
     df1 = df[df[col_to_compare] == pos].copy()
     df2 = df[df[col_to_compare] == neg].copy()
 
     # Create target variable
-    df1['target'] = 1
-    df2['target'] = 0
+    df1['target'] = 0
+    df2['target'] = 1
 
     # Combine the subsets for analysis
     combined_df = pd.concat([df1, df2])
@@ -2893,7 +3083,18 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
         features = [feature for feature in features if feature in combined_df.columns]
         
     if feature_string is not None:
+        feature_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3']
+
+        # Remove feature_string from the list if it exists
+        if feature_string in feature_list:
+            feature_list.remove(feature_string)
+
         features = [feature for feature in features if feature_string in feature]
+
+        # Iterate through the list and remove columns from df
+        for feature_ in feature_list:
+            features = [feature for feature in features if feature_ not in feature]
+            print(f'After removing {feature_} features: {len(features)}')
 
     if exclude:
         if isinstance(exclude, list):
@@ -3010,7 +3211,7 @@ def _shap_analysis(model, X_train, X_test):
     # Summary plot
     shap.summary_plot(shap_values, X_test)
 
-def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, feature_string='channel_3', col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
+def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
     from .io import _read_and_merge_data
     from .plot import _plot_plates
 
@@ -3024,9 +3225,13 @@ def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='m
                                  include_multinucleated=include_multinucleated,
                                  include_multiinfected=include_multiinfected,
                                  include_noninfected=include_noninfected)
+        
+    if not channel_of_interest is None:
+        df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_mean_intensity']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
+        feature_string = f'channel_{channel_of_interest}'
+    else:
+        feature_string = None
     
-    df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_mean_intensity']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
-    feature_string = f'channel_{channel_of_interest}'
     output = _permutation_importance(df, feature_string, col_to_compare, pos, neg, exclude, n_repeats, clean, nr_to_plot, n_estimators=n_estimators, random_state=42, model_type=model_type, n_jobs=n_jobs)
     
     _shap_analysis(output[3], output[4], output[5])

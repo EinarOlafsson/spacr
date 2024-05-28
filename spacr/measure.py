@@ -1008,49 +1008,49 @@ def measure_crop(settings):
                 time_left = (((files_to_process-files_processed)*average_time)/max_workers)/60
                 print(f'Progress: {files_processed}/{files_to_process} Time/img {average_time:.3f}sec, Time Remaining {time_left:.3f} min.', end='\r', flush=True)
             result.get()
-    
-    if settings['save_png']:
-        img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
-        sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
 
-        for i, well_src in enumerate(sc_img_fldrs):
-            if len(os.listdir(well_src)) < 16:
-                nr_imgs = len(os.listdir(well_src))
-                standardize = False
-            else:
-                nr_imgs = 16
-                standardize = True
-            try:
-                all_folders = len(sc_img_fldrs)
-                _save_scimg_plot(src=well_src, nr_imgs=nr_imgs, channel_indices=settings['png_dims'], um_per_pixel=0.1, scale_bar_length_um=10, standardize=standardize, fontsize=12, show_filename=True, channel_names=['red','green','blue'], dpi=300, plot=False, i=i, all_folders=all_folders)
+    if settings['representative_images']:
+        if settings['save_png']:
+            img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
+            sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
 
-            except Exception as e:
-                print(f"Unable to generate figure for folder {well_src}: {e}", end='\r', flush=True)
-                #traceback.print_exc()
+            for i, well_src in enumerate(sc_img_fldrs):
+                if len(os.listdir(well_src)) < 16:
+                    nr_imgs = len(os.listdir(well_src))
+                    standardize = False
+                else:
+                    nr_imgs = 16
+                    standardize = True
+                try:
+                    all_folders = len(sc_img_fldrs)
+                    _save_scimg_plot(src=well_src, nr_imgs=nr_imgs, channel_indices=settings['png_dims'], um_per_pixel=0.1, scale_bar_length_um=10, standardize=standardize, fontsize=12, show_filename=True, channel_names=['red','green','blue'], dpi=300, plot=False, i=i, all_folders=all_folders)
+
+                except Exception as e:
+                    print(f"Unable to generate figure for folder {well_src}: {e}", end='\r', flush=True)
+                    #traceback.print_exc()
     
         if settings['save_measurements']:
-            if settings['representative_images']:
-                db_path = os.path.join(os.path.dirname(settings['input_folder']), 'measurements', 'measurements.db')
-                channel_indices = settings['png_dims']
-                channel_indices = [min(value, 2) for value in channel_indices]
-                _generate_representative_images(db_path,
-                                            cells=settings['cells'],
-                                            cell_loc=settings['cell_loc'],
-                                            pathogens=settings['pathogens'],
-                                            pathogen_loc=settings['pathogen_loc'],
-                                            treatments=settings['treatments'],
-                                            treatment_loc=settings['treatment_loc'],
-                                            channel_of_interest=settings['channel_of_interest'],
-                                            compartments = settings['compartments'],
-                                            measurement = settings['measurement'],
-                                            nr_imgs=settings['nr_imgs'],
-                                            channel_indices=channel_indices,
-                                            um_per_pixel=settings['um_per_pixel'],
-                                            scale_bar_length_um=10,
-                                            plot=False,
-                                            fontsize=12,
-                                            show_filename=True,
-                                            channel_names=None)
+            db_path = os.path.join(os.path.dirname(settings['input_folder']), 'measurements', 'measurements.db')
+            channel_indices = settings['png_dims']
+            channel_indices = [min(value, 2) for value in channel_indices]
+            _generate_representative_images(db_path,
+                                        cells=settings['cells'],
+                                        cell_loc=settings['cell_loc'],
+                                        pathogens=settings['pathogens'],
+                                        pathogen_loc=settings['pathogen_loc'],
+                                        treatments=settings['treatments'],
+                                        treatment_loc=settings['treatment_loc'],
+                                        channel_of_interest=settings['channel_of_interest'],
+                                        compartments = settings['compartments'],
+                                        measurement = settings['measurement'],
+                                        nr_imgs=settings['nr_imgs'],
+                                        channel_indices=channel_indices,
+                                        um_per_pixel=settings['um_per_pixel'],
+                                        scale_bar_length_um=10,
+                                        plot=False,
+                                        fontsize=12,
+                                        show_filename=True,
+                                        channel_names=None)
 
     if settings['timelapse']:
         if settings['timelapse_objects'] == 'nucleus':
@@ -1059,7 +1059,7 @@ def measure_crop(settings):
             object_types = ['nucleus','pathogen','cell']
             _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
-        if settings['save_png']:
+        #if settings['save_png']:
             img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
             sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
             _scmovie(sc_img_fldrs)

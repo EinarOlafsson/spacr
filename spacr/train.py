@@ -194,8 +194,8 @@ def test_model_performance(loaders, model, loader_name_list, epoch, train_mode, 
 
 def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     
-    from .io import save_settings, _copy_missclassified
-    from .utils import pick_best_model, test_model_performance
+    from .io import _save_settings, _copy_missclassified
+    from .utils import pick_best_model
     from .core import generate_loaders
     
     settings['src'] = src
@@ -208,7 +208,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
         model = torch.load(custom_model_path)
     
     if settings['train']:
-        save_settings(settings, src)
+        _save_settings(settings, src)
     torch.cuda.empty_cache()
     torch.cuda.memory.empty_cache()
     gc.collect()
@@ -227,7 +227,9 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                     validation_split=settings['val_split'],
                                                     pin_memory=settings['pin_memory'],
                                                     normalize=settings['normalize'],
-                                                    verbose=settings['verbose']) 
+                                                    channels=settings['channels'],
+                                                    verbose=settings['verbose'])
+                                                    
 
     if settings['test']:
         test, _, plate_names_test = generate_loaders(src, 
@@ -240,6 +242,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                    validation_split=0.0,
                                    pin_memory=settings['pin_memory'],
                                    normalize=settings['normalize'],
+                                   channels=settings['channels'],
                                    verbose=settings['verbose'])
         if model == None:
             model_path = pick_best_model(src+'/model')
@@ -330,8 +333,8 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
         None
     """    
     
-    from .io import save_model, save_progress
-    from .utils import evaluate_model_performance, compute_irm_penalty, calculate_loss, choose_model
+    from .io import _save_model, _save_progress
+    from .utils import compute_irm_penalty, calculate_loss, choose_model #evaluate_model_performance, 
     
     print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders)}')
     
@@ -347,6 +350,11 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
         break
 
     model = choose_model(model_type, device, init_weights, dropout_rate, use_checkpoint)
+
+    if model is None:
+        print(f'Model {model_type} not found')
+        return
+
     model.to(device)
     
     if optimizer_type == 'adamw':
@@ -421,10 +429,10 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
                 if schedule == 'step_lr':
                     scheduler.step()
             
-            save_progress(dst, results_df, train_metrics_df)
+            _save_progress(dst, results_df, train_metrics_df)
             clear_output(wait=True)
             display(results_df)
-            save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
+            _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
             
     if train_mode == 'irm':
         dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(device)
@@ -494,7 +502,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
             
             clear_output(wait=True)
             display(results_df)
-            save_progress(dst, results_df, train_metrics_df)
-            save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
+            _save_progress(dst, results_df, train_metrics_df)
+            _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
             print(f'Saved model: {dst}')
     return
