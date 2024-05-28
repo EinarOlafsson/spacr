@@ -180,85 +180,6 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
     
     return normalized_images, labels, image_names, label_names
 
-class MyDataset(Dataset):
-    """
-    Custom dataset class for loading and processing image data.
-
-    Args:
-        data_dir (str): The directory path where the data is stored.
-        loader_classes (list): List of class names.
-        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.
-        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
-        load_to_memory (bool, optional): Whether to load images into memory. Default is False.
-
-    Attributes:
-        data_dir (str): The directory path where the data is stored.
-        classes (list): List of class names.
-        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.
-        shuffle (bool): Whether to shuffle the dataset.
-        load_to_memory (bool): Whether to load images into memory.
-        filenames (list): List of file paths.
-        labels (list): List of labels corresponding to each file.
-        images (list): List of loaded images.
-        image_cache (Cache): Cache object for storing loaded images.
-
-    Methods:
-        load_image: Load an image from file.
-        __len__: Get the length of the dataset.
-        shuffle_dataset: Shuffle the dataset.
-        __getitem__: Get an item from the dataset.
-
-    """
-
-    def _init__(self, data_dir, loader_classes, transform=None, shuffle=True, load_to_memory=False):
-        from .utils import Cache
-        self.data_dir = data_dir
-        self.classes = loader_classes
-        self.transform = transform
-        self.shuffle = shuffle
-        self.load_to_memory = load_to_memory
-        self.filenames = []
-        self.labels = []
-        self.images = []
-        self.image_cache = Cache(50)  
-        for class_name in self.classes:
-            class_path = os.path.join(data_dir, class_name)
-            class_files = [os.path.join(class_path, f) for f in os.listdir(class_path) if os.path.isfile(os.path.join(class_path, f))]
-            self.filenames.extend(class_files)
-            self.labels.extend([self.classes.index(class_name)] * len(class_files))
-        if self.shuffle:
-            self.shuffle_dataset()
-        if self.load_to_memory:
-            self.images = [self.load_image(f) for f in self.filenames]
-
-    def load_image(self, img_path):
-        img = self.image_cache.get(img_path)
-        if img is None:
-            img = Image.open(img_path).convert('RGB')
-            self.image_cache.put(img_path, img)
-        return img
-
-    def _len__(self):
-        return len(self.filenames)
-
-    def shuffle_dataset(self):
-        combined = list(zip(self.filenames, self.labels))
-        random.shuffle(combined)
-        self.filenames, self.labels = zip(*combined)
-
-    def _getitem__(self, index):
-        label = self.labels[index]
-        filename = self.filenames[index]
-        if self.load_to_memory:
-            img = self.images[index]
-        else:
-            img = self.load_image(filename)
-        if self.transform is not None:
-            img = self.transform(img)
-        else:
-            img = ToTensor()(img)
-        return img, label, filename
-
 class CombineLoaders:
     """
     A class that combines multiple data loaders into a single iterator.
@@ -385,6 +306,85 @@ class NoClassDataset(Dataset):
             img = ToTensor()(img)
         # Return both the image and its filename
         return img, self.filenames[index]
+    
+class MyDataset_v1(Dataset):
+    """
+    Custom dataset class for loading and processing image data.
+
+    Args:
+        data_dir (str): The directory path where the data is stored.
+        loader_classes (list): List of class names.
+        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.
+        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
+        load_to_memory (bool, optional): Whether to load images into memory. Default is False.
+
+    Attributes:
+        data_dir (str): The directory path where the data is stored.
+        classes (list): List of class names.
+        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.
+        shuffle (bool): Whether to shuffle the dataset.
+        load_to_memory (bool): Whether to load images into memory.
+        filenames (list): List of file paths.
+        labels (list): List of labels corresponding to each file.
+        images (list): List of loaded images.
+        image_cache (Cache): Cache object for storing loaded images.
+
+    Methods:
+        load_image: Load an image from file.
+        __len__: Get the length of the dataset.
+        shuffle_dataset: Shuffle the dataset.
+        __getitem__: Get an item from the dataset.
+
+    """
+
+    def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, load_to_memory=False):
+        from .utils import Cache
+        self.data_dir = data_dir
+        self.classes = loader_classes
+        self.transform = transform
+        self.shuffle = shuffle
+        self.load_to_memory = load_to_memory
+        self.filenames = []
+        self.labels = []
+        self.images = []
+        self.image_cache = Cache(50)  
+        for class_name in self.classes:
+            class_path = os.path.join(data_dir, class_name)
+            class_files = [os.path.join(class_path, f) for f in os.listdir(class_path) if os.path.isfile(os.path.join(class_path, f))]
+            self.filenames.extend(class_files)
+            self.labels.extend([self.classes.index(class_name)] * len(class_files))
+        if self.shuffle:
+            self.shuffle_dataset()
+        if self.load_to_memory:
+            self.images = [self.load_image(f) for f in self.filenames]
+
+    def load_image(self, img_path):
+        img = self.image_cache.get(img_path)
+        if img is None:
+            img = Image.open(img_path).convert('RGB')
+            self.image_cache.put(img_path, img)
+        return img
+
+    def _len__(self):
+        return len(self.filenames)
+
+    def shuffle_dataset(self):
+        combined = list(zip(self.filenames, self.labels))
+        random.shuffle(combined)
+        self.filenames, self.labels = zip(*combined)
+
+    def _getitem__(self, index):
+        label = self.labels[index]
+        filename = self.filenames[index]
+        if self.load_to_memory:
+            img = self.images[index]
+        else:
+            img = self.load_image(filename)
+        if self.transform is not None:
+            img = self.transform(img)
+        else:
+            img = ToTensor()(img)
+        return img, label, filename
 
 class MyDataset(Dataset):
     """
@@ -400,7 +400,7 @@ class MyDataset(Dataset):
         specific_labels (list, optional): A list of specific labels corresponding to the specific files. Default is None.
     """
 
-    def _init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
+    def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
         self.data_dir = data_dir
         self.classes = loader_classes
         self.transform = transform
@@ -429,7 +429,7 @@ class MyDataset(Dataset):
         img = Image.open(img_path).convert('RGB')
         return img
     
-    def _len__(self):
+    def __len__(self):
         return len(self.filenames)
     
     def shuffle_dataset(self):
@@ -441,7 +441,7 @@ class MyDataset(Dataset):
         filename = os.path.basename(filepath)  # Get just the filename from the full path
         return filename.split('_')[0]
     
-    def _getitem__(self, index):
+    def __getitem__(self, index):
         label = self.labels[index]
         filename = self.filenames[index]
         img = self.load_image(filename)

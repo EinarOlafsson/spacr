@@ -28,6 +28,8 @@ dependencies = [
     'opencv-python-headless>=4.9.0.80',
     'umap>=0.1.1',
     'ttkthemes>=3.2.2',
+    'xgboost>=2.0.3',
+    'PyWavelets>=1.6.0',
     'lxml>=5.1.0'
 ]
 

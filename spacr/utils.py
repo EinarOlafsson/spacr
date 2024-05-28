@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, torchvision, time, random, string, shutil, cv2, tarfile, glob
+import sys, os, re, sqlite3, gc, torch, torchvision, time, random, string, shutil, cv2, tarfile, glob
 
 import numpy as np
 from cellpose import models as cp_models
@@ -1069,7 +1069,7 @@ class Cache:
         cache (OrderedDict): The cache data structure.
     """
 
-    def _init__(self, max_size):
+    def __init__(self, max_size):
         self.cache = OrderedDict()
         self.max_size = max_size
 
@@ -1100,7 +1100,7 @@ class ScaledDotProductAttention(nn.Module):
 
     """
 
-    def _init__(self, d_k):
+    def __init__(self, d_k):
         super(ScaledDotProductAttention, self).__init__()
         self.d_k = d_k
 
@@ -1131,7 +1131,7 @@ class SelfAttention(nn.Module):
         d_k (int): Dimensionality of the key and query vectors.
     """
 
-    def _init__(self, in_channels, d_k):
+    def __init__(self, in_channels, d_k):
         super(SelfAttention, self).__init__()
         self.W_q = nn.Linear(in_channels, d_k)
         self.W_k = nn.Linear(in_channels, d_k)
@@ -1155,7 +1155,7 @@ class SelfAttention(nn.Module):
         return output
 
 class ScaledDotProductAttention(nn.Module):
-    def _init__(self, d_k):
+    def __init__(self, d_k):
         """
         Initializes the ScaledDotProductAttention module.
 
@@ -1192,7 +1192,7 @@ class SelfAttention(nn.Module):
         in_channels (int): Number of input channels.
         d_k (int): Dimensionality of the key and query vectors.
     """
-    def _init__(self, in_channels, d_k):
+    def __init__(self, in_channels, d_k):
         super(SelfAttention, self).__init__()
         self.W_q = nn.Linear(in_channels, d_k)
         self.W_k = nn.Linear(in_channels, d_k)
@@ -1223,7 +1223,7 @@ class EarlyFusion(nn.Module):
     Args:
         in_channels (int): Number of input channels.
     """
-    def _init__(self, in_channels):
+    def __init__(self, in_channels):
         super(EarlyFusion, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=1, stride=1)
         
@@ -1242,7 +1242,7 @@ class EarlyFusion(nn.Module):
 
 # Spatial Attention Mechanism
 class SpatialAttention(nn.Module):
-    def _init__(self, kernel_size=7):
+    def __init__(self, kernel_size=7):
         """
         Initializes the SpatialAttention module.
 
@@ -1287,7 +1287,7 @@ class MultiScaleBlockWithAttention(nn.Module):
         forward: Forward method for the module.
     """
 
-    def _init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels):
         super(MultiScaleBlockWithAttention, self).__init__()
         self.dilated_conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, dilation=1, padding=1)
         self.spatial_attention = nn.Conv2d(out_channels, out_channels, kernel_size=1)
@@ -1320,7 +1320,7 @@ class MultiScaleBlockWithAttention(nn.Module):
 
 # Final Classifier
 class CustomCellClassifier(nn.Module):
-    def _init__(self, num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate):
+    def __init__(self, num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate):
         super(CustomCellClassifier, self).__init__()
         self.early_fusion = EarlyFusion(in_channels=3)
         
@@ -1349,7 +1349,7 @@ class CustomCellClassifier(nn.Module):
 
 #CNN and Transformer class, pick any Torch model.
 class TorchModel(nn.Module):
-    def _init__(self, model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False):
+    def __init__(self, model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False):
         super(TorchModel, self).__init__()
         self.model_name = model_name
         self.use_checkpoint = use_checkpoint
@@ -1423,7 +1423,7 @@ class TorchModel(nn.Module):
         return logits
 
 class FocalLossWithLogits(nn.Module):
-    def _init__(self, alpha=1, gamma=2):
+    def __init__(self, alpha=1, gamma=2):
         super(FocalLossWithLogits, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -1435,7 +1435,7 @@ class FocalLossWithLogits(nn.Module):
         return focal_loss.mean()
     
 class ResNet(nn.Module):
-    def _init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
+    def __init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
         super(ResNet, self).__init__()
 
         resnet_map = {
@@ -1788,25 +1788,24 @@ def annotate_predictions(csv_loc):
     df['cond'] = df.apply(assign_condition, axis=1)
     return df
 
-def init_globals(counter_, lock_):
+def initiate_counter(counter_, lock_):
     global counter, lock
     counter = counter_
     lock = lock_
 
-def add_images_to_tar(args):
-    global counter, lock, total_images
-    paths_chunk, tar_path = args
+def add_images_to_tar(paths_chunk, tar_path, total_images):
     with tarfile.open(tar_path, 'w') as tar:
-        for img_path in paths_chunk:
+        for i, img_path in enumerate(paths_chunk):
             arcname = os.path.basename(img_path)
             try:
                 tar.add(img_path, arcname=arcname)
                 with lock:
                     counter.value += 1
-                    print(f"\rProcessed: {counter.value}/{total_images}", end='', flush=True)
+                    if counter.value % 100 == 0:  # Print every 100 updates
+                        progress = (counter.value / total_images) * 100
+                        print(f"Progress: {counter.value}/{total_images} ({progress:.2f}%)", end='\r', file=sys.stdout, flush=True)
             except FileNotFoundError:
                 print(f"File not found: {img_path}")
-    return tar_path
 
 def generate_fraction_map(df, gene_column, min_frequency=0.0):
     df['fraction'] = df['count']/df['well_read_sum']
