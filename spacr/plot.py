@@ -955,7 +955,7 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
             if idx < n_images:
                 canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = np.transpose(img[idx], (1, 2, 0))        
     plt.figure(figsize=(50, 50))
-    plt._imshow(canvas)
+    plt.imshow(canvas)
     plt.axis("off")
     for i, label in enumerate(labels):
         row = i // n_col
