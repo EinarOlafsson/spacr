@@ -380,10 +380,35 @@ def classify_variables():
         'verbose': ('check', None, True),
     }
     return variables
+
+def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
+    print(f"Creating input field: {label_text}, type: {var_type}, default: {default_value}")  # Debugging statement
+    label = ttk.Label(frame, text=label_text, style='TLabel')  # Assuming you have a dark mode style for labels too
+    label.grid(column=0, row=row, sticky=tk.W, padx=5, pady=5)
     
+    if var_type == 'entry':
+        var = tk.StringVar(value=default_value)  # Set default value
+        entry = ttk.Entry(frame, textvariable=var, style='TEntry')  # Assuming you have a dark mode style for entries
+        entry.grid(column=1, row=row, sticky=tk.EW, padx=5)
+        return (label, entry, var)  # Return both the label and the entry, and the variable
+    elif var_type == 'check':
+        var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
+        check = ttk.Checkbutton(frame, variable=var, style='Dark.TCheckbutton')
+        check.grid(column=1, row=row, sticky=tk.W, padx=5)
+        return (label, check, var)  # Return both the label and the checkbutton, and the variable
+    elif var_type == 'combo':
+        var = tk.StringVar(value=default_value)  # Set default value
+        combo = ttk.Combobox(frame, textvariable=var, values=options, style='TCombobox')  # Assuming you have a dark mode style for comboboxes
+        combo.grid(column=1, row=row, sticky=tk.EW, padx=5)
+        if default_value:
+            combo.set(default_value)
+        return (label, combo, var)  # Return both the label and the combobox, and the variable
+    else:
+        var = None  # Placeholder in case of an undefined var_type
+        return (label, None, var)
 
 #@log_function_call
-def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
+def create_input_field_v1(frame, label_text, row, var_type='entry', options=None, default_value=None):
     label = ttk.Label(frame, text=label_text, style='TLabel')  # Assuming you have a dark mode style for labels too
     label.grid(column=0, row=row, sticky=tk.W, padx=5, pady=5)
     
@@ -469,11 +494,20 @@ def add_mask_gui_defaults(settings):
     settings['examples_to_plot'] = 1
     return settings
 
-def generate_fields(variables, scrollable_frame):
+def generate_fields_v1(variables, scrollable_frame):
     vars_dict = {}
     row = 0
     for key, (var_type, options, default_value) in variables.items():
         vars_dict[key] = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+        row += 1
+    return vars_dict
+
+def generate_fields(variables, scrollable_frame):
+    vars_dict = {}
+    row = 0
+    for key, (var_type, options, default_value) in variables.items():
+        label, widget, var = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+        vars_dict[key] = (label, widget, var)  # Store the label, widget, and variable
         row += 1
     return vars_dict
     
