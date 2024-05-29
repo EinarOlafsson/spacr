@@ -14,6 +14,21 @@ except AttributeError:
 
 from .logger import log_function_call
 
+def set_default_font(root, font_name="Helvetica", size=12):
+    default_font = (font_name, size)
+    root.option_add("*Font", default_font)
+    root.option_add("*TButton.Font", default_font)
+    root.option_add("*TLabel.Font", default_font)
+    root.option_add("*TEntry.Font", default_font)
+
+def style_text_boxes(style):
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', background='#333333', foreground='#ffffff')
+    style.configure('TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#444444', foreground='#ffffff', font=('Helvetica', 12, 'bold'))
+    style.map('TButton',
+              background=[('active', '#555555'), ('disabled', '#222222')],
+              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+    style.configure('TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#2e2e2e', foreground='#ffffff')
+
 def read_settings_from_csv(csv_file_path):
     settings = {}
     with open(csv_file_path, newline='') as csvfile:
@@ -51,7 +66,7 @@ def disable_interactivity(fig):
         for handler_id in list(handlers.keys()):
             fig.canvas.mpl_disconnect(handler_id)
 
-def set_default_font(app, font_name="Arial Bold", size=10):
+def set_default_font_v1(app, font_name="Arial Bold", size=10):
     default_font = nametofont("TkDefaultFont")
     text_font = nametofont("TkTextFont")
     fixed_font = nametofont("TkFixedFont")

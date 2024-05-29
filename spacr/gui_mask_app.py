@@ -1,4 +1,4 @@
-import spacr, sys, ctypes, csv, matplotlib
+import sys, ctypes, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from ttkthemes import ThemedTk
@@ -16,10 +16,18 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, safe_literal_eval, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr
-from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv #, add_mask_gui_defaults
+from .gui_utils import ScrollableFrame, StdoutRedirector, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, style_text_boxes
+from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv#, toggle_advanced_settings
 
 thread_control = {"run_thread": None, "stop_requested": False}
+
+def toggle_advanced_settings():
+    advanced = advanced_var.get()
+    for widget in advanced_widgets:
+        if advanced:
+            widget.grid()
+        else:
+            widget.grid_remove()
 
 @log_function_call
 def initiate_abort():
@@ -73,7 +81,7 @@ def import_settings(scrollable_frame):
     
 @log_function_call
 def initiate_mask_root(width, height):
-    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control
+    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, advanced_widgets, advanced_var
         
     theme = 'breeze'
     
@@ -87,7 +95,8 @@ def initiate_mask_root(width, height):
         style = ttk.Style(root)
         set_dark_style(style)
         
-    set_default_font(root, font_name="Arial", size=10)
+    style_text_boxes(style)
+    set_default_font(root, font_name="Arial", size=8)
     #root.state('zoomed')  # For Windows to maximize the window
     root.attributes('-fullscreen', True)
     root.geometry(f"{width}x{height}")
@@ -139,6 +148,10 @@ def initiate_mask_root(width, height):
     # Setup for user input fields (variables)
     variables = mask_variables()
     vars_dict = generate_fields(variables, scrollable_frame)
+    #del vars_dict['fps']
+
+    # Debugging: print vars_dict to ensure it is populated correctly
+    #print("vars_dict:", vars_dict)
     
     # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
     horizontal_container = tk.PanedWindow(vertical_container, orient=tk.VERTICAL) #HORIZONTAL
@@ -167,21 +180,27 @@ def initiate_mask_root(width, height):
     q = Queue()
     sys.stdout = StdoutRedirector(console_output)
     sys.stderr = StdoutRedirector(console_output)
+
+    advanced_var = tk.BooleanVar()
+    advanced_checkbox = ttk.Checkbutton(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
+    advanced_checkbox.grid(row=46, column=1, pady=10, padx=10)
     
     # This is your GUI setup where you create the Run button
     run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
-    run_button.grid(row=45, column=0, pady=10)
+    run_button.grid(row=45, column=0, pady=10, padx=10)
     
     abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
-    abort_button.grid(row=45, column=1, pady=10)
+    abort_button.grid(row=45, column=1, pady=10, padx=10)
     
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white")
-    progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
-    
+    progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
+
     # Create the Import Settings button
     import_btn = tk.Button(root, text="Import Settings", command=lambda: import_settings(scrollable_frame))
-    import_btn.pack(pady=20)
+    import_btn.pack(pady=20, padx=10)
+
     
+
     _process_console_queue()
     _process_fig_queue()
     create_dark_mode(root, style, console_output)
@@ -193,6 +212,7 @@ def initiate_mask_root(width, height):
 def gui_mask():
     global vars_dict, root
     root, vars_dict = initiate_mask_root(1000, 1500)
+    
     root.mainloop()
     
 if __name__ == "__main__":
