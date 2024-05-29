@@ -8,7 +8,7 @@ import scipy.ndimage as ndi
 import seaborn as sns
 import scipy.stats as stats
 import statsmodels.api as sm
-
+import imageio.v2 as imageio
 from IPython.display import display
 from skimage.segmentation import find_boundaries
 from skimage.measure import find_contours
@@ -194,6 +194,88 @@ def _get_colours_merged(outline_color):
     else:
         outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]  # rbg
     return outline_colors
+
+def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=['.npy', '.tif', '.tiff', '.png']):
+    """
+    Plot images and arrays from the given folders.
+
+    Args:
+        folders (list): A list of folder paths containing the images and arrays.
+        lower_percentile (int, optional): The lower percentile for image normalization. Defaults to 1.
+        upper_percentile (int, optional): The upper percentile for image normalization. Defaults to 99.
+        threshold (int, optional): The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.
+        extensions (list, optional): A list of file extensions to consider. Defaults to ['.npy', '.tif', '.tiff', '.png'].
+    """
+
+    def normalize_image(image, lower=1, upper=99):
+        p2, p98 = np.percentile(image, (lower, upper))
+        return np.clip((image - p2) / (p98 - p2), 0, 1)
+
+    def find_files(folders, extensions=['.npy', '.tif', '.tiff', '.png']):
+        file_dict = {}
+
+        for folder in folders:
+            for root, _, files in os.walk(folder):
+                for file in files:
+                    if any(file.endswith(ext) for ext in extensions):
+                        file_name_wo_ext = os.path.splitext(file)[0]
+                        file_path = os.path.join(root, file)
+                        if file_name_wo_ext not in file_dict:
+                            file_dict[file_name_wo_ext] = {}
+                        file_dict[file_name_wo_ext][folder] = file_path
+
+        # Filter out files that don't have paths in all folders
+        filtered_dict = {k: v for k, v in file_dict.items() if len(v) == len(folders)}
+        return filtered_dict
+
+    def plot_from_file_dict(file_dict, threshold=1000, lower_percentile=1, upper_percentile=99):
+        """
+        Plot images and arrays from the given file dictionary.
+
+        Args:
+            file_dict (dict): A dictionary containing the file paths for each image or array.
+            threshold (int, optional): The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.
+            lower_percentile (int, optional): The lower percentile for image normalization. Defaults to 1.
+            upper_percentile (int, optional): The upper percentile for image normalization. Defaults to 99.
+        """
+
+        for filename, folder_paths in file_dict.items():
+            num_files = len(folder_paths)
+            fig, axes = plt.subplots(1, num_files, figsize=(15, 5))
+            #fig.suptitle(filename)
+
+            # Ensure axes is always a list
+            if num_files == 1:
+                axes = [axes]
+
+            for i, (folder, path) in enumerate(folder_paths.items()):
+                if path.endswith('.npy'):
+                    data = np.load(path)
+                elif path.endswith('.tif') or path.endswith('.tiff'):
+                    data = imageio.imread(path)
+                else:
+                    continue
+
+                ax = axes[i]
+                unique_values = np.unique(data)
+                if len(unique_values) > threshold:
+                    # Normalize image to percentiles
+                    data = normalize_image(data, lower_percentile, upper_percentile)
+                    ax.imshow(data, cmap='gray')
+                else:
+                    # Display as mask with random colormap
+                    cmap = random_cmap(num_objects=len(unique_values))
+                    ax.imshow(data, cmap=cmap)
+
+                ax.set_title(f"{os.path.basename(folder)}: {os.path.basename(path)}")
+                ax.axis('off')
+            plt.tight_layout
+            plt.subplots_adjust(wspace=0.01, hspace=0.01)
+            plt.show()
+                        
+    file_dict = find_files(folders, extensions)
+    plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile)
+    return
 
 def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, include_multinucleated, include_multiinfected):
     """
