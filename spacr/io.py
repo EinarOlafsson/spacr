@@ -1300,6 +1300,7 @@ def preprocess_img_data(settings):
     extension_counts = Counter(extensions)
     most_common_extension = extension_counts.most_common(1)[0][0]
     img_format = None
+    
 
     delete_empty_subdirectories(src)
 
