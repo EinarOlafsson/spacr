@@ -14,12 +14,90 @@ except AttributeError:
 
 from .logger import log_function_call
 
+class ToggleSwitch(ttk.Frame):
+    def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.text = text
+        self.variable = variable if variable else tk.BooleanVar()
+        self.command = command
+        
+        self.canvas = tk.Canvas(self, width=60, height=30, highlightthickness=0, bd=0, bg="#333333")
+        self.canvas.grid(row=0, column=1, padx=(10, 0))
+        
+        # Background rounded rectangle with more rounded edges and no outline
+        self.switch_bg = self.create_rounded_rectangle(2, 2, 58, 28, radius=14, outline="", fill="#fff")
+
+        # Switch ball with no outline
+        self.switch = self.canvas.create_oval(4, 4, 26, 26, outline="", fill="#800080")  # Purple initially
+        
+        self.label = ttk.Label(self, text=self.text, background="#333333", foreground="white")
+        self.label.grid(row=0, column=0, padx=(0, 10))
+        
+        self.bind("<Button-1>", self.toggle)
+        self.canvas.bind("<Button-1>", self.toggle)
+        self.label.bind("<Button-1>", self.toggle)
+        
+        self.update_switch()
+
+    def toggle(self, event=None):
+        self.variable.set(not self.variable.get())
+        self.update_switch()
+        if self.command:
+            self.command()
+
+    def update_switch(self):
+        if self.variable.get():
+            self.canvas.itemconfig(self.switch, fill="#008080")  # Teal
+            self.canvas.coords(self.switch, 34, 4, 56, 26)  # Move switch to the right
+        else:
+            self.canvas.itemconfig(self.switch, fill="#800080")  # Purple
+            self.canvas.coords(self.switch, 4, 4, 26, 26)  # Move switch to the left
+
+    def get(self):
+        return self.variable.get()
+
+    def set(self, value):
+        self.variable.set(value)
+        self.update_switch()
+
+    def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):  # More rounded edges with radius=20
+        points = [x1 + radius, y1,
+                  x1 + radius, y1,
+                  x2 - radius, y1,
+                  x2 - radius, y1,
+                  x2, y1,
+                  x2, y1 + radius,
+                  x2, y1 + radius,
+                  x2, y2 - radius,
+                  x2, y2 - radius,
+                  x2, y2,
+                  x2 - radius, y2,
+                  x2 - radius, y2,
+                  x1 + radius, y2,
+                  x1 + radius, y2,
+                  x1, y2,
+                  x1, y2 - radius,
+                  x1, y2 - radius,
+                  x1, y1 + radius,
+                  x1, y1 + radius,
+                  x1, y1]
+
+        return self.canvas.create_polygon(points, **kwargs, smooth=True)
+    
 def set_default_font(root, font_name="Helvetica", size=12):
     default_font = (font_name, size)
     root.option_add("*Font", default_font)
     root.option_add("*TButton.Font", default_font)
     root.option_add("*TLabel.Font", default_font)
     root.option_add("*TEntry.Font", default_font)
+
+def style_text_boxes_v1(style):
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', background='#333333', foreground='#ffffff')
+    style.configure('TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#444444', foreground='#ffffff', font=('Helvetica', 12, 'bold'))
+    style.map('TButton',
+              background=[('active', '#555555'), ('disabled', '#222222')],
+              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+    style.configure('TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#2e2e2e', foreground='#ffffff')
 
 def style_text_boxes(style):
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', background='#333333', foreground='#ffffff')
@@ -28,6 +106,8 @@ def style_text_boxes(style):
               background=[('active', '#555555'), ('disabled', '#222222')],
               foreground=[('active', '#ffffff'), ('disabled', '#888888')])
     style.configure('TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#2e2e2e', foreground='#ffffff')
+    # Add the style for Checkbutton
+    style.configure('TCheckbutton', background='#333333', foreground='#ffffff', font=('Helvetica', 12, 'bold'))
 
 def read_settings_from_csv(csv_file_path):
     settings = {}
@@ -382,7 +462,7 @@ def classify_variables():
     return variables
 
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
-    print(f"Creating input field: {label_text}, type: {var_type}, default: {default_value}")  # Debugging statement
+    #print(f"Creating input field: {label_text}, type: {var_type}, default: {default_value}")  # Debugging statement
     label = ttk.Label(frame, text=label_text, style='TLabel')  # Assuming you have a dark mode style for labels too
     label.grid(column=0, row=row, sticky=tk.W, padx=5, pady=5)
     
