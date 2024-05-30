@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode
+from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode, style_text_boxes
 
 class ImageApp:
     """
@@ -425,7 +425,8 @@ def initiate_annotation_app_root(width, height):
     root = ThemedTk(theme=theme)
     style = ttk.Style(root)
     set_dark_style(style)
-    set_default_font(root, font_name="Arial", size=10)
+    style_text_boxes(style)
+    set_default_font(root, font_name="Arial", size=8)
     root.geometry(f"{width}x{height}")
     root.title("Annotation App")
 
@@ -482,7 +483,7 @@ def initiate_annotation_app_root(width, height):
     create_dark_mode(root, style, console_output=None)
 
     run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=run_app)
-    run_button.grid(row=row, column=0, columnspan=2, pady=10)
+    run_button.grid(row=row, column=0, columnspan=2, pady=10, padx=10)
 
     return root
 

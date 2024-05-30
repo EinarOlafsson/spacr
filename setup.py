@@ -45,12 +45,12 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'gui_mask=spacr.gui_mask_app:gui_mask',
-            'gui_measure=spacr.gui_measure_app:gui_measure',
-            'gui_make_masks=spacr.mask_app:gui_make_masks',
-            'gui_annotation=spacr.annotate_app:gui_annotation',
-            'gui_classify=spacr.gui_classify_app:gui_classify',
-            'gui_sim=spacr.gui_sim_app:gui_sim',
+            'mask=spacr.gui_mask_app:gui_mask',
+            'measure=spacr.gui_measure_app:gui_measure',
+            'make_masks=spacr.mask_app:gui_make_masks',
+            'annotate=spacr.annotate_app:gui_annotation',
+            'classify=spacr.gui_classify_app:gui_classify',
+            'sim=spacr.gui_sim_app:gui_sim',
         ],
     },
     extras_require={
