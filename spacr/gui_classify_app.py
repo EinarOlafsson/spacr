@@ -16,8 +16,8 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr, safe_literal_eval, clear_canvas, main_thread_update_function
-from .gui_utils import classify_variables, check_classify_gui_settings, train_test_model_wrapper, read_settings_from_csv, update_settings_from_csv  
+from .gui_utils import ScrollableFrame, StdoutRedirector, create_dark_mode, set_dark_style, set_default_font, generate_fields, process_stdout_stderr, clear_canvas, main_thread_update_function
+from .gui_utils import classify_variables, check_classify_gui_settings, train_test_model_wrapper, read_settings_from_csv, update_settings_from_csv, style_text_boxes
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -85,7 +85,9 @@ def initiate_classify_root(width, height):
         style = ttk.Style(root)
         set_dark_style(style)
         
-    set_default_font(root, font_name="Arial", size=10)
+    style_text_boxes(style)
+    set_default_font(root, font_name="Arial", size=8)
+
     #root.state('zoomed')  # For Windows to maximize the window
     root.attributes('-fullscreen', True)
     root.geometry(f"{width}x{height}")
@@ -168,10 +170,10 @@ def initiate_classify_root(width, height):
     
     # This is your GUI setup where you create the Run button
     run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
-    run_button.grid(row=40, column=0, pady=10)
+    run_button.grid(row=40, column=0, pady=10, padx=10)
     
     abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
-    abort_button.grid(row=40, column=1, pady=10)
+    abort_button.grid(row=40, column=1, pady=10, padx=10)
     
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white")
     progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
