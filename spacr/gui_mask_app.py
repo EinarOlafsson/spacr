@@ -15,7 +15,7 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, style_text_boxes
+from .gui_utils import ScrollableFrame, StdoutRedirector, ToggleSwitch, clear_canvas, main_thread_update_function, create_dark_mode, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, style_text_boxes
 from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv
 
 thread_control = {"run_thread": None, "stop_requested": False}
@@ -32,8 +32,13 @@ def toggle_test_mode():
 
 def toggle_advanced_settings():
     global vars_dict
-    advanced_settings = ['preprocess', 'masks', 'examples_to_plot', 'randomize', 'batch_size', 'timelapse', 'timelapse_memory', 'timelapse_remove_transient', 'timelapse_mode', 'timelapse_objects', 'fps', 'remove_background', 'lower_quantile', 'merge', 'normalize_plots', 'all_to_mip', 'pick_slice', 'skip_mode', 'workers', 'plot']
-    
+
+    timelapse_settings = ['timelapse', 'timelapse_memory', 'timelapse_remove_transient', 'timelapse_mode', 'timelapse_objects', 'timelapse_displacement', 'timelapse_frame_limits', 'fps']
+    misc_settings = ['examples_to_plot', 'all_to_mip', 'pick_slice', 'skip_mode']
+    opperational_settings = ['preprocess', 'masks', 'randomize', 'batch_size', 'custom_regex', 'merge', 'normalize_plots', 'workers', 'plot', 'remove_background', 'lower_quantile']
+
+    advanced_settings = timelapse_settings+misc_settings+opperational_settings
+
     # Toggle visibility of advanced settings
     for setting in advanced_settings:
         label, widget, var = vars_dict[setting]
@@ -91,7 +96,7 @@ def import_settings(scrollable_frame):
 
 @log_function_call
 def initiate_mask_root(width, height):
-    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, advanced_widgets, advanced_var, scrollable_frame
+    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, advanced_var, scrollable_frame
 
     theme = 'breeze'
 
@@ -146,56 +151,64 @@ def initiate_mask_root(width, height):
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
-    scrollable_frame = ScrollableFrame(vertical_container, bg='#333333')
-    vertical_container.add(scrollable_frame, stretch="always")
-
+    # Settings Section
+    settings_frame = tk.Frame(vertical_container, bg='#333333')
+    vertical_container.add(settings_frame, stretch="always")
+    settings_label = ttk.Label(settings_frame, text="Settings", background="#333333", foreground="white")
+    settings_label.grid(row=0, column=0, pady=10, padx=10)
+    scrollable_frame = ScrollableFrame(settings_frame, width=500)
+    scrollable_frame.grid(row=1, column=0, sticky="nsew")
+    settings_frame.grid_rowconfigure(1, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
+    
+    # Create advanced settings checkbox
     advanced_var = tk.BooleanVar(value=False)
-    advanced_checkbox = ttk.Checkbutton(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
-    advanced_checkbox.grid(row=46, column=1, pady=10, padx=10)
-
+    advanced_Toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
+    advanced_Toggle.grid(row=48, column=0, pady=10, padx=10)
     variables = mask_variables()
     vars_dict = generate_fields(variables, scrollable_frame)
     toggle_advanced_settings()
-
     vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
-
-    # Create test_mode button
-    test_mode_button = tk.Button(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode, bg="gray")
+    
+    # Button section
+    test_mode_button = tk.Button(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode, bg="gray") # Create test_mode button
     test_mode_button.grid(row=47, column=1, pady=10, padx=10)
-
-    import_btn = tk.Button(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame))
+    import_btn = tk.Button(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame)) # Create import settings button
     import_btn.grid(row=47, column=0, pady=10, padx=10)
+    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue)) # Create run button
+    run_button.grid(row=45, column=0, pady=10, padx=10)
+    abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort) # Create abort button
+    abort_button.grid(row=45, column=1, pady=10, padx=10)
+    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white") # Create progress field
+    progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
-    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)
-    vertical_container.add(horizontal_container, stretch="always")
-
-    figure = Figure(figsize=(30, 4), dpi=100, facecolor='#333333')
+    # Plot Canvas Section
+    plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL) # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
+    vertical_container.add(plot_frame, stretch="always")
+    figure = Figure(figsize=(30, 4), dpi=100, facecolor='#333333') # Matplotlib figure setup
     plot = figure.add_subplot(111)
     plot.plot([], [])  # This creates an empty plot.
     plot.axis('off')
-
-    canvas = FigureCanvasTkAgg(figure, master=horizontal_container)
+    canvas = FigureCanvasTkAgg(figure, master=plot_frame) # Embedd Matplotlib figure in Tkinter window
     canvas.get_tk_widget().configure(cursor='arrow', background='#333333', highlightthickness=0)
     canvas_widget = canvas.get_tk_widget()
-    horizontal_container.add(canvas_widget, stretch="always")
+    plot_frame.add(canvas_widget, stretch="always")
     canvas.draw()
     canvas.figure = figure
 
-    console_output = scrolledtext.ScrolledText(vertical_container, height=10)
-    vertical_container.add(console_output, stretch="always")
+    # Console Section
+    console_frame = tk.Frame(vertical_container, bg='#333333')
+    vertical_container.add(console_frame, stretch="always")
+    console_label = ttk.Label(console_frame, text="Console", background="#333333", foreground="white")
+    console_label.grid(row=0, column=0, pady=10, padx=10)
+    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='#333333', fg='white', insertbackground='white')
+    console_output.grid(row=1, column=0, sticky="nsew")
+    console_frame.grid_rowconfigure(1, weight=1)
+    console_frame.grid_columnconfigure(0, weight=1)
 
     q = Queue()
     sys.stdout = StdoutRedirector(console_output)
     sys.stderr = StdoutRedirector(console_output)
-
-    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
-    run_button.grid(row=45, column=0, pady=10, padx=10)
-
-    abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
-    abort_button.grid(row=45, column=1, pady=10, padx=10)
-
-    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white")
-    progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     _process_console_queue()
     _process_fig_queue()

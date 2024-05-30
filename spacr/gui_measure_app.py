@@ -1,4 +1,4 @@
-import sys, traceback, matplotlib, ctypes, csv
+import sys, traceback, matplotlib, ctypes
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use the non-GUI Agg backend
 from multiprocessing import Process, Queue, Value
 from ttkthemes import ThemedTk
-from tkinter import filedialog, StringVar, BooleanVar, IntVar, DoubleVar, Tk
+from tkinter import filedialog
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -16,9 +16,38 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, process_stdout_stderr, set_dark_style, set_default_font, generate_fields, create_dark_mode, main_thread_update_function
-from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, safe_literal_eval, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv
+from .gui_utils import ToggleSwitch, measure_variables, measure_crop_wrapper, clear_canvas, safe_literal_eval, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, style_text_boxes
 
 thread_control = {"run_thread": None, "stop_requested": False}
+
+def toggle_test_mode():
+    global vars_dict
+    current_state = vars_dict['test_mode'][2].get()
+    new_state = not current_state
+    vars_dict['test_mode'][2].set(new_state)
+    if new_state:
+        test_mode_button.config(bg="blue")
+    else:
+        test_mode_button.config(bg="gray")
+
+def toggle_advanced_settings():
+    global vars_dict
+
+    timelapse_settings = ['timelapse', 'timelapse_objects']
+    misc_settings = ['representative_images', 'plot', 'plot_filtration', 'include_uninfected', 'dialate_pngs', 'dialate_png_ratios']
+    opperational_settings = ['max_workers','experiment','cells','cell_loc','pathogens','pathogen_loc','treatments','treatment_loc','channel_of_interest','compartments','measurement','nr_imgs', 'um_per_pixel']
+    
+    advanced_settings = timelapse_settings+misc_settings+opperational_settings
+
+    # Toggle visibility of advanced settings
+    for setting in advanced_settings:
+        label, widget, var = vars_dict[setting]
+        if advanced_var.get() is False:
+            label.grid_remove()  # Hide the label
+            widget.grid_remove()  # Hide the widget
+        else:
+            label.grid()  # Show the label
+            widget.grid()  # Show the widget
 
 @log_function_call
 def run_measure_gui(q, fig_queue, stop_requested):
@@ -27,9 +56,6 @@ def run_measure_gui(q, fig_queue, stop_requested):
     try:
         print('hello')
         settings = check_measure_gui_settings(vars_dict)
-        #for key in settings:
-        #    value = settings[key]
-        #    print(key, value, type(value))
         measure_crop_wrapper(settings=settings, q=q, fig_queue=fig_queue)
     except Exception as e:
         q.put(f"Error during processing: {e}")
@@ -72,7 +98,7 @@ def import_settings(scrollable_frame):
 
 @log_function_call
 def initiate_measure_root(width, height):
-    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables
+    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables, advanced_var, scrollable_frame
     
     theme = 'breeze'
     
@@ -87,7 +113,9 @@ def initiate_measure_root(width, height):
         style = ttk.Style(root)
         set_dark_style(style)
     
-    set_default_font(root, font_name="Arial", size=10)
+    style_text_boxes(style)
+    set_default_font(root, font_name="Arial", size=8)
+
     #root.state('zoomed')  # For Windows to maximize the window
     root.attributes('-fullscreen', True)
     root.geometry(f"{width}x{height}")
@@ -129,65 +157,76 @@ def initiate_measure_root(width, height):
             console_output.see(tk.END)
         console_output.after(100, _process_console_queue)
 
-    # Vertical container for settings and console
-    vertical_container = tk.PanedWindow(root, orient=tk.HORIZONTAL) #VERTICAL
-    vertical_container.pack(fill=tk.BOTH, expand=True)
+    vertical_container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
+    vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
 
-    # Scrollable Frame for user settings
-    scrollable_frame = ScrollableFrame(vertical_container)
-    vertical_container.add(scrollable_frame, stretch="always")
-
-    # Setup for user input fields (variables)
+    # Settings Section
+    settings_frame = tk.Frame(vertical_container, bg='#333333')
+    vertical_container.add(settings_frame, stretch="always")
+    settings_label = ttk.Label(settings_frame, text="Settings", background="#333333", foreground="white")
+    settings_label.grid(row=0, column=0, pady=10, padx=10)
+    scrollable_frame = ScrollableFrame(settings_frame, width=500)
+    scrollable_frame.grid(row=1, column=0, sticky="nsew")
+    settings_frame.grid_rowconfigure(1, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
+    
+    # Create advanced settings checkbox
+    advanced_var = tk.BooleanVar(value=False)
+    advanced_Toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
+    advanced_Toggle.grid(row=48, column=0, pady=10, padx=10)
     variables = measure_variables()
     vars_dict = generate_fields(variables, scrollable_frame)
+    toggle_advanced_settings()
+    vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
     
-    # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
-    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.VERTICAL) #HORIZONTAL
-    vertical_container.add(horizontal_container, stretch="always")
+    # Button section
+    test_mode_button = tk.Button(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode, bg="gray") # Create test_mode button
+    test_mode_button.grid(row=47, column=1, pady=10, padx=10)
+    import_btn = tk.Button(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame)) # Create import settings button
+    import_btn.grid(row=47, column=0, pady=10, padx=10)
+    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue)) # Create run button
+    run_button.grid(row=45, column=0, pady=10, padx=10)
+    abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort) # Create abort button
+    abort_button.grid(row=45, column=1, pady=10, padx=10)
+    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white") # Create progress field
+    progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
-    # Matplotlib figure setup
-    figure = Figure(figsize=(30, 4), dpi=100, facecolor='#333333')
+    # Plot Canvas Section
+    plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL) # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
+    vertical_container.add(plot_frame, stretch="always")
+    figure = Figure(figsize=(30, 4), dpi=100, facecolor='#333333') # Matplotlib figure setup
     plot = figure.add_subplot(111)
     plot.plot([], [])  # This creates an empty plot.
     plot.axis('off')
-
-    # Embedding the Matplotlib figure in the Tkinter window
-    canvas = FigureCanvasTkAgg(figure, master=horizontal_container)
+    canvas = FigureCanvasTkAgg(figure, master=plot_frame) # Embedd Matplotlib figure in Tkinter window
     canvas.get_tk_widget().configure(cursor='arrow', background='#333333', highlightthickness=0)
-    #canvas.get_tk_widget().configure(cursor='arrow')
     canvas_widget = canvas.get_tk_widget()
-    horizontal_container.add(canvas_widget, stretch="always")
+    plot_frame.add(canvas_widget, stretch="always")
     canvas.draw()
     canvas.figure = figure
 
-    # Console output setup below the settings
-    console_output = scrolledtext.ScrolledText(vertical_container, height=10)
-    vertical_container.add(console_output, stretch="always")
+    # Console Section
+    console_frame = tk.Frame(vertical_container, bg='#333333')
+    vertical_container.add(console_frame, stretch="always")
+    console_label = ttk.Label(console_frame, text="Console", background="#333333", foreground="white")
+    console_label.grid(row=0, column=0, pady=10, padx=10)
+    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='#333333', fg='white', insertbackground='white')
+    console_output.grid(row=1, column=0, sticky="nsew")
+    console_frame.grid_rowconfigure(1, weight=1)
+    console_frame.grid_columnconfigure(0, weight=1)
 
     # Queue and redirection setup for updating console output safely
     q = Queue()
     sys.stdout = StdoutRedirector(console_output)
     sys.stderr = StdoutRedirector(console_output)
     
-    # This is your GUI setup where you create the Run button
-    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue))
-    run_button.grid(row=40, column=0, pady=10)
-    
-    abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
-    abort_button.grid(row=40, column=1, pady=10)
-    
-    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Progress: ", background="#333333", foreground="white")
-    progress_label.grid(row=41, column=0, columnspan=2, sticky="ew", pady=(5, 0))
-    
-    # Create the Import Settings button
-    import_btn = tk.Button(root, text="Import Settings", command=lambda: import_settings(scrollable_frame))
-    import_btn.pack(pady=20)
-    
     _process_console_queue()
     _process_fig_queue()
     create_dark_mode(root, style, console_output)
     
-    #root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+    root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
     
     return root, vars_dict
 
