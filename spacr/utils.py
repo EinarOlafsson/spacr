@@ -46,12 +46,6 @@ from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet
 
 from .logger import log_function_call
 
-#from .io import _read_and_join_tables, _save_figure
-#from .timelapse import _btrack_track_cells, _trackpy_track_cells
-#from .plot import _plot_images_on_grid, plot_masks, _plot_histograms_and_stats, plot_resize, _plot_plates, _reg_v_plot, plot_masks
-#from .core import identify_masks
-
-
 def _gen_rgb_image(image, cahnnels):
     rgb_image = np.take(image, cahnnels, axis=-1)
     rgb_image = rgb_image.astype(float)
