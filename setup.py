@@ -35,7 +35,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.0.21",
+    version="0.0.3",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
@@ -51,6 +51,7 @@ setup(
             'annotate=spacr.annotate_app:gui_annotation',
             'classify=spacr.gui_classify_app:gui_classify',
             'sim=spacr.gui_sim_app:gui_sim',
+            'gui=spacr.gui:gui_app',
         ],
     },
     extras_require={
