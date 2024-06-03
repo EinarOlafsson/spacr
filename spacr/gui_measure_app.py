@@ -15,8 +15,9 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, process_stdout_stderr, set_dark_style, set_default_font, generate_fields, create_dark_mode, main_thread_update_function
-from .gui_utils import ToggleSwitch, measure_variables, measure_crop_wrapper, clear_canvas, safe_literal_eval, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, style_text_boxes
+from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, ToggleSwitch, ToolTip
+from .gui_utils import process_stdout_stderr, set_dark_style, set_default_font, generate_fields, main_thread_update_function, create_menu_bar
+from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, style_text_boxes
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -49,7 +50,7 @@ def toggle_advanced_settings():
             label.grid()  # Show the label
             widget.grid()  # Show the widget
 
-@log_function_call
+#@log_function_call
 def run_measure_gui(q, fig_queue, stop_requested):
     global vars_dict
     process_stdout_stderr(q)
@@ -63,7 +64,7 @@ def run_measure_gui(q, fig_queue, stop_requested):
     finally:
         stop_requested.value = 1
 
-@log_function_call
+#@log_function_call
 def start_process(q, fig_queue):
     global thread_control
     if thread_control.get("run_thread") is not None:
@@ -74,7 +75,7 @@ def start_process(q, fig_queue):
     thread_control["run_thread"] = Process(target=run_measure_gui, args=(q, fig_queue, stop_requested))
     thread_control["run_thread"].start()
 
-@log_function_call
+#@log_function_call
 def initiate_abort():
     global thread_control
     if thread_control.get("stop_requested") is not None:
@@ -86,7 +87,7 @@ def initiate_abort():
             thread_control["run_thread"].terminate()
         thread_control["run_thread"] = None
 
-@log_function_call
+#@log_function_call
 def import_settings(scrollable_frame):
     global vars_dict
 
@@ -96,31 +97,18 @@ def import_settings(scrollable_frame):
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
 
-@log_function_call
-def initiate_measure_root(width, height):
-    global root, vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables, advanced_var, scrollable_frame
+#@log_function_call
+def initiate_measure_root(parent_frame, width, height):
+    global vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables, advanced_var, scrollable_frame
     
-    theme = 'breeze'
-    
-    if theme in ['clam']:
-        root = tk.Tk()
-        style = ttk.Style(root)
-        style.theme_use(theme) #plastik, clearlooks, elegance, default was clam #alt, breeze, arc
-        set_dark_style(style)
-
-    elif theme in ['breeze']:
-        root = ThemedTk(theme="breeze")
-        style = ttk.Style(root)
-        set_dark_style(style)
-    
+    style = ttk.Style(parent_frame)
+    set_dark_style(style)
     style_text_boxes(style)
-    set_default_font(root, font_name="Arial", size=8)
+    set_default_font(parent_frame, font_name="Arial", size=8)
 
-    #root.state('zoomed')  # For Windows to maximize the window
-    root.attributes('-fullscreen', True)
-    root.geometry(f"{width}x{height}")
-    root.configure(bg='#333333')
-    root.title("SpaCer: generate masks")
+    parent_frame.configure(bg='black')
+    parent_frame.grid_rowconfigure(0, weight=1)
+    parent_frame.grid_columnconfigure(0, weight=1)
     fig_queue = Queue()
     
     def _process_fig_queue():
@@ -129,27 +117,22 @@ def initiate_measure_root(width, height):
             while not fig_queue.empty():
                 clear_canvas(canvas)
                 fig = fig_queue.get_nowait()
-                #set_fig_text_properties(fig, font_size=8)
                 for ax in fig.get_axes():
                     ax.set_xticks([])  # Remove x-axis ticks
                     ax.set_yticks([])  # Remove y-axis ticks
                     ax.xaxis.set_visible(False)  # Hide the x-axis
                     ax.yaxis.set_visible(False)  # Hide the y-axis
-                    #ax.title.set_fontsize(14) 
-                #disable_interactivity(fig)
                 fig.tight_layout()
-                fig.set_facecolor('#333333')
+                fig.set_facecolor('black')
                 canvas.figure = fig
                 fig_width, fig_height = canvas_widget.winfo_width(), canvas_widget.winfo_height()
                 fig.set_size_inches(fig_width / fig.dpi, fig_height / fig.dpi, forward=True)
-                canvas.draw_idle() 
+                canvas.draw_idle()
         except Exception as e:
             traceback.print_exc()
-            #pass
         finally:
             canvas_widget.after(100, _process_fig_queue)
-            
-    # Process queue for console output
+
     def _process_console_queue():
         while not q.empty():
             message = q.get_nowait()
@@ -157,15 +140,15 @@ def initiate_measure_root(width, height):
             console_output.see(tk.END)
         console_output.after(100, _process_console_queue)
 
-    vertical_container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
     vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
+    parent_frame.grid_rowconfigure(0, weight=1)
+    parent_frame.grid_columnconfigure(0, weight=1)
 
     # Settings Section
-    settings_frame = tk.Frame(vertical_container, bg='#333333')
+    settings_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(settings_frame, stretch="always")
-    settings_label = ttk.Label(settings_frame, text="Settings", background="#333333", foreground="white")
+    settings_label = ttk.Label(settings_frame, text="Settings", background="black", foreground="white")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
     scrollable_frame = ScrollableFrame(settings_frame, width=500)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
@@ -182,57 +165,58 @@ def initiate_measure_root(width, height):
     vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
     
     # Button section
-    test_mode_button = tk.Button(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode, bg="gray") # Create test_mode button
+    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode)
     test_mode_button.grid(row=47, column=1, pady=10, padx=10)
-    import_btn = tk.Button(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame)) # Create import settings button
-    import_btn.grid(row=47, column=0, pady=10, padx=10)
-    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run",command=lambda: start_process(q, fig_queue)) # Create run button
-    run_button.grid(row=45, column=0, pady=10, padx=10)
-    abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort) # Create abort button
-    abort_button.grid(row=45, column=1, pady=10, padx=10)
-    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="#333333", foreground="white") # Create progress field
+    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame))
+    import_btn.grid(row=47, column=0, pady=20, padx=20)
+    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
+    run_button.grid(row=45, column=0, pady=20, padx=20)
+    abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
+    abort_button.grid(row=45, column=1, pady=20, padx=20)
+    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white") # Create progress field
     progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     # Plot Canvas Section
-    plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL) # Horizontal container for Matplotlib figure and the vertical pane (for settings and console)
+    plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)
     vertical_container.add(plot_frame, stretch="always")
-    figure = Figure(figsize=(30, 4), dpi=100, facecolor='#333333') # Matplotlib figure setup
+    figure = Figure(figsize=(30, 4), dpi=100, facecolor='black')
     plot = figure.add_subplot(111)
-    plot.plot([], [])  # This creates an empty plot.
+    plot.plot([], [])
     plot.axis('off')
-    canvas = FigureCanvasTkAgg(figure, master=plot_frame) # Embedd Matplotlib figure in Tkinter window
-    canvas.get_tk_widget().configure(cursor='arrow', background='#333333', highlightthickness=0)
+    canvas = FigureCanvasTkAgg(figure, master=plot_frame)
+    canvas.get_tk_widget().configure(cursor='arrow', background='black', highlightthickness=0)
     canvas_widget = canvas.get_tk_widget()
     plot_frame.add(canvas_widget, stretch="always")
     canvas.draw()
     canvas.figure = figure
 
     # Console Section
-    console_frame = tk.Frame(vertical_container, bg='#333333')
+    console_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(console_frame, stretch="always")
-    console_label = ttk.Label(console_frame, text="Console", background="#333333", foreground="white")
+    console_label = ttk.Label(console_frame, text="Console", background="black", foreground="white")
     console_label.grid(row=0, column=0, pady=10, padx=10)
-    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='#333333', fg='white', insertbackground='white')
+    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='black', fg='white', insertbackground='white')
     console_output.grid(row=1, column=0, sticky="nsew")
     console_frame.grid_rowconfigure(1, weight=1)
     console_frame.grid_columnconfigure(0, weight=1)
 
-    # Queue and redirection setup for updating console output safely
     q = Queue()
     sys.stdout = StdoutRedirector(console_output)
     sys.stderr = StdoutRedirector(console_output)
     
     _process_console_queue()
     _process_fig_queue()
-    create_dark_mode(root, style, console_output)
     
-    root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+    parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
     
-    return root, vars_dict
+    return parent_frame, vars_dict
 
 def gui_measure():
-    global vars_dict, root
-    root, vars_dict = initiate_measure_root(1000, 1500)
+    root = tk.Tk()
+    root.geometry("1000x800")
+    root.title("SpaCer: generate masks")
+    initiate_measure_root(root, 1000, 800)
+    create_menu_bar(root)
     root.mainloop()
 
 if __name__ == "__main__":

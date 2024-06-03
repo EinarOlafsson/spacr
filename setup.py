@@ -30,12 +30,13 @@ dependencies = [
     'ttkthemes>=3.2.2',
     'xgboost>=2.0.3',
     'PyWavelets>=1.6.0',
+    'torchcam>=0.4.0',
     'lxml>=5.1.0'
 ]
 
 setup(
     name="spacr",
-    version="0.0.3",
+    version="0.0.36",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, set_dark_style, set_default_font, create_dark_mode, style_text_boxes
+from .gui_utils import ScrollableFrame, set_dark_style, set_default_font, create_dark_mode, style_text_boxes, create_menu_bar
 
 class modify_masks:
 
@@ -753,7 +753,7 @@ class modify_masks:
                 self.mask[labeled_mask == i] = 0  # Remove small objects
         self.update_display()
 
-@log_function_call
+##@log_function_call
 def initiate_mask_app_root(width, height):
     theme = 'breeze'
     root = ThemedTk(theme=theme)
@@ -764,6 +764,7 @@ def initiate_mask_app_root(width, height):
     set_default_font(root, font_name="Arial", size=8)
     root.geometry(f"{width}x{height}")
     root.title("Mask App")
+    create_menu_bar(root)
 
     container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
     container.pack(fill=tk.BOTH, expand=True)

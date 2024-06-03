@@ -6,6 +6,7 @@ from torch.autograd import grad
 from torch.optim.lr_scheduler import StepLR
 import torch.nn.functional as F
 from IPython.display import display, clear_output
+import difflib
 
 from .logger import log_function_call
 
@@ -233,17 +234,17 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
 
     if settings['test']:
         test, _, plate_names_test = generate_loaders(src, 
-                                   train_mode=settings['train_mode'], 
-                                   mode='test', 
-                                   image_size=settings['image_size'],
-                                   batch_size=settings['batch_size'], 
-                                   classes=settings['classes'], 
-                                   num_workers=settings['num_workers'],
-                                   validation_split=0.0,
-                                   pin_memory=settings['pin_memory'],
-                                   normalize=settings['normalize'],
-                                   channels=settings['channels'],
-                                   verbose=settings['verbose'])
+                                                     train_mode=settings['train_mode'], 
+                                                     mode='test', 
+                                                     image_size=settings['image_size'],
+                                                     batch_size=settings['batch_size'], 
+                                                     classes=settings['classes'], 
+                                                     num_workers=settings['num_workers'],
+                                                     validation_split=0.0,
+                                                     pin_memory=settings['pin_memory'],
+                                                     normalize=settings['normalize'],
+                                                     channels=settings['channels'],
+                                                     verbose=settings['verbose'])
         if model == None:
             model_path = pick_best_model(src+'/model')
             print(f'Best model: {model_path}')
@@ -334,7 +335,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
     """    
     
     from .io import _save_model, _save_progress
-    from .utils import compute_irm_penalty, calculate_loss, choose_model #evaluate_model_performance, 
+    from .utils import compute_irm_penalty, calculate_loss, choose_model
     
     print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders)}')
     
@@ -506,3 +507,161 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
             _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
             print(f'Saved model: {dst}')
     return
+
+def get_submodules(model, prefix=''):
+    submodules = []
+    for name, module in model.named_children():
+        full_name = prefix + ('.' if prefix else '') + name
+        submodules.append(full_name)
+        submodules.extend(get_submodules(module, full_name))
+    return submodules
+
+def visualize_model_attention_v2(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
+    import torch
+    import os
+    from spacr.utils import SaliencyMapGenerator, preprocess_image
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from PIL import Image
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+
+    # Load the entire model object
+    model = torch.load(model_path)
+    model.to(device)
+
+    # Create directory for saving saliency maps if it does not exist
+    if save_saliency and not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    # Collect all images and their tensors
+    images = []
+    input_tensors = []
+    filenames = []
+    for file in os.listdir(src):
+        image_path = os.path.join(src, file)
+        image, input_tensor = preprocess_image(image_path, normalize=normalize, image_size=image_size, channels=channels)
+        images.append(image)
+        input_tensors.append(input_tensor)
+        filenames.append(file)
+
+    input_tensors = torch.cat(input_tensors).to(device)
+    class_labels = torch.zeros(input_tensors.size(0), dtype=torch.long).to(device)  # Replace with actual class labels if available
+
+    # Generate saliency maps
+    cam_generator = SaliencyMapGenerator(model)
+    saliency_maps = cam_generator.compute_saliency_maps(input_tensors, class_labels)
+
+    # Plot images, saliency maps, and overlays
+    saliency_maps = saliency_maps.cpu().numpy()
+    N = len(images)
+
+    dst = os.path.join(src, 'saliency_maps')
+    os.makedirs(dst, exist_ok=True)
+
+    for i in range(N):
+        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+        
+        # Original image
+        axes[0].imshow(images[i])
+        axes[0].axis('off')
+        if class_names:
+            axes[0].set_title(class_names[class_labels[i].item()])
+
+        # Saliency map
+        axes[1].imshow(saliency_maps[i], cmap=plt.cm.hot)
+        axes[1].axis('off')
+        
+        # Overlay
+        overlay = np.array(images[i])
+        axes[2].imshow(overlay)
+        axes[2].imshow(saliency_maps[i], cmap='jet', alpha=0.5)
+        axes[2].axis('off')
+        
+        plt.tight_layout()
+        plt.show()
+        
+        # Save the saliency map if required
+        if save_saliency:
+            saliency_image = Image.fromarray((saliency_maps[i] * 255).astype(np.uint8))
+            saliency_image.save(os.path.join(dst, f'saliency_{filenames[i]}'))
+
+def visualize_model_attention(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
+    import torch
+    import os
+    from spacr.utils import SaliencyMapGenerator, preprocess_image
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from PIL import Image
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+
+    # Load the entire model object
+    model = torch.load(model_path)
+    model.to(device)
+
+    # Create directory for saving saliency maps if it does not exist
+    if save_saliency and not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    # Collect all images and their tensors
+    images = []
+    input_tensors = []
+    filenames = []
+    for file in os.listdir(src):
+        if not file.endswith('.png'):
+            continue
+        image_path = os.path.join(src, file)
+        image, input_tensor = preprocess_image(image_path, normalize=normalize, image_size=image_size, channels=channels)
+        images.append(image)
+        input_tensors.append(input_tensor)
+        filenames.append(file)
+
+    input_tensors = torch.cat(input_tensors).to(device)
+    class_labels = torch.zeros(input_tensors.size(0), dtype=torch.long).to(device)  # Replace with actual class labels if available
+
+    # Generate saliency maps
+    cam_generator = SaliencyMapGenerator(model)
+    saliency_maps = cam_generator.compute_saliency_maps(input_tensors, class_labels)
+
+    # Convert saliency maps to numpy arrays
+    saliency_maps = saliency_maps.cpu().numpy()
+
+    N = len(images)
+
+    dst = os.path.join(src, 'saliency_maps')
+
+    for i in range(N):
+        fig, axes = plt.subplots(1, 3, figsize=(20, 5))
+        
+        # Original image
+        axes[0].imshow(images[i])
+        axes[0].axis('off')
+        if class_names:
+            axes[0].set_title(f"Class: {class_names[class_labels[i].item()]}")
+
+        # Saliency Map
+        axes[1].imshow(saliency_maps[i, 0], cmap='hot')
+        axes[1].axis('off')
+        axes[1].set_title("Saliency Map")
+
+        # Overlay
+        overlay = np.array(images[i])
+        overlay = overlay / overlay.max()
+        saliency_map_rgb = np.stack([saliency_maps[i, 0]] * 3, axis=-1)  # Convert saliency map to RGB
+        overlay = (overlay * 0.5 + saliency_map_rgb * 0.5).clip(0, 1)
+        axes[2].imshow(overlay)
+        axes[2].axis('off')
+        axes[2].set_title("Overlay")
+
+        plt.tight_layout()
+        plt.show()
+
+        # Save the saliency map if required
+        if save_saliency:
+            os.makedirs(dst, exist_ok=True)
+            saliency_image = Image.fromarray((saliency_maps[i, 0] * 255).astype(np.uint8))
+            saliency_image.save(os.path.join(dst, f'saliency_{filenames[i]}'))
+

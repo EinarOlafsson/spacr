@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode, style_text_boxes
+from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode, style_text_boxes, create_menu_bar
 
 class ImageApp:
     """
@@ -419,7 +419,7 @@ def check_for_duplicates(db):
     conn.commit()
     conn.close()
 
-@log_function_call
+#@log_function_call
 def initiate_annotation_app_root(width, height):
     theme = 'breeze'
     root = ThemedTk(theme=theme)
@@ -474,6 +474,7 @@ def initiate_annotation_app_root(width, height):
         new_root = tk.Tk()
         new_root.geometry(f"{width}x{height}")
         new_root.title("Mask Application")
+        
 
         # Start the annotation application in the new root window
         app_instance = annotate(db, image_type, channels, annotation_column, geom, img_size, rows, columns)

@@ -529,7 +529,7 @@ class TarImageDataset(Dataset):
         
         return img, m.name
 
-@log_function_call
+#@log_function_call
 def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=False, skip_mode='01', metadata_type='', img_format='.tif'):
     """
     Convert z-stack images to maximum intensity projection (MIP) images.
@@ -930,7 +930,7 @@ def _mip_all(src, include_first_chan=True):
             np.save(os.path.join(src, filename), concatenated)
     return
 
-@log_function_call
+#@log_function_call
 def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
     """
     Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.
@@ -1257,7 +1257,7 @@ def delete_empty_subdirectories(folder_path):
                 # An error occurred, likely because the directory is not empty
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
-@log_function_call
+#@log_function_call
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays, _plot_4D_arrays
