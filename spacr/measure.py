@@ -157,7 +157,7 @@ def _analyze_cytoskeleton(array, mask, channel):
 
     return pd.DataFrame(properties_list)
 
-@log_function_call
+#@log_function_call
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings, zernike=True, degree=8):
     """
     Calculate morphological measurements for cells, nucleus, pathogens, and cytoplasms based on the given masks.
@@ -501,7 +501,7 @@ def _estimate_blur(image):
     # Compute and return the variance of the Laplacian
     return lap.var()
 
-@log_function_call
+#@log_function_call
 def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
     """
     Calculate various intensity measurements for different regions in the image.
@@ -589,7 +589,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
     
     return pd.concat(cell_dfs, axis=1), pd.concat(nucleus_dfs, axis=1), pd.concat(pathogen_dfs, axis=1), pd.concat(cytoplasm_dfs, axis=1)
 
-@log_function_call
+#@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
 
     """
@@ -887,7 +887,7 @@ def _measure_crop_core(index, time_ls, file, settings):
     average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
     return average_time, cells
 
-@log_function_call
+#@log_function_call
 def measure_crop(settings):
     
     """

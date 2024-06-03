@@ -43,6 +43,11 @@ from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.cluster import KMeans
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
+from torchvision.transforms import ToTensor, Normalize, Compose
+from torchcam.methods import SmoothGradCAMpp, GradCAM, ScoreCAM, LayerCAM
+from torchcam.utils import overlay_mask
+import torchvision.transforms as transforms
+
 
 from .logger import log_function_call
 
@@ -2819,3 +2824,83 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None):
             model = denoise.CellposeDenoiseModel(gpu=True, model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
     
     return model
+
+class SelectChannels:
+    def __init__(self, channels):
+        self.channels = channels
+    
+    def __call__(self, img):
+        img = img.clone()
+        if 1 not in self.channels:
+            img[0, :, :] = 0  # Zero out the red channel
+        if 2 not in self.channels:
+            img[1, :, :] = 0  # Zero out the green channel
+        if 3 not in self.channels:
+            img[2, :, :] = 0  # Zero out the blue channel
+        return img
+    
+def preprocess_image(image_path, image_size=224, channels=[1,2,3], normalize=True):
+
+    if normalize:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels)])
+
+    image = Image.open(image_path).convert('RGB')
+    input_tensor = transform(image).unsqueeze(0)
+    return image, input_tensor
+
+
+class SaliencyMapGenerator:
+    def __init__(self, model):
+        self.model = model
+
+    def compute_saliency_maps(self, X, y):
+        self.model.eval()
+        X.requires_grad_()
+
+        # Forward pass
+        scores = self.model(X).squeeze()
+
+        # For binary classification, target scores can be the single output
+        target_scores = scores * (2 * y - 1)
+
+        self.model.zero_grad()
+        target_scores.backward(torch.ones_like(target_scores))
+
+        saliency = X.grad.abs()
+        return saliency
+
+    def plot_saliency_maps(self, X, y, saliency, class_names):
+        N = X.shape[0]
+        for i in range(N):
+            plt.subplot(2, N, i + 1)
+            plt.imshow(X[i].permute(1, 2, 0).cpu().numpy())
+            plt.axis('off')
+            plt.title(class_names[y[i]])
+            plt.subplot(2, N, N + i + 1)
+            plt.imshow(saliency[i].cpu().numpy(), cmap=plt.cm.hot)
+            plt.axis('off')
+        plt.gcf().set_size_inches(12, 5)
+        plt.show()
+
+def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3]):
+    preprocess = transforms.Compose([
+        transforms.Resize((image_size, image_size)),
+        transforms.ToTensor(),
+    ])
+    
+    image = Image.open(image_path).convert('RGB')
+    input_tensor = preprocess(image)
+    if normalize:
+        input_tensor = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(input_tensor)
+    input_tensor = input_tensor.unsqueeze(0)
+    
+    return image, input_tensor
