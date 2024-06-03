@@ -1671,6 +1671,7 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     import random
     from PIL import Image
     from torchvision.transforms import ToTensor
+    from .utils import SelectChannels
 
     chans = []
 
@@ -1686,20 +1687,6 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     if verbose:
         print(f'Training a network on channels: {channels}')
         print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
-
-    class SelectChannels:
-        def __init__(self, channels):
-            self.channels = channels
-        
-        def __call__(self, img):
-            img = img.clone()
-            if 1 not in self.channels:
-                img[0, :, :] = 0  # Zero out the red channel
-            if 2 not in self.channels:
-                img[1, :, :] = 0  # Zero out the green channel
-            if 3 not in self.channels:
-                img[2, :, :] = 0  # Zero out the blue channel
-            return img
 
     plate_to_filenames = defaultdict(list)
     plate_to_labels = defaultdict(list)

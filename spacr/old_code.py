@@ -103,7 +103,7 @@ def run_mask_gui(q):
     except Exception as e:
         q.put(f"Error during processing: {e}\n")
 
-@log_function_call   
+#@log_function_call   
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
     try:
         while not q.empty():
