@@ -8,7 +8,7 @@ from . import plot
 from . import measure
 from . import sim
 from . import timelapse
-from . import train
+from . import deep_spacr
 from . import mask_app
 from . import annotate_app
 from . import graph_learning
@@ -26,7 +26,7 @@ __all__ = [
     "measure",
     "sim",
     "timelapse",
-    "train",
+    "deep_spacr",
     "annotate_app",
     "graph_learning",
     "gui_utils",

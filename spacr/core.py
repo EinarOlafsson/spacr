@@ -119,31 +119,40 @@ def train_cellpose(settings):
     from .utils import resize_images_and_labels
 
     img_src = settings['img_src'] 
-    mask_src = os.path.join(img_src, 'mask')
+    mask_src = os.path.join(img_src, 'masks')
     
-    model_name = settings['model_name']
-    model_type = settings['model_type']
-    learning_rate = settings['learning_rate']
-    weight_decay = settings['weight_decay']
-    batch_size = settings['batch_size']
-    n_epochs = settings['n_epochs']
-    from_scratch = settings['from_scratch']
-    diameter = settings['diameter']
-    verbose = settings['verbose']
+    model_name = settings.setdefault( 'model_name', '')
 
-    channels = [0,0]
-    signal_thresholds = 1000
-    normalize = True
-    percentiles = [2,98]
-    circular = False
-    invert = False
-    resize = False
-    settings['width_height'] = [1000,1000]
-    target_height = settings['width_height'][1]
-    target_width = settings['width_height'][0]
-    rescale = False
-    grayscale = True
-    test = False
+    model_name = settings.setdefault('model_name', 'model_name')
+
+    model_type = settings.setdefault( 'model_type', 'cyto')
+    learning_rate = settings.setdefault( 'learning_rate', 0.01)
+    weight_decay = settings.setdefault( 'weight_decay', 1e-05)
+    batch_size = settings.setdefault( 'batch_size', 50)
+    n_epochs = settings.setdefault( 'n_epochs', 100)
+    from_scratch = settings.setdefault( 'from_scratch', False)
+    diameter = settings.setdefault( 'diameter', 40)
+
+    remove_background = settings.setdefault( 'remove_background', False)
+    background = settings.setdefault( 'background', 100)
+    Signal_to_noise = settings.setdefault( 'Signal_to_noise', 10)
+    verbose = settings.setdefault( 'verbose', False)
+
+    
+    channels = settings.setdefault( 'channels', [0,0])
+    normalize = settings.setdefault( 'normalize', True)
+    percentiles = settings.setdefault( 'percentiles', None)
+    circular = settings.setdefault( 'circular', False)
+    invert = settings.setdefault( 'invert', False)
+    resize = settings.setdefault( 'resize', False)
+
+    if resize:
+        target_height = settings['width_height'][1]
+        target_width = settings['width_height'][0]
+
+    grayscale = settings.setdefault( 'grayscale', True)
+    rescale = settings.setdefault( 'channels', False)
+    test = settings.setdefault( 'test', False)
 
     if test:
         test_img_src = os.path.join(os.path.dirname(img_src), 'test')
@@ -177,22 +186,21 @@ def train_cellpose(settings):
 
         image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
         label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
-        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
+        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise)
         images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
         
         if test:
             test_image_files = [os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')]
             test_label_files = [os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')]
-            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(image_files=test_image_files, label_files=test_label_files, signal_thresholds=signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
+            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(test_image_files, test_label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise)
             test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
             
-        
     else:
         images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, circular, invert)
         images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
         
         if test:
-            test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(img_src=test_img_src, mask_src=test_mask_src, circular=circular, invert=circular)
+            test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(img_src=test_img_src, mask_src=test_mask_src, circular=circular, invert=invert)
             test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
     
     if resize:
@@ -2108,32 +2116,33 @@ def identify_masks_finetune(settings):
     from .utils import get_files_from_dir, resize_images_and_labels
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
     
+    #User defined settings
     src=settings['src']
     dst=settings['dst']
     model_name=settings['model_name']
+    custom_model=settings['custom_model']
+    channels = settings['channels']
+    background = settings['background']
+    remove_background=settings['remove_background']
+    Signal_to_noise = settings['Signal_to_noise']
+    CP_prob = settings['CP_prob']
     diameter=settings['diameter']
     batch_size=settings['batch_size']
     flow_threshold=settings['flow_threshold']
-    cellprob_threshold=settings['cellprob_threshold']
-
-    verbose=settings['verbose']
-    plot=settings['plot']
     save=settings['save']
-    custom_model=settings['custom_model']
-    overlay=settings['overlay']
+    verbose=settings['verbose']
 
-    figuresize=25
-    cmap='inferno'
-    channels = [0,0]
-    signal_thresholds = 1000
+    # static settings
     normalize = True
-    percentiles = [2,98]
+    percentiles = None
     circular = False
     invert = False
     resize = False
-    settings['width_height'] = [1000,1000]
-    target_height = settings['width_height'][1]
-    target_width = settings['width_height'][0]
+
+    if resize:
+        target_height = settings['width_height'][1]
+        target_width = settings['width_height'][0]
+
     rescale = False
     resample = False
     grayscale = True
@@ -2166,7 +2175,7 @@ def identify_masks_finetune(settings):
     print(f'Using channels: {chans} for model of type {model_name}')
     
     if verbose == True:
-        print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
+        print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{CP_prob}')
         
     all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
 
@@ -2175,9 +2184,9 @@ def identify_masks_finetune(settings):
     time_ls = []
     for i in range(0, len(all_image_files), batch_size):
         image_files = all_image_files[i:i+batch_size]
-
+        
         if normalize:
-            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, signal_thresholds=signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=plot)
+            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose, remove_background=remove_background, background=background, Signal_to_noise=Signal_to_noise)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
@@ -2195,7 +2204,7 @@ def identify_masks_finetune(settings):
                          channel_axis=3,
                          diameter=diameter,
                          flow_threshold=flow_threshold,
-                         cellprob_threshold=cellprob_threshold,
+                         cellprob_threshold=CP_prob,
                          rescale=rescale,
                          resample=resample,
                          progress=True)
@@ -2216,10 +2225,10 @@ def identify_masks_finetune(settings):
             time_ls.append(duration)
             average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
             print(f'Processing {file_index+1}/{len(images)} images : Time/image {average_time:.3f} sec', end='\r', flush=True)
-            if plot:
+            if verbose:
                 if resize:
                     stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)
-                print_mask_and_flows(stack, mask, flows, overlay=overlay)
+                print_mask_and_flows(stack, mask, flows, overlay=True)
             if save:
                 output_filename = os.path.join(dst, image_names[file_index])
                 cv2.imwrite(output_filename, mask)
@@ -2473,7 +2482,14 @@ def generate_cellpose_masks(src, settings, object_type):
     channels = cellpose_channels[object_type]
     cellpose_batch_size = _get_cellpose_batch_size()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    
+    pathogen_model = settings.setdefault( 'pathogen_model', None)
+
+    if pathogen_model is not None:
+        model_name = pathogen_model
+
     model = _choose_model(model_name, device, object_type='cell', restore_type=None)
+
     chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
     
@@ -2664,6 +2680,7 @@ def generate_cellpose_masks(src, settings, object_type):
     return
 
 def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, verbose):
+    
     from .io import _load_images_and_labels, _load_normalized_images_and_labels
     from .utils import resize_images_and_labels, resizescikit
     from .plot import print_mask_and_flows
@@ -2844,6 +2861,7 @@ def compare_masks_v1(dir1, dir2, dir3, verbose=False):
     return results, fig
 
 def compare_cellpose_masks_v1(src, verbose=False):
+    
     from .io import _read_mask
     from .plot import visualize_masks, plot_comparison_results, visualize_cellpose_masks
     from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index

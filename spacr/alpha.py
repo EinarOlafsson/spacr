@@ -1,7 +1,7 @@
 from skimage import measure, feature
 from skimage.filters import gabor
 from skimage.color import rgb2gray
-from skimage.feature.texture import greycomatrix, greycoprops, local_binary_pattern
+#from skimage.feature.texture import greycomatrix, greycoprops, local_binary_pattern
 from skimage.util import img_as_ubyte
 import numpy as np
 import pandas as pd
@@ -18,6 +18,9 @@ import torch.nn.functional as F
 from torch_geometric.data import Data, DataLoader
 from torch_geometric.nn import GCNConv, global_mean_pool
 from torch.optim import Adam
+import os
+import shutil
+import random
 
 # Step 1: Data Preparation
 
@@ -293,3 +296,35 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
     
     return pd.concat(cell_dfs, axis=1), pd.concat(nucleus_dfs, axis=1), pd.concat(pathogen_dfs, axis=1), pd.concat(cytoplasm_dfs, axis=1)
 
+def sample_and_copy_images(folder_list, nr_of_images, dst):
+
+    if isinstance(folder_list, str):
+        folder_list = [folder_list]
+        
+    # Create the destination folder if it does not exist
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    
+    # Calculate the number of images to sample from each folder
+    nr_of_images_per_folder = nr_of_images // len(folder_list)
+    
+    print(f"Sampling {nr_of_images_per_folder} images from {len(folder_list)} folders...")
+    # Initialize a list to hold the paths of the images to be copied
+    images_to_copy = []
+    
+    for folder in folder_list:
+        # Get a list of all files in the current folder
+        all_files = [os.path.join(folder, file) for file in os.listdir(folder)]
+        
+        # Filter out non-image files
+        image_files = [file for file in all_files if file.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.tif'))]
+        
+        # Sample images randomly from the list
+        sampled_images = random.sample(image_files, min(nr_of_images_per_folder, len(image_files)))
+        
+        # Add the sampled images to the list of images to copy
+        images_to_copy.extend(sampled_images)
+    
+    # Copy the sampled images to the destination folder
+    for image in images_to_copy:
+        shutil.copy(image, os.path.join(dst, os.path.basename(image)))
