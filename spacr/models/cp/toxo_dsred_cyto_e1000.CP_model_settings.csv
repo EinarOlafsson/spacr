@@ -1,0 +1,12 @@
+Key,Value
+img_src,/nas_mnt/carruthers/Einar/mitoscreen/mitoscreen/dsred_1
+model_name,toxo_dsred
+model_type,cyto
+learning_rate,0.2
+weight_decay,1e-05
+batch_size,64
+n_epochs,1000
+from_scratch,False
+diameter,40
+verbose,False
+width_height,"[1000, 1000]"

@@ -88,15 +88,13 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
         print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {labels[0].shape}, image type: labels[0].shape')
     return images, labels, image_names, label_names
 
-def _load_normalized_images_and_labels(image_files, label_files, signal_thresholds=[1000], channels=None, percentiles=None,  circular=False, invert=False, visualize=False):
+def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10):
     
     from .plot import normalize_and_visualize
     from .utils import invert_image, apply_mask
-    
-    if isinstance(signal_thresholds, int):
-        signal_thresholds = [signal_thresholds] * (len(channels) if channels is not None else 1)
-    elif not isinstance(signal_thresholds, list):
-        signal_thresholds = [signal_thresholds]
+
+    signal_thresholds = background*Signal_to_noise
+    lower_percentile = 1
 
     images = []
     labels = []
@@ -113,16 +111,18 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
 
     # Load images and check percentiles
     for i,img_file in enumerate(image_files):
-        #print(img_file)
         image = cellpose.io.imread(img_file)
         if invert:
             image = invert_image(image)
         if circular:
             image = apply_mask(image, output_value=0)
-        #print(image.shape)
+
         # If specific channels are specified, select them
         if channels is not None and image.ndim == 3:
             image = image[..., channels]
+
+        if remove_background:
+            image[image < background] = 0
         
         if image.ndim < 3:
             image = np.expand_dims(image, axis=-1)
@@ -130,11 +130,11 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
         images.append(image)
         if percentiles is None:
             for c in range(image.shape[-1]):
-                p1 = np.percentile(image[..., c], 1)
+                p1 = np.percentile(image[..., c], lower_percentile)
                 percentiles_1[c].append(p1)
-                for percentile in [99, 99.9, 99.99, 99.999]:
+                for percentile in [98, 99, 99.9, 99.99, 99.999]:
                     p = np.percentile(image[..., c], percentile)
-                    if p > signal_thresholds[min(c, len(signal_thresholds)-1)]:
+                    if p > signal_thresholds:
                         percentiles_99[c].append(p)
                         break
                     
@@ -143,8 +143,8 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
         for image in images:
             normalized_image = np.zeros_like(image, dtype=np.float32)
             for c in range(image.shape[-1]):
-                high_p = np.percentile(image[..., c], percentiles[1])
                 low_p = np.percentile(image[..., c], percentiles[0])
+                high_p = np.percentile(image[..., c], percentiles[1])
                 normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(low_p, high_p), out_range=(0, 1))
             normalized_images.append(normalized_image)
             if visualize:
@@ -155,17 +155,20 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
         avg_p1 = [np.mean(p) for p in percentiles_1]
         avg_p99 = [np.mean(p) if len(p) > 0 else np.mean(percentiles_1[i]) for i, p in enumerate(percentiles_99)]
 
+        print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
+
         normalized_images = []
         for image in images:
             normalized_image = np.zeros_like(image, dtype=np.float32)
-        for c in range(image.shape[-1]):
-            normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(avg_p1[c], avg_p99[c]), out_range=(0, 1))
-        normalized_images.append(normalized_image)
-        if visualize:
-            normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
+            for c in range(image.shape[-1]):
+                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(avg_p1[c], avg_p99[c]), out_range=(0, 1))
+            normalized_images.append(normalized_image)
+            if visualize:
+                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
             
     if not image_files is None:
         image_dir = os.path.dirname(image_files[0])
+
     else:
         image_dir = None
             
@@ -181,6 +184,7 @@ def _load_normalized_images_and_labels(image_files, label_files, signal_threshol
     return normalized_images, labels, image_names, label_names
 
 class CombineLoaders:
+
     """
     A class that combines multiple data loaders into a single iterator.
 
@@ -2409,10 +2413,9 @@ def convert_numpy_to_tiff(folder_path, limit=None):
     return
     
 def generate_cellpose_train_test(src, test_split=0.1):
-    
     mask_src = os.path.join(src, 'masks')
     img_paths = glob.glob(os.path.join(src, '*.tif'))
-    img_filenames = [os.path.basename(file) for file in img_paths + img_paths]
+    img_filenames = [os.path.basename(file) for file in img_paths]
     img_filenames = [file for file in img_filenames if os.path.exists(os.path.join(mask_src, file))]
     print(f'Found {len(img_filenames)} images with masks')
     
@@ -2424,19 +2427,21 @@ def generate_cellpose_train_test(src, test_split=0.1):
     print(f'Split dataset into Train {len(train_files)} and Test {len(test_files)} files')
     
     train_dir = os.path.join(os.path.dirname(src), 'train')
-    train_dir_masks = os.path.join(train_dir, 'mask')
+    train_dir_masks = os.path.join(train_dir, 'masks')
     test_dir = os.path.join(os.path.dirname(src), 'test')
-    test_dir_masks = os.path.join(test_dir, 'mask')
+    test_dir_masks = os.path.join(test_dir, 'masks')
     
+    os.makedirs(train_dir, exist_ok=True)
     os.makedirs(train_dir_masks, exist_ok=True)
+    os.makedirs(test_dir, exist_ok=True)
     os.makedirs(test_dir_masks, exist_ok=True)
+    
     for i, ls in enumerate(list_of_lists):
-        
         if i == 0:
             dst = test_dir
             dst_mask = test_dir_masks
             _type = 'Test'
-        if i == 1:
+        else:
             dst = train_dir
             dst_mask = train_dir_masks
             _type = 'Train'
