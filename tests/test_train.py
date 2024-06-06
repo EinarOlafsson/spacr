@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.train import train_model
+from spacr.deep_spacr import train_model
 
 class TestTrainModel(unittest.TestCase):
     def test_train_model_erm(self):

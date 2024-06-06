@@ -27,7 +27,7 @@ import torch.nn.functional as F
 #from torchsummary import summary
 from torch.utils.checkpoint import checkpoint
 from torch.utils.data import Subset
-from torch.autograd import grad
+from torch.autograd import grad, Variable, Function
 from torchvision import models
 from skimage.segmentation import clear_border
 import seaborn as sns
@@ -36,12 +36,16 @@ import scipy.ndimage as ndi
 from scipy.spatial import distance
 from scipy.stats import fisher_exact
 from scipy.ndimage import binary_erosion, binary_dilation
+from scipy.ndimage.filters import gaussian_filter
+
 from skimage.exposure import rescale_intensity
 from sklearn.metrics import auc, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.cluster import KMeans
+
+from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 from torchvision.transforms import ToTensor, Normalize, Compose
 from torchcam.methods import SmoothGradCAMpp, GradCAM, ScoreCAM, LayerCAM
@@ -2810,7 +2814,16 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None):
         restore_type = None
 
     if restore_type == None:
-        model = cp_models.Cellpose(gpu=True, model_type=model_name, device=device)
+        if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
+            model = cp_models.Cellpose(gpu=True, model_type=model_name, device=device)
+        elif model_name == 'toxo_dsred':
+            custom_model = ''
+            diam_mean = 30 # this needs to change probably
+            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diam_mean, device=device)
+        elif model_name == 'toxo_biotin':
+            custom_model = ''
+            diam_mean = 30 # this needs to change probably
+            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diam_mean, device=device)
     else:
         if object_type == 'nucleus':
             restore = f'{type}_nuclei'
@@ -2904,3 +2917,191 @@ def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3
     input_tensor = input_tensor.unsqueeze(0)
     
     return image, input_tensor
+
+def class_visualization(target_y, model_path, dtype, img_size=224, channels=[0,1,2], l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names = ['nc', 'pc']):
+    
+    def jitter(img, ox, oy):
+        # Randomly jitter the image
+        return torch.roll(torch.roll(img, ox, dims=2), oy, dims=3)
+
+    def blur_image(img, sigma=1):
+        # Apply Gaussian blur to the image
+        img_np = img.cpu().numpy()
+        for i in range(img_np.shape[1]):
+            img_np[:, i] = gaussian_filter(img_np[:, i], sigma=sigma)
+        img.copy_(torch.tensor(img_np).to(img.device))
+
+    def deprocess(img_tensor):
+        # Convert the tensor image to a numpy array for visualization
+        img_tensor = img_tensor.clone()
+        for c in range(3):
+            img_tensor[:, c] = img_tensor[:, c] * SQUEEZENET_STD[c] + SQUEEZENET_MEAN[c]
+        img_tensor = img_tensor.clamp(0, 1)
+        return img_tensor.squeeze().permute(1, 2, 0).cpu().numpy()
+    
+    # Assuming these are defined somewhere in your codebase
+    SQUEEZENET_MEAN = [0.485, 0.456, 0.406]
+    SQUEEZENET_STD = [0.229, 0.224, 0.225]
+    
+    model = torch.load(model_path)
+    
+    dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+    len_chans = len(channels)
+    model.type(dtype)
+
+    # Randomly initialize the image as a PyTorch Tensor, and make it requires gradient.
+    img = torch.randn(1, len_chans, img_size, img_size).mul_(1.0).type(dtype).requires_grad_()
+
+    for t in range(num_iterations):
+        # Randomly jitter the image a bit; this gives slightly nicer results
+        ox, oy = random.randint(0, max_jitter), random.randint(0, max_jitter)
+        img.data.copy_(jitter(img.data, ox, oy))
+
+        # Forward pass
+        score = model(img)
+        
+        if target_y == 0:
+            target_score = -score
+        else:
+            target_score = score
+
+        # Add regularization
+        target_score = target_score - l2_reg * torch.norm(img)
+
+        # Backward pass
+        target_score.backward()
+
+        # Gradient ascent step
+        with torch.no_grad():
+            img += learning_rate * img.grad / torch.norm(img.grad)
+            img.grad.zero_()
+
+        # Undo the random jitter
+        img.data.copy_(jitter(img.data, -ox, -oy))
+
+        # As regularizer, clamp and periodically blur the image
+        for c in range(3):
+            lo = float(-SQUEEZENET_MEAN[c] / SQUEEZENET_STD[c])
+            hi = float((1.0 - SQUEEZENET_MEAN[c]) / SQUEEZENET_STD[c])
+            img.data[:, c].clamp_(min=lo, max=hi)
+        if t % blur_every == 0:
+            blur_image(img.data, sigma=0.5)
+        
+        # Periodically show the image
+        if t == 0 or (t + 1) % show_every == 0 or t == num_iterations - 1:
+            plt.imshow(deprocess(img.data.clone().cpu()))
+            class_name = class_names[target_y]
+            plt.title('%s\nIteration %d / %d' % (class_name, t + 1, num_iterations))
+            plt.gcf().set_size_inches(4, 4)
+            plt.axis('off')
+            plt.show()
+
+    return deprocess(img.data.cpu())
+
+def get_submodules(model, prefix=''):
+    submodules = []
+    for name, module in model.named_children():
+        full_name = prefix + ('.' if prefix else '') + name
+        submodules.append(full_name)
+        submodules.extend(get_submodules(module, full_name))
+    return submodules
+
+class GradCAM:
+    def __init__(self, model, target_layers=None, use_cuda=True):
+        self.model = model
+        self.model.eval()
+        self.target_layers = target_layers
+        self.cuda = use_cuda
+        if self.cuda:
+            self.model = model.cuda()
+
+    def forward(self, input):
+        return self.model(input)
+
+    def __call__(self, x, index=None):
+        if self.cuda:
+            x = x.cuda()
+
+        features = []
+        def hook(module, input, output):
+            features.append(output)
+
+        handles = []
+        for name, module in self.model.named_modules():
+            if name in self.target_layers:
+                handles.append(module.register_forward_hook(hook))
+
+        output = self.forward(x)
+        if index is None:
+            index = np.argmax(output.data.cpu().numpy())
+
+        one_hot = np.zeros((1, output.size()[-1]), dtype=np.float32)
+        one_hot[0][index] = 1
+        one_hot = torch.from_numpy(one_hot).requires_grad_(True)
+        if self.cuda:
+            one_hot = one_hot.cuda()
+
+        one_hot = torch.sum(one_hot * output)
+        self.model.zero_grad()
+        one_hot.backward(retain_graph=True)
+
+        grads_val = features[0].grad.cpu().data.numpy()
+        target = features[0].cpu().data.numpy()[0, :]
+
+        weights = np.mean(grads_val, axis=(2, 3))[0, :]
+        cam = np.zeros(target.shape[1:], dtype=np.float32)
+
+        for i, w in enumerate(weights):
+            cam += w * target[i, :, :]
+
+        cam = np.maximum(cam, 0)
+        cam = cv2.resize(cam, (x.size(2), x.size(3)))
+        cam = cam - np.min(cam)
+        cam = cam / np.max(cam)
+
+        for handle in handles:
+            handle.remove()
+            
+        return cam
+
+def show_cam_on_image(img, mask):
+    heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
+    heatmap = np.float32(heatmap) / 255
+    cam = heatmap + np.float32(img)
+    cam = cam / np.max(cam)
+    return np.uint8(255 * cam)
+
+def recommend_target_layers(model):
+    target_layers = []
+    for name, module in model.named_modules():
+        if isinstance(module, torch.nn.Conv2d):
+            target_layers.append(name)
+    # Choose the last conv layer as the recommended target layer
+    if target_layers:
+        return [target_layers[-1]], target_layers
+    else:
+        raise ValueError("No convolutional layers found in the model.")
+    
+class IntegratedGradients:
+    def __init__(self, model):
+        self.model = model
+        self.model.eval()
+
+    def generate_integrated_gradients(self, input_tensor, target_label_idx, baseline=None, num_steps=50):
+        if baseline is None:
+            baseline = torch.zeros_like(input_tensor)
+        
+        assert baseline.shape == input_tensor.shape
+
+        # Scale input and compute gradients
+        scaled_inputs = [(baseline + (float(i) / num_steps) * (input_tensor - baseline)).requires_grad_(True) for i in range(0, num_steps + 1)]
+        grads = []
+        for scaled_input in scaled_inputs:
+            out = self.model(scaled_input)
+            self.model.zero_grad()
+            out[0, target_label_idx].backward(retain_graph=True)
+            grads.append(scaled_input.grad.data.cpu().numpy())
+
+        avg_grads = np.mean(grads[:-1], axis=0)
+        integrated_grads = (input_tensor.cpu().data.numpy() - baseline.cpu().data.numpy()) * avg_grads
+        return integrated_grads

@@ -112,7 +112,7 @@ class modify_masks:
         self.canvas.pack()
         self.canvas.bind("<Motion>", self.update_mouse_info)
 
-    def initialize_flags(self):
+    def initialize_flags_v1(self):
         self.zoom_rectangle_start = None
         self.zoom_rectangle_end = None
         self.zoom_rectangle_id = None
@@ -131,7 +131,30 @@ class modify_masks:
         self.lower_quantile = tk.StringVar(value="1.0")
         self.upper_quantile = tk.StringVar(value="99.9")
         self.magic_wand_tolerance = tk.StringVar(value="1000")
-    
+
+    def initialize_flags(self):
+        self.zoom_rectangle_start = None
+        self.zoom_rectangle_end = None
+        self.zoom_rectangle_id = None
+        self.zoom_x0 = None
+        self.zoom_y0 = None
+        self.zoom_x1 = None
+        self.zoom_y1 = None
+        self.zoom_mask = None
+        self.zoom_image = None
+        self.zoom_image_orig = None
+        self.zoom_scale = 1
+        self.drawing = False
+        self.zoom_active = False
+        self.magic_wand_active = False
+        self.brush_active = False
+        self.dividing_line_active = False
+        self.dividing_line_coords = []
+        self.current_dividing_line = None
+        self.lower_quantile = tk.StringVar(value="1.0")
+        self.upper_quantile = tk.StringVar(value="99.9")
+        self.magic_wand_tolerance = tk.StringVar(value="1000")
+
     def update_mouse_info(self, event):
         x, y = event.x, event.y
         intensity = "N/A"
@@ -171,6 +194,29 @@ class modify_masks:
         self.pixel_count_label = tk.Label(navigation_toolbar, text="Area: N/A")
         self.pixel_count_label.pack(side='right')
 
+    def setup_mode_toolbar_v1(self):
+        self.mode_toolbar = tk.Frame(self.root)
+        self.mode_toolbar.pack(side='top', fill='x')
+        self.draw_btn = tk.Button(self.mode_toolbar, text="Draw", command=self.toggle_draw_mode)
+        self.draw_btn.pack(side='left')
+        self.magic_wand_btn = tk.Button(self.mode_toolbar, text="Magic Wand", command=self.toggle_magic_wand_mode)
+        self.magic_wand_btn.pack(side='left')
+        tk.Label(self.mode_toolbar, text="Tolerance:").pack(side='left')
+        self.tolerance_entry = tk.Entry(self.mode_toolbar, textvariable=self.magic_wand_tolerance)
+        self.tolerance_entry.pack(side='left')
+        tk.Label(self.mode_toolbar, text="Max Pixels:").pack(side='left')
+        self.max_pixels_entry = tk.Entry(self.mode_toolbar)
+        self.max_pixels_entry.insert(0, "1000")
+        self.max_pixels_entry.pack(side='left')
+        self.erase_btn = tk.Button(self.mode_toolbar, text="Erase", command=self.toggle_erase_mode)
+        self.erase_btn.pack(side='left')
+        self.brush_btn = tk.Button(self.mode_toolbar, text="Brush", command=self.toggle_brush_mode)
+        self.brush_btn.pack(side='left')
+        self.brush_size_entry = tk.Entry(self.mode_toolbar)
+        self.brush_size_entry.insert(0, "10") 
+        self.brush_size_entry.pack(side='left')
+        tk.Label(self.mode_toolbar, text="Brush Size:").pack(side='left')
+
     def setup_mode_toolbar(self):
         self.mode_toolbar = tk.Frame(self.root)
         self.mode_toolbar.pack(side='top', fill='x')
@@ -187,13 +233,14 @@ class modify_masks:
         self.max_pixels_entry.pack(side='left')
         self.erase_btn = tk.Button(self.mode_toolbar, text="Erase", command=self.toggle_erase_mode)
         self.erase_btn.pack(side='left')
-    
         self.brush_btn = tk.Button(self.mode_toolbar, text="Brush", command=self.toggle_brush_mode)
         self.brush_btn.pack(side='left')
         self.brush_size_entry = tk.Entry(self.mode_toolbar)
-        self.brush_size_entry.insert(0, "10") 
+        self.brush_size_entry.insert(0, "10")
         self.brush_size_entry.pack(side='left')
         tk.Label(self.mode_toolbar, text="Brush Size:").pack(side='left')
+        self.dividing_line_btn = tk.Button(self.mode_toolbar, text="Dividing Line", command=self.toggle_dividing_line_mode)
+        self.dividing_line_btn.pack(side='left')
 
     def setup_function_toolbar(self):
         self.function_toolbar = tk.Frame(self.root)
@@ -381,7 +428,7 @@ class modify_masks:
     # Mode activation#
     ####################################################################################################
     
-    def toggle_zoom_mode(self):
+    def toggle_zoom_mode_v1(self):
         if not self.zoom_active:
             self.brush_btn.config(text="Brush")
             self.canvas.unbind("<B1-Motion>")
@@ -393,10 +440,12 @@ class modify_masks:
             self.magic_wand_active = False
             self.erase_active = False
             self.brush_active = False
+            self.dividing_line_active = False
             self.draw_btn.config(text="Draw")
             self.erase_btn.config(text="Erase")
             self.magic_wand_btn.config(text="Magic Wand")
             self.zoom_btn.config(text="Zoom ON")
+            self.dividing_line_btn.config(text="Dividing Line")
             self.canvas.unbind("<Button-1>")
             self.canvas.unbind("<Button-3>")
             self.canvas.unbind("<Motion>")
@@ -423,7 +472,52 @@ class modify_masks:
             self.zoom_mask = None
             self.zoom_image = None
             self.zoom_image_orig = None
-            
+
+    def toggle_zoom_mode(self):
+        if not self.zoom_active:
+            self.brush_btn.config(text="Brush")
+            self.canvas.unbind("<B1-Motion>")
+            self.canvas.unbind("<B3-Motion>")
+            self.canvas.unbind("<ButtonRelease-1>")
+            self.canvas.unbind("<ButtonRelease-3>")
+            self.zoom_active = True
+            self.drawing = False
+            self.magic_wand_active = False
+            self.erase_active = False
+            self.brush_active = False
+            self.dividing_line_active = False
+            self.draw_btn.config(text="Draw")
+            self.erase_btn.config(text="Erase")
+            self.magic_wand_btn.config(text="Magic Wand")
+            self.zoom_btn.config(text="Zoom ON")
+            self.dividing_line_btn.config(text="Dividing Line")
+            self.canvas.unbind("<Button-1>")
+            self.canvas.unbind("<Button-3>")
+            self.canvas.unbind("<Motion>")
+            self.canvas.bind("<Button-1>", self.set_zoom_rectangle_start)
+            self.canvas.bind("<Button-3>", self.set_zoom_rectangle_end)
+            self.canvas.bind("<Motion>", self.update_zoom_box)
+        else:
+            self.zoom_active = False
+            self.zoom_btn.config(text="Zoom")
+            self.canvas.unbind("<Button-1>")
+            self.canvas.unbind("<Button-3>")
+            self.canvas.unbind("<Motion>")
+            self.zoom_rectangle_start = self.zoom_rectangle_end = None
+            self.zoom_rectangle_id = None
+            self.display_image()
+            self.canvas.bind("<Motion>", self.update_mouse_info)
+            self.zoom_rectangle_start = None
+            self.zoom_rectangle_end = None
+            self.zoom_rectangle_id = None
+            self.zoom_x0 = None
+            self.zoom_y0 = None
+            self.zoom_x1 = None
+            self.zoom_y1 = None
+            self.zoom_mask = None
+            self.zoom_image = None
+            self.zoom_image_orig = None
+
     def toggle_brush_mode(self):
         self.brush_active = not self.brush_active
         if self.brush_active:
@@ -448,7 +542,105 @@ class modify_masks:
             self.canvas.unbind("<B3-Motion>")
             self.canvas.unbind("<ButtonRelease-1>")
             self.canvas.unbind("<ButtonRelease-3>")
-            
+
+    def image_to_canvas(self, x_image, y_image):
+        x_scale, y_scale = self.get_scaling_factors(
+            self.image.shape[1], self.image.shape[0],
+            self.canvas_width, self.canvas_height
+        )
+        x_canvas = int(x_image / x_scale)
+        y_canvas = int(y_image / y_scale)
+        return x_canvas, y_canvas
+
+    def toggle_dividing_line_mode(self):
+        self.dividing_line_active = not self.dividing_line_active
+        if self.dividing_line_active:
+            self.drawing = False
+            self.magic_wand_active = False
+            self.erase_active = False
+            self.brush_active = False
+            self.draw_btn.config(text="Draw")
+            self.erase_btn.config(text="Erase")
+            self.magic_wand_btn.config(text="Magic Wand")
+            self.brush_btn.config(text="Brush")
+            self.dividing_line_btn.config(text="Dividing Line ON")
+            self.canvas.unbind("<Button-1>")
+            self.canvas.unbind("<ButtonRelease-1>")
+            self.canvas.unbind("<Motion>")
+            self.canvas.bind("<Button-1>", self.start_dividing_line)
+            self.canvas.bind("<ButtonRelease-1>", self.finish_dividing_line)
+            self.canvas.bind("<Motion>", self.update_dividing_line_preview)
+        else:
+            print("Dividing Line Mode: OFF")
+            self.dividing_line_active = False
+            self.dividing_line_btn.config(text="Dividing Line")
+            self.canvas.unbind("<Button-1>")
+            self.canvas.unbind("<ButtonRelease-1>")
+            self.canvas.unbind("<Motion>")
+            self.display_image()
+
+    def start_dividing_line(self, event):
+        if self.dividing_line_active:
+            self.dividing_line_coords = [(event.x, event.y)]
+            self.current_dividing_line = self.canvas.create_line(event.x, event.y, event.x, event.y, fill="red", width=2)
+
+    def finish_dividing_line(self, event):
+        if self.dividing_line_active:
+            self.dividing_line_coords.append((event.x, event.y))
+            if self.zoom_active:
+                self.dividing_line_coords = [self.canvas_to_image(x, y) for x, y in self.dividing_line_coords]
+            self.apply_dividing_line()
+            self.canvas.delete(self.current_dividing_line)
+            self.current_dividing_line = None
+
+    def update_dividing_line_preview(self, event):
+        if self.dividing_line_active and self.dividing_line_coords:
+            x, y = event.x, event.y
+            if self.zoom_active:
+                x, y = self.canvas_to_image(x, y)
+            self.dividing_line_coords.append((x, y))
+            canvas_coords = [(self.image_to_canvas(*pt) if self.zoom_active else pt) for pt in self.dividing_line_coords]
+            flat_canvas_coords = [coord for pt in canvas_coords for coord in pt]
+            self.canvas.coords(self.current_dividing_line, *flat_canvas_coords)
+
+    def apply_dividing_line(self):
+        if self.dividing_line_coords:
+            coords = self.dividing_line_coords
+            if self.zoom_active:
+                coords = [self.canvas_to_image(x, y) for x, y in coords]
+
+            rr, cc = [], []
+            for (x0, y0), (x1, y1) in zip(coords[:-1], coords[1:]):
+                line_rr, line_cc = line(y0, x0, y1, x1)
+                rr.extend(line_rr)
+                cc.extend(line_cc)
+            rr, cc = np.array(rr), np.array(cc)
+
+            mask_copy = self.mask.copy()
+
+            if self.zoom_active:
+                # Update the zoomed mask
+                self.zoom_mask[rr, cc] = 0
+                # Reflect changes to the original mask
+                y0, y1, x0, x1 = self.zoom_y0, self.zoom_y1, self.zoom_x0, self.zoom_x1
+                zoomed_mask_resized_back = resize(self.zoom_mask, (y1 - y0, x1 - x0), order=0, preserve_range=True).astype(np.uint8)
+                self.mask[y0:y1, x0:x1] = zoomed_mask_resized_back
+            else:
+                # Directly update the original mask
+                mask_copy[rr, cc] = 0
+                self.mask = mask_copy
+
+            labeled_mask, num_labels = label(self.mask > 0)
+            self.mask = labeled_mask
+            self.update_display()
+
+            self.dividing_line_coords = []
+            self.canvas.unbind("<Button-1>")
+            self.canvas.unbind("<ButtonRelease-1>")
+            self.canvas.unbind("<Motion>")
+            self.dividing_line_active = False
+            self.dividing_line_btn.config(text="Dividing Line")
+
     def toggle_draw_mode(self):
         self.drawing = not self.drawing
         if self.drawing:
