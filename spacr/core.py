@@ -77,42 +77,6 @@ def analyze_plaques(folder):
     
     print(f"Analysis completed and saved to database '{db_name}'.")
 
-def generate_cp_masks(settings):
-    
-    src = settings['src']
-    model_name = settings['model_name']
-    channels = settings['channels']
-    diameter = settings['diameter']
-    regex = '.tif'
-    #flow_threshold = 30
-    cellprob_threshold = settings['cellprob_threshold']
-    figuresize = 25
-    cmap = 'inferno'
-    verbose = settings['verbose']
-    plot = settings['plot']
-    save = settings['save']
-    custom_model = settings['custom_model']
-    signal_thresholds = 1000
-    normalize = settings['normalize']
-    resize = settings['resize']
-    target_height = settings['width_height'][1]
-    target_width = settings['width_height'][0]
-    rescale = settings['rescale']
-    resample = settings['resample']
-    net_avg = settings['net_avg']
-    invert = settings['invert']
-    circular = settings['circular']
-    percentiles = settings['percentiles']
-    overlay = settings['overlay']
-    grayscale = settings['grayscale']
-    flow_threshold = settings['flow_threshold']
-    batch_size = settings['batch_size']
-    
-    dst = os.path.join(src,'masks')
-    os.makedirs(dst, exist_ok=True)
-	   
-    identify_masks(src, dst, model_name, channels, diameter, batch_size, flow_threshold, cellprob_threshold, figuresize, cmap, verbose, plot, save, custom_model, signal_thresholds, normalize, resize, target_height, target_width, rescale, resample, net_avg, invert, circular, percentiles, overlay, grayscale)
-
 def train_cellpose(settings):
     
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
@@ -255,179 +219,6 @@ def train_cellpose(settings):
                     #bsize=224,
                     min_train_masks=1,
                     model_name=model_name)
-
-    return print(f"Model saved at: {model_save_path}/{model_name}")
-
-def train_cellpose_v1(settings):
-    
-    from .io import _load_normalized_images_and_labels, _load_images_and_labels
-    from .utils import resize_images_and_labels
-
-    img_src = settings['img_src'] 
-    
-    mask_src = os.path.join(img_src, 'mask')
-    
-    model_name = settings['model_name']
-    model_type = settings['model_type']
-    learning_rate = settings['learning_rate']
-    weight_decay = settings['weight_decay']
-    batch_size = settings['batch_size']
-    n_epochs = settings['n_epochs']
-    verbose = settings['verbose']
-
-    signal_thresholds = 100 #settings['signal_thresholds']
-
-    channels = settings['channels']
-    from_scratch = settings['from_scratch']
-    diameter = settings['diameter']
-    resize = settings['resize']
-    rescale = settings['rescale']
-    normalize = settings['normalize']
-    target_height = settings['width_height'][1]
-    target_width = settings['width_height'][0]
-    circular = settings['circular']
-    invert = settings['invert']
-    percentiles = settings['percentiles']
-    grayscale = settings['grayscale']
-
-    if model_type == 'cyto':
-        settings['diameter'] = 30
-        diameter = settings['diameter']
-        print(f'Cyto model must have diamiter 30. Diameter set the 30')
-
-    if model_type == 'nuclei':
-        settings['diameter'] = 17
-        diameter = settings['diameter']
-        print(f'Nuclei model must have diamiter 17. Diameter set the 17')
-
-    print(settings)
-
-    if from_scratch:
-        model_name=f'scratch_{model_name}_{model_type}_e{n_epochs}_X{target_width}_Y{target_height}.CP_model'
-    else:
-        model_name=f'{model_name}_{model_type}_e{n_epochs}_X{target_width}_Y{target_height}.CP_model'
-
-    model_save_path = os.path.join(mask_src, 'models', 'cellpose_model')
-    print(model_save_path)
-    os.makedirs(model_save_path, exist_ok=True)
-    
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(model_save_path,f'{model_name}_settings.csv')
-    settings_df.to_csv(settings_csv, index=False)
-    
-    if not from_scratch:
-        model = cp_models.CellposeModel(gpu=True, model_type=model_type)
-
-    else:
-        model = cp_models.CellposeModel(gpu=True, model_type=model_type, pretrained_model=None)
-            
-    if normalize:
-        image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
-        label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
-
-        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, signal_thresholds, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose)
-        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-    else:
-        images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, circular, invert)
-        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-    
-    if resize:
-        images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
-
-    if model_type == 'cyto':
-        cp_channels = [0,1]
-    if model_type == 'cyto2':
-        cp_channels = [0,2]
-    if model_type == 'nucleus':
-        cp_channels = [0,0]
-    if grayscale:
-        cp_channels = [0,0]
-        images = [np.squeeze(img) if img.ndim == 3 and 1 in img.shape else img for img in images]
-    
-    masks = [np.squeeze(mask) if mask.ndim == 3 and 1 in mask.shape else mask for mask in masks]
-
-    print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {masks[0].shape}, image type: masks[0].shape')
-    save_every = int(n_epochs/10)
-    if save_every < 10:
-        save_every = n_epochs
-
-
-    #print('cellpose image input dtype', images[0].dtype)
-    #print('cellpose mask input dtype', masks[0].dtype)
-    
-    # Train the model
-    #model.train(train_data=images, #(list of arrays (2D or 3D)) – images for training
-
-    #model.train(train_data=images, #(list of arrays (2D or 3D)) – images for training
-    #            train_labels=masks, #(list of arrays (2D or 3D)) – labels for train_data, where 0=no masks; 1,2,…=mask labels can include flows as additional images
-    #            train_files=image_names, #(list of strings) – file names for images in train_data (to save flows for future runs)
-    #            channels=cp_channels, #(list of ints (default, None)) – channels to use for training
-    #            normalize=False, #(bool (default, True)) – normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel
-    #            save_path=model_save_path, #(string (default, None)) – where to save trained model, if None it is not saved
-    #            save_every=save_every, #(int (default, 100)) – save network every [save_every] epochs
-    #            learning_rate=learning_rate, #(float or list/np.ndarray (default, 0.2)) – learning rate for training, if list, must be same length as n_epochs
-    #            n_epochs=n_epochs, #(int (default, 500)) – how many times to go through whole training set during training
-    #            weight_decay=weight_decay, #(float (default, 0.00001)) –
-    #            SGD=True, #(bool (default, True)) – use SGD as optimization instead of RAdam
-    #            batch_size=batch_size, #(int (optional, default 8)) – number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)
-    #            nimg_per_epoch=None, #(int (optional, default None)) – minimum number of images to train on per epoch, with a small training set (< 8 images) it may help to set to 8
-    #            rescale=rescale, #(bool (default, True)) – whether or not to rescale images to diam_mean during training, if True it assumes you will fit a size model after training or resize your images accordingly, if False it will try to train the model to be scale-invariant (works worse)
-    #            min_train_masks=1, #(int (default, 5)) – minimum number of masks an image must have to use in training set
-    #            model_name=model_name) #(str (default, None)) – name of network, otherwise saved with name as params + training start time 
-
-
-    train.train_seg(model.net,
-                    train_data=images,
-                    train_labels=masks,
-                    train_files=image_names,
-                    train_labels_files=None,
-                    train_probs=None,
-                    test_data=None,
-                    test_labels=None,
-                    test_files=None,
-                    test_labels_files=None, 
-                    test_probs=None,
-                    load_files=True,
-                    batch_size=batch_size,
-                    learning_rate=learning_rate,
-                    n_epochs=n_epochs,
-                    weight_decay=weight_decay,
-                    momentum=0.9,
-                    SGD=False,
-                    channels=cp_channels,
-                    channel_axis=None,
-                    #rgb=False,
-                    normalize=False, 
-                    compute_flows=False,
-                    save_path=model_save_path,
-                    save_every=save_every,
-                    nimg_per_epoch=None,
-                    nimg_test_per_epoch=None,
-                    rescale=rescale,
-                    #scale_range=None,
-                    #bsize=224,
-                    min_train_masks=1,
-                    model_name=model_name)
-
-    #model_save_path = train.train_seg(model.net,
-    #                                  train_data=images,
-    #                                  train_files=image_names,
-    #                                  train_labels=masks,
-    #                                  channels=cp_channels,
-    #                                  normalize=False,
-    #                                  save_every=save_every,
-    #                                  learning_rate=learning_rate,
-    #                                  n_epochs=n_epochs,
-    #                                  #test_data=test_images,
-    #                                  #test_labels=test_labels,
-    #                                  weight_decay=weight_decay,
-    #                                  SGD=True,
-    #                                  batch_size=batch_size, 
-    #                                  nimg_per_epoch=None,
-    #                                  rescale=rescale,
-    #                                  min_train_masks=1,
-    #                                  model_name=model_name)
- 
 
     return print(f"Model saved at: {model_save_path}/{model_name}")
 
@@ -992,15 +783,6 @@ def merge_pred_mes(src,
     
     if verbose:
         _plot_histograms_and_stats(df=joined_df)
-        
-    #dv = joined_df.copy()
-    #if 'prc' not in dv.columns:
-    #dv['prc'] = dv['plate'] + '_' + dv['row'] + '_' + dv['col']
-    #dv = dv[['pred']].groupby('prc').mean()
-    #dv.set_index('prc', inplace=True)
-    
-    #loc = '/mnt/data/CellVoyager/20x/tsg101/crispr_screen/all/measurements/dv.csv'
-    #dv.to_csv(loc, index=True, header=True, mode='w')
 
     return joined_df
 
@@ -2230,6 +2012,7 @@ def identify_masks_finetune(settings):
                     stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)
                 print_mask_and_flows(stack, mask, flows, overlay=True)
             if save:
+                os.makedirs(dst, exist_ok=True)
                 output_filename = os.path.join(dst, image_names[file_index])
                 cv2.imwrite(output_filename, mask)
     return
@@ -2679,7 +2462,7 @@ def generate_cellpose_masks(src, settings, object_type):
     torch.cuda.empty_cache()
     return
 
-def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, verbose):
+def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
     
     from .io import _load_images_and_labels, _load_normalized_images_and_labels
     from .utils import resize_images_and_labels, resizescikit
@@ -2687,8 +2470,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
 
     dst = os.path.join(src, model_name)
     os.makedirs(dst, exist_ok=True)
-    
-    flow_threshold = 30
+
     chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [1,0] if model_name == 'cyto' else [2, 0]
 
     if grayscale:
@@ -2706,11 +2488,11 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
         image_files = all_image_files[i:i+batch_size]
 
         if normalize:
-            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, signal_thresholds=100, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=plot)
+            images, _, image_names, _ = _load_normalized_images_and_labels(image_files, None, channels, percentiles,  circular, invert, plot, remove_background, background, Signal_to_noise)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
-            images, _, image_names, _ = _load_images_and_labels(image_files=image_files, label_files=None, circular=circular, invert=invert) 
+            images, _, image_names, _ = _load_images_and_labels(image_files, None, circular, invert) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         if resize:
@@ -2757,21 +2539,32 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
 def check_cellpose_models(settings):
     
     src = settings['src']
-    batch_size = settings['batch_size']
-    cellprob_threshold = settings['cellprob_threshold']
-    save = settings['save']
-    normalize = settings['normalize']
-    channels = settings['channels']
-    percentiles = settings['percentiles']
-    circular = settings['circular']
-    invert = settings['invert']
-    plot = settings['plot']
-    diameter = settings['diameter']
-    resize = settings['resize']
-    grayscale = settings['grayscale']
-    verbose = settings['verbose']
-    target_height = settings['width_height'][0]
-    target_width = settings['width_height'][1]
+    batch_size = settings.setdefault('batch_size', 10)
+    cellprob_threshold = settings.setdefault('CP_prob', 0)
+    flow_threshold = settings.setdefault('flow_threshold', 1)
+    save = settings.setdefault('save', True)
+    normalize = settings.setdefault('normalize', True)
+    channels = settings.setdefault('channels', [0,0])
+    percentiles = settings.setdefault('percentiles', None)
+    circular = settings.setdefault('circular', False)
+    invert = settings.setdefault('invert', False)
+    plot = settings.setdefault('plot', True)
+    diameter = settings.setdefault('diameter', 40)
+    grayscale = settings.setdefault('grayscale', True)
+    remove_background = settings.setdefault('remove_background', False)
+    background = settings.setdefault('background', 100)
+    Signal_to_noise = settings.setdefault('Signal_to_noise', 5)
+
+    verbose = settings.setdefault('verbose', False)
+
+    resize = settings.setdefault('resize', False)
+
+    if resize:
+        target_height = settings['width_height'][0]
+        target_width = settings['width_height'][1]
+    else:
+        target_height = None
+        target_width = None
     
     cellpose_models = ['cyto', 'nuclei', 'cyto2', 'cyto3']
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -2780,8 +2573,8 @@ def check_cellpose_models(settings):
 
         model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
         print(f'Using {model_name}')
-        generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, verbose)
-    
+        generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose)
+
     return
 
 def compare_masks_v1(dir1, dir2, dir3, verbose=False):
@@ -2860,7 +2653,7 @@ def compare_masks_v1(dir1, dir2, dir3, verbose=False):
     fig = plot_comparison_results(results)
     return results, fig
 
-def compare_cellpose_masks_v1(src, verbose=False):
+def compare_cellpose_masks(src, verbose=False):
     
     from .io import _read_mask
     from .plot import visualize_masks, plot_comparison_results, visualize_cellpose_masks
