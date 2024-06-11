@@ -1,4 +1,6 @@
-import torch, os, dgl
+import os
+os.environ['DGLBACKEND'] = 'pytorch'
+import torch, dgl
 import pandas as pd
 import torch.nn as nn
 from torchvision import datasets, transforms
