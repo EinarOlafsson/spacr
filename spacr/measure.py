@@ -1092,3 +1092,18 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
                     shutil.copy(img_path, new_img)
                 except Exception as e:
                     print(f"Error copying {path} to {new_mask}: {e}")
+
+def get_object_counts(src):
+    database_path = os.path.join(src, 'measurements/measurements.db')
+    # Connect to the SQLite database
+    conn = sqlite3.connect(database_path)
+    # Read the table into a pandas DataFrame
+    df = pd.read_sql_query("SELECT * FROM object_counts", conn)
+    # Group by 'count_type' and calculate the sum of 'object_count' and the average 'object_count' per 'file_name'
+    grouped_df = df.groupby('count_type').agg(
+        total_object_count=('object_count', 'sum'),
+        avg_object_count_per_file_name=('object_count', 'mean')
+    ).reset_index()
+    # Close the database connection
+    conn.close()
+    return grouped_df

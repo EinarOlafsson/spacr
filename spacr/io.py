@@ -94,7 +94,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     from .utils import invert_image, apply_mask
 
     signal_thresholds = background*Signal_to_noise
-    lower_percentile = 1
+    lower_percentile = 2
 
     images = []
     labels = []
@@ -1039,7 +1039,8 @@ def _get_lists_for_normalization(settings):
     # Initialize the lists
     backgrounds = []
     signal_to_noise = []
-    signal_thresholds = [] 
+    signal_thresholds = []
+    remove_background = []
 
     # Iterate through the channels and append the corresponding values if the channel is not None
     for ch in settings['channels']:
@@ -1047,17 +1048,20 @@ def _get_lists_for_normalization(settings):
             backgrounds.append(settings['nucleus_background'])
             signal_to_noise.append(settings['nucleus_Signal_to_noise'])
             signal_thresholds.append(settings['nucleus_Signal_to_noise']*settings['nucleus_background'])
+            remove_background.append(settings['remove_background_nucleus'])
         elif ch == settings['cell_channel']:
             backgrounds.append(settings['cell_background'])
             signal_to_noise.append(settings['cell_Signal_to_noise'])
             signal_thresholds.append(settings['cell_Signal_to_noise']*settings['cell_background'])
+            remove_background.append(settings['remove_background_cell'])
         elif ch == settings['pathogen_channel']:
             backgrounds.append(settings['pathogen_background'])
             signal_to_noise.append(settings['pathogen_Signal_to_noise'])
             signal_thresholds.append(settings['pathogen_Signal_to_noise']*settings['pathogen_background'])
-    return backgrounds, signal_to_noise, signal_thresholds
+            remove_background.append(settings['remove_background_pathogen'])
+    return backgrounds, signal_to_noise, signal_thresholds, remove_background
 
-def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lower_quantile=0.01, save_dtype=np.float32, signal_to_noise=[5,5,5], signal_thresholds=[1000,1000,1000], correct_illumination=False):
+def _normalize_stack(src, backgrounds=[100,100,100], remove_backgrounds=[False,False,False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5,5,5], signal_thresholds=[1000,1000,1000], correct_illumination=False):
     """
     Normalize the stack of images.
 
@@ -1065,7 +1069,7 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
         src (str): The source directory containing the stack of images.
         backgrounds (list, optional): Background values for each channel. Defaults to [100,100,100].
         remove_background (bool, optional): Whether to remove background values. Defaults to False.
-        lower_quantile (float, optional): Lower quantile value for normalization. Defaults to 0.01.
+        lower_percentile (int, optional): Lower percentile value for normalization. Defaults to 1.
         save_dtype (numpy.dtype, optional): Data type for saving the normalized stack. Defaults to np.float32.
         signal_to_noise (list, optional): Signal-to-noise ratio thresholds for each channel. Defaults to [5,5,5].
         signal_thresholds (list, optional): Signal thresholds for each channel. Defaults to [1000,1000,1000].
@@ -1090,24 +1094,25 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
             single_channel = stack[:, :, :, channel]
             background = backgrounds[chan_index]
             signal_threshold = signal_thresholds[chan_index]
-            #print(f'signal_threshold:{signal_threshold} in {signal_thresholds} for {chan_index}')
-
+            remove_background = remove_backgrounds[chan_index]
             signal_2_noise = signal_to_noise[chan_index]
+            print(f'chan_index:{chan_index} background:{background} signal_threshold:{signal_threshold} remove_background:{remove_background} signal_2_noise:{signal_2_noise}')
+
             if remove_background:
                 single_channel[single_channel < background] = 0
             if correct_illumination:
                 bg = filters.gaussian(single_channel, sigma=50)
                 single_channel = single_channel - bg
 
-            #Calculate the global lower and upper quantiles for non-zero pixels
+            #Calculate the global lower and upper percentiles for non-zero pixels
             non_zero_single_channel = single_channel[single_channel != 0]
-            global_lower = np.quantile(non_zero_single_channel, lower_quantile)
-            for upper_p in np.linspace(0.98, 1.0, num=100).tolist():
-                global_upper = np.quantile(non_zero_single_channel, upper_p)
+            global_lower = np.percentile(non_zero_single_channel, lower_percentile)
+            for upper_p in np.linspace(98, 100, num=100).tolist():
+                global_upper = np.percentile(non_zero_single_channel, upper_p)
                 if global_upper >= signal_threshold:
                     break
 
-            #Normalize the pixels in each image to the global quantiles and then dtype.
+            #Normalize the pixels in each image to the global percentiles and then dtype.
             arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
             signal_to_noise_ratio_ls = []
             for array_index in range(single_channel.shape[0]):
@@ -1115,7 +1120,7 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
                 arr_2d = single_channel[array_index, :, :]
                 non_zero_arr_2d = arr_2d[arr_2d != 0]
                 if non_zero_arr_2d.size > 0:
-                    lower, upper = np.quantile(non_zero_arr_2d, (lower_quantile, upper_p))
+                    lower, upper = np.percentile(non_zero_arr_2d, (lower_percentile, upper_p))
                     signal_to_noise_ratio = upper/lower
                 else:
                     signal_to_noise_ratio = 0
@@ -1133,7 +1138,6 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
                 #clear_output(wait=True)
                 print(f'Progress: files {file_index+1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1]-1}, arrays:{array_index+1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
-                #print(f'Progress: files {file_index+1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1]-1}, arrays:{array_index+1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec', end='\r', flush=True)
             normalized_single_channel = exposure.rescale_intensity(arr_2d_normalized, out_range='dtype')
             normalized_stack[:, :, :, channel] = normalized_single_channel
         save_loc = output_fldr+'/'+name+'_norm_stack.npz'
@@ -1143,13 +1147,13 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_background=False, lo
         gc.collect()
     return print(f'Saved stacks:{output_fldr}')
 
-def _normalize_timelapse(src, lower_quantile=0.01, save_dtype=np.float32):
+def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
     """
     Normalize the timelapse data by rescaling the intensity values based on percentiles.
 
     Args:
         src (str): The source directory containing the timelapse data files.
-        lower_quantile (float, optional): The lower quantile used to calculate the intensity range. Defaults to 0.01.
+        lower_percentile (int, optional): The lower percentile used to calculate the intensity range. Defaults to 1.
         save_dtype (numpy.dtype, optional): The data type to save the normalized stack. Defaults to np.float32.
     """
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
@@ -1171,7 +1175,7 @@ def _normalize_timelapse(src, lower_quantile=0.01, save_dtype=np.float32):
             for array_index in range(single_channel.shape[0]):
                 arr_2d = single_channel[array_index]
                 # Calculate the 1% and 98% percentiles for this specific image
-                q_low = np.percentile(arr_2d[arr_2d != 0], 2)
+                q_low = np.percentile(arr_2d[arr_2d != 0], lower_percentile)
                 q_high = np.percentile(arr_2d[arr_2d != 0], 98)
 
                 # Rescale intensity based on the calculated percentiles to fill the dtype range
@@ -1265,7 +1269,7 @@ def delete_empty_subdirectories(folder_path):
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays, _plot_4D_arrays
-    from .utils import _run_test_mode
+    from .utils import _run_test_mode, _get_regex, set_default_settings_preprocess_img_data
     
     """
     Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
@@ -1284,7 +1288,7 @@ def preprocess_img_data(settings):
         timelapse (bool, optional): Whether the images are from a timelapse experiment. Defaults to False.
         remove_background (bool, optional): Whether to remove the background from the images. Defaults to False.
         backgrounds (int, optional): The number of background images to use for background removal. Defaults to 100.
-        lower_quantile (float, optional): The lower quantile used for background removal. Defaults to 0.01.
+        lower_percentile (float, optional): The lower percentile used for background removal. Defaults to 1.
         save_dtype (type, optional): The data type used for saving the preprocessed images. Defaults to np.float32.
         correct_illumination (bool, optional): Whether to correct the illumination of the images. Defaults to False.
         randomize (bool, optional): Whether to randomize the order of the images. Defaults to True.
@@ -1305,7 +1309,6 @@ def preprocess_img_data(settings):
     most_common_extension = extension_counts.most_common(1)[0][0]
     img_format = None
     
-
     delete_empty_subdirectories(src)
 
     # Check if the most common extension is one of the specified image formats
@@ -1322,47 +1325,15 @@ def preprocess_img_data(settings):
             print('Found existing norm_channel_stack folder. Skipping preprocessing')
             return settings, src
         
-    cmap = 'inferno'
-    figuresize = 20
-    normalize = True
-    save_dtype = 'uint16'
-    correct_illumination = False
-    
-    #mask_channels = [settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel']]
-    #backgrounds = [settings['nucleus_background'], settings['pathogen_background'], settings['cell_background']]
     mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
     backgrounds = [settings['nucleus_background'], settings['cell_background'], settings['pathogen_background']]
-    
-    metadata_type = settings['metadata_type']
-    custom_regex = settings['custom_regex']
-    nr = settings['examples_to_plot']
-    plot = settings['plot']
-    batch_size = settings['batch_size']
-    timelapse = settings['timelapse']
-    remove_background = settings['remove_background']
-    lower_quantile = settings['lower_quantile']
-    randomize = settings['randomize']
-    all_to_mip = settings['all_to_mip']
-    pick_slice = settings['pick_slice']
-    skip_mode = settings['skip_mode']
 
-    if not img_format == None:
-        if metadata_type == 'cellvoyager':
-            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-        elif metadata_type == 'cq1':
-            regex = f'W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-        elif metadata_type == 'nikon':
-            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-        elif metadata_type == 'zeis':
-            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-        elif metadata_type == 'leica':
-            regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-        elif metadata_type == 'custom':
-            regex = f'({custom_regex}){img_format}'
-        
-        print(f'regex mode:{metadata_type} regex:{regex}')
+    settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, correct_illumination, test_mode, test_images, random_test = set_default_settings_preprocess_img_data(settings)
 
-    if settings.get('test_mode', False):
+    regex = _get_regex(metadata_type, img_format, custom_regex)
+
+    if test_mode:
+
         print(f'Running spacr in test mode')
         settings['plot'] = True
         try:
@@ -1371,7 +1342,7 @@ def preprocess_img_data(settings):
         except OSError as e:
             pass
 
-        src = _run_test_mode(settings['src'], regex, timelapse=timelapse)
+        src = _run_test_mode(settings['src'], regex, timelapse, test_images, random_test)
         settings['src'] = src
 
     if img_format == None:
@@ -1427,19 +1398,19 @@ def preprocess_img_data(settings):
         print(f'plotting {nr} images from {src}/channel_stack')
         _plot_4D_arrays(src+'/channel_stack', figuresize, cmap, nr_npz=1, nr=nr)
         
-    backgrounds, signal_to_noise, signal_thresholds = _get_lists_for_normalization(settings=settings)
+    backgrounds, signal_to_noise, signal_thresholds, remove_backgrounds = _get_lists_for_normalization(settings=settings)
     
     if not timelapse:
         _normalize_stack(src+'/channel_stack',
                     backgrounds=backgrounds,
-                    lower_quantile=lower_quantile,
+                    remove_backgrounds=remove_backgrounds,
+                    lower_percentile=lower_percentile,
                     save_dtype=save_dtype,
-                    signal_thresholds=signal_thresholds,
-                    correct_illumination=correct_illumination,
                     signal_to_noise=signal_to_noise, 
-                    remove_background=remove_background)
+                    signal_thresholds=signal_thresholds,
+                    correct_illumination=correct_illumination)
     else:
-        _normalize_timelapse(src+'/channel_stack', lower_quantile=lower_quantile, save_dtype=np.float32)
+        _normalize_timelapse(src+'/channel_stack', lower_percentile=lower_percentile, save_dtype=np.float32)
         
     if plot:
         _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)

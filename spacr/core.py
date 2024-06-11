@@ -1,13 +1,11 @@
-import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap, string
+import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap
 
 # image and array processing
 import numpy as np
 import pandas as pd
 
 from cellpose import train
-import cellpose
 from cellpose import models as cp_models
-from cellpose.models import CellposeModel
 
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
@@ -18,11 +16,10 @@ from multiprocessing import Pool, cpu_count, Value, Lock
 import seaborn as sns
 import matplotlib.pyplot as plt
 from skimage.measure import regionprops, label
-import skimage.measure as measure
+from skimage.morphology import square
 from skimage.transform import resize as resizescikit
 from sklearn.model_selection import train_test_split
 from collections import defaultdict
-import multiprocessing
 from torch.utils.data import DataLoader, random_split
 import matplotlib
 matplotlib.use('Agg')
@@ -37,9 +34,22 @@ from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
 from xgboost import XGBClassifier
 
+from scipy.ndimage import binary_dilation
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
 from sklearn.preprocessing import StandardScaler
 import shap
+
+import os, random, sqlite3
+import umap.umap_ as umap
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+from IPython.display import display
+
+from .logger import log_function_call
+from .utils import remove_highly_correlated_columns, smooth_hull_lines
 
 def analyze_plaques(folder):
     summary_data = []
@@ -1766,41 +1776,152 @@ def analyze_recruitment(src, metadata_settings, advanced_settings):
     cells,wells = _results_to_csv(src, df, df_well)
     return [cells,wells]
 
+def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold=5, perimeter_threshold=30):
+    """
+    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
+    and if cells share more than a specified perimeter percentage.
+
+    Args:
+        parasite_mask (ndarray): Mask of parasites.
+        cell_mask (ndarray): Mask of cells.
+        nuclei_mask (ndarray): Mask of nuclei.
+        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
+        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
+
+    Returns:
+        ndarray: The modified cell mask (cell_mask) with unique labels.
+    """
+    labeled_cells = label(cell_mask)
+    labeled_parasites = label(parasite_mask)
+    labeled_nuclei = label(nuclei_mask)
+    num_parasites = np.max(labeled_parasites)
+    num_cells = np.max(labeled_cells)
+    num_nuclei = np.max(labeled_nuclei)
+
+    # Merge cells based on parasite overlap
+    for parasite_id in range(1, num_parasites + 1):
+        current_parasite_mask = labeled_parasites == parasite_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_parasite_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_parasite_mask & (labeled_cells == cell_label)) / np.sum(current_parasite_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold
+            for cell_label, overlap_percentage in zip(overlapping_cell_labels, overlap_percentages):
+                if overlap_percentage > overlap_threshold:
+                    first_label = overlapping_cell_labels[0]
+                    for other_label in overlapping_cell_labels[1:]:
+                        if other_label != first_label:
+                            cell_mask[cell_mask == other_label] = first_label
+
+    # Merge cells based on nucleus overlap
+    for nucleus_id in range(1, num_nuclei + 1):
+        current_nucleus_mask = labeled_nuclei == nucleus_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_nucleus_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_nucleus_mask & (labeled_cells == cell_label)) / np.sum(current_nucleus_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold for each cell
+            if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
+                first_label = overlapping_cell_labels[0]
+                for other_label in overlapping_cell_labels[1:]:
+                    if other_label != first_label:
+                        cell_mask[cell_mask == other_label] = first_label
+
+    # Check for cells without nuclei and merge based on shared perimeter
+    labeled_cells = label(cell_mask)  # Re-label after merging based on overlap
+    cell_regions = regionprops(labeled_cells)
+    for region in cell_regions:
+        cell_label = region.label
+        cell_mask_binary = labeled_cells == cell_label
+        overlapping_nuclei = np.unique(nuclei_mask[cell_mask_binary])
+        overlapping_nuclei = overlapping_nuclei[overlapping_nuclei != 0]
+
+        if len(overlapping_nuclei) == 0:
+            # Cell does not overlap with any nucleus
+            perimeter = region.perimeter
+            # Dilate the cell to find neighbors
+            dilated_cell = binary_dilation(cell_mask_binary, structure=square(3))
+            neighbor_cells = np.unique(labeled_cells[dilated_cell])
+            neighbor_cells = neighbor_cells[(neighbor_cells != 0) & (neighbor_cells != cell_label)]
+            # Calculate shared border length with neighboring cells
+            shared_borders = [
+                np.sum((labeled_cells == neighbor_label) & dilated_cell) for neighbor_label in neighbor_cells
+            ]
+            shared_border_percentages = [shared_border / perimeter * 100 for shared_border in shared_borders]
+            # Merge with the neighbor cell with the largest shared border percentage above the threshold
+            if shared_borders:
+                max_shared_border_index = np.argmax(shared_border_percentages)
+                max_shared_border_percentage = shared_border_percentages[max_shared_border_index]
+                if max_shared_border_percentage > perimeter_threshold:
+                    cell_mask[labeled_cells == cell_label] = neighbor_cells[max_shared_border_index]
+    
+    # Relabel the merged cell mask
+    relabeled_cell_mask, _ = label(cell_mask, return_num=True)
+    return relabeled_cell_mask
+
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
+    """
+    Process all npy files in the given folders. Merge and relabel cells in cell masks
+    based on parasite overlap and cell perimeter sharing conditions.
+
+    Args:
+        parasite_folder (str): Path to the folder containing parasite masks.
+        cell_folder (str): Path to the folder containing cell masks.
+        nuclei_folder (str): Path to the folder containing nuclei masks.
+        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
+        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
+    """
+
+    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
+    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
+    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
+    
+    # Ensure there are matching files in all folders
+    if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
+        raise ValueError("The number of files in the folders do not match.")
+    
+    # Match files by name
+    for file_name in parasite_files:
+        parasite_path = os.path.join(parasite_folder, file_name)
+        cell_path = os.path.join(cell_folder, file_name)
+        nuclei_path = os.path.join(nuclei_folder, file_name)
+        # Check if the corresponding cell and nuclei mask files exist
+        if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
+            raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
+        # Load the masks
+        parasite_mask = np.load(parasite_path)
+        cell_mask = np.load(cell_path)
+        nuclei_mask = np.load(nuclei_path)
+        # Merge and relabel cells
+        merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
+        # Overwrite the original cell mask file with the merged result
+        np.save(cell_path, merged_cell_mask)
+
 def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_merged, plot_arrays
-    from .utils import _pivot_counts_table
+    from .utils import _pivot_counts_table, set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings
 
-    settings['plot'] = False
-    settings['fps'] = 2
-    settings['remove_background'] = True
-    settings['lower_quantile'] = 0.02
-    settings['merge'] = False
-    settings['normalize_plots'] = True
-    settings['all_to_mip'] = False
-    settings['pick_slice'] = False
-    settings['skip_mode'] = src
-    settings['workers'] = os.cpu_count()-4
-    settings['verbose'] = True
-    settings['examples_to_plot'] = 1
-    settings['src'] = src
-    settings['upscale'] = False
-    settings['upscale_factor'] = 2.0
-
-    settings['randomize'] = True
-    settings['timelapse'] = False
-    settings['timelapse_displacement'] = None
-    settings['timelapse_memory'] = 3
-    settings['timelapse_frame_limits'] = None
-    settings['timelapse_remove_transient'] = False
-    settings['timelapse_mode'] = 'trackpy'
-    settings['timelapse_objects'] = ['cells']
+    settings = set_default_settings_preprocess_generate_masks(src, settings)
 
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_csv = os.path.join(src,'settings','preprocess_generate_masks_settings.csv')
     os.makedirs(os.path.join(src,'settings'), exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)
+
+    if not settings['pathogen_channel'] is None:
+        custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
+        if settings['pathogen_model'] not in custom_model_ls:
+            ValueError(f'Pathogen model must be {custom_model_ls} or None')
     
     if settings['timelapse']:
         settings['randomize'] = False
@@ -1809,10 +1930,16 @@ def preprocess_generate_masks(src, settings={}):
         if not settings['masks']:
             print(f'WARNING: channels for mask generation are defined when preprocess = True')
     
-    if isinstance(settings['merge'], bool):
-        settings['merge'] = [settings['merge']]*3
     if isinstance(settings['save'], bool):
         settings['save'] = [settings['save']]*3
+
+    if settings['verbose']:
+        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+        display(settings_df)
+
+    if settings['test_mode']:
+        print(f'Starting Test mode ...')
 
     if settings['preprocess']:
         settings, src = preprocess_img_data(settings)
@@ -1827,6 +1954,18 @@ def preprocess_generate_masks(src, settings={}):
             
         if settings['pathogen_channel'] != None:
             generate_cellpose_masks(src=mask_src, settings=settings, object_type='pathogen')
+
+        if settings['adjust_cells']:
+            if settings['pathogen_channel'] == None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
+
+                start = time.time()
+                cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+                nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+                parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                
+                adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
+                stop = time.time()
+                print(f'Cell mask adjustment: {stop-start} seconds')
             
         if os.path.exists(os.path.join(src,'measurements')):
             _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
@@ -1855,28 +1994,14 @@ def preprocess_generate_masks(src, settings={}):
                 overlay_channels = [settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel']]
                 overlay_channels = [element for element in overlay_channels if element is not None]
 
-                plot_settings = {'include_noninfected':True, 
-                                 'include_multiinfected':True,
-                                 'include_multinucleated':True,
-                                 'remove_background':False,
-                                 'filter_min_max':None,
-                                 'channel_dims':settings['channels'],
-                                 'backgrounds':[100,100,100,100],
-                                 'cell_mask_dim':cell_mask_dim,
-                                 'nucleus_mask_dim':nucleus_mask_dim,
-                                 'pathogen_mask_dim':pathogen_mask_dim,
-                                 'outline_thickness':3,
-                                 'outline_color':'gbr',
-                                 'overlay_chans':overlay_channels,
-                                 'overlay':True,
-                                 'normalization_percentiles':[1,99],
-                                 'normalize':True,
-                                 'print_object_number':True,
-                                 'nr':settings['examples_to_plot'],
-                                 'figuresize':20,
-                                 'cmap':'inferno',
-                                 'verbose':False}
-                
+                plot_settings = set_default_plot_merge_settings()
+                plot_settings['channel_dims'] = settings['channels']
+                plot_settings['cell_mask_dim'] = cell_mask_dim
+                plot_settings['nucleus_mask_dim'] = nucleus_mask_dim
+                plot_settings['pathogen_mask_dim'] = pathogen_mask_dim
+                plot_settings['overlay_chans'] = overlay_channels
+                plot_settings['nr'] = settings['examples_to_plot']
+
                 if settings['test_mode'] == True:
                     plot_settings['nr'] = len(os.path.join(src,'merged'))
 
@@ -1885,7 +2010,7 @@ def preprocess_generate_masks(src, settings={}):
                 except Exception as e:
                     print(f'Failed to plot image mask overly. Error: {e}')
             else:
-                plot_arrays(src=os.path.join(src,'merged'), figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, q2=99)
+                plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
             
     torch.cuda.empty_cache()
     gc.collect()
@@ -2154,8 +2279,6 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
                     stitch_threshold=0.0
                     
                 cellpose_batch_size = _get_cellpose_batch_size()
-                
-                #model = cellpose.denoise.DenoiseModel(model_type=f"denoise_{model_name}", gpu=True)
                    
                 masks, flows, _, _ = model.eval(x=batch,
                                                 batch_size=cellpose_batch_size,
@@ -2231,7 +2354,7 @@ def all_elements_match(list1, list2):
 
 def generate_cellpose_masks(src, settings, object_type):
     
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels, _choose_model, mask_object_count
+    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels, _choose_model, mask_object_count, set_default_settings_preprocess_generate_masks
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_masks
@@ -2239,6 +2362,13 @@ def generate_cellpose_masks(src, settings, object_type):
     gc.collect()
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
+
+    settings = set_default_settings_preprocess_generate_masks(src, settings)
+
+    if settings['verbose']:
+        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+        display(settings_df)
         
     figuresize=25
     timelapse = settings['timelapse']
@@ -2253,8 +2383,9 @@ def generate_cellpose_masks(src, settings, object_type):
     
     batch_size = settings['batch_size']
     cellprob_threshold = settings[f'{object_type}_CP_prob']
-    flow_threshold = 30
-    
+
+    flow_threshold = settings[f'{object_type}_FT']
+
     object_settings = _get_object_settings(object_type, settings)
     model_name = object_settings['model_name']
     
@@ -2266,12 +2397,10 @@ def generate_cellpose_masks(src, settings, object_type):
     cellpose_batch_size = _get_cellpose_batch_size()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
-    pathogen_model = settings.setdefault( 'pathogen_model', None)
+    if object_type == 'pathogen' and not settings['pathogen_model'] is None:
+        model_name = settings['pathogen_model']
 
-    if pathogen_model is not None:
-        model_name = pathogen_model
-
-    model = _choose_model(model_name, device, object_type='cell', restore_type=None)
+    model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
     chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
@@ -2336,20 +2465,36 @@ def generate_cellpose_masks(src, settings, object_type):
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
             else:
                 stitch_threshold=0.0
-
-            print('batch.shape',batch.shape)
-            masks, flows, _, _ = model.eval(x=batch,
-                                            batch_size=cellpose_batch_size,
-                                            normalize=False,
-                                            channels=chans,
-                                            channel_axis=3,
-                                            diameter=object_settings['diameter'],
-                                            flow_threshold=flow_threshold,
-                                            cellprob_threshold=cellprob_threshold,
-                                            rescale=None,
-                                            resample=object_settings['resample'],
-                                            stitch_threshold=stitch_threshold)
             
+            if settings['verbose']:
+                print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
+
+            #cellpose_normalize_dict = {'lowhigh':[0.0,1.0], #pass in normalization values for 0.0 and 1.0 as list [low, high] if None all other keys ignored
+            #                           'sharpen':object_settings['diameter']/4, #recommended to be 1/4-1/8 diameter of cells in pixels
+            #                           'normalize':True, #(if False, all following parameters ignored)
+            #                           'percentile':[2,98], #[perc_low, perc_high]
+            #                           'tile_norm':224, #normalize by tile set to e.g. 100 for normailize window to be 100 px
+            #                           'norm3D':True} #compute normalization across entire z-stack rather than plane-by-plane in stitching mode.
+            
+            output = model.eval(x=batch,
+                                batch_size=cellpose_batch_size,
+                                normalize=False,
+                                channels=chans,
+                                channel_axis=3,
+                                diameter=object_settings['diameter'],
+                                flow_threshold=flow_threshold,
+                                cellprob_threshold=cellprob_threshold,
+                                rescale=None,
+                                resample=True, #object_settings['resample'],
+                                stitch_threshold=stitch_threshold)
+            
+            if len(output) == 4:
+                masks, flows, _, _ = output
+            elif len(output) == 3:
+                masks, flows, _ = output
+            else:
+                raise ValueError(f"Unexpected number of return values from model.eval(). Expected 3 or 4, got {len(output)}")
+
             if timelapse:
                 if settings['plot']:
                     for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
@@ -2858,6 +3003,8 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
     pandas.DataFrame: DataFrame containing the importances and standard deviations.
     """
 
+    from .utils import filter_dataframe_features
+
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
@@ -2872,33 +3019,40 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
     # Combine the subsets for analysis
     combined_df = pd.concat([df1, df2])
 
+    if feature_string in ['channel_0', 'channel_1', 'channel_2', 'channel_3']:
+        channel_of_interest = int(feature_string.split('_')[-1])
+    elif not feature_string is 'morphology': 
+        channel_of_interest = 'morphology'
+
+    _, features = filter_dataframe_features(combined_df, channel_of_interest, exclude)
+
     # Automatically select numerical features
-    features = combined_df.select_dtypes(include=[np.number]).columns.tolist()
-    features.remove('target')
-
-    if clean:
-        combined_df = combined_df.loc[:, combined_df.nunique() > 1]
-        features = [feature for feature in features if feature in combined_df.columns]
-        
-    if feature_string is not None:
-        feature_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3']
-
-        # Remove feature_string from the list if it exists
-        if feature_string in feature_list:
-            feature_list.remove(feature_string)
-
-        features = [feature for feature in features if feature_string in feature]
-
-        # Iterate through the list and remove columns from df
-        for feature_ in feature_list:
-            features = [feature for feature in features if feature_ not in feature]
-            print(f'After removing {feature_} features: {len(features)}')
-
-    if exclude:
-        if isinstance(exclude, list):
-            features = [feature for feature in features if feature not in exclude]
-        else:
-            features.remove(exclude)
+    #features = combined_df.select_dtypes(include=[np.number]).columns.tolist()
+    #features.remove('target')
+    #
+    #if clean:
+    #    combined_df = combined_df.loc[:, combined_df.nunique() > 1]
+    #    features = [feature for feature in features if feature in combined_df.columns]
+    #    
+    #if feature_string is not None:
+    #    feature_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3']
+    #
+    #    # Remove feature_string from the list if it exists
+    #    if feature_string in feature_list:
+    #        feature_list.remove(feature_string)
+    #
+    #    features = [feature for feature in features if feature_string in feature]
+    #
+    #    # Iterate through the list and remove columns from df
+    #    for feature_ in feature_list:
+    #        features = [feature for feature in features if feature_ not in feature]
+    #        print(f'After removing {feature_} features: {len(features)}')
+    #
+    #if exclude:
+    #    if isinstance(exclude, list):
+    #        features = [feature for feature in features if feature not in exclude]
+    #    else:
+    #        features.remove(exclude)
 
     X = combined_df[features]
     y = combined_df['target']
@@ -3132,3 +3286,247 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
         plt.show()
 
     return balanced_df
+
+def generate_image_umap(settings={}):
+    """
+    Generate UMAP or tSNE embedding and visualize the data with clustering.
+    
+    Parameters:
+    settings (dict): Dictionary containing the following keys:
+        src (str): Source directory containing the data.
+        row_limit (int): Limit the number of rows to process.
+        tables (list): List of table names to read from the database.
+        visualize (str): Visualization type.
+        image_nr (int): Number of images to display.
+        dot_size (int): Size of dots in the scatter plot.
+        n_neighbors (int): Number of neighbors for UMAP.
+        figuresize (int): Size of the figure.
+        black_background (bool): Whether to use a black background.
+        remove_image_canvas (bool): Whether to remove the image canvas.
+        plot_outlines (bool): Whether to plot outlines.
+        plot_points (bool): Whether to plot points.
+        smooth_lines (bool): Whether to smooth lines.
+        verbose (bool): Whether to print verbose output.
+        embedding_by_controls (bool): Whether to use embedding from controls.
+        col_to_compare (str): Column to compare for control-based embedding.
+        pos (str): Positive control value.
+        neg (str): Negative control value.
+        clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+        exclude (list): List of columns to exclude from the analysis.
+        plot_images (bool): Whether to plot images.
+        reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+        save_figure (bool): Whether to save the figure as a PDF.
+    
+    Returns:
+    pd.DataFrame: DataFrame with the original data and an additional column 'cluster' containing the cluster identity.
+    """
+ 
+    from .io import _read_and_join_tables
+    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, get_umap_image_settings
+
+    settings = get_umap_image_settings(settings)
+
+    if settings['plot_images'] is False:
+        settings['black_background'] = False
+
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_dir = os.path.join(settings['src'],'settings')
+    settings_csv = os.path.join(settings_dir,'embedding_settings.csv')
+    os.makedirs(settings_dir, exist_ok=True)
+    settings_df.to_csv(settings_csv, index=False)
+    display(settings_df)
+
+    db_paths = get_db_paths(settings['src'])
+    
+    tables = settings['tables'] + ['png_list']
+    all_df = pd.DataFrame()
+    for db_path in db_paths:
+        df = _read_and_join_tables(db_path, table_names=tables)
+        all_df = pd.concat([all_df, df], axis=0)
+
+    if settings['row_limit'] is not None:
+        all_df = all_df.sample(n=settings['row_limit'], random_state=42)
+    
+    base_path = settings['src']
+    all_df, image_paths = correct_paths(all_df, base_path)
+
+    if settings['embedding_by_controls']:
+        # Subset the dataframe based on specified column values
+        df1 = all_df[all_df[settings['col_to_compare']] == settings['pos']].copy()
+        df2 = all_df[all_df[settings['col_to_compare']] == settings['neg']].copy()
+        combined_df = pd.concat([df1, df2])
+        numeric_data_c = preprocess_data(combined_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
+        embedding, _ = reduction_and_clustering(numeric_data_c, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], embedding=None, n_jobs=settings['n_jobs'])
+        
+        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
+        _, labels = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], embedding=embedding, n_jobs=settings['n_jobs'])
+    else:
+        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
+        embedding, labels = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], embedding=None, n_jobs=settings['n_jobs'])
+    
+    if settings['remove_cluster_noise']:
+        embedding, labels = remove_noise(embedding, labels)
+    
+    colors = generate_colors(len(np.unique(labels)), settings['black_background'])
+
+    umap_plt = plot_embedding(embedding, image_paths, labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'])
+    if settings['plot_cluster_grids'] and settings['plot_images']:
+        grid_plt = plot_clusters_grid(embedding, labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'])
+    
+    # Save figure as PDF if required
+    if settings['save_figure']:
+        results_dir = os.path.join(settings['src'], 'results')
+        os.makedirs(results_dir, exist_ok=True)
+        reduction_method = settings['reduction_method'].upper()
+        embedding_path = os.path.join(results_dir, f'{reduction_method}_embedding.pdf')
+        umap_plt.savefig(embedding_path, format='pdf')
+        print(f'Saved {reduction_method} embedding to {embedding_path} and grid to {embedding_path}')
+        if settings['plot_cluster_grids'] and settings['plot_images']:
+            grid_path = os.path.join(results_dir, f'{reduction_method}_grid.pdf')
+            grid_plt.savefig(grid_path, format='pdf')
+            print(f'Saved {reduction_method} embedding to {embedding_path} and grid to {grid_path}')
+
+    # Add cluster labels to the dataframe
+    all_df['cluster'] = labels
+
+    results_dir = os.path.join(settings['src'], 'results')
+    results_csv = os.path.join(results_dir,'embedding_results.csv')
+    os.makedirs(results_dir, exist_ok=True)
+    all_df.to_csv(results_csv, index=False)
+    print(f'Results saved to {results_csv}')
+
+    return all_df
+
+def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, pointsize=2, save=False):
+    """
+    Perform a hyperparameter search for UMAP or tSNE on the given data.
+    
+    Parameters:
+    settings (dict): Dictionary containing the following keys:
+        src (str): Source directory containing the data.
+        row_limit (int): Limit the number of rows to process.
+        tables (list): List of table names to read from the database.
+        filter_by (str): Column to filter the data.
+        sample_size (int): Number of samples to use for the hyperparameter search.
+        remove_highly_correlated (bool): Whether to remove highly correlated columns.
+        log_data (bool): Whether to log transform the data.
+        verbose (bool): Whether to print verbose output.
+        reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+    reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.
+    dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.
+    kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.
+    pointsize (int): Size of the points in the scatter plot.
+    save (bool): Whether to save the resulting plot as a file.
+    
+    Returns:
+    None
+    """
+    
+    from .io import _read_and_join_tables
+    from .utils import get_db_paths, preprocess_data, search_reduction_and_clustering, generate_colors, get_umap_image_settings
+
+    settings = get_umap_image_settings(settings)
+
+    # Determine reduction method based on the keys in reduction_param
+    print('Testing paramiters:', reduction_params)
+    if any('n_neighbors' in param for param in reduction_params):
+        reduction_method = 'umap'
+    elif any('perplexity' in param for param in reduction_params):
+        reduction_method = 'tsne'
+    elif any('perplexity' in param for param in reduction_params) and any('n_neighbors' in param for param in reduction_params):
+        raise ValueError("Reduction parameters must include 'n_neighbors' for UMAP or 'perplexity' for tSNE, not both.")
+    
+    if settings['reduction_method'].lower() != reduction_method:
+        settings['reduction_method'] = reduction_method
+        print(f'Changed reduction method to {reduction_method} based on the provided parameters.')
+    
+    if settings['verbose']:
+        display(pd.DataFrame(list(settings.items()), columns=['Key', 'Value']))
+
+    db_paths = get_db_paths(settings['src'])
+    
+    tables = settings['tables']
+    all_df = pd.DataFrame()
+    for db_path in db_paths:
+        df = _read_and_join_tables(db_path, table_names=tables)
+        all_df = pd.concat([all_df, df], axis=0)
+
+    if settings['row_limit'] is not None:
+        all_df = all_df.sample(n=settings['row_limit'], random_state=42)
+
+    numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
+
+    # Combine DBSCAN and KMeans parameters
+    clustering_params = []
+    if dbscan_params:
+        for param in dbscan_params:
+            param['method'] = 'dbscan'
+            clustering_params.append(param)
+    if kmeans_params:
+        for param in kmeans_params:
+            param['method'] = 'kmeans'
+            clustering_params.append(param)
+
+    # Calculate the grid size
+    grid_rows = len(reduction_params)
+    grid_cols = len(clustering_params)
+
+    fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(40, 30))
+    
+    # Iterate through the Cartesian product of reduction and clustering hyperparameters
+    for i, reduction_param in enumerate(reduction_params):
+        for j, clustering_param in enumerate(clustering_params):
+            ax = axs[i, j]
+
+            # Perform dimensionality reduction and clustering
+            if settings['reduction_method'].lower() == 'umap':
+                n_neighbors = reduction_param.get('n_neighbors', 15)
+
+                if isinstance(n_neighbors, float):
+                    n_neighbors = int(n_neighbors * len(numeric_data))
+
+                min_dist = reduction_param.get('min_dist', 0.1)
+                embedding, labels = search_reduction_and_clustering(
+                    numeric_data, n_neighbors, min_dist, settings['metric'], 
+                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs']
+                )
+            elif settings['reduction_method'].lower() == 'tsne':
+                perplexity = reduction_param.get('perplexity', 30)
+
+                if isinstance(perplexity, float):
+                    perplexity = int(perplexity * len(numeric_data))
+
+                embedding, labels = search_reduction_and_clustering(
+                    numeric_data, perplexity, 0.1, settings['metric'], 
+                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs']
+                )
+            else:
+                raise ValueError(f"Unsupported reduction method: {settings['reduction_method']}. Supported methods are 'UMAP' and 'tSNE'")
+
+            # Get unique labels to create a custom legend
+            unique_labels = np.unique(labels)
+            colors = generate_colors(len(unique_labels), False)
+            for label, color in zip(unique_labels, colors):
+                ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
+
+            ax.set_title(f"{settings['reduction_method']} {reduction_param}\n{clustering_param['method']} {clustering_param}")
+            #ax.legend()
+
+    plt.tight_layout()
+    if save:
+        results_dir = os.path.join(settings['src'], 'results')
+        os.makedirs(results_dir, exist_ok=True)
+        plt.savefig(os.path.join(results_dir, 'hyperparameter_search.pdf'))
+    else:
+        plt.show()
+
+    return
+
+
+
+
+
+
+

@@ -16,35 +16,14 @@ from .logger import log_function_call
 from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode, style_text_boxes, create_menu_bar
 
 class ImageApp:
-    """
-    A class representing an image application.
-
-    Attributes:
-    - root (tkinter.Tk): The root window of the application.
-    - db_path (str): The path to the SQLite database.
-    - index (int): The index of the current page of images.
-    - grid_rows (int): The number of rows in the image grid.
-    - grid_cols (int): The number of columns in the image grid.
-    - image_size (tuple): The size of the displayed images.
-    - annotation_column (str): The column name for image annotations in the database.
-    - image_type (str): The type of images to display.
-    - channels (list): The channels to filter in the images.
-    - images (dict): A dictionary mapping labels to loaded images.
-    - pending_updates (dict): A dictionary of pending image annotation updates.
-    - labels (list): A list of label widgets for displaying images.
-    - terminate (bool): A flag indicating whether the application should terminate.
-    - update_queue (Queue): A queue for storing image annotation updates.
-    - status_label (tkinter.Label): A label widget for displaying status messages.
-    - db_update_thread (threading.Thread): A thread for updating the database.
-    """
-
-    def __init__(self, root, db_path, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate'):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate'):
         """
         Initializes an instance of the ImageApp class.
 
         Parameters:
         - root (tkinter.Tk): The root window of the application.
         - db_path (str): The path to the SQLite database.
+        - src (str): The source directory that should be upstream of 'data' in the paths.
         - image_type (str): The type of images to display.
         - channels (list): The channels to filter in the images.
         - grid_rows (int): The number of rows in the image grid.
@@ -52,9 +31,9 @@ class ImageApp:
         - image_size (tuple): The size of the displayed images.
         - annotation_column (str): The column name for image annotations in the database.
         """
-
         self.root = root
         self.db_path = db_path
+        self.src = src
         self.index = 0
         self.grid_rows = grid_rows
         self.grid_cols = grid_cols
@@ -65,7 +44,7 @@ class ImageApp:
         self.images = {}
         self.pending_updates = {}
         self.labels = []
-        #self.updating_db = True
+        self.adjusted_to_original_paths = {}
         self.terminate = False
         self.update_queue = Queue()
         self.status_label = Label(self.root, text="", font=("Arial", 12))
@@ -78,6 +57,68 @@ class ImageApp:
             label = Label(root)
             label.grid(row=i // grid_cols, column=i % grid_cols)
             self.labels.append(label)
+
+    def load_images(self):
+        """
+        Loads and displays images with annotations.
+
+        This method retrieves image paths and annotations from a SQLite database,
+        loads the images using a ThreadPoolExecutor for parallel processing,
+        adds colored borders to images based on their annotations,
+        and displays the images in the corresponding labels.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        for label in self.labels:
+            label.config(image='')
+
+        self.images = {}
+
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        if self.image_type:
+            c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE png_path LIKE ? LIMIT ?, ?", (f"%{self.image_type}%", self.index, self.grid_rows * self.grid_cols))
+        else:
+            c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list LIMIT ?, ?", (self.index, self.grid_rows * self.grid_cols))
+        
+        paths = c.fetchall()
+        conn.close()
+
+        adjusted_paths = []
+        for path, annotation in paths:
+            if not path.startswith(self.src):
+                parts = path.split('/data/')
+                if len(parts) > 1:
+                    new_path = os.path.join(self.src, 'data', parts[1])
+                    self.adjusted_to_original_paths[new_path] = path
+                    adjusted_paths.append((new_path, annotation))
+                else:
+                    adjusted_paths.append((path, annotation))
+            else:
+                adjusted_paths.append((path, annotation))
+
+        with ThreadPoolExecutor() as executor:
+            loaded_images = list(executor.map(self.load_single_image, adjusted_paths))
+
+        for i, (img, annotation) in enumerate(loaded_images):
+            if annotation:
+                border_color = 'teal' if annotation == 1 else 'red'
+                img = self.add_colored_border(img, border_width=5, border_color=border_color)
+
+            photo = ImageTk.PhotoImage(img)
+            label = self.labels[i]
+            self.images[label] = photo
+            label.config(image=photo)
+
+            path = adjusted_paths[i][0]
+            label.bind('<Button-1>', self.get_on_image_click(path, label, img))
+            label.bind('<Button-3>', self.get_on_image_click(path, label, img))
+
+        self.root.update()
         
     @staticmethod
     def normalize_image(img):
@@ -148,55 +189,6 @@ class ImageApp:
 
         return Image.merge("RGB", (r, g, b))
 
-    def load_images(self):
-            """
-            Loads and displays images with annotations.
-
-            This method retrieves image paths and annotations from a SQLite database,
-            loads the images using a ThreadPoolExecutor for parallel processing,
-            adds colored borders to images based on their annotations,
-            and displays the images in the corresponding labels.
-
-            Args:
-                None
-
-            Returns:
-                None
-            """
-            for label in self.labels:
-                label.config(image='')
-
-            self.images = {}
-
-            conn = sqlite3.connect(self.db_path)
-            c = conn.cursor()
-            if self.image_type:
-                c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE png_path LIKE ? LIMIT ?, ?", (f"%{self.image_type}%", self.index, self.grid_rows * self.grid_cols))
-            else:
-                c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list LIMIT ?, ?", (self.index, self.grid_rows * self.grid_cols))
-            
-            paths = c.fetchall()
-            conn.close()
-
-            with ThreadPoolExecutor() as executor:
-                loaded_images = list(executor.map(self.load_single_image, paths))
-
-            for i, (img, annotation) in enumerate(loaded_images):
-                if annotation:
-                    border_color = 'teal' if annotation == 1 else 'red'
-                    img = self.add_colored_border(img, border_width=5, border_color=border_color)
-                
-                photo = ImageTk.PhotoImage(img)
-                label = self.labels[i]
-                self.images[label] = photo
-                label.config(image=photo)
-                
-                path = paths[i][0]
-                label.bind('<Button-1>', self.get_on_image_click(path, label, img))
-                label.bind('<Button-3>', self.get_on_image_click(path, label, img))
-
-            self.root.update()
-
     def load_single_image(self, path_annotation_tuple):
             """
             Loads a single image from the given path and annotation tuple.
@@ -230,14 +222,15 @@ class ImageApp:
         function: The callback function for the image click event.
         """
         def on_image_click(event):
-            
             new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
             
-            if path in self.pending_updates and self.pending_updates[path] == new_annotation:
-                self.pending_updates[path] = None
+            original_path = self.adjusted_to_original_paths.get(path, path)
+            
+            if original_path in self.pending_updates and self.pending_updates[original_path] == new_annotation:
+                self.pending_updates[original_path] = None
                 new_annotation = None
             else:
-                self.pending_updates[path] = new_annotation
+                self.pending_updates[original_path] = new_annotation
             
             print(f"Image {os.path.split(path)[1]} annotated: {new_annotation}")
             
@@ -261,38 +254,38 @@ class ImageApp:
         """))
 
     def update_database_worker(self):
-            """
-            Worker function that continuously updates the database with pending updates from the update queue.
-            It retrieves the pending updates from the queue, updates the corresponding records in the database,
-            and resets the text in the HTML and status label.
-            """
-            conn = sqlite3.connect(self.db_path)
-            c = conn.cursor()
+        """
+        Worker function that continuously updates the database with pending updates from the update queue.
+        It retrieves the pending updates from the queue, updates the corresponding records in the database,
+        and resets the text in the HTML and status label.
+        """
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
 
-            display(HTML("<div id='unique_id'>Initial Text</div>"))
+        display(HTML("<div id='unique_id'>Initial Text</div>"))
 
-            while True:
-                if self.terminate:
-                    conn.close()
-                    break
+        while True:
+            if self.terminate:
+                conn.close()
+                break
 
-                if not self.update_queue.empty():
-                    ImageApp.update_html("Do not exit, Updating database...")
-                    self.status_label.config(text='Do not exit, Updating database...')
+            if not self.update_queue.empty():
+                ImageApp.update_html("Do not exit, Updating database...")
+                self.status_label.config(text='Do not exit, Updating database...')
 
-                    pending_updates = self.update_queue.get()
-                    for path, new_annotation in pending_updates.items():
-                        if new_annotation is None:
-                            c.execute(f'UPDATE png_list SET {self.annotation_column} = NULL WHERE png_path = ?', (path,))
-                        else:
-                            c.execute(f'UPDATE png_list SET {self.annotation_column} = ? WHERE png_path = ?', (new_annotation, path))
-                    conn.commit()
+                pending_updates = self.update_queue.get()
+                for path, new_annotation in pending_updates.items():
+                    if new_annotation is None:
+                        c.execute(f'UPDATE png_list SET {self.annotation_column} = NULL WHERE png_path = ?', (path,))
+                    else:
+                        c.execute(f'UPDATE png_list SET {self.annotation_column} = ? WHERE png_path = ?', (new_annotation, path))
+                conn.commit()
 
-                    # Reset the text
-                    ImageApp.update_html('')
-                    self.status_label.config(text='')
-                    self.root.update()
-                time.sleep(0.1)
+                # Reset the text
+                ImageApp.update_html('')
+                self.status_label.config(text='')
+                self.root.update()
+            time.sleep(0.1)
 
     def update_gui_text(self, text):
         """
@@ -356,12 +349,13 @@ class ImageApp:
         self.root.destroy()
         print(f'Quit application')
 
-def annotate(db, image_type=None, channels=None, geom="1000x1100", img_size=(200, 200), rows=5, columns=5, annotation_column='annotate'):
+def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(200, 200), rows=5, columns=5, annotation_column='annotate'):
     """
     Annotates images in a database using a graphical user interface.
 
     Args:
         db (str): The path to the SQLite database.
+        src (str): The source directory that should be upstream of 'data' in the paths.
         image_type (str, optional): The type of images to load from the database. Defaults to None.
         channels (str, optional): The channels of the images to load from the database. Defaults to None.
         geom (str, optional): The geometry of the GUI window. Defaults to "1000x1100".
@@ -370,7 +364,10 @@ def annotate(db, image_type=None, channels=None, geom="1000x1100", img_size=(200
         columns (int, optional): The number of columns in the image grid. Defaults to 5.
         annotation_column (str, optional): The name of the annotation column in the database table. Defaults to 'annotate'.
     """
-    #display(HTML("<div id='unique_id'>Initial Text</div>"))
+    db = os.path.join(src, 'measurements/measurements.db')
+    #print('src', src)
+    #print('db', db)
+
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
@@ -382,8 +379,7 @@ def annotate(db, image_type=None, channels=None, geom="1000x1100", img_size=(200
 
     root = tk.Tk()
     root.geometry(geom)
-    app = ImageApp(root, db, image_type=image_type, channels=channels, image_size=img_size, grid_rows=rows, grid_cols=columns, annotation_column=annotation_column)
-    #app = ImageApp()
+    app = ImageApp(root, db, src, image_type=image_type, channels=channels, image_size=img_size, grid_rows=rows, grid_cols=columns, annotation_column=annotation_column)
     next_button = tk.Button(root, text="Next", command=app.next_page)
     next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
     back_button = tk.Button(root, text="Back", command=app.previous_page)
@@ -393,6 +389,7 @@ def annotate(db, image_type=None, channels=None, geom="1000x1100", img_size=(200
     
     app.load_images()
     root.mainloop()
+
 
 def check_for_duplicates(db):
     """
@@ -494,4 +491,3 @@ def gui_annotation():
 
 if __name__ == "__main__":
     gui_annotation()
-

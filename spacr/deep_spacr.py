@@ -1,13 +1,11 @@
 import os, torch, time, gc, datetime
 import numpy as np
 import pandas as pd
-from torch.optim import Adagrad
-from torch.optim import AdamW
+from torch.optim import Adagrad, AdamW
 from torch.autograd import grad
 from torch.optim.lr_scheduler import StepLR
 import torch.nn.functional as F
 from IPython.display import display, clear_output
-import difflib
 
 import matplotlib.pyplot as plt
 from PIL import Image

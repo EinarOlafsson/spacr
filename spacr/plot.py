@@ -376,7 +376,7 @@ def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, 
         print(f'Image path:{path}')
         img = np.load(path)
         if normalize:
-            img = normalize_to_dtype(array=img, q1=q1, q2=q2)
+            img = normalize_to_dtype(array=img, p1=q1, p2=q2)
         dim = img.shape
         if len(img.shape)>2:
             array_nr = img.shape[2]
@@ -426,9 +426,11 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
         image[mask] = 0
 
     if normalize:
-        image = normalize_to_dtype(array=image, q1=normalization_percentiles[0], q2=normalization_percentiles[1])
+        image = normalize_to_dtype(array=image, p1=normalization_percentiles[0], p2=normalization_percentiles[1])
+    else:
+        image = normalize_to_dtype(array=image, p1=0, p2=100)
 
-    rgb_image = _gen_rgb_image(image, cahnnels=overlay_chans)
+    rgb_image = _gen_rgb_image(image, channels=overlay_chans)
 
     if overlay:
         overlayed_image, outlines, image = _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness)
@@ -439,6 +441,7 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
         channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
         image = np.take(image, channels_to_keep, axis=-1)
         return [], image, []
+
 
 def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_image, outlines, cmap, outline_colors, print_object_number):
     
@@ -513,6 +516,8 @@ def plot_merged(src, settings):
         None
     """
     from .utils import _remove_noninfected
+
+    
     
     font = settings['figuresize']/2
     outline_colors = _get_colours_merged(settings['outline_color'])
