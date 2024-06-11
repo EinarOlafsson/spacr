@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 from IPython.display import display
 from IPython.display import Image as ipyimage
 import trackpy as tp
