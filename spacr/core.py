@@ -3131,6 +3131,8 @@ def generate_image_umap(settings={}):
 
     if settings['row_limit'] is not None:
         all_df = all_df.sample(n=settings['row_limit'], random_state=42)
+
+    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
     
     if settings['embedding_by_controls']:
         # Subset the dataframe based on specified column values
@@ -3148,6 +3150,10 @@ def generate_image_umap(settings={}):
     
     if settings['remove_cluster_noise']:
         embedding, labels = remove_noise(embedding, labels)
+
+    # Plot the results
+    if settings['color_by']:
+        labels = all_df[settings['color_by']].unique()
     
     colors = generate_colors(len(np.unique(labels)), settings['black_background'])
 
@@ -3179,7 +3185,18 @@ def generate_image_umap(settings={}):
 
     return all_df
 
-def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, pointsize=2, save=False):
+# Define the mapping function
+def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
+    if col_value == neg:
+        return 'neg'
+    elif col_value == pos:
+        return 'pos'
+    elif col_value == mix:
+        return 'mix'
+    else:
+        return 'screen'
+
+def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False):
     """
     Perform a hyperparameter search for UMAP or tSNE on the given data.
     
@@ -3208,9 +3225,17 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     from .utils import get_db_paths, preprocess_data, search_reduction_and_clustering, generate_colors, get_umap_image_settings
 
     settings = get_umap_image_settings(settings)
+    pointsize = settings['dot_size']
+    if isinstance(dbscan_params, dict):
+        dbscan_params = [dbscan_params]
+
+    if isinstance(kmeans_params, dict):
+        kmeans_params = [kmeans_params]
+
+    if isinstance(reduction_params, dict):
+        reduction_params = [reduction_params]
 
     # Determine reduction method based on the keys in reduction_param
-    print('Testing paramiters:', reduction_params)
     if any('n_neighbors' in param for param in reduction_params):
         reduction_method = 'umap'
     elif any('perplexity' in param for param in reduction_params):
@@ -3236,6 +3261,8 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     if settings['row_limit'] is not None:
         all_df = all_df.sample(n=settings['row_limit'], random_state=42)
 
+    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
+
     numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
 
     # Combine DBSCAN and KMeans parameters
@@ -3249,16 +3276,29 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
             param['method'] = 'kmeans'
             clustering_params.append(param)
 
+    print('Testing paramiters:', reduction_params)
+    print('Testing clustering paramiters:', clustering_params)
+
     # Calculate the grid size
     grid_rows = len(reduction_params)
     grid_cols = len(clustering_params)
 
-    fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(40, 30))
+    fig_width = grid_cols*10
+    fig_height = grid_rows*10
+
+    fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
     
     # Iterate through the Cartesian product of reduction and clustering hyperparameters
     for i, reduction_param in enumerate(reduction_params):
         for j, clustering_param in enumerate(clustering_params):
-            ax = axs[i, j]
+            if len(clustering_params) <= 1:
+                axs[i].axis('off')
+                ax = axs[i]
+            elif len(reduction_params) <= 1:
+                axs[j].axis('off')
+                ax = axs[j]
+            else:
+                ax = axs[i, j]
 
             # Perform dimensionality reduction and clustering
             if settings['reduction_method'].lower() == 'umap':
@@ -3268,33 +3308,38 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
                     n_neighbors = int(n_neighbors * len(numeric_data))
 
                 min_dist = reduction_param.get('min_dist', 0.1)
-                embedding, labels = search_reduction_and_clustering(
-                    numeric_data, n_neighbors, min_dist, settings['metric'], 
-                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
-                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs']
-                )
+                embedding, labels = search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, settings['metric'], 
+                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                                                                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
+                
             elif settings['reduction_method'].lower() == 'tsne':
                 perplexity = reduction_param.get('perplexity', 30)
 
                 if isinstance(perplexity, float):
                     perplexity = int(perplexity * len(numeric_data))
 
-                embedding, labels = search_reduction_and_clustering(
-                    numeric_data, perplexity, 0.1, settings['metric'], 
-                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
-                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs']
-                )
+                embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'], 
+                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                                                                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
+                
             else:
                 raise ValueError(f"Unsupported reduction method: {settings['reduction_method']}. Supported methods are 'UMAP' and 'tSNE'")
 
-            # Get unique labels to create a custom legend
-            unique_labels = np.unique(labels)
-            colors = generate_colors(len(unique_labels), False)
-            for label, color in zip(unique_labels, colors):
-                ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
+            # Plot the results
+            if settings['color_by']:
+                unique_groups = all_df[settings['color_by']].unique()
+                colors = generate_colors(len(unique_groups), False)
+                for group, color in zip(unique_groups, colors):
+                    indices = all_df[settings['color_by']] == group
+                    ax.scatter(embedding[indices, 0], embedding[indices, 1], s=pointsize, label=f"{group}", color=color)
+            else:
+                unique_labels = np.unique(labels)
+                colors = generate_colors(len(unique_labels), False)
+                for label, color in zip(unique_labels, colors):
+                    ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
 
             ax.set_title(f"{settings['reduction_method']} {reduction_param}\n{clustering_param['method']} {clustering_param}")
-            #ax.legend()
+            ax.legend()
 
     plt.tight_layout()
     if save:
