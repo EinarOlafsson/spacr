@@ -309,85 +309,6 @@ class NoClassDataset(Dataset):
             img = ToTensor()(img)
         # Return both the image and its filename
         return img, self.filenames[index]
-    
-class MyDataset_v1(Dataset):
-    """
-    Custom dataset class for loading and processing image data.
-
-    Args:
-        data_dir (str): The directory path where the data is stored.
-        loader_classes (list): List of class names.
-        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.
-        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
-        load_to_memory (bool, optional): Whether to load images into memory. Default is False.
-
-    Attributes:
-        data_dir (str): The directory path where the data is stored.
-        classes (list): List of class names.
-        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.
-        shuffle (bool): Whether to shuffle the dataset.
-        load_to_memory (bool): Whether to load images into memory.
-        filenames (list): List of file paths.
-        labels (list): List of labels corresponding to each file.
-        images (list): List of loaded images.
-        image_cache (Cache): Cache object for storing loaded images.
-
-    Methods:
-        load_image: Load an image from file.
-        __len__: Get the length of the dataset.
-        shuffle_dataset: Shuffle the dataset.
-        __getitem__: Get an item from the dataset.
-
-    """
-
-    def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, load_to_memory=False):
-        from .utils import Cache
-        self.data_dir = data_dir
-        self.classes = loader_classes
-        self.transform = transform
-        self.shuffle = shuffle
-        self.load_to_memory = load_to_memory
-        self.filenames = []
-        self.labels = []
-        self.images = []
-        self.image_cache = Cache(50)  
-        for class_name in self.classes:
-            class_path = os.path.join(data_dir, class_name)
-            class_files = [os.path.join(class_path, f) for f in os.listdir(class_path) if os.path.isfile(os.path.join(class_path, f))]
-            self.filenames.extend(class_files)
-            self.labels.extend([self.classes.index(class_name)] * len(class_files))
-        if self.shuffle:
-            self.shuffle_dataset()
-        if self.load_to_memory:
-            self.images = [self.load_image(f) for f in self.filenames]
-
-    def load_image(self, img_path):
-        img = self.image_cache.get(img_path)
-        if img is None:
-            img = Image.open(img_path).convert('RGB')
-            self.image_cache.put(img_path, img)
-        return img
-
-    def _len__(self):
-        return len(self.filenames)
-
-    def shuffle_dataset(self):
-        combined = list(zip(self.filenames, self.labels))
-        random.shuffle(combined)
-        self.filenames, self.labels = zip(*combined)
-
-    def _getitem__(self, index):
-        label = self.labels[index]
-        filename = self.filenames[index]
-        if self.load_to_memory:
-            img = self.images[index]
-        else:
-            img = self.load_image(filename)
-        if self.transform is not None:
-            img = self.transform(img)
-        else:
-            img = ToTensor()(img)
-        return img, label, filename
 
 class MyDataset(Dataset):
     """
@@ -604,64 +525,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                 else:
                     shutil.move(os.path.join(src, filename), move)
     return
-
-def _merge_file_v1(chan_dirs, stack_dir, file):
-    """
-    Merge multiple channels into a single stack and save it as a numpy array.
-
-    Args:
-        chan_dirs (list): List of directories containing channel images.
-        stack_dir (str): Directory to save the merged stack.
-        file (str): File name of the channel image.
-
-    Returns:
-        None
-    """
-    chan1 = cv2.imread(str(file), -1)
-    chan1 = np.expand_dims(chan1, axis=2)
-    new_file = stack_dir / (file.stem + '.npy')
-    if not new_file.exists():
-        stack_dir.mkdir(exist_ok=True)
-        channels = [chan1]
-        for chan_dir in chan_dirs[1:]:
-            img = cv2.imread(str(chan_dir / file.name), -1)
-            chan = np.expand_dims(img, axis=2)
-            channels.append(chan)
-        stack = np.concatenate(channels, axis=2)
-        np.save(new_file, stack)
-
-def _merge_file_v1(chan_dirs, stack_dir, file):
-    """
-    Merge multiple channels into a single stack and save it as a numpy array.
-    Args:
-        chan_dirs (list): List of directories containing channel images.
-        stack_dir (str): Directory to save the merged stack.
-        file (str): File name of the channel image.
-
-    Returns:
-        None
-    """
-    new_file = stack_dir / (file.stem + '.npy')
-    if not new_file.exists():
-        stack_dir.mkdir(exist_ok=True)
-        channels = []
-        for i, chan_dir in enumerate(chan_dirs):
-            img_path = str(chan_dir / file.name)
-            img = cv2.imread(img_path, -1)
-            if img is None:
-                print(f"Warning: Failed to read image {img_path}")
-                continue
-            chan = np.expand_dims(img, axis=2)
-            channels.append(chan)
-            del img  # Explicitly delete the reference to the image to free up memory
-            if i % 10 == 0:  # Periodically suggest garbage collection
-                gc.collect()
-
-        if channels:
-            stack = np.concatenate(channels, axis=2)
-            np.save(new_file, stack)
-        else:
-            print(f"No valid channels to merge for file {file.name}")
 
 def _merge_file(chan_dirs, stack_dir, file_name):
     """
@@ -1464,27 +1327,6 @@ def _get_avg_object_size(masks):
         return sum(object_areas) / len(object_areas)
     else:
         return 0  # Return 0 if no objects are found
-
-def _save_figure_v1(fig, src, text, dpi=300, ):
-    """
-    Save a figure to a specified location.
-
-    Parameters:
-    fig (matplotlib.figure.Figure): The figure to be saved.
-    src (str): The source file path.
-    text (str): The text to be included in the figure name.
-    dpi (int, optional): The resolution of the saved figure. Defaults to 300.
-    """
-    save_folder = os.path.dirname(src)
-    obj_type = os.path.basename(src)
-    name = os.path.basename(save_folder)
-    save_folder = os.path.join(save_folder, 'figure')
-    os.makedirs(save_folder, exist_ok=True)
-    fig_name = f'{obj_type}_{name}_{text}.pdf'        
-    save_location = os.path.join(save_folder, fig_name)
-    fig.savefig(save_location, bbox_inches='tight', dpi=dpi)
-    print(f'Saved single cell figure: {save_location}')
-    plt.close()
     
 def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     """
@@ -1589,56 +1431,6 @@ def _save_settings_to_db(settings):
     conn = sqlite3.connect(f'{directory}/measurements.db', timeout=5)
     settings_df.to_sql('settings', conn, if_exists='replace', index=False)  # Replace the table if it already exists
     conn.close()
-
-def _save_mask_timelapse_as_gif_v1(masks, path, cmap, norm, filenames):
-    """
-    Save a timelapse of masks as a GIF.
-
-    Parameters:
-    masks (list): List of mask frames.
-    path (str): Path to save the GIF.
-    cmap: Colormap for displaying the masks.
-    norm: Normalization for the masks.
-    filenames (list): List of filenames corresponding to each mask frame.
-
-    Returns:
-    None
-    """
-    def _update(frame):
-        """
-        Update the plot with the given frame.
-
-        Parameters:
-        frame (int): The frame number to update the plot with.
-
-        Returns:
-        None
-        """
-        nonlocal filename_text_obj
-        if filename_text_obj is not None:
-            filename_text_obj.remove()
-        ax.clear()
-        ax.axis('off')
-        current_mask = masks[frame]
-        ax.imshow(current_mask, cmap=cmap, norm=norm)
-        ax.set_title(f'Frame: {frame}', fontsize=24, color='white')
-        filename_text = filenames[frame]
-        filename_text_obj = fig.text(0.5, 0.01, filename_text, ha='center', va='center', fontsize=20, color='white')
-        for label_value in np.unique(current_mask):
-            if label_value == 0: continue  # Skip background
-            y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
-
-    fig, ax = plt.subplots(figsize=(50, 50), facecolor='black')
-    ax.set_facecolor('black')
-    ax.axis('off')
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
-
-    filename_text_obj = None
-    anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
-    anim.save(path, writer='pillow', fps=2, dpi=80)  # Adjust DPI for size/quality
-    plt.close(fig)
-    print(f'Saved timelapse to {path}')
 
 def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     """
