@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from PIL import Image
 import dgl.nn.pytorch as dglnn
 from sklearn.datasets import make_classification
+from .utils import SelectChannels
 
 # approach outline
 #
@@ -54,17 +55,21 @@ def generate_synthetic_grna_data(n_samples, n_features):
     synthetic_data['label'] = y
     return synthetic_data
 
-# Load sequencing data
-def load_sequencing_data(filepath):
-    return pd.read_csv(filepath)
-
 # Preprocess image
-def preprocess_image(image_path):
-    preprocess = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+def preprocess_image(image_path, image_size=224, channels=[1,2,3], normalize=True):
+
+    if normalize:
+        preprocess = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        preprocess = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels)])
+    
     image = Image.open(image_path).convert('RGB')
     return preprocess(image)
 
@@ -96,11 +101,11 @@ def extract_metadata_from_path(path):
     return {'plate': plate, 'well': well,'field': field, 'object_number': object_number}
 
 # Load images
-def load_images(image_paths):
+def load_images(image_paths, image_size=224, channels=[1,2,3], normalize=True):
     images = []
     metadata_list = []
     for path in image_paths:
-        image = preprocess_image(path)
+        image = preprocess_image(path, image_size, channels, normalize)
         images.append(image)
         metadata = extract_metadata_from_path(path)  # Extract metadata from image path or database
         metadata_list.append(metadata)
@@ -234,7 +239,7 @@ def analyze_associations(probabilities, sequencing_data):
     sequencing_data['positive_prob'] = probabilities
     return sequencing_data.groupby('gRNA').positive_prob.mean().sort_values(ascending=False)
 
-def train_graph_transformer(src, lr=0.01, epochs=100, hidden_feats=128, n_classes=2, row_limit=None, test_mode=False):
+def train_graph_transformer(src, lr=0.01, epochs=100, hidden_feats=128, n_classes=2, row_limit=None, image_size=224, channels=[1,2,3], normalize=True, test_mode=False):
     if test_mode:
         # Load MNIST data
         mnist_train, mnist_test = load_mnist_data()
@@ -286,7 +291,7 @@ def train_graph_transformer(src, lr=0.01, epochs=100, hidden_feats=128, n_classe
         if row_limit is not None:
             all_df = all_df.sample(n=row_limit, random_state=42)
 
-        images, metadata_list = load_images(image_paths)
+        images, metadata_list = load_images(image_paths, image_size, channels, normalize)
         sequencing_data = normalize_sequencing_data(sequencing_data)
 
     # Step 1: Create graphs for each well

@@ -112,26 +112,6 @@ class modify_masks:
         self.canvas.pack()
         self.canvas.bind("<Motion>", self.update_mouse_info)
 
-    def initialize_flags_v1(self):
-        self.zoom_rectangle_start = None
-        self.zoom_rectangle_end = None
-        self.zoom_rectangle_id = None
-        self.zoom_x0 = None
-        self.zoom_y0 = None
-        self.zoom_x1 = None
-        self.zoom_y1 = None
-        self.zoom_mask = None
-        self.zoom_image = None
-        self.zoom_image_orig = None
-        self.zoom_scale = 1
-        self.drawing = False
-        self.zoom_active = False
-        self.magic_wand_active = False
-        self.brush_active = False
-        self.lower_quantile = tk.StringVar(value="1.0")
-        self.upper_quantile = tk.StringVar(value="99.9")
-        self.magic_wand_tolerance = tk.StringVar(value="1000")
-
     def initialize_flags(self):
         self.zoom_rectangle_start = None
         self.zoom_rectangle_end = None
@@ -193,29 +173,6 @@ class modify_masks:
         self.mask_value_label.pack(side='right')
         self.pixel_count_label = tk.Label(navigation_toolbar, text="Area: N/A")
         self.pixel_count_label.pack(side='right')
-
-    def setup_mode_toolbar_v1(self):
-        self.mode_toolbar = tk.Frame(self.root)
-        self.mode_toolbar.pack(side='top', fill='x')
-        self.draw_btn = tk.Button(self.mode_toolbar, text="Draw", command=self.toggle_draw_mode)
-        self.draw_btn.pack(side='left')
-        self.magic_wand_btn = tk.Button(self.mode_toolbar, text="Magic Wand", command=self.toggle_magic_wand_mode)
-        self.magic_wand_btn.pack(side='left')
-        tk.Label(self.mode_toolbar, text="Tolerance:").pack(side='left')
-        self.tolerance_entry = tk.Entry(self.mode_toolbar, textvariable=self.magic_wand_tolerance)
-        self.tolerance_entry.pack(side='left')
-        tk.Label(self.mode_toolbar, text="Max Pixels:").pack(side='left')
-        self.max_pixels_entry = tk.Entry(self.mode_toolbar)
-        self.max_pixels_entry.insert(0, "1000")
-        self.max_pixels_entry.pack(side='left')
-        self.erase_btn = tk.Button(self.mode_toolbar, text="Erase", command=self.toggle_erase_mode)
-        self.erase_btn.pack(side='left')
-        self.brush_btn = tk.Button(self.mode_toolbar, text="Brush", command=self.toggle_brush_mode)
-        self.brush_btn.pack(side='left')
-        self.brush_size_entry = tk.Entry(self.mode_toolbar)
-        self.brush_size_entry.insert(0, "10") 
-        self.brush_size_entry.pack(side='left')
-        tk.Label(self.mode_toolbar, text="Brush Size:").pack(side='left')
 
     def setup_mode_toolbar(self):
         self.mode_toolbar = tk.Frame(self.root)
@@ -428,51 +385,6 @@ class modify_masks:
     # Mode activation#
     ####################################################################################################
     
-    def toggle_zoom_mode_v1(self):
-        if not self.zoom_active:
-            self.brush_btn.config(text="Brush")
-            self.canvas.unbind("<B1-Motion>")
-            self.canvas.unbind("<B3-Motion>")
-            self.canvas.unbind("<ButtonRelease-1>")
-            self.canvas.unbind("<ButtonRelease-3>")
-            self.zoom_active = True
-            self.drawing = False
-            self.magic_wand_active = False
-            self.erase_active = False
-            self.brush_active = False
-            self.dividing_line_active = False
-            self.draw_btn.config(text="Draw")
-            self.erase_btn.config(text="Erase")
-            self.magic_wand_btn.config(text="Magic Wand")
-            self.zoom_btn.config(text="Zoom ON")
-            self.dividing_line_btn.config(text="Dividing Line")
-            self.canvas.unbind("<Button-1>")
-            self.canvas.unbind("<Button-3>")
-            self.canvas.unbind("<Motion>")
-            self.canvas.bind("<Button-1>", self.set_zoom_rectangle_start)
-            self.canvas.bind("<Button-3>", self.set_zoom_rectangle_end)
-            self.canvas.bind("<Motion>", self.update_zoom_box)
-        else:
-            self.zoom_active = False
-            self.zoom_btn.config(text="Zoom")
-            self.canvas.unbind("<Button-1>")
-            self.canvas.unbind("<Button-3>")
-            self.canvas.unbind("<Motion>")
-            self.zoom_rectangle_start = self.zoom_rectangle_end = None
-            self.zoom_rectangle_id = None
-            self.display_image()
-            self.canvas.bind("<Motion>", self.update_mouse_info)
-            self.zoom_rectangle_start = None
-            self.zoom_rectangle_end = None
-            self.zoom_rectangle_id = None
-            self.zoom_x0 = None
-            self.zoom_y0 = None
-            self.zoom_x1 = None
-            self.zoom_y1 = None
-            self.zoom_mask = None
-            self.zoom_image = None
-            self.zoom_image_orig = None
-
     def toggle_zoom_mode(self):
         if not self.zoom_active:
             self.brush_btn.config(text="Brush")

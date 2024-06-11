@@ -40,7 +40,6 @@ matplotlib.use('Agg')
 #import matplotlib.pyplot as plt
 
 from .logger import log_function_call
-from .utils import remove_highly_correlated_columns, smooth_hull_lines
 
 def analyze_plaques(folder):
     summary_data = []
@@ -1073,7 +1072,6 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     torch.cuda.memory.empty_cache()
     return df
 
-
 def generate_training_data_file_list(src, 
                         target='protein of interest', 
                         cell_dim=4, 
@@ -1295,137 +1293,6 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
     generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=classes, test_split=0.1)
     
     return
-
-def generate_loaders_v1(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, verbose=False):
-    """
-    Generate data loaders for training and validation/test datasets.
-
-    Parameters:
-    - src (str): The source directory containing the data.
-    - train_mode (str): The training mode. Options are 'erm' (Empirical Risk Minimization) or 'irm' (Invariant Risk Minimization).
-    - mode (str): The mode of operation. Options are 'train' or 'test'.
-    - image_size (int): The size of the input images.
-    - batch_size (int): The batch size for the data loaders.
-    - classes (list): The list of classes to consider.
-    - num_workers (int): The number of worker threads for data loading.
-    - validation_split (float): The fraction of data to use for validation when train_mode is 'erm'.
-    - max_show (int): The maximum number of images to show when verbose is True.
-    - pin_memory (bool): Whether to pin memory for faster data transfer.
-    - normalize (bool): Whether to normalize the input images.
-    - verbose (bool): Whether to print additional information and show images.
-
-    Returns:
-    - train_loaders (list): List of data loaders for training datasets.
-    - val_loaders (list): List of data loaders for validation datasets.
-    - plate_names (list): List of plate names (only applicable when train_mode is 'irm').
-    """
-    
-    from .io import MyDataset
-    from .plot import _imshow
-    
-    plate_to_filenames = defaultdict(list)
-    plate_to_labels = defaultdict(list)
-    train_loaders = []
-    val_loaders = []
-    plate_names = []
-
-    if normalize:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
-    else:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size))])
-    
-    if mode == 'train':
-        data_dir = os.path.join(src, 'train')
-        shuffle = True
-        print(f'Generating Train and validation datasets')
-        
-    elif mode == 'test':
-        data_dir = os.path.join(src, 'test')
-        val_loaders = []
-        validation_split=0.0
-        shuffle = True
-        print(f'Generating test dataset')
-    
-    else:
-        print(f'mode:{mode} is not valid, use mode = train or test')
-        return
-    
-    if train_mode == 'erm':
-        data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
-        #train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-        if validation_split > 0:
-            train_size = int((1 - validation_split) * len(data))
-            val_size = len(data) - train_size
-
-            print(f'Train data:{train_size}, Validation data:{val_size}')
-
-            train_dataset, val_dataset = random_split(data, [train_size, val_size])
-
-            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-        else:
-            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-        
-    elif train_mode == 'irm':
-        data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
-        
-        for filename, label in zip(data.filenames, data.labels):
-            plate = data.get_plate(filename)
-            plate_to_filenames[plate].append(filename)
-            plate_to_labels[plate].append(label)
-
-        for plate, filenames in plate_to_filenames.items():
-            labels = plate_to_labels[plate]
-            plate_data = MyDataset(data_dir, classes, specific_files=filenames, specific_labels=labels, transform=transform, shuffle=False, pin_memory=pin_memory)
-            plate_names.append(plate)
-
-            if validation_split > 0:
-                train_size = int((1 - validation_split) * len(plate_data))
-                val_size = len(plate_data) - train_size
-
-                print(f'Train data:{train_size}, Validation data:{val_size}')
-
-                train_dataset, val_dataset = random_split(plate_data, [train_size, val_size])
-
-                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-
-                train_loaders.append(train_loader)
-                val_loaders.append(val_loader)
-            else:
-                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-                train_loaders.append(train_loader)
-                val_loaders.append(None)
-    
-    else:
-        print(f'train_mode:{train_mode} is not valid, use: train_mode = irm or erm')
-        return
-
-    if verbose:
-        if train_mode == 'erm':
-            for idx, (images, labels, filenames) in enumerate(train_loaders):
-                if idx >= max_show:
-                    break
-                images = images.cpu()
-                label_strings = [str(label.item()) for label in labels]
-                _imshow(images, label_strings, nrow=20, fontsize=12)
-
-        elif train_mode == 'irm':
-            for plate_name, train_loader in zip(plate_names, train_loaders):
-                print(f'Plate: {plate_name} with {len(train_loader.dataset)} images')
-                for idx, (images, labels, filenames) in enumerate(train_loader):
-                    if idx >= max_show:
-                        break
-                    images = images.cpu()
-                    label_strings = [str(label.item()) for label in labels]
-                    _imshow(images, label_strings, nrow=20, fontsize=12)
-    
-    return train_loaders, val_loaders, plate_names
 
 def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], verbose=False):
     
@@ -2712,82 +2579,6 @@ def check_cellpose_models(settings):
         generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose)
 
     return
-
-def compare_masks_v1(dir1, dir2, dir3, verbose=False):
-    
-    from .io import _read_mask
-    from .plot import visualize_masks, plot_comparison_results
-    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index, dice_coefficient
-    
-    filenames = os.listdir(dir1)
-    results = []
-    cond_1 = os.path.basename(dir1)
-    cond_2 = os.path.basename(dir2)
-    cond_3 = os.path.basename(dir3)
-
-    for index, filename in enumerate(filenames):
-        print(f'Processing image:{index+1}', end='\r', flush=True)
-        path1, path2, path3 = os.path.join(dir1, filename), os.path.join(dir2, filename), os.path.join(dir3, filename)
-
-        print(path1)
-        print(path2)
-        print(path3)
-        
-        if os.path.exists(path2) and os.path.exists(path3):
-            
-            mask1, mask2, mask3 = _read_mask(path1), _read_mask(path2), _read_mask(path3)
-            boundary_true1, boundary_true2, boundary_true3 = extract_boundaries(mask1), extract_boundaries(mask2), extract_boundaries(mask3)
-            
-            
-            true_masks, pred_masks = [mask1], [mask2, mask3]  # Assuming mask1 is the ground truth for simplicity
-            true_labels, pred_labels_1, pred_labels_2 = label(mask1), label(mask2), label(mask3)
-            average_precision_0, average_precision_1 = compute_segmentation_ap(mask1, mask2), compute_segmentation_ap(mask1, mask3)
-            ap_scores = [average_precision_0, average_precision_1]
-
-            if verbose:
-                #unique_values1, unique_values2, unique_values3 = np.unique(mask1),  np.unique(mask2), np.unique(mask3)
-                #print(f"Unique values in mask 1: {unique_values1}, mask 2: {unique_values2}, mask 3: {unique_values3}")
-                visualize_masks(boundary_true1, boundary_true2, boundary_true3, title=f"Boundaries - {filename}")
-            
-            boundary_f1_12, boundary_f1_13, boundary_f1_23 = boundary_f1_score(mask1, mask2), boundary_f1_score(mask1, mask3), boundary_f1_score(mask2, mask3)
-
-            if (np.unique(mask1).size == 1 and np.unique(mask1)[0] == 0) and \
-               (np.unique(mask2).size == 1 and np.unique(mask2)[0] == 0) and \
-               (np.unique(mask3).size == 1 and np.unique(mask3)[0] == 0):
-                continue
-            
-            if verbose:
-                #unique_values4, unique_values5, unique_values6 = np.unique(boundary_f1_12), np.unique(boundary_f1_13), np.unique(boundary_f1_23)
-                #print(f"Unique values in boundary mask 1: {unique_values4}, mask 2: {unique_values5}, mask 3: {unique_values6}")
-                visualize_masks(mask1, mask2, mask3, title=filename)
-            
-            jaccard12 = jaccard_index(mask1, mask2)
-            dice12 = dice_coefficient(mask1, mask2)
-            
-            jaccard13 = jaccard_index(mask1, mask3)
-            dice13 = dice_coefficient(mask1, mask3)
-            
-            jaccard23 = jaccard_index(mask2, mask3)
-            dice23 = dice_coefficient(mask2, mask3)    
-
-            results.append({
-                f'filename': filename,
-                f'jaccard_{cond_1}_{cond_2}': jaccard12,
-                f'dice_{cond_1}_{cond_2}': dice12,
-                f'jaccard_{cond_1}_{cond_3}': jaccard13,
-                f'dice_{cond_1}_{cond_3}': dice13,
-                f'jaccard_{cond_2}_{cond_3}': jaccard23,
-                f'dice_{cond_2}_{cond_3}': dice23,
-                f'boundary_f1_{cond_1}_{cond_2}': boundary_f1_12,
-                f'boundary_f1_{cond_1}_{cond_3}': boundary_f1_13,
-                f'boundary_f1_{cond_2}_{cond_3}': boundary_f1_23,
-                f'average_precision_{cond_1}_{cond_2}': ap_scores[0],
-                f'average_precision_{cond_1}_{cond_3}': ap_scores[1]
-            })
-        else:
-            print(f'Cannot find {path1} or {path2} or {path3}')
-    fig = plot_comparison_results(results)
-    return results, fig
 
 def compare_cellpose_masks(src, verbose=False):
     
