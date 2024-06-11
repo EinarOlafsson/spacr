@@ -1,7 +1,6 @@
-import sys, ctypes, csv, matplotlib
+import sys, ctypes, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
-from ttkthemes import ThemedTk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure

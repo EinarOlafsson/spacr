@@ -11,8 +11,6 @@ import statsmodels.api as sm
 import imageio.v2 as imageio
 from IPython.display import display
 from skimage.segmentation import find_boundaries
-from skimage.measure import find_contours
-from skimage.morphology import square, dilation 
 from skimage import measure
 
 from ipywidgets import IntSlider, interact

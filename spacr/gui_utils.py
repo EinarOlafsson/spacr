@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkFont
 from torchvision import models
-from ttf_opensans import opensans
+#from ttf_opensans import opensans
 
 from tkinter import font as tkFont
 

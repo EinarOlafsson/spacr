@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 from scipy.stats import pearsonr
-import matplotlib as mpl
 import multiprocessing as mp
 from scipy.ndimage import distance_transform_edt, generate_binary_structure
 from skimage.measure import regionprops, regionprops_table, shannon_entropy
