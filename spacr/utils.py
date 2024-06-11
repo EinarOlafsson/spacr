@@ -3473,7 +3473,7 @@ def remove_noise(embedding, labels):
 
 def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose):
     unique_labels = np.unique(labels)
-    num_clusters = len(unique_labels[unique_labels != 0])
+    #num_clusters = len(unique_labels[unique_labels != 0])
     colors, label_to_color_index = assign_colors(unique_labels, colors)
     cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
     fig, ax = setup_plot(figuresize, black_background)
@@ -3700,7 +3700,11 @@ def get_umap_image_settings(settings={}):
     settings.setdefault('plot_images', True)
     settings.setdefault('reduction_method','umap')
     settings.setdefault('save_figure', False)
-    settings.setdefault('n_jobs', -1)
+    settings.setdefault('color_by', -1)
+    settings.setdefault('neg', 'c1')
+    settings.setdefault('pos', 'c2')
+    settings.setdefault('mix', 'c3')
+    settings.setdefault('mix', 'c3')
     settings.setdefault('verbose',True)
 
     return settings
@@ -3870,6 +3874,9 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
 
     if isinstance(n_neighbors, float):
         n_neighbors = int(n_neighbors * len(numeric_data))
+    if n_neighbors <= 1:
+        n_neighbors = 2
+        print(f'n_neighbors cannota be less than 2. Setting n_neighbors to {n_neighbors}')
 
     reduction_param = reduction_param or {}
     reduction_param = {k: v for k, v in reduction_param.items() if k not in ['perplexity', 'n_neighbors', 'min_dist', 'metric', 'method']}
