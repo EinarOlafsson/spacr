@@ -1,4 +1,4 @@
-import sys, os, re, sqlite3, gc, torch, torchvision, time, random, string, shutil, cv2, tarfile, glob
+import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob
 
 import numpy as np
 from cellpose import models as cp_models
@@ -17,17 +17,16 @@ from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 from collections import OrderedDict
 from functools import reduce
-from IPython.display import display, clear_output
+from IPython.display import display
 from multiprocessing import Pool, cpu_count
 from skimage.transform import resize as resizescikit
 from skimage.morphology import dilation, square
 from skimage.measure import find_contours
 import torch.nn as nn
 import torch.nn.functional as F
-#from torchsummary import summary
 from torch.utils.checkpoint import checkpoint
 from torch.utils.data import Subset
-from torch.autograd import grad, Variable, Function
+from torch.autograd import grad
 from torchvision import models
 from skimage.segmentation import clear_border
 import seaborn as sns
@@ -35,37 +34,190 @@ import matplotlib.pyplot as plt
 import scipy.ndimage as ndi
 from scipy.spatial import distance
 from scipy.stats import fisher_exact
-from scipy.ndimage import binary_erosion, binary_dilation
 from scipy.ndimage.filters import gaussian_filter
-
+from sklearn.preprocessing import StandardScaler
 from skimage.exposure import rescale_intensity
 from sklearn.metrics import auc, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.cluster import KMeans
-
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
+from numba import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import umap.umap_ as umap
+from concurrent.futures import ThreadPoolExecutor
+from scipy.spatial import ConvexHull
 from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
-from torchvision.transforms import ToTensor, Normalize, Compose
-from torchcam.methods import SmoothGradCAMpp, GradCAM, ScoreCAM, LayerCAM
-from torchcam.utils import overlay_mask
 import torchvision.transforms as transforms
-
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from scipy.interpolate import splprep, splev
+from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
 
 from .logger import log_function_call
 
-def _gen_rgb_image(image, cahnnels):
-    rgb_image = np.take(image, cahnnels, axis=-1)
-    rgb_image = rgb_image.astype(float)
-    rgb_image -= rgb_image.min()
-    rgb_image /= rgb_image.max()
+def set_default_plot_merge_settings():
+    settings = {}
+    settings.setdefault('include_noninfected', True)
+    settings.setdefault('include_multiinfected', True)
+    settings.setdefault('include_multinucleated', True)
+    settings.setdefault('remove_background', False)
+    settings.setdefault('filter_min_max', None)
+    settings.setdefault('channel_dims', [0,1,2,3])
+    settings.setdefault('backgrounds', [100,100,100,100])
+    settings.setdefault('cell_mask_dim', 4)
+    settings.setdefault('nucleus_mask_dim', 5)
+    settings.setdefault('pathogen_mask_dim', 6)
+    settings.setdefault('outline_thickness', 3)
+    settings.setdefault('outline_color', 'gbr')
+    settings.setdefault('overlay_chans', [1,2,3])
+    settings.setdefault('overlay', True)
+    settings.setdefault('normalization_percentiles', [2,98])
+    settings.setdefault('normalize', True)
+    settings.setdefault('print_object_number', True)
+    settings.setdefault('nr', 1)
+    settings.setdefault('figuresize', 50)
+    settings.setdefault('cmap', 'inferno')
+    settings.setdefault('verbose', True)
+
+    return settings
+
+def set_default_settings_preprocess_generate_masks(src, settings={}):
+    # Main settings
+    settings['src'] = src
+    settings.setdefault('preprocess', True)
+    settings.setdefault('masks', True)
+    settings.setdefault('save', True)
+    settings.setdefault('batch_size', 50)
+    settings.setdefault('test_mode', False)
+    settings.setdefault('test_images', 10)
+    settings.setdefault('magnification', 20)
+    settings.setdefault('custom_regex', None)
+    settings.setdefault('metadata_type', 'cellvoyager')
+    settings.setdefault('workers', os.cpu_count()-4)
+    settings.setdefault('randomize', True)
+    settings.setdefault('verbose', True)
+
+    settings.setdefault('remove_background_cell', False)
+    settings.setdefault('remove_background_nucleus', False)
+    settings.setdefault('remove_background_pathogen', False)
+
+    # Channel settings
+    settings.setdefault('cell_channel', None)
+    settings.setdefault('nucleus_channel', None)
+    settings.setdefault('pathogen_channel', None)
+    settings.setdefault('channels', [0,1,2,3])
+    settings.setdefault('pathogen_background', 100)
+    settings.setdefault('pathogen_Signal_to_noise', 10)
+    settings.setdefault('pathogen_CP_prob', 0)
+    settings.setdefault('cell_background', 100)
+    settings.setdefault('cell_Signal_to_noise', 10)
+    settings.setdefault('cell_CP_prob', 0)
+    settings.setdefault('nucleus_background', 100)
+    settings.setdefault('nucleus_Signal_to_noise', 10)
+    settings.setdefault('nucleus_CP_prob', 0)
+
+    settings.setdefault('nucleus_FT', 100)
+    settings.setdefault('cell_FT', 100)
+    settings.setdefault('pathogen_FT', 100)
+    
+    # Plot settings
+    settings.setdefault('plot', False)
+    settings.setdefault('figuresize', 50)
+    settings.setdefault('cmap', 'inferno')
+    settings.setdefault('normalize', True)
+    settings.setdefault('normalize_plots', True)
+    settings.setdefault('examples_to_plot', 1)
+
+    # Analasys settings
+    settings.setdefault('pathogen_model', None)
+    settings.setdefault('merge_pathogens', False)
+    settings.setdefault('filter', False)
+    settings.setdefault('lower_percentile', 2)
+
+    # Timelapse settings
+    settings.setdefault('timelapse', False)
+    settings.setdefault('fps', 2)
+    settings.setdefault('timelapse_displacement', None)
+    settings.setdefault('timelapse_memory', 3)
+    settings.setdefault('timelapse_frame_limits', None)
+    settings.setdefault('timelapse_remove_transient', False)
+    settings.setdefault('timelapse_mode', 'trackpy')
+    settings.setdefault('timelapse_objects', 'cells')
+
+    # Misc settings
+    settings.setdefault('all_to_mip', False)
+    settings.setdefault('pick_slice', False)
+    settings.setdefault('skip_mode', '01')
+    settings.setdefault('upscale', False)
+    settings.setdefault('upscale_factor', 2.0)
+    settings.setdefault('adjust_cells', False)
+
+    return settings
+
+def set_default_settings_preprocess_img_data(settings):
+
+    metadata_type = settings.setdefault('metadata_type', 'cellvoyager')
+    custom_regex = settings.setdefault('custom_regex', None)
+    nr = settings.setdefault('nr', 1)
+    plot = settings.setdefault('plot', True)
+    batch_size = settings.setdefault('batch_size', 50)
+    timelapse = settings.setdefault('timelapse', False)
+    lower_percentile = settings.setdefault('lower_percentile', 2)
+    randomize = settings.setdefault('randomize', True)
+    all_to_mip = settings.setdefault('all_to_mip', False)
+    pick_slice = settings.setdefault('pick_slice', False)
+    skip_mode = settings.setdefault('skip_mode', False)
+
+    cmap = settings.setdefault('cmap', 'inferno')
+    figuresize = settings.setdefault('figuresize', 50)
+    normalize = settings.setdefault('normalize', True)
+    save_dtype = settings.setdefault('save_dtype', 'uint16')
+    correct_illumination = settings.setdefault('correct_illumination', False)
+    
+    test_mode = settings.setdefault('test_mode', False)
+    test_images = settings.setdefault('test_images', 10)
+    random_test = settings.setdefault('random_test', True)
+
+    return settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, correct_illumination, test_mode, test_images, random_test
+
+def smooth_hull_lines(cluster_data):
+    hull = ConvexHull(cluster_data)
+
+    # Extract vertices of the hull
+    vertices = hull.points[hull.vertices]
+
+    # Close the loop
+    vertices = np.vstack([vertices, vertices[0, :]])
+
+    # Parameterize the vertices
+    tck, u = splprep(vertices.T, u=None, s=0.0)
+
+    # Evaluate spline at new parameter values
+    new_points = splev(np.linspace(0, 1, 100), tck)
+
+    return new_points[0], new_points[1]
+
+def _gen_rgb_image(image, channels):
+    """
+    Generate an RGB image from the specified channels of the input image.
+
+    Args:
+        image (ndarray): The input image.
+        channels (list): List of channel indices to use for RGB.
+
+    Returns:
+        rgb_image (ndarray): The generated RGB image.
+    """
+    rgb_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.float32)
+    for i, chan in enumerate(channels):
+        if chan < image.shape[2]:
+            rgb_image[:, :, i] = image[:, :, chan]
     return rgb_image
 
 def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness):
-    from concurrent.futures import ThreadPoolExecutor
-    import cv2
-
     outlines = []
     overlayed_image = rgb_image.copy()
 
@@ -75,11 +227,12 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
 
         # Find and draw contours
         for j in np.unique(mask):
-        #for j in np.unique(mask)[1:]:
+            if j == 0:
+                continue  # Skip background
             contours = find_contours(mask == j, 0.5)
             # Convert contours for OpenCV format and draw directly to optimize
             cv_contours = [np.flip(contour.astype(int), axis=1) for contour in contours]
-            cv2.drawContours(outline, cv_contours, -1, color=int(j), thickness=outline_thickness)
+            cv2.drawContours(outline, cv_contours, -1, color=255, thickness=outline_thickness) 
 
         return dilation(outline, square(outline_thickness))
 
@@ -87,18 +240,14 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
     with ThreadPoolExecutor() as executor:
         outlines = list(executor.map(process_dim, mask_dims))
 
-    # Overlay outlines onto the RGB image in a batch/vectorized manner if possible
+    # Overlay outlines onto the RGB image
     for i, outline in enumerate(outlines):
-        # This part may need to be adapted to your specific use case and available functions
-        # The goal is to overlay each outline with its respective color more efficiently
-        color = outline_colors[i % len(outline_colors)]
-        for j in np.unique(outline)[1:]:
+        color = np.array(outline_colors[i % len(outline_colors)])
+        for j in np.unique(outline):
+            if j == 0:
+                continue  # Skip background
             mask = outline == j
             overlayed_image[mask] = color  # Direct assignment with broadcasting
-
-    # Remove mask_dims from image
-    channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
-    image = np.take(image, channels_to_keep, axis=-1)
 
     return overlayed_image, outlines, image
 
@@ -359,43 +508,82 @@ def _annotate_conditions(df, cells=['HeLa'], cell_loc=None, pathogens=['rh'], pa
     df['condition'] = df.apply(lambda row: '_'.join(filter(None, [row.get('pathogen'), row.get('treatment')])), axis=1)
     df['condition'] = df['condition'].apply(lambda x: x if x else 'none')
     return df
-    
-def normalize_to_dtype(array, q1=2,q2=98, percentiles=None):
+
+def normalize_to_dtype(array, p1=2, p2=98):
     """
-    Normalize the input array to a specified data type.
+    Normalize each image in the stack to its own percentiles.
 
     Parameters:
     - array: numpy array
-        The input array to be normalized.
-    - q1: int, optional
+        The input stack to be normalized.
+    - p1: int, optional
         The lower percentile value for normalization. Default is 2.
-    - q2: int, optional
+    - p2: int, optional
         The upper percentile value for normalization. Default is 98.
-    - percentiles: list of tuples, optional
-        A list of tuples containing the percentile values for each image in the array.
-        If provided, the percentiles for each image will be used instead of q1 and q2.
 
     Returns:
     - new_stack: numpy array
-        The normalized array with the same shape as the input array.
+        The normalized stack with the same shape as the input stack.
     """
     nimg = array.shape[2]
     new_stack = np.empty_like(array)
-    for i,v in enumerate(range(nimg)):
-        img = np.squeeze(array[:, :, v])
+
+    for i in range(nimg):
+        img = array[:, :, i]
         non_zero_img = img[img > 0]
-        if non_zero_img.size > 0: # check if there are non-zero values
-            img_min = np.percentile(non_zero_img, q1)  # change percentile from 0.02 to 2
-            img_max = np.percentile(non_zero_img, q2)  # change percentile from 0.98 to 98
-            img = rescale_intensity(img, in_range=(img_min, img_max), out_range='dtype')
-        else:  # if there are no non-zero values, just use the image as it is
-            if percentiles==None:
-                img_min, img_max = img.min(), img.max()
-            else:
-                img_min, img_max = percentiles[i]
-            img = rescale_intensity(img, in_range=(img_min, img_max), out_range='dtype')
-        img = np.expand_dims(img, axis=2)
-        new_stack[:, :, v] = img[:, :, 0]
+
+        if non_zero_img.size > 0:
+            img_min = np.percentile(non_zero_img, p1)
+            img_max = np.percentile(non_zero_img, p2)
+        else:
+            img_min = img.min()
+            img_max = img.max()
+
+        # Determine output range based on dtype
+        if np.issubdtype(array.dtype, np.integer):
+            out_range = (0, np.iinfo(array.dtype).max)
+        else:
+            out_range = (0.0, 1.0)
+
+        img = rescale_intensity(img, in_range=(img_min, img_max), out_range=out_range).astype(array.dtype)
+        new_stack[:, :, i] = img
+
+    return new_stack
+
+def normalize_to_dtype(array, p1=2, p2=98):
+    """
+    Normalize each image in the stack to its own percentiles.
+
+    Parameters:
+    - array: numpy array
+        The input stack to be normalized.
+    - p1: int, optional
+        The lower percentile value for normalization. Default is 2.
+    - p2: int, optional
+        The upper percentile value for normalization. Default is 98.
+
+    Returns:
+    - new_stack: numpy array
+        The normalized stack with the same shape as the input stack.
+    """
+    nimg = array.shape[2]
+    new_stack = np.empty_like(array, dtype=np.float32)
+
+    for i in range(nimg):
+        img = array[:, :, i]
+        non_zero_img = img[img > 0]
+
+        if non_zero_img.size > 0:
+            img_min = np.percentile(non_zero_img, p1)
+            img_max = np.percentile(non_zero_img, p2)
+        else:
+            img_min = img.min()
+            img_max = img.max()
+
+        # Normalize to the range (0, 1) for visualization
+        img = rescale_intensity(img, in_range=(img_min, img_max), out_range=(0.0, 1.0))
+        new_stack[:, :, i] = img
+
     return new_stack
     
 def _list_endpoint_subdirectories(base_dir):
@@ -809,7 +997,7 @@ def _get_object_settings(object_type, settings):
 
     elif object_type == 'pathogen':
         object_settings['model_name'] = 'cyto'
-        object_settings['filter_size'] = True
+        object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         object_settings['merge'] = settings['merge_pathogens']
@@ -2760,15 +2948,37 @@ def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mas
                 print(f'After {object_type} maximum mean intensity filter: {len(df)}')
     return df
 
-def _run_test_mode(src, regex, timelapse=False):
+def _get_regex(metadata_type, img_format, custom_regex=None):
+
+    if img_format == None:
+        img_format == '.tif'
+    if metadata_type == 'cellvoyager':
+        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+    elif metadata_type == 'cq1':
+        regex = f'W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+    elif metadata_type == 'nikon':
+        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+    elif metadata_type == 'zeis':
+        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+    elif metadata_type == 'leica':
+        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+    elif metadata_type == 'custom':
+        regex = f'({custom_regex}){img_format}'
+        
+    print(f'regex mode:{metadata_type} regex:{regex}')
+    return regex
+
+def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True):
+    
     if timelapse:
         test_images = 1  # Use only 1 set for timelapse to ensure full sequence inclusion
-    else:
-        test_images = 10  # Use 10 sets for non-timelapse scenarios
-
+    
     test_folder_path = os.path.join(src, 'test')
     os.makedirs(test_folder_path, exist_ok=True)
     regular_expression = re.compile(regex)
+
+    if os.path.exists(os.path.join(src, 'orig')):
+        src = os.path.join(src, 'orig')
     
     all_filenames = [filename for filename in os.listdir(src) if regular_expression.match(filename)]
     print(f'Found {len(all_filenames)} files')
@@ -2780,25 +2990,20 @@ def _run_test_mode(src, regex, timelapse=False):
             plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
             well = match.group('wellID')
             field = match.group('fieldID')
-            # For timelapse experiments, group images by plate, well, and field only
-            if timelapse:
-                set_identifier = (plate, well, field)
-            else:
-                # For non-timelapse, you might want to distinguish sets more granularly
-                # Here, assuming you're grouping by plate, well, and field for simplicity
-                set_identifier = (plate, well, field)
+            set_identifier = (plate, well, field)
             images_by_set[set_identifier].append(filename)
     
     # Prepare for random selection
     set_identifiers = list(images_by_set.keys())
-    random.seed(42)
+    if random_test:
+        random.seed(42)
     random.shuffle(set_identifiers)  # Randomize the order
     
     # Select a subset based on the test_images count
     selected_sets = set_identifiers[:test_images]
 
     # Print information about the number of sets used
-    print(f'Using {test_images} random image set(s) for test model')
+    print(f'Using {len(selected_sets)} random image set(s) for test model')
 
     # Copy files for selected sets to the test folder
     for set_identifier in selected_sets:
@@ -2807,7 +3012,16 @@ def _run_test_mode(src, regex, timelapse=False):
 
     return test_folder_path
 
-def _choose_model(model_name, device, object_type='cell', restore_type=None):
+def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings={}):
+    
+    if object_type == 'pathogen':
+        if model_name == 'toxo_pv_lumen':
+            diameter = object_settings['diameter']
+            current_dir = os.path.dirname(__file__)
+            model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
+            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=model_path, diam_mean=diameter, device=device)
+            print(f'Using Toxoplasma PV lumen model to generate pathogen masks')
+
     restore_list = ['denoise', 'deblur', 'upsample', None]
     if restore_type not in restore_list:
         print(f"Invalid restore type. Choose from {restore_list} defaulting to None")
@@ -2815,26 +3029,19 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None):
 
     if restore_type == None:
         if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
-            model = cp_models.Cellpose(gpu=True, model_type=model_name, device=device)
-        elif model_name == 'toxo_dsred':
-            custom_model = ''
-            diam_mean = 30 # this needs to change probably
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diam_mean, device=device)
-        elif model_name == 'toxo_biotin':
-            custom_model = ''
-            diam_mean = 30 # this needs to change probably
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diam_mean, device=device)
+            model = cp_models.Cellpose(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
+
     else:
         if object_type == 'nucleus':
             restore = f'{type}_nuclei'
-            model = denoise.CellposeDenoiseModel(gpu=True, model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
+            model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
         else:
             restore = f'{type}_cyto3'
             if model_name =='cyto2':
                 chan2_restore = True
             if model_name =='cyto':
                 chan2_restore = False
-            model = denoise.CellposeDenoiseModel(gpu=True, model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
+            model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
     
     return model
 
@@ -3105,3 +3312,574 @@ class IntegratedGradients:
         avg_grads = np.mean(grads[:-1], axis=0)
         integrated_grads = (input_tensor.cpu().data.numpy() - baseline.cpu().data.numpy()) * avg_grads
         return integrated_grads
+
+def get_db_paths(src):
+    if isinstance(src, str):
+        src = [src]
+    db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
+    return db_paths
+
+def load_image_paths(c, visualize):
+    c.execute(f'SELECT * FROM png_list')
+    data = c.fetchall()
+    columns_info = c.execute(f'PRAGMA table_info(png_list)').fetchall()
+    column_names = [col_info[1] for col_info in columns_info]
+    image_paths_df = pd.DataFrame(data, columns=column_names)
+    if visualize:
+        object_visualize = visualize + '_png'
+        image_paths_df = image_paths_df[image_paths_df['png_path'].str.contains(object_visualize)]
+    image_paths_df = image_paths_df.set_index('prcfo')
+    return image_paths_df
+
+def merge_dataframes(df, image_paths_df, verbose):
+    df.set_index('prcfo', inplace=True)
+    df = image_paths_df.merge(df, left_index=True, right_index=True)
+    if verbose:
+        display(df)
+    return df
+
+def remove_highly_correlated_columns(df, threshold):
+    corr_matrix = df.corr().abs()
+    upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+    to_drop = [column for column in upper_tri.columns if any(upper_tri[column] > threshold)]
+    return df.drop(to_drop, axis=1)
+
+def filter_columns(df, filter_by):
+    if filter_by != 'morphology':
+        cols_to_include = [col for col in df.columns if filter_by in str(col)]
+    else:
+        cols_to_include = [col for col in df.columns if 'channel' not in str(col)]
+    df = df[cols_to_include]
+    return df
+
+def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1):
+    """
+    Perform dimensionality reduction and clustering on the given data.
+    
+    Parameters:
+    numeric_data (np.ndarray): Numeric data for embedding and clustering.
+    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
+    min_dist (float): Minimum distance for UMAP.
+    metric (str): Metric for UMAP and DBSCAN.
+    eps (float): Epsilon for DBSCAN.
+    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
+    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+    verbose (bool): Whether to print verbose output.
+    embedding (np.ndarray, optional): Precomputed embedding. Default is None.
+    
+    Returns:
+    tuple: embedding, labels
+    """
+
+    if verbose:
+        v=1
+    else:
+        v=0
+    
+    if isinstance(n_neighbors, float):
+        n_neighbors = int(n_neighbors * len(numeric_data))
+    
+    if reduction_method == 'umap':
+        reducer = umap.UMAP(n_neighbors=n_neighbors,
+                            n_components=2,
+                            metric=metric,
+                            n_epochs=None,
+                            learning_rate=1.0,
+                            init='spectral',
+                            min_dist=min_dist,
+                            spread=1.0,
+                            set_op_mix_ratio=1.0,
+                            local_connectivity=1,
+                            repulsion_strength=1.0,
+                            negative_sample_rate=5,
+                            transform_queue_size=4.0,
+                            a=None,
+                            b=None,
+                            random_state=42,
+                            metric_kwds=None,
+                            angular_rp_forest=False,
+                            target_n_neighbors=-1,
+                            target_metric='categorical',
+                            target_metric_kwds=None,
+                            target_weight=0.5,
+                            transform_seed=42,
+                            n_jobs=n_jobs,
+                            verbose=verbose)
+
+    elif reduction_method == 'tsne':
+
+        #tsne_params.setdefault('n_components', 2)
+        #reducer = TSNE(**tsne_params)
+
+        reducer = TSNE(n_components=2,
+                       perplexity=n_neighbors,
+                       early_exaggeration=12.0,
+                       learning_rate=200.0,
+                       n_iter=1000,
+                       n_iter_without_progress=300,
+                       min_grad_norm=1e-7,
+                       metric=metric,
+                       init='random',
+                       verbose=v,
+                       random_state=42,
+                       method='barnes_hut',
+                       angle=0.5,
+                       n_jobs=n_jobs)
+        
+    else:
+        raise ValueError(f"Unsupported reduction method: {reduction_method}. Supported methods are 'umap' and 'tsne'")
+    
+    if embedding is None:
+        embedding = reducer.fit_transform(numeric_data)
+    
+    if clustering == 'dbscan':
+        clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
+    elif clustering == 'kmeans':
+        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+    else:
+        raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
+    
+    clustering_model.fit(embedding)
+    labels = clustering_model.labels_ if clustering == 'dbscan' else clustering_model.predict(embedding)
+    
+    if verbose:
+        print(f'Embedding shape: {embedding.shape}')
+        print(f'Labels: {labels}')
+    
+    return embedding, labels
+
+def remove_noise(embedding, labels):
+    non_noise_indices = labels != -1
+    embedding = embedding[non_noise_indices]
+    labels = labels[non_noise_indices]
+    return embedding, labels
+
+def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose):
+    unique_labels = np.unique(labels)
+    num_clusters = len(unique_labels[unique_labels != 0])
+    colors, label_to_color_index = assign_colors(unique_labels, colors)
+    cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
+    fig, ax = setup_plot(figuresize, black_background)
+    plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize, dot_size, verbose)
+    if not image_paths is None and plot_images:
+        plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
+    plt.show()
+    return fig
+
+def generate_colors(num_clusters, black_background):
+    random_colors = np.random.rand(num_clusters + 1, 4)
+    random_colors[:, 3] = 1
+    specific_colors = [
+        [155 / 255, 55 / 255, 155 / 255, 1],
+        [55 / 255, 155 / 255, 155 / 255, 1],
+        [55 / 255, 155 / 255, 255 / 255, 1],
+        [255 / 255, 55 / 255, 155 / 255, 1]
+    ]
+    random_colors = np.vstack((specific_colors, random_colors[len(specific_colors):]))
+    if not black_background:
+        random_colors = np.vstack(([0, 0, 0, 1], random_colors))
+    return random_colors
+
+def assign_colors(unique_labels, random_colors):
+    normalized_colors = random_colors / 255
+    colors_img = [tuple(color) for color in normalized_colors]
+    colors = [tuple(color) for color in random_colors]
+    label_to_color_index = {label: index for index, label in enumerate(unique_labels)}
+    return colors, label_to_color_index
+
+def setup_plot(figuresize, black_background):
+    if black_background:
+        plt.rcParams.update({'figure.facecolor': 'black', 'axes.facecolor': 'black', 'text.color': 'white', 'xtick.color': 'white', 'ytick.color': 'white', 'axes.labelcolor': 'white'})
+    else:
+        plt.rcParams.update({'figure.facecolor': 'white', 'axes.facecolor': 'white', 'text.color': 'black', 'xtick.color': 'black', 'ytick.color': 'black', 'axes.labelcolor': 'black'})
+    fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+    return fig, ax
+
+def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=50, dot_size=50, verbose=False):
+    unique_labels = np.unique(labels)
+    for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
+        cluster_data = embedding[labels == cluster_label]
+        if smooth_lines:
+            if cluster_data.shape[0] > 2:
+                x_smooth, y_smooth = smooth_hull_lines(cluster_data)
+                if plot_outlines:
+                    plt.plot(x_smooth, y_smooth, color=color, linewidth=2)
+        else:
+            if cluster_data.shape[0] > 2:
+                hull = ConvexHull(cluster_data)
+                for simplex in hull.simplices:
+                    if plot_outlines:
+                        plt.plot(hull.points[simplex, 0], hull.points[simplex, 1], color=color, linewidth=4)
+        if plot_points:
+            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[color], alpha=0.5, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+        else:
+            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+        ax.text(center[0], center[1], str(cluster_label), fontsize=12, ha='center', va='center')
+    plt.legend(loc='best', fontsize=int(figuresize * 0.75))
+    plt.xlabel('UMAP Dimension 1', fontsize=int(figuresize * 0.75))
+    plt.ylabel('UMAP Dimension 2', fontsize=int(figuresize * 0.75))
+    plt.tick_params(axis='both', which='major', labelsize=int(figuresize * 0.75))
+
+def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
+    if plot_by_cluster:
+        cluster_indices = {label: np.where(labels == label)[0] for label in np.unique(labels) if label != -1}
+        plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose)
+    else:
+        indices = random.sample(range(len(embedding)), image_nr)
+        for i, index in enumerate(indices):
+            x, y = embedding[index]
+            img = Image.open(image_paths[index])
+            plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
+
+def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose):
+    for cluster_label, color in zip(np.unique(labels), colors):
+        if cluster_label == -1:
+            continue
+        indices = cluster_indices.get(cluster_label, [])
+        if len(indices) > image_nr:
+            indices = random.sample(list(indices), image_nr)
+        for index in indices:
+            x, y = embedding[index]
+            img = Image.open(image_paths[index])
+            plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
+
+def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
+    img = np.array(img)
+    if remove_image_canvas:
+        img = remove_canvas(img)
+    imagebox = OffsetImage(img, zoom=img_zoom)
+    ab = AnnotationBbox(imagebox, (x, y), frameon=False)
+    ax.add_artist(ab)
+
+def remove_canvas(img):
+    if img.mode in ['L', 'I']:
+        img_data = np.array(img)
+        img_data = img_data / np.max(img_data)
+        alpha_channel = (img_data > 0).astype(float)
+        img_data_rgb = np.stack([img_data] * 3, axis=-1)
+        img_data_with_alpha = np.dstack([img_data_rgb, alpha_channel])
+    elif img.mode == 'RGB':
+        img_data = np.array(img)
+        img_data = img_data / 255.0
+        alpha_channel = (np.sum(img_data, axis=-1) > 0).astype(float)
+        img_data_with_alpha = np.dstack([img_data, alpha_channel])
+    else:
+        raise ValueError(f"Unsupported image mode: {img.mode}")
+    return img_data_with_alpha
+
+def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose):
+    unique_labels = np.unique(labels)
+    num_clusters = len(unique_labels[unique_labels != -1])
+    if num_clusters == 0:
+        print("No clusters found.")
+        return
+    cluster_images = {label: [] for label in unique_labels if label != -1}
+    cluster_indices = {label: np.where(labels == label)[0] for label in unique_labels if label != -1}
+    for cluster_label, indices in cluster_indices.items():
+        if cluster_label == -1:
+            continue
+        if len(indices) > image_nr:
+            indices = random.sample(list(indices), image_nr)
+        for index in indices:
+            img_path = image_paths[index]
+            img_array = Image.open(img_path)
+            img = np.array(img_array)
+            cluster_images[cluster_label].append(img)
+    fig = plot_grid(cluster_images, colors, figuresize, black_background, verbose)
+    return fig
+
+def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
+    num_clusters = len(cluster_images)
+    max_figsize = 200  # Set a maximum figure size
+    if figuresize * num_clusters > max_figsize:
+        figuresize = max_figsize / num_clusters
+
+    grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
+    if num_clusters == 1:
+        grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
+    for cluster_label, axes in zip(cluster_images.keys(), grid_axes):
+        images = cluster_images[cluster_label]
+        num_images = len(images)
+        grid_size = int(np.ceil(np.sqrt(num_images)))
+        image_size = 0.9 / grid_size
+        whitespace = (1 - grid_size * image_size) / (grid_size + 1)
+        color = colors[cluster_label]  # Corrected the access of colors
+        axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
+        axes.axis('off')
+        for i, img in enumerate(images):
+            row = i // grid_size
+            col = i % grid_size
+            x_pos = (col + 1) * whitespace + col * image_size
+            y_pos = 1 - ((row + 1) * whitespace + (row + 1) * image_size)
+            ax_img = axes.inset_axes([x_pos, y_pos, image_size, image_size], transform=axes.transAxes)
+            ax_img.imshow(img, cmap='gray', aspect='auto')
+            ax_img.axis('off')
+            ax_img.set_aspect('equal')
+            ax_img.set_facecolor(color[:3])
+    
+    # Add cluster labels beside the UMAP plot
+    for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
+        label_y = 1 - (i + 1) * (1 / num_clusters)  # Adjust y position for each label
+        grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize * 0.75, color='black' if not black_background else 'white')
+        grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
+
+    plt.show()
+    return grid_fig
+
+def correct_paths(df, base_path):
+
+    if 'png_path' not in df.columns:
+        return df, None
+    
+    image_paths = df['png_path'].to_list()
+    
+    adjusted_image_paths = []
+    for path in image_paths:
+        if base_path not in path:
+            parts = path.split('/data/')
+            if len(parts) > 1:
+                new_path = os.path.join(base_path, 'data', parts[1])
+                adjusted_image_paths.append(new_path)
+            else:
+                adjusted_image_paths.append(path)
+        else:
+            adjusted_image_paths.append(path)
+
+    df['png_path'] = adjusted_image_paths
+    image_paths = df['png_path'].to_list()
+    return df, image_paths
+
+def get_umap_image_settings(settings={}):
+    settings.setdefault('src', 'path')
+    settings.setdefault('row_limit', 1000)
+    settings.setdefault('tables', ['cell', 'cytoplasm', 'nucleus', 'pathogen'])
+    settings.setdefault('visualize', 'cell')
+    settings.setdefault('image_nr', 16)
+    settings.setdefault('dot_size', 50)
+    settings.setdefault('n_neighbors', 1000)
+    settings.setdefault('min_dist', 0.1)
+    settings.setdefault('metric', 'euclidean')
+    settings.setdefault('eps', 0.5)
+    settings.setdefault('min_samples', 1000)
+    settings.setdefault('filter_by', 'channel_0')
+    settings.setdefault('img_zoom', 0.5)
+    settings.setdefault('plot_by_cluster', True)
+    settings.setdefault('plot_cluster_grids', True)
+    settings.setdefault('remove_cluster_noise', True)
+    settings.setdefault('remove_highly_correlated', True)
+    settings.setdefault('log_data', False)
+    settings.setdefault('figuresize', 60)
+    settings.setdefault('black_background', True)
+    settings.setdefault('remove_image_canvas', False)
+    settings.setdefault('plot_outlines', True)
+    settings.setdefault('plot_points', True)
+    settings.setdefault('smooth_lines', True)
+    settings.setdefault('clustering', 'dbscan')
+    settings.setdefault('exclude', None)
+    settings.setdefault('col_to_compare', 'col')
+    settings.setdefault('pos', 'c1')
+    settings.setdefault('neg', 'c2')
+    settings.setdefault('embedding_by_controls', False)
+    settings.setdefault('plot_images', True)
+    settings.setdefault('reduction_method','umap')
+    settings.setdefault('save_figure', False)
+    settings.setdefault('n_jobs', -1)
+    settings.setdefault('verbose',True)
+
+    return settings
+
+def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, verbose):
+    """
+    Preprocesses the given dataframe by applying filtering, removing highly correlated columns,
+    applying log transformation, filling NaN values, and scaling the numeric data.
+
+    Args:
+        df (pandas.DataFrame): The input dataframe.
+        filter_by (str or None): The channel of interest to filter the dataframe by.
+        remove_highly_correlated (bool or float): Whether to remove highly correlated columns.
+            If a float is provided, it represents the correlation threshold.
+        log_data (bool): Whether to apply log transformation to the numeric data.
+        exclude (list or None): List of features to exclude from the filtering process.
+        verbose (bool): Whether to print verbose output during preprocessing.
+
+    Returns:
+        numpy.ndarray: The preprocessed numeric data.
+
+    Raises:
+        ValueError: If no numeric columns are available after filtering.
+
+    """
+    # Apply filtering based on the `filter_by` parameter
+    if filter_by is not None:
+        df, _ = filter_dataframe_features(df, channel_of_interest=filter_by, exclude=exclude)
+        
+    # Select numerical features
+    numeric_data = df.select_dtypes(include=['number'])
+    
+    # Check if numeric_data is empty
+    if numeric_data.empty:
+        raise ValueError("No numeric columns available after filtering. Please check the filter_by and exclude parameters.")
+    
+    # Remove highly correlated columns
+    if not remove_highly_correlated is False:
+        if isinstance(remove_highly_correlated, float):
+            numeric_data = remove_highly_correlated_columns(numeric_data, remove_highly_correlated)
+        else:
+            numeric_data = remove_highly_correlated_columns(numeric_data, 0.95)
+    
+    # Apply log transformation
+    if log_data:
+        numeric_data = np.log(numeric_data + 1e-6)
+    
+    # Fill NaN values with the column mean
+    numeric_data = numeric_data.fillna(numeric_data.mean())
+    
+    # Scale the numeric data
+    scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
+    numeric_data = scaler.fit_transform(numeric_data)
+    
+    return numeric_data
+
+def filter_dataframe_features(df, channel_of_interest, exclude=None):
+    """
+    Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.
+
+    Parameters:
+    - df (pandas.DataFrame): The input dataframe to be filtered.
+    - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. 
+      If None, no filtering is applied. If 'morphology', only morphology features are included.
+      If an integer, only the specified channel is included. If a list, only the specified channels are included.
+      If a string, only the specified channel is included.
+    - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. 
+      If None, no features are excluded. If a string, the specified feature is excluded.
+      If a list, the specified features are excluded.
+
+    Returns:
+    - filtered_df (pandas.DataFrame): The filtered dataframe based on the specified parameters.
+    - features (list): The list of selected features after filtering.
+
+    """
+    if channel_of_interest is None:
+        feature_string = None
+    elif channel_of_interest == 'morphology':
+        feature_string = 'morphology'
+    elif isinstance(channel_of_interest, list):
+        feature_string = []
+        for i in channel_of_interest:
+            feature_string_tmp = f'channel_{i}'
+            feature_string.append(feature_string_tmp)
+    elif isinstance(channel_of_interest, int):
+        feature_string = f'channel_{channel_of_interest}'
+    elif isinstance(channel_of_interest, str):
+        feature_string = channel_of_interest
+
+    # Remove columns with a single value
+    df = df.loc[:, df.nunique() > 1]
+
+    # Select numerical features
+    features = df.select_dtypes(include=[np.number]).columns.tolist()
+
+    if feature_string is not None:
+        feature_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3']
+
+        # Remove feature_string from the list if it exists
+        if isinstance(feature_string, str):
+            if feature_string in feature_list:
+                feature_list.remove(feature_string)
+        elif isinstance(feature_string, list):
+            feature_list = [feature for feature in feature_list if feature not in feature_string]
+        
+        if feature_string != 'morphology':
+            features = [feature for feature in features if feature_string in feature]
+
+        # Iterate through the list and remove columns from df
+        for feature_ in feature_list:
+            features = [feature for feature in features if feature_ not in feature]
+            print(f'After removing {feature_} features: {len(features)}')
+
+    if isinstance(exclude, list):
+        features = [feature for feature in features if feature not in exclude]
+    elif isinstance(exclude, str):
+        features.remove(exclude)
+
+    filtered_df = df[features]
+
+    return filtered_df, features
+
+# Create a function to check if images overlap
+def check_overlap(current_position, other_positions, threshold):
+    for other_position in other_positions:
+        distance = np.linalg.norm(np.array(current_position) - np.array(other_position))
+        if distance < threshold:
+            return True
+    return False
+
+# Define a function to try random positions around a given point
+def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts=100):
+    offset_range = 10  # Adjust the range for random offsets
+    attempts = 0
+    while attempts < max_attempts:
+        random_offset_x = random.uniform(-offset_range, offset_range)
+        random_offset_y = random.uniform(-offset_range, offset_range)
+        new_x = x + random_offset_x
+        new_y = y + random_offset_y
+        if not check_overlap((new_x, new_y), image_positions, threshold):
+            return new_x, new_y
+        attempts += 1
+    return x, y  # Return the original position if no suitable position found
+
+def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method, verbose, reduction_param=None, embedding=None, n_jobs=-1):
+    """
+    Perform dimensionality reduction and clustering on the given data.
+    
+    Parameters:
+    numeric_data (np.array): Numeric data to process.
+    n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.
+    min_dist (float): Minimum distance for UMAP.
+    metric (str): Metric for UMAP, tSNE, and DBSCAN.
+    eps (float): Epsilon for DBSCAN clustering.
+    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
+    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+    verbose (bool): Whether to print verbose output.
+    reduction_param (dict): Additional parameters for the reduction method.
+    embedding (np.array): Precomputed embedding (optional).
+    n_jobs (int): Number of parallel jobs to run.
+
+    Returns:
+    embedding (np.array): Embedding of the data.
+    labels (np.array): Cluster labels.
+    """
+
+    if isinstance(n_neighbors, float):
+        n_neighbors = int(n_neighbors * len(numeric_data))
+
+    reduction_param = reduction_param or {}
+    reduction_param = {k: v for k, v in reduction_param.items() if k not in ['perplexity', 'n_neighbors', 'min_dist', 'metric', 'method']}
+    
+    if reduction_method == 'umap':
+        reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, metric=metric, n_jobs=n_jobs, **reduction_param)
+    elif reduction_method == 'tsne':
+        reducer = TSNE(n_components=2, perplexity=n_neighbors, metric=metric, n_jobs=n_jobs, **reduction_param)
+    else:
+        raise ValueError(f"Unsupported reduction method: {reduction_method}. Supported methods are 'umap' and 'tsne'")
+
+    if embedding is None:
+        embedding = reducer.fit_transform(numeric_data)
+
+    if clustering == 'dbscan':
+        clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric)
+    elif clustering == 'kmeans':
+        from sklearn.cluster import KMeans
+        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+    else:
+        raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
+    clustering_model.fit(embedding)
+    labels = clustering_model.labels_ if clustering == 'dbscan' else clustering_model.predict(embedding)
+    if verbose:
+        print(f'Embedding shape: {embedding.shape}')
+    return embedding, labels
+
+
+
