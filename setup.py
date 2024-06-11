@@ -31,6 +31,7 @@ dependencies = [
     'xgboost>=2.0.3',
     'PyWavelets>=1.6.0',
     'torchcam>=0.4.0',
+    'ttf_opensans>=2020.10.30',
     'lxml>=5.1.0'
 ]
 
