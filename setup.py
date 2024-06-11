@@ -1,10 +1,28 @@
 from setuptools import setup, find_packages
+import subprocess
+
+# Function to determine the CUDA version
+def get_cuda_version():
+    try:
+        output = subprocess.check_output(['nvcc', '--version'], stderr=subprocess.STDOUT).decode('utf-8')
+        if 'release' in output:
+            return output.split('release ')[1].split(',')[0].replace('.', '')
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+cuda_version = get_cuda_version()
+
+if cuda_version:
+    dgl_dependency = f'dgl-cu{cuda_version}'
+else:
+    dgl_dependency = 'dgl'  # Fallback to CPU version if no CUDA is detected
 
 # Ensure you have read the README.md content into a variable, e.g., `long_description`
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 dependencies = [
+    dgl_dependency,
     'torch>=2.2.1',
     'torchvision>=0.17.1',
     'torch-geometric>=2.5.1',
@@ -37,7 +55,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.0.36",
+    version="0.0.40",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

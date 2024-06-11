@@ -1,6 +1,5 @@
 import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap
 
-# image and array processing
 import numpy as np
 import pandas as pd
 
@@ -14,39 +13,31 @@ from IPython.display import display
 from multiprocessing import Pool, cpu_count, Value, Lock
 
 import seaborn as sns
-import matplotlib.pyplot as plt
+
 from skimage.measure import regionprops, label
 from skimage.morphology import square
 from skimage.transform import resize as resizescikit
-from sklearn.model_selection import train_test_split
 from collections import defaultdict
 from torch.utils.data import DataLoader, random_split
-import matplotlib
-matplotlib.use('Agg')
 
-import torchvision.transforms as transforms
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import  IsolationForest, RandomForestClassifier, HistGradientBoostingClassifier
-from .logger import log_function_call
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-from xgboost import XGBClassifier
+from sklearn.preprocessing import StandardScaler
 
 from scipy.ndimage import binary_dilation
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
-from sklearn.preprocessing import StandardScaler
+
+import torchvision.transforms as transforms
+from xgboost import XGBClassifier
 import shap
 
-import os, random, sqlite3
-import umap.umap_ as umap
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
-from IPython.display import display
+import matplotlib
+matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
 
 from .logger import log_function_call
 from .utils import remove_highly_correlated_columns, smooth_hull_lines
@@ -3340,16 +3331,16 @@ def generate_image_umap(settings={}):
     
     tables = settings['tables'] + ['png_list']
     all_df = pd.DataFrame()
-    for db_path in db_paths:
+    image_paths = []
+    for i,db_path in enumerate(db_paths):
         df = _read_and_join_tables(db_path, table_names=tables)
+        df, image_paths_tmp = correct_paths(df, settings['src'][i])
         all_df = pd.concat([all_df, df], axis=0)
+        image_paths.extend(image_paths_tmp)
 
     if settings['row_limit'] is not None:
         all_df = all_df.sample(n=settings['row_limit'], random_state=42)
     
-    base_path = settings['src']
-    all_df, image_paths = correct_paths(all_df, base_path)
-
     if settings['embedding_by_controls']:
         # Subset the dataframe based on specified column values
         df1 = all_df[all_df[settings['col_to_compare']] == settings['pos']].copy()
@@ -3523,10 +3514,3 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
         plt.show()
 
     return
-
-
-
-
-
-
-

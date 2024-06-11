@@ -3,10 +3,8 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use the non-GUI Agg backend
 from multiprocessing import Process, Queue, Value
-from ttkthemes import ThemedTk
 from tkinter import filedialog
 
 try:

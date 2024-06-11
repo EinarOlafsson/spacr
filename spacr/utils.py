@@ -3,10 +3,16 @@ import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, ta
 import numpy as np
 from cellpose import models as cp_models
 from cellpose import denoise
+
 from skimage import morphology
 from skimage.measure import label, regionprops_table, regionprops
 import skimage.measure as measure
-from collections import defaultdict
+from skimage.transform import resize as resizescikit
+from skimage.morphology import dilation, square
+from skimage.measure import find_contours
+from skimage.segmentation import clear_border
+
+from collections import defaultdict, OrderedDict
 from PIL import Image
 import pandas as pd
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -15,26 +21,29 @@ import statsmodels.formula.api as smf
 import statsmodels.api as sm
 from statsmodels.stats.multitest import multipletests
 from itertools import combinations
-from collections import OrderedDict
 from functools import reduce
 from IPython.display import display
+
 from multiprocessing import Pool, cpu_count
-from skimage.transform import resize as resizescikit
-from skimage.morphology import dilation, square
-from skimage.measure import find_contours
+from concurrent.futures import ThreadPoolExecutor
+
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.checkpoint import checkpoint
 from torch.utils.data import Subset
 from torch.autograd import grad
-from torchvision import models
-from skimage.segmentation import clear_border
+
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
 import scipy.ndimage as ndi
 from scipy.spatial import distance
 from scipy.stats import fisher_exact
 from scipy.ndimage.filters import gaussian_filter
+from scipy.spatial import ConvexHull
+from scipy.interpolate import splprep, splev
+
 from sklearn.preprocessing import StandardScaler
 from skimage.exposure import rescale_intensity
 from sklearn.metrics import auc, precision_recall_curve
@@ -44,17 +53,18 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import DBSCAN
-from numba import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
+
 import umap.umap_ as umap
-from concurrent.futures import ThreadPoolExecutor
-from scipy.spatial import ConvexHull
+
+
+
 from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 import torchvision.transforms as transforms
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from scipy.interpolate import splprep, splev
-from sklearn.cluster import KMeans
-from sklearn.manifold import TSNE
+
+
 
 from .logger import log_function_call
 
@@ -3318,6 +3328,12 @@ def get_db_paths(src):
         src = [src]
     db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
     return db_paths
+
+def get_sequencing_paths(src):
+    if isinstance(src, str):
+        src = [src]
+    seq_paths = [os.path.join(source, 'sequencing/sequencing_data.csv') for source in src]
+    return seq_paths
 
 def load_image_paths(c, visualize):
     c.execute(f'SELECT * FROM png_list')
