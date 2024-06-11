@@ -397,29 +397,6 @@ def classifier_v2(positive_mean, positive_variance, negative_mean, negative_vari
     df['score'] = df['is_active'].apply(lambda is_active: np.random.beta(a1, b1) if is_active else np.random.beta(a2, b2))
     return df
 
-def classifier_v1(positive_mean, positive_variance, negative_mean, negative_variance, df):
-    """
-    Classifies the data in the DataFrame based on the given parameters.
-
-    Args:
-        positive_mean (float): The mean of the positive distribution.
-        positive_variance (float): The variance of the positive distribution.
-        negative_mean (float): The mean of the negative distribution.
-        negative_variance (float): The variance of the negative distribution.
-        df (pandas.DataFrame): The DataFrame containing the data to be classified.
-
-    Returns:
-        pandas.DataFrame: The DataFrame with an additional 'score' column containing the classification scores.
-    """
-    # alpha and beta for positive distribution
-    a1 = positive_mean*(positive_mean*(1-positive_mean)/positive_variance - 1)
-    b1 = a1*(1-positive_mean)/positive_mean
-    # alpha and beta for negative distribution
-    a2 = negative_mean*(negative_mean*(1-negative_mean)/negative_variance - 1)
-    b2 = a2*(1-negative_mean)/negative_mean
-    df['score'] = df['is_active'].apply(lambda is_active: np.random.beta(a1, b1) if is_active else np.random.beta(a2, b2))
-    return df
-
 def compute_roc_auc(cell_scores):
     """
     Compute the Receiver Operating Characteristic (ROC) Area Under the Curve (AUC) for cell scores.
@@ -1325,25 +1302,6 @@ def generate_floats(start, stop, step):
         current += step
     
     return floats_list
-
-def remove_columns_with_single_value_v1(df):
-    """
-    Removes columns from the DataFrame that have the same value in all rows.
-
-    Args:
-    df (pandas.DataFrame): The original DataFrame.
-
-    Returns:
-    pandas.DataFrame: A DataFrame with the columns removed that contained only one unique value.
-    """
-    
-    df=df.copy()
-    
-    for column in df.columns:
-        if len(df[column].unique()) == 1:
-            df.drop(column, axis=1, inplace=True)
-    
-    return df
 
 def remove_columns_with_single_value(df):
     """
