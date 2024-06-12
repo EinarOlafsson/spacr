@@ -3368,7 +3368,112 @@ def filter_columns(df, filter_by):
     df = df[cols_to_include]
     return df
 
-def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1):
+def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1, mode='fit', model=False):
+    """
+    Perform dimensionality reduction and clustering on the given data.
+    
+    Parameters:
+    numeric_data (np.ndarray): Numeric data for embedding and clustering.
+    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
+    min_dist (float): Minimum distance for UMAP.
+    metric (str): Metric for UMAP and DBSCAN.
+    eps (float): Epsilon for DBSCAN.
+    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
+    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+    verbose (bool): Whether to print verbose output.
+    embedding (np.ndarray, optional): Precomputed embedding. Default is None.
+    return_model (bool): Whether to return the reducer model. Default is False.
+    
+    Returns:
+    tuple: embedding, labels (and optionally the reducer model)
+    """
+
+    if verbose:
+        v = 1
+    else:
+        v = 0
+    
+    if isinstance(n_neighbors, float):
+        n_neighbors = int(n_neighbors * len(numeric_data))
+
+    if n_neighbors <= 2:
+        n_neighbors = 2
+    
+    if mode == 'fit':
+        if reduction_method == 'umap':
+            reducer = umap.UMAP(n_neighbors=n_neighbors,
+                                n_components=2,
+                                metric=metric,
+                                n_epochs=None,
+                                learning_rate=1.0,
+                                init='spectral',
+                                min_dist=min_dist,
+                                spread=1.0,
+                                set_op_mix_ratio=1.0,
+                                local_connectivity=1,
+                                repulsion_strength=1.0,
+                                negative_sample_rate=5,
+                                transform_queue_size=4.0,
+                                a=None,
+                                b=None,
+                                random_state=42,
+                                metric_kwds=None,
+                                angular_rp_forest=False,
+                                target_n_neighbors=-1,
+                                target_metric='categorical',
+                                target_metric_kwds=None,
+                                target_weight=0.5,
+                                transform_seed=42,
+                                n_jobs=n_jobs,
+                                verbose=verbose)
+
+        elif reduction_method == 'tsne':
+            reducer = TSNE(n_components=2,
+                        perplexity=n_neighbors,
+                        early_exaggeration=12.0,
+                        learning_rate=200.0,
+                        n_iter=1000,
+                        n_iter_without_progress=300,
+                        min_grad_norm=1e-7,
+                        metric=metric,
+                        init='random',
+                        verbose=v,
+                        random_state=42,
+                        method='barnes_hut',
+                        angle=0.5,
+                        n_jobs=n_jobs)
+            
+        else:
+            raise ValueError(f"Unsupported reduction method: {reduction_method}. Supported methods are 'umap' and 'tsne'")
+        
+        embedding = reducer.fit_transform(numeric_data)
+        if verbose:
+            print(f'Trained and fit reducer')
+
+    else:
+        if not model is None:
+            embedding = model.transform(numeric_data)
+            reducer = model
+            if verbose:
+                print(f'Fit data to reducer')
+        else:
+            raise ValueError(f"Model is None. Please provide a model for transform.")
+
+    if clustering == 'dbscan':
+        clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
+    elif clustering == 'kmeans':
+        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+    
+    clustering_model.fit(embedding)
+    labels = clustering_model.labels_ if clustering == 'dbscan' else clustering_model.predict(embedding)
+    
+    if verbose:
+        print(f'Embedding shape: {embedding.shape}')
+
+    return embedding, labels, reducer
+
+def reduction_and_clustering_v1(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1):
     """
     Perform dimensionality reduction and clustering on the given data.
     
@@ -3395,6 +3500,9 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     
     if isinstance(n_neighbors, float):
         n_neighbors = int(n_neighbors * len(numeric_data))
+
+    if n_neighbors <= 2:
+        n_neighbors = 2
     
     if reduction_method == 'umap':
         reducer = umap.UMAP(n_neighbors=n_neighbors,
@@ -3461,7 +3569,6 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     
     if verbose:
         print(f'Embedding shape: {embedding.shape}')
-        print(f'Labels: {labels}')
     
     return embedding, labels
 
@@ -3620,7 +3727,15 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
         grid_size = int(np.ceil(np.sqrt(num_images)))
         image_size = 0.9 / grid_size
         whitespace = (1 - grid_size * image_size) / (grid_size + 1)
-        color = colors[cluster_label]  # Corrected the access of colors
+
+        if isinstance(cluster_label, str):
+            idx = list(cluster_images.keys()).index(cluster_label)
+            color = colors[idx]
+            if verbose:
+                print(f'Lable: {cluster_label} index: {idx}')
+        else:
+            color = colors[cluster_label]
+
         axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
         axes.axis('off')
         for i, img in enumerate(images):
@@ -3635,10 +3750,18 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
             ax_img.set_facecolor(color[:3])
     
     # Add cluster labels beside the UMAP plot
+    spacing_factor = 0.5  # Adjust this value to control the spacing between labels
     for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
-        label_y = 1 - (i + 1) * (1 / num_clusters)  # Adjust y position for each label
-        grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize * 0.75, color='black' if not black_background else 'white')
+        label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
+        grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize, color='black' if not black_background else 'white')
         grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
+
+    
+    # Add cluster labels beside the UMAP plot
+    #for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
+    #    label_y = 1 - (i + 1) * (1 / num_clusters)  # Adjust y position for each label
+    #    grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize * 0.75, color='black' if not black_background else 'white')
+    #    grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
 
     plt.show()
     return grid_fig
@@ -3646,6 +3769,7 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
 def correct_paths(df, base_path):
 
     if 'png_path' not in df.columns:
+        print("No 'png_path' column found in the dataframe.")
         return df, None
     
     image_paths = df['png_path'].to_list()
@@ -3654,6 +3778,30 @@ def correct_paths(df, base_path):
     for path in image_paths:
         if base_path not in path:
             parts = path.split('/data/')
+            if len(parts) > 1:
+                new_path = os.path.join(base_path, 'data', parts[1])
+                adjusted_image_paths.append(new_path)
+            else:
+                adjusted_image_paths.append(path)
+        else:
+            adjusted_image_paths.append(path)
+
+    df['png_path'] = adjusted_image_paths
+    image_paths = df['png_path'].to_list()
+    return df, image_paths
+
+def correct_paths_v1(df, base_path):
+    if 'png_path' not in df.columns:
+        print("No 'png_path' column found in the dataframe.")
+        return df, None
+    
+    image_paths = df['png_path'].to_list()
+    
+    adjusted_image_paths = []
+    for path in image_paths:
+        if base_path not in path:
+            print(f"Adjusting path: {path}")
+            parts = path.split('data/')
             if len(parts) > 1:
                 new_path = os.path.join(base_path, 'data', parts[1])
                 adjusted_image_paths.append(new_path)
@@ -3700,16 +3848,18 @@ def get_umap_image_settings(settings={}):
     settings.setdefault('plot_images', True)
     settings.setdefault('reduction_method','umap')
     settings.setdefault('save_figure', False)
-    settings.setdefault('color_by', -1)
+    settings.setdefault('n_jobs', -1)
+    settings.setdefault('color_by', None)
     settings.setdefault('neg', 'c1')
     settings.setdefault('pos', 'c2')
     settings.setdefault('mix', 'c3')
     settings.setdefault('mix', 'c3')
+    settings.setdefault('exclude_conditions', None)
     settings.setdefault('verbose',True)
 
     return settings
 
-def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, verbose):
+def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
     """
     Preprocesses the given dataframe by applying filtering, removing highly correlated columns,
     applying log transformation, filling NaN values, and scaling the numeric data.
