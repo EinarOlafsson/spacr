@@ -3312,10 +3312,18 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
         df = _read_and_join_tables(db_path, table_names=tables)
         all_df = pd.concat([all_df, df], axis=0)
 
+    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
+
+    if settings['exclude_conditions']:
+        if isinstance(settings['exclude_conditions'], str):
+            settings['exclude_conditions'] = [settings['exclude_conditions']]
+        row_count_before = len(all_df)
+        all_df = all_df[~all_df['cond'].isin(settings['exclude_conditions'])]
+        if settings['verbose']:
+            print(f'Excluded {row_count_before - len(all_df)} rows after excluding: {settings["exclude_conditions"]}, rows left: {len(all_df)}')
+
     if settings['row_limit'] is not None:
         all_df = all_df.sample(n=settings['row_limit'], random_state=42)
-
-    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
     numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
 
@@ -3341,6 +3349,9 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     fig_height = grid_rows*10
 
     fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
+
+    # Make sure axs is always an array of axes
+    axs = np.atleast_1d(axs)
     
     # Iterate through the Cartesian product of reduction and clustering hyperparameters
     for i, reduction_param in enumerate(reduction_params):
