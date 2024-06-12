@@ -3108,11 +3108,19 @@ def generate_image_umap(settings={}):
 
     settings = get_umap_image_settings(settings)
 
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
+
     if settings['plot_images'] is False:
         settings['black_background'] = False
 
+    if settings['color_by']:
+        settings['remove_cluster_noise'] = False
+        settings['plot_outlines'] = False
+        settings['smooth_lines'] = False
+
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_dir = os.path.join(settings['src'],'settings')
+    settings_dir = os.path.join(settings['src'][0],'settings')
     settings_csv = os.path.join(settings_dir,'embedding_settings.csv')
     os.makedirs(settings_dir, exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)
@@ -3122,48 +3130,93 @@ def generate_image_umap(settings={}):
     
     tables = settings['tables'] + ['png_list']
     all_df = pd.DataFrame()
-    image_paths = []
+    #image_paths = []
+
     for i,db_path in enumerate(db_paths):
         df = _read_and_join_tables(db_path, table_names=tables)
         df, image_paths_tmp = correct_paths(df, settings['src'][i])
         all_df = pd.concat([all_df, df], axis=0)
-        image_paths.extend(image_paths_tmp)
+        #image_paths.extend(image_paths_tmp)
+
+    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
+
+    if settings['exclude_conditions']:
+        if isinstance(settings['exclude_conditions'], str):
+            settings['exclude_conditions'] = [settings['exclude_conditions']]
+        row_count_before = len(all_df)
+        all_df = all_df[~all_df['cond'].isin(settings['exclude_conditions'])]
+        if settings['verbose']:
+            print(f'Excluded {row_count_before - len(all_df)} rows after excluding: {settings["exclude_conditions"]}, rows left: {len(all_df)}')
 
     if settings['row_limit'] is not None:
         all_df = all_df.sample(n=settings['row_limit'], random_state=42)
 
-    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
-    
+    image_paths = all_df['png_path'].to_list()
+
     if settings['embedding_by_controls']:
-        # Subset the dataframe based on specified column values
-        df1 = all_df[all_df[settings['col_to_compare']] == settings['pos']].copy()
-        df2 = all_df[all_df[settings['col_to_compare']] == settings['neg']].copy()
-        combined_df = pd.concat([df1, df2])
-        numeric_data_c = preprocess_data(combined_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
-        embedding, _ = reduction_and_clustering(numeric_data_c, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], embedding=None, n_jobs=settings['n_jobs'])
         
-        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
-        _, labels = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], embedding=embedding, n_jobs=settings['n_jobs'])
+        # Extract and reset the index for the column to compare
+        col_to_compare = all_df[settings['col_to_compare']].reset_index(drop=True)
+
+        # Preprocess the data to obtain numeric data
+        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+
+        # Convert numeric_data back to a DataFrame to align with col_to_compare
+        numeric_data_df = pd.DataFrame(numeric_data)
+
+        # Ensure numeric_data_df and col_to_compare are properly aligned
+        numeric_data_df = numeric_data_df.reset_index(drop=True)
+
+        # Assign the column back to numeric_data_df
+        numeric_data_df[settings['col_to_compare']] = col_to_compare
+
+        # Subset the dataframe based on specified column values for controls
+        positive_control_df = numeric_data_df[numeric_data_df[settings['col_to_compare']] == settings['pos']].copy()
+        negative_control_df = numeric_data_df[numeric_data_df[settings['col_to_compare']] == settings['neg']].copy()
+        control_numeric_data_df = pd.concat([positive_control_df, negative_control_df])
+
+        # Drop the comparison column from numeric_data_df and control_numeric_data_df
+        numeric_data_df = numeric_data_df.drop(columns=[settings['col_to_compare']])
+        control_numeric_data_df = control_numeric_data_df.drop(columns=[settings['col_to_compare']])
+
+        # Convert numeric_data_df and control_numeric_data_df back to numpy arrays
+        numeric_data = numeric_data_df.values
+        control_numeric_data = control_numeric_data_df.values
+
+        # Train the reducer on control data
+        _, _, reducer = reduction_and_clustering(control_numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode='fit', model=False)
+        
+        # Apply the trained reducer to the entire dataset
+        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+        embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer)
+
     else:
-        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
-        embedding, labels = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], embedding=None, n_jobs=settings['n_jobs'])
+        # Apply the trained reducer to the entire dataset
+        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+        embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
     
     if settings['remove_cluster_noise']:
+        # Remove noise from the clusters (removes -1 labels from DBSCAN)
         embedding, labels = remove_noise(embedding, labels)
 
     # Plot the results
     if settings['color_by']:
-        labels = all_df[settings['color_by']].unique()
+        if settings['embedding_by_controls']:
+            labels = all_df[settings['color_by']]
+        else:
+            labels = all_df[settings['color_by']]
     
+    # Generate colors for the clusters
     colors = generate_colors(len(np.unique(labels)), settings['black_background'])
 
+    # Plot the embedding
     umap_plt = plot_embedding(embedding, image_paths, labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'])
     if settings['plot_cluster_grids'] and settings['plot_images']:
         grid_plt = plot_clusters_grid(embedding, labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'])
     
     # Save figure as PDF if required
     if settings['save_figure']:
-        results_dir = os.path.join(settings['src'], 'results')
+        results_dir = os.path.join(settings['src'][0], 'results')
         os.makedirs(results_dir, exist_ok=True)
         reduction_method = settings['reduction_method'].upper()
         embedding_path = os.path.join(results_dir, f'{reduction_method}_embedding.pdf')
@@ -3177,7 +3230,8 @@ def generate_image_umap(settings={}):
     # Add cluster labels to the dataframe
     all_df['cluster'] = labels
 
-    results_dir = os.path.join(settings['src'], 'results')
+    # Save the results to a CSV file
+    results_dir = os.path.join(settings['src'][0], 'results')
     results_csv = os.path.join(results_dir,'embedding_results.csv')
     os.makedirs(results_dir, exist_ok=True)
     all_df.to_csv(results_csv, index=False)
@@ -3263,7 +3317,7 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
 
     all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
-    numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'], settings['verbose'])
+    numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
 
     # Combine DBSCAN and KMeans parameters
     clustering_params = []
