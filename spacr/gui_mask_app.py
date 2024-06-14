@@ -1,3 +1,5 @@
+#import customtkinter as ctk
+
 import sys, ctypes, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -218,4 +220,3 @@ def gui_mask():
 
 if __name__ == "__main__":
     gui_mask()
-

@@ -69,7 +69,7 @@ def import_settings(scrollable_frame):
     vars_dict = generate_fields(new_settings, scrollable_frame)
 
 #@log_function_call
-def initiate_classify_root(parent_frame, width, height):
+def initiate_classify_root(parent_frame):#, width, height):
     global vars_dict, q, canvas, fig_queue, canvas_widget, thread_control
     
     style = ttk.Style(parent_frame)

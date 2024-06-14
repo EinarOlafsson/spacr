@@ -58,15 +58,28 @@ from sklearn.manifold import TSNE
 
 import umap.umap_ as umap
 
-
-
 from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 import torchvision.transforms as transforms
 
-
-
 from .logger import log_function_call
+
+def check_mask_folder(src,mask_fldr):
+    
+    mask_folder = os.path.join(src,'norm_channel_stack',mask_fldr)
+    stack_folder = os.path.join(src,'stack')
+
+    if not os.path.exists(mask_folder):
+        return True
+    
+    mask_count = sum(1 for file in os.listdir(mask_folder) if file.endswith('.npy'))
+    stack_count = sum(1 for file in os.listdir(stack_folder) if file.endswith('.npy'))
+    
+    if mask_count == stack_count:
+        print(f'All masks have been generated for {mask_fldr}')
+        return False
+    else:
+        return True
 
 def set_default_plot_merge_settings():
     settings = {}
@@ -185,13 +198,12 @@ def set_default_settings_preprocess_img_data(settings):
     figuresize = settings.setdefault('figuresize', 50)
     normalize = settings.setdefault('normalize', True)
     save_dtype = settings.setdefault('save_dtype', 'uint16')
-    correct_illumination = settings.setdefault('correct_illumination', False)
     
     test_mode = settings.setdefault('test_mode', False)
     test_images = settings.setdefault('test_images', 10)
     random_test = settings.setdefault('random_test', True)
 
-    return settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, correct_illumination, test_mode, test_images, random_test
+    return settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test
 
 def smooth_hull_lines(cluster_data):
     hull = ConvexHull(cluster_data)
@@ -951,7 +963,7 @@ def _get_diam(mag, obj):
         elif obj == 'nucleus':
             diamiter = 60
         elif obj == 'pathogen':
-            diamiter = 30
+            diamiter = 20
         else:
             raise ValueError("Invalid magnification: Use 20, 40 or 60")
 
@@ -971,7 +983,7 @@ def _get_diam(mag, obj):
         if obj == 'nucleus':
             diamiter = 90
         if obj == 'pathogen':
-            diamiter = 75
+            diamiter = 60
         else:
             raise ValueError("Invalid magnification: Use 20, 40 or 60")
     else:
@@ -1009,6 +1021,7 @@ def _get_object_settings(object_type, settings):
         object_settings['model_name'] = 'cyto'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
+        object_settings['resample'] = False
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         object_settings['merge'] = settings['merge_pathogens']
         
@@ -3029,9 +3042,12 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
             diameter = object_settings['diameter']
             current_dir = os.path.dirname(__file__)
             model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
+            print(model_path)
             model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=model_path, diam_mean=diameter, device=device)
+            #model = cp_models.Cellpose(gpu=torch.cuda.is_available(), model_type='cyto', device=device)
             print(f'Using Toxoplasma PV lumen model to generate pathogen masks')
-
+            return model
+    
     restore_list = ['denoise', 'deblur', 'upsample', None]
     if restore_type not in restore_list:
         print(f"Invalid restore type. Choose from {restore_list} defaulting to None")
@@ -3756,13 +3772,6 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
         grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize, color='black' if not black_background else 'white')
         grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
 
-    
-    # Add cluster labels beside the UMAP plot
-    #for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
-    #    label_y = 1 - (i + 1) * (1 / num_clusters)  # Adjust y position for each label
-    #    grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize * 0.75, color='black' if not black_background else 'white')
-    #    grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
-
     plt.show()
     return grid_fig
 
@@ -3855,8 +3864,9 @@ def get_umap_image_settings(settings={}):
     settings.setdefault('mix', 'c3')
     settings.setdefault('mix', 'c3')
     settings.setdefault('exclude_conditions', None)
+    settings.setdefault('analyze_clusters', False)
+    settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
-
     return settings
 
 def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):

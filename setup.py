@@ -50,18 +50,21 @@ dependencies = [
     'PyWavelets>=1.6.0',
     'torchcam>=0.4.0',
     'ttf_opensans>=2020.10.30',
+    'customtkinter>=5.2.2',  
     'lxml>=5.1.0'
 ]
 
 setup(
     name="spacr",
-    version="0.0.40",
+    version="0.0.50",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
     long_description=long_description,
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
+    include_package_data=True,
+    package_data={'spacr': ['models/cp/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
@@ -72,6 +75,7 @@ setup(
             'classify=spacr.gui_classify_app:gui_classify',
             'sim=spacr.gui_sim_app:gui_sim',
             'gui=spacr.gui:gui_app',
+            'gui2=spacr.gui_2:gui_app',
         ],
     },
     extras_require={

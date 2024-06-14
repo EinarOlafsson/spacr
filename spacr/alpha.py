@@ -150,6 +150,10 @@ def spacr_transformer(image_dir, seq_file, nr_grnas=1350, lr=0.001, mode='train'
     else:
         raise ValueError('Invalid mode. Use "train" or "eval".')
 
+from skimage.feature import greycomatrix
+
+from skimage.feature import greycoprops
+
 def _calculate_glcm_features(intensity_image):
     glcm = greycomatrix(img_as_ubyte(intensity_image), distances=[1, 2, 3, 4], angles=[0, np.pi/4, np.pi/2, 3*np.pi/4], symmetric=True, normed=True)
     features = {}
@@ -158,6 +162,8 @@ def _calculate_glcm_features(intensity_image):
             for j, angle in enumerate([0, np.pi/4, np.pi/2, 3*np.pi/4]):
                 features[f'glcm_{prop}_d{distance}_a{angle}'] = greycoprops(glcm, prop)[i, j]
     return features
+
+from skimage.feature import local_binary_pattern
 
 def _calculate_lbp_features(intensity_image, P=8, R=1):
     lbp = local_binary_pattern(intensity_image, P, R, method='uniform')
@@ -675,16 +681,127 @@ class GraphConvolutionalTransformer(nn.Module):
         return logits, attentions
 
 # Usage Example
-vocab_sizes = {'dx_ints':3249, 'proc_ints':2210}
-embedding_size = 128
-gct_params = {
-    'embedding_size': embedding_size,
-    'num_transformer_stack': 3,
-    'num_attention_heads': 1
-}
-feature_embedder = FeatureEmbedder(vocab_sizes, embedding_size)
-gct_model = GraphConvolutionalTransformer(**gct_params)
-
+#vocab_sizes = {'dx_ints':3249, 'proc_ints':2210}
+#embedding_size = 128
+#gct_params = {
+#    'embedding_size': embedding_size,
+#    'num_transformer_stack': 3,
+#    'num_attention_heads': 1
+#}
+#feature_embedder = FeatureEmbedder(vocab_sizes, embedding_size)
+#gct_model = GraphConvolutionalTransformer(**gct_params)
+#
 # Assume `feature_map` is a dictionary of tensors, and `max_num_codes` is provided
-embeddings, masks = feature_embedder(feature_map, max_num_codes)
-logits, attentions = gct_model(embeddings, masks)
+#embeddings, masks = feature_embedder(feature_map, max_num_codes)
+#logits, attentions = gct_model(embeddings, masks)
+
+import torch
+import torchvision.transforms as transforms
+from torchvision.models import resnet50
+from PIL import Image
+import numpy as np
+import umap
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import f_oneway, kruskal
+from sklearn.cluster import KMeans
+from scipy import stats
+
+def load_image(image_path):
+    """Load and preprocess an image."""
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    image = Image.open(image_path).convert('RGB')
+    image = transform(image).unsqueeze(0)
+    return image
+
+def extract_features(image_paths, resnet=resnet50):
+    """Extract features from images using a pre-trained ResNet model."""
+    model = resnet(pretrained=True)
+    model = model.eval()
+    model = torch.nn.Sequential(*list(model.children())[:-1])  # Remove the last classification layer
+
+    features = []
+    for image_path in image_paths:
+        image = load_image(image_path)
+        with torch.no_grad():
+            feature = model(image).squeeze().numpy()
+        features.append(feature)
+
+    return np.array(features)
+
+def check_normality(series):
+    """Helper function to check if a feature is normally distributed."""
+    k2, p = stats.normaltest(series)
+    alpha = 0.05
+    if p < alpha:  # null hypothesis: x comes from a normal distribution
+        return False
+    return True
+
+def random_forest_feature_importance(all_df, cluster_col='cluster'):
+    """Random Forest feature importance."""
+    numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
+    if cluster_col in numeric_features:
+        numeric_features.remove(cluster_col)
+
+    X = all_df[numeric_features]
+    y = all_df[cluster_col]
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_scaled, y)
+
+    feature_importances = model.feature_importances_
+
+    importance_df = pd.DataFrame({
+        'Feature': numeric_features,
+        'Importance': feature_importances
+    }).sort_values(by='Importance', ascending=False)
+
+    return importance_df
+
+def perform_statistical_tests(all_df, cluster_col='cluster'):
+    """Perform ANOVA or Kruskal-Wallis tests depending on normality of features."""
+    numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
+    if cluster_col in numeric_features:
+        numeric_features.remove(cluster_col)
+    
+    anova_results = []
+    kruskal_results = []
+
+    for feature in numeric_features:
+        groups = [all_df[all_df[cluster_col] == label][feature] for label in np.unique(all_df[cluster_col])]
+        
+        if check_normality(all_df[feature]):
+            stat, p = f_oneway(*groups)
+            anova_results.append((feature, stat, p))
+        else:
+            stat, p = kruskal(*groups)
+            kruskal_results.append((feature, stat, p))
+    
+    anova_df = pd.DataFrame(anova_results, columns=['Feature', 'ANOVA_Statistic', 'ANOVA_pValue'])
+    kruskal_df = pd.DataFrame(kruskal_results, columns=['Feature', 'Kruskal_Statistic', 'Kruskal_pValue'])
+
+    return anova_df, kruskal_df
+
+def combine_results(rf_df, anova_df, kruskal_df):
+    """Combine the results into a single DataFrame."""
+    combined_df = rf_df.merge(anova_df, on='Feature', how='left')
+    combined_df = combined_df.merge(kruskal_df, on='Feature', how='left')
+    return combined_df
+
+def cluster_feature_analysis(all_df, cluster_col='cluster'):
+    """
+    Perform Random Forest feature importance, ANOVA for normally distributed features,
+    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
+    """
+    rf_df = random_forest_feature_importance(all_df, cluster_col)
+    anova_df, kruskal_df = perform_statistical_tests(all_df, cluster_col)
+    combined_df = combine_results(rf_df, anova_df, kruskal_df)
+    return combined_df

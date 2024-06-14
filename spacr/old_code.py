@@ -288,3 +288,71 @@ def _extract_filename_metadata(filenames, src, images_by_key, regular_expression
             continue
         
     return images_by_key
+
+def compare_cellpose_masks_v1(src, verbose=False, save=False):
+    
+    from .io import _read_mask
+    from .plot import visualize_masks, plot_comparison_results, visualize_cellpose_masks
+    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index
+
+    import os
+    import numpy as np
+    from skimage.measure import label
+
+    # Collect all subdirectories in src
+    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
+
+    dirs.sort()  # Optional: sort directories if needed
+
+    # Get common files in all directories
+    common_files = set(os.listdir(dirs[0]))
+    for d in dirs[1:]:
+        common_files.intersection_update(os.listdir(d))
+    common_files = list(common_files)
+
+    results = []
+    conditions = [os.path.basename(d) for d in dirs]
+
+    for index, filename in enumerate(common_files):
+        print(f'Processing image {index+1}/{len(common_files)}', end='\r', flush=True)
+        paths = [os.path.join(d, filename) for d in dirs]
+
+        # Check if file exists in all directories
+        if not all(os.path.exists(path) for path in paths):
+            print(f'Skipping {filename} as it is not present in all directories.')
+            continue
+
+        masks = [_read_mask(path) for path in paths]
+        boundaries = [extract_boundaries(mask) for mask in masks]
+
+        if verbose:
+            visualize_cellpose_masks(masks, titles=conditions, comparison_title=f"Masks Comparison for {filename}", save=save, src=src)
+
+        # Initialize data structure for results
+        file_results = {'filename': filename}
+
+        # Compare each mask with each other
+        for i in range(len(masks)):
+            for j in range(i + 1, len(masks)):
+                condition_i = conditions[i]
+                condition_j = conditions[j]
+                mask_i = masks[i]
+                mask_j = masks[j]
+
+                # Compute metrics
+                boundary_f1 = boundary_f1_score(mask_i, mask_j)
+                jaccard = jaccard_index(mask_i, mask_j)
+                average_precision = compute_segmentation_ap(mask_i, mask_j)
+
+                # Store results
+                file_results[f'jaccard_{condition_i}_{condition_j}'] = jaccard
+                file_results[f'boundary_f1_{condition_i}_{condition_j}'] = boundary_f1
+                file_results[f'average_precision_{condition_i}_{condition_j}'] = average_precision
+
+        results.append(file_results)
+
+    fig = plot_comparison_results(results)
+
+    save_results_and_figure(src, fig, results)
+
+    return results, fig

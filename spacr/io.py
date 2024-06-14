@@ -887,6 +887,223 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     print(f'All files concatenated and saved to:{channel_stack_loc}')
     return channel_stack_loc
 
+def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, batch_size=100, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
+    """
+    Concatenates and normalizes channel data from multiple files and saves the normalized data.
+
+    Args:
+        src (str): The source directory containing the channel data files.
+        channels (list): The list of channel indices to be concatenated and normalized.
+        randomize (bool, optional): Whether to randomize the order of the files. Defaults to True.
+        timelapse (bool, optional): Whether the channel data is from a timelapse experiment. Defaults to False.
+        batch_size (int, optional): The number of files to be processed in each batch. Defaults to 100.
+        backgrounds (list, optional): Background values for each channel. Defaults to [100, 100, 100].
+        remove_backgrounds (list, optional): Whether to remove background values for each channel. Defaults to [False, False, False].
+        lower_percentile (int, optional): Lower percentile value for normalization. Defaults to 2.
+        save_dtype (numpy.dtype, optional): Data type for saving the normalized stack. Defaults to np.float32.
+        signal_to_noise (list, optional): Signal-to-noise ratio thresholds for each channel. Defaults to [5, 5, 5].
+        signal_thresholds (list, optional): Signal thresholds for each channel. Defaults to [1000, 1000, 1000].
+
+    Returns:
+        str: The directory path where the concatenated and normalized channel data is saved.
+    """
+    channels = [item for item in channels if item is not None]
+    paths = []
+    output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
+    os.makedirs(output_fldr, exist_ok=True)
+
+    if timelapse:
+        try:
+            time_stack_path_lists = _generate_time_lists(os.listdir(src))
+            for i, time_stack_list in enumerate(time_stack_path_lists):
+                stack_region = []
+                filenames_region = []
+                for idx, file in enumerate(time_stack_list):
+                    path = os.path.join(src, file)
+                    if idx == 0:
+                        parts = file.split('_')
+                        name = parts[0] + '_' + parts[1] + '_' + parts[2]
+                    array = np.load(path)
+                    array = np.take(array, channels, axis=2)
+                    stack_region.append(array)
+                    filenames_region.append(os.path.basename(path))
+                print(f'Region {i + 1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
+                stack = np.stack(stack_region)
+                normalized_stack = _normalize_stack(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds)
+                save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
+                np.savez(save_loc, data=normalized_stack, filenames=filenames_region)
+                print(save_loc)
+                del stack, normalized_stack
+        except Exception as e:
+            print(f"Error processing files, make sure filenames metadata is structured plate_well_field_time.npy")
+            print(f"Error: {e}")
+    else:
+        for file in os.listdir(src):
+            if file.endswith('.npy'):
+                path = os.path.join(src, file)
+                paths.append(path)
+        if randomize:
+            random.shuffle(paths)
+        nr_files = len(paths)
+        batch_index = 0
+        stack_ls = []
+        filenames_batch = []
+
+        for i, path in enumerate(paths):
+            array = np.load(path)
+            array = np.take(array, channels, axis=2)
+            stack_ls.append(array)
+            filenames_batch.append(os.path.basename(path))
+            print(f'Concatenated: {i + 1}/{nr_files} files')
+
+            if (i + 1) % batch_size == 0 or i + 1 == nr_files:
+                unique_shapes = {arr.shape[:-1] for arr in stack_ls}
+                if len(unique_shapes) > 1:
+                    max_dims = np.max(np.array(list(unique_shapes)), axis=0)
+                    print(f'Warning: arrays with multiple shapes found in batch {i + 1}. Padding arrays to max X,Y dimensions {max_dims}')
+                    padded_stack_ls = []
+                    for arr in stack_ls:
+                        pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
+                        pad_width.append((0, 0))
+                        padded_arr = np.pad(arr, pad_width)
+                        padded_stack_ls.append(padded_arr)
+                    stack = np.stack(padded_stack_ls)
+                else:
+                    stack = np.stack(stack_ls)
+
+                normalized_stack = _normalize_img_batch(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds)
+
+                save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
+                np.savez(save_loc, data=normalized_stack, filenames=filenames_batch)
+                batch_index += 1
+                del stack, normalized_stack
+                stack_ls = []
+                filenames_batch = []
+                padded_stack_ls = []
+    print(f'All files concatenated and normalized. Saved to: {output_fldr}')
+    return output_fldr
+
+def _normalize_img_batch(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds):
+    """
+    Normalize the stack of images.
+
+    Args:
+        stack (numpy.ndarray): The stack of images to normalize.
+        backgrounds (list): Background values for each channel.
+        remove_backgrounds (list): Whether to remove background values for each channel.
+        lower_percentile (int): Lower percentile value for normalization.
+        save_dtype (numpy.dtype): Data type for saving the normalized stack.
+        signal_to_noise (list): Signal-to-noise ratio thresholds for each channel.
+        signal_thresholds (list): Signal thresholds for each channel.
+
+    Returns:
+        numpy.ndarray: The normalized stack.
+    """
+    normalized_stack = np.zeros_like(stack, dtype=np.float32)
+
+    for chan_index, channel in enumerate(range(stack.shape[-1])):
+        single_channel = stack[:, :, :, channel]
+        background = backgrounds[chan_index]
+        signal_threshold = signal_thresholds[chan_index]
+        remove_background = remove_backgrounds[chan_index]
+
+        print(f'Processing channel {chan_index}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
+
+        # Step 3: Remove background if required
+        if remove_background:
+            single_channel[single_channel < background] = 0
+
+        # Step 4: Calculate global lower percentile for the channel
+        non_zero_single_channel = single_channel[single_channel != 0]
+        global_lower = np.percentile(non_zero_single_channel, lower_percentile)
+
+        # Step 5: Calculate global upper percentile for the channel
+        global_upper = None
+        for upper_p in np.linspace(98, 99.5, num=16):
+            upper_value = np.percentile(non_zero_single_channel, upper_p)
+            if upper_value >= signal_threshold:
+                global_upper = upper_value
+                break
+
+        if global_upper is None:
+            global_upper = np.percentile(non_zero_single_channel, 99.5)  # Fallback in case no upper percentile met the threshold
+
+        print(f'Channel {chan_index}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
+
+        # Step 6: Normalize each array from global_lower to global_upper between 0 and 1
+        for array_index in range(single_channel.shape[0]):
+            arr_2d = single_channel[array_index, :, :]
+            arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
+            normalized_stack[array_index, :, :, channel] = arr_2d_normalized
+
+    return normalized_stack.astype(save_dtype)
+
+def _normalize_img_batch_v1(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds):
+    """
+    Normalize the stack of images.
+
+    Args:
+        stack (numpy.ndarray): The stack of images to normalize.
+        backgrounds (list): Background values for each channel.
+        remove_backgrounds (list): Whether to remove background values for each channel.
+        lower_percentile (int): Lower percentile value for normalization.
+        save_dtype (numpy.dtype): Data type for saving the normalized stack.
+        signal_to_noise (list): Signal-to-noise ratio thresholds for each channel.
+        signal_thresholds (list): Signal thresholds for each channel.
+
+    Returns:
+        numpy.ndarray: The normalized stack.
+    """
+    normalized_stack = np.zeros_like(stack, dtype=np.float32)
+    time_ls = []
+
+    for chan_index, channel in enumerate(range(stack.shape[-1])):
+        single_channel = stack[:, :, :, channel]
+        background = backgrounds[chan_index]
+        signal_threshold = signal_thresholds[chan_index]
+        remove_background = remove_backgrounds[chan_index]
+        signal_2_noise = signal_to_noise[chan_index]
+        print(f'chan_index:{chan_index} background:{background} signal_threshold:{signal_threshold} remove_background:{remove_background} signal_2_noise:{signal_2_noise}')
+
+        if remove_background:
+            single_channel[single_channel < background] = 0
+
+        non_zero_single_channel = single_channel[single_channel != 0]
+        global_lower = np.percentile(non_zero_single_channel, lower_percentile)
+        for upper_p in np.linspace(98, 99.5, num=20).tolist():
+            global_upper = np.percentile(non_zero_single_channel, upper_p)
+            if global_upper >= signal_threshold:
+                break
+
+        arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
+        signal_to_noise_ratio_ls = []
+        for array_index in range(single_channel.shape[0]):
+            start = time.time()
+            arr_2d = single_channel[array_index, :, :]
+            non_zero_arr_2d = arr_2d[arr_2d != 0]
+            if non_zero_arr_2d.size > 0:
+                lower, upper = np.percentile(non_zero_arr_2d, (lower_percentile, upper_p))
+                signal_to_noise_ratio = upper / lower
+            else:
+                signal_to_noise_ratio = 0
+            signal_to_noise_ratio_ls.append(signal_to_noise_ratio)
+            average_stnr = np.mean(signal_to_noise_ratio_ls) if len(signal_to_noise_ratio_ls) > 0 else 0
+
+            if signal_to_noise_ratio > signal_2_noise:
+                arr_2d_rescaled = exposure.rescale_intensity(arr_2d, in_range=(lower, upper), out_range=(0, 1))
+                arr_2d_normalized[array_index, :, :] = arr_2d_rescaled
+            else:
+                arr_2d_normalized[array_index, :, :] = arr_2d
+            stop = time.time()
+            duration = (stop - start) * single_channel.shape[0]
+            time_ls.append(duration)
+            average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+            print(f'Progress: channels:{chan_index}/{stack.shape[-1] - 1}, arrays:{array_index + 1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
+
+        normalized_stack[:, :, :, channel] = arr_2d_normalized
+
+    return normalized_stack.astype(save_dtype)
+
 def _get_lists_for_normalization(settings):
     """
     Get lists for normalization based on the provided settings.
@@ -923,7 +1140,91 @@ def _get_lists_for_normalization(settings):
             remove_background.append(settings['remove_background_pathogen'])
     return backgrounds, signal_to_noise, signal_thresholds, remove_background
 
-def _normalize_stack(src, backgrounds=[100,100,100], remove_backgrounds=[False,False,False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5,5,5], signal_thresholds=[1000,1000,1000], correct_illumination=False):
+def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
+    """
+    Normalize the stack of images.
+
+    Args:
+        src (str): The source directory containing the stack of images.
+        backgrounds (list, optional): Background values for each channel. Defaults to [100, 100, 100].
+        remove_background (list, optional): Whether to remove background values for each channel. Defaults to [False, False, False].
+        lower_percentile (int, optional): Lower percentile value for normalization. Defaults to 2.
+        save_dtype (numpy.dtype, optional): Data type for saving the normalized stack. Defaults to np.float32.
+        signal_to_noise (list, optional): Signal-to-noise ratio thresholds for each channel. Defaults to [5, 5, 5].
+        signal_thresholds (list, optional): Signal thresholds for each channel. Defaults to [1000, 1000, 1000].
+
+    Returns:
+        None
+    """
+    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
+    output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
+    os.makedirs(output_fldr, exist_ok=True)
+    time_ls = []
+    
+    for file_index, path in enumerate(paths):
+        with np.load(path) as data:
+            stack = data['data']
+            filenames = data['filenames']
+        
+        normalized_stack = np.zeros_like(stack, dtype=np.float32)
+        file = os.path.basename(path)
+        name, _ = os.path.splitext(file)
+
+        for chan_index, channel in enumerate(range(stack.shape[-1])):
+            single_channel = stack[:, :, :, channel]
+            background = backgrounds[chan_index]
+            signal_threshold = signal_thresholds[chan_index]
+            remove_background = remove_backgrounds[chan_index]
+            signal_2_noise = signal_to_noise[chan_index]
+            print(f'chan_index:{chan_index} background:{background} signal_threshold:{signal_threshold} remove_background:{remove_background} signal_2_noise:{signal_2_noise}')
+
+            if remove_background:
+                single_channel[single_channel < background] = 0
+
+            # Calculate the global lower and upper percentiles for non-zero pixels
+            non_zero_single_channel = single_channel[single_channel != 0]
+            global_lower = np.percentile(non_zero_single_channel, lower_percentile)
+            for upper_p in np.linspace(98, 100, num=100).tolist():
+                global_upper = np.percentile(non_zero_single_channel, upper_p)
+                if global_upper >= signal_threshold:
+                    break
+
+            # Normalize the pixels in each image to the global percentiles and then dtype.
+            arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
+            signal_to_noise_ratio_ls = []
+            for array_index in range(single_channel.shape[0]):
+                start = time.time()
+                arr_2d = single_channel[array_index, :, :]
+                non_zero_arr_2d = arr_2d[arr_2d != 0]
+                if non_zero_arr_2d.size > 0:
+                    lower, upper = np.percentile(non_zero_arr_2d, (lower_percentile, upper_p))
+                    signal_to_noise_ratio = upper / lower
+                else:
+                    signal_to_noise_ratio = 0
+                signal_to_noise_ratio_ls.append(signal_to_noise_ratio)
+                average_stnr = np.mean(signal_to_noise_ratio_ls) if len(signal_to_noise_ratio_ls) > 0 else 0
+
+                if signal_to_noise_ratio > signal_2_noise:
+                    arr_2d_rescaled = exposure.rescale_intensity(arr_2d, in_range=(lower, upper), out_range=(0, 1))
+                    arr_2d_normalized[array_index, :, :] = arr_2d_rescaled
+                else:
+                    arr_2d_normalized[array_index, :, :] = arr_2d
+                stop = time.time()
+                duration = (stop - start) * single_channel.shape[0]
+                time_ls.append(duration)
+                average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+                print(f'Progress: files {file_index + 1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1] - 1}, arrays:{array_index + 1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
+
+            normalized_stack[:, :, :, channel] = arr_2d_normalized
+        
+        save_loc = os.path.join(output_fldr, f'{name}_norm_stack.npz')
+        np.savez(save_loc, data=normalized_stack.astype(save_dtype), filenames=filenames)
+        del normalized_stack, single_channel, arr_2d_normalized, stack, filenames
+        gc.collect()
+    
+    return print(f'Saved stacks: {output_fldr}')
+
+def _normalize_stack_v1(src, backgrounds=[100,100,100], remove_backgrounds=[False,False,False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5,5,5], signal_thresholds=[1000,1000,1000]):
     """
     Normalize the stack of images.
 
@@ -935,7 +1236,6 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_backgrounds=[False,F
         save_dtype (numpy.dtype, optional): Data type for saving the normalized stack. Defaults to np.float32.
         signal_to_noise (list, optional): Signal-to-noise ratio thresholds for each channel. Defaults to [5,5,5].
         signal_thresholds (list, optional): Signal thresholds for each channel. Defaults to [1000,1000,1000].
-        correct_illumination (bool, optional): Whether to correct illumination. Defaults to False.
 
     Returns:
         None
@@ -962,9 +1262,6 @@ def _normalize_stack(src, backgrounds=[100,100,100], remove_backgrounds=[False,F
 
             if remove_background:
                 single_channel[single_channel < background] = 0
-            if correct_illumination:
-                bg = filters.gaussian(single_channel, sigma=50)
-                single_channel = single_channel - bg
 
             #Calculate the global lower and upper percentiles for non-zero pixels
             non_zero_single_channel = single_channel[single_channel != 0]
@@ -1152,7 +1449,6 @@ def preprocess_img_data(settings):
         backgrounds (int, optional): The number of background images to use for background removal. Defaults to 100.
         lower_percentile (float, optional): The lower percentile used for background removal. Defaults to 1.
         save_dtype (type, optional): The data type used for saving the preprocessed images. Defaults to np.float32.
-        correct_illumination (bool, optional): Whether to correct the illumination of the images. Defaults to False.
         randomize (bool, optional): Whether to randomize the order of the images. Defaults to True.
         all_to_mip (bool, optional): Whether to convert all images to MIP. Defaults to False.
         pick_slice (bool, optional): Whether to pick a specific slice based on the provided skip mode. Defaults to False.
@@ -1190,7 +1486,7 @@ def preprocess_img_data(settings):
     mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
     backgrounds = [settings['nucleus_background'], settings['cell_background'], settings['pathogen_background']]
 
-    settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, correct_illumination, test_mode, test_images, random_test = set_default_settings_preprocess_img_data(settings)
+    settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test = set_default_settings_preprocess_img_data(settings)
 
     regex = _get_regex(metadata_type, img_format, custom_regex)
 
@@ -1249,31 +1545,20 @@ def preprocess_img_data(settings):
         except Exception as e:
             print(f"Error: {e}")
     
-    print('concatinating cahnnels')
-    _concatenate_channel(src+'/stack', 
-                        channels=mask_channels, 
-                        randomize=randomize, 
-                        timelapse=timelapse, 
-                        batch_size=batch_size)
-        
-    if plot:
-        print(f'plotting {nr} images from {src}/channel_stack')
-        _plot_4D_arrays(src+'/channel_stack', figuresize, cmap, nr_npz=1, nr=nr)
-        
     backgrounds, signal_to_noise, signal_thresholds, remove_backgrounds = _get_lists_for_normalization(settings=settings)
     
-    if not timelapse:
-        _normalize_stack(src+'/channel_stack',
-                    backgrounds=backgrounds,
-                    remove_backgrounds=remove_backgrounds,
-                    lower_percentile=lower_percentile,
-                    save_dtype=save_dtype,
-                    signal_to_noise=signal_to_noise, 
-                    signal_thresholds=signal_thresholds,
-                    correct_illumination=correct_illumination)
-    else:
-        _normalize_timelapse(src+'/channel_stack', lower_percentile=lower_percentile, save_dtype=np.float32)
-        
+    concatenate_and_normalize(src+'/stack',
+                              mask_channels,
+                              randomize,
+                              timelapse,
+                              batch_size,
+                              backgrounds,
+                              remove_backgrounds,
+                              lower_percentile,
+                              np.float32,
+                              signal_to_noise,
+                              signal_thresholds)
+
     if plot:
         _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)
 
