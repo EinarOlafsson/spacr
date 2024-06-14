@@ -61,29 +61,8 @@ install spacr with pip
 pip install spacr
 ```
 
-To run spacr GUIs after installing spacr:
+Run spacr GUI:
 
-To generate masks:
 ```
-gui_mask
-```
-To generate measurements and cropped images:
-```
-gui_measure
-```
-To curate masks for finetuning cellpose models:
-```
-gui_make_masks
-```
-To annotate paths to images in sql database created in gui_measure:
-```
-gui_annotate
-```
-Train torch CNNs/Transformers to classify single object images.
-```
-gui_classify
-```
-Simulate spatial phenotype screens.
-```
-gui_sim
+gui
 ```
