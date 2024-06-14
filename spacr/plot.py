@@ -1350,7 +1350,7 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     plt.suptitle(title)
     plt.show()
 
-def visualize_cellpose_masks(masks, titles=None, comparison_title="Masks Comparison"):
+def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=None):
     """
     Visualize multiple masks with optional titles.
     
@@ -1359,6 +1359,9 @@ def visualize_cellpose_masks(masks, titles=None, comparison_title="Masks Compari
         titles (list of str, optional): A list of titles for the masks. If None, default titles will be used.
         comparison_title (str): Title for the entire figure.
     """
+    
+    comparison_title=f"Masks Comparison for {filename}"
+    
     if titles is None:
         titles = [f'Mask {i+1}' for i in range(len(masks))]
     
@@ -1378,6 +1381,17 @@ def visualize_cellpose_masks(masks, titles=None, comparison_title="Masks Compari
     
     plt.suptitle(comparison_title)
     plt.show()
+    
+    if save:
+        if src is None:
+            src = os.getcwd()
+        results_dir = os.path.join(src, 'results')
+        os.makedirs(results_dir, exist_ok=True)
+        fig_path = os.path.join(results_dir, f'{filename}.pdf')
+        fig.savefig(fig_path, format='pdf')
+        print(f'Saved figure to {fig_path}')
+    return
+
     
 def plot_comparison_results(comparison_results):
     df = pd.DataFrame(comparison_results)
