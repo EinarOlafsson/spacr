@@ -19,7 +19,10 @@ from skimage.morphology import square
 from skimage.transform import resize as resizescikit
 from collections import defaultdict
 from torch.utils.data import DataLoader, random_split
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
+from skimage import measure
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import  IsolationForest, RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -1763,11 +1766,84 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
         # Overwrite the original cell mask file with the merged result
         np.save(cell_path, merged_cell_mask)
 
+def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
+    
+    def read_files_in_batches(folder, batch_size=50):
+        files = [f for f in os.listdir(folder) if f.endswith('.npy')]
+        files.sort()  # Sort to ensure matching order
+        for i in range(0, len(files), batch_size):
+            yield files[i:i + batch_size]
+
+    def measure_morphology_and_intensity(mask, image):
+        properties = measure.regionprops(mask, intensity_image=image)
+        properties_list = [{'area': p.area, 'mean_intensity': p.mean_intensity, 'perimeter': p.perimeter, 'eccentricity': p.eccentricity} for p in properties]
+        return properties_list
+
+    def cluster_objects(properties, n_clusters=2):
+        data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
+        kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(data)
+        return kmeans
+
+    def remove_objects_not_in_largest_cluster(mask, labels, largest_cluster_label):
+        cleaned_mask = np.zeros_like(mask)
+        for region in measure.regionprops(mask):
+            if labels[region.label - 1] == largest_cluster_label:
+                cleaned_mask[mask == region.label] = region.label
+        return cleaned_mask
+
+    def plot_clusters(properties, labels):
+        data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
+        pca = PCA(n_components=2)
+        data_2d = pca.fit_transform(data)
+        plt.scatter(data_2d[:, 0], data_2d[:, 1], c=labels, cmap='viridis')
+        plt.xlabel('PCA Component 1')
+        plt.ylabel('PCA Component 2')
+        plt.title('Object Clustering')
+        plt.show()
+    
+    all_properties = []
+
+    # Step 1: Accumulate properties over all files
+    for batch in read_files_in_batches(mask_folder, batch_size):
+        mask_files = [os.path.join(mask_folder, file) for file in batch]
+        image_files = [os.path.join(image_folder, file) for file in batch]
+        
+        masks = [np.load(file) for file in mask_files]
+        images = [np.load(file)[:, :, channel] for file in image_files]
+        
+        for i, mask in enumerate(masks):
+            image = images[i]
+            # Measure morphology and intensity
+            properties = measure_morphology_and_intensity(mask, image)
+            all_properties.extend(properties)
+
+    # Step 2: Perform clustering on accumulated properties
+    kmeans = cluster_objects(all_properties, n_clusters)
+    labels = kmeans.labels_
+
+    if plot:
+        # Step 3: Plot clusters using PCA
+        plot_clusters(all_properties, labels)
+
+    # Step 4: Remove objects not in the largest cluster and overwrite files in batches
+    label_index = 0
+    for batch in read_files_in_batches(mask_folder, batch_size):
+        mask_files = [os.path.join(mask_folder, file) for file in batch]
+        masks = [np.load(file) for file in mask_files]
+        
+        for i, mask in enumerate(masks):
+            batch_properties = measure_morphology_and_intensity(mask, mask)
+            batch_labels = labels[label_index:label_index + len(batch_properties)]
+            largest_cluster_label = np.bincount(batch_labels).argmax()
+            cleaned_mask = remove_objects_not_in_largest_cluster(mask, batch_labels, largest_cluster_label)
+            np.save(mask_files[i], cleaned_mask)
+            label_index += len(batch_properties)
+
 def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_merged, plot_arrays
-    from .utils import _pivot_counts_table, set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings
+    from .utils import _pivot_counts_table, set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings, check_mask_folder
 
     settings = set_default_settings_preprocess_generate_masks(src, settings)
 
@@ -1805,21 +1881,29 @@ def preprocess_generate_masks(src, settings={}):
     if settings['masks']:
         mask_src = os.path.join(src, 'norm_channel_stack')
         if settings['cell_channel'] != None:
-            generate_cellpose_masks(src=mask_src, settings=settings, object_type='cell')
+            if check_mask_folder(src, 'cell_mask_stack'):
+                generate_cellpose_masks(mask_src, settings, 'cell')
             
         if settings['nucleus_channel'] != None:
-            generate_cellpose_masks(src=mask_src, settings=settings, object_type='nucleus')
+            if check_mask_folder(src, 'nucleus_mask_stack'):
+                generate_cellpose_masks(mask_src, settings, 'nucleus')
             
         if settings['pathogen_channel'] != None:
-            generate_cellpose_masks(src=mask_src, settings=settings, object_type='pathogen')
+            if check_mask_folder(src, 'pathogen_mask_stack'):
+                generate_cellpose_masks(mask_src, settings, 'pathogen')
 
         if settings['adjust_cells']:
-            if settings['pathogen_channel'] == None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
+            if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
 
                 start = time.time()
                 cell_folder = os.path.join(mask_src, 'cell_mask_stack')
                 nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                 parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                #image_folder = os.path.join(src, 'stack')
+
+                #process_masks(cell_folder, image_folder, settings['cell_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])
+                #process_masks(nuclei_folder, image_folder, settings['nucleus_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])
+                #process_masks(parasite_folder, image_folder, settings['pathogen_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])
                 
                 adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
                 stop = time.time()
@@ -1884,6 +1968,32 @@ def identify_masks_finetune(settings):
     #User defined settings
     src=settings['src']
     dst=settings['dst']
+
+    
+    settings.setdefault('model_name', 'cyto')
+    settings.setdefault('custom_model', None)
+    settings.setdefault('channels', [0,0])
+    settings.setdefault('background', 100)
+    settings.setdefault('remove_background', False)
+    settings.setdefault('Signal_to_noise', 10)
+    settings.setdefault('CP_prob', 0)
+    settings.setdefault('diameter', 30)
+    settings.setdefault('batch_size', 50)
+    settings.setdefault('flow_threshold', 0.4)
+    settings.setdefault('save', False)
+    settings.setdefault('verbose', False)
+    settings.setdefault('normalize', True)
+    settings.setdefault('percentiles', None)
+    settings.setdefault('circular', False)
+    settings.setdefault('invert', False)
+    settings.setdefault('resize', False)
+    settings.setdefault('target_height', None)
+    settings.setdefault('target_width', None)
+    settings.setdefault('rescale', False)
+    settings.setdefault('resample', False)
+    settings.setdefault('grayscale', True)
+
+
     model_name=settings['model_name']
     custom_model=settings['custom_model']
     channels = settings['channels']
@@ -1898,20 +2008,19 @@ def identify_masks_finetune(settings):
     verbose=settings['verbose']
 
     # static settings
-    normalize = True
-    percentiles = None
-    circular = False
-    invert = False
-    resize = False
+    normalize = settings['normalize']
+    percentiles = settings['percentiles']
+    circular = settings['circular']
+    invert = settings['invert']
+    resize = settings['resize']
 
     if resize:
-        target_height = settings['width_height'][1]
-        target_width = settings['width_height'][0]
+        target_height = settings['target_height']
+        target_width = settings['target_width']
 
-    rescale = False
-    resample = False
-    grayscale = True
-    test = False
+    rescale = settings['rescale']
+    resample = settings['resample']
+    grayscale = settings['grayscale']
 
     os.makedirs(dst, exist_ok=True)
 
@@ -2210,6 +2319,18 @@ def all_elements_match(list1, list2):
     # Check if all elements in list1 are in list2
     return all(element in list2 for element in list1)
 
+def prepare_batch_for_cellpose(batch):
+    # Ensure the batch is of dtype float32
+    if batch.dtype != np.float32:
+        batch = batch.astype(np.float32)
+    
+    # Normalize each image in the batch
+    for i in range(batch.shape[0]):
+        if batch[i].max() > 1:
+            batch[i] = batch[i] / batch[i].max()
+    
+    return batch
+
 def generate_cellpose_masks(src, settings, object_type):
     
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels, _choose_model, mask_object_count, set_default_settings_preprocess_generate_masks
@@ -2278,6 +2399,14 @@ def generate_cellpose_masks(src, settings, object_type):
         with np.load(path) as data:
             stack = data['data']
             filenames = data['filenames']
+
+            for i, filename in enumerate(filenames):
+                output_path = os.path.join(output_folder, filename)
+                
+                if os.path.exists(output_path):
+                    print(f"File {filename} already exists in the output folder. Skipping...")
+                    continue
+        
         if settings['timelapse']:
 
             trackable_objects = ['cell','nucleus','pathogen']
@@ -2312,17 +2441,14 @@ def generate_cellpose_masks(src, settings, object_type):
             if batch.size == 0:
                 print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
                 continue
-            if batch.max() > 1:
-                batch = batch / batch.max()
+            
+            batch = prepare_batch_for_cellpose(batch)
 
             if timelapse:
-                stitch_threshold=100.0
                 movie_path = os.path.join(os.path.dirname(src), 'movies')
                 os.makedirs(movie_path, exist_ok=True)
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
-            else:
-                stitch_threshold=0.0
             
             if settings['verbose']:
                 print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
@@ -2343,8 +2469,7 @@ def generate_cellpose_masks(src, settings, object_type):
                                 flow_threshold=flow_threshold,
                                 cellprob_threshold=cellprob_threshold,
                                 rescale=None,
-                                resample=True, #object_settings['resample'],
-                                stitch_threshold=stitch_threshold)
+                                resample=object_settings['resample'])
             
             if len(output) == 4:
                 masks, flows, _, _ = output
@@ -2481,7 +2606,6 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
     
     all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
     random.shuffle(all_image_files)
-    
         
     if verbose == True:
         print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
@@ -2512,7 +2636,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
                          cellprob_threshold=cellprob_threshold,
                          rescale=False,
                          resample=False,
-                         progress=True)
+                         progress=False)
 
             if len(output) == 4:
                 mask, flows, _, _ = output
@@ -2542,33 +2666,31 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
 def check_cellpose_models(settings):
     
     src = settings['src']
-    batch_size = settings.setdefault('batch_size', 10)
-    cellprob_threshold = settings.setdefault('CP_prob', 0)
-    flow_threshold = settings.setdefault('flow_threshold', 1)
-    save = settings.setdefault('save', True)
-    normalize = settings.setdefault('normalize', True)
-    channels = settings.setdefault('channels', [0,0])
-    percentiles = settings.setdefault('percentiles', None)
-    circular = settings.setdefault('circular', False)
-    invert = settings.setdefault('invert', False)
-    plot = settings.setdefault('plot', True)
-    diameter = settings.setdefault('diameter', 40)
-    grayscale = settings.setdefault('grayscale', True)
-    remove_background = settings.setdefault('remove_background', False)
-    background = settings.setdefault('background', 100)
-    Signal_to_noise = settings.setdefault('Signal_to_noise', 5)
+    settings.setdefault('batch_size', 10)
+    settings.setdefault('CP_prob', 0)
+    settings.setdefault('flow_threshold', 0.4)
+    settings.setdefault('save', True)
+    settings.setdefault('normalize', True)
+    settings.setdefault('channels', [0,0])
+    settings.setdefault('percentiles', None)
+    settings.setdefault('circular', False)
+    settings.setdefault('invert', False)
+    settings.setdefault('plot', True)
+    settings.setdefault('diameter', 40)
+    settings.setdefault('grayscale', True)
+    settings.setdefault('remove_background', False)
+    settings.setdefault('background', 100)
+    settings.setdefault('Signal_to_noise', 5)
+    settings.setdefault('verbose', False)
+    settings.setdefault('resize', False)
+    settings.setdefault('target_height', None)
+    settings.setdefault('target_width', None)
 
-    verbose = settings.setdefault('verbose', False)
+    if settings['verbose']:
+        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+        display(settings_df)
 
-    resize = settings.setdefault('resize', False)
-
-    if resize:
-        target_height = settings['width_height'][0]
-        target_width = settings['width_height'][1]
-    else:
-        target_height = None
-        target_width = None
-    
     cellpose_models = ['cyto', 'nuclei', 'cyto2', 'cyto3']
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
@@ -2576,74 +2698,22 @@ def check_cellpose_models(settings):
 
         model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
         print(f'Using {model_name}')
-        generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose)
+        generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['circular'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 
     return
 
-def compare_cellpose_masks(src, verbose=False):
-    
-    from .io import _read_mask
-    from .plot import visualize_masks, plot_comparison_results, visualize_cellpose_masks
-    from .utils import extract_boundaries, boundary_f1_score, compute_segmentation_ap, jaccard_index
+def save_results_and_figure(src, fig, results):
 
-    import os
-    import numpy as np
-    from skimage.measure import label
+    if not isinstance(results, pd.DataFrame):
+        results = pd.DataFrame(results)
 
-    # Collect all subdirectories in src
-    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
-
-    dirs.sort()  # Optional: sort directories if needed
-
-    # Get common files in all directories
-    common_files = set(os.listdir(dirs[0]))
-    for d in dirs[1:]:
-        common_files.intersection_update(os.listdir(d))
-    common_files = list(common_files)
-
-    results = []
-    conditions = [os.path.basename(d) for d in dirs]
-
-    for index, filename in enumerate(common_files):
-        print(f'Processing image {index+1}/{len(common_files)}', end='\r', flush=True)
-        paths = [os.path.join(d, filename) for d in dirs]
-
-        # Check if file exists in all directories
-        if not all(os.path.exists(path) for path in paths):
-            print(f'Skipping {filename} as it is not present in all directories.')
-            continue
-
-        masks = [_read_mask(path) for path in paths]
-        boundaries = [extract_boundaries(mask) for mask in masks]
-
-        if verbose:
-            visualize_cellpose_masks(masks, titles=conditions, comparison_title=f"Masks Comparison for {filename}")
-
-        # Initialize data structure for results
-        file_results = {'filename': filename}
-
-        # Compare each mask with each other
-        for i in range(len(masks)):
-            for j in range(i + 1, len(masks)):
-                condition_i = conditions[i]
-                condition_j = conditions[j]
-                mask_i = masks[i]
-                mask_j = masks[j]
-
-                # Compute metrics
-                boundary_f1 = boundary_f1_score(mask_i, mask_j)
-                jaccard = jaccard_index(mask_i, mask_j)
-                average_precision = compute_segmentation_ap(mask_i, mask_j)
-
-                # Store results
-                file_results[f'jaccard_{condition_i}_{condition_j}'] = jaccard
-                file_results[f'boundary_f1_{condition_i}_{condition_j}'] = boundary_f1
-                file_results[f'average_precision_{condition_i}_{condition_j}'] = average_precision
-
-        results.append(file_results)
-
-    fig = plot_comparison_results(results)
-    return results, fig
+    results_dir = os.path.join(src, 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    results_path = os.path.join(results_dir,f'results.csv')
+    fig_path = os.path.join(results_dir, f'model_comparison_plot.pdf')
+    results.to_csv(results_path, index=False)
+    fig.savefig(fig_path, format='pdf')
+    print(f'Saved figure to {fig_path} and results to {results_path}')
 
 def compare_mask(args):
     src, filename, dirs, conditions = args
@@ -2674,10 +2744,11 @@ def compare_mask(args):
     
     return file_results
 
-def compare_cellpose_masks(src, verbose=False, processes=None):
+def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
     from .plot import visualize_cellpose_masks, plot_comparison_results
     from .io import _read_mask
-    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d))]
+
+    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d != 'results']
     dirs.sort()  # Optional: sort directories if needed
     conditions = [os.path.basename(d) for d in dirs]
 
@@ -2694,16 +2765,16 @@ def compare_cellpose_masks(src, verbose=False, processes=None):
 
     # Filter out None results (from skipped files)
     results = [res for res in results if res is not None]
-
+    #print(results)
     if verbose:
         for result in results:
             filename = result['filename']
             masks = [_read_mask(os.path.join(d, filename)) for d in dirs]
-            visualize_cellpose_masks(masks, titles=conditions, comparison_title=f"Masks Comparison for {filename}")
+            visualize_cellpose_masks(masks, titles=conditions, filename=filename, save=save, src=src)
 
     fig = plot_comparison_results(results)
-    return results, fig
-
+    save_results_and_figure(src, fig, results)
+    return
 
 def _calculate_similarity(df, features, col_to_compare, val1, val2):
     """
@@ -3105,6 +3176,7 @@ def generate_image_umap(settings={}):
  
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, get_umap_image_settings
+    from .alpha import cluster_feature_analysis, generate_umap_from_images
 
     settings = get_umap_image_settings(settings)
 
@@ -3191,9 +3263,12 @@ def generate_image_umap(settings={}):
         embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer)
 
     else:
-        # Apply the trained reducer to the entire dataset
-        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
-        embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
+        if settings['resnet_features']:
+            numeric_data, embedding, labels = generate_umap_from_images(image_paths, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['clustering'], settings['eps'], settings['min_samples'], settings['n_jobs'], settings['verbose'])
+        else:
+            # Apply the trained reducer to the entire dataset
+            numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+            embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
     
     if settings['remove_cluster_noise']:
         # Remove noise from the clusters (removes -1 labels from DBSCAN)
@@ -3236,6 +3311,14 @@ def generate_image_umap(settings={}):
     os.makedirs(results_dir, exist_ok=True)
     all_df.to_csv(results_csv, index=False)
     print(f'Results saved to {results_csv}')
+
+    if settings['analyze_clusters']:
+        combined_results = cluster_feature_analysis(all_df)
+        results_dir = os.path.join(settings['src'][0], 'results')
+        cluster_results_csv = os.path.join(results_dir,'cluster_results.csv')
+        os.makedirs(results_dir, exist_ok=True)
+        combined_results.to_csv(cluster_results_csv, index=False)
+        print(f'Cluster results saved to {cluster_results_csv}')
 
     return all_df
 
