@@ -21,9 +21,9 @@ Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr). The spatial organizat
 
 ## Features
 
-- **Generate Masks:** Generate cellpose masks for cells, nuclei and pathogen images.
+- **Generate Masks:** Generate cellpose masks of cell, nuclei and pathogen objects.
 
-- **Object Measurements:** Measurements for each object including scikit-image-regionprops, intensity quantiles, shannon-entropy, pearsons and manders correlation, homogenicity and radial distribution. Measurements are saved to a sql database in object level tables.
+- **Object Measurements:** Measurements for each object including scikit-image-regionprops, intensity percentiles, shannon-entropy, pearsons and manders correlations, homogenicity and radial distribution. Measurements are saved to a sql database in object level tables.
 
 - **Crop Images:** Objects (e.g. cells) can be saved as PNGs from the object area or bounding box area of each object. Object paths are saved in an sql database that can be annotated and used to train CNNs/Transformer models for classefication tasks.
 
@@ -37,11 +37,13 @@ Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr). The spatial organizat
 
 - **Simulations:** Simulate spatial phenotype screens.
 
+- **Sequencing:** Map FASTQ reads to barecode and gRNA barecode metadata.
+
 - **Misc:** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
 ## Installation
 
-spacr requires Tkinter for its graphical user interface features.
+Requires Tkinter for graphical user interface features.
 
 ### Ubuntu
 
