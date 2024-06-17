@@ -2879,34 +2879,6 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
 
     _, features = filter_dataframe_features(combined_df, channel_of_interest, exclude)
 
-    # Automatically select numerical features
-    #features = combined_df.select_dtypes(include=[np.number]).columns.tolist()
-    #features.remove('target')
-    #
-    #if clean:
-    #    combined_df = combined_df.loc[:, combined_df.nunique() > 1]
-    #    features = [feature for feature in features if feature in combined_df.columns]
-    #    
-    #if feature_string is not None:
-    #    feature_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3']
-    #
-    #    # Remove feature_string from the list if it exists
-    #    if feature_string in feature_list:
-    #        feature_list.remove(feature_string)
-    #
-    #    features = [feature for feature in features if feature_string in feature]
-    #
-    #    # Iterate through the list and remove columns from df
-    #    for feature_ in feature_list:
-    #        features = [feature for feature in features if feature_ not in feature]
-    #        print(f'After removing {feature_} features: {len(features)}')
-    #
-    #if exclude:
-    #    if isinstance(exclude, list):
-    #        features = [feature for feature in features if feature not in exclude]
-    #    else:
-    #        features.remove(exclude)
-
     X = combined_df[features]
     y = combined_df['target']
 
