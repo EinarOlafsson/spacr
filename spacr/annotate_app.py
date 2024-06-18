@@ -126,12 +126,10 @@ class ImageApp:
         Normalize the pixel values of an image to the range [0, 255].
 
         Parameters:
-        - img: PIL.Image.Image
-            The input image to be normalized.
+        - img: PIL.Image.Image. The input image to be normalized.
 
         Returns:
-        - PIL.Image.Image
-            The normalized image.
+        - PIL.Image.Image. The normalized image.
         """
         img_array = np.array(img)
         img_array = ((img_array - img_array.min()) * (1/(img_array.max() - img_array.min()) * 255)).astype('uint8')

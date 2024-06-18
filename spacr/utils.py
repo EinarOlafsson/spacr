@@ -1483,52 +1483,19 @@ class SpatialAttention(nn.Module):
     
 # Multi-Scale Block with Attention
 class MultiScaleBlockWithAttention(nn.Module):
-    """
-    Multi-scale block with attention module.
-
-    Args:
-        in_channels (int): Number of input channels.
-        out_channels (int): Number of output channels.
-
-    Attributes:
-        dilated_conv1 (nn.Conv2d): Dilated convolution layer.
-        spatial_attention (nn.Conv2d): Spatial attention layer.
-
-    Methods:
-        custom_forward: Custom forward method for the module.
-        forward: Forward method for the module.
-    """
-
     def __init__(self, in_channels, out_channels):
         super(MultiScaleBlockWithAttention, self).__init__()
         self.dilated_conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, dilation=1, padding=1)
         self.spatial_attention = nn.Conv2d(out_channels, out_channels, kernel_size=1)
         
     def custom_forward(self, x):
-        """
-        Custom forward method for the module.
-
-        Args:
-            x (torch.Tensor): Input tensor.
-
-        Returns:
-            torch.Tensor: Output tensor.
-        """
         x1 = F.relu(self.dilated_conv1(x), inplace=True)
         x = self.spatial_attention(x1)
         return x
 
     def forward(self, x):
-        """
-        Forward method for the module.
+        return self.custom_forward(x)
 
-        Args:
-            x (torch.Tensor): Input tensor.
-
-        Returns:
-            torch.Tensor: Output tensor.
-        """
-        return checkpoint(self.custom_forward, x)
 
 # Final Classifier
 class CustomCellClassifier(nn.Module):

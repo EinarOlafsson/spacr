@@ -732,20 +732,20 @@ def run_simulation(settings):
 
     Returns:
         tuple: A tuple containing the simulation results and distances.
-            - cell_scores (DataFrame): Scores for each cell.
-            - cell_roc_dict_df (DataFrame): ROC AUC scores for each cell.
-            - cell_pr_dict_df (DataFrame): Precision-Recall AUC scores for each cell.
-            - cell_cm (DataFrame): Confusion matrix for each cell.
-            - well_score (DataFrame): Scores for each well.
-            - gene_fraction_map (DataFrame): Fraction of genes for each well.
-            - metadata (DataFrame): Metadata for each well.
-            - results_df (DataFrame): Results of the regression analysis.
-            - reg_roc_dict_df (DataFrame): ROC AUC scores for each gene.
-            - reg_pr_dict_df (DataFrame): Precision-Recall AUC scores for each gene.
-            - reg_cm (DataFrame): Confusion matrix for each gene.
-            - sim_stats (dict): Additional simulation statistics.
-            - genes_per_well_df (DataFrame): Number of genes per well.
-            - wells_per_gene_df (DataFrame): Number of wells per gene.
+        - cell_scores (DataFrame): Scores for each cell.
+        - cell_roc_dict_df (DataFrame): ROC AUC scores for each cell.
+        - cell_pr_dict_df (DataFrame): Precision-Recall AUC scores for each cell.
+        - cell_cm (DataFrame): Confusion matrix for each cell.
+        - well_score (DataFrame): Scores for each well.
+        - gene_fraction_map (DataFrame): Fraction of genes for each well.
+        - metadata (DataFrame): Metadata for each well.
+        - results_df (DataFrame): Results of the regression analysis.
+        - reg_roc_dict_df (DataFrame): ROC AUC scores for each gene.
+        - reg_pr_dict_df (DataFrame): Precision-Recall AUC scores for each gene.
+        - reg_cm (DataFrame): Confusion matrix for each gene.
+        - sim_stats (dict): Additional simulation statistics.
+        - genes_per_well_df (DataFrame): Number of genes per well.
+        - wells_per_gene_df (DataFrame): Number of wells per gene.
         dists (list): List of distances.
     """
     #try:

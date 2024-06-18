@@ -3118,29 +3118,29 @@ def generate_image_umap(settings={}):
     
     Parameters:
     settings (dict): Dictionary containing the following keys:
-        src (str): Source directory containing the data.
-        row_limit (int): Limit the number of rows to process.
-        tables (list): List of table names to read from the database.
-        visualize (str): Visualization type.
-        image_nr (int): Number of images to display.
-        dot_size (int): Size of dots in the scatter plot.
-        n_neighbors (int): Number of neighbors for UMAP.
-        figuresize (int): Size of the figure.
-        black_background (bool): Whether to use a black background.
-        remove_image_canvas (bool): Whether to remove the image canvas.
-        plot_outlines (bool): Whether to plot outlines.
-        plot_points (bool): Whether to plot points.
-        smooth_lines (bool): Whether to smooth lines.
-        verbose (bool): Whether to print verbose output.
-        embedding_by_controls (bool): Whether to use embedding from controls.
-        col_to_compare (str): Column to compare for control-based embedding.
-        pos (str): Positive control value.
-        neg (str): Negative control value.
-        clustering (str): Clustering method ('DBSCAN' or 'KMeans').
-        exclude (list): List of columns to exclude from the analysis.
-        plot_images (bool): Whether to plot images.
-        reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
-        save_figure (bool): Whether to save the figure as a PDF.
+    src (str): Source directory containing the data.
+    row_limit (int): Limit the number of rows to process.
+    tables (list): List of table names to read from the database.
+    visualize (str): Visualization type.
+    image_nr (int): Number of images to display.
+    dot_size (int): Size of dots in the scatter plot.
+    n_neighbors (int): Number of neighbors for UMAP.
+    figuresize (int): Size of the figure.
+    black_background (bool): Whether to use a black background.
+    remove_image_canvas (bool): Whether to remove the image canvas.
+    plot_outlines (bool): Whether to plot outlines.
+    plot_points (bool): Whether to plot points.
+    smooth_lines (bool): Whether to smooth lines.
+    verbose (bool): Whether to print verbose output.
+    embedding_by_controls (bool): Whether to use embedding from controls.
+    col_to_compare (str): Column to compare for control-based embedding.
+    pos (str): Positive control value.
+    neg (str): Negative control value.
+    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+    exclude (list): List of columns to exclude from the analysis.
+    plot_images (bool): Whether to plot images.
+    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+    save_figure (bool): Whether to save the figure as a PDF.
     
     Returns:
     pd.DataFrame: DataFrame with the original data and an additional column 'cluster' containing the cluster identity.
@@ -3311,15 +3311,15 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     
     Parameters:
     settings (dict): Dictionary containing the following keys:
-        src (str): Source directory containing the data.
-        row_limit (int): Limit the number of rows to process.
-        tables (list): List of table names to read from the database.
-        filter_by (str): Column to filter the data.
-        sample_size (int): Number of samples to use for the hyperparameter search.
-        remove_highly_correlated (bool): Whether to remove highly correlated columns.
-        log_data (bool): Whether to log transform the data.
-        verbose (bool): Whether to print verbose output.
-        reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+    src (str): Source directory containing the data.
+    row_limit (int): Limit the number of rows to process.
+    tables (list): List of table names to read from the database.
+    filter_by (str): Column to filter the data.
+    sample_size (int): Number of samples to use for the hyperparameter search.
+    remove_highly_correlated (bool): Whether to remove highly correlated columns.
+    log_data (bool): Whether to log transform the data.
+    verbose (bool): Whether to print verbose output.
+    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
     reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.
     dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.
     kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.
