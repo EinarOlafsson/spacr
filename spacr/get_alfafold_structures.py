@@ -67,6 +67,6 @@ def download_alphafold_structures(tsv_location, dst, version="4"):
         print(f"Failed download entries saved to: {os.path.join(dst, 'failed_downloads.csv')}")
 
 # Example usage:
-tsv_location = '/home/carruthers/Downloads/GT1_proteome/GT1_proteins_uniprot.tsv'  # Replace with the path to your TSV file containing a list of UniProt entries
-dst_folder = '/home/carruthers/Downloads/GT1_proteome'  # Replace with your destination folder
-download_alphafold_structures(tsv_location, dst_folder)
+#tsv_location = '/home/carruthers/Downloads/GT1_proteome/GT1_proteins_uniprot.tsv'  # Replace with the path to your TSV file containing a list of UniProt entries
+#dst_folder = '/home/carruthers/Downloads/GT1_proteome'  # Replace with your destination folder
+#download_alphafold_structures(tsv_location, dst_folder)
