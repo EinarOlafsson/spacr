@@ -1,5 +1,5 @@
 .. spacr documentation master file, created by
-   sphinx-quickstart on Tue Jun 18 11:46:48 2024.
+   sphinx-quickstart on Tue Jun 18 14:22:38 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -10,7 +10,7 @@ Welcome to spacr's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+
 
 Indices and tables
 ==================
