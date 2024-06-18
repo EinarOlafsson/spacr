@@ -9,7 +9,7 @@
 .. |Documentation Status| image:: https://readthedocs.org/projects/spacr/badge/?version=latest
    :target: https://EinarOlafsson.github.io/spacr/
 
-|PyPI version| |Python version| |Licence: GPL v3| |repo size|
+|PyPI version| |Python version| |Licence: GPL v3| |repo size| |Documentation Status|
 
 SpaCr
 =====
