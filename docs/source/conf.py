@@ -1,13 +1,11 @@
 # Configuration file for the Sphinx documentation builder.
 
 # -- Project information -----------------------------------------------------
-
 project = 'spacr'
 author = 'Einar Birnir Olafsson'
 release = '0.0.70'
 
 # -- General configuration ---------------------------------------------------
-
 # Add any Sphinx extension module names here, as strings.
 extensions = [
     'sphinx.ext.autodoc',
@@ -25,6 +23,6 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
-
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+

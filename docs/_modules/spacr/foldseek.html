@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.foldseek &mdash; spacr 0.0.70 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=29ed05f3"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            spacr
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.foldseek</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.foldseek</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">tarfile</span><span class="o">,</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span>
+<span class="kn">from</span> <span class="nn">statsmodels.stats.multitest</span> <span class="kn">import</span> <span class="n">multipletests</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">accuracy_score</span>
+
+<div class="viewcode-block" id="run_command">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.run_command">[docs]</a>
+<span class="k">def</span> <span class="nf">run_command</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executing: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running command: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="add_headers_and_save_csv">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.add_headers_and_save_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">add_headers_and_save_csv</span><span class="p">(</span><span class="n">input_tsv_path</span><span class="p">,</span> <span class="n">output_csv_path</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">):</span>
+    
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;fident&#39;</span><span class="p">,</span> <span class="s1">&#39;alnlen&#39;</span><span class="p">,</span> <span class="s1">&#39;mismatch&#39;</span><span class="p">,</span> <span class="s1">&#39;gapopen&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;qstart&#39;</span><span class="p">,</span> <span class="s1">&#39;qend&#39;</span><span class="p">,</span> <span class="s1">&#39;tstart&#39;</span><span class="p">,</span> <span class="s1">&#39;tend&#39;</span><span class="p">,</span> <span class="s1">&#39;evalue&#39;</span><span class="p">,</span> <span class="s1">&#39;bits&#39;</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Rename the aln_tmscore file to have a .tsv extension if it doesn&#39;t already</span>
+    <span class="n">input_tsv_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results_dir</span><span class="si">}</span><span class="s2">/aln_tmscore&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">input_tsv_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.tsv&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">input_tsv_path</span><span class="p">,</span> <span class="n">input_tsv_path</span> <span class="o">+</span> <span class="s1">&#39;.tsv&#39;</span><span class="p">)</span>
+        <span class="n">input_tsv_path</span> <span class="o">+=</span> <span class="s1">&#39;.tsv&#39;</span>
+    
+    <span class="c1"># Read the TSV file into a DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">input_tsv_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Assign headers to the DataFrame</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">headers</span>
+
+    <span class="c1"># Save the DataFrame as a CSV file</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_csv_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File saved as </span><span class="si">{</span><span class="n">output_csv_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="generate_database">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.generate_database">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_database</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">):</span>
+    <span class="n">structures_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_dir</span><span class="si">}</span><span class="s1">/structures&#39;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">structures_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;tar&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">structures_dir</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">structures_dir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Structure tar file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tar</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">tar</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">structures_dir</span><span class="p">)</span>
+                <span class="n">tar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek createdb </span><span class="si">{</span><span class="n">structures_dir</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">structures_dir</span><span class="si">}</span><span class="s2">/structures_db&quot;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Failed to create structures database.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">structures_dir</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">structures_dir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Structure folder </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="n">new_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">structures_dir</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="c1">#print(path)</span>
+                    <span class="c1">#print(structures_dir)</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">new_path</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek createdb </span><span class="si">{</span><span class="n">structures_dir</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">structures_dir</span><span class="si">}</span><span class="s2">/structures_db&quot;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Failed to create structures database.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">structures_dir</span></div>
+
+
+<div class="viewcode-block" id="align_to_database">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.align_to_database">[docs]</a>
+<span class="k">def</span> <span class="nf">align_to_database</span><span class="p">(</span><span class="n">structure_fldr_path</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;/home/carruthers/foldseek&#39;</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="mi">25</span><span class="p">):</span>
+
+    <span class="n">databases_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_dir</span><span class="si">}</span><span class="s1">/foldseek_databases&#39;</span>
+    <span class="n">results_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_dir</span><span class="si">}</span><span class="s1">/results&#39;</span>
+    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_dir</span><span class="si">}</span><span class="s1">/tmp&#39;</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">databases_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
+
+    <span class="c1"># Check and download PDB database if not exists</span>
+    <span class="n">pdb_db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">databases_dir</span><span class="p">,</span> <span class="s2">&quot;pdb&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pdb_db_path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading PDB database...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek databases PDB </span><span class="si">{</span><span class="n">pdb_db_path</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tmp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Failed to download PDB database.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check and download AlphaFold database if not exists</span>
+    <span class="n">afdb_db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">databases_dir</span><span class="p">,</span> <span class="s2">&quot;afdb&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">afdb_db_path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading AlphaFold database...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek databases Alphafold/Proteome </span><span class="si">{</span><span class="n">afdb_db_path</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tmp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Failed to download AlphaFold database.&quot;</span><span class="p">)</span>
+
+    <span class="n">structures_dir</span> <span class="o">=</span> <span class="n">generate_database</span><span class="p">(</span><span class="n">structure_fldr_path</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">)</span>
+            
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">targetDB</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">pdb_db_path</span><span class="p">,</span> <span class="n">afdb_db_path</span><span class="p">]):</span>
+        
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">results_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="s2">&quot;pdb&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running Foldseek on PDB...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">results_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="s2">&quot;afdb&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running Foldseek on AFdb...&quot;</span><span class="p">)</span>
+        
+        <span class="n">aln_tmscore</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results_dir</span><span class="si">}</span><span class="s2">/aln_tmscore&quot;</span>
+        <span class="n">aln_tmscore_tsv</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results_dir</span><span class="si">}</span><span class="s2">/aln_tmscore.tsv&quot;</span>
+
+        <span class="n">queryDB</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structures_dir</span><span class="si">}</span><span class="s2">/structures_db&quot;</span>
+        <span class="n">targetDB</span> <span class="o">=</span> <span class="n">pdb_db_path</span>
+        <span class="n">aln</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results_dir</span><span class="si">}</span><span class="s2">/results&quot;</span>    
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek search </span><span class="si">{</span><span class="n">queryDB</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">targetDB</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aln</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tmp_dir</span><span class="si">}</span><span class="s2"> -a --threads </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Foldseek search against PDB failed.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek aln2tmscore </span><span class="si">{</span><span class="n">queryDB</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">targetDB</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aln</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aln_tmscore</span><span class="si">}</span><span class="s2"> --threads </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Foldseek aln2tmscore against PDB failed.&quot;</span><span class="p">)</span>
+
+        
+        <span class="n">output_format</span> <span class="o">=</span> <span class="s2">&quot;query,target,fident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits&quot;</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;foldseek createtsv </span><span class="si">{</span><span class="n">queryDB</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">targetDB</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aln</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aln_tmscore</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aln_tmscore_tsv</span><span class="si">}</span><span class="s2"> --format-output </span><span class="si">{</span><span class="n">output_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Foldseek createtsv against PDB failed.&quot;</span><span class="p">)</span>
+
+        <span class="n">input_tsv_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results_dir</span><span class="si">}</span><span class="s2">/aln_tmscore&quot;</span>
+        <span class="n">output_csv_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results_dir</span><span class="si">}</span><span class="s2">/aln_tmscore.csv&quot;</span>
+
+        <span class="c1"># Call the function with the path to your TSV file and the output CSV file path</span>
+        <span class="n">add_headers_and_save_csv</span><span class="p">(</span><span class="n">input_tsv_path</span><span class="p">,</span> <span class="n">output_csv_path</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_uniprot_structure">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.check_uniprot_structure">[docs]</a>
+<span class="k">def</span> <span class="nf">check_uniprot_structure</span><span class="p">(</span><span class="n">uniprot_id</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">requests</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://www.ebi.ac.uk/proteins/api/proteins&quot;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># Print the whole JSON to examine its structure</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to retrieve data for </span><span class="si">{</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_ec_numbers">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.get_ec_numbers">[docs]</a>
+<span class="k">def</span> <span class="nf">get_ec_numbers</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Navigate through the nested structure with checks at each step</span>
+        <span class="n">protein_info</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;protein&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">recommended_name</span> <span class="o">=</span> <span class="n">protein_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recommendedName&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">ec_numbers</span> <span class="o">=</span> <span class="n">recommended_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ecNumber&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1"># Extract the &#39;value&#39; field from each EC number entry</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ec</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ec</span> <span class="ow">in</span> <span class="n">ec_numbers</span> <span class="k">if</span> <span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="n">ec</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to extract EC numbers: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>  </div>
+
+
+<div class="viewcode-block" id="process_protein_data">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.process_protein_data">[docs]</a>
+<span class="k">def</span> <span class="nf">process_protein_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="n">uniprot_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;accession&#39;</span><span class="p">)</span>
+    <span class="n">protein_data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;UniProt ID&#39;</span><span class="p">:</span> <span class="n">uniprot_id</span><span class="p">,</span>
+                    <span class="s1">&#39;Entry Name&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;Organism&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="p">((</span><span class="n">name</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;organism&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">name</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;scientific&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="c1">#&#39;Taxonomic Lineage&#39;: &quot;, &quot;.join(data.get(&#39;organism&#39;, {}).get(&#39;lineage&#39;, [])),</span>
+                    <span class="s1">&#39;Taxonomy ID&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;organism&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;taxonomy&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;Sequence Length&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">),</span>
+                    <span class="c1">#&#39;EC Number&#39;: &quot;, &quot;.join([ec[&#39;value&#39;] for ec in data.get(&#39;protein&#39;, {}).get(&#39;recommendedName&#39;, {}).get(&#39;ecNumber&#39;, [])]),</span>
+                    <span class="s1">&#39;EC Number&#39;</span><span class="p">:</span> <span class="n">get_ec_numbers</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                    <span class="s1">&#39;Function&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">func</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">func</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;FUNCTION&#39;</span><span class="p">]),</span>
+                    <span class="s1">&#39;Recommended Name&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;protein&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recommendedName&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;Alternative Names&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;fullName&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">alt</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;protein&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;alternativeName&#39;</span><span class="p">,</span> <span class="p">[])]),</span>
+                    <span class="s1">&#39;GO Biological Process&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;GO Cellular Component&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;GO Molecular Function&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;GO IDs&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;KEGG&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;OrthoDB&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;Sequence&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;Family and Domains&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                    <span class="s1">&#39;Catalytic Activity&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cat</span><span class="p">[</span><span class="s1">&#39;reaction&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">cat</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;CATALYTIC_ACTIVITY&#39;</span><span class="p">]),</span>
+                    <span class="s1">&#39;Cofactor&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cof</span><span class="p">[</span><span class="s1">&#39;cofactors&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">cof</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">cof</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;COFACTOR&#39;</span><span class="p">]),</span>
+                    <span class="s1">&#39;Enzyme Regulation&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">reg</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ENZYME_REGULATION&#39;</span><span class="p">]),</span>
+                    <span class="s1">&#39;Disease Association&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">dis</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dis</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">dis</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;DISEASE&#39;</span><span class="p">]),</span>
+                    <span class="s1">&#39;Interaction Partners&#39;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">inter</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">inter</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dbReferences&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">inter</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;InterPro&#39;</span><span class="p">])</span>
+                <span class="p">}</span>
+
+    <span class="c1"># Subcellular Location processing</span>
+    <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s1">&#39;sub_loc_Intermembrane&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;sub_loc_Topological_Domain&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;sub_loc_Subcellular_Location&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;sub_loc_Transmembrane&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">})</span>
+
+    <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">loc</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SUBCELLULAR_LOCATION&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;locations&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="k">if</span> <span class="s1">&#39;topology&#39;</span> <span class="ow">in</span> <span class="n">component</span><span class="p">:</span>
+                    <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;sub_loc_Topological_Domain&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;topology&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;; &quot;</span>
+                <span class="k">if</span> <span class="s1">&#39;orientation&#39;</span> <span class="ow">in</span> <span class="n">component</span><span class="p">:</span>
+                    <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;sub_loc_Intermembrane&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;orientation&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;; &quot;</span>
+                <span class="k">if</span> <span class="s1">&#39;location&#39;</span> <span class="ow">in</span> <span class="n">component</span><span class="p">:</span>
+                    <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;sub_loc_Subcellular_Location&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;; &quot;</span>
+                <span class="k">if</span> <span class="s1">&#39;subcellularLocation&#39;</span> <span class="ow">in</span> <span class="n">component</span><span class="p">:</span>
+                    <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;sub_loc_Transmembrane&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;subcellularLocation&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;; &quot;</span>
+
+    <span class="c1"># Initialize PTM/Processing details</span>
+    <span class="n">ptms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ptm</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ptm</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">ptm</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PTM&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ptm</span> <span class="ow">in</span> <span class="n">ptms</span><span class="p">:</span>
+        <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="n">ptm</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Process each PTM type</span>
+    <span class="k">for</span> <span class="n">ptm</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">ptm</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PTM&#39;</span> <span class="ow">and</span> <span class="n">ptm</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">]:</span>
+            <span class="n">ptm_description</span> <span class="o">=</span> <span class="n">ptm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">ptm_details</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ptm_description</span><span class="si">}</span><span class="s2"> (positions </span><span class="si">{</span><span class="n">ptm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;begin&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">ptm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="n">ptm</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ptm_details</span><span class="p">)</span>
+
+    <span class="c1"># Gene Ontology Annotations</span>
+    <span class="k">for</span> <span class="n">go</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dbReferences&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">go</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;GO&#39;</span> <span class="ow">and</span> <span class="s1">&#39;properties&#39;</span> <span class="ow">in</span> <span class="n">go</span><span class="p">:</span>
+            <span class="n">go_term</span> <span class="o">=</span> <span class="n">go</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;term&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">go_term</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;P:&#39;</span><span class="p">):</span>
+                <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;GO Biological Process&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go_term</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="k">elif</span> <span class="n">go_term</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;C:&#39;</span><span class="p">):</span>
+                <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;GO Cellular Component&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go_term</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="k">elif</span> <span class="n">go_term</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;F:&#39;</span><span class="p">):</span>
+                <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;GO Molecular Function&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go_term</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;GO IDs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+
+    <span class="c1"># External sources</span>
+    <span class="k">for</span> <span class="n">xref</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dbReferences&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">xref</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;KEGG&#39;</span><span class="p">:</span>
+            <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;KEGG&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xref</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">xref</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;OrthoDB&#39;</span><span class="p">:</span>
+            <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="s1">&#39;OrthoDB&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xref</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Initialize Family and Domains from &#39;features&#39;</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;DOMAIN&#39;</span><span class="p">,</span> <span class="s1">&#39;MOTIF&#39;</span><span class="p">,</span> <span class="s1">&#39;REGION&#39;</span><span class="p">]:</span>
+            <span class="n">domain_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">domain_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">]:</span>
+                <span class="n">protein_data</span><span class="p">[</span><span class="n">uniprot_id</span><span class="p">][</span><span class="n">domain_key</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Positions </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;begin&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">protein_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">protein_data</span></div>
+
+    
+<div class="viewcode-block" id="fetch_data_for_uniprot_id">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.fetch_data_for_uniprot_id">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_data_for_uniprot_id</span><span class="p">(</span><span class="n">uniprot_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Fetch data for a single UniProt ID from the UniProt API. &quot;&quot;&quot;</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://www.ebi.ac.uk/proteins/api/proteins&quot;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to retrieve data for </span><span class="si">{</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="fetch_and_aggregate_functional_data">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.fetch_and_aggregate_functional_data">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_and_aggregate_functional_data</span><span class="p">(</span><span class="n">uniprot_ids</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch and process functional data for a list of UniProt IDs using multiple processes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a process pool to fetch data asynchronously</span>
+    <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="c1"># Map each UniProt ID to a future object responsible for fetching and processing its data</span>
+        <span class="n">future_to_uniprot</span> <span class="o">=</span> <span class="p">{</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">fetch_data_for_uniprot_id</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span> <span class="n">uid</span> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">uniprot_ids</span><span class="p">}</span>
+
+        <span class="c1"># Dictionary to hold processed protein data</span>
+        <span class="n">protein_data</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># Collect results as they are completed</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_uniprot</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">processed_data</span> <span class="o">=</span> <span class="n">process_protein_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">processed_data</span><span class="p">:</span>
+                    <span class="c1"># Each key in processed_data should be a UniProt ID and the value a dictionary of attributes</span>
+                    <span class="n">protein_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">processed_data</span><span class="p">)</span>  <span class="c1"># Merge the processed data into the main dictionary</span>
+
+    <span class="c1"># Convert the accumulated dictionary into a pandas DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">protein_data</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+            
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="get_unique_uniprot_ids">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.get_unique_uniprot_ids">[docs]</a>
+<span class="k">def</span> <span class="nf">get_unique_uniprot_ids</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+    <span class="c1"># Extract all UniProt IDs from the mapping</span>
+    <span class="n">all_uniprot_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>  <span class="c1"># This gets all the unique values (UniProt IDs)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_uniprot_ids</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pdb_to_uniprot">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.pdb_to_uniprot">[docs]</a>
+<span class="k">def</span> <span class="nf">pdb_to_uniprot</span><span class="p">(</span><span class="n">pdb_chain_map</span> <span class="o">=</span> <span class="p">{}):</span>
+    
+    <span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">zlib</span><span class="o">,</span> <span class="nn">requests</span>
+    <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">parse_qs</span><span class="p">,</span> <span class="n">urlencode</span>
+    <span class="kn">from</span> <span class="nn">requests.adapters</span> <span class="kn">import</span> <span class="n">HTTPAdapter</span><span class="p">,</span> <span class="n">Retry</span>
+    
+    <span class="n">POLLING_INTERVAL</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://rest.uniprot.org&quot;</span>
+    <span class="n">retries</span> <span class="o">=</span> <span class="n">Retry</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">backoff_factor</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">status_forcelist</span><span class="o">=</span><span class="p">[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">502</span><span class="p">,</span> <span class="mi">503</span><span class="p">,</span> <span class="mi">504</span><span class="p">])</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">,</span> <span class="n">HTTPAdapter</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="n">retries</span><span class="p">))</span>
+    
+    <span class="c1"># The maximum number of IDs we can submit in one request</span>
+    <span class="n">MAX_IDS_PER_REQUEST</span> <span class="o">=</span> <span class="mi">90000</span>
+    
+    <span class="k">def</span> <span class="nf">check_response</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+            <span class="k">raise</span>
+            
+    <span class="k">def</span> <span class="nf">submit_id_mapping</span><span class="p">(</span><span class="n">from_db</span><span class="p">,</span> <span class="n">to_db</span><span class="p">,</span> <span class="n">ids</span><span class="p">):</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/idmapping/run&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">from_db</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">to_db</span><span class="p">,</span> <span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids</span><span class="p">)},</span>
+        <span class="p">)</span>
+        <span class="n">check_response</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;jobId&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_next_link</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
+        <span class="n">re_next_link</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;(.+)&gt;; rel=&quot;next&quot;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;Link&quot;</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re_next_link</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Link&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">check_id_mapping_results_ready</span><span class="p">(</span><span class="n">job_id</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/idmapping/status/</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">check_response</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;jobStatus&quot;</span> <span class="ow">in</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">j</span><span class="p">[</span><span class="s2">&quot;jobStatus&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RUNNING&quot;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrying in </span><span class="si">{</span><span class="n">POLLING_INTERVAL</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">POLLING_INTERVAL</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s2">&quot;jobStatus&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">j</span><span class="p">[</span><span class="s2">&quot;failedIds&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="n">batch_response</span><span class="p">,</span> <span class="n">file_format</span><span class="p">,</span> <span class="n">compressed</span><span class="p">):</span>
+        <span class="n">batch_url</span> <span class="o">=</span> <span class="n">get_next_link</span><span class="p">(</span><span class="n">batch_response</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">batch_url</span><span class="p">:</span>
+            <span class="n">batch_response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">batch_url</span><span class="p">)</span>
+            <span class="n">batch_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="k">yield</span> <span class="n">decode_results</span><span class="p">(</span><span class="n">batch_response</span><span class="p">,</span> <span class="n">file_format</span><span class="p">,</span> <span class="n">compressed</span><span class="p">)</span>
+            <span class="n">batch_url</span> <span class="o">=</span> <span class="n">get_next_link</span><span class="p">(</span><span class="n">batch_response</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">combine_batches</span><span class="p">(</span><span class="n">all_results</span><span class="p">,</span> <span class="n">batch_results</span><span class="p">,</span> <span class="n">file_format</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="s2">&quot;failedIds&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">batch_results</span> <span class="ow">and</span> <span class="n">batch_results</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                    <span class="n">all_results</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">batch_results</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;tsv&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">all_results</span> <span class="o">+</span> <span class="n">batch_results</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">all_results</span> <span class="o">+</span> <span class="n">batch_results</span>
+        <span class="k">return</span> <span class="n">all_results</span>
+
+    <span class="k">def</span> <span class="nf">get_id_mapping_results_link</span><span class="p">(</span><span class="n">job_id</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/idmapping/details/</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">check_response</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;redirectURL&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">decode_results</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_format</span><span class="p">,</span> <span class="n">compressed</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">compressed</span><span class="p">:</span>
+            <span class="n">decompressed</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="mi">16</span> <span class="o">+</span> <span class="n">zlib</span><span class="o">.</span><span class="n">MAX_WBITS</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">decompressed</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">j</span>
+            <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;tsv&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">decompressed</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;xlsx&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">decompressed</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;xml&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">decompressed</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">decompressed</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;tsv&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;xlsx&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;xml&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">get_xml_namespace</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\{(.*)\}&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">merge_xml_results</span><span class="p">(</span><span class="n">xml_results</span><span class="p">):</span>
+        <span class="n">merged_root</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">xml_results</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;{http://uniprot.org/uniprot}entry&quot;</span><span class="p">):</span>
+                <span class="n">merged_root</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
+        <span class="n">ElementTree</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">get_xml_namespace</span><span class="p">(</span><span class="n">merged_root</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">merged_root</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print_progress_batches</span><span class="p">(</span><span class="n">batch_index</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+        <span class="n">n_fetched</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">batch_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">size</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetched: </span><span class="si">{</span><span class="n">n_fetched</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_id_mapping_results_search</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">file_format</span> <span class="o">=</span> <span class="n">query</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;format&quot;</span> <span class="ow">in</span> <span class="n">query</span> <span class="k">else</span> <span class="s2">&quot;json&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;size&quot;</span> <span class="ow">in</span> <span class="n">query</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">query</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="n">query</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="n">compressed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">query</span><span class="p">[</span><span class="s2">&quot;compressed&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="s2">&quot;compressed&quot;</span> <span class="ow">in</span> <span class="n">query</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">urlencode</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">doseq</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">check_response</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">decode_results</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">file_format</span><span class="p">,</span> <span class="n">compressed</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;x-total-results&quot;</span><span class="p">])</span>
+        <span class="n">print_progress_batches</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">get_batch</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">file_format</span><span class="p">,</span> <span class="n">compressed</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">combine_batches</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">file_format</span><span class="p">)</span>
+            <span class="n">print_progress_batches</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;xml&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">merge_xml_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">def</span> <span class="nf">get_id_mapping_results_stream</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;/stream/&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/results/&quot;</span><span class="p">,</span> <span class="s2">&quot;/results/stream/&quot;</span><span class="p">)</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">check_response</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">file_format</span> <span class="o">=</span> <span class="n">query</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;format&quot;</span> <span class="ow">in</span> <span class="n">query</span> <span class="k">else</span> <span class="s2">&quot;json&quot;</span>
+        <span class="n">compressed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">query</span><span class="p">[</span><span class="s2">&quot;compressed&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="s2">&quot;compressed&quot;</span> <span class="ow">in</span> <span class="n">query</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">decode_results</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">file_format</span><span class="p">,</span> <span class="n">compressed</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">extract_uniprot_names</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+        <span class="n">uniprot_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">pdb_name</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]</span>
+            <span class="c1">#print(result[&#39;to&#39;])</span>
+            <span class="c1">#time.sleep(1)</span>
+            <span class="n">uniprot_name</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;primaryAccession&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="c1">#uniProtkbId</span>
+            <span class="k">if</span> <span class="n">uniprot_name</span><span class="p">:</span>
+                <span class="n">uniprot_mapping</span><span class="p">[</span><span class="n">pdb_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">uniprot_name</span>
+        <span class="k">return</span> <span class="n">uniprot_mapping</span>
+    
+    <span class="k">def</span> <span class="nf">chunks</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Yield successive n-sized chunks from lst.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+    
+    <span class="n">uniprot_names</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">formatted_ids</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pdb_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">chain</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">pdb_id</span><span class="p">,</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">pdb_chain_map</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    
+    <span class="c1"># Iterate over each chunk of formatted IDs and submit separate jobs</span>
+    <span class="k">for</span> <span class="n">formatted_ids_chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">(</span><span class="n">formatted_ids</span><span class="p">,</span> <span class="n">MAX_IDS_PER_REQUEST</span><span class="p">):</span>
+        <span class="c1">#print(&#39;chunk&#39;,formatted_ids_chunk)</span>
+        <span class="n">job_id</span> <span class="o">=</span> <span class="n">submit_id_mapping</span><span class="p">(</span><span class="s2">&quot;PDB&quot;</span><span class="p">,</span> <span class="s2">&quot;UniProtKB&quot;</span><span class="p">,</span> <span class="n">formatted_ids_chunk</span><span class="p">)</span>
+        <span class="c1">#accession, UniProtKB</span>
+        <span class="k">if</span> <span class="n">check_id_mapping_results_ready</span><span class="p">(</span><span class="n">job_id</span><span class="p">):</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="n">get_id_mapping_results_link</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">get_id_mapping_results_search</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+            <span class="n">uniprot_names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extract_uniprot_names</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">uniprot_names</span></div>
+
+
+<div class="viewcode-block" id="functionally_annotate_foldseek_hits">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.functionally_annotate_foldseek_hits">[docs]</a>
+<span class="k">def</span> <span class="nf">functionally_annotate_foldseek_hits</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    
+    <span class="n">foldseek_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">foldseek_df</span> <span class="o">=</span> <span class="n">foldseek_df</span><span class="p">[</span><span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;evalue&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span>
+        
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">foldseek_df</span> <span class="o">=</span> <span class="n">foldseek_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
+
+    <span class="c1"># Extract PDB IDs and chain and convert them to uppercase</span>
+    <span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;target_pdbID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;chain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">unique_pdb_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;target_pdbID&#39;</span><span class="p">],</span> <span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;chain&#39;</span><span class="p">]))</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_pdb_ids</span><span class="p">)</span><span class="si">}</span><span class="s1"> unique target proteins&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Fetch UniProt mapping for the unique PDB IDs</span>
+    <span class="n">unique_pdb_mapping</span> <span class="o">=</span> <span class="n">pdb_to_uniprot</span><span class="p">(</span><span class="n">unique_pdb_ids</span><span class="p">)</span>
+    <span class="c1">#print(unique_pdb_mapping)</span>
+
+    <span class="c1"># Map the target PDB IDs and chains to UniProt IDs using the unique_pdb_mapping</span>
+    <span class="n">foldseek_df</span><span class="p">[</span><span class="s1">&#39;target_uniprotID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">foldseek_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">unique_pdb_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;target_pdbID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;chain&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">),</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1">#display(foldseek_df)</span>
+    <span class="c1">#display(unique_pdb_mapping)</span>
+    <span class="n">unique_pdb_ids</span> <span class="o">=</span> <span class="n">get_unique_uniprot_ids</span><span class="p">(</span><span class="n">unique_pdb_mapping</span><span class="p">)</span>
+    <span class="c1">#print(unique_pdb_ids)</span>
+    <span class="n">target_metadata_df</span> <span class="o">=</span> <span class="n">fetch_and_aggregate_functional_data</span><span class="p">(</span><span class="n">unique_pdb_ids</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="c1">#display(target_metadata_df)</span>
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">foldseek_df</span><span class="p">,</span> <span class="n">target_metadata_df</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;target_uniprotID&#39;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s1">&#39;UniProt ID&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged_df</span></div>
+
+
+<span class="k">def</span> <span class="nf">_analyze_group</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">group</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">,</span> <span class="n">query</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">group_total</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_columns</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">all_features</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">explode</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">all_features</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">explode</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">specific_feature</span> <span class="ow">in</span> <span class="n">all_features</span><span class="p">:</span>
+            <span class="n">observed_present</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">specific_feature</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">specific_feature</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">observed_absent</span> <span class="o">=</span> <span class="n">group_total</span> <span class="o">-</span> <span class="n">observed_present</span>
+            <span class="n">expected_present</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">specific_feature</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">specific_feature</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">expected_absent</span> <span class="o">=</span> <span class="n">total</span> <span class="o">-</span> <span class="n">expected_present</span>
+
+            <span class="n">contingency_table</span> <span class="o">=</span> <span class="p">[[</span><span class="n">observed_present</span><span class="p">,</span> <span class="n">observed_absent</span><span class="p">],</span> <span class="p">[</span><span class="n">expected_present</span><span class="p">,</span> <span class="n">expected_absent</span><span class="p">]]</span>
+            <span class="n">odds_ratio</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">contingency_table</span><span class="p">,</span> <span class="s1">&#39;greater&#39;</span><span class="p">)</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+                <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">specific_feature</span><span class="p">,</span>
+                <span class="s1">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
+                <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">feature</span>
+            <span class="p">})</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+<div class="viewcode-block" id="perform_enrichment_analysis">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.perform_enrichment_analysis">[docs]</a>
+<span class="k">def</span> <span class="nf">perform_enrichment_analysis</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+
+    <span class="n">exclude_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;fident&#39;</span><span class="p">,</span> <span class="s1">&#39;alnlen&#39;</span><span class="p">,</span> <span class="s1">&#39;mismatch&#39;</span><span class="p">,</span> <span class="s1">&#39;gapopen&#39;</span><span class="p">,</span> <span class="s1">&#39;qstart&#39;</span><span class="p">,</span> <span class="s1">&#39;qend&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;tstart&#39;</span><span class="p">,</span> <span class="s1">&#39;tend&#39;</span><span class="p">,</span> <span class="s1">&#39;evalue&#39;</span><span class="p">,</span> <span class="s1">&#39;bits&#39;</span><span class="p">,</span> <span class="s1">&#39;target_pdbID&#39;</span><span class="p">,</span> <span class="s1">&#39;target_uniprotID&#39;</span><span class="p">,</span> <span class="s1">&#39;UniProt ID&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Entry Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Organism&#39;</span><span class="p">,</span> <span class="s1">&#39;Taxonomy ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Sequence Length&#39;</span><span class="p">,</span> <span class="s1">&#39;Sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;EC Number&#39;</span><span class="p">,</span> <span class="s1">&#39;Function&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Recommended Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Alternative Names&#39;</span>
+    <span class="p">]</span>
+    <span class="n">feature_columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">exclude_columns</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">future_to_group</span> <span class="o">=</span> <span class="p">{</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_analyze_group</span><span class="p">,</span> <span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">,</span> <span class="n">query</span><span class="p">)):</span> <span class="n">query</span> <span class="k">for</span> <span class="n">query</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">)}</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_group</span><span class="p">):</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+
+    <span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="n">correction_method</span> <span class="o">=</span> <span class="s1">&#39;fdr_bh&#39;</span>
+    <span class="n">p_adjust</span> <span class="o">=</span> <span class="n">multipletests</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="n">correction_method</span><span class="p">)</span>
+    <span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;adjusted_p_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_adjust</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">results_df</span></div>
+
+
+<div class="viewcode-block" id="compare_features">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.compare_features">[docs]</a>
+<span class="k">def</span> <span class="nf">compare_features</span><span class="p">(</span><span class="n">enrichment_results</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    
+    <span class="c1"># Check feature matches</span>
+    <span class="k">def</span> <span class="nf">check_feature_match</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span>
+        <span class="n">feature</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span>
+        <span class="c1"># Check if the category column exists in the DataFrame</span>
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">protein_data_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># Flatten the list if it&#39;s not already a scalar</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">category</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;category:</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s1">, feature:</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">, values:</span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">values</span><span class="p">)):</span>
+                    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Check if the feature is within the list of values</span>
+                    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Direct comparison if it&#39;s scalar</span>
+                <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="n">values</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find </span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s1"> in columns&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># Assuming the format &#39;something-UniProtID&#39; in the &#39;query&#39; column</span>
+    <span class="n">enrichment_results</span><span class="p">[</span><span class="s1">&#39;UniProt ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">enrichment_results</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Get unique UniProt IDs</span>
+    <span class="n">uniprot_ids</span> <span class="o">=</span> <span class="n">enrichment_results</span><span class="p">[</span><span class="s1">&#39;UniProt ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># Fetch data for these UniProt IDs</span>
+    <span class="n">protein_data_df</span> <span class="o">=</span> <span class="n">fetch_and_aggregate_functional_data</span><span class="p">(</span><span class="n">uniprot_ids</span><span class="p">)</span>
+
+    <span class="c1"># Assuming the fetched protein_data_df is indexed by &#39;UniProt ID&#39;, merge it</span>
+    <span class="n">comparison_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">enrichment_results</span><span class="p">,</span> <span class="n">protein_data_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;UniProt ID&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Filter significant features</span>
+    <span class="n">significant_features</span> <span class="o">=</span> <span class="n">comparison_df</span><span class="p">[</span><span class="n">comparison_df</span><span class="p">[</span><span class="s1">&#39;adjusted_p_value&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">]</span>
+
+    <span class="c1"># Apply the checking function to each row</span>
+    <span class="n">significant_features</span><span class="p">[</span><span class="s1">&#39;comparison&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">significant_features</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">check_feature_match</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">significant_features</span></div>
+
+
+<div class="viewcode-block" id="calculate_feature_metrics">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.calculate_feature_metrics">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_feature_metrics</span><span class="p">(</span><span class="n">comparison_df</span><span class="p">):</span>
+    <span class="c1"># Drop rows where comparison is NaN</span>
+    <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">comparison_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;comparison&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Convert &#39;comparison&#39; to integer for metrics calculation</span>
+    <span class="n">filtered_df</span><span class="p">[</span><span class="s1">&#39;comparison&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="p">[</span><span class="s1">&#39;comparison&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Initialize dictionary to store metrics by category and feature</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Group by category and feature for detailed metrics</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">])</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">feature</span><span class="p">),</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
+        <span class="c1"># True labels are &#39;comparison&#39;, predictions assume 1 if &#39;comparison&#39; &gt; 0 (already true for 1 and 0)</span>
+        <span class="n">true_labels</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;comparison&#39;</span><span class="p">]</span>
+        <span class="n">pred_labels</span> <span class="o">=</span> <span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;comparison&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># Prediction: 1 if comparison &gt; 0, else 0</span>
+
+        <span class="c1"># Calculating precision, recall, F1-score, and accuracy</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">true_labels</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">recall</span> <span class="o">=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">true_labels</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">true_labels</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">true_labels</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span>
+
+        <span class="c1"># Append results to metrics list</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">feature</span><span class="p">,</span>
+            <span class="s1">&#39;precision&#39;</span><span class="p">:</span> <span class="n">precision</span><span class="p">,</span>
+            <span class="s1">&#39;recall&#39;</span><span class="p">:</span> <span class="n">recall</span><span class="p">,</span>
+            <span class="s1">&#39;f1_score&#39;</span><span class="p">:</span> <span class="n">f1</span><span class="p">,</span>
+            <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="n">accuracy</span>
+        <span class="p">})</span>
+
+    <span class="c1"># Convert list of metrics to DataFrame</span>
+    <span class="n">metrics_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">metrics_df</span></div>
+
+
+<div class="viewcode-block" id="visualize_heatmap">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.visualize_heatmap">[docs]</a>
+<span class="k">def</span> <span class="nf">visualize_heatmap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pivot_index</span><span class="p">,</span> <span class="n">pivot_columns</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+    <span class="c1"># Pivoting the data for heatmap</span>
+    <span class="n">heatmap_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">pivot_index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">pivot_columns</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Create a figure and axes object</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    
+    <span class="c1"># Create the heatmap on the specified axes</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">heatmap_data</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.2g&quot;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Heatmap of Enriched Features Across Queries&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Query&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Feature&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Return the figure object</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="visualize_bar_chart">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.visualize_bar_chart">[docs]</a>
+<span class="k">def</span> <span class="nf">visualize_bar_chart</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Counting occurrences of significant features</span>
+    <span class="n">feature_counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">feature_counts</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="s1">&#39;counts&#39;</span><span class="p">]</span>
+    
+    <span class="c1"># Create a figure and axes object</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    
+    <span class="c1"># Create the bar plot on the specified axes</span>
+    <span class="n">bar_plot</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">feature_counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    
+    <span class="c1"># Optional: set color palette manually if needed</span>
+    <span class="c1">#bar_plot.set_palette(sns.color_palette(&quot;viridis&quot;, n_colors=20))</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Top Enriched Features Across All Queries&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Counts of Significant Enrichment&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Features&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Properly setting the x-ticks and rotating them</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">())</span>  <span class="c1"># This ensures the ticks are explicitly set</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+
+    <span class="c1"># Return the figure object</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="visualize_dot_plot">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.visualize_dot_plot">[docs]</a>
+<span class="k">def</span> <span class="nf">visualize_dot_plot</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Adjusting data for visualization</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;-log10(p_value)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;adjusted_p_value&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Create a figure object</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+    <span class="c1"># Create the plot on the specified axes</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s1">&#39;-log10(p_value)&#39;</span><span class="p">,</span> 
+                    <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Dot Plot of Feature Enrichment Across Queries&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Feature&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Query&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Return the figure object</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+    
+<div class="viewcode-block" id="analyze_results">
+<a class="viewcode-back" href="../../spacr.html#spacr.foldseek.analyze_results">[docs]</a>
+<span class="k">def</span> <span class="nf">analyze_results</span><span class="p">(</span><span class="n">foldseek_csv_path</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">):</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">functionally_annotate_foldseek_hits</span><span class="p">(</span><span class="n">foldseek_csv_path</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="c1">#display(results)</span>
+
+    <span class="n">enrichment_results</span> <span class="o">=</span> <span class="n">perform_enrichment_analysis</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    <span class="n">filtered_results</span> <span class="o">=</span> <span class="n">enrichment_results</span><span class="p">[</span><span class="n">enrichment_results</span><span class="p">[</span><span class="s1">&#39;adjusted_p_value&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">]</span>
+    <span class="n">filtered_results</span> <span class="o">=</span> <span class="n">filtered_results</span><span class="p">[</span><span class="n">filtered_results</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="c1">#display(filtered_results)</span>
+
+    <span class="n">fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">foldseek_csv_path</span><span class="p">)</span>
+
+    <span class="n">heatmap_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="s1">&#39;heatmap.pdf&#39;</span><span class="p">)</span>
+    <span class="n">bar_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="s1">&#39;bar.pdf&#39;</span><span class="p">)</span>
+    <span class="n">dot_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="s1">&#39;dot.pdf&#39;</span><span class="p">)</span>
+
+    <span class="n">heatmap_fig</span> <span class="o">=</span> <span class="n">visualize_heatmap</span><span class="p">(</span><span class="n">filtered_results</span><span class="p">,</span> <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="s1">&#39;adjusted_p_value&#39;</span><span class="p">)</span>
+    <span class="n">bar_fig</span> <span class="o">=</span> <span class="n">visualize_bar_chart</span><span class="p">(</span><span class="n">filtered_results</span><span class="p">)</span>
+    <span class="n">dot_fig</span> <span class="o">=</span> <span class="n">visualize_dot_plot</span><span class="p">(</span><span class="n">filtered_results</span><span class="p">)</span>
+
+    <span class="n">heatmap_fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">heatmap_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="n">bar_fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">bar_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="n">dot_fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">dot_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+    <span class="n">comparison_results</span> <span class="o">=</span> <span class="n">compare_features</span><span class="p">(</span><span class="n">filtered_results</span><span class="p">)</span>
+    <span class="c1">#display(comparison_results)</span>
+    <span class="n">feature_metrics_results</span> <span class="o">=</span> <span class="n">calculate_feature_metrics</span><span class="p">(</span><span class="n">comparison_results</span><span class="p">)</span>
+    <span class="c1">#display(feature_metrics_results)</span>
+
+    <span class="n">fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">foldseek_csv_path</span><span class="p">)</span>
+
+    <span class="n">merged_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="s1">&#39;merged.csv&#39;</span><span class="p">)</span>
+    <span class="n">enrichment_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="s1">&#39;enrichment.csv&#39;</span><span class="p">)</span>
+    <span class="n">comparison_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="s1">&#39;comparison.csv&#39;</span><span class="p">)</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">merged_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">filtered_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">enrichment_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">comparison_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">comparison_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;saved to results to </span><span class="si">{</span><span class="n">merged_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;saved to enrichment results to </span><span class="si">{</span><span class="n">enrichment_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;saved to comparison results to </span><span class="si">{</span><span class="n">comparison_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+    <span class="c1">#display(functional_data_df)</span>
+
+<span class="c1"># Set up directories</span>
+<span class="c1">#structure_fldr_path = &quot;/home/carruthers/Downloads/ME49_proteome/cif&quot;</span>
+<span class="c1">#base_dir=&#39;/home/carruthers/foldseek/me49&#39;</span>
+
+<span class="c1">#align_to_database(structure_fldr_path, base_dir, cores=25)</span>
+<span class="c1">#foldseek_csv_path = f&#39;{base_dir}/results/pdb/aln_tmscore.csv&#39;</span>
+<span class="c1">#analyze_results(foldseek_csv_path, base_dir)</span>
+
+<span class="c1"># Set up directories</span>
+<span class="c1">#structure_fldr_path = &quot;/home/carruthers/Downloads/GT1_proteome/cif&quot;</span>
+<span class="c1">#base_dir=&#39;/home/carruthers/foldseek/gt1&#39;</span>
+
+<span class="c1">#align_to_database(structure_fldr_path, base_dir, cores=25)</span>
+<span class="c1">#foldseek_csv_path = f&#39;{base_dir}/results/pdb/aln_tmscore.csv&#39;</span>
+<span class="c1">#analyze_results(foldseek_csv_path, base_dir)</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
