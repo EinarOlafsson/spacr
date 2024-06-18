@@ -255,31 +255,24 @@ class CombinedDataset(Dataset):
     
 class NoClassDataset(Dataset):
     """
-    A custom dataset class for handling images without class labels.
-
+    A custom dataset class for handling image data without class labels.
+    
     Args:
-        data_dir (str): The directory path where the images are stored.
-        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.
+        data_dir (str): The directory path where the image files are located.
+        transform (callable, optional): A function/transform to apply to the image data. Default is None.
         shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
         load_to_memory (bool, optional): Whether to load all images into memory. Default is False.
-
+    
     Attributes:
-        data_dir (str): The directory path where the images are stored.
-        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.
+        data_dir (str): The directory path where the image files are located.
+        transform (callable): A function/transform to apply to the image data.
         shuffle (bool): Whether to shuffle the dataset.
         load_to_memory (bool): Whether to load all images into memory.
-        filenames (list): List of file paths for the images.
-        images (list): List of loaded images (if load_to_memory is True).
-
-    Methods:
-        load_image: Loads an image from the given file path.
-        __len__: Returns the number of images in the dataset.
-        shuffle_dataset: Shuffles the dataset.
-        __getitem__: Retrieves an image and its corresponding file path from the dataset.
-
+        filenames (list): A list of file paths for the image files.
+        images (list): A list of loaded images (if load_to_memory is True).
     """
-
-    def _init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
+    
+    def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
         self.data_dir = data_dir
         self.transform = transform
         self.shuffle = shuffle
@@ -289,16 +282,47 @@ class NoClassDataset(Dataset):
             self.shuffle_dataset()
         if self.load_to_memory:
             self.images = [self.load_image(f) for f in self.filenames]
+    
     #@lru_cache(maxsize=None)
     def load_image(self, img_path):
+        """
+        Load an image from the given file path.
+        
+        Args:
+            img_path (str): The file path of the image.
+        
+        Returns:
+            PIL.Image: The loaded image.
+        """
         img = Image.open(img_path).convert('RGB')
         return img
-    def _len__(self):
+    
+    def __len__(self):
+        """
+        Get the total number of images in the dataset.
+        
+        Returns:
+            int: The number of images in the dataset.
+        """
         return len(self.filenames)
+    
     def shuffle_dataset(self):
+        """
+        Shuffle the dataset.
+        """
         if self.shuffle:
             random.shuffle(self.filenames)
-    def _getitem__(self, index):
+    
+    def __getitem__(self, index):
+        """
+        Get the image and its corresponding filename at the given index.
+        
+        Args:
+            index (int): The index of the image in the dataset.
+        
+        Returns:
+            tuple: A tuple containing the image and its filename.
+        """
         if self.load_to_memory:
             img = self.images[index]
         else:
@@ -374,32 +398,7 @@ class MyDataset(Dataset):
         return img, label, filename
 
 class NoClassDataset(Dataset):
-    """
-    A custom dataset class for handling images without class labels.
-
-    Args:
-        data_dir (str): The directory path where the images are stored.
-        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.
-        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
-        load_to_memory (bool, optional): Whether to load all images into memory. Default is False.
-
-    Attributes:
-        data_dir (str): The directory path where the images are stored.
-        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.
-        shuffle (bool): Whether to shuffle the dataset.
-        load_to_memory (bool): Whether to load all images into memory.
-        filenames (list): List of file paths of the images.
-        images (list): List of loaded images (if load_to_memory is True).
-
-    Methods:
-        load_image: Load an image from the given file path.
-        __len__: Get the length of the dataset.
-        shuffle_dataset: Shuffle the dataset.
-        __getitem__: Get an item (image and its filename) from the dataset.
-
-    """
-
-    def _init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
+    def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
         self.data_dir = data_dir
         self.transform = transform
         self.shuffle = shuffle
@@ -409,16 +408,20 @@ class NoClassDataset(Dataset):
             self.shuffle_dataset()
         if self.load_to_memory:
             self.images = [self.load_image(f) for f in self.filenames]
-    #@lru_cache(maxsize=None)
+    
     def load_image(self, img_path):
         img = Image.open(img_path).convert('RGB')
         return img
-    def _len__(self):
+
+    def __len__(self):
+
         return len(self.filenames)
+
     def shuffle_dataset(self):
         if self.shuffle:
             random.shuffle(self.filenames)
-    def _getitem__(self, index):
+
+    def __getitem__(self, index):
         if self.load_to_memory:
             img = self.images[index]
         else:
@@ -427,8 +430,8 @@ class NoClassDataset(Dataset):
             img = self.transform(img)
         else:
             img = ToTensor()(img)
-        # Return both the image and its filename
         return img, self.filenames[index]
+
     
 class TarImageDataset(Dataset):
     def _init__(self, tar_path, transform=None):

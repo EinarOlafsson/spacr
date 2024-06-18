@@ -4,14 +4,6 @@ spacr package
 Submodules
 ----------
 
-spacr.alpha module
-------------------
-
-.. automodule:: spacr.alpha
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 spacr.annotate\_app module
 --------------------------
 
@@ -28,14 +20,6 @@ spacr.chris module
    :undoc-members:
    :show-inheritance:
 
-spacr.cli module
-----------------
-
-.. automodule:: spacr.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 spacr.core module
 -----------------
 
@@ -48,22 +32,6 @@ spacr.deep\_spacr module
 ------------------------
 
 .. automodule:: spacr.deep_spacr
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.foldseek module
----------------------
-
-.. automodule:: spacr.foldseek
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.get\_alfafold\_structures module
---------------------------------------
-
-.. automodule:: spacr.get_alfafold_structures
    :members:
    :undoc-members:
    :show-inheritance:
@@ -160,14 +128,6 @@ spacr.measure module
 --------------------
 
 .. automodule:: spacr.measure
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.old\_code module
-----------------------
-
-.. automodule:: spacr.old_code
    :members:
    :undoc-members:
    :show-inheritance:

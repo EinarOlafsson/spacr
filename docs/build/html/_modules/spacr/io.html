@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.io &mdash; spacr  documentation</title>
+  <title>spacr.io &mdash; spacr 0.0.70 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/documentation_options.js?v=29ed05f3"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -26,7 +26,7 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search"  style="background: black" >
+        <div class="wy-side-nav-search" >
 
           
           
@@ -41,13 +41,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">spacr</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">spacr</a>
       </nav>
@@ -331,31 +334,24 @@
     
 <span class="k">class</span> <span class="nc">NoClassDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A custom dataset class for handling images without class labels.</span>
-
+<span class="sd">    A custom dataset class for handling image data without class labels.</span>
+<span class="sd">    </span>
 <span class="sd">    Args:</span>
-<span class="sd">        data_dir (str): The directory path where the images are stored.</span>
-<span class="sd">        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.</span>
+<span class="sd">        data_dir (str): The directory path where the image files are located.</span>
+<span class="sd">        transform (callable, optional): A function/transform to apply to the image data. Default is None.</span>
 <span class="sd">        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.</span>
 <span class="sd">        load_to_memory (bool, optional): Whether to load all images into memory. Default is False.</span>
-
+<span class="sd">    </span>
 <span class="sd">    Attributes:</span>
-<span class="sd">        data_dir (str): The directory path where the images are stored.</span>
-<span class="sd">        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.</span>
+<span class="sd">        data_dir (str): The directory path where the image files are located.</span>
+<span class="sd">        transform (callable): A function/transform to apply to the image data.</span>
 <span class="sd">        shuffle (bool): Whether to shuffle the dataset.</span>
 <span class="sd">        load_to_memory (bool): Whether to load all images into memory.</span>
-<span class="sd">        filenames (list): List of file paths for the images.</span>
-<span class="sd">        images (list): List of loaded images (if load_to_memory is True).</span>
-
-<span class="sd">    Methods:</span>
-<span class="sd">        load_image: Loads an image from the given file path.</span>
-<span class="sd">        __len__: Returns the number of images in the dataset.</span>
-<span class="sd">        shuffle_dataset: Shuffles the dataset.</span>
-<span class="sd">        __getitem__: Retrieves an image and its corresponding file path from the dataset.</span>
-
+<span class="sd">        filenames (list): A list of file paths for the image files.</span>
+<span class="sd">        images (list): A list of loaded images (if load_to_memory is True).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">load_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">load_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
@@ -365,16 +361,47 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">shuffle_dataset</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">]</span>
+    
     <span class="c1">#@lru_cache(maxsize=None)</span>
     <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load an image from the given file path.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            img_path (str): The file path of the image.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            PIL.Image: The loaded image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">img</span>
-    <span class="k">def</span> <span class="nf">_len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the total number of images in the dataset.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The number of images in the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
+    
     <span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shuffle the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the image and its corresponding filename at the given index.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            index (int): The index of the image in the dataset.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: A tuple containing the image and its filename.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -464,32 +491,7 @@
 <div class="viewcode-block" id="NoClassDataset">
 <a class="viewcode-back" href="../../spacr.html#spacr.io.NoClassDataset">[docs]</a>
 <span class="k">class</span> <span class="nc">NoClassDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A custom dataset class for handling images without class labels.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        data_dir (str): The directory path where the images are stored.</span>
-<span class="sd">        transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version. Default is None.</span>
-<span class="sd">        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.</span>
-<span class="sd">        load_to_memory (bool, optional): Whether to load all images into memory. Default is False.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        data_dir (str): The directory path where the images are stored.</span>
-<span class="sd">        transform (callable): A function/transform that takes in an PIL image and returns a transformed version.</span>
-<span class="sd">        shuffle (bool): Whether to shuffle the dataset.</span>
-<span class="sd">        load_to_memory (bool): Whether to load all images into memory.</span>
-<span class="sd">        filenames (list): List of file paths of the images.</span>
-<span class="sd">        images (list): List of loaded images (if load_to_memory is True).</span>
-
-<span class="sd">    Methods:</span>
-<span class="sd">        load_image: Load an image from the given file path.</span>
-<span class="sd">        __len__: Get the length of the dataset.</span>
-<span class="sd">        shuffle_dataset: Shuffle the dataset.</span>
-<span class="sd">        __getitem__: Get an item (image and its filename) from the dataset.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">load_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">load_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
@@ -499,22 +501,26 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">shuffle_dataset</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">]</span>
-    <span class="c1">#@lru_cache(maxsize=None)</span>
+    
 <div class="viewcode-block" id="NoClassDataset.load_image">
 <a class="viewcode-back" href="../../spacr.html#spacr.io.NoClassDataset.load_image">[docs]</a>
     <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">):</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">img</span></div>
 
-    <span class="k">def</span> <span class="nf">_len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
+
 <div class="viewcode-block" id="NoClassDataset.shuffle_dataset">
 <a class="viewcode-back" href="../../spacr.html#spacr.io.NoClassDataset.shuffle_dataset">[docs]</a>
     <span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -523,8 +529,8 @@
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">ToTensor</span><span class="p">()(</span><span class="n">img</span><span class="p">)</span>
-        <span class="c1"># Return both the image and its filename</span>
         <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
 
     
 <div class="viewcode-block" id="TarImageDataset">
@@ -2544,7 +2550,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Einar Birnir Olafsson.</p>
+    <p>&#169; Copyright .</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
@@ -2561,18 +2567,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>
