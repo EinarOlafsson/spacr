@@ -204,16 +204,12 @@ def power_law_dist_gen(df, avg, well_ineq_coeff):
     Generate a power-law distribution for wells.
 
     Parameters:
-    - df: DataFrame
-        The input DataFrame containing the wells.
-    - avg: float
-        The average value for the distribution.
-    - well_ineq_coeff: float
-        The inequality coefficient for the power-law distribution.
+    - df: DataFrame: The input DataFrame containing the wells.
+    - avg: float: The average value for the distribution.
+    - well_ineq_coeff: float: The inequality coefficient for the power-law distribution.
 
     Returns:
-    - dist: ndarray
-        The generated power-law distribution for the wells.
+    - dist: ndarray: The generated power-law distribution for the wells.
     """
     # Generate a power-law distribution for wells
     distribution = generate_power_law_distribution(len(df), well_ineq_coeff)
@@ -405,8 +401,7 @@ def compute_roc_auc(cell_scores):
     - cell_scores (DataFrame): DataFrame containing cell scores with columns 'is_active' and 'score'.
 
     Returns:
-    - cell_roc_dict (dict): Dictionary containing the ROC curve information, including the threshold, true positive rate (TPR),
-                            false positive rate (FPR), and ROC AUC.
+    - cell_roc_dict (dict): Dictionary containing the ROC curve information, including the threshold, true positive rate (TPR), false positive rate (FPR), and ROC AUC.
 
     """
     fpr, tpr, thresh = roc_curve(cell_scores['is_active'], cell_scores['score'], pos_label=1)
@@ -567,11 +562,11 @@ def regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha = 
 
     Returns:
     tuple: A tuple containing the following:
-        - results_df (DataFrame): Updated DataFrame with additional columns.
-        - reg_roc_dict_df (DataFrame): DataFrame containing regression ROC curve data.
-        - reg_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data.
-        - reg_cm (ndarray): Confusion matrix.
-        - sim_stats (DataFrame): DataFrame containing simulation statistics.
+    - results_df (DataFrame): Updated DataFrame with additional columns.
+    - reg_roc_dict_df (DataFrame): DataFrame containing regression ROC curve data.
+    - reg_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data.
+    - reg_cm (ndarray): Confusion matrix.
+    - sim_stats (DataFrame): DataFrame containing simulation statistics.
     """
     results_df = results_df.rename(columns={"P>|t|": "p"})
 

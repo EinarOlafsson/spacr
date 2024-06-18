@@ -370,12 +370,10 @@ def mask_object_count(mask):
     Counts the number of objects in a given mask.
 
     Parameters:
-    - mask: numpy.ndarray
-        The mask containing object labels.
+    - mask: numpy.ndarray. The mask containing object labels.
 
     Returns:
-    - int
-        The number of objects in the mask.
+    - int. The number of objects in the mask.
     """
     unique_labels = np.unique(mask)
     num_objects = len(unique_labels[unique_labels!=0])
@@ -578,15 +576,15 @@ def normalize_to_dtype(array, p1=2, p2=98):
 
     Parameters:
     - array: numpy array
-        The input stack to be normalized.
+    The input stack to be normalized.
     - p1: int, optional
-        The lower percentile value for normalization. Default is 2.
+    The lower percentile value for normalization. Default is 2.
     - p2: int, optional
-        The upper percentile value for normalization. Default is 98.
+    The upper percentile value for normalization. Default is 98.
 
     Returns:
     - new_stack: numpy array
-        The normalized stack with the same shape as the input stack.
+    The normalized stack with the same shape as the input stack.
     """
     nimg = array.shape[2]
     new_stack = np.empty_like(array, dtype=np.float32)
@@ -2258,25 +2256,6 @@ def MLR(merged_df, refine_model):
     
     return max_effects, max_effects_pvalues, model, df
 
-#def normalize_to_dtype(array, q1=2, q2=98, percentiles=None):
-#    if len(array.shape) == 2:
-#        array = np.expand_dims(array, axis=-1)
-#    num_channels = array.shape[-1]
-#    new_stack = np.empty_like(array)
-#    for channel in range(num_channels):
-#        img = array[..., channel]
-#        non_zero_img = img[img > 0]
-#        if non_zero_img.size > 0:
-#            img_min = np.percentile(non_zero_img, q1)
-#            img_max = np.percentile(non_zero_img, q2)
-#        else:
-#            img_min, img_max = (percentiles[channel] if percentiles and channel < len(percentiles)
-#                                else (img.min(), img.max()))
-#        new_stack[..., channel] = rescale_intensity(img, in_range=(img_min, img_max), out_range='dtype')
-#    if new_stack.shape[-1] == 1:
-#        new_stack = np.squeeze(new_stack, axis=-1)
-#    return new_stack
-
 def get_files_from_dir(dir_path, file_extension="*"):
     return glob(os.path.join(dir_path, file_extension))
     
@@ -3927,13 +3906,8 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None):
 
     Parameters:
     - df (pandas.DataFrame): The input dataframe to be filtered.
-    - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. 
-      If None, no filtering is applied. If 'morphology', only morphology features are included.
-      If an integer, only the specified channel is included. If a list, only the specified channels are included.
-      If a string, only the specified channel is included.
-    - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. 
-      If None, no features are excluded. If a string, the specified feature is excluded.
-      If a list, the specified features are excluded.
+    - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If 'morphology', only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.
+    - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.
 
     Returns:
     - filtered_df (pandas.DataFrame): The filtered dataframe based on the specified parameters.
