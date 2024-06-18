@@ -1,5 +1,6 @@
 from spacr.version import version, version_str
 import logging
+import torch
 
 from . import core
 from . import io
@@ -11,7 +12,6 @@ from . import timelapse
 from . import deep_spacr
 from . import mask_app
 from . import annotate_app
-from . import graph_learning
 from . import gui_utils
 from . import gui_mask_app
 from . import gui_measure_app
@@ -28,7 +28,6 @@ __all__ = [
     "timelapse",
     "deep_spacr",
     "annotate_app",
-    "graph_learning",
     "gui_utils",
     "mask_app",
     "gui_mask_app",
@@ -36,6 +35,14 @@ __all__ = [
     "gui_classify_app",
     "logger"
 ]
+
+# Check for CUDA GPU availability
+if torch.cuda.is_available():
+    from . import graph_learning
+    __all__.append("graph_learning")
+    logging.info("CUDA GPU detected. Graph learning module loaded.")
+else:
+    logging.info("No CUDA GPU detected. Graph learning module not loaded.")
 
 logging.basicConfig(filename='spacr.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
