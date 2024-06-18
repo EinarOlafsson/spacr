@@ -1,3 +1,6 @@
+.. |Documentation Status| image:: https://readthedocs.org/projects/spacr/badge/?version=latest
+   :target: https://einarolafsson.github.io/spacr/
+
 .. |PyPI version| image:: https://badge.fury.io/py/spacr.svg
    :target: https://badge.fury.io/py/spacr
 .. |Python version| image:: https://img.shields.io/pypi/pyversions/spacr
@@ -6,17 +9,13 @@
    :target: https://github.com/EinarOlafsson/spacr/blob/master/LICENSE
 .. |repo size| image:: https://img.shields.io/github/repo-size/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/
-.. |Documentation Status| image:: https://readthedocs.org/projects/spacr/badge/?version=latest
-   :target: https://EinarOlafsson.github.io/spacr/
 
-|PyPI version| |Python version| |Licence: GPL v3| |repo size| |Documentation Status|
+|Documentation Status| |PyPI version| |Python version| |Licence: GPL v3| |repo size|
 
 SpaCr
 =====
 
 Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr). The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understand host clearance mechanisms and how pathogens evade them. Spacr is a Python-based software package for generating single cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. Spacr provides a flexible toolset to extract single cell images and measurements from high content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate and analyze pooled CRISPR-Cas9 imaging screens.
-
-**[Documentation](https://EinarOlafsson.github.io/spacr/)**
 
 Features
 --------
