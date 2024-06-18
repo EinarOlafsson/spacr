@@ -17,8 +17,12 @@ if cuda_version:
 else:
     dgl_dependency = 'dgl'  # Fallback to CPU version if no CUDA is detected
 
-# Ensure you have read the README.md content into a variable, e.g., `long_description`
-with open("README.md", "r", encoding="utf-8") as fh:
+# Ensure you have read the README.rst content into a variable, e.g., `long_description`
+#with open("README.md", "r", encoding="utf-8") as fh:
+#    long_description = fh.read()
+
+# Ensure you have read the README.rst content into a variable, e.g., `long_description`
+with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 dependencies = [
@@ -56,7 +60,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.0.63",
+    version="0.0.66",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
