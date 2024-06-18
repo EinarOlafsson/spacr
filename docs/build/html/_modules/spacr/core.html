@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.core &mdash; spacr  documentation</title>
+  <title>spacr.core &mdash; spacr 0.0.70 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/documentation_options.js?v=29ed05f3"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -26,7 +26,7 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search"  style="background: black" >
+        <div class="wy-side-nav-search" >
 
           
           
@@ -41,13 +41,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">spacr</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">spacr</a>
       </nav>
@@ -3286,29 +3289,29 @@
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">    settings (dict): Dictionary containing the following keys:</span>
-<span class="sd">        src (str): Source directory containing the data.</span>
-<span class="sd">        row_limit (int): Limit the number of rows to process.</span>
-<span class="sd">        tables (list): List of table names to read from the database.</span>
-<span class="sd">        visualize (str): Visualization type.</span>
-<span class="sd">        image_nr (int): Number of images to display.</span>
-<span class="sd">        dot_size (int): Size of dots in the scatter plot.</span>
-<span class="sd">        n_neighbors (int): Number of neighbors for UMAP.</span>
-<span class="sd">        figuresize (int): Size of the figure.</span>
-<span class="sd">        black_background (bool): Whether to use a black background.</span>
-<span class="sd">        remove_image_canvas (bool): Whether to remove the image canvas.</span>
-<span class="sd">        plot_outlines (bool): Whether to plot outlines.</span>
-<span class="sd">        plot_points (bool): Whether to plot points.</span>
-<span class="sd">        smooth_lines (bool): Whether to smooth lines.</span>
-<span class="sd">        verbose (bool): Whether to print verbose output.</span>
-<span class="sd">        embedding_by_controls (bool): Whether to use embedding from controls.</span>
-<span class="sd">        col_to_compare (str): Column to compare for control-based embedding.</span>
-<span class="sd">        pos (str): Positive control value.</span>
-<span class="sd">        neg (str): Negative control value.</span>
-<span class="sd">        clustering (str): Clustering method (&#39;DBSCAN&#39; or &#39;KMeans&#39;).</span>
-<span class="sd">        exclude (list): List of columns to exclude from the analysis.</span>
-<span class="sd">        plot_images (bool): Whether to plot images.</span>
-<span class="sd">        reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
-<span class="sd">        save_figure (bool): Whether to save the figure as a PDF.</span>
+<span class="sd">    src (str): Source directory containing the data.</span>
+<span class="sd">    row_limit (int): Limit the number of rows to process.</span>
+<span class="sd">    tables (list): List of table names to read from the database.</span>
+<span class="sd">    visualize (str): Visualization type.</span>
+<span class="sd">    image_nr (int): Number of images to display.</span>
+<span class="sd">    dot_size (int): Size of dots in the scatter plot.</span>
+<span class="sd">    n_neighbors (int): Number of neighbors for UMAP.</span>
+<span class="sd">    figuresize (int): Size of the figure.</span>
+<span class="sd">    black_background (bool): Whether to use a black background.</span>
+<span class="sd">    remove_image_canvas (bool): Whether to remove the image canvas.</span>
+<span class="sd">    plot_outlines (bool): Whether to plot outlines.</span>
+<span class="sd">    plot_points (bool): Whether to plot points.</span>
+<span class="sd">    smooth_lines (bool): Whether to smooth lines.</span>
+<span class="sd">    verbose (bool): Whether to print verbose output.</span>
+<span class="sd">    embedding_by_controls (bool): Whether to use embedding from controls.</span>
+<span class="sd">    col_to_compare (str): Column to compare for control-based embedding.</span>
+<span class="sd">    pos (str): Positive control value.</span>
+<span class="sd">    neg (str): Negative control value.</span>
+<span class="sd">    clustering (str): Clustering method (&#39;DBSCAN&#39; or &#39;KMeans&#39;).</span>
+<span class="sd">    exclude (list): List of columns to exclude from the analysis.</span>
+<span class="sd">    plot_images (bool): Whether to plot images.</span>
+<span class="sd">    reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
+<span class="sd">    save_figure (bool): Whether to save the figure as a PDF.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">    pd.DataFrame: DataFrame with the original data and an additional column &#39;cluster&#39; containing the cluster identity.</span>
@@ -3485,15 +3488,15 @@
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">    settings (dict): Dictionary containing the following keys:</span>
-<span class="sd">        src (str): Source directory containing the data.</span>
-<span class="sd">        row_limit (int): Limit the number of rows to process.</span>
-<span class="sd">        tables (list): List of table names to read from the database.</span>
-<span class="sd">        filter_by (str): Column to filter the data.</span>
-<span class="sd">        sample_size (int): Number of samples to use for the hyperparameter search.</span>
-<span class="sd">        remove_highly_correlated (bool): Whether to remove highly correlated columns.</span>
-<span class="sd">        log_data (bool): Whether to log transform the data.</span>
-<span class="sd">        verbose (bool): Whether to print verbose output.</span>
-<span class="sd">        reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
+<span class="sd">    src (str): Source directory containing the data.</span>
+<span class="sd">    row_limit (int): Limit the number of rows to process.</span>
+<span class="sd">    tables (list): List of table names to read from the database.</span>
+<span class="sd">    filter_by (str): Column to filter the data.</span>
+<span class="sd">    sample_size (int): Number of samples to use for the hyperparameter search.</span>
+<span class="sd">    remove_highly_correlated (bool): Whether to remove highly correlated columns.</span>
+<span class="sd">    log_data (bool): Whether to log transform the data.</span>
+<span class="sd">    verbose (bool): Whether to print verbose output.</span>
+<span class="sd">    reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
 <span class="sd">    reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.</span>
 <span class="sd">    dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.</span>
 <span class="sd">    kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.</span>
@@ -3654,7 +3657,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Einar Birnir Olafsson.</p>
+    <p>&#169; Copyright .</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
@@ -3671,18 +3674,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-XXXXXXX-1', {
-          'anonymize_ip': false,
-      });
-    </script> 
+  </script> 
 
 </body>
 </html>
