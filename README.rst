@@ -6,7 +6,7 @@
    :target: https://github.com/EinarOlafsson/spacr/blob/master/LICENSE
 .. |repo size| image:: https://img.shields.io/github/repo-size/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/
-.. |Documentation Status| image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
+.. |Documentation Status| image:: https://readthedocs.org/projects/spacr/badge/?version=latest
    :target: https://EinarOlafsson.github.io/spacr/
 
 |PyPI version| |Python version| |Licence: GPL v3| |repo size| |Documentation Status|
@@ -20,7 +20,6 @@ Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr). The spatial organizat
 
 Features
 --------
-
 
 -  **Generate Masks:** Generate cellpose masks of cell, nuclei, and pathogen objects.
 
