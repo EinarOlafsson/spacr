@@ -762,18 +762,18 @@ def analyze_results(foldseek_csv_path, base_dir):
     #display(functional_data_df)
 
 # Set up directories
-structure_fldr_path = "/home/carruthers/Downloads/ME49_proteome/cif"
-base_dir='/home/carruthers/foldseek/me49'
+#structure_fldr_path = "/home/carruthers/Downloads/ME49_proteome/cif"
+#base_dir='/home/carruthers/foldseek/me49'
 
-align_to_database(structure_fldr_path, base_dir, cores=25)
+#align_to_database(structure_fldr_path, base_dir, cores=25)
 #foldseek_csv_path = f'{base_dir}/results/pdb/aln_tmscore.csv'
 #analyze_results(foldseek_csv_path, base_dir)
 
 # Set up directories
-structure_fldr_path = "/home/carruthers/Downloads/GT1_proteome/cif"
-base_dir='/home/carruthers/foldseek/gt1'
+#structure_fldr_path = "/home/carruthers/Downloads/GT1_proteome/cif"
+#base_dir='/home/carruthers/foldseek/gt1'
 
-align_to_database(structure_fldr_path, base_dir, cores=25)
+#align_to_database(structure_fldr_path, base_dir, cores=25)
 #foldseek_csv_path = f'{base_dir}/results/pdb/aln_tmscore.csv'
 #analyze_results(foldseek_csv_path, base_dir)
 
