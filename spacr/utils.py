@@ -1496,7 +1496,6 @@ class MultiScaleBlockWithAttention(nn.Module):
     def forward(self, x):
         return self.custom_forward(x)
 
-
 # Final Classifier
 class CustomCellClassifier(nn.Module):
     def __init__(self, num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate):
