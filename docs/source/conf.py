@@ -1,17 +1,5 @@
 # Configuration file for the Sphinx documentation builder.
 
-import sys
-from unittest.mock import MagicMock
-
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return MagicMock()
-
-# List of modules to mock
-MOCK_MODULES = ['module1', 'module2', 'module3']  # Replace with actual module names
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
 # -- Project information -----------------------------------------------------
 
 project = 'spacr'
