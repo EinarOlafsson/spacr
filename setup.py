@@ -13,13 +13,9 @@ def get_cuda_version():
 cuda_version = get_cuda_version()
 
 if cuda_version:
-    dgl_dependency = f'dgl-cu{cuda_version}'
+    dgl_dependency = f'dgl-cu{cuda_version}==0.9.1'  # Specify the version of DGL compatible with your setup
 else:
-    dgl_dependency = 'dgl'  # Fallback to CPU version if no CUDA is detected
-
-# Ensure you have read the README.rst content into a variable, e.g., `long_description`
-#with open("README.md", "r", encoding="utf-8") as fh:
-#    long_description = fh.read()
+    dgl_dependency = 'dgl==0.9.1'  # Fallback to CPU version if no CUDA is detected
 
 # Ensure you have read the README.rst content into a variable, e.g., `long_description`
 with open("README.rst", "r", encoding="utf-8") as fh:
