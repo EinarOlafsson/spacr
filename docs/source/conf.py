@@ -48,6 +48,40 @@ extensions = [
     'sphinx_autodoc_typehints'
 ]
 
+# Mock imports for modules that are not required for documentation
+autodoc_mock_imports = [
+    "importlib",
+    "torch",
+    "torchvision",
+    "torch_geometric",
+    "numpy",
+    "pandas",
+    "statsmodels",
+    "scikit-image",
+    "scikit-learn",
+    "seaborn",
+    "matplotlib",
+    "shap",
+    "pillow",
+    "imageio",
+    "scipy",
+    "ipywidgets",
+    "mahotas",
+    "btrack",
+    "trackpy",
+    "cellpose",
+    "IPython",
+    "opencv-python-headless",
+    "umap-learn",
+    "ttkthemes",
+    "xgboost",
+    "PyWavelets",
+    "torchcam",
+    "ttf_opensans",
+    "customtkinter",
+    "lxml"
+]
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'sphinx_rtd_theme'
