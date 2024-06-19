@@ -1,52 +1,55 @@
 #!/bin/bash
 
-# Remove the existing docs folder
+# Install necessary Sphinx extensions
+pip install sphinx sphinx_rtd_theme sphinx-autodoc-typehints
+
+# Remove existing docs directory if it exists
 rm -rf docs
 
-# Create the documentation structure with Sphinx quickstart
-sphinx-quickstart docs -q -p spacr -a "Einar Birnir Olafsson" --ext-autodoc --ext-viewcode --release 0.0.70 --makefile --no-batchfile
-
-# Navigate to the docs directory
+# Create the docs directory
+mkdir -p docs
 cd docs
 
-# Create a requirements file for the documentation
-cat <<EOT >> requirements.txt
+# Create docs/requirements.txt before initializing Sphinx
+cat <<EOL > requirements.txt
 sphinx
 sphinx_rtd_theme
-EOT
+sphinx-autodoc-typehints
+-e ..
+EOL
 
-# Create the conf.py file
-cat <<EOT > source/conf.py
-import os
-import sys
-sys.path.insert(0, os.path.abspath('../../spacr'))
+# Run sphinx-quickstart with necessary configurations
+sphinx-quickstart -q -p "spacr" -a "Your Name" -v "0.1" --ext-autodoc --ext-viewcode --ext-todo .
 
-project = 'spacr'
-author = 'Einar Birnir Olafsson'
-release = '0.0.70'
+# Update conf.py with additional configurations
+cat <<EOT >> source/conf.py
 
+# Add any Sphinx extension module names here, as strings. They can be extensions
+# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme'
+    'sphinx.ext.napoleon',
+    'sphinx.ext.todo',
+    'sphinx_autodoc_typehints'
 ]
 
-autodoc_mock_imports = ["torch", "cv2", "pandas", "shap", "skimage", "scipy", "matplotlib", "numpy", "tifffile", "fastremap", "natsort", "numba"]
-
-templates_path = ['_templates']
-exclude_patterns = []
-
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
 html_theme = 'sphinx_rtd_theme'
+
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 EOT
 
-# Create the index.rst file
-cat <<EOT > source/index.rst
+# Create an index.rst file with basic content
+cat <<EOT >> source/index.rst
 .. spacr documentation master file, created by
-   sphinx-quickstart on Thu Oct 14 12:34:56 2021.
+   sphinx-quickstart on Sat Sep 18 2021.
    You can adapt this file completely to your liking, but it should at least
-   contain the root \`toctree\` directive.
+   contain the root `toctree` directive.
 
 Welcome to spacr's documentation!
 =================================
@@ -63,33 +66,19 @@ Indices and tables
 * :ref:\`genindex\`
 * :ref:\`modindex\`
 * :ref:\`search\`
+
 EOT
 
-# Generate the API documentation
-sphinx-apidoc -o source ../spacr
+# Run sphinx-apidoc to generate the reStructuredText files
+sphinx-apidoc -o source/ ../spacr
 
 # Build the HTML documentation
 make html
 
-# Create the .readthedocs.yaml file
-cat <<EOT > ../.readthedocs.yaml
-version: 2
-
-sphinx:
-  configuration: docs/source/conf.py
-
-python:
-  version: 3.9
-  install:
-    - requirements: docs/requirements.txt
-EOT
-
-# Navigate back to the root directory
+# Commit the changes to git
 cd ..
-
-# Add the new documentation to git, commit and push
-git add .
-git commit -m "Add Sphinx documentation"
+git add docs
+git commit -m "Set up Sphinx documentation with Read the Docs"
 git push origin main
 
 echo "Setup complete. Push the changes to your repository and configure Read the Docs."
