@@ -3823,7 +3823,7 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
         df (pandas.DataFrame): The input dataframe.
         filter_by (str or None): The channel of interest to filter the dataframe by.
         remove_highly_correlated (bool or float): Whether to remove highly correlated columns.
-            If a float is provided, it represents the correlation threshold.
+        If a float is provided, it represents the correlation threshold.
         log_data (bool): Whether to apply log transformation to the numeric data.
         exclude (list or None): List of features to exclude from the filtering process.
         verbose (bool): Whether to print verbose output during preprocessing.
