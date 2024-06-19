@@ -3820,19 +3820,19 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
     applying log transformation, filling NaN values, and scaling the numeric data.
 
     Args:
-        df (pandas.DataFrame): The input dataframe.
-        filter_by (str or None): The channel of interest to filter the dataframe by.
-        remove_highly_correlated (bool or float): Whether to remove highly correlated columns.
-        If a float is provided, it represents the correlation threshold.
-        log_data (bool): Whether to apply log transformation to the numeric data.
-        exclude (list or None): List of features to exclude from the filtering process.
-        verbose (bool): Whether to print verbose output during preprocessing.
+    df (pandas.DataFrame): The input dataframe.
+    filter_by (str or None): The channel of interest to filter the dataframe by.
+    remove_highly_correlated (bool or float): Whether to remove highly correlated columns.
+    If a float is provided, it represents the correlation threshold.
+    log_data (bool): Whether to apply log transformation to the numeric data.
+    exclude (list or None): List of features to exclude from the filtering process.
+    verbose (bool): Whether to print verbose output during preprocessing.
 
     Returns:
-        numpy.ndarray: The preprocessed numeric data.
+    numpy.ndarray: The preprocessed numeric data.
 
     Raises:
-        ValueError: If no numeric columns are available after filtering.
+    ValueError: If no numeric columns are available after filtering.
 
     """
     # Apply filtering based on the `filter_by` parameter
