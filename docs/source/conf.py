@@ -10,6 +10,9 @@ project = 'spacr'
 copyright = '2024, Your Name'
 author = 'Your Name'
 
+version = '0.0.70'
+release = '0.0.70'
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -43,40 +46,6 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx_autodoc_typehints'
-]
-
-# Mock imports for modules that are not required for documentation
-autodoc_mock_imports = [
-    "importlib",
-    "torch",
-    "torchvision",
-    "torch_geometric",
-    "numpy",
-    "pandas",
-    "statsmodels",
-    "scikit-image",
-    "scikit-learn",
-    "seaborn",
-    "matplotlib",
-    "shap",
-    "pillow",
-    "imageio",
-    "scipy",
-    "ipywidgets",
-    "mahotas",
-    "btrack",
-    "trackpy",
-    "cellpose",
-    "IPython",
-    "opencv-python-headless",
-    "umap-learn",
-    "ttkthemes",
-    "xgboost",
-    "PyWavelets",
-    "torchcam",
-    "ttf_opensans",
-    "customtkinter",
-    "lxml"
 ]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
