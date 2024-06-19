@@ -7,27 +7,33 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'spacr'
-copyright = '2024, Einar Birnir Olafsson'
-author = 'Einar Birnir Olafsson'
-release = '0.0.70'
+copyright = '2024, Your Name'
+author = 'Your Name'
+
+version = '0.1'
+release = '0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'autodoc',
-    'viewcode',
-    'napoleon',
-    'autodoc.typehints',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-language = 'en'
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+
+# -- Options for todo extension ----------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/todo.html#configuration
+
+todo_include_todos = True
