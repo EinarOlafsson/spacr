@@ -1,4 +1,4 @@
 sphinx
 sphinx_rtd_theme
 sphinx-autodoc-typehints
-numpy
+numpy==1.26.4
