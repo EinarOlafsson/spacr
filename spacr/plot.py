@@ -12,16 +12,12 @@ import imageio.v2 as imageio
 from IPython.display import display
 from skimage.segmentation import find_boundaries
 from skimage import measure
+from skimage.measure import find_contours, label, regionprops
 
 from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
 
 from .logger import log_function_call
-
-
-#from .io import _save_figure
-#from .timelapse import _save_mask_timelapse_as_gif
-#from .utils import normalize_to_dtype, _remove_outside_objects, _remove_multiobject_cells, _find_similar_sized_images, _remove_noninfected
 
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=20, nr=1, file_type='.npz', print_object_number=True):
     """
@@ -193,7 +189,7 @@ def _get_colours_merged(outline_color):
         outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]  # rbg
     return outline_colors
 
-def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=['.npy', '.tif', '.tiff', '.png']):
+def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=['.npy', '.tif', '.tiff', '.png'], overlay=False, max_nr=None, randomize=True):
     """
     Plot images and arrays from the given folders.
 
@@ -203,6 +199,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         upper_percentile (int, optional): The upper percentile for image normalization. Defaults to 99.
         threshold (int, optional): The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.
         extensions (list, optional): A list of file extensions to consider. Defaults to ['.npy', '.tif', '.tiff', '.png'].
+        overlay (bool, optional): If True, overlay the outlines of the objects on the image. Defaults to False.
     """
 
     def normalize_image(image, lower=1, upper=99):
@@ -226,7 +223,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         filtered_dict = {k: v for k, v in file_dict.items() if len(v) == len(folders)}
         return filtered_dict
 
-    def plot_from_file_dict(file_dict, threshold=1000, lower_percentile=1, upper_percentile=99):
+    def plot_from_file_dict(file_dict, threshold=1000, lower_percentile=1, upper_percentile=99, overlay=False, save=False):
         """
         Plot images and arrays from the given file dictionary.
 
@@ -235,18 +232,14 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
             threshold (int, optional): The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.
             lower_percentile (int, optional): The lower percentile for image normalization. Defaults to 1.
             upper_percentile (int, optional): The upper percentile for image normalization. Defaults to 99.
+            overlay (bool, optional): If True, overlay the outlines of the objects on the image. Defaults to False.
         """
 
         for filename, folder_paths in file_dict.items():
-            num_files = len(folder_paths)
-            fig, axes = plt.subplots(1, num_files, figsize=(15, 5))
-            #fig.suptitle(filename)
+            image_data = None
+            mask_data = None
 
-            # Ensure axes is always a list
-            if num_files == 1:
-                axes = [axes]
-
-            for i, (folder, path) in enumerate(folder_paths.items()):
+            for folder, path in folder_paths.items():
                 if path.endswith('.npy'):
                     data = np.load(path)
                 elif path.endswith('.tif') or path.endswith('.tiff'):
@@ -254,25 +247,57 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                 else:
                     continue
 
-                ax = axes[i]
                 unique_values = np.unique(data)
-                if len(unique_values) > threshold:
-                    # Normalize image to percentiles
-                    data = normalize_image(data, lower_percentile, upper_percentile)
-                    ax.imshow(data, cmap='gray')
-                else:
-                    # Display as mask with random colormap
-                    cmap = random_cmap(num_objects=len(unique_values))
-                    ax.imshow(data, cmap=cmap)
 
-                ax.set_title(f"{os.path.basename(folder)}: {os.path.basename(path)}")
-                ax.axis('off')
-            plt.tight_layout
-            plt.subplots_adjust(wspace=0.01, hspace=0.01)
-            plt.show()
-                        
+                if len(unique_values) > threshold:
+                    image_data = normalize_image(data, lower_percentile, upper_percentile)
+                else:
+                    mask_data = data
+
+            if image_data is not None and mask_data is not None:
+                fig, axes = plt.subplots(1, 2, figsize=(15, 7))
+                
+                # Display the mask with random colormap
+                cmap = random_cmap(num_objects=len(np.unique(mask_data)))
+                axes[0].imshow(mask_data, cmap=cmap)
+                axes[0].set_title(f"{filename} - Mask")
+                axes[0].axis('off')
+
+                # Display the normalized image
+                axes[1].imshow(image_data, cmap='gray')
+                if overlay:
+                    labeled_mask = label(mask_data)
+                    for region in regionprops(labeled_mask):
+                        if region.image.shape[0] >= 2 and region.image.shape[1] >= 2:
+                            contours = find_contours(region.image, 0.75)
+                            for contour in contours:
+                                # Adjust contour coordinates relative to the full image
+                                contour[:, 0] += region.bbox[0]
+                                contour[:, 1] += region.bbox[1]
+                                axes[1].plot(contour[:, 1], contour[:, 0], linewidth=2, color='magenta')
+
+                axes[1].set_title(f"{filename} - Normalized Image")
+                axes[1].axis('off')
+
+                plt.tight_layout()
+                plt.show()
+
+                if save:
+                    save_path = os.path.join(folder,f"{filename}.png")
+                    plt.savefig(save_path)
+
+    if overlay:
+        print(f'Overlay will only work on the first two folders in the list')
+
     file_dict = find_files(folders, extensions)
-    plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile)
+    items = list(file_dict.items())
+    if randomize:
+        random.shuffle(items)
+    if isinstance(max_nr, (int, float)):
+        items = items[:int(max_nr)]
+    file_dict = dict(items)
+
+    plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile, overlay, save=False)
     return
 
 def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, include_multinucleated, include_multiinfected):

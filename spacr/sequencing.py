@@ -1,3 +1,255 @@
+import os
+import gzip
+import pandas as pd
+from tqdm import tqdm
+from IPython.display import display
+
+
+def analyze_reads(settings):
+    
+    def reverse_complement(seq):
+        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
+        return ''.join(complement[base] for base in reversed(seq))
+    
+    def get_avg_read_length(file_path, num_reads=100):
+        if not file_path:
+            return 0
+        total_length = 0
+        count = 0
+        with gzip.open(file_path, 'rt') as f:
+            for _ in range(num_reads):
+                try:
+                    f.readline()  # Skip index line
+                    read = f.readline().strip()
+                    total_length += len(read)
+                    f.readline()  # Skip plus line
+                    f.readline()  # Skip quality line
+                    count += 1
+                except StopIteration:
+                    break
+        return total_length / count if count > 0 else 0
+    
+    def parse_gz_files(folder_path):
+        files = os.listdir(folder_path)
+        gz_files = [f for f in files if f.endswith('.fastq.gz')]
+
+        samples_dict = {}
+        for gz_file in gz_files:
+            parts = gz_file.split('_')
+            sample_name = parts[0]
+            read_direction = parts[1]
+
+            if sample_name not in samples_dict:
+                samples_dict[sample_name] = {}
+
+            if read_direction == "R1":
+                samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
+            elif read_direction == "R2":
+                samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
+
+        return samples_dict
+    
+    def find_overlap(r1_read_rc, r2_read):
+        aligner = PairwiseAligner()
+        alignments = aligner.align(r1_read_rc, r2_read)
+        best_alignment = alignments[0]
+        return best_alignment
+
+    def combine_reads(samples_dict, src, chunk_size, barecode_length, upstream, downstream):
+        dst = os.path.join(src, 'combined_reads')
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+
+        for sample, paths in samples_dict.items():
+            print(f'Processing: {sample} with the files: {paths}')
+            r1_path = paths.get('R1')
+            r2_path = paths.get('R2')
+
+            output_file_path = os.path.join(dst, f"{sample}_combined.h5")
+            qc_file_path = os.path.join(dst, f"{sample}_qc.csv")
+
+            r1_file = gzip.open(r1_path, 'rt') if r1_path else None
+            r2_file = gzip.open(r2_path, 'rt') if r2_path else None
+
+            chunk_counter = 0
+            data_chunk = []
+            
+            success = 0
+            fail = 0
+
+            # Calculate initial average read length
+            avg_read_length_r1 = get_avg_read_length(r1_path, 100)
+            avg_read_length_r2 = get_avg_read_length(r2_path, 100)
+            avg_read_length = (avg_read_length_r1 + avg_read_length_r2) / 2 if avg_read_length_r1 and avg_read_length_r2 else 0
+            
+            print(f'Initial avg_read_length: {avg_read_length}')
+            
+            # Estimate the initial number of reads based on the file size
+            r1_size_est = os.path.getsize(r1_path) // (avg_read_length * 4) if r1_path else 0
+            r2_size_est = os.path.getsize(r2_path) // (avg_read_length * 4) if r2_path else 0
+            max_size = max(r1_size_est, r2_size_est) * 10
+            
+            with tqdm(total=max_size, desc=f"Processing {sample}") as pbar:
+                total_length_processed = 0
+                read_count = 0
+                
+                while True:
+                    try:
+                        r1_index = next(r1_file).strip() if r1_file else None
+                        r1_read = next(r1_file).strip() if r1_file else None
+                        r1_plus = next(r1_file).strip() if r1_file else None
+                        r1_quality = next(r1_file).strip() if r1_file else None
+
+                        r2_index = next(r2_file).strip() if r2_file else None
+                        r2_read = next(r2_file).strip() if r2_file else None
+                        r2_plus = next(r2_file).strip() if r2_file else None
+                        r2_quality = next(r2_file).strip() if r2_file else None
+
+                        pbar.update(1)
+
+                        if r1_index and r2_index and r1_index.split(' ')[0] != r2_index.split(' ')[0]:
+                            fail += 1
+                            print(f"Index mismatch: {r1_index} != {r2_index}")
+                            continue
+
+                        r1_read_rc = reverse_complement(r1_read) if r1_read else ''
+                        r1_quality_rc = r1_quality[::-1] if r1_quality else ''
+
+                        r1_rc_split_index = r1_read_rc.find(upstream)
+                        r2_split_index = r2_read.find(upstream)
+
+                        if r1_rc_split_index == -1 or r2_split_index == -1:
+                            fail += 1
+                            continue
+                        else:
+                            success += 1
+
+                        read1_fragment = r1_read_rc[:r1_rc_split_index]
+                        read2_fragment = r2_read[r2_split_index:]
+                        read_combo = read1_fragment + read2_fragment
+
+                        combo_split_index_1 = read_combo.find(upstream)
+                        combo_split_index_2 = read_combo.find(downstream)
+
+                        barcode_1 = read_combo[combo_split_index_1 - barecode_length:combo_split_index_1]
+                        grna = read_combo[combo_split_index_1 + len(upstream):combo_split_index_2]
+                        barcode_2 = read_combo[combo_split_index_2 + len(downstream):combo_split_index_2 + len(downstream) + barecode_length]
+                        barcode_2 = reverse_complement(barcode_2)
+                        data_chunk.append((read_combo, grna, barcode_1, barcode_2, sample))
+
+                        read_count += 1
+                        total_length_processed += len(r1_read) + len(r2_read)
+
+                        # Periodically update the average read length and total
+                        if read_count % 10000 == 0:
+                            avg_read_length = total_length_processed / (read_count * 2)
+                            max_size = (os.path.getsize(r1_path) + os.path.getsize(r2_path)) // (avg_read_length * 4)
+                            pbar.total = max_size
+
+                        if len(data_chunk) >= chunk_size:
+                            save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter)
+                            chunk_counter += 1
+                            data_chunk = []
+
+                    except StopIteration:
+                        break
+
+                # Save any remaining data_chunk
+                if data_chunk:
+                    save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter)
+
+                # Save QC metrics
+                qc = {'success': success, 'failed': fail}
+                qc_df = pd.DataFrame([qc])
+                qc_df.to_csv(qc_file_path, index=False)
+                
+    def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
+        df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
+        with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
+            store.put(f'reads/chunk_{chunk_counter}', df, format='table', append=True)
+        
+    settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT')
+    settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCA')
+    settings.setdefault('barecode_length', 8)
+    settings.setdefault('chunk_size', 1000000)
+    
+    samples_dict = parse_gz_files(settings['src'])
+    combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length'], settings['upstream'], settings['downstream'])
+
+def map_barecodes(h5_file_path, settings):
+    
+    def read_all_chunks_from_hdf5(h5_file_path):
+        with pd.HDFStore(h5_file_path, mode='r') as store:
+            keys = store.keys()
+            df_list = [store.get(key) for key in keys if key.startswith('/reads/chunk_')]
+        consolidated_df = pd.concat(df_list, ignore_index=True)
+        return consolidated_df
+    
+    settings.setdefault('grna', '/home/carruthers/Documents/grna_barecodes.csv')
+    settings.setdefault('barecodes', '/home/carruthers/Documents/SCREEN_BARECODES.csv')
+    settings.setdefault('plate_dict', {'EO1':'palte1', 'EO2':'palte2', 'EO3':'palte3', 'EO4':'palte4', 'EO5':'palte5', 'EO6':'palte6', 'EO7':'palte7', 'EO8':'palte8'})
+    settings.setdefault('test', False)
+    settings.setdefault('verbose', True)
+    
+    plate_dict = settings['plate_dict']
+    
+    grna_df = pd.read_csv(settings['grna'])
+    barecode_df = pd.read_csv(settings['barecodes'])
+    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
+    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+
+    # Create the dictionaries
+    grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
+    plate_row_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('p')}
+    column_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('c')}
+    
+    if settings['test']:
+        df = pd.read_hdf(h5_file_path, 'reads/chunk_0') 
+    else:
+        df = read_all_chunks_from_hdf5(h5_file_path)
+    
+    # Map the sequences in 'plate_row' and 'column' to the names using the dictionaries
+    df['grna_metadata'] = df['grna'].map(grna_dict)
+    df['grna_length'] = df['grna'].apply(len)
+    df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
+    df['column_metadata'] = df['column'].map(column_dict)
+    df['plate_metadata'] = df['sample'].map(plate_dict)
+    
+    num_nans_grna = df['grna_metadata'].isna().sum()
+    num_nans_plate_row = df['plate_row_metadata'].isna().sum()
+    num_nans_column = df['column_metadata'].isna().sum()
+    num_nans_plate = df['plate_metadata'].isna().sum()
+    unique_grna = len(df['grna_metadata'].dropna().unique().tolist())
+    unique_plate_row = len(df['plate_row_metadata'].dropna().unique().tolist())
+    unique_column = len(df['column_metadata'].dropna().unique().tolist())
+    value_counts_grna = df['grna_metadata'].value_counts(dropna=True)
+    value_counts_plate_row = df['plate_row_metadata'].value_counts(dropna=True)
+    value_counts_column = df['column_metadata'].value_counts(dropna=True)
+    unique_plate = len(df['plate_metadata'].dropna().unique().tolist())
+    
+    nan_df = df[df['grna_metadata'].isna()]
+
+    df_cleaned = df.dropna()
+    qc_df = {'reads':len(df), 'cleaned reads': len(df_cleaned)/len(df), 'NaN_grna':num_nans_grna/len(df), 'NaN_plate_row':num_nans_plate_row/len(df), 'NaN_column':num_nans_column/len(df), 'NaN_plate':num_nans_plate/len(df), 'unique_grna':unique_grna,'unique_plate_row':unique_plate_row,'unique_column':unique_column,'unique_plate':unique_plate}
+
+    if settings['verbose']:
+        display(value_counts_grna)
+        display(value_counts_plate_row)
+        display(value_counts_column)
+        display(nan_df)
+        display(qc_df)
+
+    qc_df = pd.DataFrame([qc_df])
+    qc_df.to_csv(qc_file_path, index=False)
+    display(df_cleaned)
+    
+    # Save the cleaned DataFrame to a new compressed HDF5 file
+    with pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc') as store:
+        store.put('reads/cleaned_data', df_cleaned, format='table', append=False)
+    
+    return df_cleaned
+
+
 import os, re, time, math, subprocess
 import numpy as np
 import pandas as pd
