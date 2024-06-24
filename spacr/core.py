@@ -1907,7 +1907,8 @@ def preprocess_generate_masks(src, settings={}):
                 
                 adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
                 stop = time.time()
-                print(f'Cell mask adjustment: {stop-start} seconds')
+                adjust_time = (stop-start)/60
+                print(f'Cell mask adjustment: {adjust_time} min.')
             
         if os.path.exists(os.path.join(src,'measurements')):
             _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
@@ -3147,8 +3148,7 @@ def generate_image_umap(settings={}):
     """
  
     from .io import _read_and_join_tables
-    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, get_umap_image_settings
-    from .alpha import cluster_feature_analysis, generate_umap_from_images
+    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, get_umap_image_settings, cluster_feature_analysis, generate_umap_from_images
 
     settings = get_umap_image_settings(settings)
 

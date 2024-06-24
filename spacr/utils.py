@@ -62,6 +62,12 @@ from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 import torchvision.transforms as transforms
 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import f_oneway, kruskal
+from sklearn.cluster import KMeans
+from scipy import stats
+
 from .logger import log_function_call
 
 def check_mask_folder(src,mask_fldr):
@@ -3434,105 +3440,6 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
 
     return embedding, labels, reducer
 
-def reduction_and_clustering_v1(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1):
-    """
-    Perform dimensionality reduction and clustering on the given data.
-    
-    Parameters:
-    numeric_data (np.ndarray): Numeric data for embedding and clustering.
-    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
-    min_dist (float): Minimum distance for UMAP.
-    metric (str): Metric for UMAP and DBSCAN.
-    eps (float): Epsilon for DBSCAN.
-    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
-    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
-    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
-    verbose (bool): Whether to print verbose output.
-    embedding (np.ndarray, optional): Precomputed embedding. Default is None.
-    
-    Returns:
-    tuple: embedding, labels
-    """
-
-    if verbose:
-        v=1
-    else:
-        v=0
-    
-    if isinstance(n_neighbors, float):
-        n_neighbors = int(n_neighbors * len(numeric_data))
-
-    if n_neighbors <= 2:
-        n_neighbors = 2
-    
-    if reduction_method == 'umap':
-        reducer = umap.UMAP(n_neighbors=n_neighbors,
-                            n_components=2,
-                            metric=metric,
-                            n_epochs=None,
-                            learning_rate=1.0,
-                            init='spectral',
-                            min_dist=min_dist,
-                            spread=1.0,
-                            set_op_mix_ratio=1.0,
-                            local_connectivity=1,
-                            repulsion_strength=1.0,
-                            negative_sample_rate=5,
-                            transform_queue_size=4.0,
-                            a=None,
-                            b=None,
-                            random_state=42,
-                            metric_kwds=None,
-                            angular_rp_forest=False,
-                            target_n_neighbors=-1,
-                            target_metric='categorical',
-                            target_metric_kwds=None,
-                            target_weight=0.5,
-                            transform_seed=42,
-                            n_jobs=n_jobs,
-                            verbose=verbose)
-
-    elif reduction_method == 'tsne':
-
-        #tsne_params.setdefault('n_components', 2)
-        #reducer = TSNE(**tsne_params)
-
-        reducer = TSNE(n_components=2,
-                       perplexity=n_neighbors,
-                       early_exaggeration=12.0,
-                       learning_rate=200.0,
-                       n_iter=1000,
-                       n_iter_without_progress=300,
-                       min_grad_norm=1e-7,
-                       metric=metric,
-                       init='random',
-                       verbose=v,
-                       random_state=42,
-                       method='barnes_hut',
-                       angle=0.5,
-                       n_jobs=n_jobs)
-        
-    else:
-        raise ValueError(f"Unsupported reduction method: {reduction_method}. Supported methods are 'umap' and 'tsne'")
-    
-    if embedding is None:
-        embedding = reducer.fit_transform(numeric_data)
-    
-    if clustering == 'dbscan':
-        clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
-    elif clustering == 'kmeans':
-        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
-    else:
-        raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
-    
-    clustering_model.fit(embedding)
-    labels = clustering_model.labels_ if clustering == 'dbscan' else clustering_model.predict(embedding)
-    
-    if verbose:
-        print(f'Embedding shape: {embedding.shape}')
-    
-    return embedding, labels
-
 def remove_noise(embedding, labels):
     non_noise_indices = labels != -1
     embedding = embedding[non_noise_indices]
@@ -3732,30 +3639,6 @@ def correct_paths(df, base_path):
     for path in image_paths:
         if base_path not in path:
             parts = path.split('/data/')
-            if len(parts) > 1:
-                new_path = os.path.join(base_path, 'data', parts[1])
-                adjusted_image_paths.append(new_path)
-            else:
-                adjusted_image_paths.append(path)
-        else:
-            adjusted_image_paths.append(path)
-
-    df['png_path'] = adjusted_image_paths
-    image_paths = df['png_path'].to_list()
-    return df, image_paths
-
-def correct_paths_v1(df, base_path):
-    if 'png_path' not in df.columns:
-        print("No 'png_path' column found in the dataframe.")
-        return df, None
-    
-    image_paths = df['png_path'].to_list()
-    
-    adjusted_image_paths = []
-    for path in image_paths:
-        if base_path not in path:
-            print(f"Adjusting path: {path}")
-            parts = path.split('data/')
             if len(parts) > 1:
                 new_path = os.path.join(base_path, 'data', parts[1])
                 adjusted_image_paths.append(new_path)
@@ -4003,6 +3886,113 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
     if verbose:
         print(f'Embedding shape: {embedding.shape}')
     return embedding, labels
+import torch
+import torchvision.transforms as transforms
+from torchvision.models import resnet50
+from PIL import Image
+import numpy as np
+import umap
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import f_oneway, kruskal
+from sklearn.cluster import KMeans
+from scipy import stats
 
+def load_image(image_path):
+    """Load and preprocess an image."""
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    image = Image.open(image_path).convert('RGB')
+    image = transform(image).unsqueeze(0)
+    return image
 
+def extract_features(image_paths, resnet=resnet50):
+    """Extract features from images using a pre-trained ResNet model."""
+    model = resnet(pretrained=True)
+    model = model.eval()
+    model = torch.nn.Sequential(*list(model.children())[:-1])  # Remove the last classification layer
 
+    features = []
+    for image_path in image_paths:
+        image = load_image(image_path)
+        with torch.no_grad():
+            feature = model(image).squeeze().numpy()
+        features.append(feature)
+
+    return np.array(features)
+
+def check_normality(series):
+    """Helper function to check if a feature is normally distributed."""
+    k2, p = stats.normaltest(series)
+    alpha = 0.05
+    if p < alpha:  # null hypothesis: x comes from a normal distribution
+        return False
+    return True
+
+def random_forest_feature_importance(all_df, cluster_col='cluster'):
+    """Random Forest feature importance."""
+    numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
+    if cluster_col in numeric_features:
+        numeric_features.remove(cluster_col)
+
+    X = all_df[numeric_features]
+    y = all_df[cluster_col]
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_scaled, y)
+
+    feature_importances = model.feature_importances_
+
+    importance_df = pd.DataFrame({
+        'Feature': numeric_features,
+        'Importance': feature_importances
+    }).sort_values(by='Importance', ascending=False)
+
+    return importance_df
+
+def perform_statistical_tests(all_df, cluster_col='cluster'):
+    """Perform ANOVA or Kruskal-Wallis tests depending on normality of features."""
+    numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
+    if cluster_col in numeric_features:
+        numeric_features.remove(cluster_col)
+    
+    anova_results = []
+    kruskal_results = []
+
+    for feature in numeric_features:
+        groups = [all_df[all_df[cluster_col] == label][feature] for label in np.unique(all_df[cluster_col])]
+        
+        if check_normality(all_df[feature]):
+            stat, p = f_oneway(*groups)
+            anova_results.append((feature, stat, p))
+        else:
+            stat, p = kruskal(*groups)
+            kruskal_results.append((feature, stat, p))
+    
+    anova_df = pd.DataFrame(anova_results, columns=['Feature', 'ANOVA_Statistic', 'ANOVA_pValue'])
+    kruskal_df = pd.DataFrame(kruskal_results, columns=['Feature', 'Kruskal_Statistic', 'Kruskal_pValue'])
+
+    return anova_df, kruskal_df
+
+def combine_results(rf_df, anova_df, kruskal_df):
+    """Combine the results into a single DataFrame."""
+    combined_df = rf_df.merge(anova_df, on='Feature', how='left')
+    combined_df = combined_df.merge(kruskal_df, on='Feature', how='left')
+    return combined_df
+
+def cluster_feature_analysis(all_df, cluster_col='cluster'):
+    """
+    Perform Random Forest feature importance, ANOVA for normally distributed features,
+    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
+    """
+    rf_df = random_forest_feature_importance(all_df, cluster_col)
+    anova_df, kruskal_df = perform_statistical_tests(all_df, cluster_col)
+    combined_df = combine_results(rf_df, anova_df, kruskal_df)
+    return combined_df
