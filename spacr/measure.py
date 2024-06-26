@@ -626,7 +626,13 @@ def _measure_crop_core(index, time_ls, file, settings):
             _create_database(source_folder+'/measurements/measurements.db')    
 
         if settings['plot_filtration']:
-           _plot_cropped_arrays(data)
+            
+            if len(data.shape) == 3:
+                figuresize = data.shape[2]*10
+            else:
+                figuresize = 10
+            print('')
+            _plot_cropped_arrays(data, file, figuresize)
         
         channel_arrays = data[:, :, settings['channels']].astype(data_type)        
         if settings['cell_mask_dim'] is not None:
@@ -652,7 +658,6 @@ def _measure_crop_core(index, time_ls, file, settings):
                     data[:, :, settings['nucleus_mask_dim']] = nucleus_mask
                     save_folder = settings['input_folder']
                     np.save(os.path.join(save_folder, file), data)
-                
         else:
             nucleus_mask = np.zeros_like(data[:, :, 0])
 
@@ -703,7 +708,8 @@ def _measure_crop_core(index, time_ls, file, settings):
             data = np.concatenate((data, cytoplasm_mask[:, :, np.newaxis]), axis=2)
 
         if settings['plot_filtration']:
-            _plot_cropped_arrays(data)
+            _plot_cropped_arrays(data, file, figuresize)
+            #_plot_cropped_arrays(data)
 
         if settings['save_measurements']:
 
@@ -792,23 +798,25 @@ def _measure_crop_core(index, time_ls, file, settings):
                         if settings['save_png']:
                             fldr_type = f"{crop_mode}_png/"
                             png_folder = os.path.join(fldr,fldr_type)
-
                             img_path = os.path.join(png_folder, img_name)
-                            
+                            img_paths.append(img_path)
+
                             png_channels = data[:, :, settings['png_dims']].astype(data_type)
 
                             if settings['normalize_by'] == 'fov':
-                                percentiles_list = _get_percentiles(png_channels, settings['normalize'][0],q2=settings['normalize'][1])
+                                if not settings['normalize'] is False:
+                                    percentile_list = _get_percentiles(png_channels, settings['normalize'][0], settings['normalize'][1])
 
                             png_channels = _crop_center(png_channels, region, new_width=width, new_height=height)
-
                             if isinstance(settings['normalize'], list):
                                 if settings['normalize_by'] == 'png':
-                                    png_channels = normalize_to_dtype(png_channels, q1=settings['normalize'][0],q2=settings['normalize'][1])
+                                    png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1])
 
                                 if settings['normalize_by'] == 'fov':
-                                    png_channels = normalize_to_dtype(png_channels, q1=settings['normalize'][0],q2=settings['normalize'][1], percentiles=percentiles_list)
-                                    
+                                    png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1], percentile_list=percentile_list)
+                            else:
+                                png_channels = normalize_to_dtype(png_channels, 0, 100)
+
                             os.makedirs(png_folder, exist_ok=True)
 
                             if png_channels.shape[2] == 2:
@@ -817,8 +825,6 @@ def _measure_crop_core(index, time_ls, file, settings):
                                 cv2.imwrite(img_path, png_channels)
                             else:
                                 cv2.imwrite(img_path, png_channels)
-
-                            img_paths.append(img_path)
 
                             if len(img_paths) == len(objects_in_image):
 
@@ -858,7 +864,11 @@ def _measure_crop_core(index, time_ls, file, settings):
                                     traceback.print_exc()
 
                             if settings['plot']:
-                                _plot_cropped_arrays(png_channels)
+                                if len(png_channels.shape) == 3:
+                                    figuresize = png_channels.shape[2]*10
+                                else:
+                                    figuresize = 10
+                                _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
 
                         if settings['save_arrays']:
                             row_idx, col_idx = np.where(region)
@@ -867,12 +877,20 @@ def _measure_crop_core(index, time_ls, file, settings):
                             os.makedirs(array_folder, exist_ok=True)
                             np.save(os.path.join(array_folder, img_name), region_array)
                             if settings['plot']:
-                                _plot_cropped_arrays(region_array)
+                                if len(png_channels.shape) == 3:
+                                    figuresize = png_channels.shape[2]*10
+                                else:
+                                    figuresize = 10
+                                _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
 
                         if not settings['save_arrays'] and not settings['save_png'] and settings['plot']:
                             row_idx, col_idx = np.where(region)
                             region_array = data[row_idx.min():row_idx.max()+1, col_idx.min():col_idx.max()+1, :]
-                            _plot_cropped_arrays(region_array)
+                            if len(png_channels.shape) == 3:
+                                figuresize = png_channels.shape[2]*10
+                            else:
+                                figuresize = 10
+                            _plot_cropped_arrays(png_channels, file, figuresize, threshold=1)
 
         cells = np.unique(cell_mask)
     except Exception as e:
@@ -899,47 +917,17 @@ def measure_crop(settings):
         None
     """
 
-    if settings.get('test_mode', False):
-        if not os.basename(settings['src']) == 'test':
-            src = os.path.join(src, 'test')
-            settings['src'] = src
-            print(f'Changed source folder to {src} for test mode')
-        else:
-            print(f'Test mode enabled, using source folder {settings["src"]}')
-    
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif, _scmovie
     from .plot import _save_scimg_plot
-    from .utils import _list_endpoint_subdirectories, _generate_representative_images
-    
-    #general settings
-    settings['merge_edge_pathogen_cells'] = True
-    settings['radial_dist'] = True
-    settings['calculate_correlation'] = True
-    settings['manders_thresholds'] = [15,85,95]
-    settings['homogeneity'] = True
-    settings['homogeneity_distances'] = [8,16,32]
-    settings['save_arrays'] = False
+    from .utils import _list_endpoint_subdirectories, _generate_representative_images, get_measure_crop_settings, measure_test_mode
 
-    settings['dialate_pngs'] = False
-    settings['dialate_png_ratios'] = [0.2]
-    settings['timelapse'] = False
-    settings['representative_images'] = False
-    settings['timelapse_objects'] = 'cell'
-    settings['max_workers'] = os.cpu_count()-2
-    settings['experiment'] = 'test'
-    settings['cells'] = 'HeLa'
-    settings['cell_loc'] = None
-    settings['pathogens'] = ['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO']
-    settings['pathogen_loc'] = [['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], ['c7', 'c8', 'c9', 'c10', 'c11', 'c12'], ['c13', 'c14', 'c15', 'c16', 'c17', 'c18'], ['c19', 'c20', 'c21', 'c22', 'c23', 'c24']]
-    settings['treatments'] = ['BR1', 'BR2', 'BR3']
-    settings['treatment_loc'] = [['c1', 'c2', 'c7', 'c8', 'c13', 'c14', 'c19', 'c20'], ['c3', 'c4', 'c9', 'c10', 'c15', 'c16', 'c21', 'c22'], ['c5', 'c6', 'c11', 'c12', 'c17', 'c18', 'c23', 'c24']]
-    settings['channel_of_interest'] = 2
-    settings['compartments'] = ['pathogen', 'cytoplasm']
-    settings['measurement'] = 'mean_intensity'
-    settings['nr_imgs'] = 32
-    settings['um_per_pixel'] = 0.1
-    settings['center_crop'] = True
+    settings = get_measure_crop_settings(settings)
+    settings = measure_test_mode(settings)
+
+    if not os.path.exists(settings['input_folder']):
+        print(f"Error: {settings['input_folder']} does not exist")
+        return
     
     if settings['cell_mask_dim'] is None:
         settings['include_uninfected'] = True
@@ -951,8 +939,6 @@ def measure_crop(settings):
         settings['cytoplasm'] = True
     else:
         settings['cytoplasm'] = False
-
-    #settings = {**settings, **annotation_settings, **advanced_settings}
     
     dirname = os.path.dirname(settings['input_folder'])
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
@@ -970,10 +956,11 @@ def measure_crop(settings):
     if isinstance(settings['normalize'], bool) and settings['normalize']:
         print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
         return
-
-    if settings['normalize_by'] not in ['png', 'fov']:
-        print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
-        return
+    
+    if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
+        if settings['normalize_by'] not in ['png', 'fov']:
+            print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+            return
 
     if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
         print(f"WARNING: {int_setting_keys} must all be integers")

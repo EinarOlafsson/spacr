@@ -43,6 +43,7 @@ from scipy.stats import fisher_exact
 from scipy.ndimage.filters import gaussian_filter
 from scipy.spatial import ConvexHull
 from scipy.interpolate import splprep, splev
+from scipy.ndimage import binary_dilation
 
 from sklearn.preprocessing import StandardScaler
 from skimage.exposure import rescale_intensity
@@ -55,6 +56,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 import umap.umap_ as umap
 
@@ -535,48 +538,12 @@ def _annotate_conditions(df, cells=['HeLa'], cell_loc=None, pathogens=['rh'], pa
     df['condition'] = df['condition'].apply(lambda x: x if x else 'none')
     return df
 
-def normalize_to_dtype(array, p1=2, p2=98):
-    """
-    Normalize each image in the stack to its own percentiles.
+def is_list_of_lists(var):
+    if isinstance(var, list) and all(isinstance(i, list) for i in var):
+        return True
+    return False
 
-    Parameters:
-    - array: numpy array
-        The input stack to be normalized.
-    - p1: int, optional
-        The lower percentile value for normalization. Default is 2.
-    - p2: int, optional
-        The upper percentile value for normalization. Default is 98.
-
-    Returns:
-    - new_stack: numpy array
-        The normalized stack with the same shape as the input stack.
-    """
-    nimg = array.shape[2]
-    new_stack = np.empty_like(array)
-
-    for i in range(nimg):
-        img = array[:, :, i]
-        non_zero_img = img[img > 0]
-
-        if non_zero_img.size > 0:
-            img_min = np.percentile(non_zero_img, p1)
-            img_max = np.percentile(non_zero_img, p2)
-        else:
-            img_min = img.min()
-            img_max = img.max()
-
-        # Determine output range based on dtype
-        if np.issubdtype(array.dtype, np.integer):
-            out_range = (0, np.iinfo(array.dtype).max)
-        else:
-            out_range = (0.0, 1.0)
-
-        img = rescale_intensity(img, in_range=(img_min, img_max), out_range=out_range).astype(array.dtype)
-        new_stack[:, :, i] = img
-
-    return new_stack
-
-def normalize_to_dtype(array, p1=2, p2=98):
+def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None):
     """
     Normalize each image in the stack to its own percentiles.
 
@@ -587,29 +554,40 @@ def normalize_to_dtype(array, p1=2, p2=98):
     The lower percentile value for normalization. Default is 2.
     - p2: int, optional
     The upper percentile value for normalization. Default is 98.
-
+    - percentile_list: list, optional
+    A list of pre-calculated percentiles for each image in the stack. Default is None.
+    
     Returns:
     - new_stack: numpy array
     The normalized stack with the same shape as the input stack.
     """
+
+    out_range = (0, np.iinfo(array.dtype).max)
     nimg = array.shape[2]
-    new_stack = np.empty_like(array, dtype=np.float32)
+    new_stack = np.empty_like(array, dtype=array.dtype)
 
     for i in range(nimg):
         img = array[:, :, i]
         non_zero_img = img[img > 0]
-
-        if non_zero_img.size > 0:
-            img_min = np.percentile(non_zero_img, p1)
-            img_max = np.percentile(non_zero_img, p2)
+        if not percentile_list is None:
+            percentiles = percentile_list[i]
         else:
-            img_min = img.min()
-            img_max = img.max()
+            percentile_1 = p1
+            percentile_2 = p2
+        if percentile_list is None:
+            if non_zero_img.size > 0:
+                img_min = np.percentile(non_zero_img, percentile_1)
+                img_max = np.percentile(non_zero_img, percentile_2)
+            else:
+                img_min = np.percentile(img, percentile_1)
+                img_max = np.percentile(img, percentile_2)
+        else:
+            img_min = percentiles[0]
+            img_max = percentiles[1]
 
         # Normalize to the range (0, 1) for visualization
-        img = rescale_intensity(img, in_range=(img_min, img_max), out_range=(0.0, 1.0))
+        img = rescale_intensity(img, in_range=(img_min, img_max), out_range=out_range)
         new_stack[:, :, i] = img
-
     return new_stack
     
 def _list_endpoint_subdirectories(base_dir):
@@ -872,7 +850,7 @@ def _check_integrity(df):
     df['label_list'] = df['label_list'].astype(str)
     return df
     
-def _get_percentiles(array, q1=2, q2=98):
+def _get_percentiles(array, p1=2, p2=98):
     """
     Calculate the percentiles of each image in the given array.
 
@@ -895,15 +873,16 @@ def _get_percentiles(array, q1=2, q2=98):
         img = np.squeeze(array[:, :, v])
         non_zero_img = img[img > 0]
         if non_zero_img.size > 0: # check if there are non-zero values
-            img_min = np.percentile(non_zero_img, q1)  # change percentile from 0.02 to 2
-            img_max = np.percentile(non_zero_img, q2)  # change percentile from 0.98 to 98
+            img_min = np.percentile(non_zero_img, p1)  # change percentile from 0.02 to 2
+            img_max = np.percentile(non_zero_img, p2)  # change percentile from 0.98 to 98
             percentiles.append([img_min, img_max])
         else:  # if there are no non-zero values, just use the image as it is
-            img_min, img_max = img.min(), img.max()
+            img_min = np.percentile(img, p1)  # change percentile from 0.02 to 2
+            img_max = np.percentile(img, p2)  # change percentile from 0.98 to 98
             percentiles.append([img_min, img_max])
     return percentiles
 
-def _crop_center(img, cell_mask, new_width, new_height, normalize=(2,98)):
+def _crop_center(img, cell_mask, new_width, new_height):
     """
     Crop the image around the center of the cell mask.
 
@@ -916,8 +895,6 @@ def _crop_center(img, cell_mask, new_width, new_height, normalize=(2,98)):
         The desired width of the cropped image.
     - new_height: int
         The desired height of the cropped image.
-    - normalize: tuple, optional
-        The normalization range for the image pixel values. Default is (2, 98).
 
     Returns:
     - img: numpy.ndarray
@@ -927,19 +904,22 @@ def _crop_center(img, cell_mask, new_width, new_height, normalize=(2,98)):
     cell_mask[cell_mask != 0] = 1
     mask_3d = np.repeat(cell_mask[:, :, np.newaxis], img.shape[2], axis=2).astype(img.dtype) # Create 3D mask
     img = np.multiply(img, mask_3d).astype(img.dtype) # Multiply image with mask to set pixel values outside of the mask to 0
-    #centroid = np.round(ndi.measurements.center_of_mass(cell_mask)).astype(int) # Compute centroid of the mask
     centroid = np.round(ndi.center_of_mass(cell_mask)).astype(int) # Compute centroid of the mask
+    
     # Pad the image and mask to ensure the crop will not go out of bounds
     pad_width = max(new_width, new_height)
     img = np.pad(img, ((pad_width, pad_width), (pad_width, pad_width), (0, 0)), mode='constant')
     cell_mask = np.pad(cell_mask, ((pad_width, pad_width), (pad_width, pad_width)), mode='constant')
+    
     # Update centroid coordinates due to padding
     centroid += pad_width
+    
     # Compute bounding box
     start_y = max(0, centroid[0] - new_height // 2)
     end_y = min(start_y + new_height, img.shape[0])
     start_x = max(0, centroid[1] - new_width // 2)
     end_x = min(start_x + new_width, img.shape[1])
+    
     # Crop to bounding box
     img = img[start_y:end_y, start_x:end_x, :]
     return img
@@ -3697,6 +3677,110 @@ def get_umap_image_settings(settings={}):
     settings.setdefault('verbose',True)
     return settings
 
+def get_measure_crop_settings(settings):
+
+    # Test mode
+    settings.setdefault('test_mode', False)
+    settings.setdefault('test_nr', 10)
+
+    #measurement settings
+    settings.setdefault('save_measurements',True)
+    settings.setdefault('radial_dist', True)
+    settings.setdefault('calculate_correlation', True)
+    settings.setdefault('manders_thresholds', [15,85,95])
+    settings.setdefault('homogeneity', True)
+    settings.setdefault('homogeneity_distances', [8,16,32])
+
+    # Cropping settings
+    settings.setdefault('save_arrays', False)
+    settings.setdefault('save_png',True)
+    settings.setdefault('use_bounding_box',False)
+    settings.setdefault('png_size',[224,224])
+    settings.setdefault('png_dims',[0,1,2])
+    settings.setdefault('normalize',False)
+    settings.setdefault('normalize_by','png')
+    settings.setdefault('crop_mode',['cell'])
+    settings.setdefault('dialate_pngs', False)
+    settings.setdefault('dialate_png_ratios', [0.2])
+
+    # Timelapsed settings
+    settings.setdefault('timelapse', False)
+    settings.setdefault('timelapse_objects', 'cell')
+
+    # Operational settings
+    settings.setdefault('plot',False)
+    settings.setdefault('plot_filtration',False)
+    settings.setdefault('representative_images', False)
+    settings.setdefault('max_workers', os.cpu_count()-2)
+
+    # Object settings
+    settings.setdefault('cell_mask_dim',None)
+    settings.setdefault('nucleus_mask_dim',None)
+    settings.setdefault('pathogen_mask_dim',None)
+    settings.setdefault('cytoplasm',False)
+    settings.setdefault('include_uninfected',True)
+    settings.setdefault('cell_min_size',0)
+    settings.setdefault('nucleus_min_size',0)
+    settings.setdefault('pathogen_min_size',0)
+    settings.setdefault('cytoplasm_min_size',0)
+    settings.setdefault('merge_edge_pathogen_cells', True)
+
+    # Miscellaneous settings
+    settings.setdefault('experiment', 'exp')
+    settings.setdefault('cells', 'HeLa')
+    settings.setdefault('cell_loc', None)
+    settings.setdefault('pathogens', ['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO'])
+    settings.setdefault('pathogen_loc', [['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], ['c7', 'c8', 'c9', 'c10', 'c11', 'c12'], ['c13', 'c14', 'c15', 'c16', 'c17', 'c18'], ['c19', 'c20', 'c21', 'c22', 'c23', 'c24']])
+    settings.setdefault('treatments', ['BR1', 'BR2', 'BR3'])
+    settings.setdefault('treatment_loc', [['c1', 'c2', 'c7', 'c8', 'c13', 'c14', 'c19', 'c20'], ['c3', 'c4', 'c9', 'c10', 'c15', 'c16', 'c21', 'c22'], ['c5', 'c6', 'c11', 'c12', 'c17', 'c18', 'c23', 'c24']])
+    settings.setdefault('channel_of_interest', 2)
+    settings.setdefault('compartments', ['pathogen', 'cytoplasm'])
+    settings.setdefault('measurement', 'mean_intensity')
+    settings.setdefault('nr_imgs', 32)
+    settings.setdefault('um_per_pixel', 0.1)
+
+    if settings['test_mode']:
+        settings['plot'] = True
+        settings['plot_filtration'] = True
+        test_imgs = settings['test_nr']
+        print(f'Test mode enabled with {test_imgs} images, plotting set to True')
+
+    return settings
+
+def delete_folder(folder_path):
+    if os.path.exists(folder_path) and os.path.isdir(folder_path):
+        for root, dirs, files in os.walk(folder_path, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(folder_path)
+        print(f"Folder '{folder_path}' has been deleted.")
+    else:
+        print(f"Folder '{folder_path}' does not exist or is not a directory.")
+
+def measure_test_mode(settings):    
+
+    if settings['test_mode']:
+        if not os.path.basename(settings['input_folder']) == 'test':
+            all_files = os.listdir(settings['input_folder'])
+            random_files = random.sample(all_files, settings['test_nr'])
+
+            src = os.path.join(os.path.dirname(settings['input_folder']),'test', 'merged')
+            if os.path.exists(src):
+                delete_folder(src)
+            os.makedirs(src, exist_ok=True)
+
+            for file in random_files:
+                shutil.copy(os.path.join(settings['input_folder'], file), os.path.join(src,file))
+
+            settings['input_folder'] = src
+            print(f'Changed source folder to {src} for test mode')
+        else:
+            print(f'Test mode enabled, using source folder {settings["input_folder"]}')
+
+    return settings
+
 def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
     """
     Preprocesses the given dataframe by applying filtering, removing highly correlated columns,
@@ -3996,3 +4080,216 @@ def cluster_feature_analysis(all_df, cluster_col='cluster'):
     anova_df, kruskal_df = perform_statistical_tests(all_df, cluster_col)
     combined_df = combine_results(rf_df, anova_df, kruskal_df)
     return combined_df
+
+def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold=5, perimeter_threshold=30):
+    """
+    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
+    and if cells share more than a specified perimeter percentage.
+
+    Args:
+        parasite_mask (ndarray): Mask of parasites.
+        cell_mask (ndarray): Mask of cells.
+        nuclei_mask (ndarray): Mask of nuclei.
+        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
+        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
+
+    Returns:
+        ndarray: The modified cell mask (cell_mask) with unique labels.
+    """
+    labeled_cells = label(cell_mask)
+    labeled_parasites = label(parasite_mask)
+    labeled_nuclei = label(nuclei_mask)
+    num_parasites = np.max(labeled_parasites)
+    num_cells = np.max(labeled_cells)
+    num_nuclei = np.max(labeled_nuclei)
+
+    # Merge cells based on parasite overlap
+    for parasite_id in range(1, num_parasites + 1):
+        current_parasite_mask = labeled_parasites == parasite_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_parasite_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_parasite_mask & (labeled_cells == cell_label)) / np.sum(current_parasite_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold
+            for cell_label, overlap_percentage in zip(overlapping_cell_labels, overlap_percentages):
+                if overlap_percentage > overlap_threshold:
+                    first_label = overlapping_cell_labels[0]
+                    for other_label in overlapping_cell_labels[1:]:
+                        if other_label != first_label:
+                            cell_mask[cell_mask == other_label] = first_label
+
+    # Merge cells based on nucleus overlap
+    for nucleus_id in range(1, num_nuclei + 1):
+        current_nucleus_mask = labeled_nuclei == nucleus_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_nucleus_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_nucleus_mask & (labeled_cells == cell_label)) / np.sum(current_nucleus_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold for each cell
+            if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
+                first_label = overlapping_cell_labels[0]
+                for other_label in overlapping_cell_labels[1:]:
+                    if other_label != first_label:
+                        cell_mask[cell_mask == other_label] = first_label
+
+    # Check for cells without nuclei and merge based on shared perimeter
+    labeled_cells = label(cell_mask)  # Re-label after merging based on overlap
+    cell_regions = regionprops(labeled_cells)
+    for region in cell_regions:
+        cell_label = region.label
+        cell_mask_binary = labeled_cells == cell_label
+        overlapping_nuclei = np.unique(nuclei_mask[cell_mask_binary])
+        overlapping_nuclei = overlapping_nuclei[overlapping_nuclei != 0]
+
+        if len(overlapping_nuclei) == 0:
+            
+            # Cell does not overlap with any nucleus
+            perimeter = region.perimeter
+            
+            # Dilate the cell to find neighbors
+            dilated_cell = binary_dilation(cell_mask_binary, structure=square(3))
+            neighbor_cells = np.unique(labeled_cells[dilated_cell])
+            neighbor_cells = neighbor_cells[(neighbor_cells != 0) & (neighbor_cells != cell_label)]
+            
+            # Calculate shared border length with neighboring cells
+            shared_borders = [
+                np.sum((labeled_cells == neighbor_label) & dilated_cell) for neighbor_label in neighbor_cells
+            ]
+            shared_border_percentages = [shared_border / perimeter * 100 for shared_border in shared_borders]
+            
+            # Merge with the neighbor cell with the largest shared border percentage above the threshold
+            if shared_borders:
+                max_shared_border_index = np.argmax(shared_border_percentages)
+                max_shared_border_percentage = shared_border_percentages[max_shared_border_index]
+                if max_shared_border_percentage > perimeter_threshold:
+                    cell_mask[labeled_cells == cell_label] = neighbor_cells[max_shared_border_index]
+    
+    # Relabel the merged cell mask
+    relabeled_cell_mask, _ = label(cell_mask, return_num=True)
+    return relabeled_cell_mask
+
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
+
+    """
+    Process all npy files in the given folders. Merge and relabel cells in cell masks
+    based on parasite overlap and cell perimeter sharing conditions.
+
+    Args:
+        parasite_folder (str): Path to the folder containing parasite masks.
+        cell_folder (str): Path to the folder containing cell masks.
+        nuclei_folder (str): Path to the folder containing nuclei masks.
+        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
+        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
+    """
+
+    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
+    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
+    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
+    
+    # Ensure there are matching files in all folders
+    if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
+        raise ValueError("The number of files in the folders do not match.")
+    
+    # Match files by name
+    for file_name in parasite_files:
+        parasite_path = os.path.join(parasite_folder, file_name)
+        cell_path = os.path.join(cell_folder, file_name)
+        nuclei_path = os.path.join(nuclei_folder, file_name)
+        # Check if the corresponding cell and nuclei mask files exist
+        if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
+            raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
+        # Load the masks
+        parasite_mask = np.load(parasite_path)
+        cell_mask = np.load(cell_path)
+        nuclei_mask = np.load(nuclei_path)
+        # Merge and relabel cells
+        merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
+        
+        # Force 16 bit
+        mamerged_cell_masksk = merged_cell_mask.astype(np.uint16)
+        
+        # Overwrite the original cell mask file with the merged result
+        np.save(cell_path, merged_cell_mask)
+
+def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
+    
+    def read_files_in_batches(folder, batch_size=50):
+        files = [f for f in os.listdir(folder) if f.endswith('.npy')]
+        files.sort()  # Sort to ensure matching order
+        for i in range(0, len(files), batch_size):
+            yield files[i:i + batch_size]
+
+    def measure_morphology_and_intensity(mask, image):
+        properties = measure.regionprops(mask, intensity_image=image)
+        properties_list = [{'area': p.area, 'mean_intensity': p.mean_intensity, 'perimeter': p.perimeter, 'eccentricity': p.eccentricity} for p in properties]
+        return properties_list
+
+    def cluster_objects(properties, n_clusters=2):
+        data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
+        kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(data)
+        return kmeans
+
+    def remove_objects_not_in_largest_cluster(mask, labels, largest_cluster_label):
+        cleaned_mask = np.zeros_like(mask)
+        for region in measure.regionprops(mask):
+            if labels[region.label - 1] == largest_cluster_label:
+                cleaned_mask[mask == region.label] = region.label
+        return cleaned_mask
+
+    def plot_clusters(properties, labels):
+        data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
+        pca = PCA(n_components=2)
+        data_2d = pca.fit_transform(data)
+        plt.scatter(data_2d[:, 0], data_2d[:, 1], c=labels, cmap='viridis')
+        plt.xlabel('PCA Component 1')
+        plt.ylabel('PCA Component 2')
+        plt.title('Object Clustering')
+        plt.show()
+    
+    all_properties = []
+
+    # Step 1: Accumulate properties over all files
+    for batch in read_files_in_batches(mask_folder, batch_size):
+        mask_files = [os.path.join(mask_folder, file) for file in batch]
+        image_files = [os.path.join(image_folder, file) for file in batch]
+        
+        masks = [np.load(file) for file in mask_files]
+        images = [np.load(file)[:, :, channel] for file in image_files]
+        
+        for i, mask in enumerate(masks):
+            image = images[i]
+            # Measure morphology and intensity
+            properties = measure_morphology_and_intensity(mask, image)
+            all_properties.extend(properties)
+
+    # Step 2: Perform clustering on accumulated properties
+    kmeans = cluster_objects(all_properties, n_clusters)
+    labels = kmeans.labels_
+
+    if plot:
+        # Step 3: Plot clusters using PCA
+        plot_clusters(all_properties, labels)
+
+    # Step 4: Remove objects not in the largest cluster and overwrite files in batches
+    label_index = 0
+    for batch in read_files_in_batches(mask_folder, batch_size):
+        mask_files = [os.path.join(mask_folder, file) for file in batch]
+        masks = [np.load(file) for file in mask_files]
+        
+        for i, mask in enumerate(masks):
+            batch_properties = measure_morphology_and_intensity(mask, mask)
+            batch_labels = labels[label_index:label_index + len(batch_properties)]
+            largest_cluster_label = np.bincount(batch_labels).argmax()
+            cleaned_mask = remove_objects_not_in_largest_cluster(mask, batch_labels, largest_cluster_label)
+            np.save(mask_files[i], cleaned_mask)
+            label_index += len(batch_properties)

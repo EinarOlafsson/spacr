@@ -764,7 +764,53 @@ def _save_scimg_plot(src, nr_imgs=16, channel_indices=[0,1,2], um_per_pixel=0.1,
 
     return
 
-def _plot_cropped_arrays(stack, figuresize=20,cmap='inferno'):
+def _plot_cropped_arrays(stack, filename, figuresize=20, cmap='inferno', threshold=500):
+    """
+    Plot cropped arrays.
+
+    Args:
+        stack (ndarray): The array to be plotted.
+        figuresize (int, optional): The size of the figure. Defaults to 20.
+        cmap (str, optional): The colormap to be used. Defaults to 'inferno'.
+        threshold (int, optional): The threshold for the number of unique intensity values. Defaults to 1000.
+
+    Returns:
+        None
+    """
+    #start = time.time()
+    dim = stack.shape
+    
+    def plot_single_array(array, ax, title, chosen_cmap):
+        unique_values = np.unique(array)
+        num_unique_values = len(unique_values)
+        
+        if num_unique_values <= threshold:
+            chosen_cmap = _generate_mask_random_cmap(array)
+            title = f'{title}, {num_unique_values} (obj.)'
+        
+        ax.imshow(array, cmap=chosen_cmap)
+        ax.set_title(title, size=18)
+        ax.axis('off')
+
+    if len(dim) == 2:
+        fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+        plot_single_array(stack, ax, 'Channel one', plt.get_cmap(cmap))
+        fig.tight_layout()
+        plt.show()
+    elif len(dim) > 2:
+        num_channels = dim[2]
+        fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
+        for channel in range(num_channels):
+            plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
+        fig.tight_layout()
+        plt.show()
+    
+    #stop = time.time()
+    #duration = stop - start
+    #print('plot_cropped_arrays', duration)
+    print(f'{filename}')
+
+def _plot_cropped_arrays_v1(stack, figuresize=20, cmap='inferno'):
     """
     Plot cropped arrays.
 
@@ -1217,56 +1263,6 @@ def _plot_plates(df, variable, grouping, min_max, cmap, min_count=0):
     plt.show()
     return fig
 
-#def plate_heatmap(src, variable='recruitment', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, verbose=False):
-#    db_loc = [src+'/measurements/measurements.db']
-#    tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
-#    include_multinucleated, include_multiinfected, include_noninfected = True, 2.0, True
-#    df, _ = spacr.io._read_and_merge_data(db_loc, 
-#                                 tables,
-#                                 verbose=verbose,
-#                                 include_multinucleated=include_multinucleated,
-#                                 include_multiinfected=include_multiinfected,
-#                                 include_noninfected=include_noninfected)
-#    
-#    df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_outside_75_percentile']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
-#
-#    spacr.plot._plot_plates(df, variable, grouping, min_max, cmap, min_count)
-#    #display(df)
-#    #for col in df.columns:
-#    #    print(col)
-#    return
-
-#from finetune cellpose
-#def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
-#    paths = []
-#    for file in os.listdir(src):
-#        if file.endswith('.tif') or file.endswith('.tiff'):
-#            path = os.path.join(src, file)
-#            paths.append(path)
-#    paths = random.sample(paths, nr)
-#    for path in paths:
-#        print(f'Image path:{path}')
-#        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-#        if normalize:
-#            img = normalize_to_dtype(array=img, q1=q1, q2=q2)
-#        dim = img.shape
-#        if len(img.shape) > 2:
-#            array_nr = img.shape[2]
-#            fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
-#            for channel in range(array_nr):
-#                i = np.take(img, [channel], axis=2)
-#                axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
-#                axs[channel].set_title('Channel '+str(channel), size=24)
-#                axs[channel].axis('off')
-#        else:
-#            fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
-#            ax.imshow(img, cmap=plt.get_cmap(cmap))
-#            ax.set_title('Channel 0', size=24)
-#            ax.axis('off')
-#        fig.tight_layout()
-#        plt.show()
-#    return
-
 def print_mask_and_flows(stack, mask, flows, overlay=False):
     fig, axs = plt.subplots(1, 3, figsize=(30, 10))  # Adjust subplot layout
     
@@ -1459,3 +1455,18 @@ def plot_comparison_results(comparison_results):
     plt.tight_layout()
     plt.show()
     return fig
+
+def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0,1,2], max_nr=10):
+    
+    for object_, channel in zip(objects, channels):
+        folders = [os.path.join(src, 'norm_channel_stack', f'{object_}_mask_stack'),
+                   os.path.join(src,f'{channel+1}')]
+        print(folders)
+        plot_images_and_arrays(folders,
+                               lower_percentile=2,
+                               upper_percentile=99.5,
+                               threshold=1000,
+                               extensions=['.npy', '.tif', '.tiff', '.png'],
+                               overlay=True,
+                               max_nr=10,
+                               randomize=True)
