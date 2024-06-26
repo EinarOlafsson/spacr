@@ -10,13 +10,16 @@ from IPython.display import display, HTML
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
+from skimage.exposure import rescale_intensity
+import cv2
+import matplotlib.pyplot as plt
 
 from .logger import log_function_call
 
 from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode, style_text_boxes, create_menu_bar
 
 class ImageApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate'):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99)):
         """
         Initializes an instance of the ImageApp class.
 
@@ -30,6 +33,7 @@ class ImageApp:
         - grid_cols (int): The number of columns in the image grid.
         - image_size (tuple): The size of the displayed images.
         - annotation_column (str): The column name for image annotations in the database.
+        - normalize (bool): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.
         """
         self.root = root
         self.db_path = db_path
@@ -41,6 +45,8 @@ class ImageApp:
         self.annotation_column = annotation_column
         self.image_type = image_type
         self.channels = channels
+        self.normalize = normalize
+        self.percentiles = percentiles
         self.images = {}
         self.pending_updates = {}
         self.labels = []
@@ -119,47 +125,80 @@ class ImageApp:
             label.bind('<Button-3>', self.get_on_image_click(path, label, img))
 
         self.root.update()
-        
-    @staticmethod
-    def normalize_image(img):
+
+    def load_single_image(self, path_annotation_tuple):
         """
-        Normalize the pixel values of an image to the range [0, 255].
+        Loads a single image from the given path and annotation tuple.
+
+        Args:
+            path_annotation_tuple (tuple): A tuple containing the image path and its annotation.
+
+        Returns:
+            img (PIL.Image.Image): The loaded image.
+            annotation: The annotation associated with the image.
+        """
+        path, annotation = path_annotation_tuple
+        img = Image.open(path)
+        img = self.normalize_image(img, self.normalize, self.percentiles)
+        img = img.convert('RGB')
+        img = self.filter_channels(img)
+        img = img.resize(self.image_size)
+        return img, annotation
+
+    @staticmethod
+    def normalize_image(img, normalize=False, percentiles=(1, 99)):
+        """
+        Normalize the pixel values of an image based on the 2nd and 98th percentiles or the image min and max values,
+        and ensure the image is exported as 8-bit.
 
         Parameters:
         - img: PIL.Image.Image. The input image to be normalized.
+        - normalize: bool. Whether to normalize based on the 2nd and 98th percentiles.
+        - percentiles: tuple. The percentiles to use for normalization.
 
         Returns:
-        - PIL.Image.Image. The normalized image.
+        - PIL.Image.Image. The normalized and 8-bit converted image.
         """
         img_array = np.array(img)
-        img_array = ((img_array - img_array.min()) * (1/(img_array.max() - img_array.min()) * 255)).astype('uint8')
+
+        if normalize:
+            if img_array.ndim == 2:  # Grayscale image
+                p2, p98 = np.percentile(img_array, percentiles)
+                img_array = rescale_intensity(img_array, in_range=(p2, p98), out_range=(0, 255))
+            else:  # Color image or multi-channel image
+                for channel in range(img_array.shape[2]):
+                    p2, p98 = np.percentile(img_array[:, :, channel], percentiles)
+                    img_array[:, :, channel] = rescale_intensity(img_array[:, :, channel], in_range=(p2, p98), out_range=(0, 255))
+
+        img_array = np.clip(img_array, 0, 255).astype('uint8')
+
         return Image.fromarray(img_array)
-
+    
     def add_colored_border(self, img, border_width, border_color):
-            """
-            Adds a colored border to an image.
+        """
+        Adds a colored border to an image.
 
-            Args:
-                img (PIL.Image.Image): The input image.
-                border_width (int): The width of the border in pixels.
-                border_color (str): The color of the border in RGB format.
+        Args:
+            img (PIL.Image.Image): The input image.
+            border_width (int): The width of the border in pixels.
+            border_color (str): The color of the border in RGB format.
 
-            Returns:
-                PIL.Image.Image: The image with the colored border.
-            """
-            top_border = Image.new('RGB', (img.width, border_width), color=border_color)
-            bottom_border = Image.new('RGB', (img.width, border_width), color=border_color)
-            left_border = Image.new('RGB', (border_width, img.height), color=border_color)
-            right_border = Image.new('RGB', (border_width, img.height), color=border_color)
+        Returns:
+            PIL.Image.Image: The image with the colored border.
+        """
+        top_border = Image.new('RGB', (img.width, border_width), color=border_color)
+        bottom_border = Image.new('RGB', (img.width, border_width), color=border_color)
+        left_border = Image.new('RGB', (border_width, img.height), color=border_color)
+        right_border = Image.new('RGB', (border_width, img.height), color=border_color)
 
-            bordered_img = Image.new('RGB', (img.width + 2 * border_width, img.height + 2 * border_width), color='white')
-            bordered_img.paste(top_border, (border_width, 0))
-            bordered_img.paste(bottom_border, (border_width, img.height + border_width))
-            bordered_img.paste(left_border, (0, border_width))
-            bordered_img.paste(right_border, (img.width + border_width, border_width))
-            bordered_img.paste(img, (border_width, border_width))
+        bordered_img = Image.new('RGB', (img.width + 2 * border_width, img.height + 2 * border_width), color='white')
+        bordered_img.paste(top_border, (border_width, 0))
+        bordered_img.paste(bottom_border, (border_width, img.height + border_width))
+        bordered_img.paste(left_border, (0, border_width))
+        bordered_img.paste(right_border, (img.width + border_width, border_width))
+        bordered_img.paste(img, (border_width, border_width))
 
-            return bordered_img
+        return bordered_img
     
     def filter_channels(self, img):
         """
@@ -187,26 +226,6 @@ class ImageApp:
 
         return Image.merge("RGB", (r, g, b))
 
-    def load_single_image(self, path_annotation_tuple):
-            """
-            Loads a single image from the given path and annotation tuple.
-
-            Args:
-                path_annotation_tuple (tuple): A tuple containing the image path and its annotation.
-
-            Returns:
-                img (PIL.Image.Image): The loaded image.
-                annotation: The annotation associated with the image.
-            """
-            path, annotation = path_annotation_tuple
-            img = Image.open(path)
-            if img.mode == "I":
-                img = self.normalize_image(img)
-            img = img.convert('RGB')
-            img = self.filter_channels(img)
-            img = img.resize(self.image_size)
-            return img, annotation
-        
     def get_on_image_click(self, path, label, img):
         """
         Returns a callback function that handles the click event on an image.
@@ -242,7 +261,7 @@ class ImageApp:
             self.root.update()
 
         return on_image_click
-     
+
     @staticmethod
     def update_html(text):
         display(HTML(f"""
@@ -347,7 +366,7 @@ class ImageApp:
         self.root.destroy()
         print(f'Quit application')
 
-def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(200, 200), rows=5, columns=5, annotation_column='annotate'):
+def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(200, 200), rows=5, columns=5, annotation_column='annotate', normalize=False, percentiles=(1,99)):
     """
     Annotates images in a database using a graphical user interface.
 
@@ -361,11 +380,9 @@ def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(20
         rows (int, optional): The number of rows in the image grid. Defaults to 5.
         columns (int, optional): The number of columns in the image grid. Defaults to 5.
         annotation_column (str, optional): The name of the annotation column in the database table. Defaults to 'annotate'.
+        normalize (bool, optional): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.
     """
     db = os.path.join(src, 'measurements/measurements.db')
-    #print('src', src)
-    #print('db', db)
-
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
@@ -377,7 +394,7 @@ def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(20
 
     root = tk.Tk()
     root.geometry(geom)
-    app = ImageApp(root, db, src, image_type=image_type, channels=channels, image_size=img_size, grid_rows=rows, grid_cols=columns, annotation_column=annotation_column)
+    app = ImageApp(root, db, src, image_type=image_type, channels=channels, image_size=img_size, grid_rows=rows, grid_cols=columns, annotation_column=annotation_column, normalize=normalize, percentiles=percentiles)
     next_button = tk.Button(root, text="Next", command=app.next_page)
     next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
     back_button = tk.Button(root, text="Back", command=app.previous_page)
@@ -387,7 +404,6 @@ def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(20
     
     app.load_images()
     root.mainloop()
-
 
 def check_for_duplicates(db):
     """

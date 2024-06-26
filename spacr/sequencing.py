@@ -1,9 +1,22 @@
-import os
-import gzip
+import os, gc, gzip
 import pandas as pd
 from tqdm import tqdm
 from IPython.display import display
-
+from Bio.Align import PairwiseAligner
+import os, re, time, math, subprocess
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from Bio import pairwise2
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from scipy.stats import gmean
+from difflib import SequenceMatcher
+import pandas as pd
+import numpy as np
+import os
+import gc
 
 def analyze_reads(settings):
     
@@ -176,8 +189,8 @@ def analyze_reads(settings):
     samples_dict = parse_gz_files(settings['src'])
     combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length'], settings['upstream'], settings['downstream'])
 
-def map_barecodes(h5_file_path, settings):
-    
+def map_barecodes_v1(h5_file_path, settings):
+    gc.collect()
     def read_all_chunks_from_hdf5(h5_file_path):
         with pd.HDFStore(h5_file_path, mode='r') as store:
             keys = store.keys()
@@ -232,6 +245,9 @@ def map_barecodes(h5_file_path, settings):
     df_cleaned = df.dropna()
     qc_df = {'reads':len(df), 'cleaned reads': len(df_cleaned)/len(df), 'NaN_grna':num_nans_grna/len(df), 'NaN_plate_row':num_nans_plate_row/len(df), 'NaN_column':num_nans_column/len(df), 'NaN_plate':num_nans_plate/len(df), 'unique_grna':unique_grna,'unique_plate_row':unique_plate_row,'unique_column':unique_column,'unique_plate':unique_plate}
 
+    qc_df = pd.DataFrame([qc_df])
+    qc_df.to_csv(qc_file_path, index=False)
+
     if settings['verbose']:
         display(value_counts_grna)
         display(value_counts_plate_row)
@@ -239,27 +255,180 @@ def map_barecodes(h5_file_path, settings):
         display(nan_df)
         display(qc_df)
 
-    qc_df = pd.DataFrame([qc_df])
-    qc_df.to_csv(qc_file_path, index=False)
     display(df_cleaned)
     
     # Save the cleaned DataFrame to a new compressed HDF5 file
     with pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc') as store:
         store.put('reads/cleaned_data', df_cleaned, format='table', append=False)
+    del nan_df, df_cleaned, df, qc_df
+    gc.collect()
+    return
+
+def map_barecodes_v2(h5_file_path, settings={}):
+
+    def read_all_chunks_from_hdf5(h5_file_path):
+        with pd.HDFStore(h5_file_path, mode='r') as store:
+            keys = store.keys()
+            df_list = [store.get(key) for key in keys if key.startswith('/reads/chunk_')]
+        consolidated_df = pd.concat(df_list, ignore_index=True)
+        return consolidated_df
+
+    def get_read_qc(df, df_cleaned):
+        qc_dict = {}
+        qc_dict['reads'] = len(df)
+        qc_dict['cleaned reads'] =  len(df_cleaned) / len(df)
+        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum() / len(df)
+        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum() / len(df)
+        qc_dict['NaN_column'] = df['column_metadata'].isna().sum() / len(df)
+        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum() / len(df)
+        qc_dict['unique_grna'] = len(df['grna_metadata'].dropna().unique().tolist())
+        qc_dict['unique_plate_row'] = len(df['plate_row_metadata'].dropna().unique().tolist())
+        qc_dict['unique_column'] = len(df['column_metadata'].dropna().unique().tolist())
+        qc_dict['value_counts_grna'] = df['grna_metadata'].value_counts(dropna=True)
+        qc_dict['value_counts_plate_row'] = df['plate_row_metadata'].value_counts(dropna=True)
+        qc_dict['value_counts_column'] = df['column_metadata'].value_counts(dropna=True)
+        qc_dict['unique_plate'] = len(df['plate_metadata'].dropna().unique().tolist())
+        
+        return qc_dict
     
-    return df_cleaned
+    def mapping_dicts(df, settings):
+        grna_df = pd.read_csv(settings['grna'])
+        barecode_df = pd.read_csv(settings['barecodes'])
 
+        grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
+        plate_row_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('p')}
+        column_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('c')}
+        plate_dict = settings['plate_dict']
 
-import os, re, time, math, subprocess
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from Bio import pairwise2
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
-from scipy.stats import gmean
-from difflib import SequenceMatcher
+        df['grna_metadata'] = df['grna'].map(grna_dict)
+        df['grna_length'] = df['grna'].apply(len)
+        df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
+        df['column_metadata'] = df['column'].map(column_dict)
+        df['plate_metadata'] = df['sample'].map(plate_dict)
+        
+        return df
+    
+    settings.setdefault('grna', '/home/carruthers/Documents/grna_barecodes.csv')
+    settings.setdefault('barecodes', '/home/carruthers/Documents/SCREEN_BARECODES.csv')
+    settings.setdefault('plate_dict', {'EO1': 'palte1', 'EO2': 'palte2', 'EO3': 'palte3', 'EO4': 'palte4', 'EO5': 'palte5', 'EO6': 'palte6', 'EO7': 'palte7', 'EO8': 'palte8'})
+    settings.setdefault('test', False)
+    settings.setdefault('verbose', True)
+
+    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
+    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+
+    if settings['test']:
+        df = pd.read_hdf(h5_file_path, 'reads/chunk_0') 
+    else:
+        df = read_all_chunks_from_hdf5(h5_file_path)
+    
+    df = mapping_dicts(df, settings)
+    #nan_df = df[df['grna_metadata'].isna()]
+
+    df_cleaned = df.dropna()
+    qc_dict = get_read_qc(df, df_cleaned)
+    qc_df = pd.DataFrame([qc_dict])
+    qc_df.to_csv(qc_file_path, index=False)
+
+    # Save the cleaned DataFrame to a new compressed HDF5 file
+    with pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc') as store:
+        store.put('reads/cleaned_data', df_cleaned, format='table', append=False)
+    del nan_df, df_cleaned, df, qc_df
+    gc.collect()
+    return
+
+def map_barcodes(h5_file_path, settings={}):
+    
+    def get_read_qc(df, df_cleaned):
+        qc_dict = {}
+        qc_dict['reads'] = len(df)
+        qc_dict['cleaned reads'] = len(df_cleaned) / len(df)
+        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum() / len(df)
+        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum() / len(df)
+        qc_dict['NaN_column'] = df['column_metadata'].isna().sum() / len(df)
+        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum() / len(df)
+        qc_dict['unique_grna'] = len(df['grna_metadata'].dropna().unique().tolist())
+        qc_dict['unique_plate_row'] = len(df['plate_row_metadata'].dropna().unique().tolist())
+        qc_dict['unique_column'] = len(df['column_metadata'].dropna().unique().tolist())
+        qc_dict['value_counts_grna'] = df['grna_metadata'].value_counts(dropna=True)
+        qc_dict['value_counts_plate_row'] = df['plate_row_metadata'].value_counts(dropna=True)
+        qc_dict['value_counts_column'] = df['column_metadata'].value_counts(dropna=True)
+        qc_dict['unique_plate'] = len(df['plate_metadata'].dropna().unique().tolist())
+        
+        return qc_dict
+    
+    def mapping_dicts(df, settings):
+        grna_df = pd.read_csv(settings['grna'])
+        barcode_df = pd.read_csv(settings['barcodes'])
+
+        grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
+        plate_row_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('p')}
+        column_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('c')}
+        plate_dict = settings['plate_dict']
+
+        df['grna_metadata'] = df['grna'].map(grna_dict)
+        df['grna_length'] = df['grna'].apply(len)
+        df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
+        df['column_metadata'] = df['column'].map(column_dict)
+        df['plate_metadata'] = df['sample'].map(plate_dict)
+        
+        return df
+    
+    settings.setdefault('grna', '/home/carruthers/Documents/grna_barecodes.csv')
+    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARECODES.csv')
+    settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
+    settings.setdefault('test', False)
+    settings.setdefault('verbose', True)
+    settings.setdefault('min_itemsize', 1000)
+
+    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
+    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+    
+    # Initialize the HDF5 store for cleaned data with min_itemsize
+    store_cleaned = pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc')
+    
+    # Initialize the DataFrame for QC metrics
+    qc_df_list = []
+
+    with pd.HDFStore(h5_file_path, mode='r') as store:
+        keys = [key for key in store.keys() if key.startswith('/reads/chunk_')]
+        
+        for key in keys:
+            df = store.get(key)
+            df = mapping_dicts(df, settings)
+            df_cleaned = df.dropna()
+            qc_dict = get_read_qc(df, df_cleaned)
+            qc_df_list.append(qc_dict)
+            
+            # Append cleaned data to the new HDF5 store with min_itemsize for relevant columns
+            store_cleaned.append('reads/cleaned_data', df_cleaned, format='table', append=True,
+                                 min_itemsize={
+                                     'grna_metadata': settings['min_itemsize'], 
+                                     'plate_row_metadata': settings['min_itemsize'], 
+                                     'column_metadata': settings['min_itemsize'], 
+                                     'plate_metadata': settings['min_itemsize']
+                                 })
+            
+            del df_cleaned, df
+            gc.collect()
+
+    # Combine all QC metrics into a single DataFrame and save it to CSV
+    qc_df = pd.DataFrame(qc_df_list)
+    qc_df.to_csv(qc_file_path, index=False)
+    
+    # Close the HDF5 store
+    store_cleaned.close()
+    
+    gc.collect()
+    return
+
+def map_barcodes_folder(src, settings={}):
+    for file in os.listdir(src):
+        if file.endswith('.h5'):
+            print(file)
+            path = os.path.join(src, file)
+            map_barcodes(path, settings)
+            gc.collect() 
 
 def reverse_complement(dna_sequence):
     complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N':'N'}
