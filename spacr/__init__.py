@@ -8,15 +8,17 @@ from . import utils
 from . import plot
 from . import measure
 from . import sim
+from . import sequencing
 from . import timelapse
 from . import deep_spacr
-from . import mask_app
 from . import annotate_app
 from . import gui_utils
+from . import mask_app
 from . import gui_mask_app
 from . import gui_measure_app
 from . import gui_classify_app
 from . import logger
+
 
 __all__ = [
     "core",
@@ -25,6 +27,7 @@ __all__ = [
     "plot",
     "measure",
     "sim",
+    "sequencing"
     "timelapse",
     "deep_spacr",
     "annotate_app",

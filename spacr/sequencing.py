@@ -1,11 +1,8 @@
-import os, gc, gzip
+import os, gc, gzip, re, time, math, subprocess
 import pandas as pd
-from tqdm import tqdm
-from IPython.display import display
-from Bio.Align import PairwiseAligner
-import os, re, time, math, subprocess
 import numpy as np
-import pandas as pd
+from tqdm import tqdm
+from Bio.Align import PairwiseAligner
 import matplotlib.pyplot as plt
 import seaborn as sns
 from Bio import pairwise2
@@ -13,18 +10,71 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from scipy.stats import gmean
 from difflib import SequenceMatcher
-import pandas as pd
-import numpy as np
-import os
-import gc
+from collections import Counter
 
 def analyze_reads(settings):
+    """
+    Analyzes reads from gzipped fastq files and combines them based on specified settings.
+
+    Args:
+        settings (dict): A dictionary containing the following keys:
+            - 'src' (str): The path to the folder containing the input fastq files.
+            - 'upstream' (str, optional): The upstream sequence used for read combination. Defaults to 'CTTCTGGTAAATGGGGATGTCAAGTT'.
+            - 'downstream' (str, optional): The downstream sequence used for read combination. Defaults to 'GTTTAAGAGCTATGCTGGAAACAGCA'.
+            - 'barecode_length' (int, optional): The length of the barcode sequence. Defaults to 8.
+            - 'chunk_size' (int, optional): The number of reads to process and save at a time. Defaults to 1000000.
+
+    Returns:
+        None
+    """
     
+    def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
+        """
+        Save a data chunk to an HDF5 file.
+
+        Parameters:
+        - output_file_path (str): The path to the output HDF5 file.
+        - data_chunk (list): The data chunk to be saved.
+        - chunk_counter (int): The counter for the current chunk.
+
+        Returns:
+        None
+        """
+        df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
+        with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
+            store.put(f'reads/chunk_{chunk_counter}', df, format='table', append=True)
+
     def reverse_complement(seq):
+        """
+        Returns the reverse complement of a DNA sequence.
+
+        Args:
+            seq (str): The DNA sequence to be reversed and complemented.
+
+        Returns:
+            str: The reverse complement of the input DNA sequence.
+
+        Example:
+            >>> reverse_complement('ATCG')
+            'CGAT'
+        """
         complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
         return ''.join(complement[base] for base in reversed(seq))
     
     def get_avg_read_length(file_path, num_reads=100):
+        """
+        Calculate the average read length from a given file.
+
+        Args:
+            file_path (str): The path to the input file.
+            num_reads (int, optional): The number of reads to process. Defaults to 100.
+
+        Returns:
+            float: The average read length.
+
+        Raises:
+            FileNotFoundError: If the input file does not exist.
+        """
         if not file_path:
             return 0
         total_length = 0
@@ -43,6 +93,17 @@ def analyze_reads(settings):
         return total_length / count if count > 0 else 0
     
     def parse_gz_files(folder_path):
+        """
+        Parses the .fastq.gz files in the specified folder path and returns a dictionary
+        containing the sample names and their corresponding file paths.
+
+        Args:
+            folder_path (str): The path to the folder containing the .fastq.gz files.
+
+        Returns:
+            dict: A dictionary where the keys are the sample names and the values are
+            dictionaries containing the file paths for the 'R1' and 'R2' read directions.
+        """
         files = os.listdir(folder_path)
         gz_files = [f for f in files if f.endswith('.fastq.gz')]
 
@@ -63,12 +124,36 @@ def analyze_reads(settings):
         return samples_dict
     
     def find_overlap(r1_read_rc, r2_read):
+        """
+        Find the best alignment between two DNA reads.
+
+        Parameters:
+        - r1_read_rc (str): The reverse complement of the first DNA read.
+        - r2_read (str): The second DNA read.
+
+        Returns:
+        - best_alignment (Alignment): The best alignment between the two DNA reads.
+        """
         aligner = PairwiseAligner()
         alignments = aligner.align(r1_read_rc, r2_read)
         best_alignment = alignments[0]
         return best_alignment
 
     def combine_reads(samples_dict, src, chunk_size, barecode_length, upstream, downstream):
+        """
+        Combine reads from paired-end sequencing files and save the combined reads to a new file.
+        
+        Args:
+            samples_dict (dict): A dictionary mapping sample names to file paths of paired-end sequencing files.
+            src (str): The source directory where the combined reads will be saved.
+            chunk_size (int): The number of reads to be processed and saved as a chunk.
+            barecode_length (int): The length of the barcode sequence.
+            upstream (str): The upstream sequence used for read splitting.
+            downstream (str): The downstream sequence used for read splitting.
+        
+        Returns:
+            None
+        """
         dst = os.path.join(src, 'combined_reads')
         if not os.path.exists(dst):
             os.makedirs(dst)
@@ -176,11 +261,6 @@ def analyze_reads(settings):
                 qc_df = pd.DataFrame([qc])
                 qc_df.to_csv(qc_file_path, index=False)
                 
-    def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
-        df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
-        with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
-            store.put(f'reads/chunk_{chunk_counter}', df, format='table', append=True)
-        
     settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT')
     settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCA')
     settings.setdefault('barecode_length', 8)
@@ -189,175 +269,63 @@ def analyze_reads(settings):
     samples_dict = parse_gz_files(settings['src'])
     combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length'], settings['upstream'], settings['downstream'])
 
-def map_barecodes_v1(h5_file_path, settings):
-    gc.collect()
-    def read_all_chunks_from_hdf5(h5_file_path):
-        with pd.HDFStore(h5_file_path, mode='r') as store:
-            keys = store.keys()
-            df_list = [store.get(key) for key in keys if key.startswith('/reads/chunk_')]
-        consolidated_df = pd.concat(df_list, ignore_index=True)
-        return consolidated_df
-    
-    settings.setdefault('grna', '/home/carruthers/Documents/grna_barecodes.csv')
-    settings.setdefault('barecodes', '/home/carruthers/Documents/SCREEN_BARECODES.csv')
-    settings.setdefault('plate_dict', {'EO1':'palte1', 'EO2':'palte2', 'EO3':'palte3', 'EO4':'palte4', 'EO5':'palte5', 'EO6':'palte6', 'EO7':'palte7', 'EO8':'palte8'})
-    settings.setdefault('test', False)
-    settings.setdefault('verbose', True)
-    
-    plate_dict = settings['plate_dict']
-    
-    grna_df = pd.read_csv(settings['grna'])
-    barecode_df = pd.read_csv(settings['barecodes'])
-    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
-    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
-
-    # Create the dictionaries
-    grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
-    plate_row_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('p')}
-    column_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('c')}
-    
-    if settings['test']:
-        df = pd.read_hdf(h5_file_path, 'reads/chunk_0') 
-    else:
-        df = read_all_chunks_from_hdf5(h5_file_path)
-    
-    # Map the sequences in 'plate_row' and 'column' to the names using the dictionaries
-    df['grna_metadata'] = df['grna'].map(grna_dict)
-    df['grna_length'] = df['grna'].apply(len)
-    df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
-    df['column_metadata'] = df['column'].map(column_dict)
-    df['plate_metadata'] = df['sample'].map(plate_dict)
-    
-    num_nans_grna = df['grna_metadata'].isna().sum()
-    num_nans_plate_row = df['plate_row_metadata'].isna().sum()
-    num_nans_column = df['column_metadata'].isna().sum()
-    num_nans_plate = df['plate_metadata'].isna().sum()
-    unique_grna = len(df['grna_metadata'].dropna().unique().tolist())
-    unique_plate_row = len(df['plate_row_metadata'].dropna().unique().tolist())
-    unique_column = len(df['column_metadata'].dropna().unique().tolist())
-    value_counts_grna = df['grna_metadata'].value_counts(dropna=True)
-    value_counts_plate_row = df['plate_row_metadata'].value_counts(dropna=True)
-    value_counts_column = df['column_metadata'].value_counts(dropna=True)
-    unique_plate = len(df['plate_metadata'].dropna().unique().tolist())
-    
-    nan_df = df[df['grna_metadata'].isna()]
-
-    df_cleaned = df.dropna()
-    qc_df = {'reads':len(df), 'cleaned reads': len(df_cleaned)/len(df), 'NaN_grna':num_nans_grna/len(df), 'NaN_plate_row':num_nans_plate_row/len(df), 'NaN_column':num_nans_column/len(df), 'NaN_plate':num_nans_plate/len(df), 'unique_grna':unique_grna,'unique_plate_row':unique_plate_row,'unique_column':unique_column,'unique_plate':unique_plate}
-
-    qc_df = pd.DataFrame([qc_df])
-    qc_df.to_csv(qc_file_path, index=False)
-
-    if settings['verbose']:
-        display(value_counts_grna)
-        display(value_counts_plate_row)
-        display(value_counts_column)
-        display(nan_df)
-        display(qc_df)
-
-    display(df_cleaned)
-    
-    # Save the cleaned DataFrame to a new compressed HDF5 file
-    with pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc') as store:
-        store.put('reads/cleaned_data', df_cleaned, format='table', append=False)
-    del nan_df, df_cleaned, df, qc_df
-    gc.collect()
-    return
-
-def map_barecodes_v2(h5_file_path, settings={}):
-
-    def read_all_chunks_from_hdf5(h5_file_path):
-        with pd.HDFStore(h5_file_path, mode='r') as store:
-            keys = store.keys()
-            df_list = [store.get(key) for key in keys if key.startswith('/reads/chunk_')]
-        consolidated_df = pd.concat(df_list, ignore_index=True)
-        return consolidated_df
-
-    def get_read_qc(df, df_cleaned):
-        qc_dict = {}
-        qc_dict['reads'] = len(df)
-        qc_dict['cleaned reads'] =  len(df_cleaned) / len(df)
-        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum() / len(df)
-        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum() / len(df)
-        qc_dict['NaN_column'] = df['column_metadata'].isna().sum() / len(df)
-        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum() / len(df)
-        qc_dict['unique_grna'] = len(df['grna_metadata'].dropna().unique().tolist())
-        qc_dict['unique_plate_row'] = len(df['plate_row_metadata'].dropna().unique().tolist())
-        qc_dict['unique_column'] = len(df['column_metadata'].dropna().unique().tolist())
-        qc_dict['value_counts_grna'] = df['grna_metadata'].value_counts(dropna=True)
-        qc_dict['value_counts_plate_row'] = df['plate_row_metadata'].value_counts(dropna=True)
-        qc_dict['value_counts_column'] = df['column_metadata'].value_counts(dropna=True)
-        qc_dict['unique_plate'] = len(df['plate_metadata'].dropna().unique().tolist())
-        
-        return qc_dict
-    
-    def mapping_dicts(df, settings):
-        grna_df = pd.read_csv(settings['grna'])
-        barecode_df = pd.read_csv(settings['barecodes'])
-
-        grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
-        plate_row_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('p')}
-        column_dict = {row['sequence']: row['name'] for _, row in barecode_df.iterrows() if row['name'].startswith('c')}
-        plate_dict = settings['plate_dict']
-
-        df['grna_metadata'] = df['grna'].map(grna_dict)
-        df['grna_length'] = df['grna'].apply(len)
-        df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
-        df['column_metadata'] = df['column'].map(column_dict)
-        df['plate_metadata'] = df['sample'].map(plate_dict)
-        
-        return df
-    
-    settings.setdefault('grna', '/home/carruthers/Documents/grna_barecodes.csv')
-    settings.setdefault('barecodes', '/home/carruthers/Documents/SCREEN_BARECODES.csv')
-    settings.setdefault('plate_dict', {'EO1': 'palte1', 'EO2': 'palte2', 'EO3': 'palte3', 'EO4': 'palte4', 'EO5': 'palte5', 'EO6': 'palte6', 'EO7': 'palte7', 'EO8': 'palte8'})
-    settings.setdefault('test', False)
-    settings.setdefault('verbose', True)
-
-    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
-    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
-
-    if settings['test']:
-        df = pd.read_hdf(h5_file_path, 'reads/chunk_0') 
-    else:
-        df = read_all_chunks_from_hdf5(h5_file_path)
-    
-    df = mapping_dicts(df, settings)
-    #nan_df = df[df['grna_metadata'].isna()]
-
-    df_cleaned = df.dropna()
-    qc_dict = get_read_qc(df, df_cleaned)
-    qc_df = pd.DataFrame([qc_dict])
-    qc_df.to_csv(qc_file_path, index=False)
-
-    # Save the cleaned DataFrame to a new compressed HDF5 file
-    with pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc') as store:
-        store.put('reads/cleaned_data', df_cleaned, format='table', append=False)
-    del nan_df, df_cleaned, df, qc_df
-    gc.collect()
-    return
-
 def map_barcodes(h5_file_path, settings={}):
-    
+    """
+    Maps barcodes and performs quality control on sequencing data.
+
+    Args:
+        h5_file_path (str): The file path to the HDF5 file containing the sequencing data.
+        settings (dict, optional): Additional settings for the mapping and quality control process. Defaults to {}.
+
+    Returns:
+        None
+    """
     def get_read_qc(df, df_cleaned):
+        """
+        Calculate quality control metrics for sequencing reads.
+
+        Parameters:
+        - df: DataFrame containing the sequencing reads.
+        - df_cleaned: DataFrame containing the cleaned sequencing reads.
+
+        Returns:
+        - qc_dict: Dictionary containing the following quality control metrics:
+            - 'reads': Total number of reads.
+            - 'cleaned_reads': Total number of cleaned reads.
+            - 'NaN_grna': Number of reads with missing 'grna_metadata'.
+            - 'NaN_plate_row': Number of reads with missing 'plate_row_metadata'.
+            - 'NaN_column': Number of reads with missing 'column_metadata'.
+            - 'NaN_plate': Number of reads with missing 'plate_metadata'.
+            - 'unique_grna': Counter object containing the count of unique 'grna_metadata' values.
+            - 'unique_plate_row': Counter object containing the count of unique 'plate_row_metadata' values.
+            - 'unique_column': Counter object containing the count of unique 'column_metadata' values.
+            - 'unique_plate': Counter object containing the count of unique 'plate_metadata' values.
+        """
         qc_dict = {}
         qc_dict['reads'] = len(df)
-        qc_dict['cleaned reads'] = len(df_cleaned) / len(df)
-        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum() / len(df)
-        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum() / len(df)
-        qc_dict['NaN_column'] = df['column_metadata'].isna().sum() / len(df)
-        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum() / len(df)
-        qc_dict['unique_grna'] = len(df['grna_metadata'].dropna().unique().tolist())
-        qc_dict['unique_plate_row'] = len(df['plate_row_metadata'].dropna().unique().tolist())
-        qc_dict['unique_column'] = len(df['column_metadata'].dropna().unique().tolist())
-        qc_dict['value_counts_grna'] = df['grna_metadata'].value_counts(dropna=True)
-        qc_dict['value_counts_plate_row'] = df['plate_row_metadata'].value_counts(dropna=True)
-        qc_dict['value_counts_column'] = df['column_metadata'].value_counts(dropna=True)
-        qc_dict['unique_plate'] = len(df['plate_metadata'].dropna().unique().tolist())
+        qc_dict['cleaned_reads'] = len(df_cleaned)
+        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum()
+        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum()
+        qc_dict['NaN_column'] = df['column_metadata'].isna().sum()
+        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum()
+        qc_dict['unique_grna'] = Counter(df['grna_metadata'].dropna().tolist())
+        qc_dict['unique_plate_row'] = Counter(df['plate_row_metadata'].dropna().tolist())
+        qc_dict['unique_column'] = Counter(df['column_metadata'].dropna().tolist())
+        qc_dict['unique_plate'] = Counter(df['plate_metadata'].dropna().tolist())
         
         return qc_dict
     
     def mapping_dicts(df, settings):
+        """
+        Maps the values in the DataFrame columns to corresponding metadata using dictionaries.
+
+        Args:
+            df (pandas.DataFrame): The DataFrame containing the data to be mapped.
+            settings (dict): A dictionary containing the settings for mapping.
+
+        Returns:
+            pandas.DataFrame: The DataFrame with the mapped metadata columns added.
+        """
         grna_df = pd.read_csv(settings['grna'])
         barcode_df = pd.read_csv(settings['barcodes'])
 
@@ -382,10 +350,136 @@ def map_barcodes(h5_file_path, settings={}):
     settings.setdefault('min_itemsize', 1000)
 
     qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
+    unique_grna_file_path = os.path.splitext(h5_file_path)[0] + '_unique_grna.csv'
+    unique_plate_row_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate_row.csv'
+    unique_column_file_path = os.path.splitext(h5_file_path)[0] + '_unique_column.csv'
+    unique_plate_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate.csv'
     new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
     
-    # Initialize the HDF5 store for cleaned data with min_itemsize
-    store_cleaned = pd.HDFStore(new_h5_file_path, mode='w', complevel=9, complib='blosc')
+    # Initialize the HDF5 store for cleaned data
+    store_cleaned = pd.HDFStore(new_h5_file_path, mode='a', complevel=5, complib='blosc')
+    
+    # Initialize the overall QC metrics
+    overall_qc = {
+        'reads': 0,
+        'cleaned_reads': 0,
+        'NaN_grna': 0,
+        'NaN_plate_row': 0,
+        'NaN_column': 0,
+        'NaN_plate': 0,
+        'unique_grna': Counter(),
+        'unique_plate_row': Counter(),
+        'unique_column': Counter(),
+        'unique_plate': Counter()
+    }
+
+    with pd.HDFStore(h5_file_path, mode='r') as store:
+        keys = [key for key in store.keys() if key.startswith('/reads/chunk_')]
+        
+        for key in keys:
+            df = store.get(key)
+            df = mapping_dicts(df, settings)
+            df_cleaned = df.dropna()
+            qc_dict = get_read_qc(df, df_cleaned)
+            
+            # Accumulate QC metrics
+            overall_qc['reads'] += qc_dict['reads']
+            overall_qc['cleaned_reads'] += qc_dict['cleaned_reads']
+            overall_qc['NaN_grna'] += qc_dict['NaN_grna']
+            overall_qc['NaN_plate_row'] += qc_dict['NaN_plate_row']
+            overall_qc['NaN_column'] += qc_dict['NaN_column']
+            overall_qc['NaN_plate'] += qc_dict['NaN_plate']
+            overall_qc['unique_grna'].update(qc_dict['unique_grna'])
+            overall_qc['unique_plate_row'].update(qc_dict['unique_plate_row'])
+            overall_qc['unique_column'].update(qc_dict['unique_column'])
+            overall_qc['unique_plate'].update(qc_dict['unique_plate'])
+            
+            df_cleaned = df_cleaned[df_cleaned['grna_length'] >= 30]
+        
+            # Save cleaned data to the new HDF5 store
+            store_cleaned.put('reads/cleaned_data', df_cleaned, format='table', append=True)
+            
+            del df_cleaned, df
+            gc.collect()
+
+    # Convert the Counter objects to DataFrames and save them to CSV files
+    unique_grna_df = pd.DataFrame(overall_qc['unique_grna'].items(), columns=['key', 'value'])
+    unique_plate_row_df = pd.DataFrame(overall_qc['unique_plate_row'].items(), columns=['key', 'value'])
+    unique_column_df = pd.DataFrame(overall_qc['unique_column'].items(), columns=['key', 'value'])
+    unique_plate_df = pd.DataFrame(overall_qc['unique_plate'].items(), columns=['key', 'value'])
+
+    unique_grna_df.to_csv(unique_grna_file_path, index=False)
+    unique_plate_row_df.to_csv(unique_plate_row_file_path, index=False)
+    unique_column_df.to_csv(unique_column_file_path, index=False)
+    unique_plate_df.to_csv(unique_plate_file_path, index=False)
+
+    # Remove the unique counts from overall_qc for the main QC CSV file
+    del overall_qc['unique_grna']
+    del overall_qc['unique_plate_row']
+    del overall_qc['unique_column']
+    del overall_qc['unique_plate']
+
+    # Combine all remaining QC metrics into a single DataFrame and save it to CSV
+    qc_df = pd.DataFrame([overall_qc])
+    qc_df.to_csv(qc_file_path, index=False)
+    
+    # Close the HDF5 store
+    store_cleaned.close()
+    
+    gc.collect()
+    return
+
+def map_barcodes_v1(h5_file_path, settings={}):
+
+    def get_read_qc(df, df_cleaned):
+        qc_dict = {}
+        qc_dict['reads'] = len(df)
+        qc_dict['cleaned_reads'] = len(df_cleaned)
+        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum()
+        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum()
+        qc_dict['NaN_column'] = df['column_metadata'].isna().sum()
+        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum()
+        
+        
+        qc_dict['unique_grna'] = len(df['grna_metadata'].dropna().unique().tolist())
+        qc_dict['unique_plate_row'] = len(df['plate_row_metadata'].dropna().unique().tolist())
+        qc_dict['unique_column'] = len(df['column_metadata'].dropna().unique().tolist())
+        qc_dict['unique_plate'] = len(df['plate_metadata'].dropna().unique().tolist())
+        qc_dict['value_counts_grna'] = df['grna_metadata'].value_counts(dropna=True)
+        qc_dict['value_counts_plate_row'] = df['plate_row_metadata'].value_counts(dropna=True)
+        qc_dict['value_counts_column'] = df['column_metadata'].value_counts(dropna=True)
+        
+        return qc_dict
+    
+    def mapping_dicts(df, settings):
+        grna_df = pd.read_csv(settings['grna'])
+        barcode_df = pd.read_csv(settings['barcodes'])
+
+        grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
+        plate_row_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('p')}
+        column_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('c')}
+        plate_dict = settings['plate_dict']
+
+        df['grna_metadata'] = df['grna'].map(grna_dict)
+        df['grna_length'] = df['grna'].apply(len)
+        df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
+        df['column_metadata'] = df['column'].map(column_dict)
+        df['plate_metadata'] = df['sample'].map(plate_dict)
+        
+        return df
+    
+    settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
+    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
+    settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
+    settings.setdefault('test', False)
+    settings.setdefault('verbose', True)
+    settings.setdefault('min_itemsize', 1000)
+
+    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
+    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+    
+    # Initialize the HDF5 store for cleaned data
+    store_cleaned = pd.HDFStore(new_h5_file_path, mode='a', complevel=5, complib='blosc')
     
     # Initialize the DataFrame for QC metrics
     qc_df_list = []
@@ -399,18 +493,10 @@ def map_barcodes(h5_file_path, settings={}):
             df_cleaned = df.dropna()
             qc_dict = get_read_qc(df, df_cleaned)
             qc_df_list.append(qc_dict)
-            
-            # Append cleaned data to the new HDF5 store with min_itemsize for relevant columns
-            store_cleaned.append('reads/cleaned_data', df_cleaned, format='table', append=True,
-                                 min_itemsize={
-                                     'grna_metadata': settings['min_itemsize'], 
-                                     'plate_row_metadata': settings['min_itemsize'], 
-                                     'column_metadata': settings['min_itemsize'], 
-                                     'plate_metadata': settings['min_itemsize']
-                                 })
-            
-            del df_cleaned, df
-            gc.collect()
+            df_cleaned = df_cleaned[df_cleaned['grna_length'] >= 30]
+        
+            # Save cleaned data to the new HDF5 store
+            store_cleaned.put('reads/cleaned_data', df_cleaned, format='table', append=True)
 
     # Combine all QC metrics into a single DataFrame and save it to CSV
     qc_df = pd.DataFrame(qc_df_list)
@@ -418,8 +504,6 @@ def map_barcodes(h5_file_path, settings={}):
     
     # Close the HDF5 store
     store_cleaned.close()
-    
-    gc.collect()
     return
 
 def map_barcodes_folder(src, settings={}):
@@ -567,7 +651,6 @@ def count_mismatches(seq1, seq2, align_length=10):
     mismatches = sum(c1 != c2 for c1, c2 in zip(seq1_aligned, seq2_aligned))
     return mismatches
     
-
 def get_sequence_data(r1,r2):
     forward_regex = re.compile(r'^(...GGTGCCACTT)TTTCAAGTTG.*?TTCTAGCTCT(AAAAC[A-Z]{18,22}AACTT)GACATCCCCA.*?AAGGCAAACA(CCCCCTTCGG....).*') 
     r1fd = forward_regex.search(r1)
@@ -1062,490 +1145,3 @@ def generate_fraction_map(df, gene_column, min_=10, plates=['p1','p2','p3','p4']
     independent_variables.index.name = 'prc'
     independent_variables = independent_variables.loc[:, (independent_variables.sum() != 0)]
     return independent_variables
-
-# Check if filename or path
-def split_filenames(df, filename_column):
-    plate_ls = []
-    well_ls = []
-    col_ls = []
-    row_ls = []
-    field_ls = []
-    obj_ls = []
-    ls = df[filename_column].tolist()
-    if '/' in ls[0]:
-        file_list = [os.path.basename(path) for path in ls] 
-    else:
-        file_list = ls
-    print('first file',file_list[0])
-    for filename in file_list:
-        plate = filename.split('_')[0]
-        plate = plate.split('plate')[1]
-        well = filename.split('_')[1]
-        field = filename.split('_')[2]
-        object_nr = filename.split('_')[3]
-        object_nr = object_nr.split('.')[0]
-        object_nr = 'o'+str(object_nr)
-        if re.match('A..', well):
-            row = 'r1'
-        if re.match('B..', well):
-            row = 'r2'
-        if re.match('C..', well):
-            row = 'r3'
-        if re.match('D..', well):
-            row = 'r4'
-        if re.match('E..', well):
-            row = 'r5'
-        if re.match('F..', well):
-            row = 'r6'
-        if re.match('G..', well):
-            row = 'r7'
-        if re.match('H..', well):
-            row = 'r8'
-        if re.match('I..', well):
-            row = 'r9'
-        if re.match('J..', well):
-            row = 'r10'
-        if re.match('K..', well):
-            row = 'r11'
-        if re.match('L..', well):
-            row = 'r12'
-        if re.match('M..', well):
-            row = 'r13'
-        if re.match('N..', well):
-            row = 'r14'
-        if re.match('O..', well):
-            row = 'r15'
-        if re.match('P..', well):
-            row = 'r16'
-        if re.match('.01', well):
-            col = 'c1'
-        if re.match('.02', well):
-            col = 'c2'
-        if re.match('.03', well):
-            col = 'c3'
-        if re.match('.04', well):
-            col = 'c4'
-        if re.match('.05', well):
-            col = 'c5'
-        if re.match('.06', well):
-            col = 'c6'
-        if re.match('.07', well):
-            col = 'c7'
-        if re.match('.08', well):
-            col = 'c8'
-        if re.match('.09', well):
-            col = 'c9'
-        if re.match('.10', well):
-            col = 'c10'
-        if re.match('.11', well):
-            col = 'c11'
-        if re.match('.12', well):
-            col = 'c12'
-        if re.match('.13', well):
-            col = 'c13'
-        if re.match('.14', well):
-            col = 'c14'
-        if re.match('.15', well):
-            col = 'c15'
-        if re.match('.16', well):
-            col = 'c16'
-        if re.match('.17', well):
-            col = 'c17'
-        if re.match('.18', well):
-            col = 'c18'
-        if re.match('.19', well):
-            col = 'c19'
-        if re.match('.20', well):
-            col = 'c20'
-        if re.match('.21', well):
-            col = 'c21'
-        if re.match('.22', well):
-            col = 'c22'
-        if re.match('.23', well):
-            col = 'c23'
-        if re.match('.24', well):
-            col = 'c24'
-        plate_ls.append(plate)
-        well_ls.append(well)
-        field_ls.append(field)
-        obj_ls.append(object_nr)
-        row_ls.append(row)
-        col_ls.append(col)
-    df['file'] = ls
-    df['plate'] = plate_ls
-    df['well'] = well_ls
-    df['row'] = row_ls
-    df['col'] = col_ls
-    df['field'] = field_ls
-    df['obj'] = obj_ls
-    df['plate_well'] = df['plate']+'_'+df['well']
-    df = df.set_index(filename_column)
-    return df
-
-def rename_plate_metadata(df):
-    try:
-        df = df.drop(['plateID'], axis=1)
-        df = df.drop(['rowID'], axis=1)
-        df = df.drop(['columnID'], axis=1)
-        df = df.drop(['plate_row_col'], axis=1)
-        df = df.drop(['Unnamed: 0'], axis=1)
-        df = df.drop(['Unnamed: 0.1'], axis=1)
-    except:
-        next
-    
-    df['plate'] = df['plate'].astype('string')
-    df.plate.replace('1', 'A', inplace=True)
-    df.plate.replace('2', 'B', inplace=True)
-    df.plate.replace('3', 'C', inplace=True)
-    df.plate.replace('4', 'D', inplace=True)
-    df.plate.replace('5', 'E', inplace=True)
-    df.plate.replace('6', 'F', inplace=True)
-    df.plate.replace('7', 'G', inplace=True)
-    df.plate.replace('8', 'H', inplace=True)
-    df.plate.replace('9', 'I', inplace=True)
-    df.plate.replace('10', 'J', inplace=True)
-
-    df.plate.replace('A', 'p1', inplace=True)# 1 - 1
-    df.plate.replace('B', 'p2', inplace=True)# 2 - 2
-    df.plate.replace('C', 'p3', inplace=True)# 3 - 3
-    df.plate.replace('E', 'p4', inplace=True)# 5 - 4
-    
-    df.plate.replace('F', 'p5', inplace=True)# 6 - 5
-    df.plate.replace('G', 'p6', inplace=True)# 7 - 6
-    df.plate.replace('H', 'p7', inplace=True)# 8 - 7
-    df.plate.replace('I', 'p8', inplace=True)# 9 - 8
-    
-    df['plateID'] = df['plate']
-    
-    df.loc[(df['plateID'].isin(['D'])) & (df['col'].isin(['c1', 'c2', 'c3'])), 'plate'] = 'p1'
-    df.loc[(df['plateID'].isin(['D'])) & (df['col'].isin(['c4', 'c5', 'c6'])), 'plate'] = 'p2'
-    df.loc[(df['plateID'].isin(['D'])) & (df['col'].isin(['c7', 'c8', 'c9'])), 'plate'] = 'p3'
-    df.loc[(df['plateID'].isin(['D'])) & (df['col'].isin(['c10', 'c11', 'c12'])), 'plate'] = 'p4'
-    
-    df.loc[(df['plateID'].isin(['J'])) & (df['col'].isin(['c1', 'c2', 'c3'])), 'plate'] = 'p5'
-    df.loc[(df['plateID'].isin(['J'])) & (df['col'].isin(['c4', 'c5', 'c6'])), 'plate'] = 'p6'
-    df.loc[(df['plateID'].isin(['J'])) & (df['col'].isin(['c7', 'c8', 'c9'])), 'plate'] = 'p7'
-    df.loc[(df['plateID'].isin(['J'])) & (df['col'].isin(['c10', 'c11', 'c12'])), 'plate'] = 'p8'
-    
-    df.loc[(df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c1', 'c4', 'c7', 'c10'])), 'col'] = 'c1'
-    df.loc[(df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c2', 'c5', 'c8', 'c11'])), 'col'] = 'c2'
-    df.loc[(df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c3', 'c6', 'c9', 'c12'])), 'col'] = 'c3'
-    
-    df.loc[(~df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c1'])), 'col'] = 'c25'
-    df.loc[(~df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c2'])), 'col'] = 'c26'
-    df.loc[(~df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c3'])), 'col'] = 'c27'
-    
-    df.loc[(~df['plateID'].isin(['D', 'J'])) & (df['col'].isin(['c1'])), 'col'] = 'c25'
-
-    df = df.drop(['plateID'], axis=1)
-    
-    df = df.loc[~df['plate'].isin(['D', 'J'])]
-
-    screen_cols = ['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12','c13','c14','c15','c16','c17','c18','c19','c20','c21','c22','c23','c24']
-    screen_plates = ['p1','p2','p3','p4']
-    positive_control_plates = ['p5','p6','p7','p8']
-    positive_control_cols = screen_cols
-    negative_control_cols = ['c25','c26','c27']
-    #extra_plates = ['p9','p10']
-    cond_ls = []
-
-    cols = df.col.tolist()
-    for index, plate in enumerate(df.plate.tolist()):
-        co = cols[index]
-        if plate in screen_plates:
-            if co in screen_cols:
-                cond = 'SCREEN'
-            if co in negative_control_cols:
-                cond = 'NC'
-        if plate in positive_control_plates:
-            if co in positive_control_cols:
-                cond = 'PC'
-            if co in negative_control_cols:
-                cond = 'NC'
-        cond_ls.append(cond)
-        
-    df['cond'] = cond_ls
-    df['plate'] = df['plate'].astype('string')
-    df['row'] = df['row'].astype('string')
-    df['col'] = df['col'].astype('string')
-    df['obj'] = df['obj'].astype('string')
-    df['prco'] = df['plate']+'_'+df['row']+'_'+df['col']+'_'+df['field']+'_'+df['obj']
-    df['prc'] = df['plate']+'_'+df['row']+'_'+df['col']
-    df = df.set_index(['prco'], drop=True)
-    df = df.sort_values(by = ['plate'], ascending = [True], na_position = 'first')
-    values, counts = np.unique(df['plate'], return_counts=True)
-    print('plates:', values)
-    print('well count:', counts)
-    return df
-
-def plot_reg_res(df, coef_col='coef', col_p='P>|t|'):
-    df['gene'] = df.index
-    df[coef_col] = pd.to_numeric(df[coef_col], errors='coerce')
-    df[col_p] = pd.to_numeric(df[col_p], errors='coerce')
-    df = df.sort_values(by = [coef_col], ascending = [False], na_position = 'first')
-    df['color'] = 'None'
-    df.loc[df['gene'].str.contains('239740'), 'color'] = '239740'
-    df.loc[df['gene'].str.contains('205250'), 'color'] = '205250'
-    
-    df.loc[df['gene'].str.contains('000000'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000001'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000002'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000003'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000004'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000005'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000006'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000007'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000008'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000009'), 'color'] = '000000'
-    df.loc[df['gene'].str.contains('000010'), 'color'] = '000000'
-    fig, ax = plt.subplots(figsize=(10,10))
-    df.loc[df[col_p] == 0.000, col_p] = 0.001
-    df['logp'] = -np.log10(df[col_p])
-    sns.scatterplot(data = df, x = coef_col, y = 'logp', legend = False, ax = ax,
-                    hue= 'color', hue_order = ['239740','205250','None', '000000'],
-                    palette = ['purple', 'teal', 'lightgrey', 'black'],
-                    size = 'color', sizes = (100, 10))
-    g14 = df[df['gene'].str.contains('239740')]
-    r18 = df[df['gene'].str.contains('205250')]
-    res = pd.concat([g14, r18], axis=0)
-    res = res[[coef_col, col_p]]
-    print(res)
-    return df, res
-
-def reg_model(iv_loc,dv_loc):
-    independent_variables = pd.read_csv(iv_loc)
-    dependent_variable = pd.read_csv(dv_loc)
-    independent_variables = independent_variables.set_index('prc')
-    columns = independent_variables.columns
-    new_columns = [col.replace('TGGT1_', '') for col in columns]
-    independent_variables.columns = new_columns
-
-    dependent_variable = dependent_variable.set_index('prc')
-
-    reg_input = pd.DataFrame(pd.merge(independent_variables, dependent_variable, left_index=True, right_index=True))
-    reg_input = reg_input.dropna(axis=0, how='any')
-    reg_input = reg_input.dropna(axis=1, how='any')
-    print('Number of wells',len(reg_input))
-    x = reg_input.drop(['score'], axis=1)
-    x = sm.add_constant(x)
-    y = np.log10(reg_input['score']+1)
-    model = sm.OLS(y, x).fit()
-    predictions = model.predict(x)
-    results_summary = model.summary()
-    print(results_summary)
-    results_as_html = results_summary.tables[1].as_html()
-    results_df = pd.read_html(results_as_html, header=0, index_col=0)[0]
-    df, res = plot_reg_res(df=results_df)
-    return df, res
-
-def mixed_model(iv_loc,dv_loc):
-    independent_variables = pd.read_csv(iv_loc)
-    dependent_variable = pd.read_csv(dv_loc)
-    independent_variables = independent_variables.set_index('prc')
-    columns = independent_variables.columns
-    new_columns = [col.replace('TGGT1_', '') for col in columns]
-    independent_variables.columns = new_columns
-    dependent_variable = dependent_variable.set_index('prc')
-    reg_input = pd.DataFrame(pd.merge(independent_variables, dependent_variable, left_index=True, right_index=True))
-    reg_input = reg_input.dropna(axis=0, how='any')
-
-    y = np.log10(reg_input['score']+1)
-    X = reg_input.drop('score', axis=1)
-    X.columns = pd.MultiIndex.from_tuples([tuple(col.split('_')) for col in X.columns],
-                                          names=['main_variable', 'sub_variable'])
-    # Melt the DataFrame
-    X_long = X.melt(ignore_index=False, var_name=['main_variable', 'sub_variable'], value_name='value')
-    X_long = X_long[X_long['value']>0]
-
-    # Create a new column to represent the nested structure of gRNA within gene
-    X_long['gene_gRNA'] = X_long['main_variable'].astype(str) + "_" + X_long['sub_variable'].astype(str)
-
-    # Add 'score' to the DataFrame
-    X_long['score'] = y
-
-    # Create and convert the plate, row, and column variables to type category
-    X_long.reset_index(inplace=True)  
-    split_values = X_long['prc'].str.split('_', expand=True)
-    X_long[['plate', 'row', 'col']] = split_values
-    X_long['plate'] = X_long['plate'].str[1:]
-    X_long['plate'] = X_long['plate'].astype(int)
-    X_long['row'] = X_long['row'].str[1:]
-    X_long['row'] = X_long['row'].astype(int)
-    X_long['col'] = X_long['col'].str[1:]
-    X_long['col'] = X_long['col'].astype(int)
-    X_long = X_long.set_index('prc')
-    # Create a new column to represent the nested structure of plate, row, and column
-    X_long['plate_row_col'] = X_long['plate'].astype(str) + "_" + X_long['row'].astype(str) + "_" + X_long['col'].astype(str)
-    n_group = pd.DataFrame(X_long.groupby(['gene_gRNA']).count()['main_variable'])
-    n_group = n_group.rename({'main_variable': 'n_group'}, axis=1)
-    n_group = n_group.reset_index(drop=False)
-    X_long = pd.merge(X_long, n_group, on='gene_gRNA')
-    X_long = X_long[X_long['n_group']>1]
-    #print(X_long.isna().sum())
-    
-    X_long['main_variable'] = X_long['main_variable'].astype('category')
-    X_long['sub_variable'] = X_long['sub_variable'].astype('category')
-    X_long['plate'] = X_long['plate'].astype('category')
-    X_long['row'] = X_long['row'].astype('category')
-    X_long['col'] = X_long['col'].astype('category')
-    X_long = pd.DataFrame(X_long)
-    print(X_long)
-    
-    md = smf.mixedlm("score ~ C(main_variable)", X_long, 
-                 groups=X_long["sub_variable"])
-    
-    # Define your nonlinear function here
-    def nonlinear_function(x, *params):
-        pass  # Implement non linear function here
-
-    mdf = md.fit(method='bfgs', maxiter=1000)
-    print(mdf.summary())
-    summary = mdf.summary()
-    df = pd.DataFrame(summary.tables[1])
-    df, res = plot_reg_res(df, coef_col='Coef.', col_p='P>|z|')
-    return df, res
-
-def calculate_accuracy(df):
-    df.loc[df['pc_score'] <= 0.5, 'pred'] = 0
-    df.loc[df['pc_score'] >= 0.5, 'pred'] = 1
-    df.loc[df['cond'] == 'NC', 'lab'] = 0
-    df.loc[df['cond'] == 'PC', 'lab'] = 1
-    df = df[df['cond'] != 'SCREEN']
-    df_nc = df[df['cond'] != 'NC']
-    df_pc = df[df['cond'] != 'PC']
-    correct = []
-    all_ls = []
-    pred_list = df['pred'].tolist()
-    lab_list = df['lab'].tolist()
-    for i,v in enumerate(pred_list):
-        all_ls.append(1)
-        if v == lab_list[i]:
-            correct.append(1)
-    print('total accuracy',len(correct)/len(all_ls))
-    correct = []
-    all_ls = []
-    pred_list = df_pc['pred'].tolist()
-    lab_list = df_pc['lab'].tolist()
-    for i,v in enumerate(pred_list):
-        all_ls.append(1)
-        if v == lab_list[i]:
-            correct.append(1)
-    print('positives accuracy', len(correct)/len(all_ls))
-    correct = []
-    all_ls = []
-    pred_list = df_nc['pred'].tolist()
-    lab_list = df_nc['lab'].tolist()
-    for i,v in enumerate(pred_list):
-        all_ls.append(1)
-        if v == lab_list[i]:
-            correct.append(1)
-    print('negatives accuracy',len(correct)/len(all_ls))
-
-def preprocess_image_data(df, resnet_loc, min_count=25, metric='mean', plot=True, score='pc_score'):
-    print('number of cells', len(df))
-    resnet_preds = pd.read_csv(resnet_loc)
-    res_df = split_filenames(df=resnet_preds, filename_column='path')
-    pred_df = rename_plate_metadata(df=res_df)
-    pred_df['prcfo'] = pred_df['plate']+'_'+pred_df['row']+'_'+pred_df['col']+'_'+pred_df['field']+'_'+pred_df['obj']
-    print('number of resnet scores', len(df))
-    merged_df = pd.merge(df, pred_df, on='prcfo', how='inner', suffixes=('', '_right'))
-    merged_df = merged_df.rename(columns={'pred': 'pc_score'})
-    
-    merged_df = merged_df[(merged_df['pc_score'] <= 0.25) | (merged_df['pc_score'] >= 0.75)]
-    
-    merged_df['recruitment'] = merged_df['Toxo_channel_1_quartiles75']/merged_df['Cytosol_channel_1_quartiles75']
-    merged_df = pd.DataFrame(merged_df[merged_df['duplicates'] == 1.0])
-    columns_to_drop = [col for col in merged_df.columns if col.endswith('_right')]
-    merged_df = merged_df.drop(columns_to_drop, axis=1)
-    well_group = pd.DataFrame(merged_df.groupby(['prc']).count()['cond'])
-    well_group = well_group.rename({'cond': 'cell_count'}, axis=1)
-    merged_df = pd.merge(merged_df, well_group, on='prc', how='inner', suffixes=('', '_right'))
-    columns_to_drop = [col for col in merged_df.columns if col.endswith('_right')]
-    merged_df = merged_df.drop(columns_to_drop, axis=1)
-    #merged_df = merged_df.drop(['duplicates', 'outlier', 'prcfo.1'], axis=1)
-    merged_df = merged_df.drop(['duplicates', 'prcfo.1'], axis=1)
-    merged_df = pd.DataFrame(merged_df[merged_df['cell_count'] >= min_count])
-    
-    if metric == 'mean':
-        well_scores_score = pd.DataFrame(merged_df.groupby(['prc']).mean()['pc_score'])
-        well_scores_score = well_scores_score.rename({'pc_score': 'mean_pc_score'}, axis=1)
-        well_scores_rec = pd.DataFrame(merged_df.groupby(['prc']).mean()['recruitment'])
-        well_scores_rec = well_scores_rec.rename({'recruitment': 'mean_recruitment'}, axis=1)
-    if metric == 'geomean':
-        well_scores_score = pd.DataFrame(merged_df.groupby(['prc'])['pc_score'].apply(gmean))
-        well_scores_score = well_scores_score.rename({'pc_score': 'mean_pc_score'}, axis=1)
-        well_scores_rec = pd.DataFrame(merged_df.groupby(['prc'])['recruitment'].apply(gmean))
-        well_scores_rec = well_scores_rec.rename({'recruitment': 'mean_recruitment'}, axis=1)
-    if metric == 'median':
-        well_scores_score = pd.DataFrame(merged_df.groupby(['prc']).median()['pc_score'])
-        well_scores_score = well_scores_score.rename({'pc_score': 'mean_pc_score'}, axis=1)
-        well_scores_rec = pd.DataFrame(merged_df.groupby(['prc']).median()['recruitment'])
-        well_scores_rec = well_scores_rec.rename({'recruitment': 'mean_recruitment'}, axis=1)
-    if metric == 'quntile':
-        well_scores_score = pd.DataFrame(merged_df.groupby(['prc']).quantile(0.75)['pc_score'])
-        well_scores_score = well_scores_score.rename({'pc_score': 'mean_pc_score'}, axis=1)
-        well_scores_rec = pd.DataFrame(merged_df.groupby(['prc']).quantile(0.75)['recruitment'])
-        well_scores_rec = well_scores_rec.rename({'recruitment': 'mean_recruitment'}, axis=1)
-    well = pd.DataFrame(pd.DataFrame(merged_df.select_dtypes(include=['object'])).groupby(['prc']).first())
-    well['mean_pc_score'] = well_scores_score['mean_pc_score']
-    well['mean_recruitment'] = well_scores_rec['mean_recruitment']
-    nc = well[well['cond'] == 'NC']
-    max_nc = nc['mean_recruitment'].max()
-    pc = well[well['cond'] == 'PC']
-    screen = well[well['cond'] == 'SCREEN']
-    screen = screen[screen['mean_recruitment'] <= max_nc]
-    if plot:
-        x_axis = 'mean_pc_score'
-        fig, ax = plt.subplots(1,3,figsize=(30,10))
-        sns.histplot(data=nc, x=x_axis, kde=False, stat='density', element="step", ax=ax[0], color='lightgray', log_scale=False)
-        sns.histplot(data=pc, x=x_axis, kde=False, stat='density', element="step", ax=ax[0], color='teal', log_scale=False)
-        sns.histplot(data=screen, x=x_axis, kde=False, stat='density', element="step", ax=ax[1], color='purple', log_scale=False)
-        sns.histplot(data=nc, x=x_axis, kde=False, stat='density', element="step", ax=ax[2], color='lightgray', log_scale=False)
-        sns.histplot(data=pc, x=x_axis, kde=False, stat='density', element="step", ax=ax[2], color='teal', log_scale=False)
-        sns.histplot(data=screen, x=x_axis, kde=False, stat='density', element="step", ax=ax[2], color='purple', log_scale=False)
-        ax[0].set_title('NC vs PC wells')
-        ax[1].set_title('Screen wells')
-        ax[2].set_title('NC vs PC vs Screen wells')
-        ax[0].spines['top'].set_visible(False)
-        ax[0].spines['right'].set_visible(False)
-        ax[1].spines['top'].set_visible(False)
-        ax[1].spines['right'].set_visible(False)
-        ax[2].spines['top'].set_visible(False)
-        ax[2].spines['right'].set_visible(False)
-        ax[0].set_xlim([0, 1])
-        ax[1].set_xlim([0, 1])
-        ax[2].set_xlim([0, 1])
-        loc = '/media/olafsson/umich/matt_graphs/resnet_score_well_av.pdf'
-        fig.savefig(loc, dpi = 600, format='pdf', bbox_inches='tight')
-        x_axis = 'mean_recruitment'
-        fig, ax = plt.subplots(1,3,figsize=(30,10))
-        sns.histplot(data=nc, x=x_axis, kde=False, stat='density', element="step", ax=ax[0], color='lightgray', log_scale=False)
-        sns.histplot(data=pc, x=x_axis, kde=False, stat='density', element="step", ax=ax[0], color='teal', log_scale=False)
-        sns.histplot(data=screen, x=x_axis, kde=False, stat='density', element="step", ax=ax[1], color='purple', log_scale=False)
-        sns.histplot(data=nc, x=x_axis, kde=False, stat='density', element="step", ax=ax[2], color='lightgray', log_scale=False)
-        sns.histplot(data=pc, x=x_axis, kde=False, stat='density', element="step", ax=ax[2], color='teal', log_scale=False)
-        sns.histplot(data=screen, x=x_axis, kde=False, stat='density', element="step", ax=ax[2], color='purple', log_scale=False)
-        ax[0].set_title('NC vs PC wells')
-        ax[1].set_title('Screen wells')
-        ax[2].set_title('NC vs PC vs Screen wells')
-        ax[0].spines['top'].set_visible(False)
-        ax[0].spines['right'].set_visible(False)
-        ax[1].spines['top'].set_visible(False)
-        ax[1].spines['right'].set_visible(False)
-        ax[2].spines['top'].set_visible(False)
-        ax[2].spines['right'].set_visible(False)
-        loc = '/media/olafsson/umich/matt_graphs/mean_recruitment_well_av.pdf'
-        fig.savefig(loc, dpi = 600, format='pdf', bbox_inches='tight')
-    plates = ['p1','p2','p3','p4']
-    screen = screen[screen['plate'].isin(plates)]
-    if score == 'pc_score':
-        dv = pd.DataFrame(screen['mean_pc_score'])
-        dv = dv.rename({'mean_pc_score': 'score'}, axis=1)
-    if score == 'recruitment':
-        dv = pd.DataFrame(screen['mean_recruitment'])
-        dv = dv.rename({'mean_recruitment': 'score'}, axis=1)
-    print('dependant variable well count:', len(well))
-    dv_loc = '/media/olafsson/Data2/methods_paper/data/dv.csv'
-    dv.to_csv(dv_loc)
-    calculate_accuracy(df=merged_df)
-    return merged_df, well
