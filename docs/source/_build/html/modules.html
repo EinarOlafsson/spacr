@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr &mdash; spacr 0.0.70 documentation</title>
+  <title>spacr &mdash; spacr 0.0.71 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=29ed05f3"></script>
+        <script src="_static/documentation_options.js?v=8d9581ea"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.70
+                0.0.71
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,7 +113,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="spacr.html#module-spacr.core">spacr.core module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.adjust_cell_masks"><code class="docutils literal notranslate"><span class="pre">adjust_cell_masks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.all_elements_match"><code class="docutils literal notranslate"><span class="pre">all_elements_match()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.analyze_data_reg"><code class="docutils literal notranslate"><span class="pre">analyze_data_reg()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.analyze_plaques"><code class="docutils literal notranslate"><span class="pre">analyze_plaques()</span></code></a></li>
@@ -141,7 +140,6 @@
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.plate_heatmap"><code class="docutils literal notranslate"><span class="pre">plate_heatmap()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.prepare_batch_for_cellpose"><code class="docutils literal notranslate"><span class="pre">prepare_batch_for_cellpose()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.preprocess_generate_masks"><code class="docutils literal notranslate"><span class="pre">preprocess_generate_masks()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.process_masks"><code class="docutils literal notranslate"><span class="pre">process_masks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.process_reads"><code class="docutils literal notranslate"><span class="pre">process_reads()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.reducer_hyperparameter_search"><code class="docutils literal notranslate"><span class="pre">reducer_hyperparameter_search()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.core.regression_analasys"><code class="docutils literal notranslate"><span class="pre">regression_analasys()</span></code></a></li>
@@ -427,6 +425,7 @@
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.plot_images_and_arrays"><code class="docutils literal notranslate"><span class="pre">plot_images_and_arrays()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.plot_masks"><code class="docutils literal notranslate"><span class="pre">plot_masks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.plot_merged"><code class="docutils literal notranslate"><span class="pre">plot_merged()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.plot_object_outlines"><code class="docutils literal notranslate"><span class="pre">plot_object_outlines()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.plot_resize"><code class="docutils literal notranslate"><span class="pre">plot_resize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.print_mask_and_flows"><code class="docutils literal notranslate"><span class="pre">print_mask_and_flows()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.plot.random_cmap"><code class="docutils literal notranslate"><span class="pre">random_cmap()</span></code></a></li>
@@ -435,7 +434,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="spacr.html#module-spacr.sequencing">spacr.sequencing module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.calculate_accuracy"><code class="docutils literal notranslate"><span class="pre">calculate_accuracy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.analyze_reads"><code class="docutils literal notranslate"><span class="pre">analyze_reads()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.complement"><code class="docutils literal notranslate"><span class="pre">complement()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.count_mismatches"><code class="docutils literal notranslate"><span class="pre">count_mismatches()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.equalize_lengths"><code class="docutils literal notranslate"><span class="pre">equalize_lengths()</span></code></a></li>
@@ -446,19 +445,16 @@
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.generate_plate_heatmap"><code class="docutils literal notranslate"><span class="pre">generate_plate_heatmap()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.get_read_data"><code class="docutils literal notranslate"><span class="pre">get_read_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.get_sequence_data"><code class="docutils literal notranslate"><span class="pre">get_sequence_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.map_barcodes"><code class="docutils literal notranslate"><span class="pre">map_barcodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.map_barcodes_folder"><code class="docutils literal notranslate"><span class="pre">map_barcodes_folder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.map_barcodes_v1"><code class="docutils literal notranslate"><span class="pre">map_barcodes_v1()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.map_unmapped_grnas"><code class="docutils literal notranslate"><span class="pre">map_unmapped_grnas()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.mixed_model"><code class="docutils literal notranslate"><span class="pre">mixed_model()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.plot_data"><code class="docutils literal notranslate"><span class="pre">plot_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.plot_plates"><code class="docutils literal notranslate"><span class="pre">plot_plates()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.plot_reg_res"><code class="docutils literal notranslate"><span class="pre">plot_reg_res()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.pos_dict"><code class="docutils literal notranslate"><span class="pre">pos_dict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.preprocess_image_data"><code class="docutils literal notranslate"><span class="pre">preprocess_image_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.process_barecodes"><code class="docutils literal notranslate"><span class="pre">process_barecodes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.reg_model"><code class="docutils literal notranslate"><span class="pre">reg_model()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.rename_plate_metadata"><code class="docutils literal notranslate"><span class="pre">rename_plate_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.reverse_complement"><code class="docutils literal notranslate"><span class="pre">reverse_complement()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.split_fastq"><code class="docutils literal notranslate"><span class="pre">split_fastq()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.split_filenames"><code class="docutils literal notranslate"><span class="pre">split_filenames()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.test_error"><code class="docutils literal notranslate"><span class="pre">test_error()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.translate_barecodes"><code class="docutils literal notranslate"><span class="pre">translate_barecodes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.sequencing.truncate_read"><code class="docutils literal notranslate"><span class="pre">truncate_read()</span></code></a></li>
@@ -595,6 +591,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.add_images_to_tar"><code class="docutils literal notranslate"><span class="pre">add_images_to_tar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.adjust_cell_masks"><code class="docutils literal notranslate"><span class="pre">adjust_cell_masks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.annotate_conditions"><code class="docutils literal notranslate"><span class="pre">annotate_conditions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.annotate_predictions"><code class="docutils literal notranslate"><span class="pre">annotate_predictions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.apply_mask"><code class="docutils literal notranslate"><span class="pre">apply_mask()</span></code></a></li>
@@ -607,19 +604,23 @@
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.calculate_loss"><code class="docutils literal notranslate"><span class="pre">calculate_loss()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.check_mask_folder"><code class="docutils literal notranslate"><span class="pre">check_mask_folder()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.check_multicollinearity"><code class="docutils literal notranslate"><span class="pre">check_multicollinearity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.check_normality"><code class="docutils literal notranslate"><span class="pre">check_normality()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.check_overlap"><code class="docutils literal notranslate"><span class="pre">check_overlap()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.choose_model"><code class="docutils literal notranslate"><span class="pre">choose_model()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.class_visualization"><code class="docutils literal notranslate"><span class="pre">class_visualization()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.classification_metrics"><code class="docutils literal notranslate"><span class="pre">classification_metrics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.cluster_feature_analysis"><code class="docutils literal notranslate"><span class="pre">cluster_feature_analysis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.combine_results"><code class="docutils literal notranslate"><span class="pre">combine_results()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.compute_ap_over_iou_thresholds"><code class="docutils literal notranslate"><span class="pre">compute_ap_over_iou_thresholds()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.compute_average_precision"><code class="docutils literal notranslate"><span class="pre">compute_average_precision()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.compute_irm_penalty"><code class="docutils literal notranslate"><span class="pre">compute_irm_penalty()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.compute_segmentation_ap"><code class="docutils literal notranslate"><span class="pre">compute_segmentation_ap()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.correct_paths"><code class="docutils literal notranslate"><span class="pre">correct_paths()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.correct_paths_v1"><code class="docutils literal notranslate"><span class="pre">correct_paths_v1()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.create_circular_mask"><code class="docutils literal notranslate"><span class="pre">create_circular_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.delete_folder"><code class="docutils literal notranslate"><span class="pre">delete_folder()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.dice_coefficient"><code class="docutils literal notranslate"><span class="pre">dice_coefficient()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.extract_boundaries"><code class="docutils literal notranslate"><span class="pre">extract_boundaries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.extract_features"><code class="docutils literal notranslate"><span class="pre">extract_features()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.filter_columns"><code class="docutils literal notranslate"><span class="pre">filter_columns()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.filter_dataframe_features"><code class="docutils literal notranslate"><span class="pre">filter_dataframe_features()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.find_non_overlapping_position"><code class="docutils literal notranslate"><span class="pre">find_non_overlapping_position()</span></code></a></li>
@@ -629,22 +630,27 @@
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.generate_fraction_map"><code class="docutils literal notranslate"><span class="pre">generate_fraction_map()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_db_paths"><code class="docutils literal notranslate"><span class="pre">get_db_paths()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_files_from_dir"><code class="docutils literal notranslate"><span class="pre">get_files_from_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_measure_crop_settings"><code class="docutils literal notranslate"><span class="pre">get_measure_crop_settings()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_paths_from_db"><code class="docutils literal notranslate"><span class="pre">get_paths_from_db()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_sequencing_paths"><code class="docutils literal notranslate"><span class="pre">get_sequencing_paths()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_submodules"><code class="docutils literal notranslate"><span class="pre">get_submodules()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.get_umap_image_settings"><code class="docutils literal notranslate"><span class="pre">get_umap_image_settings()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.initiate_counter"><code class="docutils literal notranslate"><span class="pre">initiate_counter()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.invert_image"><code class="docutils literal notranslate"><span class="pre">invert_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.is_list_of_lists"><code class="docutils literal notranslate"><span class="pre">is_list_of_lists()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.jaccard_index"><code class="docutils literal notranslate"><span class="pre">jaccard_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.lasso_reg"><code class="docutils literal notranslate"><span class="pre">lasso_reg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.load_image"><code class="docutils literal notranslate"><span class="pre">load_image()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.load_image_paths"><code class="docutils literal notranslate"><span class="pre">load_image_paths()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.mask_object_count"><code class="docutils literal notranslate"><span class="pre">mask_object_count()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.match_masks"><code class="docutils literal notranslate"><span class="pre">match_masks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.measure_test_mode"><code class="docutils literal notranslate"><span class="pre">measure_test_mode()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.merge_dataframes"><code class="docutils literal notranslate"><span class="pre">merge_dataframes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.merge_touching_objects"><code class="docutils literal notranslate"><span class="pre">merge_touching_objects()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.model_metrics"><code class="docutils literal notranslate"><span class="pre">model_metrics()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.normalize_to_dtype"><code class="docutils literal notranslate"><span class="pre">normalize_to_dtype()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.pad_to_same_shape"><code class="docutils literal notranslate"><span class="pre">pad_to_same_shape()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.perform_statistical_tests"><code class="docutils literal notranslate"><span class="pre">perform_statistical_tests()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.pick_best_model"><code class="docutils literal notranslate"><span class="pre">pick_best_model()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.plot_clusters"><code class="docutils literal notranslate"><span class="pre">plot_clusters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.plot_clusters_grid"><code class="docutils literal notranslate"><span class="pre">plot_clusters_grid()</span></code></a></li>
@@ -655,9 +661,10 @@
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.plot_umap_images"><code class="docutils literal notranslate"><span class="pre">plot_umap_images()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.preprocess_data"><code class="docutils literal notranslate"><span class="pre">preprocess_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.preprocess_image"><code class="docutils literal notranslate"><span class="pre">preprocess_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.process_masks"><code class="docutils literal notranslate"><span class="pre">process_masks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.random_forest_feature_importance"><code class="docutils literal notranslate"><span class="pre">random_forest_feature_importance()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.recommend_target_layers"><code class="docutils literal notranslate"><span class="pre">recommend_target_layers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.reduction_and_clustering"><code class="docutils literal notranslate"><span class="pre">reduction_and_clustering()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.reduction_and_clustering_v1"><code class="docutils literal notranslate"><span class="pre">reduction_and_clustering_v1()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.remove_canvas"><code class="docutils literal notranslate"><span class="pre">remove_canvas()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.remove_highly_correlated_columns"><code class="docutils literal notranslate"><span class="pre">remove_highly_correlated_columns()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="spacr.html#spacr.utils.remove_intensity_objects"><code class="docutils literal notranslate"><span class="pre">remove_intensity_objects()</span></code></a></li>
