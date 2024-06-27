@@ -342,8 +342,8 @@ def map_barcodes(h5_file_path, settings={}):
         
         return df
     
-    settings.setdefault('grna', '/home/carruthers/Documents/grna_barecodes.csv')
-    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARECODES.csv')
+    settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
+    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
     settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
