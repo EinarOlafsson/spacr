@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.utils &mdash; spacr 0.0.70 documentation</title>
+  <title>spacr.utils &mdash; spacr 0.0.71 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=29ed05f3"></script>
+        <script src="../../_static/documentation_options.js?v=8d9581ea"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.70
+                0.0.71
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -119,6 +119,7 @@
 <span class="kn">from</span> <span class="nn">scipy.ndimage.filters</span> <span class="kn">import</span> <span class="n">gaussian_filter</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">ConvexHull</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">splprep</span><span class="p">,</span> <span class="n">splev</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">binary_dilation</span>
 
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 <span class="kn">from</span> <span class="nn">skimage.exposure</span> <span class="kn">import</span> <span class="n">rescale_intensity</span>
@@ -131,12 +132,20 @@
 <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">DBSCAN</span>
 <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
 <span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
 
 <span class="kn">import</span> <span class="nn">umap.umap_</span> <span class="k">as</span> <span class="nn">umap</span>
 
 <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">torchvision.models.resnet</span> <span class="kn">import</span> <span class="n">ResNet18_Weights</span><span class="p">,</span> <span class="n">ResNet34_Weights</span><span class="p">,</span> <span class="n">ResNet50_Weights</span><span class="p">,</span> <span class="n">ResNet101_Weights</span><span class="p">,</span> <span class="n">ResNet152_Weights</span>
 <span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">f_oneway</span><span class="p">,</span> <span class="n">kruskal</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 
 <span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">log_function_call</span>
 
@@ -623,50 +632,17 @@
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="s1">&#39;none&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 
-<span class="k">def</span> <span class="nf">normalize_to_dtype</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="mi">98</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Normalize each image in the stack to its own percentiles.</span>
+<div class="viewcode-block" id="is_list_of_lists">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.is_list_of_lists">[docs]</a>
+<span class="k">def</span> <span class="nf">is_list_of_lists</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">var</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    - array: numpy array</span>
-<span class="sd">        The input stack to be normalized.</span>
-<span class="sd">    - p1: int, optional</span>
-<span class="sd">        The lower percentile value for normalization. Default is 2.</span>
-<span class="sd">    - p2: int, optional</span>
-<span class="sd">        The upper percentile value for normalization. Default is 98.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">    - new_stack: numpy array</span>
-<span class="sd">        The normalized stack with the same shape as the input stack.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">nimg</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">new_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg</span><span class="p">):</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
-        <span class="n">non_zero_img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">img</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">non_zero_img</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
-            <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">img_min</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="n">img_max</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-
-        <span class="c1"># Determine output range based on dtype</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
-            <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-
-        <span class="n">img</span> <span class="o">=</span> <span class="n">rescale_intensity</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">img_min</span><span class="p">,</span> <span class="n">img_max</span><span class="p">),</span> <span class="n">out_range</span><span class="o">=</span><span class="n">out_range</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="n">new_stack</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
-
-    <span class="k">return</span> <span class="n">new_stack</span>
 
 <div class="viewcode-block" id="normalize_to_dtype">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.normalize_to_dtype">[docs]</a>
-<span class="k">def</span> <span class="nf">normalize_to_dtype</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="mi">98</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">normalize_to_dtype</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="mi">98</span><span class="p">,</span> <span class="n">percentile_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize each image in the stack to its own percentiles.</span>
 
@@ -677,29 +653,40 @@
 <span class="sd">    The lower percentile value for normalization. Default is 2.</span>
 <span class="sd">    - p2: int, optional</span>
 <span class="sd">    The upper percentile value for normalization. Default is 98.</span>
-
+<span class="sd">    - percentile_list: list, optional</span>
+<span class="sd">    A list of pre-calculated percentiles for each image in the stack. Default is None.</span>
+<span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">    - new_stack: numpy array</span>
 <span class="sd">    The normalized stack with the same shape as the input stack.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
     <span class="n">nimg</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">new_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">new_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg</span><span class="p">):</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
         <span class="n">non_zero_img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">img</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">non_zero_img</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
-            <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">percentile_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">percentiles</span> <span class="o">=</span> <span class="n">percentile_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">img_min</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="n">img_max</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">percentile_1</span> <span class="o">=</span> <span class="n">p1</span>
+            <span class="n">percentile_2</span> <span class="o">=</span> <span class="n">p2</span>
+        <span class="k">if</span> <span class="n">percentile_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">non_zero_img</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">percentile_1</span><span class="p">)</span>
+                <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">percentile_2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">percentile_1</span><span class="p">)</span>
+                <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">percentile_2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">img_min</span> <span class="o">=</span> <span class="n">percentiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">img_max</span> <span class="o">=</span> <span class="n">percentiles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="c1"># Normalize to the range (0, 1) for visualization</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">rescale_intensity</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">img_min</span><span class="p">,</span> <span class="n">img_max</span><span class="p">),</span> <span class="n">out_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">rescale_intensity</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">img_min</span><span class="p">,</span> <span class="n">img_max</span><span class="p">),</span> <span class="n">out_range</span><span class="o">=</span><span class="n">out_range</span><span class="p">)</span>
         <span class="n">new_stack</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
-
     <span class="k">return</span> <span class="n">new_stack</span></div>
 
     
@@ -963,7 +950,7 @@
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;label_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;label_list&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
     
-<span class="k">def</span> <span class="nf">_get_percentiles</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">q1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">q2</span><span class="o">=</span><span class="mi">98</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_percentiles</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="mi">98</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the percentiles of each image in the given array.</span>
 
@@ -986,15 +973,16 @@
         <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">v</span><span class="p">])</span>
         <span class="n">non_zero_img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">img</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">non_zero_img</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># check if there are non-zero values</span>
-            <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span>  <span class="c1"># change percentile from 0.02 to 2</span>
-            <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>  <span class="c1"># change percentile from 0.98 to 98</span>
+            <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>  <span class="c1"># change percentile from 0.02 to 2</span>
+            <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">non_zero_img</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>  <span class="c1"># change percentile from 0.98 to 98</span>
             <span class="n">percentiles</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">img_min</span><span class="p">,</span> <span class="n">img_max</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># if there are no non-zero values, just use the image as it is</span>
-            <span class="n">img_min</span><span class="p">,</span> <span class="n">img_max</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">img_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>  <span class="c1"># change percentile from 0.02 to 2</span>
+            <span class="n">img_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>  <span class="c1"># change percentile from 0.98 to 98</span>
             <span class="n">percentiles</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">img_min</span><span class="p">,</span> <span class="n">img_max</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">percentiles</span>
 
-<span class="k">def</span> <span class="nf">_crop_center</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">98</span><span class="p">)):</span>
+<span class="k">def</span> <span class="nf">_crop_center</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Crop the image around the center of the cell mask.</span>
 
@@ -1007,8 +995,6 @@
 <span class="sd">        The desired width of the cropped image.</span>
 <span class="sd">    - new_height: int</span>
 <span class="sd">        The desired height of the cropped image.</span>
-<span class="sd">    - normalize: tuple, optional</span>
-<span class="sd">        The normalization range for the image pixel values. Default is (2, 98).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    - img: numpy.ndarray</span>
@@ -1018,19 +1004,22 @@
     <span class="n">cell_mask</span><span class="p">[</span><span class="n">cell_mask</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">mask_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="c1"># Create 3D mask</span>
     <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">mask_3d</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="c1"># Multiply image with mask to set pixel values outside of the mask to 0</span>
-    <span class="c1">#centroid = np.round(ndi.measurements.center_of_mass(cell_mask)).astype(int) # Compute centroid of the mask</span>
     <span class="n">centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">ndi</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># Compute centroid of the mask</span>
+    
     <span class="c1"># Pad the image and mask to ensure the crop will not go out of bounds</span>
     <span class="n">pad_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">)</span>
     <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">((</span><span class="n">pad_width</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">),</span> <span class="p">(</span><span class="n">pad_width</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">)</span>
     <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="p">((</span><span class="n">pad_width</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">),</span> <span class="p">(</span><span class="n">pad_width</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">)</span>
+    
     <span class="c1"># Update centroid coordinates due to padding</span>
     <span class="n">centroid</span> <span class="o">+=</span> <span class="n">pad_width</span>
+    
     <span class="c1"># Compute bounding box</span>
     <span class="n">start_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_height</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">end_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_y</span> <span class="o">+</span> <span class="n">new_height</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">start_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">end_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_x</span> <span class="o">+</span> <span class="n">new_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
     <span class="c1"># Crop to bounding box</span>
     <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">start_y</span><span class="p">:</span><span class="n">end_y</span><span class="p">,</span> <span class="n">start_x</span><span class="p">:</span><span class="n">end_x</span><span class="p">,</span> <span class="p">:]</span>
     <span class="k">return</span> <span class="n">img</span>
@@ -1636,7 +1625,6 @@
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 </div>
-
 
 
 <span class="c1"># Final Classifier</span>
@@ -3799,108 +3787,6 @@
     <span class="k">return</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">reducer</span></div>
 
 
-<div class="viewcode-block" id="reduction_and_clustering_v1">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.reduction_and_clustering_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">reduction_and_clustering_v1</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="p">,</span> <span class="n">min_dist</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="n">clustering</span><span class="p">,</span> <span class="n">reduction_method</span><span class="o">=</span><span class="s1">&#39;umap&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform dimensionality reduction and clustering on the given data.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    numeric_data (np.ndarray): Numeric data for embedding and clustering.</span>
-<span class="sd">    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.</span>
-<span class="sd">    min_dist (float): Minimum distance for UMAP.</span>
-<span class="sd">    metric (str): Metric for UMAP and DBSCAN.</span>
-<span class="sd">    eps (float): Epsilon for DBSCAN.</span>
-<span class="sd">    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.</span>
-<span class="sd">    clustering (str): Clustering method (&#39;DBSCAN&#39; or &#39;KMeans&#39;).</span>
-<span class="sd">    reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
-<span class="sd">    verbose (bool): Whether to print verbose output.</span>
-<span class="sd">    embedding (np.ndarray, optional): Precomputed embedding. Default is None.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">    tuple: embedding, labels</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="n">v</span><span class="o">=</span><span class="mi">1</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">v</span><span class="o">=</span><span class="mi">0</span>
-    
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_neighbors</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="n">n_neighbors</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_neighbors</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="n">n_neighbors</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">n_neighbors</span> <span class="o">=</span> <span class="mi">2</span>
-    
-    <span class="k">if</span> <span class="n">reduction_method</span> <span class="o">==</span> <span class="s1">&#39;umap&#39;</span><span class="p">:</span>
-        <span class="n">reducer</span> <span class="o">=</span> <span class="n">umap</span><span class="o">.</span><span class="n">UMAP</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_neighbors</span><span class="p">,</span>
-                            <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                            <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
-                            <span class="n">n_epochs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                            <span class="n">init</span><span class="o">=</span><span class="s1">&#39;spectral&#39;</span><span class="p">,</span>
-                            <span class="n">min_dist</span><span class="o">=</span><span class="n">min_dist</span><span class="p">,</span>
-                            <span class="n">spread</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                            <span class="n">set_op_mix_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                            <span class="n">local_connectivity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                            <span class="n">repulsion_strength</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                            <span class="n">negative_sample_rate</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                            <span class="n">transform_queue_size</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
-                            <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
-                            <span class="n">metric_kwds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">angular_rp_forest</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="n">target_n_neighbors</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-                            <span class="n">target_metric</span><span class="o">=</span><span class="s1">&#39;categorical&#39;</span><span class="p">,</span>
-                            <span class="n">target_metric_kwds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">target_weight</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                            <span class="n">transform_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
-                            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
-                            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">reduction_method</span> <span class="o">==</span> <span class="s1">&#39;tsne&#39;</span><span class="p">:</span>
-
-        <span class="c1">#tsne_params.setdefault(&#39;n_components&#39;, 2)</span>
-        <span class="c1">#reducer = TSNE(**tsne_params)</span>
-
-        <span class="n">reducer</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                       <span class="n">perplexity</span><span class="o">=</span><span class="n">n_neighbors</span><span class="p">,</span>
-                       <span class="n">early_exaggeration</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
-                       <span class="n">learning_rate</span><span class="o">=</span><span class="mf">200.0</span><span class="p">,</span>
-                       <span class="n">n_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-                       <span class="n">n_iter_without_progress</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
-                       <span class="n">min_grad_norm</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span>
-                       <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
-                       <span class="n">init</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span>
-                       <span class="n">verbose</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
-                       <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
-                       <span class="n">method</span><span class="o">=</span><span class="s1">&#39;barnes_hut&#39;</span><span class="p">,</span>
-                       <span class="n">angle</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                       <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
-        
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported reduction method: </span><span class="si">{</span><span class="n">reduction_method</span><span class="si">}</span><span class="s2">. Supported methods are &#39;umap&#39; and &#39;tsne&#39;&quot;</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">embedding</span> <span class="o">=</span> <span class="n">reducer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">clustering</span> <span class="o">==</span> <span class="s1">&#39;dbscan&#39;</span><span class="p">:</span>
-        <span class="n">clustering_model</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">min_samples</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">clustering</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>
-        <span class="n">clustering_model</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">min_samples</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported clustering method: </span><span class="si">{</span><span class="n">clustering</span><span class="si">}</span><span class="s2">. Supported methods are &#39;dbscan&#39; and &#39;kmeans&#39;&quot;</span><span class="p">)</span>
-    
-    <span class="n">clustering_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">embedding</span><span class="p">)</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">clustering_model</span><span class="o">.</span><span class="n">labels_</span> <span class="k">if</span> <span class="n">clustering</span> <span class="o">==</span> <span class="s1">&#39;dbscan&#39;</span> <span class="k">else</span> <span class="n">clustering_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">embedding</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Embedding shape: </span><span class="si">{</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span></div>
-
-
 <div class="viewcode-block" id="remove_noise">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.remove_noise">[docs]</a>
 <span class="k">def</span> <span class="nf">remove_noise</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
@@ -4151,33 +4037,6 @@
     <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">image_paths</span></div>
 
 
-<div class="viewcode-block" id="correct_paths_v1">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.correct_paths_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">correct_paths_v1</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s1">&#39;png_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No &#39;png_path&#39; column found in the dataframe.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="kc">None</span>
-    
-    <span class="n">image_paths</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
-    
-    <span class="n">adjusted_image_paths</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">image_paths</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">base_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adjusting path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;data/&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">new_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">adjusted_image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">adjusted_image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">adjusted_image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adjusted_image_paths</span>
-    <span class="n">image_paths</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">image_paths</span></div>
-
-
 <div class="viewcode-block" id="get_umap_image_settings">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.get_umap_image_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
@@ -4227,6 +4086,119 @@
     <span class="k">return</span> <span class="n">settings</span></div>
 
 
+<div class="viewcode-block" id="get_measure_crop_settings">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.get_measure_crop_settings">[docs]</a>
+<span class="k">def</span> <span class="nf">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+
+    <span class="c1"># Test mode</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_nr&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+    <span class="c1">#measurement settings</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_measurements&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;radial_dist&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;calculate_correlation&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;manders_thresholds&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">85</span><span class="p">,</span><span class="mi">95</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;homogeneity&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;homogeneity_distances&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">32</span><span class="p">])</span>
+
+    <span class="c1"># Cropping settings</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_arrays&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_png&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_bounding_box&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;png_size&#39;</span><span class="p">,[</span><span class="mi">224</span><span class="p">,</span><span class="mi">224</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;png_dims&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize_by&#39;</span><span class="p">,</span><span class="s1">&#39;png&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">,[</span><span class="s1">&#39;cell&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dialate_png_ratios&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">])</span>
+
+    <span class="c1"># Timelapsed settings</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Operational settings</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_filtration&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;representative_images&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;max_workers&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Object settings</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;include_uninfected&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;merge_edge_pathogen_cells&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Miscellaneous settings</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;experiment&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cells&#39;</span><span class="p">,</span> <span class="s1">&#39;HeLa&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_loc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogens&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ME49Dku80WT&#39;</span><span class="p">,</span> <span class="s1">&#39;ME49Dku80dgra8:GRA8&#39;</span><span class="p">,</span> <span class="s1">&#39;ME49Dku80dgra8&#39;</span><span class="p">,</span> <span class="s1">&#39;ME49Dku80TKO&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_loc&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;c1&#39;</span><span class="p">,</span> <span class="s1">&#39;c2&#39;</span><span class="p">,</span> <span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="s1">&#39;c4&#39;</span><span class="p">,</span> <span class="s1">&#39;c5&#39;</span><span class="p">,</span> <span class="s1">&#39;c6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c7&#39;</span><span class="p">,</span> <span class="s1">&#39;c8&#39;</span><span class="p">,</span> <span class="s1">&#39;c9&#39;</span><span class="p">,</span> <span class="s1">&#39;c10&#39;</span><span class="p">,</span> <span class="s1">&#39;c11&#39;</span><span class="p">,</span> <span class="s1">&#39;c12&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c13&#39;</span><span class="p">,</span> <span class="s1">&#39;c14&#39;</span><span class="p">,</span> <span class="s1">&#39;c15&#39;</span><span class="p">,</span> <span class="s1">&#39;c16&#39;</span><span class="p">,</span> <span class="s1">&#39;c17&#39;</span><span class="p">,</span> <span class="s1">&#39;c18&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c19&#39;</span><span class="p">,</span> <span class="s1">&#39;c20&#39;</span><span class="p">,</span> <span class="s1">&#39;c21&#39;</span><span class="p">,</span> <span class="s1">&#39;c22&#39;</span><span class="p">,</span> <span class="s1">&#39;c23&#39;</span><span class="p">,</span> <span class="s1">&#39;c24&#39;</span><span class="p">]])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;treatments&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;BR1&#39;</span><span class="p">,</span> <span class="s1">&#39;BR2&#39;</span><span class="p">,</span> <span class="s1">&#39;BR3&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;treatment_loc&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;c1&#39;</span><span class="p">,</span> <span class="s1">&#39;c2&#39;</span><span class="p">,</span> <span class="s1">&#39;c7&#39;</span><span class="p">,</span> <span class="s1">&#39;c8&#39;</span><span class="p">,</span> <span class="s1">&#39;c13&#39;</span><span class="p">,</span> <span class="s1">&#39;c14&#39;</span><span class="p">,</span> <span class="s1">&#39;c19&#39;</span><span class="p">,</span> <span class="s1">&#39;c20&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="s1">&#39;c4&#39;</span><span class="p">,</span> <span class="s1">&#39;c9&#39;</span><span class="p">,</span> <span class="s1">&#39;c10&#39;</span><span class="p">,</span> <span class="s1">&#39;c15&#39;</span><span class="p">,</span> <span class="s1">&#39;c16&#39;</span><span class="p">,</span> <span class="s1">&#39;c21&#39;</span><span class="p">,</span> <span class="s1">&#39;c22&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c5&#39;</span><span class="p">,</span> <span class="s1">&#39;c6&#39;</span><span class="p">,</span> <span class="s1">&#39;c11&#39;</span><span class="p">,</span> <span class="s1">&#39;c12&#39;</span><span class="p">,</span> <span class="s1">&#39;c17&#39;</span><span class="p">,</span> <span class="s1">&#39;c18&#39;</span><span class="p">,</span> <span class="s1">&#39;c23&#39;</span><span class="p">,</span> <span class="s1">&#39;c24&#39;</span><span class="p">]])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;channel_of_interest&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;compartments&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;measurement&#39;</span><span class="p">,</span> <span class="s1">&#39;mean_intensity&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nr_imgs&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;um_per_pixel&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]:</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_filtration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">test_imgs</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_nr&#39;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test mode enabled with </span><span class="si">{</span><span class="n">test_imgs</span><span class="si">}</span><span class="s1"> images, plotting set to True&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">settings</span></div>
+
+
+<div class="viewcode-block" id="delete_folder">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.delete_folder">[docs]</a>
+<span class="k">def</span> <span class="nf">delete_folder</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Folder &#39;</span><span class="si">{</span><span class="n">folder_path</span><span class="si">}</span><span class="s2">&#39; has been deleted.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Folder &#39;</span><span class="si">{</span><span class="n">folder_path</span><span class="si">}</span><span class="s2">&#39; does not exist or is not a directory.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="measure_test_mode">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.measure_test_mode">[docs]</a>
+<span class="k">def</span> <span class="nf">measure_test_mode</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>    
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+            <span class="n">all_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">])</span>
+            <span class="n">random_files</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">all_files</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_nr&#39;</span><span class="p">])</span>
+
+            <span class="n">src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">]),</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+                <span class="n">delete_folder</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">random_files</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">],</span> <span class="n">file</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="n">file</span><span class="p">))</span>
+
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Changed source folder to </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s1"> for test mode&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test mode enabled, using source folder </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;input_folder&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">settings</span></div>
+
+
 <div class="viewcode-block" id="preprocess_data">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.preprocess_data">[docs]</a>
 <span class="k">def</span> <span class="nf">preprocess_data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filter_by</span><span class="p">,</span> <span class="n">remove_highly_correlated</span><span class="p">,</span> <span class="n">log_data</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
@@ -4235,19 +4207,19 @@
 <span class="sd">    applying log transformation, filling NaN values, and scaling the numeric data.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        df (pandas.DataFrame): The input dataframe.</span>
-<span class="sd">        filter_by (str or None): The channel of interest to filter the dataframe by.</span>
-<span class="sd">        remove_highly_correlated (bool or float): Whether to remove highly correlated columns.</span>
-<span class="sd">            If a float is provided, it represents the correlation threshold.</span>
-<span class="sd">        log_data (bool): Whether to apply log transformation to the numeric data.</span>
-<span class="sd">        exclude (list or None): List of features to exclude from the filtering process.</span>
-<span class="sd">        verbose (bool): Whether to print verbose output during preprocessing.</span>
+<span class="sd">    df (pandas.DataFrame): The input dataframe.</span>
+<span class="sd">    filter_by (str or None): The channel of interest to filter the dataframe by.</span>
+<span class="sd">    remove_highly_correlated (bool or float): Whether to remove highly correlated columns.</span>
+<span class="sd">    If a float is provided, it represents the correlation threshold.</span>
+<span class="sd">    log_data (bool): Whether to apply log transformation to the numeric data.</span>
+<span class="sd">    exclude (list or None): List of features to exclude from the filtering process.</span>
+<span class="sd">    verbose (bool): Whether to print verbose output during preprocessing.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        numpy.ndarray: The preprocessed numeric data.</span>
+<span class="sd">    numpy.ndarray: The preprocessed numeric data.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If no numeric columns are available after filtering.</span>
+<span class="sd">    ValueError: If no numeric columns are available after filtering.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Apply filtering based on the `filter_by` parameter</span>
@@ -4431,8 +4403,355 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Embedding shape: </span><span class="si">{</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span></div>
 
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.models</span> <span class="kn">import</span> <span class="n">resnet50</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">umap</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">f_oneway</span><span class="p">,</span> <span class="n">kruskal</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+
+<div class="viewcode-block" id="load_image">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.load_image">[docs]</a>
+<span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and preprocess an image.&quot;&quot;&quot;</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+    <span class="p">])</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
 
 
+<div class="viewcode-block" id="extract_features">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.extract_features">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="n">image_paths</span><span class="p">,</span> <span class="n">resnet</span><span class="o">=</span><span class="n">resnet50</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract features from images using a pre-trained ResNet model.&quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">resnet</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">children</span><span class="p">())[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Remove the last classification layer</span>
+
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">image_path</span> <span class="ow">in</span> <span class="n">image_paths</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">features</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_normality">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.check_normality">[docs]</a>
+<span class="k">def</span> <span class="nf">check_normality</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to check if a feature is normally distributed.&quot;&quot;&quot;</span>
+    <span class="n">k2</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">normaltest</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">:</span>  <span class="c1"># null hypothesis: x comes from a normal distribution</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="random_forest_feature_importance">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.random_forest_feature_importance">[docs]</a>
+<span class="k">def</span> <span class="nf">random_forest_feature_importance</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">cluster_col</span><span class="o">=</span><span class="s1">&#39;cluster&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Random Forest feature importance.&quot;&quot;&quot;</span>
+    <span class="n">numeric_features</span> <span class="o">=</span> <span class="n">all_df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">cluster_col</span> <span class="ow">in</span> <span class="n">numeric_features</span><span class="p">:</span>
+        <span class="n">numeric_features</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cluster_col</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">cluster_col</span><span class="p">]</span>
+
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="n">feature_importances</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span>
+
+    <span class="n">importance_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;Feature&#39;</span><span class="p">:</span> <span class="n">numeric_features</span><span class="p">,</span>
+        <span class="s1">&#39;Importance&#39;</span><span class="p">:</span> <span class="n">feature_importances</span>
+    <span class="p">})</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;Importance&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">importance_df</span></div>
+
+
+<div class="viewcode-block" id="perform_statistical_tests">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.perform_statistical_tests">[docs]</a>
+<span class="k">def</span> <span class="nf">perform_statistical_tests</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">cluster_col</span><span class="o">=</span><span class="s1">&#39;cluster&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform ANOVA or Kruskal-Wallis tests depending on normality of features.&quot;&quot;&quot;</span>
+    <span class="n">numeric_features</span> <span class="o">=</span> <span class="n">all_df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">cluster_col</span> <span class="ow">in</span> <span class="n">numeric_features</span><span class="p">:</span>
+        <span class="n">numeric_features</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cluster_col</span><span class="p">)</span>
+    
+    <span class="n">anova_results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">kruskal_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">numeric_features</span><span class="p">:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_df</span><span class="p">[</span><span class="n">all_df</span><span class="p">[</span><span class="n">cluster_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">][</span><span class="n">feature</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">all_df</span><span class="p">[</span><span class="n">cluster_col</span><span class="p">])]</span>
+        
+        <span class="k">if</span> <span class="n">check_normality</span><span class="p">(</span><span class="n">all_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]):</span>
+            <span class="n">stat</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">f_oneway</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
+            <span class="n">anova_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">feature</span><span class="p">,</span> <span class="n">stat</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stat</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">kruskal</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
+            <span class="n">kruskal_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">feature</span><span class="p">,</span> <span class="n">stat</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+    
+    <span class="n">anova_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">anova_results</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span> <span class="s1">&#39;ANOVA_Statistic&#39;</span><span class="p">,</span> <span class="s1">&#39;ANOVA_pValue&#39;</span><span class="p">])</span>
+    <span class="n">kruskal_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">kruskal_results</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span> <span class="s1">&#39;Kruskal_Statistic&#39;</span><span class="p">,</span> <span class="s1">&#39;Kruskal_pValue&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">anova_df</span><span class="p">,</span> <span class="n">kruskal_df</span></div>
+
+
+<div class="viewcode-block" id="combine_results">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.combine_results">[docs]</a>
+<span class="k">def</span> <span class="nf">combine_results</span><span class="p">(</span><span class="n">rf_df</span><span class="p">,</span> <span class="n">anova_df</span><span class="p">,</span> <span class="n">kruskal_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine the results into a single DataFrame.&quot;&quot;&quot;</span>
+    <span class="n">combined_df</span> <span class="o">=</span> <span class="n">rf_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">anova_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">combined_df</span> <span class="o">=</span> <span class="n">combined_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">kruskal_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">combined_df</span></div>
+
+
+<div class="viewcode-block" id="cluster_feature_analysis">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.cluster_feature_analysis">[docs]</a>
+<span class="k">def</span> <span class="nf">cluster_feature_analysis</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">cluster_col</span><span class="o">=</span><span class="s1">&#39;cluster&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform Random Forest feature importance, ANOVA for normally distributed features,</span>
+<span class="sd">    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rf_df</span> <span class="o">=</span> <span class="n">random_forest_feature_importance</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">cluster_col</span><span class="p">)</span>
+    <span class="n">anova_df</span><span class="p">,</span> <span class="n">kruskal_df</span> <span class="o">=</span> <span class="n">perform_statistical_tests</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">cluster_col</span><span class="p">)</span>
+    <span class="n">combined_df</span> <span class="o">=</span> <span class="n">combine_results</span><span class="p">(</span><span class="n">rf_df</span><span class="p">,</span> <span class="n">anova_df</span><span class="p">,</span> <span class="n">kruskal_df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">combined_df</span></div>
+
+
+<span class="k">def</span> <span class="nf">_merge_cells_based_on_parasite_overlap</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nuclei_mask</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,</span>
+<span class="sd">    and if cells share more than a specified perimeter percentage.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parasite_mask (ndarray): Mask of parasites.</span>
+<span class="sd">        cell_mask (ndarray): Mask of cells.</span>
+<span class="sd">        nuclei_mask (ndarray): Mask of nuclei.</span>
+<span class="sd">        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.</span>
+<span class="sd">        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ndarray: The modified cell mask (cell_mask) with unique labels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labeled_cells</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>
+    <span class="n">labeled_parasites</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">)</span>
+    <span class="n">labeled_nuclei</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">nuclei_mask</span><span class="p">)</span>
+    <span class="n">num_parasites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labeled_parasites</span><span class="p">)</span>
+    <span class="n">num_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">)</span>
+    <span class="n">num_nuclei</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labeled_nuclei</span><span class="p">)</span>
+
+    <span class="c1"># Merge cells based on parasite overlap</span>
+    <span class="k">for</span> <span class="n">parasite_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_parasites</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">current_parasite_mask</span> <span class="o">=</span> <span class="n">labeled_parasites</span> <span class="o">==</span> <span class="n">parasite_id</span>
+        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">[</span><span class="n">current_parasite_mask</span><span class="p">])</span>
+        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="n">overlapping_cell_labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_cell_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            
+            <span class="c1"># Calculate the overlap percentages</span>
+            <span class="n">overlap_percentages</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_parasite_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_parasite_mask</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+                <span class="k">for</span> <span class="n">cell_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span>
+            <span class="p">]</span>
+            <span class="c1"># Merge cells if overlap percentage is above the threshold</span>
+            <span class="k">for</span> <span class="n">cell_label</span><span class="p">,</span> <span class="n">overlap_percentage</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">overlapping_cell_labels</span><span class="p">,</span> <span class="n">overlap_percentages</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">overlap_percentage</span> <span class="o">&gt;</span> <span class="n">overlap_threshold</span><span class="p">:</span>
+                    <span class="n">first_label</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">other_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                        <span class="k">if</span> <span class="n">other_label</span> <span class="o">!=</span> <span class="n">first_label</span><span class="p">:</span>
+                            <span class="n">cell_mask</span><span class="p">[</span><span class="n">cell_mask</span> <span class="o">==</span> <span class="n">other_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_label</span>
+
+    <span class="c1"># Merge cells based on nucleus overlap</span>
+    <span class="k">for</span> <span class="n">nucleus_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_nuclei</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">current_nucleus_mask</span> <span class="o">=</span> <span class="n">labeled_nuclei</span> <span class="o">==</span> <span class="n">nucleus_id</span>
+        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">[</span><span class="n">current_nucleus_mask</span><span class="p">])</span>
+        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="n">overlapping_cell_labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_cell_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            
+            <span class="c1"># Calculate the overlap percentages</span>
+            <span class="n">overlap_percentages</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_nucleus_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_nucleus_mask</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+                <span class="k">for</span> <span class="n">cell_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span>
+            <span class="p">]</span>
+            <span class="c1"># Merge cells if overlap percentage is above the threshold for each cell</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">overlap_percentage</span> <span class="o">&gt;</span> <span class="n">overlap_threshold</span> <span class="k">for</span> <span class="n">overlap_percentage</span> <span class="ow">in</span> <span class="n">overlap_percentages</span><span class="p">):</span>
+                <span class="n">first_label</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">other_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="k">if</span> <span class="n">other_label</span> <span class="o">!=</span> <span class="n">first_label</span><span class="p">:</span>
+                        <span class="n">cell_mask</span><span class="p">[</span><span class="n">cell_mask</span> <span class="o">==</span> <span class="n">other_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_label</span>
+
+    <span class="c1"># Check for cells without nuclei and merge based on shared perimeter</span>
+    <span class="n">labeled_cells</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>  <span class="c1"># Re-label after merging based on overlap</span>
+    <span class="n">cell_regions</span> <span class="o">=</span> <span class="n">regionprops</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">cell_regions</span><span class="p">:</span>
+        <span class="n">cell_label</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">label</span>
+        <span class="n">cell_mask_binary</span> <span class="o">=</span> <span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span>
+        <span class="n">overlapping_nuclei</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">nuclei_mask</span><span class="p">[</span><span class="n">cell_mask_binary</span><span class="p">])</span>
+        <span class="n">overlapping_nuclei</span> <span class="o">=</span> <span class="n">overlapping_nuclei</span><span class="p">[</span><span class="n">overlapping_nuclei</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_nuclei</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            
+            <span class="c1"># Cell does not overlap with any nucleus</span>
+            <span class="n">perimeter</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">perimeter</span>
+            
+            <span class="c1"># Dilate the cell to find neighbors</span>
+            <span class="n">dilated_cell</span> <span class="o">=</span> <span class="n">binary_dilation</span><span class="p">(</span><span class="n">cell_mask_binary</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">square</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">neighbor_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">[</span><span class="n">dilated_cell</span><span class="p">])</span>
+            <span class="n">neighbor_cells</span> <span class="o">=</span> <span class="n">neighbor_cells</span><span class="p">[(</span><span class="n">neighbor_cells</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">neighbor_cells</span> <span class="o">!=</span> <span class="n">cell_label</span><span class="p">)]</span>
+            
+            <span class="c1"># Calculate shared border length with neighboring cells</span>
+            <span class="n">shared_borders</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">neighbor_label</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">dilated_cell</span><span class="p">)</span> <span class="k">for</span> <span class="n">neighbor_label</span> <span class="ow">in</span> <span class="n">neighbor_cells</span>
+            <span class="p">]</span>
+            <span class="n">shared_border_percentages</span> <span class="o">=</span> <span class="p">[</span><span class="n">shared_border</span> <span class="o">/</span> <span class="n">perimeter</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">shared_border</span> <span class="ow">in</span> <span class="n">shared_borders</span><span class="p">]</span>
+            
+            <span class="c1"># Merge with the neighbor cell with the largest shared border percentage above the threshold</span>
+            <span class="k">if</span> <span class="n">shared_borders</span><span class="p">:</span>
+                <span class="n">max_shared_border_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">shared_border_percentages</span><span class="p">)</span>
+                <span class="n">max_shared_border_percentage</span> <span class="o">=</span> <span class="n">shared_border_percentages</span><span class="p">[</span><span class="n">max_shared_border_index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">max_shared_border_percentage</span> <span class="o">&gt;</span> <span class="n">perimeter_threshold</span><span class="p">:</span>
+                    <span class="n">cell_mask</span><span class="p">[</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbor_cells</span><span class="p">[</span><span class="n">max_shared_border_index</span><span class="p">]</span>
+    
+    <span class="c1"># Relabel the merged cell mask</span>
+    <span class="n">relabeled_cell_mask</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">return_num</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">relabeled_cell_mask</span>
+
+<div class="viewcode-block" id="adjust_cell_masks">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.adjust_cell_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">adjust_cell_masks</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">,</span> <span class="n">cell_folder</span><span class="p">,</span> <span class="n">nuclei_folder</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process all npy files in the given folders. Merge and relabel cells in cell masks</span>
+<span class="sd">    based on parasite overlap and cell perimeter sharing conditions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parasite_folder (str): Path to the folder containing parasite masks.</span>
+<span class="sd">        cell_folder (str): Path to the folder containing cell masks.</span>
+<span class="sd">        nuclei_folder (str): Path to the folder containing nuclei masks.</span>
+<span class="sd">        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.</span>
+<span class="sd">        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parasite_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)])</span>
+    <span class="n">cell_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">cell_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)])</span>
+    <span class="n">nuclei_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">nuclei_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)])</span>
+    
+    <span class="c1"># Ensure there are matching files in all folders</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parasite_files</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_files</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nuclei_files</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of files in the folders do not match.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Match files by name</span>
+    <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">parasite_files</span><span class="p">:</span>
+        <span class="n">parasite_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">cell_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cell_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">nuclei_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nuclei_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="c1"># Check if the corresponding cell and nuclei mask files exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cell_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">nuclei_path</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Corresponding cell or nuclei mask file for </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="c1"># Load the masks</span>
+        <span class="n">parasite_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">parasite_path</span><span class="p">)</span>
+        <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cell_path</span><span class="p">)</span>
+        <span class="n">nuclei_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">nuclei_path</span><span class="p">)</span>
+        <span class="c1"># Merge and relabel cells</span>
+        <span class="n">merged_cell_mask</span> <span class="o">=</span> <span class="n">_merge_cells_based_on_parasite_overlap</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nuclei_mask</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="p">)</span>
+        
+        <span class="c1"># Force 16 bit</span>
+        <span class="n">mamerged_cell_masksk</span> <span class="o">=</span> <span class="n">merged_cell_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        
+        <span class="c1"># Overwrite the original cell mask file with the merged result</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">cell_path</span><span class="p">,</span> <span class="n">merged_cell_mask</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="process_masks">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.process_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">process_masks</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">image_folder</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">read_files_in_batches</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)]</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>  <span class="c1"># Sort to ensure matching order</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">measure_morphology_and_intensity</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">intensity_image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">properties_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">area</span><span class="p">,</span> <span class="s1">&#39;mean_intensity&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">mean_intensity</span><span class="p">,</span> <span class="s1">&#39;perimeter&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">perimeter</span><span class="p">,</span> <span class="s1">&#39;eccentricity&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">eccentricity</span><span class="p">}</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">properties_list</span>
+
+    <span class="k">def</span> <span class="nf">cluster_objects</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;mean_intensity&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;perimeter&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;eccentricity&#39;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">])</span>
+        <span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">kmeans</span>
+
+    <span class="k">def</span> <span class="nf">remove_objects_not_in_largest_cluster</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">largest_cluster_label</span><span class="p">):</span>
+        <span class="n">cleaned_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">region</span><span class="o">.</span><span class="n">label</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">largest_cluster_label</span><span class="p">:</span>
+                <span class="n">cleaned_mask</span><span class="p">[</span><span class="n">mask</span> <span class="o">==</span> <span class="n">region</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">label</span>
+        <span class="k">return</span> <span class="n">cleaned_mask</span>
+
+    <span class="k">def</span> <span class="nf">plot_clusters</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;mean_intensity&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;perimeter&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;eccentricity&#39;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">])</span>
+        <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">data_2d</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data_2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;PCA Component 1&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PCA Component 2&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Object Clustering&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    
+    <span class="n">all_properties</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Step 1: Accumulate properties over all files</span>
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">read_files_in_batches</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">mask_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+        <span class="n">image_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+        
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">mask_files</span><span class="p">]</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">image_files</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># Measure morphology and intensity</span>
+            <span class="n">properties</span> <span class="o">=</span> <span class="n">measure_morphology_and_intensity</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+            <span class="n">all_properties</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span>
+
+    <span class="c1"># Step 2: Perform clustering on accumulated properties</span>
+    <span class="n">kmeans</span> <span class="o">=</span> <span class="n">cluster_objects</span><span class="p">(</span><span class="n">all_properties</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">labels_</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="c1"># Step 3: Plot clusters using PCA</span>
+        <span class="n">plot_clusters</span><span class="p">(</span><span class="n">all_properties</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+    <span class="c1"># Step 4: Remove objects not in the largest cluster and overwrite files in batches</span>
+    <span class="n">label_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">read_files_in_batches</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">mask_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">mask_files</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
+            <span class="n">batch_properties</span> <span class="o">=</span> <span class="n">measure_morphology_and_intensity</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+            <span class="n">batch_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">label_index</span><span class="p">:</span><span class="n">label_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_properties</span><span class="p">)]</span>
+            <span class="n">largest_cluster_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">batch_labels</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+            <span class="n">cleaned_mask</span> <span class="o">=</span> <span class="n">remove_objects_not_in_largest_cluster</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">batch_labels</span><span class="p">,</span> <span class="n">largest_cluster_label</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mask_files</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cleaned_mask</span><span class="p">)</span>
+            <span class="n">label_index</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_properties</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.annotate_app &mdash; spacr 0.0.70 documentation</title>
+  <title>spacr.annotate_app &mdash; spacr 0.0.71 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=29ed05f3"></script>
+        <script src="../../_static/documentation_options.js?v=8d9581ea"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.70
+                0.0.71
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -86,6 +86,9 @@
 <span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>
 <span class="kn">from</span> <span class="nn">ttkthemes</span> <span class="kn">import</span> <span class="n">ThemedTk</span>
+<span class="kn">from</span> <span class="nn">skimage.exposure</span> <span class="kn">import</span> <span class="n">rescale_intensity</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">log_function_call</span>
 
@@ -94,7 +97,7 @@
 <div class="viewcode-block" id="ImageApp">
 <a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp">[docs]</a>
 <span class="k">class</span> <span class="nc">ImageApp</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid_rows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">annotation_column</span><span class="o">=</span><span class="s1">&#39;annotate&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid_rows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">annotation_column</span><span class="o">=</span><span class="s1">&#39;annotate&#39;</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">99</span><span class="p">)):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes an instance of the ImageApp class.</span>
 
@@ -108,6 +111,7 @@
 <span class="sd">        - grid_cols (int): The number of columns in the image grid.</span>
 <span class="sd">        - image_size (tuple): The size of the displayed images.</span>
 <span class="sd">        - annotation_column (str): The column name for image annotations in the database.</span>
+<span class="sd">        - normalize (bool): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">root</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path</span>
@@ -119,6 +123,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">annotation_column</span> <span class="o">=</span> <span class="n">annotation_column</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_type</span> <span class="o">=</span> <span class="n">image_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span> <span class="o">=</span> <span class="n">normalize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentiles</span> <span class="o">=</span> <span class="n">percentiles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pending_updates</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
@@ -200,52 +206,88 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-        
+
+<div class="viewcode-block" id="ImageApp.load_single_image">
+<a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp.load_single_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_single_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_annotation_tuple</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a single image from the given path and annotation tuple.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path_annotation_tuple (tuple): A tuple containing the image path and its annotation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            img (PIL.Image.Image): The loaded image.</span>
+<span class="sd">            annotation: The annotation associated with the image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">annotation</span> <span class="o">=</span> <span class="n">path_annotation_tuple</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">percentiles</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_channels</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">annotation</span></div>
+
+
 <div class="viewcode-block" id="ImageApp.normalize_image">
 <a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp.normalize_image">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">99</span><span class="p">)):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Normalize the pixel values of an image to the range [0, 255].</span>
+<span class="sd">        Normalize the pixel values of an image based on the 2nd and 98th percentiles or the image min and max values,</span>
+<span class="sd">        and ensure the image is exported as 8-bit.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">        - img: PIL.Image.Image. The input image to be normalized.</span>
+<span class="sd">        - normalize: bool. Whether to normalize based on the 2nd and 98th percentiles.</span>
+<span class="sd">        - percentiles: tuple. The percentiles to use for normalization.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        - PIL.Image.Image. The normalized image.</span>
+<span class="sd">        - PIL.Image.Image. The normalized and 8-bit converted image.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">img_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-        <span class="n">img_array</span> <span class="o">=</span> <span class="p">((</span><span class="n">img_array</span> <span class="o">-</span> <span class="n">img_array</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">img_array</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">img_array</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="mi">255</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">img_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Grayscale image</span>
+                <span class="n">p2</span><span class="p">,</span> <span class="n">p98</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img_array</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">)</span>
+                <span class="n">img_array</span> <span class="o">=</span> <span class="n">rescale_intensity</span><span class="p">(</span><span class="n">img_array</span><span class="p">,</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">p98</span><span class="p">),</span> <span class="n">out_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Color image or multi-channel image</span>
+                <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">img_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                    <span class="n">p2</span><span class="p">,</span> <span class="n">p98</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">img_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">],</span> <span class="n">percentiles</span><span class="p">)</span>
+                    <span class="n">img_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">]</span> <span class="o">=</span> <span class="n">rescale_intensity</span><span class="p">(</span><span class="n">img_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">],</span> <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">p98</span><span class="p">),</span> <span class="n">out_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+        <span class="n">img_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">img_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img_array</span><span class="p">)</span></div>
 
-
+    
 <div class="viewcode-block" id="ImageApp.add_colored_border">
 <a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp.add_colored_border">[docs]</a>
     <span class="k">def</span> <span class="nf">add_colored_border</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">border_width</span><span class="p">,</span> <span class="n">border_color</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Adds a colored border to an image.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a colored border to an image.</span>
 
-<span class="sd">            Args:</span>
-<span class="sd">                img (PIL.Image.Image): The input image.</span>
-<span class="sd">                border_width (int): The width of the border in pixels.</span>
-<span class="sd">                border_color (str): The color of the border in RGB format.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            img (PIL.Image.Image): The input image.</span>
+<span class="sd">            border_width (int): The width of the border in pixels.</span>
+<span class="sd">            border_color (str): The color of the border in RGB format.</span>
 
-<span class="sd">            Returns:</span>
-<span class="sd">                PIL.Image.Image: The image with the colored border.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="n">top_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
-            <span class="n">bottom_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
-            <span class="n">left_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
-            <span class="n">right_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            PIL.Image.Image: The image with the colored border.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">top_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
+        <span class="n">bottom_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
+        <span class="n">left_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
+        <span class="n">right_border</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">border_color</span><span class="p">)</span>
 
-            <span class="n">bordered_img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">border_width</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-            <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">top_border</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-            <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">bottom_border</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">border_width</span><span class="p">))</span>
-            <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">left_border</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">border_width</span><span class="p">))</span>
-            <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">right_border</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">border_width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">))</span>
-            <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">))</span>
+        <span class="n">bordered_img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">border_width</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+        <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">top_border</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">bottom_border</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">border_width</span><span class="p">))</span>
+        <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">left_border</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">border_width</span><span class="p">))</span>
+        <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">right_border</span><span class="p">,</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">border_width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">))</span>
+        <span class="n">bordered_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">border_width</span><span class="p">,</span> <span class="n">border_width</span><span class="p">))</span>
 
-            <span class="k">return</span> <span class="n">bordered_img</span></div>
+        <span class="k">return</span> <span class="n">bordered_img</span></div>
 
     
 <div class="viewcode-block" id="ImageApp.filter_channels">
@@ -277,29 +319,6 @@
         <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="ImageApp.load_single_image">
-<a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp.load_single_image">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_single_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_annotation_tuple</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Loads a single image from the given path and annotation tuple.</span>
-
-<span class="sd">            Args:</span>
-<span class="sd">                path_annotation_tuple (tuple): A tuple containing the image path and its annotation.</span>
-
-<span class="sd">            Returns:</span>
-<span class="sd">                img (PIL.Image.Image): The loaded image.</span>
-<span class="sd">                annotation: The annotation associated with the image.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="n">path</span><span class="p">,</span> <span class="n">annotation</span> <span class="o">=</span> <span class="n">path_annotation_tuple</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">:</span>
-                <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_image</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_channels</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_size</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">annotation</span></div>
-
-        
 <div class="viewcode-block" id="ImageApp.get_on_image_click">
 <a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp.get_on_image_click">[docs]</a>
     <span class="k">def</span> <span class="nf">get_on_image_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
@@ -338,7 +357,7 @@
 
         <span class="k">return</span> <span class="n">on_image_click</span></div>
 
-     
+
 <div class="viewcode-block" id="ImageApp.update_html">
 <a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.ImageApp.update_html">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -464,7 +483,7 @@
 
 <div class="viewcode-block" id="annotate">
 <a class="viewcode-back" href="../../spacr.html#spacr.annotate_app.annotate">[docs]</a>
-<span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="s2">&quot;1000x1100&quot;</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">rows</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">annotation_column</span><span class="o">=</span><span class="s1">&#39;annotate&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="s2">&quot;1000x1100&quot;</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">rows</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">annotation_column</span><span class="o">=</span><span class="s1">&#39;annotate&#39;</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">99</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Annotates images in a database using a graphical user interface.</span>
 
@@ -478,11 +497,9 @@
 <span class="sd">        rows (int, optional): The number of rows in the image grid. Defaults to 5.</span>
 <span class="sd">        columns (int, optional): The number of columns in the image grid. Defaults to 5.</span>
 <span class="sd">        annotation_column (str, optional): The name of the annotation column in the database table. Defaults to &#39;annotate&#39;.</span>
+<span class="sd">        normalize (bool, optional): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">db</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;measurements/measurements.db&#39;</span><span class="p">)</span>
-    <span class="c1">#print(&#39;src&#39;, src)</span>
-    <span class="c1">#print(&#39;db&#39;, db)</span>
-
     <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
     <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;PRAGMA table_info(png_list)&#39;</span><span class="p">)</span>
@@ -494,7 +511,7 @@
 
     <span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
     <span class="n">root</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
-    <span class="n">app</span> <span class="o">=</span> <span class="n">ImageApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="n">img_size</span><span class="p">,</span> <span class="n">grid_rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">grid_cols</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">annotation_column</span><span class="o">=</span><span class="n">annotation_column</span><span class="p">)</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">ImageApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">image_type</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="n">img_size</span><span class="p">,</span> <span class="n">grid_rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">grid_cols</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">annotation_column</span><span class="o">=</span><span class="n">annotation_column</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="n">percentiles</span><span class="p">)</span>
     <span class="n">next_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Next&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">next_page</span><span class="p">)</span>
     <span class="n">next_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">back_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">previous_page</span><span class="p">)</span>
@@ -504,7 +521,6 @@
     
     <span class="n">app</span><span class="o">.</span><span class="n">load_images</span><span class="p">()</span>
     <span class="n">root</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span></div>
-
 
 
 <div class="viewcode-block" id="check_for_duplicates">

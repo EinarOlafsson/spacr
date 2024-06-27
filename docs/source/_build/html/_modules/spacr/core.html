@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.core &mdash; spacr 0.0.70 documentation</title>
+  <title>spacr.core &mdash; spacr 0.0.71 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=29ed05f3"></script>
+        <script src="../../_static/documentation_options.js?v=8d9581ea"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.70
+                0.0.71
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -91,12 +91,8 @@
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 
 <span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="kn">import</span> <span class="n">regionprops</span><span class="p">,</span> <span class="n">label</span>
-<span class="kn">from</span> <span class="nn">skimage.morphology</span> <span class="kn">import</span> <span class="n">square</span>
 <span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span> <span class="k">as</span> <span class="n">resizescikit</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">random_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">measure</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
@@ -106,7 +102,6 @@
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">classification_report</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 
-<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">binary_dilation</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cosine</span><span class="p">,</span> <span class="n">euclidean</span><span class="p">,</span> <span class="n">mahalanobis</span><span class="p">,</span> <span class="n">cityblock</span><span class="p">,</span> <span class="n">minkowski</span><span class="p">,</span> <span class="n">chebyshev</span><span class="p">,</span> <span class="n">hamming</span><span class="p">,</span> <span class="n">jaccard</span><span class="p">,</span> <span class="n">braycurtis</span>
 
 <span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
@@ -116,7 +111,6 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
-<span class="c1">#import matplotlib.pyplot as plt</span>
 
 <span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">log_function_call</span>
 
@@ -1761,214 +1755,6 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">cells</span><span class="p">,</span><span class="n">wells</span><span class="p">]</span></div>
 
 
-<span class="k">def</span> <span class="nf">_merge_cells_based_on_parasite_overlap</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nuclei_mask</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,</span>
-<span class="sd">    and if cells share more than a specified perimeter percentage.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        parasite_mask (ndarray): Mask of parasites.</span>
-<span class="sd">        cell_mask (ndarray): Mask of cells.</span>
-<span class="sd">        nuclei_mask (ndarray): Mask of nuclei.</span>
-<span class="sd">        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.</span>
-<span class="sd">        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        ndarray: The modified cell mask (cell_mask) with unique labels.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">labeled_cells</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>
-    <span class="n">labeled_parasites</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">)</span>
-    <span class="n">labeled_nuclei</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">nuclei_mask</span><span class="p">)</span>
-    <span class="n">num_parasites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labeled_parasites</span><span class="p">)</span>
-    <span class="n">num_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">)</span>
-    <span class="n">num_nuclei</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labeled_nuclei</span><span class="p">)</span>
-
-    <span class="c1"># Merge cells based on parasite overlap</span>
-    <span class="k">for</span> <span class="n">parasite_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_parasites</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">current_parasite_mask</span> <span class="o">=</span> <span class="n">labeled_parasites</span> <span class="o">==</span> <span class="n">parasite_id</span>
-        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">[</span><span class="n">current_parasite_mask</span><span class="p">])</span>
-        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="n">overlapping_cell_labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_cell_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># Calculate the overlap percentages</span>
-            <span class="n">overlap_percentages</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_parasite_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_parasite_mask</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-                <span class="k">for</span> <span class="n">cell_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span>
-            <span class="p">]</span>
-            <span class="c1"># Merge cells if overlap percentage is above the threshold</span>
-            <span class="k">for</span> <span class="n">cell_label</span><span class="p">,</span> <span class="n">overlap_percentage</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">overlapping_cell_labels</span><span class="p">,</span> <span class="n">overlap_percentages</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">overlap_percentage</span> <span class="o">&gt;</span> <span class="n">overlap_threshold</span><span class="p">:</span>
-                    <span class="n">first_label</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">other_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                        <span class="k">if</span> <span class="n">other_label</span> <span class="o">!=</span> <span class="n">first_label</span><span class="p">:</span>
-                            <span class="n">cell_mask</span><span class="p">[</span><span class="n">cell_mask</span> <span class="o">==</span> <span class="n">other_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_label</span>
-
-    <span class="c1"># Merge cells based on nucleus overlap</span>
-    <span class="k">for</span> <span class="n">nucleus_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_nuclei</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">current_nucleus_mask</span> <span class="o">=</span> <span class="n">labeled_nuclei</span> <span class="o">==</span> <span class="n">nucleus_id</span>
-        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">[</span><span class="n">current_nucleus_mask</span><span class="p">])</span>
-        <span class="n">overlapping_cell_labels</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="n">overlapping_cell_labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_cell_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># Calculate the overlap percentages</span>
-            <span class="n">overlap_percentages</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_nucleus_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">current_nucleus_mask</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-                <span class="k">for</span> <span class="n">cell_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span>
-            <span class="p">]</span>
-            <span class="c1"># Merge cells if overlap percentage is above the threshold for each cell</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">overlap_percentage</span> <span class="o">&gt;</span> <span class="n">overlap_threshold</span> <span class="k">for</span> <span class="n">overlap_percentage</span> <span class="ow">in</span> <span class="n">overlap_percentages</span><span class="p">):</span>
-                <span class="n">first_label</span> <span class="o">=</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">other_label</span> <span class="ow">in</span> <span class="n">overlapping_cell_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                    <span class="k">if</span> <span class="n">other_label</span> <span class="o">!=</span> <span class="n">first_label</span><span class="p">:</span>
-                        <span class="n">cell_mask</span><span class="p">[</span><span class="n">cell_mask</span> <span class="o">==</span> <span class="n">other_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_label</span>
-
-    <span class="c1"># Check for cells without nuclei and merge based on shared perimeter</span>
-    <span class="n">labeled_cells</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>  <span class="c1"># Re-label after merging based on overlap</span>
-    <span class="n">cell_regions</span> <span class="o">=</span> <span class="n">regionprops</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">cell_regions</span><span class="p">:</span>
-        <span class="n">cell_label</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">label</span>
-        <span class="n">cell_mask_binary</span> <span class="o">=</span> <span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span>
-        <span class="n">overlapping_nuclei</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">nuclei_mask</span><span class="p">[</span><span class="n">cell_mask_binary</span><span class="p">])</span>
-        <span class="n">overlapping_nuclei</span> <span class="o">=</span> <span class="n">overlapping_nuclei</span><span class="p">[</span><span class="n">overlapping_nuclei</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_nuclei</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># Cell does not overlap with any nucleus</span>
-            <span class="n">perimeter</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">perimeter</span>
-            <span class="c1"># Dilate the cell to find neighbors</span>
-            <span class="n">dilated_cell</span> <span class="o">=</span> <span class="n">binary_dilation</span><span class="p">(</span><span class="n">cell_mask_binary</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">square</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-            <span class="n">neighbor_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labeled_cells</span><span class="p">[</span><span class="n">dilated_cell</span><span class="p">])</span>
-            <span class="n">neighbor_cells</span> <span class="o">=</span> <span class="n">neighbor_cells</span><span class="p">[(</span><span class="n">neighbor_cells</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">neighbor_cells</span> <span class="o">!=</span> <span class="n">cell_label</span><span class="p">)]</span>
-            <span class="c1"># Calculate shared border length with neighboring cells</span>
-            <span class="n">shared_borders</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">neighbor_label</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">dilated_cell</span><span class="p">)</span> <span class="k">for</span> <span class="n">neighbor_label</span> <span class="ow">in</span> <span class="n">neighbor_cells</span>
-            <span class="p">]</span>
-            <span class="n">shared_border_percentages</span> <span class="o">=</span> <span class="p">[</span><span class="n">shared_border</span> <span class="o">/</span> <span class="n">perimeter</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">shared_border</span> <span class="ow">in</span> <span class="n">shared_borders</span><span class="p">]</span>
-            <span class="c1"># Merge with the neighbor cell with the largest shared border percentage above the threshold</span>
-            <span class="k">if</span> <span class="n">shared_borders</span><span class="p">:</span>
-                <span class="n">max_shared_border_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">shared_border_percentages</span><span class="p">)</span>
-                <span class="n">max_shared_border_percentage</span> <span class="o">=</span> <span class="n">shared_border_percentages</span><span class="p">[</span><span class="n">max_shared_border_index</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">max_shared_border_percentage</span> <span class="o">&gt;</span> <span class="n">perimeter_threshold</span><span class="p">:</span>
-                    <span class="n">cell_mask</span><span class="p">[</span><span class="n">labeled_cells</span> <span class="o">==</span> <span class="n">cell_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbor_cells</span><span class="p">[</span><span class="n">max_shared_border_index</span><span class="p">]</span>
-    
-    <span class="c1"># Relabel the merged cell mask</span>
-    <span class="n">relabeled_cell_mask</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">return_num</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">relabeled_cell_mask</span>
-
-<div class="viewcode-block" id="adjust_cell_masks">
-<a class="viewcode-back" href="../../spacr.html#spacr.core.adjust_cell_masks">[docs]</a>
-<span class="k">def</span> <span class="nf">adjust_cell_masks</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">,</span> <span class="n">cell_folder</span><span class="p">,</span> <span class="n">nuclei_folder</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Process all npy files in the given folders. Merge and relabel cells in cell masks</span>
-<span class="sd">    based on parasite overlap and cell perimeter sharing conditions.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        parasite_folder (str): Path to the folder containing parasite masks.</span>
-<span class="sd">        cell_folder (str): Path to the folder containing cell masks.</span>
-<span class="sd">        nuclei_folder (str): Path to the folder containing nuclei masks.</span>
-<span class="sd">        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.</span>
-<span class="sd">        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">parasite_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)])</span>
-    <span class="n">cell_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">cell_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)])</span>
-    <span class="n">nuclei_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">nuclei_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)])</span>
-    
-    <span class="c1"># Ensure there are matching files in all folders</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parasite_files</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_files</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nuclei_files</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of files in the folders do not match.&quot;</span><span class="p">)</span>
-    
-    <span class="c1"># Match files by name</span>
-    <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">parasite_files</span><span class="p">:</span>
-        <span class="n">parasite_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-        <span class="n">cell_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cell_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-        <span class="n">nuclei_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nuclei_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-        <span class="c1"># Check if the corresponding cell and nuclei mask files exist</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cell_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">nuclei_path</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Corresponding cell or nuclei mask file for </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
-        <span class="c1"># Load the masks</span>
-        <span class="n">parasite_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">parasite_path</span><span class="p">)</span>
-        <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cell_path</span><span class="p">)</span>
-        <span class="n">nuclei_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">nuclei_path</span><span class="p">)</span>
-        <span class="c1"># Merge and relabel cells</span>
-        <span class="n">merged_cell_mask</span> <span class="o">=</span> <span class="n">_merge_cells_based_on_parasite_overlap</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nuclei_mask</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="p">)</span>
-        <span class="c1"># Overwrite the original cell mask file with the merged result</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">cell_path</span><span class="p">,</span> <span class="n">merged_cell_mask</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="process_masks">
-<a class="viewcode-back" href="../../spacr.html#spacr.core.process_masks">[docs]</a>
-<span class="k">def</span> <span class="nf">process_masks</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">image_folder</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    
-    <span class="k">def</span> <span class="nf">read_files_in_batches</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)]</span>
-        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>  <span class="c1"># Sort to ensure matching order</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">measure_morphology_and_intensity</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
-        <span class="n">properties</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">intensity_image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
-        <span class="n">properties_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">area</span><span class="p">,</span> <span class="s1">&#39;mean_intensity&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">mean_intensity</span><span class="p">,</span> <span class="s1">&#39;perimeter&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">perimeter</span><span class="p">,</span> <span class="s1">&#39;eccentricity&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">eccentricity</span><span class="p">}</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">properties_list</span>
-
-    <span class="k">def</span> <span class="nf">cluster_objects</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;mean_intensity&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;perimeter&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;eccentricity&#39;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">])</span>
-        <span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">kmeans</span>
-
-    <span class="k">def</span> <span class="nf">remove_objects_not_in_largest_cluster</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">largest_cluster_label</span><span class="p">):</span>
-        <span class="n">cleaned_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">region</span><span class="o">.</span><span class="n">label</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">largest_cluster_label</span><span class="p">:</span>
-                <span class="n">cleaned_mask</span><span class="p">[</span><span class="n">mask</span> <span class="o">==</span> <span class="n">region</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">label</span>
-        <span class="k">return</span> <span class="n">cleaned_mask</span>
-
-    <span class="k">def</span> <span class="nf">plot_clusters</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;mean_intensity&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;perimeter&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;eccentricity&#39;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">])</span>
-        <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">data_2d</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data_2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;PCA Component 1&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PCA Component 2&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Object Clustering&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    
-    <span class="n">all_properties</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="c1"># Step 1: Accumulate properties over all files</span>
-    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">read_files_in_batches</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
-        <span class="n">mask_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
-        <span class="n">image_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
-        
-        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">mask_files</span><span class="p">]</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">image_files</span><span class="p">]</span>
-        
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="c1"># Measure morphology and intensity</span>
-            <span class="n">properties</span> <span class="o">=</span> <span class="n">measure_morphology_and_intensity</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
-            <span class="n">all_properties</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span>
-
-    <span class="c1"># Step 2: Perform clustering on accumulated properties</span>
-    <span class="n">kmeans</span> <span class="o">=</span> <span class="n">cluster_objects</span><span class="p">(</span><span class="n">all_properties</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">)</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">labels_</span>
-
-    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
-        <span class="c1"># Step 3: Plot clusters using PCA</span>
-        <span class="n">plot_clusters</span><span class="p">(</span><span class="n">all_properties</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-
-    <span class="c1"># Step 4: Remove objects not in the largest cluster and overwrite files in batches</span>
-    <span class="n">label_index</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">read_files_in_batches</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
-        <span class="n">mask_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
-        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">mask_files</span><span class="p">]</span>
-        
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
-            <span class="n">batch_properties</span> <span class="o">=</span> <span class="n">measure_morphology_and_intensity</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
-            <span class="n">batch_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">label_index</span><span class="p">:</span><span class="n">label_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_properties</span><span class="p">)]</span>
-            <span class="n">largest_cluster_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">batch_labels</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
-            <span class="n">cleaned_mask</span> <span class="o">=</span> <span class="n">remove_objects_not_in_largest_cluster</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">batch_labels</span><span class="p">,</span> <span class="n">largest_cluster_label</span><span class="p">)</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mask_files</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cleaned_mask</span><span class="p">)</span>
-            <span class="n">label_index</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_properties</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="preprocess_generate_masks">
 <a class="viewcode-back" href="../../spacr.html#spacr.core.preprocess_generate_masks">[docs]</a>
 <span class="k">def</span> <span class="nf">preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
@@ -1976,9 +1762,9 @@
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">preprocess_img_data</span><span class="p">,</span> <span class="n">_load_and_concatenate_arrays</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_merged</span><span class="p">,</span> <span class="n">plot_arrays</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_pivot_counts_table</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">set_default_plot_merge_settings</span><span class="p">,</span> <span class="n">check_mask_folder</span>
-
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">adjust_cell_masks</span><span class="p">,</span> <span class="n">_merge_cells_based_on_parasite_overlap</span><span class="p">,</span> <span class="n">process_masks</span>
+    
     <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
-
     <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
     <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span><span class="s1">&#39;preprocess_generate_masks_settings.csv&#39;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2039,7 +1825,8 @@
                 
                 <span class="n">adjust_cell_masks</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">,</span> <span class="n">cell_folder</span><span class="p">,</span> <span class="n">nuclei_folder</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
                 <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cell mask adjustment: </span><span class="si">{</span><span class="n">stop</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+                <span class="n">adjust_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="mi">60</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cell mask adjustment: </span><span class="si">{</span><span class="n">adjust_time</span><span class="si">}</span><span class="s1"> min.&#39;</span><span class="p">)</span>
             
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;measurements&#39;</span><span class="p">)):</span>
             <span class="n">_pivot_counts_table</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;measurements&#39;</span><span class="p">,</span> <span class="s1">&#39;measurements.db&#39;</span><span class="p">))</span>
@@ -2730,6 +2517,7 @@
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">mask_index</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_stack</span><span class="p">):</span>
                 <span class="n">output_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">[</span><span class="n">mask_index</span><span class="p">])</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
             <span class="n">mask_stack</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">batch_filenames</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3321,8 +3109,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
  
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_join_tables</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_db_paths</span><span class="p">,</span> <span class="n">preprocess_data</span><span class="p">,</span> <span class="n">reduction_and_clustering</span><span class="p">,</span> <span class="n">remove_noise</span><span class="p">,</span> <span class="n">generate_colors</span><span class="p">,</span> <span class="n">correct_paths</span><span class="p">,</span> <span class="n">plot_embedding</span><span class="p">,</span> <span class="n">plot_clusters_grid</span><span class="p">,</span> <span class="n">get_umap_image_settings</span>
-    <span class="kn">from</span> <span class="nn">.alpha</span> <span class="kn">import</span> <span class="n">cluster_feature_analysis</span><span class="p">,</span> <span class="n">generate_umap_from_images</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_db_paths</span><span class="p">,</span> <span class="n">preprocess_data</span><span class="p">,</span> <span class="n">reduction_and_clustering</span><span class="p">,</span> <span class="n">remove_noise</span><span class="p">,</span> <span class="n">generate_colors</span><span class="p">,</span> <span class="n">correct_paths</span><span class="p">,</span> <span class="n">plot_embedding</span><span class="p">,</span> <span class="n">plot_clusters_grid</span><span class="p">,</span> <span class="n">get_umap_image_settings</span><span class="p">,</span> <span class="n">cluster_feature_analysis</span><span class="p">,</span> <span class="n">generate_umap_from_images</span>
 
     <span class="n">settings</span> <span class="o">=</span> <span class="n">get_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
 
