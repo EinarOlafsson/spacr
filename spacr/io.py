@@ -87,7 +87,7 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
         print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {labels[0].shape}, image type: labels[0].shape')
     return images, labels, image_names, label_names
 
-def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10):
+def _load_normalized_images_and_labels_v1(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10):
     
     from .plot import normalize_and_visualize
     from .utils import invert_image, apply_mask
@@ -179,6 +179,113 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         label_dir = None
 
     print(f'Loaded and normalized {len(normalized_images)} images and {len(labels)} labels from {image_dir} and {label_dir}')
+    
+    return normalized_images, labels, image_names, label_names
+
+def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10, target_height=None, target_width=None):
+    
+    from .plot import normalize_and_visualize, plot_resize
+    from .utils import invert_image, apply_mask
+    from skimage.transform import resize as resizescikit
+
+    signal_thresholds = background * Signal_to_noise
+    lower_percentile = 2
+
+    images = []
+    labels = []
+    
+    num_channels = 4
+    percentiles_1 = [[] for _ in range(num_channels)]
+    percentiles_99 = [[] for _ in range(num_channels)]
+
+    image_names = [os.path.basename(f) for f in image_files]
+    image_dir = os.path.dirname(image_files[0])
+    
+    if label_files is not None:
+        label_names = [os.path.basename(f) for f in label_files]
+        label_dir = os.path.dirname(label_files[0])
+
+    # Load, normalize, and resize images
+    for i, img_file in enumerate(image_files):
+        image = cellpose.io.imread(img_file)
+        if invert:
+            image = invert_image(image)
+        if circular:
+            image = apply_mask(image, output_value=0)
+
+        # If specific channels are specified, select them
+        if channels is not None and image.ndim == 3:
+            image = image[..., channels]
+
+        if remove_background:
+            image[image < background] = 0
+        
+        if image.ndim < 3:
+            image = np.expand_dims(image, axis=-1)
+        
+        if percentiles is None:
+            for c in range(image.shape[-1]):
+                p1 = np.percentile(image[..., c], lower_percentile)
+                percentiles_1[c].append(p1)
+                for percentile in [98, 99, 99.9, 99.99, 99.999]:
+                    p = np.percentile(image[..., c], percentile)
+                    if p > signal_thresholds:
+                        percentiles_99[c].append(p)
+                        break
+        
+        # Resize image
+        if target_height is not None and target_width is not None:
+            if image.ndim == 2:
+                image_shape = (target_height, target_width)
+            elif image.ndim == 3:
+                image_shape = (target_height, target_width, image.shape[-1])
+                
+            image = resizescikit(image, image_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
+        
+        images.append(image)
+    
+    if percentiles is None:
+        # Calculate average percentiles for normalization
+        avg_p1 = [np.mean(p) for p in percentiles_1]
+        avg_p99 = [np.mean(p) if len(p) > 0 else np.mean(percentiles_1[i]) for i, p in enumerate(percentiles_99)]
+
+        print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
+
+        normalized_images = []
+        for image in images:
+            normalized_image = np.zeros_like(image, dtype=np.float32)
+            for c in range(image.shape[-1]):
+                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(avg_p1[c], avg_p99[c]), out_range=(0, 1))
+            normalized_images.append(normalized_image)
+            if visualize:
+                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
+    else:
+        normalized_images = []
+        for image in images:
+            normalized_image = np.zeros_like(image, dtype=np.float32)
+            for c in range(image.shape[-1]):
+                low_p = np.percentile(image[..., c], percentiles[0])
+                high_p = np.percentile(image[..., c], percentiles[1])
+                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(low_p, high_p), out_range=(0, 1))
+            normalized_images.append(normalized_image)
+            if visualize:
+                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
+
+    if label_files is not None:
+        for lbl_file in label_files:
+            label = cellpose.io.imread(lbl_file)
+            # Resize label
+            if target_height is not None and target_width is not None:
+                label = resizescikit(label, (target_height, target_width), order=0, preserve_range=True, anti_aliasing=False).astype(label.dtype)
+            labels.append(label)
+    else:
+        label_names = []
+        label_dir = None
+
+    print(f'Loaded and normalized {len(normalized_images)} images and {len(labels)} labels from {image_dir} and {label_dir}')
+
+    if visualize and images and labels:
+        plot_resize(images, normalized_images, labels, labels)
     
     return normalized_images, labels, image_names, label_names
 
