@@ -7,10 +7,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from Bio import pairwise2
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
+from statsmodels.regression.mixed_linear_model import MixedLM
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 from scipy.stats import gmean
 from difflib import SequenceMatcher
 from collections import Counter
+from IPython.display import display
+
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
+from sklearn.preprocessing import FunctionTransformer, MinMaxScaler
+
+from scipy.stats import shapiro
+from patsy import dmatrices
 
 def analyze_reads(settings):
     """
@@ -28,7 +36,7 @@ def analyze_reads(settings):
         None
     """
     
-    def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
+    def save_chunk_to_hdf5_v1(output_file_path, data_chunk, chunk_counter):
         """
         Save a data chunk to an HDF5 file.
 
@@ -43,6 +51,28 @@ def analyze_reads(settings):
         df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
         with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
             store.put(f'reads/chunk_{chunk_counter}', df, format='table', append=True)
+
+    def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
+        """
+        Save a data chunk to an HDF5 file.
+
+        Parameters:
+        - output_file_path (str): The path to the output HDF5 file.
+        - data_chunk (list): The data chunk to be saved.
+        - chunk_counter (int): The counter for the current chunk.
+
+        Returns:
+        None
+        """
+        df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
+        with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
+            store.put(
+                f'reads/chunk_{chunk_counter}', 
+                df, 
+                format='table', 
+                append=True, 
+                min_itemsize={'combined_read': 300, 'grna': 50, 'plate_row': 20, 'column': 20, 'sample': 50}
+            )
 
     def reverse_complement(seq):
         """
@@ -139,7 +169,7 @@ def analyze_reads(settings):
         best_alignment = alignments[0]
         return best_alignment
 
-    def combine_reads(samples_dict, src, chunk_size, barecode_length, upstream, downstream):
+    def combine_reads(samples_dict, src, chunk_size, barecode_length_1, barecode_length_2, upstream, downstream):
         """
         Combine reads from paired-end sequencing files and save the combined reads to a new file.
         
@@ -186,7 +216,7 @@ def analyze_reads(settings):
             r1_size_est = os.path.getsize(r1_path) // (avg_read_length * 4) if r1_path else 0
             r2_size_est = os.path.getsize(r2_path) // (avg_read_length * 4) if r2_path else 0
             max_size = max(r1_size_est, r2_size_est) * 10
-            
+            test10 =0
             with tqdm(total=max_size, desc=f"Processing {sample}") as pbar:
                 total_length_processed = 0
                 read_count = 0
@@ -229,11 +259,25 @@ def analyze_reads(settings):
                         combo_split_index_1 = read_combo.find(upstream)
                         combo_split_index_2 = read_combo.find(downstream)
 
-                        barcode_1 = read_combo[combo_split_index_1 - barecode_length:combo_split_index_1]
+                        barcode_1 = read_combo[combo_split_index_1 - barecode_length_1:combo_split_index_1]
                         grna = read_combo[combo_split_index_1 + len(upstream):combo_split_index_2]
-                        barcode_2 = read_combo[combo_split_index_2 + len(downstream):combo_split_index_2 + len(downstream) + barecode_length]
+                        barcode_2 = read_combo[combo_split_index_2 + len(downstream):combo_split_index_2 + len(downstream) + barecode_length_2]
                         barcode_2 = reverse_complement(barcode_2)
                         data_chunk.append((read_combo, grna, barcode_1, barcode_2, sample))
+
+                        if settings['test']:
+                            if read_count % 1000 == 0:
+                                print(f"Read count: {read_count}")
+                                print(f"Read 1: {r1_read_rc}")
+                                print(f"Read 2: {r2_read}")
+                                print(f"Read combo: {read_combo}")
+                                print(f"Barcode 1: {barcode_1}")
+                                print(f"gRNA: {grna}")
+                                print(f"Barcode 2: {barcode_2}")
+                                print()
+                                test10 += 1
+                                if test10 == 10:
+                                    break
 
                         read_count += 1
                         total_length_processed += len(r1_read) + len(r2_read)
@@ -261,13 +305,15 @@ def analyze_reads(settings):
                 qc_df = pd.DataFrame([qc])
                 qc_df.to_csv(qc_file_path, index=False)
                 
-    settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT')
-    settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCA')
-    settings.setdefault('barecode_length', 8)
+    settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT') 
+    settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCAG') #This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA
+    settings.setdefault('barecode_length_1', 8)
+    settings.setdefault('barecode_length_2', 7)
     settings.setdefault('chunk_size', 1000000)
+    settings.setdefault('test', False)
     
     samples_dict = parse_gz_files(settings['src'])
-    combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length'], settings['upstream'], settings['downstream'])
+    combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length_1'], settings['barecode_length_2'], settings['upstream'], settings['downstream'])
 
 def map_barcodes(h5_file_path, settings={}):
     """
@@ -280,27 +326,20 @@ def map_barcodes(h5_file_path, settings={}):
     Returns:
         None
     """
-    def get_read_qc(df, df_cleaned):
+    def get_read_qc(df, settings):
         """
         Calculate quality control metrics for sequencing reads.
 
         Parameters:
         - df: DataFrame containing the sequencing reads.
-        - df_cleaned: DataFrame containing the cleaned sequencing reads.
 
         Returns:
-        - qc_dict: Dictionary containing the following quality control metrics:
-            - 'reads': Total number of reads.
-            - 'cleaned_reads': Total number of cleaned reads.
-            - 'NaN_grna': Number of reads with missing 'grna_metadata'.
-            - 'NaN_plate_row': Number of reads with missing 'plate_row_metadata'.
-            - 'NaN_column': Number of reads with missing 'column_metadata'.
-            - 'NaN_plate': Number of reads with missing 'plate_metadata'.
-            - 'unique_grna': Counter object containing the count of unique 'grna_metadata' values.
-            - 'unique_plate_row': Counter object containing the count of unique 'plate_row_metadata' values.
-            - 'unique_column': Counter object containing the count of unique 'column_metadata' values.
-            - 'unique_plate': Counter object containing the count of unique 'plate_metadata' values.
+        - df_cleaned: DataFrame containing the cleaned sequencing reads.
+        - qc_dict: Dictionary containing the quality control metrics.
         """
+        
+        df_cleaned = df.dropna()
+
         qc_dict = {}
         qc_dict['reads'] = len(df)
         qc_dict['cleaned_reads'] = len(df_cleaned)
@@ -312,9 +351,56 @@ def map_barcodes(h5_file_path, settings={}):
         qc_dict['unique_plate_row'] = Counter(df['plate_row_metadata'].dropna().tolist())
         qc_dict['unique_column'] = Counter(df['column_metadata'].dropna().tolist())
         qc_dict['unique_plate'] = Counter(df['plate_metadata'].dropna().tolist())
+
+        # Calculate control error rates using cleaned DataFrame
+        total_pc_non_nan = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc'])].shape[0]
+        total_nc_non_nan = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc'])].shape[0]
         
-        return qc_dict
-    
+        pc_count_pc = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc']) & (df_cleaned['grna_metadata'] == settings['pc'])].shape[0]
+        nc_count_nc = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc']) & (df_cleaned['grna_metadata'] == settings['nc'])].shape[0]
+
+        pc_error_count = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc']) & (df_cleaned['grna_metadata'] != settings['pc'])].shape[0]
+        nc_error_count = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc']) & (df_cleaned['grna_metadata'] != settings['nc'])].shape[0]
+        
+        pc_in_nc_loc_count = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc']) & (df_cleaned['grna_metadata'] == settings['pc'])].shape[0]
+        nc_in_pc_loc_count = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc']) & (df_cleaned['grna_metadata'] == settings['nc'])].shape[0]
+        
+        # Collect QC metrics into a dictionary
+        # PC 
+        qc_dict['pc_total_count'] = total_pc_non_nan
+        qc_dict['pc_count_pc'] = pc_count_pc
+        qc_dict['nc_count_pc'] = pc_in_nc_loc_count
+        qc_dict['pc_error_count'] = pc_error_count
+        # NC
+        qc_dict['nc_total_count'] = total_nc_non_nan
+        qc_dict['nc_count_nc'] = nc_count_nc
+        qc_dict['pc_count_nc'] = nc_in_pc_loc_count
+        qc_dict['nc_error_count'] = nc_error_count
+        
+        return df_cleaned, qc_dict
+
+    def get_per_row_qc(df, settings):
+        """
+        Calculate quality control metrics for each unique row in the control columns.
+
+        Parameters:
+        - df: DataFrame containing the sequencing reads.
+        - settings: Dictionary containing the settings for control values.
+
+        Returns:
+        - dict: Dictionary containing the quality control metrics for each unique row.
+        """
+        qc_dict_per_row = {}
+        unique_rows = df['plate_row_metadata'].dropna().unique().tolist()
+        unique_rows = list(set(unique_rows))  # Remove duplicates
+
+        for row in unique_rows:
+            df_row = df[(df['plate_row_metadata'] == row)]
+            _, qc_dict_row = get_read_qc(df_row, settings)
+            qc_dict_per_row[row] = qc_dict_row
+
+        return qc_dict_per_row
+
     def mapping_dicts(df, settings):
         """
         Maps the values in the DataFrame columns to corresponding metadata using dictionaries.
@@ -339,22 +425,94 @@ def map_barcodes(h5_file_path, settings={}):
         df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
         df['column_metadata'] = df['column'].map(column_dict)
         df['plate_metadata'] = df['sample'].map(plate_dict)
-        
+
         return df
     
+    def filter_combinations(df, settings):
+        """
+        Takes the combination counts Data Frame, filters the rows based on specific conditions, 
+        and removes rows with a count lower than the highest value of max_count_c1 and max_count_c2.
+
+        Args:
+            combination_counts_file_path (str): The file path to the CSV file containing the combination counts.
+            pc (str, optional): The positive control sequence. Defaults to 'TGGT1_220950_1'.
+            nc (str, optional): The negative control sequence. Defaults to 'TGGT1_233460_4'.
+
+        Returns:
+            pd.DataFrame: The filtered DataFrame.
+        """
+
+        pc = settings['pc']
+        nc = settings['nc']
+        pc_loc = settings['pc_loc']
+        nc_loc = settings['nc_loc']
+
+        filtered_c1 = df[(df['column'] == nc_loc) & (df['grna'] != nc)]
+        max_count_c1 = filtered_c1['count'].max()
+
+        filtered_c2 = df[(df['column'] == pc_loc) & (df['grna'] != pc)]
+        max_count_c2 = filtered_c2['count'].max()
+
+        #filtered_c3 = df[(df['column'] != nc_loc) & (df['grna'] == nc)]
+        #max_count_c3 = filtered_c3['count'].max()
+
+        #filtered_c4 = df[(df['column'] != pc_loc) & (df['grna'] == pc)]
+        #max_count_c4 = filtered_c4['count'].max()
+
+        # Find the highest value between max_count_c1 and max_count_c2
+        highest_max_count = max(max_count_c1, max_count_c2)
+
+        # Filter the DataFrame to remove rows with a count lower than the highest_max_count
+        filtered_df = df[df['count'] >= highest_max_count]
+
+        # Calculate total read counts for each unique combination of plate_row and column
+        filtered_df['total_reads'] = filtered_df.groupby(['plate_row', 'column'])['count'].transform('sum')
+        
+        # Calculate read fraction for each row
+        filtered_df['read_fraction'] = filtered_df['count'] / filtered_df['total_reads']
+
+        if settings['verbose']:
+            print(f"Max count for non {nc} in {nc_loc}: {max_count_c1}")
+            print(f"Max count for non {pc} in {pc_loc}: {max_count_c2}")
+            #print(f"Max count for {nc} in other columns: {max_count_c3}")
+            
+        return filtered_df
+
     settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
     settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
     settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
-    settings.setdefault('min_itemsize', 1000)
 
-    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
-    unique_grna_file_path = os.path.splitext(h5_file_path)[0] + '_unique_grna.csv'
-    unique_plate_row_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate_row.csv'
-    unique_column_file_path = os.path.splitext(h5_file_path)[0] + '_unique_column.csv'
-    unique_plate_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate.csv'
-    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+    settings.setdefault('pc', 'TGGT1_220950_1')
+    settings.setdefault('pc_loc', 'c2')
+    settings.setdefault('nc', 'TGGT1_233460_4')
+    settings.setdefault('nc_loc', 'c1')
+
+    fldr = os.path.splitext(h5_file_path)[0]
+    file_name = os.path.basename(fldr)
+
+    if settings['test']:
+        fldr = os.path.join(fldr, 'test')
+    os.makedirs(fldr, exist_ok=True)
+
+    qc_file_path = os.path.join(fldr, f'{file_name}_qc_step_2.csv')
+    unique_grna_file_path = os.path.join(fldr, f'{file_name}_unique_grna.csv')
+    unique_plate_row_file_path = os.path.join(fldr, f'{file_name}_unique_plate_row.csv')
+    unique_column_file_path = os.path.join(fldr, f'{file_name}_unique_column.csv')
+    unique_plate_file_path = os.path.join(fldr, f'{file_name}_unique_plate.csv')
+    new_h5_file_path = os.path.join(fldr, f'{file_name}_cleaned.h5')
+    combination_counts_file_path = os.path.join(fldr, f'{file_name}_combination_counts.csv')
+    combination_counts_file_path_cleaned = os.path.join(fldr, f'{file_name}_combination_counts_cleaned.csv')
+
+    #qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
+    #unique_grna_file_path = os.path.splitext(h5_file_path)[0] + '_unique_grna.csv'
+    #unique_plate_row_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate_row.csv'
+    #unique_column_file_path = os.path.splitext(h5_file_path)[0] + '_unique_column.csv'
+    #unique_plate_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate.csv'
+    #new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+    #combination_counts_file_path = os.path.splitext(h5_file_path)[0] + '_combination_counts.csv'
+    #combination_counts_file_path_cleaned = os.path.splitext(h5_file_path)[0] + '_combination_counts_cleaned.csv'
     
     # Initialize the HDF5 store for cleaned data
     store_cleaned = pd.HDFStore(new_h5_file_path, mode='a', complevel=5, complib='blosc')
@@ -370,37 +528,88 @@ def map_barcodes(h5_file_path, settings={}):
         'unique_grna': Counter(),
         'unique_plate_row': Counter(),
         'unique_column': Counter(),
-        'unique_plate': Counter()
+        'unique_plate': Counter(),
+        'pc_total_count': 0,
+        'pc_count_pc': 0,
+        'nc_total_count': 0,
+        'nc_count_nc': 0,
+        'pc_count_nc': 0,
+        'nc_count_pc': 0,
+        'pc_error_count': 0,
+        'nc_error_count': 0,
+        'pc_fraction_pc': 0,
+        'nc_fraction_nc': 0,
+        'pc_fraction_nc': 0,
+        'nc_fraction_pc': 0
     }
+
+    per_row_qc = {}
+    combination_counts = Counter()
 
     with pd.HDFStore(h5_file_path, mode='r') as store:
         keys = [key for key in store.keys() if key.startswith('/reads/chunk_')]
-        
+
+        if settings['test']:
+            keys = keys[:3]  # Only read the first chunks if in test mode
+
         for key in keys:
             df = store.get(key)
             df = mapping_dicts(df, settings)
-            df_cleaned = df.dropna()
-            qc_dict = get_read_qc(df, df_cleaned)
+            df_cleaned, qc_dict = get_read_qc(df, settings)
+
+            # Accumulate counts for unique combinations
+            combinations = df_cleaned[['plate_row_metadata', 'column_metadata', 'grna_metadata']].apply(tuple, axis=1)
             
-            # Accumulate QC metrics
-            overall_qc['reads'] += qc_dict['reads']
-            overall_qc['cleaned_reads'] += qc_dict['cleaned_reads']
-            overall_qc['NaN_grna'] += qc_dict['NaN_grna']
-            overall_qc['NaN_plate_row'] += qc_dict['NaN_plate_row']
-            overall_qc['NaN_column'] += qc_dict['NaN_column']
-            overall_qc['NaN_plate'] += qc_dict['NaN_plate']
-            overall_qc['unique_grna'].update(qc_dict['unique_grna'])
-            overall_qc['unique_plate_row'].update(qc_dict['unique_plate_row'])
-            overall_qc['unique_column'].update(qc_dict['unique_column'])
-            overall_qc['unique_plate'].update(qc_dict['unique_plate'])
-            
-            df_cleaned = df_cleaned[df_cleaned['grna_length'] >= 30]
-        
+            combination_counts.update(combinations)
+
+            if settings['test'] and settings['verbose']:
+                os.makedirs(os.path.join(os.path.splitext(h5_file_path)[0],'test'), exist_ok=True)
+                df.to_csv(os.path.join(os.path.splitext(h5_file_path)[0],'test','chunk_1_df.csv'), index=False)
+                df_cleaned.to_csv(os.path.join(os.path.splitext(h5_file_path)[0],'test','chunk_1_df_cleaned.csv'), index=False)
+
+            # Accumulate QC metrics for all rows
+            for metric in qc_dict:
+                if isinstance(overall_qc[metric], Counter):
+                    overall_qc[metric].update(qc_dict[metric])
+                else:
+                    overall_qc[metric] += qc_dict[metric]
+
+            # Update per_row_qc dictionary
+            chunk_per_row_qc = get_per_row_qc(df, settings)
+            for row in chunk_per_row_qc:
+                if row not in per_row_qc:
+                    per_row_qc[row] = chunk_per_row_qc[row]
+                else:
+                    for metric in chunk_per_row_qc[row]:
+                        if isinstance(per_row_qc[row][metric], Counter):
+                            per_row_qc[row][metric].update(chunk_per_row_qc[row][metric])
+                        else:
+                            per_row_qc[row][metric] += chunk_per_row_qc[row][metric]
+
+            # Ensure the DataFrame columns are in the desired order
+            df_cleaned = df_cleaned[['grna', 'plate_row', 'column', 'sample', 'grna_metadata', 'plate_row_metadata', 'column_metadata', 'plate_metadata']]
+
             # Save cleaned data to the new HDF5 store
             store_cleaned.put('reads/cleaned_data', df_cleaned, format='table', append=True)
-            
+
             del df_cleaned, df
             gc.collect()
+
+    # Calculate overall fractions after accumulating all metrics
+    overall_qc['pc_fraction_pc'] = overall_qc['pc_count_pc'] / overall_qc['pc_total_count'] if overall_qc['pc_total_count'] else 0
+    overall_qc['nc_fraction_nc'] = overall_qc['nc_count_nc'] / overall_qc['nc_total_count'] if overall_qc['nc_total_count'] else 0
+    overall_qc['pc_fraction_nc'] = overall_qc['pc_count_nc'] / overall_qc['nc_total_count'] if overall_qc['nc_total_count'] else 0
+    overall_qc['nc_fraction_pc'] = overall_qc['nc_count_pc'] / overall_qc['pc_total_count'] if overall_qc['pc_total_count'] else 0
+
+    for row in per_row_qc:
+        if row != 'all_rows':
+            per_row_qc[row]['pc_fraction_pc'] = per_row_qc[row]['pc_count_pc'] / per_row_qc[row]['pc_total_count'] if per_row_qc[row]['pc_total_count'] else 0
+            per_row_qc[row]['nc_fraction_nc'] = per_row_qc[row]['nc_count_nc'] / per_row_qc[row]['nc_total_count'] if per_row_qc[row]['nc_total_count'] else 0
+            per_row_qc[row]['pc_fraction_nc'] = per_row_qc[row]['pc_count_nc'] / per_row_qc[row]['nc_total_count'] if per_row_qc[row]['nc_total_count'] else 0
+            per_row_qc[row]['nc_fraction_pc'] = per_row_qc[row]['nc_count_pc'] / per_row_qc[row]['pc_total_count'] if per_row_qc[row]['pc_total_count'] else 0
+
+    # Add overall_qc to per_row_qc with the key 'all_rows'
+    per_row_qc['all_rows'] = overall_qc
 
     # Convert the Counter objects to DataFrames and save them to CSV files
     unique_grna_df = pd.DataFrame(overall_qc['unique_grna'].items(), columns=['key', 'value'])
@@ -422,89 +631,128 @@ def map_barcodes(h5_file_path, settings={}):
     # Combine all remaining QC metrics into a single DataFrame and save it to CSV
     qc_df = pd.DataFrame([overall_qc])
     qc_df.to_csv(qc_file_path, index=False)
+
+    # Convert per_row_qc to a DataFrame and save it to CSV
+    per_row_qc_df = pd.DataFrame.from_dict(per_row_qc, orient='index')
+    per_row_qc_df = per_row_qc_df.sort_values(by='reads', ascending=False)
+    per_row_qc_df = per_row_qc_df.drop(['unique_grna', 'unique_plate_row', 'unique_column', 'unique_plate'], axis=1, errors='ignore')
+    per_row_qc_df = per_row_qc_df.dropna(subset=['reads'])
+    per_row_qc_df.to_csv(os.path.splitext(h5_file_path)[0] + '_per_row_qc.csv', index=True)
+
+    if settings['verbose']:
+        display(per_row_qc_df)
+
+    # Save the combination counts to a CSV file
+    try:
+        combination_counts_df = pd.DataFrame(combination_counts.items(), columns=['combination', 'count'])
+        combination_counts_df[['plate_row', 'column', 'grna']] = pd.DataFrame(combination_counts_df['combination'].tolist(), index=combination_counts_df.index)
+        combination_counts_df = combination_counts_df.drop('combination', axis=1)
+        combination_counts_df.to_csv(combination_counts_file_path, index=False)
+
+        grna_plate_heatmap(combination_counts_file_path, specific_grna=None)
+        grna_plate_heatmap(combination_counts_file_path, specific_grna=settings['pc'])
+        grna_plate_heatmap(combination_counts_file_path, specific_grna=settings['nc'])
+
+        combination_counts_df_cleaned = filter_combinations(combination_counts_df, settings)
+        combination_counts_df_cleaned.to_csv(combination_counts_file_path_cleaned, index=False)
+
+        grna_plate_heatmap(combination_counts_file_path_cleaned, specific_grna=None)
+        grna_plate_heatmap(combination_counts_file_path_cleaned, specific_grna=settings['pc'])
+        grna_plate_heatmap(combination_counts_file_path_cleaned, specific_grna=settings['nc'])
+    except Exception as e:
+        print(e)
     
     # Close the HDF5 store
     store_cleaned.close()
-    
     gc.collect()
     return
 
-def map_barcodes_v1(h5_file_path, settings={}):
+def grna_plate_heatmap(path, specific_grna=None, min_max='all', cmap='viridis', min_count=0, save=True):
+    """
+    Generate a heatmap of gRNA plate data.
 
-    def get_read_qc(df, df_cleaned):
-        qc_dict = {}
-        qc_dict['reads'] = len(df)
-        qc_dict['cleaned_reads'] = len(df_cleaned)
-        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum()
-        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum()
-        qc_dict['NaN_column'] = df['column_metadata'].isna().sum()
-        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum()
+    Args:
+        path (str): The path to the CSV file containing the gRNA plate data.
+        specific_grna (str, optional): The specific gRNA to filter the data for. Defaults to None.
+        min_max (str or list or tuple, optional): The range of values to use for the color scale. 
+            If 'all', the range will be determined by the minimum and maximum values in the data.
+            If 'allq', the range will be determined by the 2nd and 98th percentiles of the data.
+            If a list or tuple of two values, the range will be determined by those values.
+            Defaults to 'all'.
+        cmap (str, optional): The colormap to use for the heatmap. Defaults to 'viridis'.
+        min_count (int, optional): The minimum count threshold for including a gRNA in the heatmap. 
+            Defaults to 0.
+        save (bool, optional): Whether to save the heatmap as a PDF file. Defaults to True.
+
+    Returns:
+        matplotlib.figure.Figure: The generated heatmap figure.
+    """    
+    def generate_grna_plate_heatmap(df, plate_number, min_max, min_count, specific_grna=None):
+        df = df.copy()  # Work on a copy to avoid SettingWithCopyWarning
         
-        
-        qc_dict['unique_grna'] = len(df['grna_metadata'].dropna().unique().tolist())
-        qc_dict['unique_plate_row'] = len(df['plate_row_metadata'].dropna().unique().tolist())
-        qc_dict['unique_column'] = len(df['column_metadata'].dropna().unique().tolist())
-        qc_dict['unique_plate'] = len(df['plate_metadata'].dropna().unique().tolist())
-        qc_dict['value_counts_grna'] = df['grna_metadata'].value_counts(dropna=True)
-        qc_dict['value_counts_plate_row'] = df['plate_row_metadata'].value_counts(dropna=True)
-        qc_dict['value_counts_column'] = df['column_metadata'].value_counts(dropna=True)
-        
-        return qc_dict
+        # Filtering the dataframe based on the plate_number and specific gRNA if provided
+        df = df[df['plate_row'].str.startswith(plate_number)]
+        if specific_grna:
+            df = df[df['grna'] == specific_grna]
+
+        # Split plate_row into plate and row
+        df[['plate', 'row']] = df['plate_row'].str.split('_', expand=True)
+
+        # Ensure proper ordering
+        row_order = [f'r{i}' for i in range(1, 17)]
+        col_order = [f'c{i}' for i in range(1, 28)]
+
+        df['row'] = pd.Categorical(df['row'], categories=row_order, ordered=True)
+        df['column'] = pd.Categorical(df['column'], categories=col_order, ordered=True)
+
+        # Group by row and column, summing counts
+        grouped = df.groupby(['row', 'column'], observed=True)['count'].sum().reset_index()
+
+        plate_map = pd.pivot_table(grouped, values='count', index='row', columns='column').fillna(0)
+
+        if min_max == 'all':
+            min_max = [plate_map.min().min(), plate_map.max().max()]
+        elif min_max == 'allq':
+            min_max = np.quantile(plate_map.values, [0.02, 0.98])
+        elif isinstance(min_max, (list, tuple)) and len(min_max) == 2:
+            if isinstance(min_max[0], (float)) and isinstance(min_max[1], (float)):
+                min_max = np.quantile(plate_map.values, [min_max[0], min_max[1]])
+            if isinstance(min_max[0], (int)) and isinstance(min_max[1], (int)): 
+                min_max = [min_max[0], min_max[1]]
+
+        return plate_map, min_max
     
-    def mapping_dicts(df, settings):
-        grna_df = pd.read_csv(settings['grna'])
-        barcode_df = pd.read_csv(settings['barcodes'])
+    if isinstance(path, pd.DataFrame):
+        df = path
+    else:
+        df = pd.read_csv(path)
 
-        grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
-        plate_row_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('p')}
-        column_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('c')}
-        plate_dict = settings['plate_dict']
+    plates = df['plate_row'].str.split('_', expand=True)[0].unique()
+    n_rows, n_cols = (len(plates) + 3) // 4, 4
+    fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
+    ax = ax.flatten()
 
-        df['grna_metadata'] = df['grna'].map(grna_dict)
-        df['grna_length'] = df['grna'].apply(len)
-        df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
-        df['column_metadata'] = df['column'].map(column_dict)
-        df['plate_metadata'] = df['sample'].map(plate_dict)
+    for index, plate in enumerate(plates):
+        plate_map, min_max_values = generate_grna_plate_heatmap(df, plate, min_max, min_count, specific_grna)
+        sns.heatmap(plate_map, cmap=cmap, vmin=min_max_values[0], vmax=min_max_values[1], ax=ax[index])
+        ax[index].set_title(plate)
         
-        return df
+    for i in range(len(plates), n_rows * n_cols):
+        fig.delaxes(ax[i])
     
-    settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
-    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
-    settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
-    settings.setdefault('test', False)
-    settings.setdefault('verbose', True)
-    settings.setdefault('min_itemsize', 1000)
-
-    qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
-    new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
+    plt.subplots_adjust(wspace=0.1, hspace=0.4)
     
-    # Initialize the HDF5 store for cleaned data
-    store_cleaned = pd.HDFStore(new_h5_file_path, mode='a', complevel=5, complib='blosc')
+    # Save the figure
+    if save:
+        filename = path.replace('.csv', '')
+        if specific_grna:
+            filename += f'_{specific_grna}'
+        filename += '.pdf'
+        plt.savefig(filename)
+        print(f'saved {filename}')
+    plt.show()
     
-    # Initialize the DataFrame for QC metrics
-    qc_df_list = []
-
-    with pd.HDFStore(h5_file_path, mode='r') as store:
-        keys = [key for key in store.keys() if key.startswith('/reads/chunk_')]
-        
-        for key in keys:
-            df = store.get(key)
-            df = mapping_dicts(df, settings)
-            df_cleaned = df.dropna()
-            qc_dict = get_read_qc(df, df_cleaned)
-            qc_df_list.append(qc_dict)
-            df_cleaned = df_cleaned[df_cleaned['grna_length'] >= 30]
-        
-            # Save cleaned data to the new HDF5 store
-            store_cleaned.put('reads/cleaned_data', df_cleaned, format='table', append=True)
-
-    # Combine all QC metrics into a single DataFrame and save it to CSV
-    qc_df = pd.DataFrame(qc_df_list)
-    qc_df.to_csv(qc_file_path, index=False)
-    
-    # Close the HDF5 store
-    store_cleaned.close()
-    return
+    return fig
 
 def map_barcodes_folder(src, settings={}):
     for file in os.listdir(src):
@@ -1145,3 +1393,426 @@ def generate_fraction_map(df, gene_column, min_=10, plates=['p1','p2','p3','p4']
     independent_variables.index.name = 'prc'
     independent_variables = independent_variables.loc[:, (independent_variables.sum() != 0)]
     return independent_variables
+
+
+def plot_histogram(df, dependent_variable):
+    # Plot histogram of the dependent variable
+    plt.figure(figsize=(10, 6))
+    sns.histplot(df[dependent_variable], kde=True)
+    plt.title(f'Histogram of {dependent_variable}')
+    plt.xlabel(dependent_variable)
+    plt.ylabel('Frequency')
+    plt.show()
+    
+def precess_reads(csv_path, fraction_threshold, plate):
+    # Read the CSV file into a DataFrame
+    csv_df = pd.read_csv(csv_path)
+
+    # Ensure the necessary columns are present
+    if not all(col in csv_df.columns for col in ['grna', 'count', 'column']):
+        raise ValueError("The CSV file must contain 'grna', 'count', 'plate_row', and 'column' columns.")
+
+    if 'plate_row' in csv_df.columns:
+        csv_df[['plate', 'row']] = csv_df['plate_row'].str.split('_', expand=True)
+        if plate is not None:
+            csv_df = csv_df.drop(columns=['plate'])
+            csv_df['plate'] = plate
+
+    if plate is not None:
+        csv_df['plate'] = plate
+
+    # Create the prc column
+    csv_df['prc'] = csv_df['plate'] + '_' + csv_df['row'] + '_' + csv_df['column']
+
+    # Group by prc and calculate the sum of counts
+    grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
+    grouped_df = grouped_df.rename(columns={'count': 'total_counts'})
+    merged_df = pd.merge(csv_df, grouped_df, on='prc')
+    merged_df['fraction'] = merged_df['count'] / merged_df['total_counts']
+
+    # Filter rows with fraction under the threshold
+    if fraction_threshold is not None:
+        observations_before = len(merged_df)
+        merged_df = merged_df[merged_df['fraction'] >= fraction_threshold]
+        observations_after = len(merged_df)
+        removed = observations_before - observations_after
+        print(f'Removed {removed} observation below fraction threshold: {fraction_threshold}')
+
+    merged_df = merged_df[['prc', 'grna', 'fraction']]
+
+    if not all(col in merged_df.columns for col in ['grna', 'gene']):
+        try:
+            merged_df[['org', 'gene', 'grna']] = merged_df['grna'].str.split('_', expand=True)
+            merged_df = merged_df.drop(columns=['org'])
+            merged_df['grna'] = merged_df['gene'] + '_' + merged_df['grna']
+        except:
+            print('Error splitting grna into org, gene, grna.')
+
+    return merged_df
+
+def apply_transformation(X, transform):
+    if transform == 'log':
+        transformer = FunctionTransformer(np.log1p, validate=True)
+    elif transform == 'sqrt':
+        transformer = FunctionTransformer(np.sqrt, validate=True)
+    elif transform == 'square':
+        transformer = FunctionTransformer(np.square, validate=True)
+    else:
+        transformer = None
+    return transformer
+
+def check_normality(data, variable_name, verbose=False):
+    """Check if the data is normally distributed using the Shapiro-Wilk test."""
+    stat, p_value = shapiro(data)
+    if verbose:
+        print(f"Shapiro-Wilk Test for {variable_name}:\nStatistic: {stat}, P-value: {p_value}")
+    if p_value > 0.05:
+        if verbose:
+            print(f"The data for {variable_name} is normally distributed.")
+        return True
+    else:
+        if verbose:
+            print(f"The data for {variable_name} is not normally distributed.")
+        return False
+
+def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None):
+    
+    if plate is not None:
+        df['plate'] = plate
+
+    df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
+    df = df[['prc', dependent_variable]]
+
+    # Group by prc and calculate the mean and count of the dependent_variable
+    grouped = df.groupby('prc')[dependent_variable]
+
+    print(f'Using agg_type: {agg_type}')
+    if agg_type == 'median':
+        dependent_df = grouped.median().reset_index()
+    elif agg_type == 'mean':
+        dependent_df = grouped.mean().reset_index()
+    elif agg_type == 'quantile':
+        dependent_df = grouped.quantile(0.75).reset_index()
+    elif agg_type == None:
+        dependent_df = df.reset_index()
+        if 'prcfo' in dependent_df.columns:
+            dependent_df = dependent_df.drop(columns=['prcfo'])
+
+    else:
+        raise ValueError(f"Unsupported aggregation type {agg_type}")
+
+    # Calculate cell_count for all cases
+    cell_count = grouped.size().reset_index(name='cell_count')
+
+    if agg_type is None:
+        dependent_df = pd.merge(dependent_df, cell_count, on='prc')
+    else:
+        dependent_df['cell_count'] = cell_count['cell_count']
+
+    dependent_df = dependent_df[dependent_df['cell_count'] >= min_cell_count]
+
+    is_normal = check_normality(dependent_df[dependent_variable], dependent_variable)
+
+    if not transform is None:
+        transformer = apply_transformation(dependent_df[dependent_variable], transform=transform)
+        transformed_var = f'{transform}_{dependent_variable}'
+        df[transformed_var] = transformer.fit_transform(dependent_df[[dependent_variable]])
+        dependent_variable = transformed_var
+        is_normal = check_normality(dependent_df[transformed_var], transformed_var)
+
+    if not is_normal:
+        print(f'{dependent_variable} is not normally distributed')
+    else:
+        print(f'{dependent_variable} is normally distributed')
+
+    return dependent_df, dependent_variable
+    
+def perform_mixed_model(y, X, groups, alpha=1.0):
+    # Ensure groups are defined correctly and check for multicollinearity
+    if groups is None:
+        raise ValueError("Groups must be defined for mixed model regression")
+
+    # Check for multicollinearity by calculating the VIF for each feature
+    X_np = X.values
+    vif = [variance_inflation_factor(X_np, i) for i in range(X_np.shape[1])]
+    print(f"VIF: {vif}")
+    if any(v > 10 for v in vif):
+        print(f"Multicollinearity detected with VIF: {vif}. Applying Ridge regression to the fixed effects.")
+        ridge = Ridge(alpha=alpha)
+        ridge.fit(X, y)
+        X_ridge = ridge.coef_ * X  # Adjust X with Ridge coefficients
+        model = MixedLM(y, X_ridge, groups=groups)
+    else:
+        model = MixedLM(y, X, groups=groups)
+
+    result = model.fit()
+    return result
+
+def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, remove_row_column_effect=True):
+
+    if regression_type == 'ols':
+        model = sm.OLS(y, X).fit()
+        
+    elif regression_type == 'gls':
+        model = sm.GLS(y, X).fit()
+
+    elif regression_type == 'wls':
+        model = sm.WLS(y, X, weights=weights).fit()
+
+    elif regression_type == 'rlm':
+        model = sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit()
+        #model = sm.RLM(y, X, M=sm.robust.norms.TukeyBiweight()).fit()
+        #model = sm.RLM(y, X, M=sm.robust.norms.Hampel()).fit()
+        #model = sm.RLM(y, X, M=sm.robust.norms.LeastSquares()).fit()
+        #model = sm.RLM(y, X, M=sm.robust.norms.RamsayE()).fit()
+        #model = sm.RLM(y, X, M=sm.robust.norms.TrimmedMean()).fit()
+
+    elif regression_type == 'glm':
+        model = sm.GLM(y, X, family=sm.families.Gaussian()).fit() # Gaussian: Used for continuous data, similar to OLS regression.
+        #model = sm.GLM(y, X, family=sm.families.Binomial()).fit() # Binomial: Used for binary data, modeling the probability of success.
+        #model = sm.GLM(y, X, family=sm.families.Poisson()).fit() # Poisson: Used for count data.
+        #model = sm.GLM(y, X, family=sm.families.Gamma()).fit() # Gamma: Used for continuous, positive data, often for modeling waiting times or life data.
+        #model = sm.GLM(y, X, family=sm.families.InverseGaussian()).fit() # Inverse Gaussian: Used for positive continuous data with a variance that increases with the 
+        #model = sm.GLM(y, X, family=sm.families.NegativeBinomial()).fit() # Negative Binomial: Used for count data with overdispersion (variance greater than the mean).
+        #model = sm.GLM(y, X, family=sm.families.Tweedie()).fit() # Tweedie: Used for data that can take both positive continuous and count values, allowing for a mixture of distributions.
+
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+
+    elif regression_type == 'quantile':
+        model = sm.QuantReg(y, X).fit(q=alpha)
+
+    elif regression_type == 'logit':
+        model = sm.Logit(y, X).fit()
+
+    elif regression_type == 'probit':
+        model = sm.Probit(y, X).fit()
+
+    elif regression_type == 'poisson':
+        model_poisson = sm.Poisson(y, X).fit()
+
+    elif regression_type == 'lasso':
+        model = Lasso(alpha=alpha).fit(X, y)
+
+    elif regression_type == 'ridge':
+        model = Ridge(alpha=alpha).fit(X, y)
+
+    else:
+        raise ValueError(f"Unsupported regression type {regression_type}")
+
+    if regression_type in ['lasso', 'ridge']:
+        y_pred = model.predict(X)
+        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
+        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
+        plt.xlabel('Features')
+        plt.ylabel('Dependent Variable')
+        plt.legend()
+        plt.show()
+
+    return model
+    
+def volcano_plot(coef_df, filename='volcano_plot.pdf'):
+    # Create the volcano plot
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(
+        data=coef_df, 
+        x='coefficient', 
+        y='-log10(p_value)', 
+        hue='highlight', 
+        palette={True: 'red', False: 'blue'}
+    )
+    plt.title('Volcano Plot of Coefficients')
+    plt.xlabel('Coefficient')
+    plt.ylabel('-log10(p-value)')
+    plt.axhline(y=-np.log10(0.05), color='red', linestyle='--')
+    plt.legend().remove()
+    plt.savefig(filename, format='pdf')
+    print(f'Saved Volcano plot: {filename}')
+    plt.show()
+    
+def clean_controls(df,pc,nc,other):
+    if 'col' in df.columns:
+        df['column'] = df['col']
+    if nc != None:
+        df = df[~df['column'].isin([nc])]
+    if pc != None:
+        df = df[~df['column'].isin([pc])]
+    if other != None:
+        df = df[~df['column'].isin([other])]
+        print(f'Removed data from {nc, pc, other}')
+    return df
+
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, remove_row_column_effect=False):
+
+    volcano_filename = os.path.splitext(os.path.basename(csv_path))[0] + '_volcano_plot.pdf'
+    volcano_filename = regression_type+'_'+volcano_filename
+    if regression_type == 'quantile':
+        volcano_filename = str(alpha)+'_'+volcano_filename
+    volcano_path=os.path.join(os.path.dirname(csv_path), volcano_filename)
+
+    if regression_type is None:
+        if is_normal:
+            regression_type = 'ols'
+        else:
+            regression_type = 'glm'
+
+    if remove_row_column_effect:
+
+        ## 1. Fit the initial model with row and column to estimate their effects
+        ## 2. Fit the initial model using the specified regression type
+        ## 3. Calculate the residuals
+        ### Residual calculation: Residuals are the differences between the observed and predicted values. This step checks if the initial_model has an attribute resid (residuals). If it does, it directly uses them. Otherwise, it calculates residuals manually by subtracting the predicted values from the observed values (y_with_row_col).
+        ## 4. Use the residuals as the new dependent variable in the final regression model without row and column
+        ### Formula creation: A new regression formula is created, excluding row and column effects, with residuals as the new dependent variable.
+        ### Matrix creation: dmatrices is used again to create new design matrices (X for independent variables and y for the new dependent variable, residuals) based on the new formula and the dataframe df.
+        #### Remove Confounding Effects:Variables like row and column can introduce systematic biases or confounding effects that might obscure the relationships between the dependent variable and the variables of interest (fraction:gene and fraction:grna).
+        #### By first estimating the effects of row and column and then using the residuals (the part of the dependent variable that is not explained by row and column), we can focus the final regression model on the relationships of interest without the interference from row and column.
+
+        #### Reduce Multicollinearity: Including variables like row and column along with other predictors can sometimes lead to multicollinearity, where predictors are highly correlated with each other. This can make it difficult to determine the individual effect of each predictor.
+        #### By regressing out the effects of row and column first, we reduce potential multicollinearity issues in the final model.
+        
+        # Fit the initial model with row and column to estimate their effects
+        formula_with_row_col = f'{dependent_variable} ~ row + column'
+        y_with_row_col, X_with_row_col = dmatrices(formula_with_row_col, data=df, return_type='dataframe')
+
+        # Fit the initial model using the specified regression type
+        initial_model = regression_model(X_with_row_col, y_with_row_col, regression_type=regression_type, alpha=alpha)
+
+        # Calculate the residuals manually
+        if hasattr(initial_model, 'resid'):
+            df['residuals'] = initial_model.resid
+        else:
+            df['residuals'] = y_with_row_col.values.ravel() - initial_model.predict(X_with_row_col)
+
+        # Use the residuals as the new dependent variable in the final regression model without row and column
+        formula_without_row_col = 'residuals ~ fraction:gene + fraction:grna'
+        y, X = dmatrices(formula_without_row_col, data=df, return_type='dataframe')
+
+        # Plot histogram of the residuals
+        plot_histogram(df, 'residuals')
+
+        # Scale the independent variables and residuals
+        scaler_X = MinMaxScaler()
+        scaler_y = MinMaxScaler()
+        X = pd.DataFrame(scaler_X.fit_transform(X), columns=X.columns)
+        y = scaler_y.fit_transform(y)
+
+    else:
+        formula = f'{dependent_variable} ~ fraction:gene + fraction:grna + row + column'
+        y, X = dmatrices(formula, data=df, return_type='dataframe')
+
+        plot_histogram(y, dependent_variable)
+
+        # Scale the independent variables and dependent variable
+        scaler_X = MinMaxScaler()
+        scaler_y = MinMaxScaler()
+        X = pd.DataFrame(scaler_X.fit_transform(X), columns=X.columns)
+        y = scaler_y.fit_transform(y)
+
+    groups = df['prc'] if regression_type == 'mixed' else None
+    print(f'performing {regression_type} regression')
+    model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, remove_row_column_effect=remove_row_column_effect)
+    
+    # Get the model coefficients and p-values
+    if regression_type in ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']:
+        coefs = model.params
+        p_values = model.pvalues
+
+        coef_df = pd.DataFrame({
+            'feature': coefs.index,
+            'coefficient': coefs.values,
+            'p_value': p_values.values
+        })
+    else:
+        coefs = model.coef_
+        intercept = model.intercept_
+        feature_names = X.design_info.column_names
+
+        coef_df = pd.DataFrame({
+            'feature': feature_names,
+            'coefficient': coefs
+        })
+        coef_df.loc[0, 'coefficient'] += intercept
+        coef_df['p_value'] = np.nan  # Placeholder since sklearn doesn't provide p-values
+
+    coef_df['-log10(p_value)'] = -np.log10(coef_df['p_value'])
+    coef_df_v = coef_df[coef_df['feature'] != 'Intercept']
+
+    # Create the highlight column
+    coef_df['highlight'] = coef_df['feature'].apply(lambda x: '220950' in x)
+    coef_df = coef_df[~coef_df['feature'].str.contains('row|column')]
+    volcano_plot(coef_df, volcano_path)
+
+    return model, coef_df
+
+def set_regression_defaults(settings):
+    settings.setdefault('gene_weights_csv', '/nas_mnt/carruthers/Einar/mitoscreen/sequencing/combined_reads/EO1_combined/EO1_combined_combination_counts.csv')
+    settings.setdefault('dependent_variable','predictions')
+    settings.setdefault('transform',None)
+    settings.setdefault('agg_type','mean')
+    settings.setdefault('min_cell_count',25)
+    settings.setdefault('regression_type','ols')
+    settings.setdefault('remove_row_column_effect',False)
+    settings.setdefault('alpha',1)
+    settings.setdefault('fraction_threshold',0.1)
+    settings.setdefault('nc','c1')
+    settings.setdefault('pc','c2')
+    settings.setdefault('other','c3')
+    settings.setdefault('plate','plate1')
+    
+    if settings['regression_type'] == 'quantile':
+        print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
+        settings['agg_type'] = None
+        print(f'agg_type set to None for quantile regression')
+    return settings
+
+def perform_regression(df, settings):
+    
+    from spacr.plot import _plot_plates
+    
+    results_filename = os.path.splitext(os.path.basename(settings['gene_weights_csv']))[0] + '_results.csv'
+    hits_filename = os.path.splitext(os.path.basename(settings['gene_weights_csv']))[0] + '_results_significant.csv'
+    
+    results_filename = settings['regression_type']+'_'+results_filename
+    hits_filename = settings['regression_type']+'_'+hits_filename
+    if settings['regression_type'] == 'quantile':
+        results_filename = str(settings['alpha'])+'_'+results_filename
+        hits_filename = str(settings['alpha'])+'_'+hits_filename
+    results_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), results_filename)
+    hits_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), hits_filename)
+    
+    settings = set_regression_defaults(settings)
+    
+    df = clean_controls(df,settings['pc'],settings['nc'],settings['other'])
+    dependent_df, dependent_variable = process_scores(df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
+    display(dependent_df)
+    
+    independent_df = precess_reads(settings['gene_weights_csv'], settings['fraction_threshold'], settings['plate'])
+    display(independent_df)
+    
+    merged_df = pd.merge(independent_df, dependent_df, on='prc')
+    
+    merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
+        
+    plate_heatmap = _plot_plates(df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'])                
+
+    model, coef_df = regression(merged_df, settings['gene_weights_csv'], dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'])
+    
+    coef_df.to_csv(results_path, index=False)
+    
+    if settings['regression_type'] == 'lasso':
+        significant = coef_df[coef_df['coefficient'] > 0]
+        
+    else:
+        significant = coef_df[coef_df['p_value']<= 0.05]
+        #significant = significant[significant['coefficient'] > 0.1]
+        significant.sort_values(by='coefficient', ascending=False, inplace=True)
+        significant = significant[~significant['feature'].str.contains('row|column')]
+        
+    if settings['regression_type'] == 'ols':
+        print(model.summary())
+    
+    significant.to_csv(hits_path, index=False)
+    print('Significant Genes')
+    display(significant)
+    return coef_df

@@ -77,7 +77,7 @@ def analyze_plaques(folder):
 def train_cellpose(settings):
     
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
-    from .utils import resize_images_and_labels
+    #from .utils import resize_images_and_labels
 
     img_src = settings['img_src'] 
     mask_src = os.path.join(img_src, 'masks')
@@ -99,7 +99,6 @@ def train_cellpose(settings):
     Signal_to_noise = settings.setdefault( 'Signal_to_noise', 10)
     verbose = settings.setdefault( 'verbose', False)
 
-    
     channels = settings.setdefault( 'channels', [0,0])
     normalize = settings.setdefault( 'normalize', True)
     percentiles = settings.setdefault( 'percentiles', None)
@@ -119,7 +118,7 @@ def train_cellpose(settings):
         test_img_src = os.path.join(os.path.dirname(img_src), 'test')
         test_mask_src = os.path.join(test_img_src, 'mask')
 
-    test_images, test_masks, test_image_names, test_mask_names = None,None,None,None,
+    test_images, test_masks, test_image_names, test_mask_names = None,None,None,None
     print(settings)
 
     if from_scratch:
@@ -147,13 +146,13 @@ def train_cellpose(settings):
 
         image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
         label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
-        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise)
+        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise, target_height, target_width)        
         images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
         
         if test:
             test_image_files = [os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')]
             test_label_files = [os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')]
-            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(test_image_files, test_label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise)
+            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(test_image_files, test_label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise, target_height, target_width)
             test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
             
     else:
@@ -164,8 +163,8 @@ def train_cellpose(settings):
             test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(img_src=test_img_src, mask_src=test_mask_src, circular=circular, invert=invert)
             test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
     
-    if resize:
-        images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
+    #if resize:
+    #    images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
 
     if model_type == 'cyto':
         cp_channels = [0,1]
