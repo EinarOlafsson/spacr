@@ -193,7 +193,8 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
     images = []
     labels = []
-    
+    orig_dims = []
+
     num_channels = 4
     percentiles_1 = [[] for _ in range(num_channels)]
     percentiles_99 = [[] for _ in range(num_channels)]
@@ -204,10 +205,11 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     if label_files is not None:
         label_names = [os.path.basename(f) for f in label_files]
         label_dir = os.path.dirname(label_files[0])
-
+    
     # Load, normalize, and resize images
     for i, img_file in enumerate(image_files):
         image = cellpose.io.imread(img_file)
+        orig_dims.append((image.shape[0], image.shape[1]))
         if invert:
             image = invert_image(image)
         if circular:
@@ -287,7 +289,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     if visualize and images and labels:
         plot_resize(images, normalized_images, labels, labels)
     
-    return normalized_images, labels, image_names, label_names
+    return normalized_images, labels, image_names, label_names, orig_dims
 
 class CombineLoaders:
 
@@ -310,14 +312,14 @@ class CombineLoaders:
 
     """
 
-    def _init__(self, train_loaders):
+    def __init__(self, train_loaders):
         self.train_loaders = train_loaders
         self.loader_iters = [iter(loader) for loader in train_loaders]
 
-    def _iter__(self):
+    def __iter__(self):
         return self
 
-    def _next__(self):
+    def __next__(self):
         while self.loader_iters:
             random.shuffle(self.loader_iters)  # Shuffle the loader_iters list
             for i, loader_iter in enumerate(self.loader_iters):
@@ -340,7 +342,7 @@ class CombinedDataset(Dataset):
         shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to True.
     """
 
-    def _init__(self, datasets, shuffle=True):
+    def __init__(self, datasets, shuffle=True):
         self.datasets = datasets
         self.lengths = [len(dataset) for dataset in datasets]
         self.total_length = sum(self.lengths)
@@ -350,14 +352,14 @@ class CombinedDataset(Dataset):
             random.shuffle(self.indices)
         else:
             self.indices = None
-    def _getitem__(self, index):
+    def __getitem__(self, index):
         if self.shuffle:
             index = self.indices[index]
         for dataset, length in zip(self.datasets, self.lengths):
             if index < length:
                 return dataset[index]
             index -= length
-    def _len__(self):
+    def __len__(self):
         return self.total_length
     
 class NoClassDataset(Dataset):
@@ -541,7 +543,7 @@ class NoClassDataset(Dataset):
 
     
 class TarImageDataset(Dataset):
-    def _init__(self, tar_path, transform=None):
+    def __init__(self, tar_path, transform=None):
         self.tar_path = tar_path
         self.transform = transform
 
@@ -549,10 +551,10 @@ class TarImageDataset(Dataset):
         with tarfile.open(self.tar_path, 'r') as f:
             self.members = [m for m in f.getmembers() if m.isfile()]
 
-    def _len__(self):
+    def __len__(self):
         return len(self.members)
 
-    def _getitem__(self, idx):
+    def __getitem__(self, idx):
         with tarfile.open(self.tar_path, 'r') as f:
             m = self.members[idx]
             img_file = f.extractfile(m)

@@ -1218,8 +1218,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         df = df[df['count'] >= min_count]
 
     # Explicitly set observed=True to avoid FutureWarning
-    grouped = df.groupby(['row', 'col'], observed=True) 
-
+    grouped = df.groupby(['row', 'col'], observed=True) # Group by row and column
     
     if grouping == 'mean':
         plate = grouped[variable].mean().reset_index()
@@ -1245,7 +1244,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         
     return plate_map, min_max
 
-def _plot_plates(df, variable, grouping, min_max, cmap, min_count=0):
+def plot_plates(df, variable, grouping, min_max, cmap, min_count=0):
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
@@ -1470,3 +1469,87 @@ def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0
                                overlay=True,
                                max_nr=10,
                                randomize=True)
+        
+def volcano_plot(coef_df, filename='volcano_plot.pdf'):
+    # Create the volcano plot
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(
+        data=coef_df, 
+        x='coefficient', 
+        y='-log10(p_value)', 
+        hue='highlight', 
+        palette={True: 'red', False: 'blue'}
+    )
+    plt.title('Volcano Plot of Coefficients')
+    plt.xlabel('Coefficient')
+    plt.ylabel('-log10(p-value)')
+    plt.axhline(y=-np.log10(0.05), color='red', linestyle='--')
+    plt.legend().remove()
+    plt.savefig(filename, format='pdf')
+    print(f'Saved Volcano plot: {filename}')
+    plt.show()
+
+def plot_histogram(df, dependent_variable):
+    # Plot histogram of the dependent variable
+    plt.figure(figsize=(10, 6))
+    sns.histplot(df[dependent_variable], kde=True)
+    plt.title(f'Histogram of {dependent_variable}')
+    plt.xlabel(dependent_variable)
+    plt.ylabel('Frequency')
+    plt.show()
+
+def plot_lorenz_curves(csv_files, remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4']):
+    
+    def lorenz_curve(data):
+        """Calculate Lorenz curve."""
+        sorted_data = np.sort(data)
+        cumulative_data = np.cumsum(sorted_data)
+        lorenz_curve = cumulative_data / cumulative_data[-1]
+        lorenz_curve = np.insert(lorenz_curve, 0, 0)
+        return lorenz_curve
+    
+    combined_data = []
+
+    plt.figure(figsize=(10, 6))
+
+    for idx, csv_file in enumerate(csv_files):
+        if idx == 1:
+            save_fldr = os.path.dirname(csv_file)
+            save_path = os.path.join(save_fldr, 'lorenz_curve.pdf')
+            
+        df = pd.read_csv(csv_file)
+        for remove in remove_keys:
+            df = df[df['key'] != remove]
+        
+        values = df['value'].values
+        combined_data.extend(values)
+        
+        lorenz = lorenz_curve(values)
+        name = os.path.basename(csv_file)[:3]
+        plt.plot(np.linspace(0, 1, len(lorenz)), lorenz, label=name)
+
+    # Plot combined Lorenz curve
+    combined_lorenz = lorenz_curve(np.array(combined_data))
+    plt.plot(np.linspace(0, 1, len(combined_lorenz)), combined_lorenz, label="Combined Lorenz Curve", linestyle='--', color='black')
+    
+    plt.title('Lorenz Curves')
+    plt.xlabel('Cumulative Share of Individuals')
+    plt.ylabel('Cumulative Share of Value')
+    plt.legend()
+    plt.grid(False)
+    plt.savefig(save_path)
+    plt.show()
+
+def plot_permutation(permutation_df):
+    fig, ax = plt.subplots()
+    ax.barh(permutation_df['feature'], permutation_df['importance_mean'], xerr=permutation_df['importance_std'], color="teal", align="center", alpha=0.6)
+    ax.set_xlabel('Permutation Importance')
+    plt.tight_layout()
+    return fig
+
+def plot_feature_importance(feature_importance_df):
+    fig, ax = plt.subplots()
+    ax.barh(feature_importance_df['feature'], feature_importance_df['importance'], color="blue", align="center", alpha=0.6)
+    ax.set_xlabel('Feature Importance')
+    plt.tight_layout()
+    return fig
