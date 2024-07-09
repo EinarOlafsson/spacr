@@ -1,0 +1,23 @@
+Key,Value
+img_src,/nas_mnt/carruthers/patrick/Plaque_assay_training/train
+model_name,toxo_plaque
+model_type,cyto
+Signal_to_noise,10
+background,200
+remove_background,False
+learning_rate,0.2
+weight_decay,1e-05
+batch_size,8
+n_epochs,25000
+from_scratch,False
+diameter,30
+resize,True
+width_height,"[1120, 1120]"
+verbose,True
+channels,"[0, 0]"
+normalize,True
+percentiles,
+circular,False
+invert,False
+grayscale,True
+test,False

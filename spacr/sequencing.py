@@ -10,6 +10,7 @@ import statsmodels.api as sm
 from statsmodels.regression.mixed_linear_model import MixedLM
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from scipy.stats import gmean
+from scipy import stats
 from difflib import SequenceMatcher
 from collections import Counter
 from IPython.display import display
@@ -1393,16 +1394,6 @@ def generate_fraction_map(df, gene_column, min_=10, plates=['p1','p2','p3','p4']
     independent_variables.index.name = 'prc'
     independent_variables = independent_variables.loc[:, (independent_variables.sum() != 0)]
     return independent_variables
-
-
-def plot_histogram(df, dependent_variable):
-    # Plot histogram of the dependent variable
-    plt.figure(figsize=(10, 6))
-    sns.histplot(df[dependent_variable], kde=True)
-    plt.title(f'Histogram of {dependent_variable}')
-    plt.xlabel(dependent_variable)
-    plt.ylabel('Frequency')
-    plt.show()
     
 def precess_reads(csv_path, fraction_threshold, plate):
     # Read the CSV file into a DataFrame
@@ -1475,32 +1466,42 @@ def check_normality(data, variable_name, verbose=False):
             print(f"The data for {variable_name} is not normally distributed.")
         return False
 
-def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None):
+def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
     
     if plate is not None:
         df['plate'] = plate
+
+    if 'col' not in df.columns:
+        df['col'] = df['column']
 
     df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
     df = df[['prc', dependent_variable]]
 
     # Group by prc and calculate the mean and count of the dependent_variable
     grouped = df.groupby('prc')[dependent_variable]
+    
+    if regression_type != 'poisson':
+    
+        print(f'Using agg_type: {agg_type}')
 
-    print(f'Using agg_type: {agg_type}')
-    if agg_type == 'median':
-        dependent_df = grouped.median().reset_index()
-    elif agg_type == 'mean':
-        dependent_df = grouped.mean().reset_index()
-    elif agg_type == 'quantile':
-        dependent_df = grouped.quantile(0.75).reset_index()
-    elif agg_type == None:
-        dependent_df = df.reset_index()
-        if 'prcfo' in dependent_df.columns:
-            dependent_df = dependent_df.drop(columns=['prcfo'])
-
-    else:
-        raise ValueError(f"Unsupported aggregation type {agg_type}")
-
+        if agg_type == 'median':
+            dependent_df = grouped.median().reset_index()
+        elif agg_type == 'mean':
+            dependent_df = grouped.mean().reset_index()
+        elif agg_type == 'quantile':
+            dependent_df = grouped.quantile(0.75).reset_index()
+        elif agg_type == None:
+            dependent_df = df.reset_index()
+            if 'prcfo' in dependent_df.columns:
+                dependent_df = dependent_df.drop(columns=['prcfo'])
+        else:
+            raise ValueError(f"Unsupported aggregation type {agg_type}")
+            
+    if regression_type == 'poisson':
+        agg_type = 'count'
+        print(f'Using agg_type: {agg_type} for poisson regression')
+        dependent_df = grouped.sum().reset_index()        
+        
     # Calculate cell_count for all cases
     cell_count = grouped.size().reset_index(name='cell_count')
 
@@ -1516,7 +1517,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     if not transform is None:
         transformer = apply_transformation(dependent_df[dependent_variable], transform=transform)
         transformed_var = f'{transform}_{dependent_variable}'
-        df[transformed_var] = transformer.fit_transform(dependent_df[[dependent_variable]])
+        dependent_df[transformed_var] = transformer.fit_transform(dependent_df[[dependent_variable]])
         dependent_variable = transformed_var
         is_normal = check_normality(dependent_df[transformed_var], transformed_var)
 
@@ -1589,7 +1590,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, remove
         model = sm.Probit(y, X).fit()
 
     elif regression_type == 'poisson':
-        model_poisson = sm.Poisson(y, X).fit()
+        model = sm.Poisson(y, X).fit()
 
     elif regression_type == 'lasso':
         model = Lasso(alpha=alpha).fit(X, y)
@@ -1611,25 +1612,6 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, remove
 
     return model
     
-def volcano_plot(coef_df, filename='volcano_plot.pdf'):
-    # Create the volcano plot
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(
-        data=coef_df, 
-        x='coefficient', 
-        y='-log10(p_value)', 
-        hue='highlight', 
-        palette={True: 'red', False: 'blue'}
-    )
-    plt.title('Volcano Plot of Coefficients')
-    plt.xlabel('Coefficient')
-    plt.ylabel('-log10(p-value)')
-    plt.axhline(y=-np.log10(0.05), color='red', linestyle='--')
-    plt.legend().remove()
-    plt.savefig(filename, format='pdf')
-    print(f'Saved Volcano plot: {filename}')
-    plt.show()
-    
 def clean_controls(df,pc,nc,other):
     if 'col' in df.columns:
         df['column'] = df['col']
@@ -1642,7 +1624,43 @@ def clean_controls(df,pc,nc,other):
         print(f'Removed data from {nc, pc, other}')
     return df
 
+# Remove outliers by capping values at 1st and 99th percentiles for numerical columns only
+def remove_outliers(df, low=0.01, high=0.99):
+    numerical_cols = df.select_dtypes(include=[np.number]).columns
+    quantiles = df[numerical_cols].quantile([low, high])
+    for col in numerical_cols:
+        df[col] = np.clip(df[col], quantiles.loc[low, col], quantiles.loc[high, col])
+    return df
+
+def calculate_p_values(X, y, model):
+    # Predict y values
+    y_pred = model.predict(X)
+    
+    # Calculate residuals
+    residuals = y - y_pred
+    
+    # Calculate the standard error of the residuals
+    dof = X.shape[0] - X.shape[1] - 1
+    residual_std_error = np.sqrt(np.sum(residuals ** 2) / dof)
+    
+    # Calculate the standard error of the coefficients
+    X_design = np.hstack((np.ones((X.shape[0], 1)), X))  # Add intercept
+    
+    # Use pseudoinverse instead of inverse to handle singular matrices
+    coef_var_covar = residual_std_error ** 2 * np.linalg.pinv(X_design.T @ X_design)
+    coef_standard_errors = np.sqrt(np.diag(coef_var_covar))
+    
+    # Calculate t-statistics
+    t_stats = model.coef_ / coef_standard_errors[1:]  # Skip intercept error
+    
+    # Calculate p-values
+    p_values = [2 * (1 - stats.t.cdf(np.abs(t), dof)) for t in t_stats]
+    
+    return np.array(p_values)  # Ensure p_values is a 1-dimensional array
+
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, remove_row_column_effect=False):
+
+    from .plot import volcano_plot, plot_histogram
 
     volcano_filename = os.path.splitext(os.path.basename(csv_path))[0] + '_volcano_plot.pdf'
     volcano_filename = regression_type+'_'+volcano_filename
@@ -1650,11 +1668,15 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         volcano_filename = str(alpha)+'_'+volcano_filename
     volcano_path=os.path.join(os.path.dirname(csv_path), volcano_filename)
 
+    is_normal = check_normality(df[dependent_variable], dependent_variable)
+
     if regression_type is None:
         if is_normal:
             regression_type = 'ols'
         else:
             regression_type = 'glm'
+
+    #df = remove_outliers(df)
 
     if remove_row_column_effect:
 
@@ -1714,7 +1736,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, remove_row_column_effect=remove_row_column_effect)
     
     # Get the model coefficients and p-values
-    if regression_type in ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']:
+    if regression_type in ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson']:
         coefs = model.params
         p_values = model.pvalues
 
@@ -1723,6 +1745,18 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             'coefficient': coefs.values,
             'p_value': p_values.values
         })
+    elif regression_type in ['ridge', 'lasso']:
+        coefs = model.coef_
+        coefs = np.array(coefs).flatten()
+        # Calculate p-values
+        p_values = calculate_p_values(X, y, model)
+        p_values = np.array(p_values).flatten()
+
+        # Create a DataFrame for the coefficients and p-values
+        coef_df = pd.DataFrame({
+            'feature': X.columns,
+            'coefficient': coefs,
+            'p_value': p_values})
     else:
         coefs = model.coef_
         intercept = model.intercept_
@@ -1759,6 +1793,7 @@ def set_regression_defaults(settings):
     settings.setdefault('pc','c2')
     settings.setdefault('other','c3')
     settings.setdefault('plate','plate1')
+    settings.setdefault('class_1_threshold',None)
     
     if settings['regression_type'] == 'quantile':
         print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
@@ -1767,9 +1802,21 @@ def set_regression_defaults(settings):
     return settings
 
 def perform_regression(df, settings):
-    
-    from spacr.plot import _plot_plates
-    
+
+    from spacr.plot import plot_plates
+    from .utils import merge_regression_res_with_metadata
+
+    reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
+    if settings['regression_type'] not in reg_types:
+        print(f'Possible regression types: {reg_types}')
+        raise ValueError(f"Unsupported regression type {settings['regression_type']}")
+
+    if settings['dependent_variable'] not in df.columns:
+        print(f'Columns in DataFrame:')
+        for col in df.columns:
+            print(col)
+        raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
+        
     results_filename = os.path.splitext(os.path.basename(settings['gene_weights_csv']))[0] + '_results.csv'
     hits_filename = os.path.splitext(os.path.basename(settings['gene_weights_csv']))[0] + '_results_significant.csv'
     
@@ -1782,9 +1829,21 @@ def perform_regression(df, settings):
     hits_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), hits_filename)
     
     settings = set_regression_defaults(settings)
+
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_dir = os.path.dirname(settings['gene_weights_csv'])
+    settings_csv = os.path.join(settings_dir,f"{settings['regression_type']}_regression_settings.csv")
+    settings_df.to_csv(settings_csv, index=False)
+    display(settings_df)
     
     df = clean_controls(df,settings['pc'],settings['nc'],settings['other'])
+
+    if 'prediction_probability_class_1' in df.columns:
+        if not settings['class_1_threshold'] is None:
+            df['predictions'] = (df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
+
     dependent_df, dependent_variable = process_scores(df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
+    
     display(dependent_df)
     
     independent_df = precess_reads(settings['gene_weights_csv'], settings['fraction_threshold'], settings['plate'])
@@ -1793,8 +1852,9 @@ def perform_regression(df, settings):
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
     
     merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
-        
-    plate_heatmap = _plot_plates(df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'])                
+    
+    if settings['transform'] is None:
+        _ = plot_plates(df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'])                
 
     model, coef_df = regression(merged_df, settings['gene_weights_csv'], dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'])
     
@@ -1813,6 +1873,17 @@ def perform_regression(df, settings):
         print(model.summary())
     
     significant.to_csv(hits_path, index=False)
+
+    me49 = '/home/carruthers/Documents/TGME49_Summary.csv'
+    gt1 = '/home/carruthers/Documents/TGGT1_Summary.csv'
+
+    _ = merge_regression_res_with_metadata(hits_path, me49, name='_me49_metadata')
+    _ = merge_regression_res_with_metadata(hits_path, gt1, name='_gt1_metadata')
+    _ = merge_regression_res_with_metadata(results_path, me49, name='_me49_metadata')
+    _ = merge_regression_res_with_metadata(results_path, gt1, name='_gt1_metadata')
+
     print('Significant Genes')
     display(significant)
     return coef_df
+
+

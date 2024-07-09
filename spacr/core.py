@@ -25,6 +25,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import precision_recall_curve, f1_score
 
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
 
@@ -962,9 +963,10 @@ def generate_dataset(src, file_metadata=None, experiment='TSG101_screen', sample
     shutil.rmtree(temp_dir)
     print(f"\nSaved {total_images} images to {tar_name}")
 
-def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', num_workers=10, verbose=False):
+def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', num_workers=10, threshold=0.5, verbose=False):
     
-    from .io import TarImageDataset, DataLoader
+    from .io import TarImageDataset
+    from .utils import process_vision_results
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if normalize:
@@ -1017,6 +1019,8 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
 
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
     df = pd.DataFrame(data, index=None)
+    df = process_vision_results(df, threshold)
+
     df.to_csv(result_loc, index=True, header=True, mode='w')
     torch.cuda.empty_cache()
     torch.cuda.memory.empty_cache()
@@ -1761,7 +1765,6 @@ def identify_masks_finetune(settings):
     src=settings['src']
     dst=settings['dst']
 
-    
     settings.setdefault('model_name', 'cyto')
     settings.setdefault('custom_model', None)
     settings.setdefault('channels', [0,0])
@@ -1784,7 +1787,6 @@ def identify_masks_finetune(settings):
     settings.setdefault('rescale', False)
     settings.setdefault('resample', False)
     settings.setdefault('grayscale', True)
-
 
     model_name=settings['model_name']
     custom_model=settings['custom_model']
@@ -1852,15 +1854,15 @@ def identify_masks_finetune(settings):
         image_files = all_image_files[i:i+batch_size]
         
         if normalize:
-            images, _, image_names, _ = _load_normalized_images_and_labels(image_files=image_files, label_files=None, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose, remove_background=remove_background, background=background, Signal_to_noise=Signal_to_noise)
+            images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files=image_files, label_files=None, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose, remove_background=remove_background, background=background, Signal_to_noise=Signal_to_noise, target_height=target_height, target_width=target_width)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-            orig_dims = [(image.shape[0], image.shape[1]) for image in images]
+            #orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
             images, _, image_names, _ = _load_images_and_labels(image_files=image_files, label_files=None, circular=circular, invert=invert) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
-        if resize:
-            images, _ = resize_images_and_labels(images, None, target_height, target_width, True)
+            if resize:
+                images, _ = resize_images_and_labels(images, None, target_height, target_width, True)
 
         for file_index, stack in enumerate(images):
             start = time.time()
@@ -2622,7 +2624,24 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     
     return df
 
-def _permutation_importance(df, feature_string='channel_3', col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=30, n_estimators=100, test_size=0.2, random_state=42, model_type='xgboost', n_jobs=-1):
+def find_optimal_threshold(y_true, y_pred_proba):
+    """
+    Find the optimal threshold for binary classification based on the F1-score.
+
+    Args:
+    y_true (array-like): True binary labels.
+    y_pred_proba (array-like): Predicted probabilities for the positive class.
+
+    Returns:
+    float: The optimal threshold.
+    """
+    precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
+    f1_scores = 2 * (precision * recall) / (precision + recall)
+    optimal_idx = np.argmax(f1_scores)
+    optimal_threshold = thresholds[optimal_idx]
+    return optimal_threshold
+
+def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', neg='c1', exclude=None, n_repeats=10, clean=True, nr_to_plot=30, n_estimators=100, test_size=0.2, random_state=42, model_type='xgboost', n_jobs=-1):
     
     """
     Calculates permutation importance for numerical features in the dataframe,
@@ -2650,27 +2669,35 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
     """
 
     from .utils import filter_dataframe_features
+    from .plot import plot_permutation, plot_feature_importance
 
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
     # Subset the dataframe based on specified column values
-    df1 = df[df[col_to_compare] == pos].copy()
-    df2 = df[df[col_to_compare] == neg].copy()
+    df1 = df[df[col_to_compare] == neg].copy()
+    df2 = df[df[col_to_compare] == pos].copy()
 
     # Create target variable
-    df1['target'] = 0
-    df2['target'] = 1
+    df1['target'] = 0 # Negative control
+    df2['target'] = 1 # Positive control
 
     # Combine the subsets for analysis
     combined_df = pd.concat([df1, df2])
+
+    print(f'Found {len(df1)} samples for {neg} and {len(df2)} samples for {pos}. Total: {len(combined_df)}')
 
     if feature_string in ['channel_0', 'channel_1', 'channel_2', 'channel_3']:
         channel_of_interest = int(feature_string.split('_')[-1])
     elif not feature_string is 'morphology': 
         channel_of_interest = 'morphology'
-
-    _, features = filter_dataframe_features(combined_df, channel_of_interest, exclude)
+    else:
+        channel_of_interest = None
+    if not channel_of_interest is None:
+        _, features = filter_dataframe_features(combined_df, channel_of_interest, exclude)
+    else:
+        features = df.select_dtypes(include=[np.number]).columns.tolist()
+        print(f'Found {len(features)} numerical features in the dataframe')
 
     X = combined_df[features]
     y = combined_df['target']
@@ -2705,13 +2732,9 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
         'importance_std': perm_importance.importances_std[perm_importance.importances_mean.argsort()]
     }).tail(nr_to_plot)
 
-    # Plotting
-    fig, ax = plt.subplots()
-    ax.barh(permutation_df['feature'], permutation_df['importance_mean'], xerr=permutation_df['importance_std'], color="teal", align="center", alpha=0.6)
-    ax.set_xlabel('Permutation Importance')
-    plt.tight_layout()
-    plt.show()
-    
+    permutation_fig = plot_permutation(permutation_df)
+    permutation_fig.show()
+
     # Feature importance for models that support it
     if model_type in ['random_forest', 'xgboost', 'gradient_boosting']:
         feature_importances = model.feature_importances_
@@ -2720,18 +2743,29 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
             'importance': feature_importances
         }).sort_values(by='importance', ascending=False).head(nr_to_plot)
         
-        # Plotting feature importance
-        fig, ax = plt.subplots()
-        ax.barh(feature_importance_df['feature'], feature_importance_df['importance'], color="blue", align="center", alpha=0.6)
-        ax.set_xlabel('Feature Importance')
-        plt.tight_layout()
-        plt.show()
+        feature_importance_fig = plot_feature_importance(feature_importance_df)
+        feature_importance_fig.show()
+
     else:
         feature_importance_df = pd.DataFrame()
 
     # Predicting the target variable for the test set
     predictions_test = model.predict(X_test)
     combined_df.loc[X_test.index, 'predictions'] = predictions_test
+
+    # Get prediction probabilities for the test set
+    prediction_probabilities_test = model.predict_proba(X_test)
+
+    # Find the optimal threshold
+    optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
+    print(f'Optimal threshold: {optimal_threshold}')
+
+    # Apply the optimal threshold to classify the test set
+    optimal_predictions_test = (prediction_probabilities_test[:, 1] >= optimal_threshold).astype(int)
+
+    # Calculate and print the classification report with the optimal threshold
+    #print(f"nClassification Report with Optimal Threshold: {optimal_threshold}")
+    #print(classification_report(y_test, optimal_predictions_test))
 
     # Predicting the target variable for the training set
     predictions_train = model.predict(X_train)
@@ -2742,29 +2776,23 @@ def _permutation_importance(df, feature_string='channel_3', col_to_compare='col'
     all_predictions = model.predict(X_all)
     df['predictions'] = all_predictions
 
-    # Combine data usage labels back to the original dataframe
-    combined_data_usage = pd.concat([combined_df[['data_usage']], df[['predictions']]], axis=0)
-    df = df.join(combined_data_usage, how='left', rsuffix='_model')
+    # Get prediction probabilities for all rows in the dataframe
+    prediction_probabilities = model.predict_proba(X_all)
+    for i in range(prediction_probabilities.shape[1]):
+        df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
 
-    # Calculating and printing the accuracy metrics
-    accuracy = accuracy_score(y_test, predictions_test)
-    precision = precision_score(y_test, predictions_test)
-    recall = recall_score(y_test, predictions_test)
-    f1 = f1_score(y_test, predictions_test)
-    print(f"Accuracy: {accuracy}")
-    print(f"Precision: {precision}")
-    print(f"Recall: {recall}")
-    print(f"F1 Score: {f1}")
-    
-    # Printing class-specific accuracy metrics
+    df['data_usage'] = df.index.map(combined_df['data_usage']).fillna('other')
+
     print("\nClassification Report:")
     print(classification_report(y_test, predictions_test))
+    report_dict = classification_report(y_test, predictions_test, output_dict=True)
+    metrics_df = pd.DataFrame(report_dict).transpose()
 
     df = _calculate_similarity(df, features, col_to_compare, pos, neg)
 
-    return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test]
+    return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df], [permutation_fig, feature_importance_fig]
 
-def _shap_analysis(model, X_train, X_test):
+def shap_analysis(model, X_train, X_test):
     
     """
     Performs SHAP analysis on the given model and data.
@@ -2773,17 +2801,24 @@ def _shap_analysis(model, X_train, X_test):
     model: The trained model.
     X_train (pandas.DataFrame): Training feature set.
     X_test (pandas.DataFrame): Testing feature set.
+    Returns:
+    fig: Matplotlib figure object containing the SHAP summary plot.
     """
-
+    
     explainer = shap.Explainer(model, X_train)
     shap_values = explainer(X_test)
-
+    # Create a new figure
+    fig, ax = plt.subplots()
     # Summary plot
-    shap.summary_plot(shap_values, X_test)
+    shap.summary_plot(shap_values, X_test, show=False)
+    # Save the current figure (the one that SHAP just created)
+    fig = plt.gcf()
+    plt.close(fig)  # Close the figure to prevent it from displaying immediately
+    return fig
 
-def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, col_to_compare='col', pos='c1', neg='c2', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
+def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, col_to_compare='col', pos='c2', neg='c1', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
     from .io import _read_and_merge_data
-    from .plot import _plot_plates
+    from .plot import plot_plates
 
     db_loc = [src+'/measurements/measurements.db']
     tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
@@ -2802,16 +2837,41 @@ def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='m
     else:
         feature_string = None
     
-    output = _permutation_importance(df, feature_string, col_to_compare, pos, neg, exclude, n_repeats, clean, nr_to_plot, n_estimators=n_estimators, random_state=42, model_type=model_type, n_jobs=n_jobs)
+    output, figs = ml_analasys(df, feature_string, col_to_compare, pos, neg, exclude, n_repeats, clean, nr_to_plot, n_estimators=n_estimators, random_state=42, model_type=model_type, n_jobs=n_jobs)
     
-    _shap_analysis(output[3], output[4], output[5])
+    shap_fig = shap_analysis(output[3], output[4], output[5])
 
     features = output[0].select_dtypes(include=[np.number]).columns.tolist()
 
     if not variable in features:
         raise ValueError(f"Variable {variable} not found in the dataframe. Please choose one of the following: {features}")
     
-    plate_heatmap = _plot_plates(output[0], variable, grouping, min_max, cmap, min_count)
+    plate_heatmap = plot_plates(output[0], variable, grouping, min_max, cmap, min_count)
+
+    res_fldr = os.path.join(src, 'results')
+    os.makedirs(res_fldr, exist_ok=True)
+    
+    data_path = os.path.join(res_fldr, 'results.csv')
+    permutation_path = os.path.join(res_fldr, 'permutation.csv')
+    feature_importance_path = os.path.join(res_fldr, 'feature_importance.csv')
+    model_metricks_path = os.path.join(res_fldr, f'{model_type}_model.csv')
+    permutation_fig_path = os.path.join(res_fldr, 'permutation.pdf')
+    feature_importance_fig_path = os.path.join(res_fldr, 'feature_importance.pdf')
+    shap_fig_path = os.path.join(res_fldr, 'shap.pdf')
+    plate_heatmap_path = os.path.join(res_fldr, 'plate_heatmap.pdf')
+
+    df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df = output
+
+    df.to_csv(data_path, mode='w', encoding='utf-8')
+    permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
+    feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
+    metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
+    
+    plate_heatmap.savefig(plate_heatmap_path, format='pdf')
+    figs[0].savefig(permutation_fig_path, format='pdf')
+    figs[1].savefig(feature_importance_fig_path, format='pdf')
+    shap_fig.savefig(shap_fig_path, format='pdf')
+
     return [output, plate_heatmap]
 
 def join_measurments_and_annotation(src, tables = ['cell', 'nucleus', 'pathogen','cytoplasm']):

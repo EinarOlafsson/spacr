@@ -4293,3 +4293,55 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
             cleaned_mask = remove_objects_not_in_largest_cluster(mask, batch_labels, largest_cluster_label)
             np.save(mask_files[i], cleaned_mask)
             label_index += len(batch_properties)
+
+def merge_regression_res_with_metadata(results_file, metadata_file, name='_metadata'):
+    # Read the CSV files into dataframes
+    df_results = pd.read_csv(results_file)
+    df_metadata = pd.read_csv(metadata_file)
+    
+    def extract_and_clean_gene(feature):
+        # Extract the part between '[' and ']'
+        match = re.search(r'\[(.*?)\]', feature)
+        if match:
+            gene = match.group(1)
+            # Remove 'T.' if present
+            gene = re.sub(r'^T\.', '', gene)
+            # Remove everything after and including '_'
+            gene = gene.split('_')[0]
+            return gene
+        return None
+
+    # Apply the function to the feature column
+    df_results['gene'] = df_results['feature'].apply(extract_and_clean_gene)
+    
+    df_metadata['gene'] = df_metadata['Gene ID'].apply(lambda x: x.split('_')[1] if '_' in x else None)
+    
+    # Drop rows where gene extraction failed
+    df_results = df_results.dropna(subset=['gene'])
+    
+    # Merge the two dataframes on the gene column
+    merged_df = pd.merge(df_results, df_metadata, on='gene')
+    
+    # Generate the new file name
+    base, ext = os.path.splitext(results_file)
+    new_file = f"{base}{name}{ext}"
+    
+    # Save the merged dataframe to the new file
+    merged_df.to_csv(new_file, index=False)
+    
+    return merged_df
+
+def process_vision_results(df, threshold=0.5):
+
+    # Split the 'path' column using _map_wells function
+    mapped_values = df['path'].apply(lambda x: _map_wells(x))
+    
+    df['plate'] = mapped_values.apply(lambda x: x[0])
+    df['row'] = mapped_values.apply(lambda x: x[1])
+    df['column'] = mapped_values.apply(lambda x: x[2])
+    df['field'] = mapped_values.apply(lambda x: x[3])
+    df['object'] = df['path'].str.split('_').str[3].str.split('.').str[0]
+    df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+    df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
+
+    return df
