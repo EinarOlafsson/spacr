@@ -40,21 +40,27 @@ class ToolTip:
             self.tooltip_window.destroy()
         self.tooltip_window = None
 
-
 def load_app(root, app_name, app_func):
-    # Destroy the current window
-    root.destroy()
-    # Create a new window for the app
-    app_window = tk.Tk()
-    app_window.title(f"SpaCr - {app_name}")
-    app_window.geometry("1200x800")
-    #app_window.attributes('-fullscreen', True)
-    app_window.configure(bg="black")
-    create_menu_bar(app_window)  # Add menu to the new window
-    app_func(app_window, app_window.winfo_width(), app_window.winfo_height())
+    # Cancel all scheduled after tasks
+    if hasattr(root, 'after_tasks'):
+        for task in root.after_tasks:
+            root.after_cancel(task)
+    root.after_tasks = []
+
+    # Clear the current content frame
+    if hasattr(root, 'content_frame'):
+        for widget in root.content_frame.winfo_children():
+            widget.destroy()
+    else:
+        root.content_frame = tk.Frame(root)
+        root.content_frame.grid(row=1, column=0, sticky="nsew")
+        root.grid_rowconfigure(1, weight=1)
+        root.grid_columnconfigure(0, weight=1)
+
+    # Initialize the new app in the content frame
+    app_func(root.content_frame)
 
 def create_menu_bar(root):
-
     from .gui_mask_app import initiate_mask_root
     from .gui_measure_app import initiate_measure_root
     from .annotate_app import initiate_annotation_app_root
@@ -68,6 +74,10 @@ def create_menu_bar(root):
         "Make Masks": initiate_mask_app_root,
         "Classify": initiate_classify_root
     }
+
+    def load_app_wrapper(app_name, app_func):
+        load_app(root, app_name, app_func)
+
     # Create the menu bar
     menu_bar = tk.Menu(root, bg="#008080", fg="white")
     # Create a "SpaCr Applications" menu
@@ -75,7 +85,7 @@ def create_menu_bar(root):
     menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
     # Add options to the "SpaCr Applications" menu
     for app_name, app_func in gui_apps.items():
-        app_menu.add_command(label=app_name, command=lambda app_name=app_name, app_func=app_func: load_app(root, app_name, app_func))
+        app_menu.add_command(label=app_name, command=lambda app_name=app_name, app_func=app_func: load_app_wrapper(app_name, app_func))
     # Add a separator and an exit option
     app_menu.add_separator()
     app_menu.add_command(label="Exit", command=root.quit)
@@ -83,7 +93,7 @@ def create_menu_bar(root):
     root.config(menu=menu_bar)
 
 class CustomButton(tk.Frame):
-    def __init__(self, parent, text="", command=None, *args, **kwargs):
+    def __init__(self, parent, text="", command=None, font=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.text = text
         self.command = command
@@ -93,8 +103,8 @@ class CustomButton(tk.Frame):
 
         self.button_bg = self.create_rounded_rectangle(0, 0, 150, 50, radius=20, fill="#800080")
 
-        # Create a Tkinter font object using OpenSans
-        self.font_style = tkFont.Font(family="Arial", size=12, weight=tkFont.NORMAL)
+        # Use the passed font or default to Helvetica if not provided
+        self.font_style = font if font else tkFont.Font(family="Helvetica", size=12, weight=tkFont.NORMAL)
         self.button_text = self.canvas.create_text(75, 25, text=self.text, fill="white", font=self.font_style)
 
         self.bind("<Enter>", self.on_enter)
@@ -137,7 +147,7 @@ class CustomButton(tk.Frame):
                   x1, y1]
 
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
-    
+
 class ToggleSwitch(ttk.Frame):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -226,15 +236,15 @@ class ToggleSwitch(ttk.Frame):
 
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
     
-def set_default_font(root, font_name="Arial", size=12):
+def set_default_font(root, font_name="Helvetica", size=12):
     default_font = (font_name, size)
     root.option_add("*Font", default_font)
     root.option_add("*TButton.Font", default_font)
     root.option_add("*TLabel.Font", default_font)
     root.option_add("*TEntry.Font", default_font)
 
-def check_and_download_font():
-    font_name = "Arial"
+def check_and_download_font_v1():
+    font_name = "Helvetica"
     font_dir = "fonts"
     font_path = os.path.join(font_dir, "OpenSans-Regular.ttf")
 
@@ -257,17 +267,17 @@ def check_and_download_font():
             tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
             tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
         except tk.TclError:
-            tkFont.nametofont("TkDefaultFont").configure(family="Arial", size=10)
-            tkFont.nametofont("TkTextFont").configure(family="Arial", size=10)
-            tkFont.nametofont("TkHeadingFont").configure(family="Arial", size=12)
+            tkFont.nametofont("TkDefaultFont").configure(family="Helvetica", size=10)
+            tkFont.nametofont("TkTextFont").configure(family="Helvetica", size=10)
+            tkFont.nametofont("TkHeadingFont").configure(family="Helvetica", size=12)
     else:
         tkFont.nametofont("TkDefaultFont").configure(family=font_name, size=10)
         tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
         tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
 
-def style_text_boxes(style):
+def style_text_boxes_v1(style):
     check_and_download_font()
-    font_style = tkFont.Font(family="Arial", size=10)  # Define the Arial font
+    font_style = tkFont.Font(family="Helvetica", size=10)  # Define the Helvetica font
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#000000', foreground='#ffffff', font=font_style)
     style.configure('TCombobox', fieldbackground='#000000', background='#000000', foreground='#ffffff', font=font_style)
     style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)
@@ -278,6 +288,50 @@ def style_text_boxes(style):
     style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
     style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
 
+def check_and_download_font():
+    font_name = "Helvetica"
+    font_dir = "fonts"
+    font_path = os.path.join(font_dir, "OpenSans-Regular.ttf")
+
+    # Check if the font is already available
+    available_fonts = list(tkFont.families())
+    if font_name not in available_fonts:
+        print(f"Font '{font_name}' not found. Downloading...")
+        if not os.path.exists(font_dir):
+            os.makedirs(font_dir)
+
+        if not os.path.exists(font_path):
+            url = "https://github.com/google/fonts/blob/main/apache/opensans/OpenSans-Regular.ttf?raw=true"
+            response = requests.get(url)
+            with open(font_path, "wb") as f:
+                f.write(response.content)
+
+        # Load the font
+        try:
+            tkFont.nametofont("TkDefaultFont").configure(family=font_name, size=10)
+            tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
+            tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
+        except tk.TclError:
+            tkFont.nametofont("TkDefaultFont").configure(family="Helvetica", size=10)
+            tkFont.nametofont("TkTextFont").configure(family="Helvetica", size=10)
+            tkFont.nametofont("TkHeadingFont").configure(family="Helvetica", size=12)
+    else:
+        tkFont.nametofont("TkDefaultFont").configure(family=font_name, size=10)
+        tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
+        tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
+
+def style_text_boxes(style):
+    check_and_download_font()
+    font_style = tkFont.Font(family="Helvetica", size=10)  # Define the Helvetica font
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#000000', foreground='#ffffff', font=font_style)
+    style.configure('TCombobox', fieldbackground='#000000', background='#000000', foreground='#ffffff', font=font_style)
+    style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)
+    style.map('Custom.TButton',
+              background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
+              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
+    style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
+    style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
 
 
 def read_settings_from_csv(csv_file_path):
@@ -337,13 +391,28 @@ class ScrollableFrame(ttk.Frame):
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-class StdoutRedirector(object):
+class StdoutRedirector_v1(object):
     def __init__(self, text_widget):
         self.text_widget = text_widget
 
     def write(self, string):
         self.text_widget.insert(tk.END, string)
         self.text_widget.see(tk.END)
+
+    def flush(self):
+        pass
+
+class StdoutRedirector:
+    def __init__(self, text_widget):
+        self.text_widget = text_widget
+
+    def write(self, string):
+        try:
+            if self.text_widget.winfo_exists():
+                self.text_widget.insert(tk.END, string)
+                self.text_widget.see(tk.END)
+        except tk.TclError:
+            pass  # Handle or log the error as needed
 
     def flush(self):
         pass
@@ -804,8 +873,6 @@ def generate_fields(variables, scrollable_frame):
         row += 1
     return vars_dict
 
-
-    
 class TextRedirector(object):
     def __init__(self, widget, queue):
         self.widget = widget
@@ -834,7 +901,7 @@ def create_dark_mode(root, style, console_output):
     style.map('TCombobox', fieldbackground=[('readonly', input_bg)], selectbackground=[('readonly', input_bg)], foreground=[('readonly', dark_text)])
     
     if console_output != None:
-        console_output.config(bg=dark_bg, fg=light_text, insertbackground=light_text) #, font=("Arial", 12)
+        console_output.config(bg=dark_bg, fg=light_text, insertbackground=light_text) #, font=("Helvetica", 12)
     root.configure(bg=dark_bg)
     
 def set_dark_style(style):
@@ -1025,4 +1092,4 @@ def run_multiple_simulations_wrapper(settings, q, fig_queue):
         q.put(errorMessage)  # Send the error message to the GUI via the queue
         traceback.print_exc()
     finally:
-        plt.show = original_show  # Restore the original plt.show function   
+        plt.show = original_show  # Restore the original plt.show function

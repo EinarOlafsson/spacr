@@ -69,13 +69,13 @@ def import_settings(scrollable_frame):
     vars_dict = generate_fields(new_settings, scrollable_frame)
 
 #@log_function_call
-def initiate_classify_root(parent_frame):#, width, height):
+def initiate_classify_root(parent_frame):
     global vars_dict, q, canvas, fig_queue, canvas_widget, thread_control
     
     style = ttk.Style(parent_frame)
     set_dark_style(style)
     style_text_boxes(style)
-    set_default_font(parent_frame, font_name="Arial", size=8)
+    set_default_font(parent_frame, font_name="Helvetica", size=8)
 
     parent_frame.configure(bg='#333333')
     parent_frame.grid_rowconfigure(0, weight=1)
@@ -179,7 +179,7 @@ def gui_classify():
     root = tk.Tk()
     root.geometry("1000x800")
     root.title("SpaCer: generate masks")
-    initiate_classify_root(root, 1000, 800)
+    initiate_classify_root(root),
     create_menu_bar(root)
     root.mainloop()
 

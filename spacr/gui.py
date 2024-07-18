@@ -59,10 +59,10 @@ class MainApp(tk.Tk):
 
         # Load the logo image
         if not self.load_logo(logo_frame):
-            tk.Label(logo_frame, text="Logo not found", bg="black", fg="white", font=('Arial', 24, tkFont.NORMAL)).pack(padx=10, pady=10)
+            tk.Label(logo_frame, text="Logo not found", bg="black", fg="white", font=('Helvetica', 24, tkFont.NORMAL)).pack(padx=10, pady=10)
 
         # Add SpaCr text below the logo with padding for sharper text
-        tk.Label(logo_frame, text="SpaCr", bg="black", fg="#008080", font=('Arial', 24, tkFont.NORMAL)).pack(padx=10, pady=10)
+        tk.Label(logo_frame, text="SpaCr", bg="black", fg="#008080", font=('Helvetica', 24, tkFont.NORMAL)).pack(padx=10, pady=10)
 
         # Create a frame for the buttons and descriptions
         buttons_frame = tk.Frame(self.content_frame, bg="black")
@@ -72,10 +72,10 @@ class MainApp(tk.Tk):
             app_func, app_desc = app_data
 
             # Create custom button with text
-            button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name))
+            button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name), font=('Helvetica', 12))
             button.grid(row=i, column=0, pady=10, padx=10, sticky="w")
 
-            description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Arial', 10, tkFont.NORMAL))
+            description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 10, tkFont.NORMAL))
             description_label.grid(row=i, column=1, pady=10, padx=10, sticky="w")
 
         # Ensure buttons have a fixed width
@@ -131,7 +131,7 @@ class MainApp(tk.Tk):
 
         app_frame = tk.Frame(self.content_frame, bg="black")
         app_frame.pack(fill=tk.BOTH, expand=True)
-        selected_app_func(app_frame, self.winfo_width(), self.winfo_height())
+        selected_app_func(app_frame)#, self.winfo_width(), self.winfo_height())
 
     def clear_frame(self, frame):
         for widget in frame.winfo_children():
