@@ -5,6 +5,7 @@ import torch
 from . import core
 from . import io
 from . import utils
+from . import settings
 from . import plot
 from . import measure
 from . import sim
@@ -12,6 +13,7 @@ from . import sequencing
 from . import timelapse
 from . import deep_spacr
 from . import annotate_app
+from . import annotate_app_v2
 from . import gui_utils
 from . import mask_app
 from . import gui_mask_app
@@ -24,6 +26,7 @@ __all__ = [
     "core",
     "io",
     "utils",
+    "settings",
     "plot",
     "measure",
     "sim",
@@ -31,6 +34,7 @@ __all__ = [
     "timelapse",
     "deep_spacr",
     "annotate_app",
+    "annotate_app_v2",
     "gui_utils",
     "mask_app",
     "gui_mask_app",

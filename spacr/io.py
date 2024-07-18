@@ -21,6 +21,7 @@ from multiprocessing import Pool, cpu_count
 from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
+import seaborn as sns
 
 
 from .logger import log_function_call
@@ -999,7 +1000,75 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     print(f'All files concatenated and saved to:{channel_stack_loc}')
     return channel_stack_loc
 
-def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, batch_size=100, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
+def _normalize_img_batch(stack, channels, save_dtype, settings):
+    
+    """
+    Normalize the stack of images.
+
+    Args:
+        stack (numpy.ndarray): The stack of images to normalize.
+        lower_percentile (int): Lower percentile value for normalization.
+        save_dtype (numpy.dtype): Data type for saving the normalized stack.
+        settings (dict): keword arguments
+
+    Returns:
+        numpy.ndarray: The normalized stack.
+    """
+
+    normalized_stack = np.zeros_like(stack, dtype=np.float32)
+    
+    #for channel in range(stack.shape[-1]):
+    for channel in channels:
+        if channel == settings['nucleus_channel']:
+            background = settings['nucleus_background']
+            signal_threshold = settings['nucleus_Signal_to_noise']*settings['nucleus_background']
+            remove_background = settings['remove_background_nucleus']
+
+        if channel == settings['cell_channel']:
+            background = settings['cell_background']
+            signal_threshold = settings['cell_Signal_to_noise']*settings['cell_background']
+            remove_background = settings['remove_background_cell']
+
+        if channel == settings['pathogen_channel']:
+            background = settings['pathogen_background']
+            signal_threshold = settings['pathogen_Signal_to_noise']*settings['pathogen_background']
+            remove_background = settings['remove_background_pathogen']
+
+        single_channel = stack[:, :, :, channel]
+
+        print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
+
+        # Step 3: Remove background if required
+        if remove_background:
+            single_channel[single_channel < background] = 0
+
+        # Step 4: Calculate global lower percentile for the channel
+        non_zero_single_channel = single_channel[single_channel != 0]
+        global_lower = np.percentile(non_zero_single_channel, settings['lower_percentile'])
+
+        # Step 5: Calculate global upper percentile for the channel
+        global_upper = None
+        for upper_p in np.linspace(98, 99.5, num=16):
+            upper_value = np.percentile(non_zero_single_channel, upper_p)
+            if upper_value >= signal_threshold:
+                global_upper = upper_value
+                break
+
+        if global_upper is None:
+            global_upper = np.percentile(non_zero_single_channel, 99.5)  # Fallback in case no upper percentile met the threshold
+
+        print(f'Channel {channel}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
+
+        # Step 6: Normalize each array from global_lower to global_upper between 0 and 1
+        for array_index in range(single_channel.shape[0]):
+            arr_2d = single_channel[array_index, :, :]
+            arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
+            normalized_stack[array_index, :, :, channel] = arr_2d_normalized
+
+    return normalized_stack.astype(save_dtype)
+
+def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={}):
+    
     """
     Concatenates and normalizes channel data from multiple files and saves the normalized data.
 
@@ -1019,12 +1088,14 @@ def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, ba
     Returns:
         str: The directory path where the concatenated and normalized channel data is saved.
     """
+    # n c p
     channels = [item for item in channels if item is not None]
+
     paths = []
     output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
     os.makedirs(output_fldr, exist_ok=True)
 
-    if timelapse:
+    if settings['timelapse']:
         try:
             time_stack_path_lists = _generate_time_lists(os.listdir(src))
             for i, time_stack_list in enumerate(time_stack_path_lists):
@@ -1036,12 +1107,19 @@ def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, ba
                         parts = file.split('_')
                         name = parts[0] + '_' + parts[1] + '_' + parts[2]
                     array = np.load(path)
-                    array = np.take(array, channels, axis=2)
+                    #array = np.take(array, channels, axis=2)
                     stack_region.append(array)
                     filenames_region.append(os.path.basename(path))
                 print(f'Region {i + 1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
                 stack = np.stack(stack_region)
-                normalized_stack = _normalize_stack(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds)
+
+                normalized_stack = _normalize_img_batch(stack=stack,
+                                                        channels=channels, 
+                                                        save_dtype=save_dtype,
+                                                        settings=settings)
+                
+                normalized_stack = normalized_stack[..., channels]
+                
                 save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
                 np.savez(save_loc, data=normalized_stack, filenames=filenames_region)
                 print(save_loc)
@@ -1054,7 +1132,7 @@ def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, ba
             if file.endswith('.npy'):
                 path = os.path.join(src, file)
                 paths.append(path)
-        if randomize:
+        if settings['randomize']:
             random.shuffle(paths)
         nr_files = len(paths)
         batch_index = 0
@@ -1063,12 +1141,12 @@ def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, ba
 
         for i, path in enumerate(paths):
             array = np.load(path)
-            array = np.take(array, channels, axis=2)
+            #array = np.take(array, channels, axis=2)
             stack_ls.append(array)
             filenames_batch.append(os.path.basename(path))
             print(f'Concatenated: {i + 1}/{nr_files} files')
 
-            if (i + 1) % batch_size == 0 or i + 1 == nr_files:
+            if (i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
@@ -1082,8 +1160,13 @@ def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, ba
                     stack = np.stack(padded_stack_ls)
                 else:
                     stack = np.stack(stack_ls)
-
-                normalized_stack = _normalize_img_batch(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds)
+                
+                normalized_stack = _normalize_img_batch(stack=stack,
+                                                        channels=channels,
+                                                        save_dtype=save_dtype,
+                                                        settings=settings)
+                
+                normalized_stack = normalized_stack[..., channels]
 
                 save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
                 np.savez(save_loc, data=normalized_stack, filenames=filenames_batch)
@@ -1092,63 +1175,9 @@ def concatenate_and_normalize(src, channels, randomize=True, timelapse=False, ba
                 stack_ls = []
                 filenames_batch = []
                 padded_stack_ls = []
+
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
     return output_fldr
-
-def _normalize_img_batch(stack, backgrounds, remove_backgrounds, lower_percentile, save_dtype, signal_to_noise, signal_thresholds):
-    """
-    Normalize the stack of images.
-
-    Args:
-        stack (numpy.ndarray): The stack of images to normalize.
-        backgrounds (list): Background values for each channel.
-        remove_backgrounds (list): Whether to remove background values for each channel.
-        lower_percentile (int): Lower percentile value for normalization.
-        save_dtype (numpy.dtype): Data type for saving the normalized stack.
-        signal_to_noise (list): Signal-to-noise ratio thresholds for each channel.
-        signal_thresholds (list): Signal thresholds for each channel.
-
-    Returns:
-        numpy.ndarray: The normalized stack.
-    """
-    normalized_stack = np.zeros_like(stack, dtype=np.float32)
-
-    for chan_index, channel in enumerate(range(stack.shape[-1])):
-        single_channel = stack[:, :, :, channel]
-        background = backgrounds[chan_index]
-        signal_threshold = signal_thresholds[chan_index]
-        remove_background = remove_backgrounds[chan_index]
-
-        print(f'Processing channel {chan_index}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
-
-        # Step 3: Remove background if required
-        if remove_background:
-            single_channel[single_channel < background] = 0
-
-        # Step 4: Calculate global lower percentile for the channel
-        non_zero_single_channel = single_channel[single_channel != 0]
-        global_lower = np.percentile(non_zero_single_channel, lower_percentile)
-
-        # Step 5: Calculate global upper percentile for the channel
-        global_upper = None
-        for upper_p in np.linspace(98, 99.5, num=16):
-            upper_value = np.percentile(non_zero_single_channel, upper_p)
-            if upper_value >= signal_threshold:
-                global_upper = upper_value
-                break
-
-        if global_upper is None:
-            global_upper = np.percentile(non_zero_single_channel, 99.5)  # Fallback in case no upper percentile met the threshold
-
-        print(f'Channel {chan_index}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
-
-        # Step 6: Normalize each array from global_lower to global_upper between 0 and 1
-        for array_index in range(single_channel.shape[0]):
-            arr_2d = single_channel[array_index, :, :]
-            arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
-            normalized_stack[array_index, :, :, channel] = arr_2d_normalized
-
-    return normalized_stack.astype(save_dtype)
 
 def _get_lists_for_normalization(settings):
     """
@@ -1168,22 +1197,25 @@ def _get_lists_for_normalization(settings):
     remove_background = []
 
     # Iterate through the channels and append the corresponding values if the channel is not None
-    for ch in settings['channels']:
-        if ch == settings['nucleus_channel']:
-            backgrounds.append(settings['nucleus_background'])
-            signal_to_noise.append(settings['nucleus_Signal_to_noise'])
-            signal_thresholds.append(settings['nucleus_Signal_to_noise']*settings['nucleus_background'])
-            remove_background.append(settings['remove_background_nucleus'])
-        elif ch == settings['cell_channel']:
-            backgrounds.append(settings['cell_background'])
-            signal_to_noise.append(settings['cell_Signal_to_noise'])
-            signal_thresholds.append(settings['cell_Signal_to_noise']*settings['cell_background'])
-            remove_background.append(settings['remove_background_cell'])
-        elif ch == settings['pathogen_channel']:
-            backgrounds.append(settings['pathogen_background'])
-            signal_to_noise.append(settings['pathogen_Signal_to_noise'])
-            signal_thresholds.append(settings['pathogen_Signal_to_noise']*settings['pathogen_background'])
-            remove_background.append(settings['remove_background_pathogen'])
+    # for ch in settings['channels']:
+    for ch in [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]:
+        if not ch is None:
+            if ch == settings['nucleus_channel']:
+                backgrounds.append(settings['nucleus_background'])
+                signal_to_noise.append(settings['nucleus_Signal_to_noise'])
+                signal_thresholds.append(settings['nucleus_Signal_to_noise']*settings['nucleus_background'])
+                remove_background.append(settings['remove_background_nucleus'])
+            elif ch == settings['cell_channel']:
+                backgrounds.append(settings['cell_background'])
+                signal_to_noise.append(settings['cell_Signal_to_noise'])
+                signal_thresholds.append(settings['cell_Signal_to_noise']*settings['cell_background'])
+                remove_background.append(settings['remove_background_cell'])
+            elif ch == settings['pathogen_channel']:
+                backgrounds.append(settings['pathogen_background'])
+                signal_to_noise.append(settings['pathogen_Signal_to_noise'])
+                signal_thresholds.append(settings['pathogen_Signal_to_noise']*settings['pathogen_background'])
+                remove_background.append(settings['remove_background_pathogen'])
+
     return backgrounds, signal_to_noise, signal_thresholds, remove_background
 
 def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
@@ -1392,7 +1424,8 @@ def delete_empty_subdirectories(folder_path):
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays, _plot_4D_arrays
-    from .utils import _run_test_mode, _get_regex, set_default_settings_preprocess_img_data
+    from .utils import _run_test_mode, _get_regex
+    from .settings import set_default_settings_preprocess_img_data
     
     """
     Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
@@ -1509,19 +1542,10 @@ def preprocess_img_data(settings):
         except Exception as e:
             print(f"Error: {e}")
     
-    backgrounds, signal_to_noise, signal_thresholds, remove_backgrounds = _get_lists_for_normalization(settings=settings)
-    
-    concatenate_and_normalize(src+'/stack',
-                              mask_channels,
-                              randomize,
-                              timelapse,
-                              batch_size,
-                              backgrounds,
-                              remove_backgrounds,
-                              lower_percentile,
-                              np.float32,
-                              signal_to_noise,
-                              signal_thresholds)
+    concatenate_and_normalize(src=src+'/stack',
+                              channels=mask_channels,
+                              save_dtype=np.float32,
+                              settings=settings)
 
     if plot:
         _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)
@@ -1603,13 +1627,13 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     del fig
     gc.collect()
     
-def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 'pathogen', 'parasite', 'png_list']):
+def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']):
     """
     Reads and joins tables from a SQLite database.
 
     Args:
         db_path (str): The path to the SQLite database file.
-        table_names (list, optional): The names of the tables to read and join. Defaults to ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'parasite', 'png_list'].
+        table_names (list, optional): The names of the tables to read and join. Defaults to ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'].
 
     Returns:
         pandas.DataFrame: The joined DataFrame containing the data from the specified tables, or None if an error occurs.
@@ -1631,9 +1655,9 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
             join_cols = ['object_label', 'plate', 'row', 'col']
             dataframes['cell'] = pd.merge(dataframes['cell'], png_list_df, on=join_cols, how='left')
         else:
-            print("Cell table not found. Cannot join with png_list.")
-            return None
-    for entity in ['nucleus', 'pathogen', 'parasite']:
+            print("Cell table not found in database tables.")
+            return png_list_df
+    for entity in ['nucleus', 'pathogen']:
         if entity in dataframes:
             numeric_cols = dataframes[entity].select_dtypes(include=[np.number]).columns.tolist()
             non_numeric_cols = dataframes[entity].select_dtypes(exclude=[np.number]).columns.tolist()
@@ -1646,14 +1670,11 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
     joined_df = None
     if 'cell' in dataframes:
         joined_df = dataframes['cell']
-        if 'cytoplasm' in dataframes:
-            joined_df = pd.merge(joined_df, dataframes['cytoplasm'], on=['object_label', 'prcf'], how='left', suffixes=('', '_cytoplasm'))
-        for entity in ['nucleus', 'pathogen']:
-            if entity in dataframes:
-                joined_df = pd.merge(joined_df, dataframes[entity], left_on=['object_label', 'prcf'], right_index=True, how='left', suffixes=('', f'_{entity}'))
-    else:
-        print("Cell table not found. Cannot proceed with joining.")
-        return None
+    if 'cytoplasm' in dataframes:
+        joined_df = pd.merge(joined_df, dataframes['cytoplasm'], on=['object_label', 'prcf'], how='left', suffixes=('', '_cytoplasm'))
+    for entity in ['nucleus', 'pathogen']:
+        if entity in dataframes:
+            joined_df = pd.merge(joined_df, dataframes[entity], left_on=['object_label', 'prcf'], right_index=True, how='left', suffixes=('', f'_{entity}'))
     return joined_df
     
 def _save_settings_to_db(settings):
@@ -2102,8 +2123,75 @@ def _results_to_csv(src, df, df_well):
 ###################################################
 #  Classify
 ###################################################
+
+def read_plot_model_stats(file_path ,save=False):
     
-def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94]):
+    def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=600):
+        
+        pdf_path = os.path.join(path, f'{column}.pdf')
+
+        # Create subplots
+        fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
+
+        # Plotting
+        sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
+        sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')
+
+        # Set titles and labels
+        axes[0].set_title(f'Train {column} vs. Epoch', fontsize=20)
+        axes[0].set_xlabel('Epoch', fontsize=16)
+        axes[0].set_ylabel(column, fontsize=16)
+        axes[0].tick_params(axis='both', which='major', labelsize=12)
+
+        axes[1].set_title(f'Validation {column} vs. Epoch', fontsize=20)
+        axes[1].set_xlabel('Epoch', fontsize=16)
+        axes[1].tick_params(axis='both', which='major', labelsize=12)
+
+        plt.tight_layout()
+
+        if save:
+            plt.savefig(pdf_path, format='pdf', dpi=dpi)
+        else:
+            plt.show()
+    # Read the CSV into a dataframe
+    df = pd.read_csv(file_path, index_col=0)
+    
+    # Split the dataframe into train and validation based on the index
+    train_df = df.filter(like='_train', axis=0).copy()
+    val_df = df.filter(like='_val', axis=0).copy()
+    
+    fldr_1 = os.path.dirname(file_path)
+    
+    train_csv_path = os.path.join(fldr_1, 'train.csv')
+    val_csv_path = os.path.join(fldr_1, 'validation.csv')
+
+    fldr_2 = os.path.dirname(fldr_1)
+    fldr_3 = os.path.dirname(fldr_2)
+    bn_1 = os.path.basename(fldr_1)
+    bn_2 = os.path.basename(fldr_2)
+    bn_3 = os.path.basename(fldr_3)
+    model_name = str(f'{bn_1}_{bn_2}_{bn_3}')
+
+    # Extract epochs from index
+    train_df['epoch'] = [int(idx.split('_')[0]) for idx in train_df.index]
+    val_df['epoch'] = [int(idx.split('_')[0]) for idx in val_df.index]
+    
+    # Save dataframes to a CSV file
+    train_df.to_csv(train_csv_path)
+    val_df.to_csv(val_csv_path)
+    
+    if save:
+        # Setting the style
+        sns.set(style="whitegrid")
+    
+    _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
+    _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
+    _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
+    _plot_and_save(train_df, val_df, column='loss', save=save, path=fldr_1)
+    _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
+    _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
+    
+def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=['r','g','b']):
     """
     Save the model based on certain conditions during training.
 
@@ -2116,35 +2204,25 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
         epochs (int): The total number of epochs.
         intermedeate_save (list, optional): List of accuracy thresholds to trigger intermediate model saves. 
                                             Defaults to [0.99, 0.98, 0.95, 0.94].
+        channels (list, optional): List of channels used. Defaults to ['r', 'g', 'b'].
     """
-    
-    if epoch % 100 == 0:
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}.pth')
-        
-    if epoch == epochs:
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}.pth')
-    
-    if results_df['neg_accuracy'].dropna().mean() >= intermedeate_save[0] and results_df['pos_accuracy'].dropna().mean() >= intermedeate_save[0]:
-        percentile = str(intermedeate_save[0]*100)
-        print(f'\rfound: {percentile}% accurate model', end='\r', flush=True)
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}_acc_{str(percentile)}.pth')
 
-    elif results_df['neg_accuracy'].dropna().mean() >= intermedeate_save[1] and results_df['pos_accuracy'].dropna().mean() >= intermedeate_save[1]:
-        percentile = str(intermedeate_save[1]*100)
-        print(f'\rfound: {percentile}% accurate model', end='\r', flush=True)
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}_acc_{str(percentile)}.pth')
+    channels_str = ''.join(channels)
     
-    elif results_df['neg_accuracy'].dropna().mean() >= intermedeate_save[2] and results_df['pos_accuracy'].dropna().mean() >= intermedeate_save[2]:
-        percentile = str(intermedeate_save[2]*100)
+    def save_model_at_threshold(threshold, epoch, suffix=""):
+        percentile = str(threshold * 100)
         print(f'\rfound: {percentile}% accurate model', end='\r', flush=True)
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}_acc_{str(percentile)}.pth')
-    
-    elif results_df['neg_accuracy'].dropna().mean() >= intermedeate_save[3] and results_df['pos_accuracy'].dropna().mean() >= intermedeate_save[3]:
-        percentile = str(intermedeate_save[3]*100)
-        print(f'\rfound: {percentile}% accurate model', end='\r', flush=True)
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}_acc_{str(percentile)}.pth')
+        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth')
 
-def _save_progress(dst, results_df, train_metrics_df):
+    if epoch % 100 == 0 or epoch == epochs:
+        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth')
+
+    for threshold in intermedeate_save:
+        if results_df['neg_accuracy'].dropna().mean() >= threshold and results_df['pos_accuracy'].dropna().mean() >= threshold:
+            save_model_at_threshold(threshold, epoch)
+            break  # Ensure we only save for the highest matching threshold
+
+def _save_progress(dst, results_df, train_metrics_df, epoch, epochs):
     """
     Save the progress of the classification model.
 
@@ -2163,11 +2241,14 @@ def _save_progress(dst, results_df, train_metrics_df):
         results_df.to_csv(results_path, index=True, header=True, mode='w')
     else:
         results_df.to_csv(results_path, index=True, header=False, mode='a')
+    
     training_metrics_path = os.path.join(dst, 'training_metrics.csv')
     if not os.path.exists(training_metrics_path):
         train_metrics_df.to_csv(training_metrics_path, index=True, header=True, mode='w')
     else:
         train_metrics_df.to_csv(training_metrics_path, index=True, header=False, mode='a')
+    if epoch == epochs:
+        read_plot_model_stats(results_path, save=True)
     return
 
 def _save_settings(settings, src):

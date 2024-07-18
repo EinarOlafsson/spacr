@@ -13,7 +13,7 @@ from IPython.display import display
 from multiprocessing import Pool, cpu_count, Value, Lock
 
 import seaborn as sns
-
+import cellpose
 from skimage.measure import regionprops, label
 from skimage.transform import resize as resizescikit
 from torch.utils.data import DataLoader
@@ -42,43 +42,51 @@ from .logger import log_function_call
 def analyze_plaques(folder):
     summary_data = []
     details_data = []
+    stats_data = []
     
     for filename in os.listdir(folder):
         filepath = os.path.join(folder, filename)
         if os.path.isfile(filepath):
             # Assuming each file is a NumPy array file (.npy) containing a 16-bit labeled image
-            image = np.load(filepath)
-            
+            #image = np.load(filepath)
+            image = cellpose.io.imread(filepath)
             labeled_image = label(image)
             regions = regionprops(labeled_image)
             
             object_count = len(regions)
             sizes = [region.area for region in regions]
             average_size = np.mean(sizes) if sizes else 0
+            std_dev_size = np.std(sizes) if sizes else 0
             
             summary_data.append({'file': filename, 'object_count': object_count, 'average_size': average_size})
+            stats_data.append({'file': filename, 'plaque_count': object_count, 'average_size': average_size, 'std_dev_size': std_dev_size})
             for size in sizes:
                 details_data.append({'file': filename, 'plaque_size': size})
     
     # Convert lists to pandas DataFrames
     summary_df = pd.DataFrame(summary_data)
     details_df = pd.DataFrame(details_data)
+    stats_df = pd.DataFrame(stats_data)
     
     # Save DataFrames to a SQLite database
-    db_name = 'plaques_analysis.db'
+    db_name = os.path.join(folder, 'plaques_analysis.db')
     conn = sqlite3.connect(db_name)
     
     summary_df.to_sql('summary', conn, if_exists='replace', index=False)
     details_df.to_sql('details', conn, if_exists='replace', index=False)
+    stats_df.to_sql('stats', conn, if_exists='replace', index=False)
     
     conn.close()
     
     print(f"Analysis completed and saved to database '{db_name}'.")
 
+
 def train_cellpose(settings):
     
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
-    #from .utils import resize_images_and_labels
+    from .settings import get_train_cellpose_default_settings#, resize_images_and_labels
+
+    settings = get_train_cellpose_default_settings()
 
     img_src = settings['img_src'] 
     mask_src = os.path.join(img_src, 'masks')
@@ -147,7 +155,7 @@ def train_cellpose(settings):
 
         image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
         label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
-        images, masks, image_names, mask_names = _load_normalized_images_and_labels(image_files, label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise, target_height, target_width)        
+        images, masks, image_names, mask_names, orig_dims = _load_normalized_images_and_labels(image_files, label_files, channels, percentiles,  circular, invert, verbose, remove_background, background, Signal_to_noise, target_height, target_width)        
         images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
         
         if test:
@@ -1294,7 +1302,7 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
     
     return
 
-def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], verbose=False):
+def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
     
     """
     Generate data loaders for training and validation/test datasets.
@@ -1329,7 +1337,7 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     import random
     from PIL import Image
     from torchvision.transforms import ToTensor
-    from .utils import SelectChannels
+    from .utils import SelectChannels, augment_dataset
 
     chans = []
 
@@ -1379,14 +1387,22 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
         return
 
     if train_mode == 'erm':
+        
         data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
+        
         if validation_split > 0:
             train_size = int((1 - validation_split) * len(data))
             val_size = len(data) - train_size
-
-            print(f'Train data:{train_size}, Validation data:{val_size}')
-
+            if not augment:
+                print(f'Train data:{train_size}, Validation data:{val_size}')
             train_dataset, val_dataset = random_split(data, [train_size, val_size])
+
+            if augment:
+
+                print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
+                train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
+                #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
+                print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
 
             train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
             val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
@@ -1409,10 +1425,16 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
             if validation_split > 0:
                 train_size = int((1 - validation_split) * len(plate_data))
                 val_size = len(plate_data) - train_size
-
-                print(f'Train data:{train_size}, Validation data:{val_size}')
-
+                if not augment:
+                    print(f'Train data:{train_size}, Validation data:{val_size}')
                 train_dataset, val_dataset = random_split(plate_data, [train_size, val_size])
+
+                if augment:
+
+                    print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{val_dataset}')
+                    train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
+                    #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
+                    print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
 
                 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
                 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
@@ -1427,28 +1449,33 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     else:
         print(f'train_mode:{train_mode} is not valid, use: train_mode = irm or erm')
         return
+    
+    
+    if train_mode == 'erm':
+        for idx, (images, labels, filenames) in enumerate(train_loaders):
+            if idx >= max_show:
+                break
+            images = images.cpu()
+            label_strings = [str(label.item()) for label in labels]
+            train_fig = _imshow(images, label_strings, nrow=20, fontsize=12)
+            if verbose:
+                plt.show()
 
-    if verbose:
-        if train_mode == 'erm':
-            for idx, (images, labels, filenames) in enumerate(train_loaders):
+    elif train_mode == 'irm':
+        for plate_name, train_loader in zip(plate_names, train_loaders):
+            print(f'Plate: {plate_name} with {len(train_loader.dataset)} images')
+            for idx, (images, labels, filenames) in enumerate(train_loader):
                 if idx >= max_show:
                     break
                 images = images.cpu()
                 label_strings = [str(label.item()) for label in labels]
-                _imshow(images, label_strings, nrow=20, fontsize=12)
-        elif train_mode == 'irm':
-            for plate_name, train_loader in zip(plate_names, train_loaders):
-                print(f'Plate: {plate_name} with {len(train_loader.dataset)} images')
-                for idx, (images, labels, filenames) in enumerate(train_loader):
-                    if idx >= max_show:
-                        break
-                    images = images.cpu()
-                    label_strings = [str(label.item()) for label in labels]
-                    _imshow(images, label_strings, nrow=20, fontsize=12)
-    
-    return train_loaders, val_loaders, plate_names
+                train_fig = _imshow(images, label_strings, nrow=20, fontsize=12)
+                if verbose:
+                    plt.show()
 
-def analyze_recruitment(src, metadata_settings, advanced_settings):
+    return train_loaders, val_loaders, plate_names, train_fig
+
+def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
     """
     Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.
 
@@ -1464,6 +1491,9 @@ def analyze_recruitment(src, metadata_settings, advanced_settings):
     from .io import _read_and_merge_data, _results_to_csv
     from .plot import plot_merged, _plot_controls, _plot_recruitment
     from .utils import _object_filter, annotate_conditions, _calculate_recruitment, _group_by_well
+    from .settings import get_analyze_recruitment_default_settings
+
+    settings = get_analyze_recruitment_default_settings(settings)
     
     settings_dict = {**metadata_settings, **advanced_settings}
     settings_df = pd.DataFrame(list(settings_dict.items()), columns=['Key', 'Value'])
@@ -1638,8 +1668,8 @@ def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_merged, plot_arrays
-    from .utils import _pivot_counts_table, set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings, check_mask_folder
-    from .utils import adjust_cell_masks, _merge_cells_based_on_parasite_overlap, process_masks
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, _merge_cells_based_on_parasite_overlap, process_masks
+    from .settings import set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings
     
     settings = set_default_settings_preprocess_generate_masks(src, settings)
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
@@ -1760,33 +1790,13 @@ def identify_masks_finetune(settings):
     from .plot import print_mask_and_flows
     from .utils import get_files_from_dir, resize_images_and_labels
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
-    
+    from .settings import get_identify_masks_finetune_default_settings
+
+    settings = get_identify_masks_finetune_default_settings(settings)
+
     #User defined settings
     src=settings['src']
     dst=settings['dst']
-
-    settings.setdefault('model_name', 'cyto')
-    settings.setdefault('custom_model', None)
-    settings.setdefault('channels', [0,0])
-    settings.setdefault('background', 100)
-    settings.setdefault('remove_background', False)
-    settings.setdefault('Signal_to_noise', 10)
-    settings.setdefault('CP_prob', 0)
-    settings.setdefault('diameter', 30)
-    settings.setdefault('batch_size', 50)
-    settings.setdefault('flow_threshold', 0.4)
-    settings.setdefault('save', False)
-    settings.setdefault('verbose', False)
-    settings.setdefault('normalize', True)
-    settings.setdefault('percentiles', None)
-    settings.setdefault('circular', False)
-    settings.setdefault('invert', False)
-    settings.setdefault('resize', False)
-    settings.setdefault('target_height', None)
-    settings.setdefault('target_width', None)
-    settings.setdefault('rescale', False)
-    settings.setdefault('resample', False)
-    settings.setdefault('grayscale', True)
 
     model_name=settings['model_name']
     custom_model=settings['custom_model']
@@ -1846,11 +1856,13 @@ def identify_masks_finetune(settings):
         print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{CP_prob}')
         
     all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
-
+    mask_files = set(os.listdir(os.path.join(src, 'masks')))
+    all_image_files = [f for f in all_image_files if os.path.basename(f) not in mask_files]
     random.shuffle(all_image_files)
     
     time_ls = []
     for i in range(0, len(all_image_files), batch_size):
+        gc.collect()
         image_files = all_image_files[i:i+batch_size]
         
         if normalize:
@@ -1901,6 +1913,8 @@ def identify_masks_finetune(settings):
                 os.makedirs(dst, exist_ok=True)
                 output_filename = os.path.join(dst, image_names[file_index])
                 cv2.imwrite(output_filename, mask)
+        del images, output, mask, flows
+        gc.collect()
     return
 
 def identify_masks(src, object_type, model_name, batch_size, channels, diameter, minimum_size, maximum_size, filter_intensity, flow_threshold=30, cellprob_threshold=1, figuresize=25, cmap='inferno', refine_masks=True, filter_size=True, filter_dimm=True, remove_border_objects=False, verbose=False, plot=False, merge=False, save=True, start_at=0, file_type='.npz', net_avg=True, resample=True, timelapse=False, timelapse_displacement=None, timelapse_frame_limits=None, timelapse_memory=3, timelapse_remove_transient=False, timelapse_mode='btrack', timelapse_objects='cell'):
@@ -2127,10 +2141,11 @@ def prepare_batch_for_cellpose(batch):
 
 def generate_cellpose_masks(src, settings, object_type):
     
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_object_settings, _get_cellpose_channels, _choose_model, mask_object_count, set_default_settings_preprocess_generate_masks
+    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_cellpose_channels, _choose_model, mask_object_count
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_masks
+    from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -2459,32 +2474,15 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
 
 
 def check_cellpose_models(settings):
-    
-    src = settings['src']
-    settings.setdefault('batch_size', 10)
-    settings.setdefault('CP_prob', 0)
-    settings.setdefault('flow_threshold', 0.4)
-    settings.setdefault('save', True)
-    settings.setdefault('normalize', True)
-    settings.setdefault('channels', [0,0])
-    settings.setdefault('percentiles', None)
-    settings.setdefault('circular', False)
-    settings.setdefault('invert', False)
-    settings.setdefault('plot', True)
-    settings.setdefault('diameter', 40)
-    settings.setdefault('grayscale', True)
-    settings.setdefault('remove_background', False)
-    settings.setdefault('background', 100)
-    settings.setdefault('Signal_to_noise', 5)
-    settings.setdefault('verbose', False)
-    settings.setdefault('resize', False)
-    settings.setdefault('target_height', None)
-    settings.setdefault('target_width', None)
 
-    if settings['verbose']:
-        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
-        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
-        display(settings_df)
+    from .settings import get_check_cellpose_models_default_settings
+    
+    settings = get_check_cellpose_models_default_settings(settings)
+    src = settings['src']
+
+    settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+    settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+    display(settings_df)
 
     cellpose_models = ['cyto', 'nuclei', 'cyto2', 'cyto3']
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -2641,8 +2639,7 @@ def find_optimal_threshold(y_true, y_pred_proba):
     optimal_threshold = thresholds[optimal_idx]
     return optimal_threshold
 
-def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', neg='c1', exclude=None, n_repeats=10, clean=True, nr_to_plot=30, n_estimators=100, test_size=0.2, random_state=42, model_type='xgboost', n_jobs=-1):
-    
+def ml_analysis(df, channel_of_interest=3, location_column='col', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
     """
     Calculates permutation importance for numerical features in the dataframe,
     comparing groups based on specified column values and uses the model to predict 
@@ -2651,12 +2648,11 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
     Args:
     df (pandas.DataFrame): The DataFrame containing the data.
     feature_string (str): String to filter features that contain this substring.
-    col_to_compare (str): Column name to use for comparing groups.
-    pos, neg (str): Values in col_to_compare to create subsets for comparison.
+    location_column (str): Column name to use for comparing groups.
+    positive_control, negative_control (str): Values in location_column to create subsets for comparison.
     exclude (list or str, optional): Columns to exclude from features.
     n_repeats (int): Number of repeats for permutation importance.
-    clean (bool): Whether to remove columns with a single value.
-    nr_to_plot (int): Number of top features to plot based on permutation importance.
+    top_features (int): Number of top features to plot based on permutation importance.
     n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
     test_size (float): Proportion of the dataset to include in the test split.
     random_state (int): Random seed for reproducibility.
@@ -2671,12 +2667,23 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
     from .utils import filter_dataframe_features
     from .plot import plot_permutation, plot_feature_importance
 
+    random_state = 42
+    
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
+    df_metadata = df[[location_column]].copy()
+    df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
+    
+    
+    if verbose:
+        print(f'Found {len(features)} numerical features in the dataframe')
+        print(f'Features used in training: {features}')
+    df = pd.concat([df, df_metadata[location_column]], axis=1)
+
     # Subset the dataframe based on specified column values
-    df1 = df[df[col_to_compare] == neg].copy()
-    df2 = df[df[col_to_compare] == pos].copy()
+    df1 = df[df[location_column] == negative_control].copy()
+    df2 = df[df[location_column] == positive_control].copy()
 
     # Create target variable
     df1['target'] = 0 # Negative control
@@ -2684,31 +2691,22 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
 
     # Combine the subsets for analysis
     combined_df = pd.concat([df1, df2])
-
-    print(f'Found {len(df1)} samples for {neg} and {len(df2)} samples for {pos}. Total: {len(combined_df)}')
-
-    if feature_string in ['channel_0', 'channel_1', 'channel_2', 'channel_3']:
-        channel_of_interest = int(feature_string.split('_')[-1])
-    elif not feature_string is 'morphology': 
-        channel_of_interest = 'morphology'
-    else:
-        channel_of_interest = None
-    if not channel_of_interest is None:
-        _, features = filter_dataframe_features(combined_df, channel_of_interest, exclude)
-    else:
-        features = df.select_dtypes(include=[np.number]).columns.tolist()
-        print(f'Found {len(features)} numerical features in the dataframe')
+    combined_df = combined_df.drop(columns=[location_column])
+    if verbose:
+        print(f'Found {len(df1)} samples for {negative_control} and {len(df2)} samples for {positive_control}. Total: {len(combined_df)}')
 
     X = combined_df[features]
     y = combined_df['target']
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
-    
-    # Label the data in the original dataframe
+
+    # Add data usage labels
     combined_df['data_usage'] = 'train'
     combined_df.loc[X_test.index, 'data_usage'] = 'test'
-
+    df['data_usage'] = 'not_used'
+    df.loc[combined_df.index, 'data_usage'] = combined_df['data_usage']
+    
     # Initialize the model based on model_type
     if model_type == 'random_forest':
         model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
@@ -2730,10 +2728,11 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
         'feature': [features[i] for i in perm_importance.importances_mean.argsort()],
         'importance_mean': perm_importance.importances_mean[perm_importance.importances_mean.argsort()],
         'importance_std': perm_importance.importances_std[perm_importance.importances_mean.argsort()]
-    }).tail(nr_to_plot)
+    }).tail(top_features)
 
     permutation_fig = plot_permutation(permutation_df)
-    permutation_fig.show()
+    if verbose:
+        permutation_fig.show()
 
     # Feature importance for models that support it
     if model_type in ['random_forest', 'xgboost', 'gradient_boosting']:
@@ -2741,10 +2740,11 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
         feature_importance_df = pd.DataFrame({
             'feature': features,
             'importance': feature_importances
-        }).sort_values(by='importance', ascending=False).head(nr_to_plot)
+        }).sort_values(by='importance', ascending=False).head(top_features)
         
         feature_importance_fig = plot_feature_importance(feature_importance_df)
-        feature_importance_fig.show()
+        if verbose:
+            feature_importance_fig.show()
 
     else:
         feature_importance_df = pd.DataFrame()
@@ -2758,18 +2758,8 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
 
     # Find the optimal threshold
     optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
-    print(f'Optimal threshold: {optimal_threshold}')
-
-    # Apply the optimal threshold to classify the test set
-    optimal_predictions_test = (prediction_probabilities_test[:, 1] >= optimal_threshold).astype(int)
-
-    # Calculate and print the classification report with the optimal threshold
-    #print(f"nClassification Report with Optimal Threshold: {optimal_threshold}")
-    #print(classification_report(y_test, optimal_predictions_test))
-
-    # Predicting the target variable for the training set
-    predictions_train = model.predict(X_train)
-    combined_df.loc[X_train.index, 'predictions'] = predictions_train
+    if verbose:
+        print(f'Optimal threshold: {optimal_threshold}')
 
     # Predicting the target variable for all other rows in the dataframe
     X_all = df[features]
@@ -2780,16 +2770,18 @@ def ml_analasys(df, feature_string='channel_3', col_to_compare='col', pos='c2', 
     prediction_probabilities = model.predict_proba(X_all)
     for i in range(prediction_probabilities.shape[1]):
         df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
-
-    df['data_usage'] = df.index.map(combined_df['data_usage']).fillna('other')
-
-    print("\nClassification Report:")
-    print(classification_report(y_test, predictions_test))
+    if verbose:
+        print("\nClassification Report:")
+        print(classification_report(y_test, predictions_test))
     report_dict = classification_report(y_test, predictions_test, output_dict=True)
     metrics_df = pd.DataFrame(report_dict).transpose()
 
-    df = _calculate_similarity(df, features, col_to_compare, pos, neg)
+    df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
+    df['prcfo'] = df.index.astype(str)
+    df[['plate', 'row', 'col', 'field', 'object']] = df['prcfo'].str.split('_', expand=True)
+    df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
+    
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df], [permutation_fig, feature_importance_fig]
 
 def shap_analysis(model, X_train, X_test):
@@ -2816,9 +2808,30 @@ def shap_analysis(model, X_train, X_test):
     plt.close(fig)  # Close the figure to prevent it from displaying immediately
     return fig
 
-def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, col_to_compare='col', pos='c2', neg='c1', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
+def check_index(df, elements=5, split_char='_'):
+    problematic_indices = []
+    for idx in df.index:
+        parts = str(idx).split(split_char)
+        if len(parts) != elements:
+            problematic_indices.append(idx)
+    if problematic_indices:
+        print("Indices that cannot be separated into 5 parts:")
+        for idx in problematic_indices:
+            print(idx)
+        raise ValueError(f"Found {len(problematic_indices)} problematic indices that do not split into {elements} parts.")
+
+#def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, col_to_compare='col', pos='c2', neg='c1', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
+def generate_ml_scores(src, settings):
+    
     from .io import _read_and_merge_data
     from .plot import plot_plates
+    from .utils import get_ml_results_paths
+    from .settings import set_default_analyze_screen
+
+    settings = set_default_analyze_screen(settings)
+
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    display(settings_df)
 
     db_loc = [src+'/measurements/measurements.db']
     tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
@@ -2826,42 +2839,50 @@ def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='m
     
     df, _ = _read_and_merge_data(db_loc, 
                                  tables,
-                                 verbose=verbose,
-                                 include_multinucleated=include_multinucleated,
-                                 include_multiinfected=include_multiinfected,
-                                 include_noninfected=include_noninfected)
-        
-    if not channel_of_interest is None:
-        df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_mean_intensity']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
-        feature_string = f'channel_{channel_of_interest}'
-    else:
-        feature_string = None
+                                 settings['verbose'],
+                                 include_multinucleated,
+                                 include_multiinfected,
+                                 include_noninfected)
     
-    output, figs = ml_analasys(df, feature_string, col_to_compare, pos, neg, exclude, n_repeats, clean, nr_to_plot, n_estimators=n_estimators, random_state=42, model_type=model_type, n_jobs=n_jobs)
+    if settings['channel_of_interest'] in [0,1,2,3]:
+
+        df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+    
+    output, figs = ml_analysis(df,
+                               settings['channel_of_interest'],
+                               settings['location_column'],
+                               settings['positive_control'],
+                               settings['negative_control'],
+                               settings['exclude'],
+                               settings['n_repeats'],
+                               settings['top_features'],
+                               settings['n_estimators'],
+                               settings['test_size'],
+                               settings['model_type'],
+                               settings['n_jobs'],
+                               settings['remove_low_variance_features'],
+                               settings['remove_highly_correlated_features'],
+                               settings['verbose'])
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
 
     features = output[0].select_dtypes(include=[np.number]).columns.tolist()
 
-    if not variable in features:
-        raise ValueError(f"Variable {variable} not found in the dataframe. Please choose one of the following: {features}")
+    if not settings['heatmap_feature'] in features:
+        raise ValueError(f"Variable {settings['heatmap_feature']} not found in the dataframe. Please choose one of the following: {features}")
     
-    plate_heatmap = plot_plates(output[0], variable, grouping, min_max, cmap, min_count)
+    plate_heatmap = plot_plates(df=output[0],
+                                variable=settings['heatmap_feature'],
+                                grouping=settings['grouping'],
+                                min_max=settings['min_max'],
+                                cmap=settings['cmap'],
+                                min_count=settings['minimum_cell_count'],
+                                verbose=settings['verbose'])
 
-    res_fldr = os.path.join(src, 'results')
-    os.makedirs(res_fldr, exist_ok=True)
-    
-    data_path = os.path.join(res_fldr, 'results.csv')
-    permutation_path = os.path.join(res_fldr, 'permutation.csv')
-    feature_importance_path = os.path.join(res_fldr, 'feature_importance.csv')
-    model_metricks_path = os.path.join(res_fldr, f'{model_type}_model.csv')
-    permutation_fig_path = os.path.join(res_fldr, 'permutation.pdf')
-    feature_importance_fig_path = os.path.join(res_fldr, 'feature_importance.pdf')
-    shap_fig_path = os.path.join(res_fldr, 'shap.pdf')
-    plate_heatmap_path = os.path.join(res_fldr, 'plate_heatmap.pdf')
-
+    data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv = get_ml_results_paths(src, settings['model_type'], settings['channel_of_interest'])
     df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df = output
 
+    settings_df.to_csv(settings_csv, index=False)
     df.to_csv(data_path, mode='w', encoding='utf-8')
     permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
     feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
@@ -3000,8 +3021,8 @@ def generate_image_umap(settings={}):
     """
  
     from .io import _read_and_join_tables
-    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, get_umap_image_settings, cluster_feature_analysis, generate_umap_from_images
-
+    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, cluster_feature_analysis, generate_umap_from_images
+    from .settings import get_umap_image_settings
     settings = get_umap_image_settings(settings)
 
     if isinstance(settings['src'], str):
@@ -3183,7 +3204,8 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     """
     
     from .io import _read_and_join_tables
-    from .utils import get_db_paths, preprocess_data, search_reduction_and_clustering, generate_colors, get_umap_image_settings
+    from .utils import get_db_paths, preprocess_data, search_reduction_and_clustering, generate_colors
+    from .settings import get_umap_image_settings
 
     settings = get_umap_image_settings(settings)
     pointsize = settings['dot_size']
