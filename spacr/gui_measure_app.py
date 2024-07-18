@@ -86,29 +86,24 @@ def initiate_abort():
         thread_control["run_thread"] = None
 
 #@log_function_call
-def import_settings(scrollable_frame):
-    global vars_dict
-
-    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
-    csv_settings = read_settings_from_csv(csv_file_path)
-    variables = measure_variables()
-    new_settings = update_settings_from_csv(variables, csv_settings)
-    vars_dict = generate_fields(new_settings, scrollable_frame)
-
-#@log_function_call
-def initiate_measure_root(parent_frame):#, width, height):
+def initiate_measure_root(parent_frame):
     global vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables, advanced_var, scrollable_frame
     
     style = ttk.Style(parent_frame)
     set_dark_style(style)
     style_text_boxes(style)
-    set_default_font(parent_frame, font_name="Arial", size=8)
+    set_default_font(parent_frame, font_name="Helvetica", size=8)
 
     parent_frame.configure(bg='black')
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_columnconfigure(0, weight=1)
+
     fig_queue = Queue()
     
+    # Initialize after_tasks if not already done
+    if not hasattr(parent_frame, 'after_tasks'):
+        parent_frame.after_tasks = []
+
     def _process_fig_queue():
         global canvas
         try:
@@ -129,14 +124,20 @@ def initiate_measure_root(parent_frame):#, width, height):
         except Exception as e:
             traceback.print_exc()
         finally:
-            canvas_widget.after(100, _process_fig_queue)
+            after_id = canvas_widget.after(100, _process_fig_queue)
+            parent_frame.after_tasks.append(after_id)
 
     def _process_console_queue():
         while not q.empty():
             message = q.get_nowait()
             console_output.insert(tk.END, message)
             console_output.see(tk.END)
-        console_output.after(100, _process_console_queue)
+        after_id = console_output.after(100, _process_console_queue)
+        parent_frame.after_tasks.append(after_id)
+
+    # Clear previous content if any
+    for widget in parent_frame.winfo_children():
+        widget.destroy()
 
     vertical_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
     vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
@@ -205,15 +206,29 @@ def initiate_measure_root(parent_frame):#, width, height):
     _process_console_queue()
     _process_fig_queue()
     
-    parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
+    after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
+    parent_frame.after_tasks.append(after_id)
     
     return parent_frame, vars_dict
+
 
 def gui_measure():
     root = tk.Tk()
     root.geometry("1000x800")
-    root.title("SpaCer: generate masks")
-    initiate_measure_root(root, 1000, 800)
+    root.title("SpaCr: measure objects")
+    
+    # Clear previous content if any
+    if hasattr(root, 'content_frame'):
+        for widget in root.content_frame.winfo_children():
+            widget.destroy()
+        root.content_frame.grid_forget()
+    else:
+        root.content_frame = tk.Frame(root)
+        root.content_frame.grid(row=1, column=0, sticky="nsew")
+        root.grid_rowconfigure(1, weight=1)
+        root.grid_columnconfigure(0, weight=1)
+    
+    initiate_measure_root(root.content_frame)
     create_menu_bar(root)
     root.mainloop()
 
