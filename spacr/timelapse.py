@@ -15,9 +15,6 @@ import matplotlib.pyplot as plt
 
 from .logger import log_function_call
 
-#from .plot import _visualize_and_save_timelapse_stack_with_tracks
-#from .utils import _masks_to_masks_stack
-
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
     """
     Convert a list of numpy arrays to a movie file.

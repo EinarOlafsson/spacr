@@ -9,6 +9,7 @@ from PIL import Image
 import dgl.nn.pytorch as dglnn
 from sklearn.datasets import make_classification
 from .utils import SelectChannels
+from IPython.display import display
 
 # approach outline
 #
@@ -241,6 +242,31 @@ def analyze_associations(probabilities, sequencing_data):
     sequencing_data['positive_prob'] = probabilities
     return sequencing_data.groupby('gRNA').positive_prob.mean().sort_values(ascending=False)
 
+def process_sequencing_df(seq):
+
+    if isinstance(seq, pd.DataFrame):
+        sequencing_df = seq
+    elif isinstance(seq, str):
+        sequencing_df = pd.read_csv(seq)
+
+    # Check if 'plate_row' column exists and split into 'plate' and 'row'
+    if 'plate_row' in sequencing_df.columns:
+        sequencing_df[['plate', 'row']] = sequencing_df['plate_row'].str.split('_', expand=True)
+
+    # Check if 'plate', 'row' and 'col' or 'plate', 'row' and 'column' exist
+    if {'plate', 'row', 'col'}.issubset(sequencing_df.columns) or {'plate', 'row', 'column'}.issubset(sequencing_df.columns):
+        if 'col' in sequencing_df.columns:
+            sequencing_df['prc'] = sequencing_df[['plate', 'row', 'col']].agg('_'.join, axis=1)
+        elif 'column' in sequencing_df.columns:
+            sequencing_df['prc'] = sequencing_df[['plate', 'row', 'column']].agg('_'.join, axis=1)
+
+    # Check if 'count', 'total_reads', 'read_fraction', 'grna' exist and create new dataframe
+    if {'count', 'total_reads', 'read_fraction', 'grna'}.issubset(sequencing_df.columns):
+        new_df = sequencing_df[['grna', 'prc', 'count', 'total_reads', 'read_fraction']]
+        return new_df
+    
+    return sequencing_df
+
 def train_graph_transformer(src, lr=0.01, epochs=100, hidden_feats=128, n_classes=2, row_limit=None, image_size=224, channels=[1,2,3], normalize=True, test_mode=False):
     if test_mode:
         # Load MNIST data
@@ -260,7 +286,6 @@ def train_graph_transformer(src, lr=0.01, epochs=100, hidden_feats=128, n_classe
 
         # Normalize synthetic sequencing data
         sequencing_data = normalize_sequencing_data(sequencing_data)
-    
     else:
         from .io import _read_and_join_tables
         from .utils import get_db_paths, get_sequencing_paths, correct_paths
@@ -274,18 +299,13 @@ def train_graph_transformer(src, lr=0.01, epochs=100, hidden_feats=128, n_classe
         sequencing_data = pd.DataFrame()
         for seq in seq_paths:
             sequencing_df = pd.read_csv(seq)
+            sequencing_df = process_sequencing_df(sequencing_df)
             sequencing_data = pd.concat([sequencing_data, sequencing_df], axis=0)
 
         all_df = pd.DataFrame()
-        for db_path in db_paths:
-            df = _read_and_join_tables(db_path, table_names=['png_list'])
-            all_df = pd.concat([all_df, df], axis=0)
-
-        tables = ['png_list']
-        all_df = pd.DataFrame()
         image_paths = []
         for i, db_path in enumerate(db_paths):
-            df = _read_and_join_tables(db_path, table_names=tables)
+            df = _read_and_join_tables(db_path, table_names=['png_list'])
             df, image_paths_tmp = correct_paths(df, src[i])
             all_df = pd.concat([all_df, df], axis=0)
             image_paths.extend(image_paths_tmp)
