@@ -920,7 +920,8 @@ def measure_crop(settings):
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif, _scmovie
     from .plot import _save_scimg_plot
-    from .utils import _list_endpoint_subdirectories, _generate_representative_images, get_measure_crop_settings, measure_test_mode
+    from .utils import _list_endpoint_subdirectories, _generate_representative_images, measure_test_mode
+    from .settings import get_measure_crop_settings
 
     settings = get_measure_crop_settings(settings)
     settings = measure_test_mode(settings)

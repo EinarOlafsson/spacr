@@ -6,7 +6,6 @@ from torch.autograd import grad
 from torch.optim.lr_scheduler import StepLR
 import torch.nn.functional as F
 from IPython.display import display, clear_output
-
 import matplotlib.pyplot as plt
 from PIL import Image
 
@@ -200,11 +199,20 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     from .io import _save_settings, _copy_missclassified
     from .utils import pick_best_model
     from .core import generate_loaders
-    
+    from .settings import set_default_train_test_model
+
+    torch.cuda.empty_cache()
+    torch.cuda.memory.empty_cache()
+    gc.collect()
+
+    settings = set_default_train_test_model(settings)
+    channels_str = ''.join(settings['channels'])
+    dst = os.path.join(src,'model', settings['model_type'], channels_str, str(f"epochs_{settings['epochs']}"))
+    os.makedirs(dst, exist_ok=True)
     settings['src'] = src
+    settings['dst'] = dst
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(src,'settings','train_test_model_settings.csv')
-    os.makedirs(os.path.join(src,'settings'), exist_ok=True)
+    settings_csv = os.path.join(dst,'train_test_model_settings.csv')
     settings_df.to_csv(settings_csv, index=False)
     
     if custom_model:
@@ -212,15 +220,9 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     
     if settings['train']:
         _save_settings(settings, src)
-    torch.cuda.empty_cache()
-    torch.cuda.memory.empty_cache()
-    gc.collect()
-    dst = os.path.join(src,'model')
-    os.makedirs(dst, exist_ok=True)
-    settings['src'] = src
-    settings['dst'] = dst
+
     if settings['train']:
-        train, val, plate_names  = generate_loaders(src, 
+        train, val, plate_names, train_fig  = generate_loaders(src, 
                                                     train_mode=settings['train_mode'], 
                                                     mode='train', 
                                                     image_size=settings['image_size'],
@@ -231,11 +233,42 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                     pin_memory=settings['pin_memory'],
                                                     normalize=settings['normalize'],
                                                     channels=settings['channels'],
+                                                    augment=settings['augment'],
                                                     verbose=settings['verbose'])
-                                                    
-
+        
+        train_batch_1_figure = os.path.join(dst, 'batch_1.pdf')
+        train_fig.savefig(train_batch_1_figure, format='pdf', dpi=600)
+    
+    if settings['train']:
+        model = train_model(dst = settings['dst'],
+                            model_type=settings['model_type'],
+                            train_loaders = train, 
+                            train_loader_names = plate_names, 
+                            train_mode = settings['train_mode'], 
+                            epochs = settings['epochs'], 
+                            learning_rate = settings['learning_rate'],
+                            init_weights = settings['init_weights'],
+                            weight_decay = settings['weight_decay'], 
+                            amsgrad = settings['amsgrad'], 
+                            optimizer_type = settings['optimizer_type'], 
+                            use_checkpoint = settings['use_checkpoint'], 
+                            dropout_rate = settings['dropout_rate'], 
+                            num_workers = settings['num_workers'], 
+                            val_loaders = val, 
+                            test_loaders = None, 
+                            intermedeate_save = settings['intermedeate_save'],
+                            schedule = settings['schedule'],
+                            loss_type=settings['loss_type'], 
+                            gradient_accumulation=settings['gradient_accumulation'], 
+                            gradient_accumulation_steps=settings['gradient_accumulation_steps'],
+                            channels=settings['channels'])
+        
+        torch.cuda.empty_cache()
+        torch.cuda.memory.empty_cache()
+        gc.collect()
+        
     if settings['test']:
-        test, _, plate_names_test = generate_loaders(src, 
+        test, _, plate_names_test, train_fig = generate_loaders(src, 
                                                      train_mode=settings['train_mode'], 
                                                      mode='test', 
                                                      image_size=settings['image_size'],
@@ -246,6 +279,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                      pin_memory=settings['pin_memory'],
                                                      normalize=settings['normalize'],
                                                      channels=settings['channels'],
+                                                     augment=False,
                                                      verbose=settings['verbose'])
         if model == None:
             model_path = pick_best_model(src+'/model')
@@ -258,10 +292,10 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
             print(type(model))
             print(model)
         
-        model_fldr = os.path.join(src,'model')
+        model_fldr = dst
         time_now = datetime.date.today().strftime('%y%m%d')
-        result_loc = f'{model_fldr}/{model_type}_time_{time_now}_result.csv'
-        acc_loc = f'{model_fldr}/{model_type}_time_{time_now}_acc.csv'
+        result_loc = f"{model_fldr}/{settings['model_type']}_time_{time_now}_test_result.csv"
+        acc_loc = f"{model_fldr}/{settings['model_type']}_time_{time_now}_test_acc.csv"
         print(f'Results wil be saved in: {result_loc}')
         
         result, accuracy = test_model_performance(loaders=test,
@@ -274,37 +308,12 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
         result.to_csv(result_loc, index=True, header=True, mode='w')
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
         _copy_missclassified(accuracy)
-    else:
-        test = None
-    
-    if settings['train']:
-        train_model(dst = settings['dst'],
-                    model_type=settings['model_type'],
-                    train_loaders = train, 
-                    train_loader_names = plate_names, 
-                    train_mode = settings['train_mode'], 
-                    epochs = settings['epochs'], 
-                    learning_rate = settings['learning_rate'],
-                    init_weights = settings['init_weights'],
-                    weight_decay = settings['weight_decay'], 
-                    amsgrad = settings['amsgrad'], 
-                    optimizer_type = settings['optimizer_type'], 
-                    use_checkpoint = settings['use_checkpoint'], 
-                    dropout_rate = settings['dropout_rate'], 
-                    num_workers = settings['num_workers'], 
-                    val_loaders = val, 
-                    test_loaders = test, 
-                    intermedeate_save = settings['intermedeate_save'],
-                    schedule = settings['schedule'],
-                    loss_type=settings['loss_type'], 
-                    gradient_accumulation=settings['gradient_accumulation'], 
-                    gradient_accumulation_steps=settings['gradient_accumulation_steps'])
 
     torch.cuda.empty_cache()
     torch.cuda.memory.empty_cache()
     gc.collect()
     
-def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='erm', epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, num_workers=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4):
+def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='erm', epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, num_workers=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b']):
     """
     Trains a model using the specified parameters.
 
@@ -349,7 +358,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
     kwargs = {'num_workers': num_workers, 'pin_memory': True} if use_cuda else {}
     
     for idx, (images, labels, filenames) in enumerate(train_loaders):
-        batch, channels, height, width = images.shape
+        batch, chans, height, width = images.shape
         break
 
     model = choose_model(model_type, device, init_weights, dropout_rate, use_checkpoint)
@@ -432,10 +441,10 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
                 if schedule == 'step_lr':
                     scheduler.step()
             
-            _save_progress(dst, results_df, train_metrics_df)
+            _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
             clear_output(wait=True)
             display(results_df)
-            _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
+            _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
             
     if train_mode == 'irm':
         dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(device)
@@ -505,10 +514,10 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
             
             clear_output(wait=True)
             display(results_df)
-            _save_progress(dst, results_df, train_metrics_df)
+            _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
             _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
             print(f'Saved model: {dst}')
-    return
+    return model
 
 def visualize_saliency_map(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
 
@@ -694,3 +703,81 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
             os.makedirs(save_dir, exist_ok=True)
             integrated_grads_image = Image.fromarray((integrated_grads * 255).astype(np.uint8))
             integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
+
+class SmoothGrad:
+    def __init__(self, model, n_samples=50, stdev_spread=0.15):
+        self.model = model
+        self.n_samples = n_samples
+        self.stdev_spread = stdev_spread
+
+    def compute_smooth_grad(self, input_tensor, target_class):
+        self.model.eval()
+        stdev = self.stdev_spread * (input_tensor.max() - input_tensor.min())
+        total_gradients = torch.zeros_like(input_tensor)
+        
+        for i in range(self.n_samples):
+            noise = torch.normal(mean=0, std=stdev, size=input_tensor.shape).to(input_tensor.device)
+            noisy_input = input_tensor + noise
+            noisy_input.requires_grad_()
+            output = self.model(noisy_input)
+            self.model.zero_grad()
+            output[0, target_class].backward()
+            total_gradients += noisy_input.grad
+
+        avg_gradients = total_gradients / self.n_samples
+        return avg_gradients.abs()
+
+def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1,2,3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad'):
+
+    from .utils import preprocess_image
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+
+    model = torch.load(model_path)
+    model.to(device)
+    smooth_grad = SmoothGrad(model)
+
+    if save_smooth_grad and not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    images = []
+    filenames = []
+    for file in os.listdir(src):
+        if not file.endswith('.png'):
+            continue
+        image_path = os.path.join(src, file)
+        image, input_tensor = preprocess_image(image_path, normalize=normalize, image_size=image_size, channels=channels)
+        images.append(image)
+        filenames.append(file)
+
+        input_tensor = input_tensor.to(device)
+        smooth_grad_map = smooth_grad.compute_smooth_grad(input_tensor, target_label_idx)
+        smooth_grad_map = np.mean(smooth_grad_map.cpu().data.numpy(), axis=1).squeeze()
+
+        fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+        ax[0].imshow(image)
+        ax[0].axis('off')
+        ax[0].set_title("Original Image")
+        ax[1].imshow(smooth_grad_map, cmap='hot')
+        ax[1].axis('off')
+        ax[1].set_title("SmoothGrad")
+        overlay = np.array(image)
+        overlay = overlay / overlay.max()
+        smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
+        overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
+        ax[2].imshow(overlay)
+        ax[2].axis('off')
+        ax[2].set_title("Overlay")
+        plt.show()
+
+        if save_smooth_grad:
+            os.makedirs(save_dir, exist_ok=True)
+            smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
+            smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
+
+# Usage
+#src = '/path/to/images'
+#model_path = '/path/to/model.pth'
+#target_label_idx = 0  # Change this to the target class index
+#visualize_smooth_grad(src, model_path, target_label_idx)

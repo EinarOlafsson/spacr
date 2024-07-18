@@ -1110,7 +1110,7 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
             idx = i * n_col + j
             if idx < n_images:
                 canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = np.transpose(img[idx], (1, 2, 0))        
-    plt.figure(figsize=(50, 50))
+    fig = plt.figure(figsize=(50, 50))
     plt.imshow(canvas)
     plt.axis("off")
     for i, label in enumerate(labels):
@@ -1119,7 +1119,7 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
         x = col * img_width + 2
         y = row * img_height + 15
         plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
-    plt.show()
+    return fig
     
 def _plot_histograms_and_stats(df):
     conditions = df['condition'].unique()
@@ -1244,7 +1244,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         
     return plate_map, min_max
 
-def plot_plates(df, variable, grouping, min_max, cmap, min_count=0):
+def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True):
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
@@ -1259,7 +1259,8 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0):
         fig.delaxes(ax[i])
     
     plt.subplots_adjust(wspace=0.1, hspace=0.4)
-    plt.show()
+    if verbose:
+        plt.show()
     return fig
 
 def print_mask_and_flows(stack, mask, flows, overlay=False):
@@ -1541,15 +1542,27 @@ def plot_lorenz_curves(csv_files, remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4
     plt.show()
 
 def plot_permutation(permutation_df):
-    fig, ax = plt.subplots()
+    num_features = len(permutation_df)
+    fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
+    fig_width = 10  # Width can be fixed or adjusted similarly
+    font_size = max(10, 12 - num_features * 0.2)  # Adjust font size dynamically
+
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     ax.barh(permutation_df['feature'], permutation_df['importance_mean'], xerr=permutation_df['importance_std'], color="teal", align="center", alpha=0.6)
-    ax.set_xlabel('Permutation Importance')
+    ax.set_xlabel('Permutation Importance', fontsize=font_size)
+    ax.tick_params(axis='both', which='major', labelsize=font_size)
     plt.tight_layout()
     return fig
 
 def plot_feature_importance(feature_importance_df):
-    fig, ax = plt.subplots()
+    num_features = len(feature_importance_df)
+    fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
+    fig_width = 10  # Width can be fixed or adjusted similarly
+    font_size = max(10, 12 - num_features * 0.2)  # Adjust font size dynamically
+
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     ax.barh(feature_importance_df['feature'], feature_importance_df['importance'], color="blue", align="center", alpha=0.6)
-    ax.set_xlabel('Feature Importance')
+    ax.set_xlabel('Feature Importance', fontsize=font_size)
+    ax.tick_params(axis='both', which='major', labelsize=font_size)
     plt.tight_layout()
     return fig

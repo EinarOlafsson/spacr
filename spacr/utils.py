@@ -90,130 +90,6 @@ def check_mask_folder(src,mask_fldr):
     else:
         return True
 
-def set_default_plot_merge_settings():
-    settings = {}
-    settings.setdefault('include_noninfected', True)
-    settings.setdefault('include_multiinfected', True)
-    settings.setdefault('include_multinucleated', True)
-    settings.setdefault('remove_background', False)
-    settings.setdefault('filter_min_max', None)
-    settings.setdefault('channel_dims', [0,1,2,3])
-    settings.setdefault('backgrounds', [100,100,100,100])
-    settings.setdefault('cell_mask_dim', 4)
-    settings.setdefault('nucleus_mask_dim', 5)
-    settings.setdefault('pathogen_mask_dim', 6)
-    settings.setdefault('outline_thickness', 3)
-    settings.setdefault('outline_color', 'gbr')
-    settings.setdefault('overlay_chans', [1,2,3])
-    settings.setdefault('overlay', True)
-    settings.setdefault('normalization_percentiles', [2,98])
-    settings.setdefault('normalize', True)
-    settings.setdefault('print_object_number', True)
-    settings.setdefault('nr', 1)
-    settings.setdefault('figuresize', 50)
-    settings.setdefault('cmap', 'inferno')
-    settings.setdefault('verbose', True)
-
-    return settings
-
-def set_default_settings_preprocess_generate_masks(src, settings={}):
-    # Main settings
-    settings['src'] = src
-    settings.setdefault('preprocess', True)
-    settings.setdefault('masks', True)
-    settings.setdefault('save', True)
-    settings.setdefault('batch_size', 50)
-    settings.setdefault('test_mode', False)
-    settings.setdefault('test_images', 10)
-    settings.setdefault('magnification', 20)
-    settings.setdefault('custom_regex', None)
-    settings.setdefault('metadata_type', 'cellvoyager')
-    settings.setdefault('workers', os.cpu_count()-4)
-    settings.setdefault('randomize', True)
-    settings.setdefault('verbose', True)
-
-    settings.setdefault('remove_background_cell', False)
-    settings.setdefault('remove_background_nucleus', False)
-    settings.setdefault('remove_background_pathogen', False)
-
-    # Channel settings
-    settings.setdefault('cell_channel', None)
-    settings.setdefault('nucleus_channel', None)
-    settings.setdefault('pathogen_channel', None)
-    settings.setdefault('channels', [0,1,2,3])
-    settings.setdefault('pathogen_background', 100)
-    settings.setdefault('pathogen_Signal_to_noise', 10)
-    settings.setdefault('pathogen_CP_prob', 0)
-    settings.setdefault('cell_background', 100)
-    settings.setdefault('cell_Signal_to_noise', 10)
-    settings.setdefault('cell_CP_prob', 0)
-    settings.setdefault('nucleus_background', 100)
-    settings.setdefault('nucleus_Signal_to_noise', 10)
-    settings.setdefault('nucleus_CP_prob', 0)
-
-    settings.setdefault('nucleus_FT', 100)
-    settings.setdefault('cell_FT', 100)
-    settings.setdefault('pathogen_FT', 100)
-    
-    # Plot settings
-    settings.setdefault('plot', False)
-    settings.setdefault('figuresize', 50)
-    settings.setdefault('cmap', 'inferno')
-    settings.setdefault('normalize', True)
-    settings.setdefault('normalize_plots', True)
-    settings.setdefault('examples_to_plot', 1)
-
-    # Analasys settings
-    settings.setdefault('pathogen_model', None)
-    settings.setdefault('merge_pathogens', False)
-    settings.setdefault('filter', False)
-    settings.setdefault('lower_percentile', 2)
-
-    # Timelapse settings
-    settings.setdefault('timelapse', False)
-    settings.setdefault('fps', 2)
-    settings.setdefault('timelapse_displacement', None)
-    settings.setdefault('timelapse_memory', 3)
-    settings.setdefault('timelapse_frame_limits', None)
-    settings.setdefault('timelapse_remove_transient', False)
-    settings.setdefault('timelapse_mode', 'trackpy')
-    settings.setdefault('timelapse_objects', 'cells')
-
-    # Misc settings
-    settings.setdefault('all_to_mip', False)
-    settings.setdefault('pick_slice', False)
-    settings.setdefault('skip_mode', '01')
-    settings.setdefault('upscale', False)
-    settings.setdefault('upscale_factor', 2.0)
-    settings.setdefault('adjust_cells', False)
-
-    return settings
-
-def set_default_settings_preprocess_img_data(settings):
-
-    metadata_type = settings.setdefault('metadata_type', 'cellvoyager')
-    custom_regex = settings.setdefault('custom_regex', None)
-    nr = settings.setdefault('nr', 1)
-    plot = settings.setdefault('plot', True)
-    batch_size = settings.setdefault('batch_size', 50)
-    timelapse = settings.setdefault('timelapse', False)
-    lower_percentile = settings.setdefault('lower_percentile', 2)
-    randomize = settings.setdefault('randomize', True)
-    all_to_mip = settings.setdefault('all_to_mip', False)
-    pick_slice = settings.setdefault('pick_slice', False)
-    skip_mode = settings.setdefault('skip_mode', False)
-
-    cmap = settings.setdefault('cmap', 'inferno')
-    figuresize = settings.setdefault('figuresize', 50)
-    normalize = settings.setdefault('normalize', True)
-    save_dtype = settings.setdefault('save_dtype', 'uint16')
-    
-    test_mode = settings.setdefault('test_mode', False)
-    test_images = settings.setdefault('test_images', 10)
-    random_test = settings.setdefault('random_test', True)
-
-    return settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test
-
 def smooth_hull_lines(cluster_data):
     hull = ConvexHull(cluster_data)
 
@@ -3631,122 +3507,6 @@ def correct_paths(df, base_path):
     image_paths = df['png_path'].to_list()
     return df, image_paths
 
-def get_umap_image_settings(settings={}):
-    settings.setdefault('src', 'path')
-    settings.setdefault('row_limit', 1000)
-    settings.setdefault('tables', ['cell', 'cytoplasm', 'nucleus', 'pathogen'])
-    settings.setdefault('visualize', 'cell')
-    settings.setdefault('image_nr', 16)
-    settings.setdefault('dot_size', 50)
-    settings.setdefault('n_neighbors', 1000)
-    settings.setdefault('min_dist', 0.1)
-    settings.setdefault('metric', 'euclidean')
-    settings.setdefault('eps', 0.5)
-    settings.setdefault('min_samples', 1000)
-    settings.setdefault('filter_by', 'channel_0')
-    settings.setdefault('img_zoom', 0.5)
-    settings.setdefault('plot_by_cluster', True)
-    settings.setdefault('plot_cluster_grids', True)
-    settings.setdefault('remove_cluster_noise', True)
-    settings.setdefault('remove_highly_correlated', True)
-    settings.setdefault('log_data', False)
-    settings.setdefault('figuresize', 60)
-    settings.setdefault('black_background', True)
-    settings.setdefault('remove_image_canvas', False)
-    settings.setdefault('plot_outlines', True)
-    settings.setdefault('plot_points', True)
-    settings.setdefault('smooth_lines', True)
-    settings.setdefault('clustering', 'dbscan')
-    settings.setdefault('exclude', None)
-    settings.setdefault('col_to_compare', 'col')
-    settings.setdefault('pos', 'c1')
-    settings.setdefault('neg', 'c2')
-    settings.setdefault('embedding_by_controls', False)
-    settings.setdefault('plot_images', True)
-    settings.setdefault('reduction_method','umap')
-    settings.setdefault('save_figure', False)
-    settings.setdefault('n_jobs', -1)
-    settings.setdefault('color_by', None)
-    settings.setdefault('neg', 'c1')
-    settings.setdefault('pos', 'c2')
-    settings.setdefault('mix', 'c3')
-    settings.setdefault('mix', 'c3')
-    settings.setdefault('exclude_conditions', None)
-    settings.setdefault('analyze_clusters', False)
-    settings.setdefault('resnet_features', False)
-    settings.setdefault('verbose',True)
-    return settings
-
-def get_measure_crop_settings(settings):
-
-    # Test mode
-    settings.setdefault('test_mode', False)
-    settings.setdefault('test_nr', 10)
-
-    #measurement settings
-    settings.setdefault('save_measurements',True)
-    settings.setdefault('radial_dist', True)
-    settings.setdefault('calculate_correlation', True)
-    settings.setdefault('manders_thresholds', [15,85,95])
-    settings.setdefault('homogeneity', True)
-    settings.setdefault('homogeneity_distances', [8,16,32])
-
-    # Cropping settings
-    settings.setdefault('save_arrays', False)
-    settings.setdefault('save_png',True)
-    settings.setdefault('use_bounding_box',False)
-    settings.setdefault('png_size',[224,224])
-    settings.setdefault('png_dims',[0,1,2])
-    settings.setdefault('normalize',False)
-    settings.setdefault('normalize_by','png')
-    settings.setdefault('crop_mode',['cell'])
-    settings.setdefault('dialate_pngs', False)
-    settings.setdefault('dialate_png_ratios', [0.2])
-
-    # Timelapsed settings
-    settings.setdefault('timelapse', False)
-    settings.setdefault('timelapse_objects', 'cell')
-
-    # Operational settings
-    settings.setdefault('plot',False)
-    settings.setdefault('plot_filtration',False)
-    settings.setdefault('representative_images', False)
-    settings.setdefault('max_workers', os.cpu_count()-2)
-
-    # Object settings
-    settings.setdefault('cell_mask_dim',None)
-    settings.setdefault('nucleus_mask_dim',None)
-    settings.setdefault('pathogen_mask_dim',None)
-    settings.setdefault('cytoplasm',False)
-    settings.setdefault('include_uninfected',True)
-    settings.setdefault('cell_min_size',0)
-    settings.setdefault('nucleus_min_size',0)
-    settings.setdefault('pathogen_min_size',0)
-    settings.setdefault('cytoplasm_min_size',0)
-    settings.setdefault('merge_edge_pathogen_cells', True)
-
-    # Miscellaneous settings
-    settings.setdefault('experiment', 'exp')
-    settings.setdefault('cells', 'HeLa')
-    settings.setdefault('cell_loc', None)
-    settings.setdefault('pathogens', ['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO'])
-    settings.setdefault('pathogen_loc', [['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], ['c7', 'c8', 'c9', 'c10', 'c11', 'c12'], ['c13', 'c14', 'c15', 'c16', 'c17', 'c18'], ['c19', 'c20', 'c21', 'c22', 'c23', 'c24']])
-    settings.setdefault('treatments', ['BR1', 'BR2', 'BR3'])
-    settings.setdefault('treatment_loc', [['c1', 'c2', 'c7', 'c8', 'c13', 'c14', 'c19', 'c20'], ['c3', 'c4', 'c9', 'c10', 'c15', 'c16', 'c21', 'c22'], ['c5', 'c6', 'c11', 'c12', 'c17', 'c18', 'c23', 'c24']])
-    settings.setdefault('channel_of_interest', 2)
-    settings.setdefault('compartments', ['pathogen', 'cytoplasm'])
-    settings.setdefault('measurement', 'mean_intensity')
-    settings.setdefault('nr_imgs', 32)
-    settings.setdefault('um_per_pixel', 0.1)
-
-    if settings['test_mode']:
-        settings['plot'] = True
-        settings['plot_filtration'] = True
-        test_imgs = settings['test_nr']
-        print(f'Test mode enabled with {test_imgs} images, plotting set to True')
-
-    return settings
-
 def delete_folder(folder_path):
     if os.path.exists(folder_path) and os.path.isdir(folder_path):
         for root, dirs, files in os.walk(folder_path, topdown=False):
@@ -3833,7 +3593,57 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
     
     return numeric_data
 
-def filter_dataframe_features(df, channel_of_interest, exclude=None):
+def remove_low_variance_columns(df, threshold=0.01, verbose=False):
+    """
+    Removes columns from the dataframe that have low variance.
+
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    threshold (float): The variance threshold below which columns will be removed.
+
+    Returns:
+    pandas.DataFrame: The DataFrame with low variance columns removed.
+    """
+
+    numerical_cols = df.select_dtypes(include=[np.number])
+    low_variance_cols = numerical_cols.var()[numerical_cols.var() < threshold].index.tolist()
+
+    if verbose:
+        print(f"Removed columns due to low variance: {low_variance_cols}")
+
+    df = df.drop(columns=low_variance_cols)
+    
+    return df
+
+def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
+    """
+    Removes columns from the dataframe that are highly correlated with one another.
+
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    threshold (float): The correlation threshold above which columns will be removed.
+
+    Returns:
+    pandas.DataFrame: The DataFrame with highly correlated columns removed.
+    """
+    numerical_cols = df.select_dtypes(include=[np.number])
+    corr_matrix = numerical_cols.corr().abs()
+    
+    # Upper triangle of the correlation matrix
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+    
+    # Find columns with correlation greater than the threshold
+    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    
+    if verbose:
+        print(f"Removed columns due to high correlation: {to_drop}")
+
+    df = df.drop(columns=to_drop)
+    
+    return df
+
+def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
+    
     """
     Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.
 
@@ -3847,43 +3657,54 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None):
     - features (list): The list of selected features after filtering.
 
     """
-    if channel_of_interest is None:
-        feature_string = None
-    elif channel_of_interest == 'morphology':
-        feature_string = 'morphology'
-    elif isinstance(channel_of_interest, list):
-        feature_string = []
-        for i in channel_of_interest:
-            feature_string_tmp = f'channel_{i}'
-            feature_string.append(feature_string_tmp)
-    elif isinstance(channel_of_interest, int):
-        feature_string = f'channel_{channel_of_interest}'
-    elif isinstance(channel_of_interest, str):
-        feature_string = channel_of_interest
 
-    # Remove columns with a single value
-    df = df.loc[:, df.nunique() > 1]
+    count_and_id_columns = [col for col in df.columns if '_id' in col or 'count' in col]
+    if 'pathogen_pathogen' in df.columns:
+        count_and_id_columns.append('pathogen_pathogen')
+    if 'cell_cell' in df.columns:
+        count_and_id_columns.append('cell_cell')
+    if 'nucleus_nucleus' in df.columns:
+        count_and_id_columns.append('nucleus_nucleus')
+    if 'cytoplasm_cytoplasm' in df.columns:
+        count_and_id_columns.append('cytoplasm_cytoplasm')
+    
+    if verbose:
+        print("Columns to remove:", count_and_id_columns)
+    df = df.drop(columns=count_and_id_columns)
+    
+    if not channel_of_interest is None:
+        drop_columns = ['channel_1', 'channel_2', 'channel_3', 'channel_4']
+        
+        if isinstance(channel_of_interest, list):
+            feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
+            
+        elif isinstance(channel_of_interest, int):
+            feature_string = f"channel_{channel_of_interest}"
+            feature_strings = [feature_string]
+        elif channel_of_interest == 'morphology':
+            morphological_features = ['area', 'area_bbox', 'major_axis_length', 'minor_axis_length', 'eccentricity', 'extent', 'perimeter', 'euler_number', 'solidity', 'zernike_0', 'zernike_1', 'zernike_2', 'zernike_3', 'zernike_4', 'zernike_5', 'zernike_6', 'zernike_7', 'zernike_8', 'zernike_9', 'zernike_10', 'zernike_11', 'zernike_12', 'zernike_13', 'zernike_14', 'zernike_15', 'zernike_16', 'zernike_17', 'zernike_18', 'zernike_19', 'zernike_20', 'zernike_21', 'zernike_22', 'zernike_23', 'zernike_24', 'area_filled', 'convex_area', 'equivalent_diameter_area', 'feret_diameter_max']
+            morphological_columns = [item for item in df.columns.tolist() if any(base in item for base in morphological_features)]
+            columns_to_drop = [col for col in df.columns if col not in morphological_columns]
+        
+        if channel_of_interest != 'morphology':
+            # Remove entries from drop_columns that are also in feature_strings
+            drop_columns = [col for col in drop_columns if col not in feature_strings]
+
+            # Remove columns from the DataFrame that contain any entry from drop_columns in the column name
+            columns_to_drop = [col for col in df.columns if any(drop_col in col for drop_col in drop_columns) or all(fs not in col for fs in feature_strings)]
+        
+        df = df.drop(columns=columns_to_drop)
+        if verbose:
+            print(f"Removed columns: {columns_to_drop}")
+  
+    if remove_low_variance_features:
+        df = remove_low_variance_columns(df, threshold=0.01, verbose=verbose)
+    
+    if remove_highly_correlated_features:
+        df = remove_highly_correlated_columns(df, threshold=0.95, verbose=verbose)
 
     # Select numerical features
     features = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    if feature_string is not None:
-        feature_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3']
-
-        # Remove feature_string from the list if it exists
-        if isinstance(feature_string, str):
-            if feature_string in feature_list:
-                feature_list.remove(feature_string)
-        elif isinstance(feature_string, list):
-            feature_list = [feature for feature in feature_list if feature not in feature_string]
-        
-        if feature_string != 'morphology':
-            features = [feature for feature in features if feature_string in feature]
-
-        # Iterate through the list and remove columns from df
-        for feature_ in feature_list:
-            features = [feature for feature in features if feature_ not in feature]
-            print(f'After removing {feature_} features: {len(features)}')
 
     if isinstance(exclude, list):
         features = [feature for feature in features if feature not in exclude]
@@ -4345,3 +4166,167 @@ def process_vision_results(df, threshold=0.5):
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
     return df
+
+def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
+    
+    if isinstance(channel_of_interest, list):
+        feature_string = "channels_" + "_".join(map(str, channel_of_interest))
+
+    elif isinstance(channel_of_interest, int):
+        feature_string = f"channel_{channel_of_interest}"
+
+    elif channel_of_interest is 'morphology':
+        feature_string = 'morphology'
+
+    elif channel_of_interest is None:
+        feature_string = 'all_features'
+    else:
+        raise ValueError(f"Unsupported channel_of_interest: {channel_of_interest}. Supported values are 'int', 'list', 'None', or 'morphology'.")
+
+    res_fldr = os.path.join(src, 'results', model_type, feature_string)
+    print(f'Saving results to {res_fldr}')
+    os.makedirs(res_fldr, exist_ok=True)
+    data_path = os.path.join(res_fldr, 'results.csv')
+    permutation_path = os.path.join(res_fldr, 'permutation.csv')
+    feature_importance_path = os.path.join(res_fldr, 'feature_importance.csv')
+    model_metricks_path = os.path.join(res_fldr, f'{model_type}_model.csv')
+    permutation_fig_path = os.path.join(res_fldr, 'permutation.pdf')
+    feature_importance_fig_path = os.path.join(res_fldr, 'feature_importance.pdf')
+    shap_fig_path = os.path.join(res_fldr, 'shap.pdf')
+    plate_heatmap_path = os.path.join(res_fldr, 'plate_heatmap.pdf')
+    settings_csv = os.path.join(res_fldr, 'ml_settings.csv')
+    return data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv
+
+def augment_image(image):
+    """
+    Perform data augmentation by rotating and reflecting the image.
+    
+    Parameters:
+    - image (PIL Image or numpy array): The input image.
+
+    Returns:
+    - augmented_images (list): A list of augmented images.
+    """
+    augmented_images = []
+
+    # Convert PIL image to numpy array if necessary
+    if isinstance(image, Image.Image):
+        image = np.array(image)
+    
+    # Handle grayscale images
+    if len(image.shape) == 2:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
+    # Rotations and reflections
+    transformations = [
+        None,  # Original
+        cv2.ROTATE_90_CLOCKWISE,
+        cv2.ROTATE_180,
+        cv2.ROTATE_90_COUNTERCLOCKWISE
+    ]
+
+    for transform in transformations:
+        if transform is not None:
+            rotated = cv2.rotate(image, transform)
+        else:
+            rotated = image
+        augmented_images.append(rotated)
+
+        # Reflections
+        flipped = cv2.flip(rotated, 1)
+        augmented_images.append(flipped)
+
+    # Convert numpy arrays back to PIL images
+    augmented_images = [Image.fromarray(img) for img in augmented_images]
+    
+    return augmented_images
+
+def augment_dataset(dataset, is_grayscale=False):
+    """
+    Perform data augmentation on the entire dataset by rotating and reflecting the images.
+
+    Parameters:
+    - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).
+    - is_grayscale (bool): Flag indicating if the images are grayscale.
+
+    Returns:
+    - augmented_dataset (list of tuples): A dataset with augmented (image, label, filename) tuples.
+    """
+    augmented_dataset = []
+
+    for img, label, filename in dataset:
+        augmented_images = []
+
+        # Ensure the image is a tensor
+        if not isinstance(img, torch.Tensor):
+            raise TypeError(f"Expected torch.Tensor, got {type(img)}")
+
+        # Rotations and reflections
+        angles = [0, 90, 180, 270]
+
+        for angle in angles:
+            rotated = torchvision.transforms.functional.rotate(img, angle)
+            augmented_images.append(rotated)
+
+            # Reflections
+            flipped = torchvision.transforms.functional.hflip(rotated)
+            augmented_images.append(flipped)
+
+        # Add augmented images to the dataset
+        for aug_img in augmented_images:
+            augmented_dataset.append((aug_img, label, filename))
+
+    return augmented_dataset
+
+
+def convert_and_relabel_masks(folder_path):
+    """
+    Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.
+
+    Parameters:
+    - folder_path (str): The path to the folder containing int64 npy mask files.
+
+    Returns:
+    - None
+    """
+    files = [f for f in os.listdir(folder_path) if f.endswith('.npy')]
+    
+    for file in files:
+        file_path = os.path.join(folder_path, file)
+        # Load the mask
+        mask = np.load(file_path)
+        #print(mask.shape)
+        #print(mask.dtype)
+        # Check the current dtype
+        if mask.dtype != np.int64:
+            print(f"Skipping {file} as it is not int64.")
+            continue
+        
+        # Relabel the mask to ensure unique labels within uint16 range
+        unique_labels = np.unique(mask)
+        if unique_labels.max() > 65535:
+            print(f"Warning: The mask in {file} contains values that exceed the uint16 range and will be relabeled.")
+
+        relabeled_mask = measure.label(mask, background=0)
+        
+        # Check that relabeling worked correctly
+        unique_relabeled = np.unique(relabeled_mask)
+        if unique_relabeled.max() > 65535:
+            print(f"Error: Relabeling failed for {file} as it still contains values that exceed the uint16 range.")
+            continue
+        
+        # Convert to uint16
+        relabeled_mask = relabeled_mask.astype(np.uint16)
+        
+        # Save the converted mask
+        np.save(file_path, relabeled_mask)
+        
+        print(f"Converted {file} and saved as uint16_{file}")
+
+def correct_masks(src):
+
+    from .utils import _load_and_concatenate_arrays
+
+    cell_path = os.path.join(src,'norm_channel_stack', 'cell_mask_stack')
+    convert_and_relabel_masks(cell_path)
+    _load_and_concatenate_arrays(src, [0,1,2,3], 1, 0, 2)

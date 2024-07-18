@@ -1,25 +1,19 @@
 from queue import Queue
-from tkinter import Label
+from tkinter import Label, Entry, Button
 import tkinter as tk
 import os, threading, time, sqlite3
 import numpy as np
 from PIL import Image, ImageOps
 from concurrent.futures import ThreadPoolExecutor
 from PIL import ImageTk
-from IPython.display import display, HTML
-import tkinter as tk
-from tkinter import ttk
-from ttkthemes import ThemedTk
+import pandas as pd
 from skimage.exposure import rescale_intensity
 import cv2
 import matplotlib.pyplot as plt
-
-from .logger import log_function_call
-
-from .gui_utils import ScrollableFrame, set_default_font, set_dark_style, create_dark_mode, style_text_boxes, create_menu_bar
+from IPython.display import display, HTML
 
 class ImageApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99)):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
         """
         Initializes an instance of the ImageApp class.
 
@@ -34,7 +28,10 @@ class ImageApp:
         - image_size (tuple): The size of the displayed images.
         - annotation_column (str): The column name for image annotations in the database.
         - normalize (bool): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.
+        - measurement (str): The measurement column to filter by.
+        - threshold (float): The threshold value for filtering the measurement column.
         """
+
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -55,20 +52,115 @@ class ImageApp:
         self.update_queue = Queue()
         self.status_label = Label(self.root, text="", font=("Arial", 12))
         self.status_label.grid(row=self.grid_rows + 1, column=0, columnspan=self.grid_cols)
+        self.measurement = measurement
+        self.threshold = threshold
+
+        self.filtered_paths_annotations = []
+        self.prefilter_paths_annotations()
 
         self.db_update_thread = threading.Thread(target=self.update_database_worker)
         self.db_update_thread.start()
-        
+
         for i in range(grid_rows * grid_cols):
             label = Label(root)
             label.grid(row=i // grid_cols, column=i % grid_cols)
             self.labels.append(label)
 
+    def prefilter_paths_annotations(self):
+        """
+        Pre-filters the paths and annotations based on the specified measurement and threshold.
+        """
+        from .io import _read_and_join_tables
+        from .utils import is_list_of_lists
+
+        if self.measurement and self.threshold is not None:
+            df = _read_and_join_tables(self.db_path)
+            df[self.annotation_column] = None
+            before = len(df)
+
+            if is_list_of_lists(self.measurement):
+                if isinstance(self.threshold, list) or is_list_of_lists(self.threshold):
+                    if len(self.measurement) == len(self.threshold):
+                        for idx, var in enumerate(self.measurement):
+                            df = df[df[var[idx]] > self.threshold[idx]]
+                        after = len(df)
+                    elif len(self.measurement) == len(self.threshold)*2:
+                        th_idx = 0
+                        for idx, var in enumerate(self.measurement):
+                            if idx % 2 != 0:
+                                th_idx += 1
+                                thd = self.threshold
+                                if isinstance(thd, list):
+                                    thd = thd[0]
+                                df[f'threshold_measurement_{idx}'] = df[self.measurement[idx]]/df[self.measurement[idx+1]]
+                                print(f"mean threshold_measurement_{idx}: {np.mean(df['threshold_measurement'])}")
+                                print(f"median threshold measurement: {np.median(df[self.measurement])}")
+                                df = df[df[f'threshold_measurement_{idx}'] > thd]
+                        after = len(df)
+            elif isinstance(self.measurement, list):
+                df['threshold_measurement'] = df[self.measurement[0]]/df[self.measurement[1]]
+                print(f"mean threshold measurement: {np.mean(df['threshold_measurement'])}")
+                print(f"median threshold measurement: {np.median(df[self.measurement])}")
+                df = df[df['threshold_measurement'] > self.threshold]
+                after = len(df)
+                self.measurement = 'threshold_measurement'
+                print(f'Removed: {before-after} rows, retained {after}')
+            else:
+                print(f"mean threshold measurement: {np.mean(df[self.measurement])}")
+                print(f"median threshold measurement: {np.median(df[self.measurement])}")
+                before = len(df)
+                if isinstance(self.threshold, str):
+                    if self.threshold == 'q1':
+                        self.threshold = df[self.measurement].quantile(0.1)
+                    if self.threshold == 'q2':
+                        self.threshold = df[self.measurement].quantile(0.2)
+                    if self.threshold == 'q3':
+                        self.threshold = df[self.measurement].quantile(0.3)
+                    if self.threshold == 'q4':
+                        self.threshold = df[self.measurement].quantile(0.4)
+                    if self.threshold == 'q5':
+                        self.threshold = df[self.measurement].quantile(0.5)
+                    if self.threshold == 'q6':
+                        self.threshold = df[self.measurement].quantile(0.6)
+                    if self.threshold == 'q7':
+                        self.threshold = df[self.measurement].quantile(0.7)
+                    if self.threshold == 'q8':
+                        self.threshold = df[self.measurement].quantile(0.8)
+                    if self.threshold == 'q9':
+                        self.threshold = df[self.measurement].quantile(0.9)
+                print(f"threshold: {self.threshold}")
+
+                df = df[df[self.measurement] > self.threshold]
+                after = len(df)
+                print(f'Removed: {before-after} rows, retained {after}')
+
+            df = df.dropna(subset=['png_path'])
+            if self.image_type:
+                before = len(df)
+                if isinstance(self.image_type, list):
+                    for tpe in self.image_type:
+                        df = df[df['png_path'].str.contains(tpe)]
+                else:
+                    df = df[df['png_path'].str.contains(self.image_type)]
+                after = len(df)
+                print(f'image_type: Removed: {before-after} rows, retained {after}')
+
+            self.filtered_paths_annotations = df[['png_path', self.annotation_column]].values.tolist()
+        else:
+            conn = sqlite3.connect(self.db_path)
+            c = conn.cursor()
+            if self.image_type:
+                c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE png_path LIKE ?", (f"%{self.image_type}%",))
+            else:
+                c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list")
+            self.filtered_paths_annotations = c.fetchall()
+            conn.close()
+
     def load_images(self):
         """
         Loads and displays images with annotations.
 
-        This method retrieves image paths and annotations from a SQLite database,
+        This method retrieves image paths and annotations from a pre-filtered list,
         loads the images using a ThreadPoolExecutor for parallel processing,
         adds colored borders to images based on their annotations,
         and displays the images in the corresponding labels.
@@ -79,23 +171,15 @@ class ImageApp:
         Returns:
             None
         """
+
         for label in self.labels:
             label.config(image='')
 
         self.images = {}
-
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        if self.image_type:
-            c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE png_path LIKE ? LIMIT ?, ?", (f"%{self.image_type}%", self.index, self.grid_rows * self.grid_cols))
-        else:
-            c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list LIMIT ?, ?", (self.index, self.grid_rows * self.grid_cols))
-        
-        paths = c.fetchall()
-        conn.close()
+        paths_annotations = self.filtered_paths_annotations[self.index:self.index + self.grid_rows * self.grid_cols]
 
         adjusted_paths = []
-        for path, annotation in paths:
+        for path, annotation in paths_annotations:
             if not path.startswith(self.src):
                 parts = path.split('/data/')
                 if len(parts) > 1:
@@ -209,7 +293,6 @@ class ImageApp:
 
         Returns:
             PIL.Image.Image: The filtered image.
-
         """
         r, g, b = img.split()
         if self.channels:
@@ -354,7 +437,7 @@ class ImageApp:
         """
         Shuts down the application.
 
-        This method sets the `terminate` flag to True, clears the pending updates,
+        This method sets the terminate flag to True, clears the pending updates,
         updates the database, and quits the application.
 
         """
@@ -366,10 +449,23 @@ class ImageApp:
         self.root.destroy()
         print(f'Quit application')
 
-def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(200, 200), rows=5, columns=5, annotation_column='annotate', normalize=False, percentiles=(1,99)):
-    
-    from .io import _read_and_join_tables
-    
+def get_annotate_default_settings(settings):
+
+    settings.setdefault('image_type', 'cell_png')
+    settings.setdefault('channels', ['r', 'g', 'b'])
+    settings.setdefault('geom', "3200x2000")
+    settings.setdefault('img_size', (200, 200))
+    settings.setdefault('rows', 10)
+    settings.setdefault('columns', 18)
+    settings.setdefault('annotation_column', 'recruited_test')
+    settings.setdefault('normalize', False)
+    settings.setdefault('percentiles', (2,98))
+    settings.setdefault('measurement', ['cytoplasm_channel_3_mean_intensity', 'pathogen_channel_3_mean_intensity'])
+    settings.setdefault('threshold', 2)
+
+    return settings
+
+def annotate(settings):
     """
     Annotates images in a database using a graphical user interface.
 
@@ -384,21 +480,26 @@ def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(20
         columns (int, optional): The number of columns in the image grid. Defaults to 5.
         annotation_column (str, optional): The name of the annotation column in the database table. Defaults to 'annotate'.
         normalize (bool, optional): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.
+        measurement (str, optional): The measurement column to filter by.
+        threshold (float, optional): The threshold value for filtering the measurement column.
     """
+
+    settings = get_annotate_default_settings(settings)
+    src  = settings['src']
+
     db = os.path.join(src, 'measurements/measurements.db')
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()
-    if annotation_column not in [col[1] for col in cols]:
-        c.execute(f'ALTER TABLE png_list ADD COLUMN {annotation_column} integer')
+    if settings['annotation_column'] not in [col[1] for col in cols]:
+        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
     conn.commit()
     conn.close()
 
-
     root = tk.Tk()
-    root.geometry(geom)
-    app = ImageApp(root, db, src, image_type=image_type, channels=channels, image_size=img_size, grid_rows=rows, grid_cols=columns, annotation_column=annotation_column, normalize=normalize, percentiles=percentiles)
+    root.geometry(settings['geom'])
+    app = ImageApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
     next_button = tk.Button(root, text="Next", command=app.next_page)
     next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
     back_button = tk.Button(root, text="Back", command=app.previous_page)
@@ -408,104 +509,3 @@ def annotate(src, image_type=None, channels=None, geom="1000x1100", img_size=(20
     
     app.load_images()
     root.mainloop()
-
-def check_for_duplicates(db):
-    """
-    Check for duplicates in the given SQLite database.
-
-    Args:
-        db (str): The path to the SQLite database.
-
-    Returns:
-        None
-    """
-    db_path = db
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-    c.execute('SELECT file_name, COUNT(file_name) FROM png_list GROUP BY file_name HAVING COUNT(file_name) > 1')
-    duplicates = c.fetchall()
-    for duplicate in duplicates:
-        file_name = duplicate[0]
-        count = duplicate[1]
-        c.execute('SELECT rowid FROM png_list WHERE file_name = ?', (file_name,))
-        rowids = c.fetchall()
-        for rowid in rowids[:-1]:
-            c.execute('DELETE FROM png_list WHERE rowid = ?', (rowid[0],))
-    conn.commit()
-    conn.close()
-
-#@log_function_call
-def initiate_annotation_app_root(width, height):
-    theme = 'breeze'
-    root = ThemedTk(theme=theme)
-    style = ttk.Style(root)
-    set_dark_style(style)
-    style_text_boxes(style)
-    set_default_font(root, font_name="Arial", size=8)
-    root.geometry(f"{width}x{height}")
-    root.title("Annotation App")
-
-    container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
-    container.pack(fill=tk.BOTH, expand=True)
-
-    scrollable_frame = ScrollableFrame(container, bg='#333333')
-    container.add(scrollable_frame, stretch="always")
-
-    # Setup input fields
-    vars_dict = {
-        'db': ttk.Entry(scrollable_frame.scrollable_frame),
-        'image_type': ttk.Entry(scrollable_frame.scrollable_frame),
-        'channels': ttk.Entry(scrollable_frame.scrollable_frame),
-        'annotation_column': ttk.Entry(scrollable_frame.scrollable_frame),
-        'geom': ttk.Entry(scrollable_frame.scrollable_frame),
-        'img_size': ttk.Entry(scrollable_frame.scrollable_frame),
-        'rows': ttk.Entry(scrollable_frame.scrollable_frame),
-        'columns': ttk.Entry(scrollable_frame.scrollable_frame)
-    }
-
-    # Arrange input fields and labels
-    row = 0
-    for name, entry in vars_dict.items():
-        ttk.Label(scrollable_frame.scrollable_frame, text=f"{name.replace('_', ' ').capitalize()}:").grid(row=row, column=0)
-        entry.grid(row=row, column=1)
-        row += 1
-
-    # Function to be called when "Run" button is clicked
-    def run_app():
-        db = vars_dict['db'].get()
-        image_type = vars_dict['image_type'].get()
-        channels = vars_dict['channels'].get()
-        annotation_column = vars_dict['annotation_column'].get()
-        geom = vars_dict['geom'].get()
-        img_size_str = vars_dict['img_size'].get().split(',')  # Splitting the string by comma
-        img_size = (int(img_size_str[0]), int(img_size_str[1]))  # Converting each part to an integer
-        rows = int(vars_dict['rows'].get())
-        columns = int(vars_dict['columns'].get())
-        
-        # Destroy the initial settings window
-        root.destroy()
-        
-        # Create a new root window for the application
-        new_root = tk.Tk()
-        new_root.geometry(f"{width}x{height}")
-        new_root.title("Mask Application")
-        
-
-        # Start the annotation application in the new root window
-        app_instance = annotate(db, image_type, channels, annotation_column, geom, img_size, rows, columns)
-        
-        new_root.mainloop()
-        
-    create_dark_mode(root, style, console_output=None)
-
-    run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=run_app)
-    run_button.grid(row=row, column=0, columnspan=2, pady=10, padx=10)
-
-    return root
-
-def gui_annotation():
-    root = initiate_annotation_app_root(500, 350)
-    root.mainloop()
-
-if __name__ == "__main__":
-    gui_annotation()

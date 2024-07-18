@@ -306,13 +306,10 @@ def analyze_reads(settings):
                 qc_df = pd.DataFrame([qc])
                 qc_df.to_csv(qc_file_path, index=False)
                 
-    settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT') 
-    settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCAG') #This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA
-    settings.setdefault('barecode_length_1', 8)
-    settings.setdefault('barecode_length_2', 7)
-    settings.setdefault('chunk_size', 1000000)
-    settings.setdefault('test', False)
-    
+    from .utils import get_analyze_reads_default_settings
+
+    settings = get_analyze_reads_default_settings(settings)
+
     samples_dict = parse_gz_files(settings['src'])
     combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length_1'], settings['barecode_length_2'], settings['upstream'], settings['downstream'])
 
@@ -478,17 +475,10 @@ def map_barcodes(h5_file_path, settings={}):
             #print(f"Max count for {nc} in other columns: {max_count_c3}")
             
         return filtered_df
+    
+    from .settings import get_map_barcodes_default_settings
 
-    settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
-    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
-    settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
-    settings.setdefault('test', False)
-    settings.setdefault('verbose', True)
-
-    settings.setdefault('pc', 'TGGT1_220950_1')
-    settings.setdefault('pc_loc', 'c2')
-    settings.setdefault('nc', 'TGGT1_233460_4')
-    settings.setdefault('nc_loc', 'c1')
+    settings = get_map_barcodes_default_settings(settings)
 
     fldr = os.path.splitext(h5_file_path)[0]
     file_name = os.path.basename(fldr)
@@ -1558,6 +1548,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, remove
         model = sm.GLS(y, X).fit()
 
     elif regression_type == 'wls':
+        weights = 1 / np.sqrt(X.iloc[:, 1])
         model = sm.WLS(y, X, weights=weights).fit()
 
     elif regression_type == 'rlm':
@@ -1779,38 +1770,25 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     return model, coef_df
 
-def set_regression_defaults(settings):
-    settings.setdefault('gene_weights_csv', '/nas_mnt/carruthers/Einar/mitoscreen/sequencing/combined_reads/EO1_combined/EO1_combined_combination_counts.csv')
-    settings.setdefault('dependent_variable','predictions')
-    settings.setdefault('transform',None)
-    settings.setdefault('agg_type','mean')
-    settings.setdefault('min_cell_count',25)
-    settings.setdefault('regression_type','ols')
-    settings.setdefault('remove_row_column_effect',False)
-    settings.setdefault('alpha',1)
-    settings.setdefault('fraction_threshold',0.1)
-    settings.setdefault('nc','c1')
-    settings.setdefault('pc','c2')
-    settings.setdefault('other','c3')
-    settings.setdefault('plate','plate1')
-    settings.setdefault('class_1_threshold',None)
-    
-    if settings['regression_type'] == 'quantile':
-        print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
-        settings['agg_type'] = None
-        print(f'agg_type set to None for quantile regression')
-    return settings
-
 def perform_regression(df, settings):
 
     from spacr.plot import plot_plates
     from .utils import merge_regression_res_with_metadata
+    from .settings import get_perform_regression_default_settings
 
     reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
     if settings['regression_type'] not in reg_types:
         print(f'Possible regression types: {reg_types}')
         raise ValueError(f"Unsupported regression type {settings['regression_type']}")
 
+    if isinstance(df, str):
+        df = pd.read_csv(df)
+    elif isinstance(df, pd.DataFrame):
+        pass
+    else:
+        raise ValueError("Data must be a DataFrame or a path to a CSV file")
+    
+    
     if settings['dependent_variable'] not in df.columns:
         print(f'Columns in DataFrame:')
         for col in df.columns:
@@ -1828,7 +1806,7 @@ def perform_regression(df, settings):
     results_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), results_filename)
     hits_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), hits_filename)
     
-    settings = set_regression_defaults(settings)
+    settings = get_perform_regression_default_settings(settings)
 
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_dir = os.path.dirname(settings['gene_weights_csv'])
