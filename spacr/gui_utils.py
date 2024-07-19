@@ -47,6 +47,10 @@ def load_app(root, app_name, app_func):
             root.after_cancel(task)
     root.after_tasks = []
 
+    # Exit functionality only for the annotation app
+    if app_name == "Annotate" and hasattr(root, 'current_app_exit_func'):
+        root.current_app_exit_func()
+
     # Clear the current content frame
     if hasattr(root, 'content_frame'):
         for widget in root.content_frame.winfo_children():
@@ -64,7 +68,7 @@ def create_menu_bar(root):
     from .gui_mask_app import initiate_mask_root
     from .gui_measure_app import initiate_measure_root
     from .annotate_app import initiate_annotation_app_root
-    from .mask_app import initiate_mask_app_root
+    from .gui_make_masks_app import initiate_mask_app_root
     from .gui_classify_app import initiate_classify_root
 
     gui_apps = {
@@ -89,6 +93,66 @@ def create_menu_bar(root):
     # Add a separator and an exit option
     app_menu.add_separator()
     app_menu.add_command(label="Exit", command=root.quit)
+    # Configure the menu for the root window
+    root.config(menu=menu_bar)
+
+def load_app(root, app_name, app_func):
+    # Cancel all scheduled after tasks
+    if hasattr(root, 'after_tasks'):
+        for task in root.after_tasks:
+            root.after_cancel(task)
+    root.after_tasks = []
+
+    def proceed_with_app():
+        # Clear the current content frame
+        if hasattr(root, 'content_frame'):
+            for widget in root.content_frame.winfo_children():
+                widget.destroy()
+        else:
+            root.content_frame = tk.Frame(root)
+            root.content_frame.grid(row=1, column=0, sticky="nsew")
+            root.grid_rowconfigure(1, weight=1)
+            root.grid_columnconfigure(0, weight=1)
+
+        # Initialize the new app in the content frame
+        app_func(root.content_frame)
+
+    # Exit functionality only for the annotation app
+    if app_name != "Annotate" and hasattr(root, 'current_app_exit_func'):
+        root.next_app_func = proceed_with_app
+        root.current_app_exit_func()
+    else:
+        proceed_with_app()
+
+def create_menu_bar(root):
+    from .gui_mask_app import initiate_mask_root
+    from .gui_measure_app import initiate_measure_root
+    from .annotate_app import initiate_annotation_app_root
+    from .gui_make_masks_app import initiate_mask_app_root
+    from .gui_classify_app import initiate_classify_root
+
+    gui_apps = {
+        "Mask": initiate_mask_root,
+        "Measure": initiate_measure_root,
+        "Annotate": initiate_annotation_app_root,
+        "Make Masks": initiate_mask_app_root,
+        "Classify": initiate_classify_root
+    }
+
+    def load_app_wrapper(app_name, app_func):
+        load_app(root, app_name, app_func)
+
+    # Create the menu bar
+    menu_bar = tk.Menu(root, bg="#008080", fg="white")
+    # Create a "SpaCr Applications" menu
+    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
+    menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
+    # Add options to the "SpaCr Applications" menu
+    for app_name, app_func in gui_apps.items():
+        app_menu.add_command(label=app_name, command=lambda app_name=app_name, app_func=app_func: load_app_wrapper(app_name, app_func))
+    # Add a separator and an exit option
+    app_menu.add_separator()
+    app_menu.add_command(label="Exit", command=root.destroy)  # Use root.destroy instead of root.quit
     # Configure the menu for the root window
     root.config(menu=menu_bar)
 
@@ -275,19 +339,6 @@ def check_and_download_font_v1():
         tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
         tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
 
-def style_text_boxes_v1(style):
-    check_and_download_font()
-    font_style = tkFont.Font(family="Helvetica", size=10)  # Define the Helvetica font
-    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#000000', foreground='#ffffff', font=font_style)
-    style.configure('TCombobox', fieldbackground='#000000', background='#000000', foreground='#ffffff', font=font_style)
-    style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)
-    style.map('Custom.TButton',
-              background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
-              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
-    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
-    style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
-    style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
-
 def check_and_download_font():
     font_name = "Helvetica"
     font_dir = "fonts"
@@ -320,7 +371,7 @@ def check_and_download_font():
         tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
         tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
 
-def style_text_boxes(style):
+def style_text_boxes_v1(style):
     check_and_download_font()
     font_style = tkFont.Font(family="Helvetica", size=10)  # Define the Helvetica font
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#000000', foreground='#ffffff', font=font_style)
@@ -332,6 +383,19 @@ def style_text_boxes(style):
     style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
     style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
     style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
+
+def style_text_boxes(style):
+    font_style = tkFont.Font(family="Helvetica", size=10) 
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#333333', foreground='#ffffff', font=font_style)
+    style.configure('TCombobox', fieldbackground='#333333', background='#333333', foreground='#ffffff', font=font_style)
+    style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)
+    style.map('Custom.TButton',
+              background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
+              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
+    style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
+    style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
+
 
 
 def read_settings_from_csv(csv_file_path):
