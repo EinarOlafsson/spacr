@@ -52,12 +52,16 @@ dependencies = [
     'ttf_opensans>=2020.10.30',
     'customtkinter>=5.2.2,<6.0', 
     'biopython>=1.80,<2.0',
-    'lxml>=5.1.0,<6.0'
+    'lxml>=5.1.0,<6.0', 
+    'qtpy>=2.4.1,<2.5',
+    'superqt>=0.6.7,<0.7',
+    'pyqt6>=6.7.1,<6.8',
+    'pyqtgraph>=0.13.7,<0.14'
 ]
 
 setup(
     name="spacr",
-    version="0.1.01",
+    version="0.1.11",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
@@ -71,12 +75,12 @@ setup(
         'console_scripts': [
             'mask=spacr.gui_mask_app:gui_mask',
             'measure=spacr.gui_measure_app:gui_measure',
-            'make_masks=spacr.mask_app:gui_make_masks',
-            'annotate=spacr.annotate_app:gui_annotation',
+            'make_masks=spacr.gui_make_mask_app:gui_make_masks',
+            'make_masks2=spacr.gui_make_mask_app_v2:gui_make_masks',
+            'annotate=spacr.annotate_app_v2:gui_annotate',
             'classify=spacr.gui_classify_app:gui_classify',
             'sim=spacr.gui_sim_app:gui_sim',
             'gui=spacr.gui:gui_app',
-            'gui2=spacr.gui_2:gui_app',
         ],
     },
     extras_require={

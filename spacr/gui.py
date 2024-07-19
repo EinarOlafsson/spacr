@@ -9,10 +9,9 @@ import requests
 from .gui_mask_app import initiate_mask_root
 from .gui_measure_app import initiate_measure_root
 from .annotate_app import initiate_annotation_app_root
-from .mask_app import initiate_mask_app_root
+from .gui_make_masks_app import initiate_mask_app_root
 from .gui_classify_app import initiate_classify_root
-
-from .gui_utils import CustomButton, style_text_boxes
+from .gui_utils import CustomButton, style_text_boxes, create_menu_bar
 
 class MainApp(tk.Tk):
     def __init__(self):
@@ -38,17 +37,23 @@ class MainApp(tk.Tk):
 
     def create_widgets(self):
         # Create the menu bar
-        #create_menu_bar(self)
+        self.gui_create_menu_bar()
+
         # Create a canvas to hold the selected app and other elements
-        self.canvas = tk.Canvas(self, bg="black", highlightthickness=0, width=4000, height=4000)
+        self.canvas = tk.Canvas(self, bg="black", highlightthickness=0)
         self.canvas.grid(row=0, column=0, sticky="nsew")
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
         # Create a frame inside the canvas to hold the main content
         self.content_frame = tk.Frame(self.canvas, bg="black")
         self.content_frame.pack(fill=tk.BOTH, expand=True)
+
         # Create startup screen with buttons for each GUI app
         self.create_startup_screen()
+
+    def gui_create_menu_bar(self):
+        create_menu_bar(self)
 
     def create_startup_screen(self):
         self.clear_frame(self.content_frame)
@@ -59,10 +64,10 @@ class MainApp(tk.Tk):
 
         # Load the logo image
         if not self.load_logo(logo_frame):
-            tk.Label(logo_frame, text="Logo not found", bg="black", fg="white", font=('Helvetica', 24, tkFont.NORMAL)).pack(padx=10, pady=10)
+            tk.Label(logo_frame, text="Logo not found", bg="black", fg="white", font=('Helvetica', 24)).pack(padx=10, pady=10)
 
         # Add SpaCr text below the logo with padding for sharper text
-        tk.Label(logo_frame, text="SpaCr", bg="black", fg="#008080", font=('Helvetica', 24, tkFont.NORMAL)).pack(padx=10, pady=10)
+        tk.Label(logo_frame, text="SpaCr", bg="black", fg="#008080", font=('Helvetica', 24)).pack(padx=10, pady=10)
 
         # Create a frame for the buttons and descriptions
         buttons_frame = tk.Frame(self.content_frame, bg="black")
@@ -72,10 +77,10 @@ class MainApp(tk.Tk):
             app_func, app_desc = app_data
 
             # Create custom button with text
-            button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name), font=('Helvetica', 12))
+            button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name, app_func), font=('Helvetica', 12))
             button.grid(row=i, column=0, pady=10, padx=10, sticky="w")
 
-            description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 10, tkFont.NORMAL))
+            description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 12))
             description_label.grid(row=i, column=1, pady=10, padx=10, sticky="w")
 
         # Ensure buttons have a fixed width
@@ -125,13 +130,14 @@ class MainApp(tk.Tk):
             print(f"An error occurred while processing the logo image: {e}")
             return False
 
-    def load_app(self, app_name):
-        selected_app_func, _ = self.gui_apps[app_name]
+    def load_app(self, app_name, app_func):
+        # Clear the current content frame
         self.clear_frame(self.content_frame)
 
+        # Initialize the selected app
         app_frame = tk.Frame(self.content_frame, bg="black")
         app_frame.pack(fill=tk.BOTH, expand=True)
-        selected_app_func(app_frame)#, self.winfo_width(), self.winfo_height())
+        app_func(app_frame)
 
     def clear_frame(self, frame):
         for widget in frame.winfo_children():
