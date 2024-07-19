@@ -11,29 +11,12 @@ from PIL import ImageTk
 from skimage.exposure import rescale_intensity
 from IPython.display import display, HTML
 from tkinter import font as tkFont
+from tkinter import TclError
 
 from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, style_text_boxes, create_menu_bar
 
 class ImageApp:
     def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
-        """
-        Initializes an instance of the ImageApp class.
-
-        Parameters:
-        - root (tkinter.Tk): The root window of the application.
-        - db_path (str): The path to the SQLite database.
-        - src (str): The source directory that should be upstream of 'data' in the paths.
-        - image_type (str): The type of images to display.
-        - channels (list): The channels to filter in the images.
-        - grid_rows (int): The number of rows in the image grid.
-        - grid_cols (int): The number of columns in the image grid.
-        - image_size (tuple): The size of the displayed images.
-        - annotation_column (str): The column name for image annotations in the database.
-        - normalize (bool): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.
-        - measurement (str): The measurement column to filter by.
-        - threshold (float): The threshold value for filtering the measurement column.
-        """
-
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -69,9 +52,6 @@ class ImageApp:
             self.labels.append(label)
 
     def prefilter_paths_annotations(self):
-        """
-        Pre-filters the paths and annotations based on the specified measurement and threshold.
-        """
         from .io import _read_and_join_tables
         from .utils import is_list_of_lists
 
@@ -159,21 +139,6 @@ class ImageApp:
             conn.close()
 
     def load_images(self):
-        """
-        Loads and displays images with annotations.
-
-        This method retrieves image paths and annotations from a pre-filtered list,
-        loads the images using a ThreadPoolExecutor for parallel processing,
-        adds colored borders to images based on their annotations,
-        and displays the images in the corresponding labels.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-
         for label in self.labels:
             label.config(image='')
 
@@ -213,16 +178,6 @@ class ImageApp:
         self.root.update()
 
     def load_single_image(self, path_annotation_tuple):
-        """
-        Loads a single image from the given path and annotation tuple.
-
-        Args:
-            path_annotation_tuple (tuple): A tuple containing the image path and its annotation.
-
-        Returns:
-            img (PIL.Image.Image): The loaded image.
-            annotation: The annotation associated with the image.
-        """
         path, annotation = path_annotation_tuple
         img = Image.open(path)
         img = self.normalize_image(img, self.normalize, self.percentiles)
@@ -233,18 +188,6 @@ class ImageApp:
 
     @staticmethod
     def normalize_image(img, normalize=False, percentiles=(1, 99)):
-        """
-        Normalize the pixel values of an image based on the 2nd and 98th percentiles or the image min and max values,
-        and ensure the image is exported as 8-bit.
-
-        Parameters:
-        - img: PIL.Image.Image. The input image to be normalized.
-        - normalize: bool. Whether to normalize based on the 2nd and 98th percentiles.
-        - percentiles: tuple. The percentiles to use for normalization.
-
-        Returns:
-        - PIL.Image.Image. The normalized and 8-bit converted image.
-        """
         img_array = np.array(img)
 
         if normalize:
@@ -261,17 +204,6 @@ class ImageApp:
         return Image.fromarray(img_array)
     
     def add_colored_border(self, img, border_width, border_color):
-        """
-        Adds a colored border to an image.
-
-        Args:
-            img (PIL.Image.Image): The input image.
-            border_width (int): The width of the border in pixels.
-            border_color (str): The color of the border in RGB format.
-
-        Returns:
-            PIL.Image.Image: The image with the colored border.
-        """
         top_border = Image.new('RGB', (img.width, border_width), color=border_color)
         bottom_border = Image.new('RGB', (img.width, border_width), color=border_color)
         left_border = Image.new('RGB', (border_width, img.height), color=border_color)
@@ -287,15 +219,6 @@ class ImageApp:
         return bordered_img
     
     def filter_channels(self, img):
-        """
-        Filters the channels of an image based on the specified channels.
-
-        Args:
-            img (PIL.Image.Image): The input image.
-
-        Returns:
-            PIL.Image.Image: The filtered image.
-        """
         r, g, b = img.split()
         if self.channels:
             if 'r' not in self.channels:
@@ -312,17 +235,6 @@ class ImageApp:
         return Image.merge("RGB", (r, g, b))
 
     def get_on_image_click(self, path, label, img):
-        """
-        Returns a callback function that handles the click event on an image.
-
-        Parameters:
-        path (str): The path of the image file.
-        label (tkinter.Label): The label widget to update with the annotated image.
-        img (PIL.Image.Image): The image object.
-
-        Returns:
-        function: The callback function for the image click event.
-        """
         def on_image_click(event):
             new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
             
@@ -356,11 +268,6 @@ class ImageApp:
         """))
 
     def update_database_worker(self):
-        """
-        Worker function that continuously updates the database with pending updates from the update queue.
-        It retrieves the pending updates from the queue, updates the corresponding records in the database,
-        and resets the text in the HTML and status label.
-        """
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
 
@@ -383,51 +290,24 @@ class ImageApp:
                         c.execute(f'UPDATE png_list SET {self.annotation_column} = ? WHERE png_path = ?', (new_annotation, path))
                 conn.commit()
 
-                # Reset the text
                 ImageApp.update_html('')
                 self.status_label.config(text='')
                 self.root.update()
             time.sleep(0.1)
 
     def update_gui_text(self, text):
-        """
-        Update the text of the status label in the GUI.
-
-        Args:
-            text (str): The new text to be displayed in the status label.
-
-        Returns:
-            None
-        """
         self.status_label.config(text=text)
         self.root.update()
 
     def next_page(self):
-        """
-        Moves to the next page of images in the grid.
-
-        If there are pending updates in the dictionary, they are added to the update queue.
-        The pending updates dictionary is then cleared.
-        The index is incremented by the number of rows multiplied by the number of columns in the grid.
-        Finally, the images are loaded for the new page.
-        """
-        if self.pending_updates:  # Check if the dictionary is not empty
+        if self.pending_updates:
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
         self.index += self.grid_rows * self.grid_cols
         self.load_images()
 
     def previous_page(self):
-        """
-        Move to the previous page in the grid.
-
-        If there are pending updates in the dictionary, they are added to the update queue.
-        The dictionary of pending updates is then cleared.
-        The index is decremented by the number of rows multiplied by the number of columns in the grid.
-        If the index becomes negative, it is set to 0.
-        Finally, the images are loaded for the new page.
-        """
-        if self.pending_updates:  # Check if the dictionary is not empty
+        if self.pending_updates:
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
         self.index -= self.grid_rows * self.grid_cols
@@ -436,23 +316,15 @@ class ImageApp:
         self.load_images()
 
     def shutdown(self):
-        """
-        Shuts down the application.
-
-        This method sets the terminate flag to True, clears the pending updates,
-        updates the database, and quits the application.
-
-        """
-        self.terminate = True  # Set terminate first
+        self.terminate = True
         self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
-        self.db_update_thread.join()  # Join the thread to make sure database is updated
+        self.db_update_thread.join()
         self.root.quit()
         self.root.destroy()
         print(f'Quit application')
 
 def get_annotate_default_settings(settings):
-
     settings.setdefault('image_type', 'cell_png')
     settings.setdefault('channels', ['r', 'g', 'b'])
     settings.setdefault('geom', "3200x2000")
@@ -468,24 +340,6 @@ def get_annotate_default_settings(settings):
     return settings
 
 def annotate(settings):
-    """
-    Annotates images in a database using a graphical user interface.
-
-    Args:
-        db (str): The path to the SQLite database.
-        src (str): The source directory that should be upstream of 'data' in the paths.
-        image_type (str, optional): The type of images to load from the database. Defaults to None.
-        channels (str, optional): The channels of the images to load from the database. Defaults to None.
-        geom (str, optional): The geometry of the GUI window. Defaults to "1000x1100".
-        img_size (tuple, optional): The size of the images to display in the GUI. Defaults to (200, 200).
-        rows (int, optional): The number of rows in the image grid. Defaults to 5.
-        columns (int, optional): The number of columns in the image grid. Defaults to 5.
-        annotation_column (str, optional): The name of the annotation column in the database table. Defaults to 'annotate'.
-        normalize (bool, optional): Whether to normalize images to their 2nd and 98th percentiles. Defaults to False.
-        measurement (str, optional): The measurement column to filter by.
-        threshold (float, optional): The threshold value for filtering the measurement column.
-    """
-
     settings = get_annotate_default_settings(settings)
     src  = settings['src']
 
@@ -604,6 +458,9 @@ def annotate_app(parent_frame, settings):
     annotate_with_image_refs(settings, root, lambda: load_next_app(root))
 
 def annotate_with_image_refs(settings, root, shutdown_callback):
+    from .gui_utils import proceed_with_app
+    from .gui import gui_app
+
     settings = get_annotate_default_settings(settings)
     src = settings['src']
 
@@ -632,9 +489,9 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     app.load_images()
 
     # Store the shutdown function and next app details in the root
-    root.current_app_exit_func = app.shutdown
-    root.next_app_func = None
-    root.next_app_args = ()
+    root.current_app_exit_func = lambda: [app.shutdown(), shutdown_callback()]
+    root.next_app_func = proceed_with_app
+    root.next_app_args = ("Main App", gui_app)  # Specify the main app function
 
 def load_next_app(root):
     # Get the next app function and arguments
@@ -642,7 +499,19 @@ def load_next_app(root):
     next_app_args = root.next_app_args
 
     if next_app_func:
-        next_app_func(*next_app_args)
+        try:
+            if not root.winfo_exists():
+                raise tk.TclError
+            next_app_func(root, *next_app_args)
+        except tk.TclError:
+            # Reinitialize root if it has been destroyed
+            new_root = tk.Tk()
+            width = new_root.winfo_screenwidth()
+            height = new_root.winfo_screenheight()
+            new_root.geometry(f"{width}x{height}")
+            new_root.title("SpaCr Application")
+            next_app_func(new_root, *next_app_args)
+
 
 def gui_annotate():
     root = tk.Tk()

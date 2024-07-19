@@ -65,11 +65,11 @@ def load_app(root, app_name, app_func):
     app_func(root.content_frame)
 
 def create_menu_bar(root):
-    from .gui_mask_app import initiate_mask_root
-    from .gui_measure_app import initiate_measure_root
-    from .annotate_app import initiate_annotation_app_root
-    from .gui_make_masks_app import initiate_mask_app_root
-    from .gui_classify_app import initiate_classify_root
+    from .app_mask import initiate_mask_root
+    from .app_measure import initiate_measure_root
+    from .app_annotate import initiate_annotation_app_root
+    from .app_make_masks import initiate_mask_app_root
+    from .app_classify import initiate_classify_root
 
     gui_apps = {
         "Mask": initiate_mask_root,
@@ -96,6 +96,42 @@ def create_menu_bar(root):
     # Configure the menu for the root window
     root.config(menu=menu_bar)
 
+def proceed_with_app(root, app_name, app_func):
+
+    from .app_mask import gui_mask
+    from .app_measure import gui_measure
+    from .app_annotate import gui_annotate
+    from .app_make_masks import gui_make_masks
+    from .app_classify import gui_classify
+    from .gui import gui_app
+
+    # Clear the current content frame
+    if hasattr(root, 'content_frame'):
+        for widget in root.content_frame.winfo_children():
+            widget.destroy()
+    else:
+        root.content_frame = tk.Frame(root)
+        root.content_frame.grid(row=1, column=0, sticky="nsew")
+        root.grid_rowconfigure(1, weight=1)
+        root.grid_columnconfigure(0, weight=1)
+
+    # Initialize the new app in the content frame
+    if app_name == "Main App":
+        root.destroy()  # Close the current window
+        gui_app()  # Open the main app window
+    elif app_name == "Mask":
+        gui_mask()
+    elif app_name == "Measure":
+        gui_measure()
+    elif app_name == "Annotate":
+        gui_annotate()
+    elif app_name == "Make Masks":
+        gui_make_masks()
+    elif app_name == "Classify":
+        gui_classify()
+    else:
+        raise ValueError(f"Invalid app name: {app_name}")
+
 def load_app(root, app_name, app_func):
     # Cancel all scheduled after tasks
     if hasattr(root, 'after_tasks'):
@@ -103,35 +139,25 @@ def load_app(root, app_name, app_func):
             root.after_cancel(task)
     root.after_tasks = []
 
-    def proceed_with_app():
-        # Clear the current content frame
-        if hasattr(root, 'content_frame'):
-            for widget in root.content_frame.winfo_children():
-                widget.destroy()
-        else:
-            root.content_frame = tk.Frame(root)
-            root.content_frame.grid(row=1, column=0, sticky="nsew")
-            root.grid_rowconfigure(1, weight=1)
-            root.grid_columnconfigure(0, weight=1)
-
-        # Initialize the new app in the content frame
-        app_func(root.content_frame)
-
     # Exit functionality only for the annotation app
     if app_name != "Annotate" and hasattr(root, 'current_app_exit_func'):
         root.next_app_func = proceed_with_app
+        root.next_app_args = (app_name, app_func)  # Ensure correct arguments
         root.current_app_exit_func()
     else:
-        proceed_with_app()
+        proceed_with_app(root, app_name, app_func)
+
 
 def create_menu_bar(root):
-    from .gui_mask_app import initiate_mask_root
-    from .gui_measure_app import initiate_measure_root
-    from .annotate_app import initiate_annotation_app_root
-    from .gui_make_masks_app import initiate_mask_app_root
-    from .gui_classify_app import initiate_classify_root
+    from .app_mask import initiate_mask_root
+    from .app_measure import initiate_measure_root
+    from .app_annotate import initiate_annotation_app_root
+    from .app_make_masks import initiate_mask_app_root
+    from .app_classify import initiate_classify_root
+    from .gui import gui_app 
 
     gui_apps = {
+        "Main App": gui_app,
         "Mask": initiate_mask_root,
         "Measure": initiate_measure_root,
         "Annotate": initiate_annotation_app_root,
@@ -381,19 +407,19 @@ def style_text_boxes_v1(style):
               background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
               foreground=[('active', '#ffffff'), ('disabled', '#888888')])
     style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
-    style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
+    style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
     style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
 
 def style_text_boxes(style):
     font_style = tkFont.Font(family="Helvetica", size=10) 
-    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#333333', foreground='#ffffff', font=font_style)
-    style.configure('TCombobox', fieldbackground='#333333', background='#333333', foreground='#ffffff', font=font_style)
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)
+    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)
     style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)
     style.map('Custom.TButton',
               background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
               foreground=[('active', '#ffffff'), ('disabled', '#888888')])
     style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
-    style.configure('TCheckbutton', background='#333333', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
+    style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
     style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
 
 

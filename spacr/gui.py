@@ -6,21 +6,21 @@ import os
 import requests
 
 # Import your GUI apps
-from .gui_mask_app import initiate_mask_root
-from .gui_measure_app import initiate_measure_root
-from .annotate_app import initiate_annotation_app_root
-from .gui_make_masks_app import initiate_mask_app_root
-from .gui_classify_app import initiate_classify_root
+from .app_mask import initiate_mask_root
+from .app_measure import initiate_measure_root
+from .app_annotate import initiate_annotation_app_root
+from .app_make_masks import initiate_mask_app_root
+from .app_classify import initiate_classify_root
 from .gui_utils import CustomButton, style_text_boxes, create_menu_bar
 
 class MainApp(tk.Tk):
     def __init__(self):
         super().__init__()
+        width = self.winfo_screenwidth()
+        height = self.winfo_screenheight()
+        self.geometry(f"{width}x{height}")  
         self.title("SpaCr GUI Collection")
-        self.geometry("1100x1500")
         self.configure(bg="black")
-        #self.attributes('-fullscreen', True)
-
         style = ttk.Style()
         style_text_boxes(style)
 
@@ -37,7 +37,7 @@ class MainApp(tk.Tk):
 
     def create_widgets(self):
         # Create the menu bar
-        self.gui_create_menu_bar()
+        create_menu_bar(self)
 
         # Create a canvas to hold the selected app and other elements
         self.canvas = tk.Canvas(self, bg="black", highlightthickness=0)
@@ -51,9 +51,6 @@ class MainApp(tk.Tk):
 
         # Create startup screen with buttons for each GUI app
         self.create_startup_screen()
-
-    def gui_create_menu_bar(self):
-        create_menu_bar(self)
 
     def create_startup_screen(self):
         self.clear_frame(self.content_frame)
