@@ -12,14 +12,13 @@ from . import sim
 from . import sequencing
 from . import timelapse
 from . import deep_spacr
-from . import annotate_app
-from . import annotate_app_v2
+from . import app_annotate
 from . import gui_utils
-from . import gui_make_masks_app
-from . import gui_make_masks_app_v2
-from . import gui_mask_app
-from . import gui_measure_app
-from . import gui_classify_app
+from . import app_make_masks
+from . import app_make_masks_v2
+from . import app_mask
+from . import app_measure
+from . import app_classify
 from . import logger
 
 
@@ -34,14 +33,13 @@ __all__ = [
     "sequencing"
     "timelapse",
     "deep_spacr",
-    "annotate_app",
-    "annotate_app_v2",
+    "app_annotate",
     "gui_utils",
-    "gui_make_masks_app",
-    "gui_make_masks_app_v2",
-    "gui_mask_app",
-    "gui_measure_app",
-    "gui_classify_app",
+    "app_make_masks",
+    "app_make_masks_v2",
+    "app_mask",
+    "app_measure",
+    "app_classify",
     "logger"
 ]
 

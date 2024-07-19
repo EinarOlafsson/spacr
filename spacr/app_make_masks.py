@@ -870,7 +870,7 @@ def initiate_mask_app_root(parent_frame):
     container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
     container.pack(fill=tk.BOTH, expand=True)
 
-    scrollable_frame = ScrollableFrame(container, bg='#333333')
+    scrollable_frame = ScrollableFrame(container, bg='black')
     container.add(scrollable_frame, stretch="always")
 
     # Setup input fields
@@ -905,7 +905,9 @@ def initiate_mask_app_root(parent_frame):
 
 def gui_make_masks():
     root = tk.Tk()
-    root.geometry("1000x800")
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    root.geometry(f"{width}x{height}")
     root.title("Mask Application")
     
     # Clear previous content if any

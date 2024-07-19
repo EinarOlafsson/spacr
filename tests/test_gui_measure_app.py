@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.gui_measure_app import initiate_measure_root
+from spacr.app_measure import initiate_measure_root
 
 class TestInitiateMeasureRoot(unittest.TestCase):
     def setUp(self):

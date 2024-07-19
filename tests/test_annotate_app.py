@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.annotate_app import ImageApp
+from spacr.app_annotate import ImageApp
 from PIL import Image
 
 class TestImageApp(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.gui_mask_app import initiate_mask_root
+from spacr.app_mask import initiate_mask_root
 
 class TestInitiateMaskRoot(unittest.TestCase):
     def setUp(self):
