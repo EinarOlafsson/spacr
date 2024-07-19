@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.mask_app import modify_masks
+from spacr.app_make_masks import modify_masks
 
 class TestModifyMasks(unittest.TestCase):
     def setUp(self):

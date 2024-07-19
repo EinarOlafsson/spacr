@@ -645,7 +645,7 @@ def initiate_mask_app_root(width, height):
     container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
     container.pack(fill=tk.BOTH, expand=True)
 
-    scrollable_frame = ScrollableFrame(container, bg='#333333')
+    scrollable_frame = ScrollableFrame(container, bg='black')
     container.add(scrollable_frame, stretch="always")
 
     vars_dict = {

@@ -1,11 +1,14 @@
-import sys, traceback, matplotlib, ctypes
+#import customtkinter as ctk
+
+import sys, ctypes, matplotlib
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-matplotlib.use('Agg')  # Use the non-GUI Agg backend
-from multiprocessing import Process, Queue, Value
+matplotlib.use('Agg')
 from tkinter import filedialog
+from multiprocessing import Process, Queue, Value
+import traceback
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -13,20 +16,13 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, ToggleSwitch, ToolTip
-from .gui_utils import process_stdout_stderr, set_dark_style, set_default_font, generate_fields, main_thread_update_function, create_menu_bar
-from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, style_text_boxes
+from .gui_utils import ScrollableFrame, StdoutRedirector, ToggleSwitch, CustomButton, ToolTip
+from .gui_utils import clear_canvas, main_thread_update_function, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, style_text_boxes
+from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv, create_menu_bar
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
-def import_settings(scrollable_frame):
-    global vars_dict
-
-    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
-    csv_settings = read_settings_from_csv(csv_file_path)
-    variables = measure_variables()
-    new_settings = update_settings_from_csv(variables, csv_settings)
-    vars_dict = generate_fields(new_settings, scrollable_frame)
+test_mode_button = None
 
 def toggle_test_mode():
     global vars_dict
@@ -41,10 +37,10 @@ def toggle_test_mode():
 def toggle_advanced_settings():
     global vars_dict
 
-    timelapse_settings = ['timelapse', 'timelapse_objects']
-    misc_settings = ['representative_images', 'plot', 'plot_filtration', 'include_uninfected', 'dialate_pngs', 'dialate_png_ratios']
-    opperational_settings = ['max_workers','experiment','cells','cell_loc','pathogens','pathogen_loc','treatments','treatment_loc','channel_of_interest','compartments','measurement','nr_imgs', 'um_per_pixel']
-    
+    timelapse_settings = ['timelapse', 'timelapse_memory', 'timelapse_remove_transient', 'timelapse_mode', 'timelapse_objects', 'timelapse_displacement', 'timelapse_frame_limits', 'fps']
+    misc_settings = ['examples_to_plot', 'all_to_mip', 'pick_slice', 'skip_mode']
+    opperational_settings = ['preprocess', 'masks', 'randomize', 'batch_size', 'custom_regex', 'merge', 'normalize_plots', 'workers', 'plot', 'remove_background', 'lower_quantile']
+
     advanced_settings = timelapse_settings+misc_settings+opperational_settings
 
     # Toggle visibility of advanced settings
@@ -56,31 +52,6 @@ def toggle_advanced_settings():
         else:
             label.grid()  # Show the label
             widget.grid()  # Show the widget
-
-#@log_function_call
-def run_measure_gui(q, fig_queue, stop_requested):
-    global vars_dict
-    process_stdout_stderr(q)
-    try:
-        print('hello')
-        settings = check_measure_gui_settings(vars_dict)
-        measure_crop_wrapper(settings=settings, q=q, fig_queue=fig_queue)
-    except Exception as e:
-        q.put(f"Error during processing: {e}")
-        traceback.print_exc()
-    finally:
-        stop_requested.value = 1
-
-#@log_function_call
-def start_process(q, fig_queue):
-    global thread_control
-    if thread_control.get("run_thread") is not None:
-        initiate_abort()
-
-    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
-    thread_control["stop_requested"] = stop_requested
-    thread_control["run_thread"] = Process(target=run_measure_gui, args=(q, fig_queue, stop_requested))
-    thread_control["run_thread"].start()
 
 #@log_function_call
 def initiate_abort():
@@ -95,20 +66,52 @@ def initiate_abort():
         thread_control["run_thread"] = None
 
 #@log_function_call
-def initiate_measure_root(parent_frame):
-    global vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, variables, advanced_var, scrollable_frame
-    
+def run_mask_gui(q, fig_queue, stop_requested):
+    global vars_dict
+    process_stdout_stderr(q)
+    try:
+        settings = check_mask_gui_settings(vars_dict)
+        preprocess_generate_masks_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
+#@log_function_call
+def start_process(q, fig_queue):
+    global thread_control
+    if thread_control.get("run_thread") is not None:
+        initiate_abort()
+
+    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
+    thread_control["stop_requested"] = stop_requested
+    thread_control["run_thread"] = Process(target=run_mask_gui, args=(q, fig_queue, stop_requested))
+    thread_control["run_thread"].start()
+
+def import_settings(scrollable_frame):
+    global vars_dict
+
+    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    csv_settings = read_settings_from_csv(csv_file_path)
+    variables = mask_variables()
+    new_settings = update_settings_from_csv(variables, csv_settings)
+    vars_dict = generate_fields(new_settings, scrollable_frame)
+
+#@log_function_call
+def initiate_mask_root(parent_frame):
+    global vars_dict, q, canvas, fig_queue, canvas_widget, thread_control, advanced_var, scrollable_frame
+
     style = ttk.Style(parent_frame)
     set_dark_style(style)
     style_text_boxes(style)
     set_default_font(parent_frame, font_name="Helvetica", size=8)
-
     parent_frame.configure(bg='black')
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_columnconfigure(0, weight=1)
-
-    fig_queue = Queue()
     
+    fig_queue = Queue()
+
     # Initialize after_tasks if not already done
     if not hasattr(parent_frame, 'after_tasks'):
         parent_frame.after_tasks = []
@@ -156,9 +159,9 @@ def initiate_measure_root(parent_frame):
     # Settings Section
     settings_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(settings_frame, stretch="always")
-    settings_label = ttk.Label(settings_frame, text="Settings", background="black", foreground="white")
+    settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
-    scrollable_frame = ScrollableFrame(settings_frame, width=500)
+    scrollable_frame = ScrollableFrame(settings_frame, width=600)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
     settings_frame.grid_rowconfigure(1, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)
@@ -167,21 +170,23 @@ def initiate_measure_root(parent_frame):
     advanced_var = tk.BooleanVar(value=False)
     advanced_Toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
     advanced_Toggle.grid(row=48, column=0, pady=10, padx=10)
-    variables = measure_variables()
+    variables = mask_variables()
     vars_dict = generate_fields(variables, scrollable_frame)
     toggle_advanced_settings()
     vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
     
     # Button section
-    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode)
+    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode, font=('Helvetica', 10))
+    #CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name, app_func), font=('Helvetica', 12))
+
     test_mode_button.grid(row=47, column=1, pady=10, padx=10)
     import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
-    import_btn.grid(row=47, column=0, pady=20, padx=20)
-    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue), font=('Helvetica', 10))
-    run_button.grid(row=45, column=0, pady=20, padx=20)
+    import_btn.grid(row=47, column=0, pady=10, padx=10)
+    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
+    run_button.grid(row=45, column=0, pady=10, padx=10)
     abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
-    abort_button.grid(row=45, column=1, pady=20, padx=20)
-    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white") # Create progress field
+    abort_button.grid(row=45, column=1, pady=10, padx=10)
+    progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
     progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     # Plot Canvas Section
@@ -189,7 +194,7 @@ def initiate_measure_root(parent_frame):
     vertical_container.add(plot_frame, stretch="always")
     figure = Figure(figsize=(30, 4), dpi=100, facecolor='black')
     plot = figure.add_subplot(111)
-    plot.plot([], [])
+    plot.plot([], [])  # This creates an empty plot.
     plot.axis('off')
     canvas = FigureCanvasTkAgg(figure, master=plot_frame)
     canvas.get_tk_widget().configure(cursor='arrow', background='black', highlightthickness=0)
@@ -211,21 +216,21 @@ def initiate_measure_root(parent_frame):
     q = Queue()
     sys.stdout = StdoutRedirector(console_output)
     sys.stderr = StdoutRedirector(console_output)
-    
+
     _process_console_queue()
     _process_fig_queue()
     
     after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
     parent_frame.after_tasks.append(after_id)
-    
+
     return parent_frame, vars_dict
 
-def gui_measure():
+def gui_mask():
     root = tk.Tk()
     width = root.winfo_screenwidth()
     height = root.winfo_screenheight()
-    root.geometry(f"{width}x{height}") 
-    root.title("SpaCr: measure objects")
+    root.geometry(f"{width}x{height}")    
+    root.title("SpaCr: generate masks")
     
     # Clear previous content if any
     if hasattr(root, 'content_frame'):
@@ -238,9 +243,9 @@ def gui_measure():
         root.grid_rowconfigure(1, weight=1)
         root.grid_columnconfigure(0, weight=1)
     
-    initiate_measure_root(root.content_frame)
+    initiate_mask_root(root.content_frame)
     create_menu_bar(root)
     root.mainloop()
 
 if __name__ == "__main__":
-    gui_measure()
+    gui_mask()

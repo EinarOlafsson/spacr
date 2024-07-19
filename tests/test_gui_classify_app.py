@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.gui_classify_app import initiate_classify_root
+from spacr.app_classify import initiate_classify_root
 
 class TestInitiateClassifyRoot(unittest.TestCase):
     def setUp(self):

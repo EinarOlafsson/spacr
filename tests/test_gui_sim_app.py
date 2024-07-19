@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from spacr.gui_sim_app import initiate_sim_root
+from spacr.sim_app import initiate_sim_root
 
 class TestInitiateSimRoot(unittest.TestCase):
     def setUp(self):
