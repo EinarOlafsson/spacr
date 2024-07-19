@@ -19,6 +19,15 @@ from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, ch
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
+def import_settings(scrollable_frame):
+    global vars_dict
+
+    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    csv_settings = read_settings_from_csv(csv_file_path)
+    variables = measure_variables()
+    new_settings = update_settings_from_csv(variables, csv_settings)
+    vars_dict = generate_fields(new_settings, scrollable_frame)
+
 def toggle_test_mode():
     global vars_dict
     current_state = vars_dict['test_mode'][2].get()
@@ -166,11 +175,11 @@ def initiate_measure_root(parent_frame):
     # Button section
     test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode)
     test_mode_button.grid(row=47, column=1, pady=10, padx=10)
-    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame))
+    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
     import_btn.grid(row=47, column=0, pady=20, padx=20)
-    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
+    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue), font=('Helvetica', 10))
     run_button.grid(row=45, column=0, pady=20, padx=20)
-    abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
+    abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
     abort_button.grid(row=45, column=1, pady=20, padx=20)
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white") # Create progress field
     progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
@@ -211,10 +220,11 @@ def initiate_measure_root(parent_frame):
     
     return parent_frame, vars_dict
 
-
 def gui_measure():
     root = tk.Tk()
-    root.geometry("1000x800")
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    root.geometry(f"{width}x{height}") 
     root.title("SpaCr: measure objects")
     
     # Clear previous content if any

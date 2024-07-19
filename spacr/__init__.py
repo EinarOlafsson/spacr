@@ -15,7 +15,8 @@ from . import deep_spacr
 from . import annotate_app
 from . import annotate_app_v2
 from . import gui_utils
-from . import mask_app
+from . import gui_make_masks_app
+from . import gui_make_masks_app_v2
 from . import gui_mask_app
 from . import gui_measure_app
 from . import gui_classify_app
@@ -36,7 +37,8 @@ __all__ = [
     "annotate_app",
     "annotate_app_v2",
     "gui_utils",
-    "mask_app",
+    "gui_make_masks_app",
+    "gui_make_masks_app_v2",
     "gui_mask_app",
     "gui_measure_app",
     "gui_classify_app",

@@ -131,11 +131,11 @@ def initiate_classify_root(parent_frame):
     vars_dict = generate_fields(variables, scrollable_frame)
 
     # Button section
-    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import Settings", command=lambda: import_settings(scrollable_frame))
+    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
     import_btn.grid(row=47, column=0, pady=20, padx=20)
-    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
+    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue), font=('Helvetica', 10))
     run_button.grid(row=45, column=0, pady=20, padx=20)
-    abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
+    abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
     abort_button.grid(row=45, column=1, pady=20, padx=20)
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white") # Create progress field
     progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
@@ -177,9 +177,23 @@ def initiate_classify_root(parent_frame):
 
 def gui_classify():
     root = tk.Tk()
-    root.geometry("1000x800")
-    root.title("SpaCer: generate masks")
-    initiate_classify_root(root),
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    root.geometry(f"{width}x{height}") 
+    root.title("SpaCr: classify objects")
+    
+    # Clear previous content if any
+    if hasattr(root, 'content_frame'):
+        for widget in root.content_frame.winfo_children():
+            widget.destroy()
+        root.content_frame.grid_forget()
+    else:
+        root.content_frame = tk.Frame(root)
+        root.content_frame.grid(row=1, column=0, sticky="nsew")
+        root.grid_rowconfigure(1, weight=1)
+        root.grid_columnconfigure(0, weight=1)
+    
+    initiate_classify_root(root.content_frame)
     create_menu_bar(root)
     root.mainloop()
 
