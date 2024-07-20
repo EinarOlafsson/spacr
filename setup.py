@@ -10,40 +10,11 @@ def get_cuda_version():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
 
-cuda_version = get_cuda_version()
-
-deps = ['pyqtgraph>=0.13.7,<0.14',
-        'pyqt6>=6.7.1,<6.8',
-        'pyqt6.sip',
-        'qtpy>=2.4.1,<2.5',
-        'superqt>=0.6.7,<0.7',
-        'pyqtgraph',
-        'pyqt6',
-        'pyqt6.sip',
-        'qtpy',
-        'superqt']
-
-for dep in deps:
-    try:
-        subprocess.run(['pip', 'install', dep], check=True)
-    except subprocess.CalledProcessError:
-        pass
-
-if cuda_version:
-    dgl_dependency = f'dgl-cu{cuda_version}==0.9.1'
-else:
-    dgl_dependency = 'dgl==0.9.1'  # Fallback to CPU version if no CUDA is detected
-try:
-    subprocess.run(['pip', 'install', dgl_dependency], check=True)
-except subprocess.CalledProcessError:
-    dgl_dependency = 'dgl'
-
 # Ensure you have read the README.rst content into a variable, e.g., `long_description`
 with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 dependencies = [
-    dgl_dependency,
     'torch>=2.2.1,<3.0',
     'torchvision>=0.17.1,<1.0',
     'torch-geometric>=2.5.1,<3.0',
@@ -78,7 +49,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.1.12",
+    version="0.1.13",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
@@ -93,8 +64,6 @@ setup(
             'mask=spacr.gui_mask_app:gui_mask',
             'measure=spacr.gui_measure_app:gui_measure',
             'make_masks=spacr.gui_make_mask_app:gui_make_masks',
-            'make_masks2=spacr.gui_make_mask_app_v2:gui_make_masks',
-            'annotate=spacr.annotate_app_v2:gui_annotate',
             'classify=spacr.gui_classify_app:gui_classify',
             'sim=spacr.gui_sim_app:gui_sim',
             'spacr=spacr.gui:gui_app',
@@ -111,3 +80,31 @@ setup(
         "Operating System :: OS Independent",
     ]
 )
+
+cuda_version = get_cuda_version()
+
+if cuda_version:
+    dgl = f'dgl-cu{cuda_version}==0.9.1'
+else:
+    dgl = 'dgl==0.9.1'  # Fallback to CPU version if no CUDA is detected
+try:
+    subprocess.run(['pip', 'install', dgl], check=True)
+except subprocess.CalledProcessError:
+    subprocess.run(['pip', 'install', 'dgl'], check=True)
+
+deps = ['pyqtgraph>=0.13.7,<0.14',
+        'pyqt6>=6.7.1,<6.8',
+        'pyqt6.sip',
+        'qtpy>=2.4.1,<2.5',
+        'superqt>=0.6.7,<0.7',
+        'pyqtgraph',
+        'pyqt6',
+        'pyqt6.sip',
+        'qtpy',
+        'superqt']
+
+for dep in deps:
+    try:
+        subprocess.run(['pip', 'install', dep], check=True)
+    except subprocess.CalledProcessError:
+        pass
