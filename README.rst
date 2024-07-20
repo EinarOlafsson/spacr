@@ -23,9 +23,9 @@ Features
 
 -  **Object Measurements:** Measurements for each object including scikit-image-regionprops, intensity percentiles, shannon-entropy, pearsons and manders correlations, homogeneity, and radial distribution. Measurements are saved to a SQL database in object-level tables.
 
--  **Crop Images:** Objects (e.g., cells) can be saved as PNGs from the object area or bounding box area of each object. Object paths are saved in a SQL database that can be annotated and used to train CNNs/Transformer models for classification tasks.
+-  **Crop Images:** Save objects (cells, nuclei, pathogen, cytoplasm) as images. Object image paths are saved in a SQL database.
 
--  **Train CNNs or Transformers:** Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images. Train Torch models with IRM/ERM, checkpointing.
+-  **Train CNNs or Transformers:** Train Torch models to classify single object images.
 
 -  **Manual Annotation:** Supports manual annotation of single-cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
 
@@ -47,11 +47,11 @@ Before installing SpaCr on OSX ensure OpenMP is installed:
 ::
    brew install libomp
 
-SpaCr GUI requires Tkinter. On Linux, ensure Tkinter is installed. (Tkinter is included with the standard Python installation on macOS, and Windows)
+SpaCr GUI requires Tkinter. On Linux, ensure Tkinter is installed. (Tkinter is included with the standard Python installation on macOS, and Windows):
 ::
    sudo apt-get install python3-tk
 
-Install spacr with pip
+Install spacr with pip:
 ::
    pip install spacr
 

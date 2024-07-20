@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, create_dark_mode, style_text_boxes, create_menu_bar
+from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, set_dark_style, create_menu_bar
 
 class modify_masks:
 
@@ -864,7 +864,6 @@ class modify_masks:
 def initiate_mask_app_root(parent_frame):
     style = ttk.Style(parent_frame)
     set_dark_style(style)
-    style_text_boxes(style)
     set_default_font(parent_frame, font_name="Arial", size=8)
     
     container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
