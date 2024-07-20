@@ -11,7 +11,7 @@ from .app_measure import initiate_measure_root
 from .app_annotate import initiate_annotation_app_root
 from .app_make_masks import initiate_mask_app_root
 from .app_classify import initiate_classify_root
-from .gui_utils import CustomButton, style_text_boxes, create_menu_bar
+from .gui_utils import CustomButton, set_dark_style, create_menu_bar
 
 class MainApp(tk.Tk):
     def __init__(self):
@@ -22,7 +22,7 @@ class MainApp(tk.Tk):
         self.title("SpaCr GUI Collection")
         self.configure(bg="black")
         style = ttk.Style()
-        style_text_boxes(style)
+        set_dark_style(style)
 
         self.gui_apps = {
             "Mask": (initiate_mask_root, "Generate cellpose masks for cells, nuclei and pathogen images."),
@@ -117,7 +117,9 @@ class MainApp(tk.Tk):
             print(f"An error occurred while loading the logo: {e}")
             return False
         try:
-            logo_image = logo_image.resize((800, 800), Image.Resampling.LANCZOS)
+            screen_height = frame.winfo_screenheight()
+            new_height = int(screen_height // 4)
+            logo_image = logo_image.resize((new_height, new_height), Image.Resampling.LANCZOS)
             logo_photo = ImageTk.PhotoImage(logo_image)
             logo_label = tk.Label(frame, image=logo_photo, bg="black")
             logo_label.image = logo_photo  # Keep a reference to avoid garbage collection

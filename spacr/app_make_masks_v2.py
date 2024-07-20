@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 from pyqtgraph import GraphicsLayoutWidget, ViewBox, ImageItem, mkQApp
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, create_dark_mode, style_text_boxes, create_menu_bar
+from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, create_dark_mode, set_dark_style, create_menu_bar
 
 class ModifyMasks:
     def __init__(self, root, folder_path, scale_factor):
@@ -635,8 +635,6 @@ def initiate_mask_app_root(width, height):
     root = ThemedTk(theme=theme)
     style = ttk.Style(root)
     set_dark_style(style)
-
-    style_text_boxes(style)
     set_default_font(root, font_name="Arial", size=8)
     root.geometry(f"{width}x{height}")
     root.title("Mask App")

@@ -17,7 +17,7 @@ except AttributeError:
 
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, ToggleSwitch, CustomButton, ToolTip
-from .gui_utils import clear_canvas, main_thread_update_function, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, style_text_boxes
+from .gui_utils import clear_canvas, main_thread_update_function, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, set_dark_style
 from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv, create_menu_bar
 
 thread_control = {"run_thread": None, "stop_requested": False}
@@ -104,7 +104,6 @@ def initiate_mask_root(parent_frame):
 
     style = ttk.Style(parent_frame)
     set_dark_style(style)
-    style_text_boxes(style)
     set_default_font(parent_frame, font_name="Helvetica", size=8)
     parent_frame.configure(bg='black')
     parent_frame.grid_rowconfigure(0, weight=1)
@@ -151,7 +150,7 @@ def initiate_mask_root(parent_frame):
     for widget in parent_frame.winfo_children():
         widget.destroy()
 
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg='black')
     vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_columnconfigure(0, weight=1)
@@ -159,9 +158,11 @@ def initiate_mask_root(parent_frame):
     # Settings Section
     settings_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(settings_frame, stretch="always")
-    settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel")
+    settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black")
+    settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black", foreground="white")
+
     settings_label.grid(row=0, column=0, pady=10, padx=10)
-    scrollable_frame = ScrollableFrame(settings_frame, width=600)
+    scrollable_frame = ScrollableFrame(settings_frame, bg='black')
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
     settings_frame.grid_rowconfigure(1, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)
