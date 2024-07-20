@@ -12,10 +12,31 @@ def get_cuda_version():
 
 cuda_version = get_cuda_version()
 
+deps = ['pyqtgraph>=0.13.7,<0.14',
+        'pyqt6>=6.7.1,<6.8',
+        'pyqt6.sip',
+        'qtpy>=2.4.1,<2.5',
+        'superqt>=0.6.7,<0.7',
+        'pyqtgraph',
+        'pyqt6',
+        'pyqt6.sip',
+        'qtpy',
+        'superqt']
+
+for dep in deps:
+    try:
+        subprocess.run(['pip', 'install', dep], check=True)
+    except subprocess.CalledProcessError:
+        pass
+
 if cuda_version:
-    dgl_dependency = f'dgl-cu{cuda_version}==0.9.1'  # Specify the version of DGL compatible with your setup
+    dgl_dependency = f'dgl-cu{cuda_version}==0.9.1'
 else:
     dgl_dependency = 'dgl==0.9.1'  # Fallback to CPU version if no CUDA is detected
+try:
+    subprocess.run(['pip', 'install', dgl_dependency], check=True)
+except subprocess.CalledProcessError:
+    dgl_dependency = 'dgl'
 
 # Ensure you have read the README.rst content into a variable, e.g., `long_description`
 with open("README.rst", "r", encoding="utf-8") as fh:
@@ -52,11 +73,7 @@ dependencies = [
     'ttf_opensans>=2020.10.30',
     'customtkinter>=5.2.2,<6.0', 
     'biopython>=1.80,<2.0',
-    'lxml>=5.1.0,<6.0', 
-    'qtpy>=2.4.1,<2.5',
-    'superqt>=0.6.7,<0.7',
-    'pyqt6>=6.7.1,<6.8',
-    'pyqtgraph>=0.13.7,<0.14'
+    'lxml>=5.1.0,<6.0'
 ]
 
 setup(
@@ -80,11 +97,11 @@ setup(
             'annotate=spacr.annotate_app_v2:gui_annotate',
             'classify=spacr.gui_classify_app:gui_classify',
             'sim=spacr.gui_sim_app:gui_sim',
-            'gui=spacr.gui:gui_app',
+            'spacr=spacr.gui:gui_app',
         ],
     },
     extras_require={
-        'dev': ['pytest>=3.9'],
+        'dev': ['pytest>=3.9,<3.11'],
         'headless': ['opencv-python-headless'],
         'full': ['opencv-python'],
     },
