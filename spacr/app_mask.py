@@ -16,9 +16,10 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
+from .settings import set_default_settings_preprocess_generate_masks
 from .gui_utils import ScrollableFrame, StdoutRedirector, ToggleSwitch, CustomButton, ToolTip
-from .gui_utils import clear_canvas, main_thread_update_function, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, set_dark_style
-from .gui_utils import mask_variables, check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv, create_menu_bar
+from .gui_utils import clear_canvas, main_thread_update_function, set_dark_style, generate_fields, process_stdout_stderr, set_default_font, set_dark_style, convert_settings_dict_for_gui
+from .gui_utils import check_mask_gui_settings, preprocess_generate_masks_wrapper, read_settings_from_csv, update_settings_from_csv, create_menu_bar
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -37,10 +38,9 @@ def toggle_test_mode():
 def toggle_advanced_settings():
     global vars_dict
 
-    timelapse_settings = ['timelapse', 'timelapse_memory', 'timelapse_remove_transient', 'timelapse_mode', 'timelapse_objects', 'timelapse_displacement', 'timelapse_frame_limits', 'fps']
-    misc_settings = ['examples_to_plot', 'all_to_mip', 'pick_slice', 'skip_mode']
-    opperational_settings = ['preprocess', 'masks', 'randomize', 'batch_size', 'custom_regex', 'merge', 'normalize_plots', 'workers', 'plot', 'remove_background', 'lower_quantile']
-
+    timelapse_settings = ['timelapse','fps','timelapse_displacement','timelapse_memory','timelapse_frame_limits','timelapse_remove_transient','timelapse_mode','timelapse_objects']
+    misc_settings = ['all_to_mip','pick_slice','skip_mode','upscale','upscale_factor','adjust_cells','lower_percentile','filter','merge_pathogens','pathogen_model']
+    opperational_settings = ['examples_to_plot','normalize_plots','normalize','cmap','figuresize','plot','pathogen_FT','cell_FT','nucleus_FT','nucleus_CP_prob','nucleus_Signal_to_noise','nucleus_background','cell_CP_prob','cell_Signal_to_noise','cell_background','pathogen_CP_prob','pathogen_Signal_to_noise','pathogen_background','remove_background_pathogen','remove_background_nucleus','remove_background_cell','verbose','randomize','workers','metadata_type','custom_regex','test_images','batch_size','save','masks','preprocess']
     advanced_settings = timelapse_settings+misc_settings+opperational_settings
 
     # Toggle visibility of advanced settings
@@ -94,7 +94,8 @@ def import_settings(scrollable_frame):
 
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     csv_settings = read_settings_from_csv(csv_file_path)
-    variables = mask_variables()
+    settings = set_default_settings_preprocess_generate_masks({})
+    variables = convert_settings_dict_for_gui(settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
 
@@ -158,9 +159,7 @@ def initiate_mask_root(parent_frame):
     # Settings Section
     settings_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(settings_frame, stretch="always")
-    settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black")
     settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black", foreground="white")
-
     settings_label.grid(row=0, column=0, pady=10, padx=10)
     scrollable_frame = ScrollableFrame(settings_frame, bg='black')
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
@@ -170,25 +169,27 @@ def initiate_mask_root(parent_frame):
     # Create advanced settings checkbox
     advanced_var = tk.BooleanVar(value=False)
     advanced_Toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
-    advanced_Toggle.grid(row=48, column=0, pady=10, padx=10)
-    variables = mask_variables()
+    advanced_Toggle.grid(row=4, column=0, pady=10, padx=10)
+    settings = set_default_settings_preprocess_generate_masks({})
+    variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
     toggle_advanced_settings()
     vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
-    
-    # Button section
-    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode, font=('Helvetica', 10))
-    #CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name, app_func), font=('Helvetica', 12))
 
-    test_mode_button.grid(row=47, column=1, pady=10, padx=10)
-    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
-    import_btn.grid(row=47, column=0, pady=10, padx=10)
+    # Button section
+    btn_row = 1
     run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
-    run_button.grid(row=45, column=0, pady=10, padx=10)
+    run_button.grid(row=btn_row, column=0, pady=5, padx=5)
     abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
-    abort_button.grid(row=45, column=1, pady=10, padx=10)
+    abort_button.grid(row=btn_row, column=1, pady=5, padx=5)
+    btn_row += 1
+    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test", command=toggle_test_mode, font=('Helvetica', 10))
+    test_mode_button.grid(row=btn_row, column=0, pady=5, padx=5)
+    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
+    import_btn.grid(row=btn_row, column=1, pady=5, padx=5)
+    btn_row += 1
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
-    progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
+    progress_label.grid(row=btn_row, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     # Plot Canvas Section
     plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)

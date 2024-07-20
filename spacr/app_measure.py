@@ -13,9 +13,10 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, ToggleSwitch, ToolTip
-from .gui_utils import process_stdout_stderr, set_dark_style, set_default_font, generate_fields, main_thread_update_function, create_menu_bar
-from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, set_dark_style
+from .settings import get_measure_crop_settings
+from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, ToggleSwitch
+from .gui_utils import process_stdout_stderr, set_dark_style, set_default_font, generate_fields, main_thread_update_function, create_menu_bar, convert_settings_dict_for_gui
+from .gui_utils import measure_crop_wrapper, clear_canvas, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, set_dark_style
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -24,7 +25,8 @@ def import_settings(scrollable_frame):
 
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     csv_settings = read_settings_from_csv(csv_file_path)
-    variables = measure_variables()
+    settings = get_measure_crop_settings({})
+    variables = convert_settings_dict_for_gui(settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
 
@@ -167,23 +169,27 @@ def initiate_measure_root(parent_frame):
     # Create advanced settings checkbox
     advanced_var = tk.BooleanVar(value=False)
     advanced_Toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text="Advanced Settings", variable=advanced_var, command=toggle_advanced_settings)
-    advanced_Toggle.grid(row=48, column=0, pady=10, padx=10)
-    variables = measure_variables()
+    advanced_Toggle.grid(row=4, column=0, pady=10, padx=10)
+    settings = get_measure_crop_settings({})
+    variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
     toggle_advanced_settings()
     vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
     
     # Button section
-    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode)
-    test_mode_button.grid(row=47, column=1, pady=10, padx=10)
-    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
-    import_btn.grid(row=47, column=0, pady=20, padx=20)
+    btn_row = 1
     run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue), font=('Helvetica', 10))
-    run_button.grid(row=45, column=0, pady=20, padx=20)
+    run_button.grid(row=btn_row, column=0, pady=5, padx=5)
     abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
-    abort_button.grid(row=45, column=1, pady=20, padx=20)
+    abort_button.grid(row=btn_row, column=1, pady=5, padx=5)
+    btn_row += 1
+    test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test Mode", command=toggle_test_mode)
+    test_mode_button.grid(row=btn_row, column=0, pady=5, padx=5)
+    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
+    import_btn.grid(row=btn_row, column=1, pady=5, padx=5)
+    btn_row += 1
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white") # Create progress field
-    progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
+    progress_label.grid(row=btn_row, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     # Plot Canvas Section
     plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)
