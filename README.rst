@@ -41,30 +41,20 @@ Features
 
 Installation
 ------------
+If using Windows, swich to Linux its free, open-source and better.
 
-Requires Tkinter for graphical user interface features.
-
-Ubuntu
-~~~~~~
-
-Before installing SpaCr, ensure Tkinter is installed:
-
-(Tkinter is included with the standard Python installation on macOS, and Windows)
-
-On Linux:
-
+Before installing SpaCr on OSX ensure OpenMP is installed:
 ::
+   brew install libomp
 
+SpaCr GUI requires Tkinter. On Linux, ensure Tkinter is installed. (Tkinter is included with the standard Python installation on macOS, and Windows)
+::
    sudo apt-get install python3-tk
 
 Install spacr with pip
-
 ::
-
    pip install spacr
 
 Run spacr GUI:
-
 ::
-
-   gui
+   spacr
