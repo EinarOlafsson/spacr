@@ -188,7 +188,7 @@ class CustomButton(tk.Frame):
 
         # Detect screen height and calculate button dimensions
         screen_height = self.winfo_screenheight()
-        button_height = screen_height // 30
+        button_height = screen_height // 50
         button_width = button_height * 3
 
         self.canvas = tk.Canvas(self, width=button_width, height=button_height, highlightthickness=0, bg="black")
@@ -778,7 +778,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         return (label, entry, var)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
         var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
-        check = ToggleSwitch(frame, text=label_text, variable=var)  # Use ToggleSwitch class
+        check = ToggleSwitch(frame, text="", variable=var)  # Use ToggleSwitch class
         check.grid(column=1, row=row, sticky=tk.W, padx=5)
         return (label, check, var)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
@@ -791,10 +791,43 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     else:
         var = None  # Placeholder in case of an undefined var_type
         return (label, None, var)
+    
+def convert_settings_dict_for_gui(settings):
+    variables = {}
+    special_cases = {
+        'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
+        'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'magnification': ('combo', [20, 40, 60], 20),
+        'nucleus_channel': ('combo', [0, 1, 2, 3, None], None),
+        'cell_channel': ('combo', [0, 1, 2, 3, None], None),
+        'pathogen_channel': ('combo', [0, 1, 2, 3, None], None),
+        'timelapse_mode': ('combo', ['trackpy', 'btrack'], 'trackpy'),
+        'timelapse_objects': ('combo', ['cell', 'nucleus', 'pathogen', 'cytoplasm', None], None),
+        'model_type': ('combo', ['resnet50', 'other_model'], 'resnet50'),
+        'optimizer_type': ('combo', ['adamw', 'adam'], 'adamw'),
+        'schedule': ('combo', ['reduce_lr_on_plateau', 'step_lr'], 'reduce_lr_on_plateau'),
+        'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),
+        'normalize_by': ('combo', ['fov', 'png'], 'png'),
+    }
+    for key, value in settings.items():
+        if key in special_cases:
+            variables[key] = special_cases[key]
+        elif isinstance(value, bool):
+            variables[key] = ('check', None, value)
+        elif isinstance(value, int) or isinstance(value, float):
+            variables[key] = ('entry', None, value)
+        elif isinstance(value, str):
+            variables[key] = ('entry', None, value)
+        elif value is None:
+            variables[key] = ('entry', None, value)
+        elif isinstance(value, list):
+            variables[key] = ('entry', None, str(value))
+    return variables
 
 def mask_variables():
     variables = {
-        'src': ('entry', None, '/mnt/data/CellVoyager/40x/einar/mitotrackerHeLaToxoDsRed_20240224_123156/test_gui'),
+        'src': ('entry', None, 'path/to/images'),
+        'pathogen_model': ('entry', None, 'path/to/model'),
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
         'custom_regex': ('entry', None, None),
         'experiment': ('entry', None, 'exp'),
@@ -804,14 +837,17 @@ def mask_variables():
         'nucleus_background': ('entry', None, 100),
         'nucleus_Signal_to_noise': ('entry', None, 5),
         'nucleus_CP_prob': ('entry', None, 0),
+        'remove_background_nucleus': ('check', None, False),
         'cell_channel': ('combo', [0,1,2,3, None], 3),
         'cell_background': ('entry', None, 100),
         'cell_Signal_to_noise': ('entry', None, 5),
         'cell_CP_prob': ('entry', None, 0),
+        'remove_background_cell': ('check', None, False),
         'pathogen_channel': ('combo', [0,1,2,3, None], 2),
         'pathogen_background': ('entry', None, 100),
         'pathogen_Signal_to_noise': ('entry', None, 3),
         'pathogen_CP_prob': ('entry', None, 0),
+        'remove_background_pathogen': ('check', None, False),
         'preprocess': ('check', None, True),
         'masks': ('check', None, True),
         'examples_to_plot': ('entry', None, 1),
@@ -827,7 +863,7 @@ def mask_variables():
         'fps': ('entry', None, 2),
         'remove_background': ('check', None, True),
         'lower_quantile': ('entry', None, 0.01),
-        'merge': ('check', None, False),
+        #'merge': ('check', None, False),
         'normalize_plots': ('check', None, True),
         'all_to_mip': ('check', None, False),
         'pick_slice': ('check', None, False),
@@ -836,6 +872,11 @@ def mask_variables():
         'plot': ('check', None, True),
         'workers': ('entry', None, 30),
         'verbose': ('check', None, True),
+        'filter': ('check', None, True),
+        'merge_pathogens': ('check', None, True),
+        'adjust_cells': ('check', None, True),
+        'test_images': ('entry', None, 10),
+        'random_test': ('check', None, True),
     }
     return variables
 
@@ -856,7 +897,7 @@ def add_mask_gui_defaults(settings):
 
 def generate_fields(variables, scrollable_frame):
     vars_dict = {}
-    row = 0
+    row = 5
     tooltips = {
         "src": "Path to the folder containing the images.",
         "metadata_type": "Type of metadata to expect in the images. This will determine how the images are processed. If 'custom' is selected, you can provide a custom regex pattern to extract metadata from the image names",
