@@ -14,7 +14,7 @@
 SpaCr
 =====
 
-Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr). The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understand host clearance mechanisms and how pathogens evade them. SpaCr is a Python-based software package for generating single-cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.
+Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr). The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understanding host clearance mechanisms and how pathogens evade them. SpaCr is a Python-based software package for generating single-cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.
 
 Features
 --------
@@ -41,20 +41,21 @@ Features
 
 Installation
 ------------
-If using Windows, swich to Linux its free, open-source and better.
 
-Before installing SpaCr on OSX ensure OpenMP is installed:
-::
+If using Windows, switch to Linux—it's free, open-source, and better.
+
+Before installing SpaCr on OSX ensure OpenMP is installed::
+
    brew install libomp
 
-SpaCr GUI requires Tkinter. On Linux, ensure Tkinter is installed. (Tkinter is included with the standard Python installation on macOS, and Windows):
-::
+SpaCr GUI requires Tkinter. On Linux, ensure Tkinter is installed. (Tkinter is included with the standard Python installation on macOS and Windows)::
+
    sudo apt-get install python3-tk
 
-Install spacr with pip:
-::
+Install SpaCr with pip::
+
    pip install spacr
 
-Run spacr GUI:
-::
+Run SpaCr GUI::
+
    spacr
