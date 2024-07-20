@@ -15,8 +15,9 @@ except AttributeError:
     pass
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, set_dark_style, set_default_font, generate_fields, process_stdout_stderr, clear_canvas, main_thread_update_function
-from .gui_utils import classify_variables, check_classify_gui_settings, train_test_model_wrapper, read_settings_from_csv, update_settings_from_csv, set_dark_style, create_menu_bar
+from .settings import set_default_train_test_model
+from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, set_dark_style, set_default_font, generate_fields, process_stdout_stderr, clear_canvas, main_thread_update_function, convert_settings_dict_for_gui
+from .gui_utils import check_classify_gui_settings, train_test_model_wrapper, read_settings_from_csv, update_settings_from_csv, set_dark_style, create_menu_bar
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -64,7 +65,8 @@ def import_settings(scrollable_frame):
 
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     csv_settings = read_settings_from_csv(csv_file_path)
-    variables = classify_variables()
+    settings = set_default_train_test_model({})
+    variables = convert_settings_dict_for_gui(settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
 
@@ -126,18 +128,22 @@ def initiate_classify_root(parent_frame):
     settings_frame.grid_columnconfigure(0, weight=1)
 
     # Setup for user input fields (variables)
-    variables = classify_variables()
+    settings = set_default_train_test_model({})
+    variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
 
     # Button section
-    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
-    import_btn.grid(row=47, column=0, pady=20, padx=20)
+    btn_row = 1
     run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue), font=('Helvetica', 10))
-    run_button.grid(row=45, column=0, pady=20, padx=20)
+    run_button.grid(row=btn_row, column=0, pady=20, padx=20)
     abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
-    abort_button.grid(row=45, column=1, pady=20, padx=20)
+    abort_button.grid(row=btn_row, column=1, pady=20, padx=20)
+    btn_row += 1
+    import_btn = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame), font=('Helvetica', 10))
+    import_btn.grid(row=btn_row, column=0, pady=20, padx=20)
+    btn_row += 1
     progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white") # Create progress field
-    progress_label.grid(row=50, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
+    progress_label.grid(row=btn_row, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     # Plot Canvas Section
     plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)

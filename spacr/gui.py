@@ -100,7 +100,6 @@ class MainApp(tk.Tk):
 
         try:
             img_path = os.path.join(os.path.dirname(__file__), 'logo_spacr.png')
-            print(f"Trying to load logo from {img_path}")
             logo_image = Image.open(img_path)
         except (FileNotFoundError, Image.UnidentifiedImageError):
             print(f"File {img_path} not found or is not a valid image. Attempting to download from GitHub.")
