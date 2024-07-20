@@ -74,7 +74,7 @@ class MainApp(tk.Tk):
             app_func, app_desc = app_data
 
             # Create custom button with text
-            button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name: self.load_app(app_name, app_func), font=('Helvetica', 12))
+            button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), font=('Helvetica', 12))
             button.grid(row=i, column=0, pady=10, padx=10, sticky="w")
 
             description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 12))
