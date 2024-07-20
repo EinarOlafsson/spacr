@@ -13,7 +13,7 @@ from IPython.display import display, HTML
 from tkinter import font as tkFont
 from tkinter import TclError
 
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, style_text_boxes, create_menu_bar
+from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, set_dark_style, create_menu_bar
 
 class ImageApp:
     def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
@@ -372,7 +372,6 @@ global_image_refs = []
 def initiate_annotation_app_root(parent_frame):
     style = ttk.Style(parent_frame)
     set_dark_style(style)
-    style_text_boxes(style)
     set_default_font(parent_frame, font_name="Arial", size=8)
 
     parent_frame.configure(bg='black')

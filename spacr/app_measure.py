@@ -15,7 +15,7 @@ except AttributeError:
 from .logger import log_function_call
 from .gui_utils import ScrollableFrame, StdoutRedirector, CustomButton, ToggleSwitch, ToolTip
 from .gui_utils import process_stdout_stderr, set_dark_style, set_default_font, generate_fields, main_thread_update_function, create_menu_bar
-from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, style_text_boxes
+from .gui_utils import measure_variables, measure_crop_wrapper, clear_canvas, check_measure_gui_settings, read_settings_from_csv, update_settings_from_csv, set_dark_style
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -102,7 +102,6 @@ def initiate_measure_root(parent_frame):
     
     style = ttk.Style(parent_frame)
     set_dark_style(style)
-    style_text_boxes(style)
     set_default_font(parent_frame, font_name="Helvetica", size=8)
 
     parent_frame.configure(bg='black')
@@ -160,7 +159,7 @@ def initiate_measure_root(parent_frame):
     vertical_container.add(settings_frame, stretch="always")
     settings_label = ttk.Label(settings_frame, text="Settings", background="black", foreground="white")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
-    scrollable_frame = ScrollableFrame(settings_frame, width=500)
+    scrollable_frame = ScrollableFrame(settings_frame, bg='black')
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
     settings_frame.grid_rowconfigure(1, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)

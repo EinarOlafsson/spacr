@@ -10,7 +10,6 @@ from torchvision import models
 
 from tkinter import font as tkFont
 
-
 from .logger import log_function_call
 
 try:
@@ -147,7 +146,6 @@ def load_app(root, app_name, app_func):
     else:
         proceed_with_app(root, app_name, app_func)
 
-
 def create_menu_bar(root):
     from .app_mask import initiate_mask_root
     from .app_measure import initiate_measure_root
@@ -188,14 +186,19 @@ class CustomButton(tk.Frame):
         self.text = text
         self.command = command
 
-        self.canvas = tk.Canvas(self, width=150, height=50, highlightthickness=0, bg="black")
+        # Detect screen height and calculate button dimensions
+        screen_height = self.winfo_screenheight()
+        button_height = screen_height // 30
+        button_width = button_height * 3
+
+        self.canvas = tk.Canvas(self, width=button_width, height=button_height, highlightthickness=0, bg="black")
         self.canvas.grid(row=0, column=0)
 
-        self.button_bg = self.create_rounded_rectangle(0, 0, 150, 50, radius=20, fill="#800080")
+        self.button_bg = self.create_rounded_rectangle(0, 0, button_width, button_height, radius=20, fill="#800080")
 
         # Use the passed font or default to Helvetica if not provided
         self.font_style = font if font else tkFont.Font(family="Helvetica", size=12, weight=tkFont.NORMAL)
-        self.button_text = self.canvas.create_text(75, 25, text=self.text, fill="white", font=self.font_style)
+        self.button_text = self.canvas.create_text(button_width // 2, button_height // 2, text=self.text, fill="white", font=self.font_style)
 
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
@@ -333,38 +336,6 @@ def set_default_font(root, font_name="Helvetica", size=12):
     root.option_add("*TLabel.Font", default_font)
     root.option_add("*TEntry.Font", default_font)
 
-def check_and_download_font_v1():
-    font_name = "Helvetica"
-    font_dir = "fonts"
-    font_path = os.path.join(font_dir, "OpenSans-Regular.ttf")
-
-    # Check if the font is already available
-    available_fonts = list(tkFont.families())
-    if font_name not in available_fonts:
-        print(f"Font '{font_name}' not found. Downloading...")
-        if not os.path.exists(font_dir):
-            os.makedirs(font_dir)
-
-        if not os.path.exists(font_path):
-            url = "https://github.com/google/fonts/blob/main/apache/opensans/OpenSans-Regular.ttf?raw=true"
-            response = requests.get(url)
-            with open(font_path, "wb") as f:
-                f.write(response.content)
-
-        # Load the font
-        try:
-            tkFont.nametofont("TkDefaultFont").configure(family=font_name, size=10)
-            tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
-            tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
-        except tk.TclError:
-            tkFont.nametofont("TkDefaultFont").configure(family="Helvetica", size=10)
-            tkFont.nametofont("TkTextFont").configure(family="Helvetica", size=10)
-            tkFont.nametofont("TkHeadingFont").configure(family="Helvetica", size=12)
-    else:
-        tkFont.nametofont("TkDefaultFont").configure(family=font_name, size=10)
-        tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
-        tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
-
 def check_and_download_font():
     font_name = "Helvetica"
     font_dir = "fonts"
@@ -382,8 +353,6 @@ def check_and_download_font():
             response = requests.get(url)
             with open(font_path, "wb") as f:
                 f.write(response.content)
-
-        # Load the font
         try:
             tkFont.nametofont("TkDefaultFont").configure(family=font_name, size=10)
             tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
@@ -397,20 +366,7 @@ def check_and_download_font():
         tkFont.nametofont("TkTextFont").configure(family=font_name, size=10)
         tkFont.nametofont("TkHeadingFont").configure(family=font_name, size=12)
 
-def style_text_boxes_v1(style):
-    check_and_download_font()
-    font_style = tkFont.Font(family="Helvetica", size=10)  # Define the Helvetica font
-    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='#000000', foreground='#ffffff', font=font_style)
-    style.configure('TCombobox', fieldbackground='#000000', background='#000000', foreground='#ffffff', font=font_style)
-    style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)
-    style.map('Custom.TButton',
-              background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
-              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
-    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
-    style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
-    style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
-
-def style_text_boxes(style):
+def set_dark_style_v1(style):
     font_style = tkFont.Font(family="Helvetica", size=10) 
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)
     style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)
@@ -418,11 +374,31 @@ def style_text_boxes(style):
     style.map('Custom.TButton',
               background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
               foreground=[('active', '#ffffff'), ('disabled', '#888888')])
-    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='#000000', foreground='#ffffff', font=font_style)
+    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style)
     style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
     style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
 
-
+def set_dark_style(style):
+    font_style = tkFont.Font(family="Helvetica", size=10) 
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)  # Entry
+    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)  # Combobox
+    style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)  # Custom Button
+    style.map('Custom.TButton',
+              background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
+              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style) # Custom Label
+    style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)  # Checkbutton
+    style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
+    style.configure('TLabel', background='black', foreground='#ffffff', font=font_style) # Label
+    style.configure('TFrame', background='black') # Frame
+    style.configure('TPanedwindow', background='black') # PanedWindow
+    style.configure('TNotebook', background='black', tabmargins=[2, 5, 2, 0]) # Notebook
+    style.configure('TNotebook.Tab', background='black', foreground='#ffffff', padding=[5, 5], font=font_style)
+    style.map('TNotebook.Tab', background=[('selected', '#555555'), ('active', '#555555')])
+    style.configure('TButton', background='black', foreground='#ffffff', padding='5 5 5 5', font=font_style) # Button (regular)
+    style.map('TButton', background=[('active', '#555555'), ('disabled', '#333333')])
+    style.configure('Vertical.TScrollbar', background='black', troughcolor='black', bordercolor='black') # Scrollbar
+    style.configure('Horizontal.TScrollbar', background='black', troughcolor='black', bordercolor='black')
 
 def read_settings_from_csv(csv_file_path):
     settings = {}
@@ -461,36 +437,45 @@ def disable_interactivity(fig):
         for handler_id in list(handlers.keys()):
             fig.canvas.mpl_disconnect(handler_id)
 
-class ScrollableFrame(ttk.Frame):
+class ScrollableFrame_v1(ttk.Frame):
     def __init__(self, container, *args, bg='black', **kwargs):
         super().__init__(container, *args, **kwargs)
-        self.configure(style='TFrame')  # Ensure this uses the styled frame from dark mode
-        
-        canvas = tk.Canvas(self, bg=bg)  # Set canvas background to match dark mode
+        self.configure(style='TFrame')
+        screen_width = self.winfo_screenwidth()
+        frame_width = screen_width // 4  # Set the frame width to 1/4th of the screen width
+        canvas = tk.Canvas(self, bg=bg, width=frame_width)  # Set canvas background to match dark mode
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
-        
-        self.scrollable_frame = ttk.Frame(canvas, style='TFrame')  # Ensure it uses the styled frame
+        self.scrollable_frame = ttk.Frame(canvas, style='TFrame', padding=5)  # Ensure it uses the styled frame
         self.scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
-        
         canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-        
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-class StdoutRedirector_v1(object):
-    def __init__(self, text_widget):
-        self.text_widget = text_widget
-
-    def write(self, string):
-        self.text_widget.insert(tk.END, string)
-        self.text_widget.see(tk.END)
-
-    def flush(self):
-        pass
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, container, width=None, *args, bg='black', **kwargs):
+        super().__init__(container, *args, **kwargs)
+        self.configure(style='TFrame')
+        if width is None:
+            screen_width = self.winfo_screenwidth()
+            width = screen_width // 4
+        canvas = tk.Canvas(self, bg=bg, width=width)
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        
+        self.scrollable_frame = ttk.Frame(canvas, style='TFrame')
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        for child in self.scrollable_frame.winfo_children():
+            child.configure(bg='black')
 
 class StdoutRedirector:
     def __init__(self, text_widget):
@@ -993,12 +978,6 @@ def create_dark_mode(root, style, console_output):
     if console_output != None:
         console_output.config(bg=dark_bg, fg=light_text, insertbackground=light_text) #, font=("Helvetica", 12)
     root.configure(bg=dark_bg)
-    
-def set_dark_style(style):
-    style.configure('TFrame', background='black')
-    style.configure('TLabel', background='black', foreground='white')
-    style.configure('TEntry', background='black', foreground='white')
-    style.configure('TCheckbutton', background='black', foreground='white')
 
 ##@log_function_call   
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
