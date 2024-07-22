@@ -1,20 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import font as tkFont
+from tkinter import scrolledtext
 from PIL import Image, ImageTk
 import os
 import requests
-
-# Import your GUI apps
-from .app_mask import initiate_mask_root
-from .app_measure import initiate_measure_root
+from .gui_utils import CustomButton, set_dark_style, create_menu_bar, initiate_root, set_globals, main_thread_update_function, setup_frame, setup_console, setup_button_section, setup_plot_section, setup_settings_panel, process_fig_queue, process_console_queue
 from .app_annotate import initiate_annotation_app_root
 from .app_make_masks import initiate_mask_app_root
-from .app_classify import initiate_classify_root
-from .gui_utils import CustomButton, set_dark_style, create_menu_bar
 
 class MainApp(tk.Tk):
-    def __init__(self):
+    def __init__(self, default_app=None):
         super().__init__()
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
@@ -25,15 +20,27 @@ class MainApp(tk.Tk):
         set_dark_style(style)
 
         self.gui_apps = {
-            "Mask": (initiate_mask_root, "Generate cellpose masks for cells, nuclei and pathogen images."),
-            "Measure": (initiate_measure_root, "Measure single object intensity and morphological feature. Crop and save single object image"),
+            "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
+            "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
             "Annotate": (initiate_annotation_app_root, "Annotation single object images on a grid. Annotations are saved to database."),
             "Make Masks": (initiate_mask_app_root, "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
-            "Classify": (initiate_classify_root, "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images.")
+            "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images.")
         }
 
         self.selected_app = tk.StringVar()
         self.create_widgets()
+
+
+        if default_app == "Mask":
+            self.load_app(default_app, self.gui_apps[default_app][0])
+        elif default_app == "Measure":
+            self.load_app(default_app, self.gui_apps[default_app][1])
+        elif default_app == "Annotate":
+            self.load_app(default_app, self.gui_apps[default_app][2])
+        elif default_app == "Make Masks":
+            self.load_app(default_app, self.gui_apps[default_app][3])
+        elif default_app == "Classify":
+            self.load_app(default_app, self.gui_apps[default_app][4])
 
     def create_widgets(self):
         # Create the menu bar
