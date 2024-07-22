@@ -1308,13 +1308,13 @@ def toggle_settings():
 
     categories = {
         "General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification"],
-        "Nucleus": ["nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus"],
-        "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell"],
-        "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen"],
+        "Nucleus": ["nucleus_loc","nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size"],
+        "Cell": ["cytoplasm","cell_loc","cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size"],
+        "Pathogen": ["pathogen_loc","pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size"],
         "Preprocess": ["preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens"],
         "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects"],
-        "Plot": ["examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot"],
-        "Advanced": ["filter","adjust_cells","all_to_mip","pick_slice","skip_mode","upscale","upscale_factor","test_images", "batch_size", "save", "masks", "verbose", "randomize", "workers", "cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim", "cytoplasm_min_size", "representative_images", "homogeneity_distances", "max_workers", "compartments", "treatments", "cells", "pathogens", "channel_of_interest", "measurement", "nr_imgs", "um_per_pixel", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "png_dims", "png_size", "use_bounding_box", "save_png"]
+        "Plot": ["plot_filtration","examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot"],
+        "Advanced": ["treatment_loc","include_uninfected","merge_edge_pathogen_cells","filter","adjust_cells","all_to_mip","pick_slice","skip_mode","upscale","upscale_factor","test_images", "batch_size", "save", "masks", "verbose", "randomize", "workers", "cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim", "cytoplasm_min_size", "representative_images", "homogeneity_distances", "max_workers", "compartments", "treatments", "cells", "pathogens", "channel_of_interest", "measurement", "nr_imgs", "um_per_pixel", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "png_dims", "png_size", "use_bounding_box", "save_png"]
     }
 
     def toggle_category(settings, var):
