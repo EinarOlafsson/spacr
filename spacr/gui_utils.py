@@ -5,15 +5,14 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkFont
+from tkinter import filedialog
+from tkinter import Checkbutton
+from tkinter import font as tkFont
 from torchvision import models
-#from ttf_opensans import opensans
 from multiprocessing import Process, Value, Queue
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from tkinter import filedialog
-
-from tkinter import font as tkFont
 
 from .logger import log_function_call
 from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks
@@ -35,24 +34,6 @@ progress_label = None
 fig_queue = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
-
-class ScrollableFrame_v1(ttk.Frame):
-    def __init__(self, container, *args, bg='black', **kwargs):
-        super().__init__(container, *args, **kwargs)
-        self.configure(style='TFrame')
-        screen_width = self.winfo_screenwidth()
-        frame_width = screen_width // 4  # Set the frame width to 1/4th of the screen width
-        canvas = tk.Canvas(self, bg=bg, width=frame_width)  # Set canvas background to match dark mode
-        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
-        self.scrollable_frame = ttk.Frame(canvas, style='TFrame', padding=5)  # Ensure it uses the styled frame
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
 
 class ScrollableFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
@@ -409,9 +390,14 @@ def set_dark_style(style):
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)  # Entry
     style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)  # Combobox
     style.configure('Custom.TButton', padding='10 10 10 10', borderwidth=1, relief='solid', background='#008080', foreground='#ffffff', font=font_style)  # Custom Button
+    #style.map('Custom.TButton',
+    #         background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
+    #         foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+    style.configure('Custom.TButton', background='black', foreground='white', bordercolor='white', focusthickness=3, focuscolor='white', font=('Helvetica', 12))
     style.map('Custom.TButton',
-              background=[('active', '#66b2b2'), ('disabled', '#004d4d'), ('!disabled', '#008080')],
-              foreground=[('active', '#ffffff'), ('disabled', '#888888')])
+            background=[('active', 'black')],
+            foreground=[('active', 'white')],
+            bordercolor=[('active', 'white')])
     style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style)  # Custom Label
     style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)  # Checkbutton
     style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')])
@@ -754,7 +740,8 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         return (label, entry, var)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
         var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
-        check = ToggleSwitch(frame, text="", variable=var)  # Use ToggleSwitch class
+        #check = ToggleSwitch(frame, text="", variable=var)  # Use ToggleSwitch class
+        check = Checkbutton(frame, text="", variable=var)
         check.grid(column=1, row=row, sticky=tk.W, padx=5)
         return (label, check, var)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
@@ -962,35 +949,6 @@ def generate_fields(variables, scrollable_frame):
         
         row += 1
     return vars_dict
-
-def organize_settings_into_panes(settings_dict, parent_frame):
-    groups = {
-        "General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification"],
-        "Nucleus": ["nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob"],
-        "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob"],
-        "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob"],
-        "Preprocess": ["preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens"],
-        "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects"],
-        "Plot": ["examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot"],
-        "Advanced": ["test_images", "batch_size", "save", "masks", "verbose", "randomize", "workers"]
-    }
-
-    row = 0
-    for group_name, group_keys in groups.items():
-        pane = ttk.LabelFrame(parent_frame, text=group_name)#, style='Custom.TLabelFrame')
-
-        inner_row = 0
-        for key in group_keys:
-            if key in settings_dict:
-                label, widget, var = settings_dict[key]
-                label.grid_forget()
-                widget.grid_forget()
-                label.grid(row=inner_row, column=0, sticky=tk.W, padx=5, pady=5)
-                widget.grid(row=inner_row, column=1, sticky=tk.EW, padx=5, pady=5)
-                inner_row += 1
-
-        pane.grid(row=row, column=0, sticky="ew", padx=10, pady=5)  # Use grid for pane
-        row += 1
 
 class TextRedirector(object):
     def __init__(self, widget, queue):
@@ -1232,8 +1190,8 @@ def setup_settings_panel(vertical_container, settings_type='mask', settings_row=
 
     variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
-    toggle_settings()
     vars_dict['Test mode'] = (None, None, tk.BooleanVar(value=False))
+    toggle_settings()
     return scrollable_frame, vars_dict
 
 def setup_plot_section(vertical_container):
@@ -1255,17 +1213,21 @@ def setup_plot_section(vertical_container):
 def setup_button_section(scrollable_frame, settings_type='mask', btn_row=0, run=True, abort=True, test=True, import_btn=True, progress=True):
     global run_button, abort_button, test_mode_button, import_button, progress_label, q, fig_queue
     if run:
-        run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
+        #run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue))
+        run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue), style='Custom.TButton')
         run_button.grid(row=btn_row, column=0, pady=5, padx=5)
     if abort:
-        abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
+        #abort_button = CustomButton(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 10))
+        abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, style='Custom.TButton')
         abort_button.grid(row=btn_row, column=1, pady=5, padx=5)
     btn_row += 1
     if test:
-        test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test", command=toggle_test_mode, font=('Helvetica', 10))
+        #test_mode_button = CustomButton(scrollable_frame.scrollable_frame, text="Test", command=toggle_test_mode, font=('Helvetica', 10))
+        test_mode_button = ttk.Button(scrollable_frame.scrollable_frame, text="Test", command=toggle_test_mode, style='Custom.TButton')
         test_mode_button.grid(row=btn_row, column=0, pady=5, padx=5)
     if import_btn:
-        import_button = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame, settings_type), font=('Helvetica', 10))
+        #import_button = CustomButton(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame, settings_type), font=('Helvetica', 10))
+        import_button = ttk.Button(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(scrollable_frame, settings_type), style='Custom.TButton')
         import_button.grid(row=btn_row, column=1, pady=5, padx=5)
     btn_row += 1
     if progress:
@@ -1331,11 +1293,13 @@ def toggle_settings():
     # Create toggles for each category
     row = 5
     for category, settings in categories.items():
-        category_var = tk.IntVar(value=0)
-        vars_dict[category] = (None, None, category_var)
-        toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text=category, variable=category_var, command=lambda cat=settings, var=category_var: toggle_category(cat, var))
-        toggle.grid(row=row, column=0, pady=10, padx=10)
-        row += 1
+        if any(setting in vars_dict for setting in settings):
+            category_var = tk.IntVar(value=0)
+            vars_dict[category] = (None, None, category_var)
+            #toggle = ToggleSwitch(scrollable_frame.scrollable_frame, text=category, variable=category_var, command=lambda cat=settings, var=category_var: toggle_category(cat, var))
+            toggle = Checkbutton(scrollable_frame.scrollable_frame, text=category, variable=category_var, command=lambda cat=settings, var=category_var: toggle_category(cat, var), background="black", foreground="white", selectcolor="gray")
+            toggle.grid(row=row, column=0, pady=2, padx=2)
+            row += 1
 
     # Hide all settings initially
     for settings in categories.values():
@@ -1511,7 +1475,6 @@ def initiate_root(parent, settings_type='mask'):
     parent_frame.after_tasks.append(after_id)
     print("Root initialization complete")
     return parent_frame, vars_dict
-
 
 def start_gui_app(settings_type='mask'):
     global q, fig_queue, parent_frame, scrollable_frame, vars_dict, canvas, canvas_widget, progress_label
