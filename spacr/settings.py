@@ -27,7 +27,13 @@ def set_default_plot_merge_settings():
 
 def set_default_settings_preprocess_generate_masks(src, settings={}):
     # Main settings
-    settings['src'] = src
+    if src != None:
+        settings['src'] = src
+    else:
+        settings.setdefault('src', 'path')
+    if 'src' not in settings:
+        settings['src'] = 'path'
+
     settings.setdefault('preprocess', True)
     settings.setdefault('masks', True)
     settings.setdefault('save', True)
@@ -212,9 +218,12 @@ def get_umap_image_settings(settings={}):
 
 def get_measure_crop_settings(settings):
 
+    settings.setdefault('src', 'path')
+    
     # Test mode
     settings.setdefault('test_mode', False)
     settings.setdefault('test_nr', 10)
+    settings.setdefault('channels', [0,1,2,3])
 
     #measurement settings
     settings.setdefault('save_measurements',True)
@@ -260,7 +269,7 @@ def get_measure_crop_settings(settings):
 
     # Miscellaneous settings
     settings.setdefault('experiment', 'exp')
-    settings.setdefault('cells', 'HeLa')
+    settings.setdefault('cells', ['HeLa'])
     settings.setdefault('cell_loc', None)
     settings.setdefault('pathogens', ['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO'])
     settings.setdefault('pathogen_loc', [['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], ['c7', 'c8', 'c9', 'c10', 'c11', 'c12'], ['c13', 'c14', 'c15', 'c16', 'c17', 'c18'], ['c19', 'c20', 'c21', 'c22', 'c23', 'c24']])
@@ -304,6 +313,8 @@ def set_default_analyze_screen(settings):
 
 def set_default_train_test_model(settings):
     cores = os.cpu_count()-2
+
+    settings.setdefault('src','path')
     settings.setdefault('train',True)
     settings.setdefault('test',False)
     settings.setdefault('classes',['nc','pc'])

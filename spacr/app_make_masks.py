@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, set_dark_style, create_menu_bar
+from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, create_menu_bar, set_default_font
 
 class modify_masks:
 

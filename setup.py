@@ -44,12 +44,13 @@ dependencies = [
     'ttf_opensans>=2020.10.30',
     'customtkinter>=5.2.2,<6.0', 
     'biopython>=1.80,<2.0',
-    'lxml>=5.1.0,<6.0'
+    'lxml>=5.1.0,<6.0',
+    'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.1.20",
+    version="0.1.50",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
