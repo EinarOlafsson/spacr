@@ -617,6 +617,13 @@ def _measure_crop_core(index, time_ls, file, settings):
     start = time.time() 
     try:
         source_folder = os.path.dirname(settings['input_folder'])
+        #if not os.path.basename(source_folder).endswith('merged'):
+        #    source_folder = os.path.join(source_folder, 'merged')
+        #    print(f'changed source_folder to {source_folder}')
+
+        #if not os.path.exists(source_folder):
+        #    return
+
         file_name = os.path.splitext(file)[0]
         data = np.load(os.path.join(settings['input_folder'], file))
 
@@ -750,6 +757,15 @@ def _measure_crop_core(index, time_ls, file, settings):
             if isinstance(settings['crop_mode'], list):
                 crop_ls = settings['crop_mode']
                 size_ls = settings['png_size']
+                
+                if isinstance(size_ls[0], int):
+                    size_ls = [size_ls]
+                if len(crop_ls) > 1 and len(size_ls) == 1:
+                    size_ls = size_ls * len(crop_ls)
+                    
+                if len(crop_ls) != len(size_ls):
+                    print(f"Setting: size_ls: {settings['png_size']} should be a list of integers, or a list of lists of integers if crop_ls: {settings['crop_mode']} has multiple elements")
+                    
                 for crop_idx, crop_mode in enumerate(crop_ls):
                     width, height = size_ls[crop_idx]
                     if crop_mode == 'cell':
@@ -926,9 +942,14 @@ def measure_crop(settings):
     settings = get_measure_crop_settings(settings)
     settings = measure_test_mode(settings)
 
-    if not os.path.exists(settings['input_folder']):
-        print(f"Error: {settings['input_folder']} does not exist")
-        return
+    #src_fldr = settings['input_folder']
+    #if not os.path.basename(src_fldr).endswith('merged'):
+    #    settings['input_folder'] = os.path.join(src_fldr, 'merged')
+    #    print(f"changed input_folder to {src_fldr}")
+
+    #if not os.path.exists(settings['input_folder']):
+    #    print(f'input_folder: {settings["input_folder"]} does not exist')
+    #    return
     
     if settings['cell_mask_dim'] is None:
         settings['include_uninfected'] = True
