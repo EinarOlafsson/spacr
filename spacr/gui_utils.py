@@ -105,7 +105,6 @@ class ScrollableFrame(ttk.Frame):
         for child in self.scrollable_frame.winfo_children():
             child.configure(bg='black')
 
-
 class StdoutRedirector:
     def __init__(self, text_widget):
         self.text_widget = text_widget
@@ -1078,17 +1077,29 @@ def convert_settings_dict_for_gui(settings):
             variables[key] = ('entry', None, str(value))
     return variables
 
-def setup_settings_panel(vertical_container, settings_type='mask', frame_height=400, frame_width=600):
+def setup_settings_panel(vertical_container, settings_type='mask', frame_height=500, frame_width=1000):
     global vars_dict, scrollable_frame
     from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
 
+    print("Setting up settings panel")
+    
+    # Create settings frame
     settings_frame = tk.Frame(vertical_container, bg='black', height=frame_height, width=frame_width)
+    vertical_container.add(settings_frame, stretch="always")
+
+    # Add settings label
     settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black", foreground="white")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
-    vertical_container.add(settings_frame, stretch="always", sticky="nsew")
-    scrollable_frame = ScrollableFrame(settings_frame, bg='black')
+
+    # Create a ScrollableFrame inside the settings_frame
+    scrollable_frame = ScrollableFrame(settings_frame, bg='black', width=frame_width)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
 
+    # Configure the weights for resizing
+    settings_frame.grid_rowconfigure(1, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
+
+    # Load settings based on type
     if settings_type == 'mask':
         settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
     elif settings_type == 'measure':
@@ -1098,11 +1109,13 @@ def setup_settings_panel(vertical_container, settings_type='mask', frame_height=
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
 
+    # Generate fields for settings
     variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
 
-    settings_frame.grid_propagate(False)  # Prevent the frame from resizing to fit its content
+    print("Settings panel setup complete")
     return scrollable_frame, vars_dict
+
 
 def setup_plot_section(vertical_container):
     global canvas, canvas_widget
@@ -1479,7 +1492,7 @@ def initiate_root(parent, settings_type='mask'):
     q = Queue()
     fig_queue = Queue()
     parent_frame, vertical_container, horizontal_container = setup_frame(parent_frame)
-    scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type, frame_height=500, frame_width=1000)  # Adjust height and width as needed
+    scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type)  # Adjust height and width as needed
     progress_label = setup_button_section(horizontal_container, settings_type)
     canvas, canvas_widget = setup_plot_section(vertical_container)
     console_output = setup_console(vertical_container)
