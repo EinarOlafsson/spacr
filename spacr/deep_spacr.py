@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 from .logger import log_function_call
+from .utils import close_multiprocessing_processes, reset_mp
+#reset_mp()
+#close_multiprocessing_processes()
 
 def evaluate_model_core(model, loader, loader_name, epoch, loss_type):
     """
@@ -42,7 +45,6 @@ def evaluate_model_core(model, loader, loader_name, epoch, loss_type):
         for batch_idx, (data, target, _) in enumerate(loader, start=1):
             start_time = time.time()
             data, target = data.to(device), target.to(device).float()
-            #data, target = data.to(torch.float).to(device), target.to(device).float()
             output = model(data)
             loss += F.binary_cross_entropy_with_logits(output, target, reduction='sum').item()
             loss = calculate_loss(output, target, loss_type=loss_type)

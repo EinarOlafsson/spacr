@@ -12,8 +12,6 @@ from torchvision import models
 
 from multiprocessing import Process, Value, Queue, Manager, set_start_method
 import multiprocessing as mp
-#mp.set_start_method('spawn', force=True)
-
 
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
@@ -30,9 +28,6 @@ try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
-
-# Set multiprocessing start method to 'spawn'
-set_start_method('spawn', force=True)
 
 # Define global variables
 q = None
@@ -99,10 +94,17 @@ class ScrollableFrame(ttk.Frame):
         )
         canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
+        
+        canvas.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+        
         for child in self.scrollable_frame.winfo_children():
             child.configure(bg='black')
+
 
 class StdoutRedirector:
     def __init__(self, text_widget):
@@ -283,7 +285,7 @@ class ToolTip:
         self.tooltip_window.wm_overrideredirect(True)
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
         label = tk.Label(self.tooltip_window, text=self.text, background="yellow", relief='solid', borderwidth=1)
-        label.pack()
+        label.grid(row=0, column=0, padx=5, pady=5)
 
     def hide_tooltip(self, event):
         if self.tooltip_window:
@@ -653,7 +655,7 @@ def check_settings(vars_dict):
 
     for key, (label, widget, var) in vars_dict.items():
         if key not in expected_types:
-            if key not in ['General', 'Nucleus', 'Cell', 'Pathogen', 'Timelapse', 'Plot', 'Advanced', 'Test', 'Object Image', 'Annotate Data', 'Miscilanious', 'Test', 'Measurements']:
+            if key not in ["General","Nucleus","Cell","Pathogen","Timelapse","Plot","Object Image","Annotate Data","Measurements","Advanced","Miscellaneous","Test"]:
                 
                 q.put(f"Key {key} not found in expected types.")
                 continue
@@ -726,7 +728,8 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         var = None  # Placeholder in case of an undefined var_type
         return (label, None, var)
     
-def generate_fields(variables, scrollable_frame, row = 5):
+def generate_fields(variables, scrollable_frame):
+    row = 1
     vars_dict = {}
     tooltips = {
         "src": "Path to the folder containing the images.",
@@ -818,7 +821,6 @@ def generate_fields(variables, scrollable_frame, row = 5):
         # Add tooltip to the label if it exists in the tooltips dictionary
         if key in tooltips:
             ToolTip(label, tooltips[key])
-        
         row += 1
     return vars_dict
 
@@ -1076,19 +1078,16 @@ def convert_settings_dict_for_gui(settings):
             variables[key] = ('entry', None, str(value))
     return variables
 
-def setup_settings_panel(vertical_container, settings_type='mask', settings_row=0):
+def setup_settings_panel(vertical_container, settings_type='mask', frame_height=400, frame_width=600):
     global vars_dict, scrollable_frame
     from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
-    
-    settings_frame = tk.Frame(vertical_container, bg='black')
-    vertical_container.add(settings_frame, stretch="always")
+
+    settings_frame = tk.Frame(vertical_container, bg='black', height=frame_height, width=frame_width)
     settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black", foreground="white")
-    settings_label.grid(row=settings_row, column=0, pady=10, padx=10)
-    settings_row += 1
+    settings_label.grid(row=0, column=0, pady=10, padx=10)
+    vertical_container.add(settings_frame, stretch="always", sticky="nsew")
     scrollable_frame = ScrollableFrame(settings_frame, bg='black')
-    scrollable_frame.grid(row=settings_row, column=0, sticky="nsew")
-    settings_frame.grid_rowconfigure(settings_row, weight=1)
-    settings_frame.grid_columnconfigure(0, weight=1)
+    scrollable_frame.grid(row=1, column=0, sticky="nsew")
 
     if settings_type == 'mask':
         settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
@@ -1100,8 +1099,9 @@ def setup_settings_panel(vertical_container, settings_type='mask', settings_row=
         raise ValueError(f"Invalid settings type: {settings_type}")
 
     variables = convert_settings_dict_for_gui(settings)
-    vars_dict = generate_fields(variables, scrollable_frame, settings_row)
-    toggle_settings()
+    vars_dict = generate_fields(variables, scrollable_frame)
+
+    settings_frame.grid_propagate(False)  # Prevent the frame from resizing to fit its content
     return scrollable_frame, vars_dict
 
 def setup_plot_section(vertical_container):
@@ -1193,26 +1193,49 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
     
     raise Exception("Failed to download dataset after multiple attempts.")
 
-def setup_button_section(scrollable_frame, settings_type='mask', btn_row=0, settings_row=5, run=True, abort=True, download=True, import_btn=True, progress=True):
-    global run_button, abort_button, download_dataset_button, import_button, progress_label, q, fig_queue, var_dict
+def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, settings_row=5, run=True, abort=True, download=True, import_btn=True, progress=True):
+    global button_frame, run_button, abort_button, download_dataset_button, import_button, progress_label, q, fig_queue, vars_dict
+
+    button_frame = tk.Frame(horizontal_container, bg='black')
+    horizontal_container.add(button_frame, stretch="always", sticky="nsew")
+    button_frame.grid_rowconfigure(0, weight=0)
+    button_frame.grid_rowconfigure(1, weight=1)
+    button_frame.grid_columnconfigure(0, weight=1)
+
+    categories_label = ttk.Label(button_frame, text="Categories", style="Custom.TLabel", background="black", foreground="white")
+    categories_label.grid(row=0, column=0, pady=10, padx=10)
+
+    button_scrollable_frame = ScrollableFrame(button_frame, bg='black')
+    button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
+
+    button_scrollable_frame.scrollable_frame.grid_columnconfigure(0, weight=1, minsize=100)
+    button_scrollable_frame.scrollable_frame.grid_columnconfigure(1, weight=1, minsize=100)
+    button_scrollable_frame.scrollable_frame.grid_columnconfigure(2, weight=1, minsize=100)
+
     if run:
-        run_button = ttk.Button(scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), style='Custom.TButton')
-        run_button.grid(row=btn_row, column=0, pady=5, padx=5)
+        run_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), style='Custom.TButton')
+        run_button.grid(row=btn_row, column=0, pady=5, padx=5, sticky='ew')
     if abort:
-        abort_button = ttk.Button(scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, style='Custom.TButton')
-        abort_button.grid(row=btn_row, column=1, pady=5, padx=5)
+        abort_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, style='Custom.TButton')
+        abort_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
     btn_row += 1
     if download:
-        download_dataset_button = ttk.Button(scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset, style='Custom.TButton')
-        download_dataset_button.grid(row=btn_row, column=0, pady=5, padx=5)
+        download_dataset_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset, style='Custom.TButton')
+        download_dataset_button.grid(row=btn_row, column=0, pady=5, padx=5, sticky='ew')
     if import_btn:
-        import_button = ttk.Button(scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_row, settings_type), style='Custom.TButton')
-        import_button.grid(row=btn_row, column=1, pady=5, padx=5)
+        import_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_row, settings_type), style='Custom.TButton')
+        import_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
     btn_row += 1
     if progress:
-        progress_label = ttk.Label(scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
+        progress_label = ttk.Label(button_scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
         progress_label.grid(row=btn_row, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
+
+    # Call toggle_settings after vars_dict is initialized
+    if vars_dict is not None:
+        toggle_settings(button_scrollable_frame)
+
     return progress_label
+
 
 def setup_console(vertical_container):
     global console_output
@@ -1225,9 +1248,6 @@ def setup_console(vertical_container):
     console_output.grid(row=1, column=0, sticky="nsew")
     console_frame.grid_rowconfigure(1, weight=1)
     console_frame.grid_columnconfigure(0, weight=1)
-    # Temporarily avoid redirecting stdout and stderr
-    # sys.stdout = StdoutRedirector(console_output)
-    # sys.stderr = StdoutRedirector(console_output)
     print("Console setup complete")
     return console_output
 
@@ -1241,24 +1261,24 @@ def toggle_test_mode():
     else:
         test_mode_button.config(bg="gray")
 
-def toggle_settings():
-    global vars_dict, scrollable_frame
+def toggle_settings(button_scrollable_frame):
+    global vars_dict
 
     if vars_dict is None:
         raise ValueError("vars_dict is not initialized.")
-
+    
     categories = {
-        "General": ["src", "input_folder","metadata_type", "custom_regex", "experiment", "channels", "magnification"],
+        "General": ["src", "input_folder", "metadata_type", "custom_regex", "experiment", "channels", "magnification"],
         "Nucleus": ["nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
-        "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size","include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
-        "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim",],
-        "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects","compartments"],
-        "Plot": ["plot_filtration","examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot", ],
+        "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
+        "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
+        "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
+        "Plot": ["plot_filtration", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot"],
         "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
-        "Annotate Data":["treatment_loc","cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement","treatments", "representative_images", "um_per_pixel","nr_imgs"],
-        "Measurements": ["homogeneity","homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements"],
-        "Advanced": ["preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter","save", "masks", "verbose", "randomize", "max_workers", "workers"],
-        "Miscilanious": ["all_to_mip","pick_slice","skip_mode","upscale","upscale_factor"],
+        "Annotate Data": ["treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "representative_images", "um_per_pixel", "nr_imgs"],
+        "Measurements": ["homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements"],
+        "Advanced": ["preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "max_workers", "workers"],
+        "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
         "Test": ["test_mode", "test_images", "random_test", "test_nr"]
     }
 
@@ -1273,33 +1293,29 @@ def toggle_settings():
                     label.grid()
                     widget.grid()
 
-    # Create toggles for each category
-    row = 0
-    col = 3
-    for i, (category, settings) in enumerate(categories.items()):
+    row = 1
+    col = 2  # Start from column 2 to avoid overlap with buttons
+    category_idx = 0
+
+    for category, settings in categories.items():
         if any(setting in vars_dict for setting in settings):
             category_var = tk.IntVar(value=0)
             vars_dict[category] = (None, None, category_var)
-            toggle = Checkbutton(
-                scrollable_frame.scrollable_frame, 
+            toggle = ttk.Checkbutton(
+                button_scrollable_frame.scrollable_frame, 
                 text=category, 
                 variable=category_var, 
                 command=lambda cat=settings, var=category_var: toggle_category(cat, var),
-                background="black", 
-                foreground="white", 
-                selectcolor="gray",
-                anchor="w",  # Align the checkbox to the left
-                justify="left"  # Align the text to the right
+                style='TCheckbutton'
             )
-            toggle.grid(row=row, column=col, pady=2, padx=2, sticky="w")  # Sticky west to align to left
-            if i % 2 == 0:
+            toggle.grid(row=row, column=col, sticky="w", pady=2, padx=2)
+            col += 1
+            category_idx += 1
+
+            if category_idx % 4 == 0:  
                 row += 1
-            else:
-                col += 1
-            if row == 2:
-                row = 0
-            
-    # Hide all settings initially
+                col = 2  # Reset column to 2
+
     for settings in categories.values():
         for setting in settings:
             if setting in vars_dict:
@@ -1343,7 +1359,7 @@ def start_process(q, fig_queue, settings_type='mask'):
         thread_control["run_thread"] = Process(target=run_classify_gui, args=(settings, q, fig_queue, stop_requested))
     thread_control["run_thread"].start()
 
-def import_settings(settings_row, settings_type='mask'):
+def import_settings(settings_type='mask'):
     global vars_dict, scrollable_frame
     csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     csv_settings = read_settings_from_csv(csv_file_path)
@@ -1358,8 +1374,7 @@ def import_settings(settings_row, settings_type='mask'):
     
     variables = convert_settings_dict_for_gui(settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
-    #print(new_settings)
-    vars_dict = generate_fields(new_settings, scrollable_frame, settings_row)
+    vars_dict = generate_fields(new_settings, scrollable_frame)
 
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame
@@ -1400,13 +1415,19 @@ def setup_frame(parent_frame):
     parent_frame.configure(bg='black')
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_columnconfigure(0, weight=1)
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg='black')
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg='black')
     vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
-    parent_frame.grid_rowconfigure(0, weight=1)
-    parent_frame.grid_columnconfigure(0, weight=1)
-    return parent_frame, vertical_container
+    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, bg='black')
+    vertical_container.add(horizontal_container, stretch="always")
+    horizontal_container.grid_columnconfigure(0, weight=1)
+    horizontal_container.grid_columnconfigure(1, weight=1)
+    settings_frame = tk.Frame(horizontal_container, bg='black')
+    settings_frame.grid_rowconfigure(0, weight=0)
+    settings_frame.grid_rowconfigure(1, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
+    horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
+    return parent_frame, vertical_container, horizontal_container
 
-#@log_function_call
 def run_measure_gui(settings, q, fig_queue, stop_requested):
     process_stdout_stderr(q)
     try:
@@ -1441,7 +1462,7 @@ def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canv
     fig_queue = fig_queue_var
 
 def initiate_root(parent, settings_type='mask'):
-    global q, fig_queue, parent_frame, scrollable_frame, vars_dict, canvas, canvas_widget, progress_label
+    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label
     print("Initializing root with settings_type:", settings_type)
     parent_frame = parent
 
@@ -1457,10 +1478,9 @@ def initiate_root(parent, settings_type='mask'):
 
     q = Queue()
     fig_queue = Queue()
-    settings_row = 5
-    parent_frame, vertical_container = setup_frame(parent_frame)
-    scrollable_frame, vars_dict = setup_settings_panel(vertical_container, settings_type, settings_row)
-    progress_label = setup_button_section(scrollable_frame, settings_type, btn_row=0, settings_row=settings_row)
+    parent_frame, vertical_container, horizontal_container = setup_frame(parent_frame)
+    scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type, frame_height=500, frame_width=1000)  # Adjust height and width as needed
+    progress_label = setup_button_section(horizontal_container, settings_type)
     canvas, canvas_widget = setup_plot_section(vertical_container)
     console_output = setup_console(vertical_container)
     set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue)
@@ -1470,6 +1490,7 @@ def initiate_root(parent, settings_type='mask'):
     parent_frame.after_tasks.append(after_id)
     print("Root initialization complete")
     return parent_frame, vars_dict
+
 
 def cancel_after_tasks(frame):
     if hasattr(frame, 'after_tasks'):
