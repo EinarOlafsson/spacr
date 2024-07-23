@@ -73,6 +73,65 @@ from scipy import stats
 
 from .logger import log_function_call
 
+import os
+import signal
+import psutil
+import platform
+from multiprocessing import set_start_method, get_start_method
+
+def reset_mp():
+    current_method = get_start_method()
+    system = platform.system()
+    
+    if system == 'Windows':
+        if current_method != 'spawn':
+            set_start_method('spawn', force=True)
+    elif system in ('Linux', 'Darwin'):  # Darwin is macOS
+        if current_method != 'fork':
+            set_start_method('fork', force=True)
+
+def is_multiprocessing_process(process):
+    """ Check if the process is a multiprocessing process. """
+    try:
+        for cmd in process.cmdline():
+            if 'multiprocessing' in cmd:
+                return True
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        pass
+    return False
+
+def close_file_descriptors():
+    """ Close file descriptors and shared memory objects. """
+    import resource
+
+    soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+    for fd in range(3, soft):
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+
+def close_multiprocessing_processes():
+    """ Close all multiprocessing processes. """
+    current_pid = os.getpid()
+    for proc in psutil.process_iter(['pid', 'cmdline']):
+        try:
+            # Skip the current process
+            if proc.info['pid'] == current_pid:
+                continue
+            
+            # Check if the process is a multiprocessing process
+            if is_multiprocessing_process(proc):
+                proc.terminate()
+                proc.wait(timeout=5)  # Wait up to 5 seconds for the process to terminate
+                print(f"Terminated process {proc.info['pid']}")
+        
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
+            print(f"Failed to terminate process {proc.info['pid']}: {e}")
+
+    # Close file descriptors
+    close_file_descriptors()
+
 def check_mask_folder(src,mask_fldr):
     
     mask_folder = os.path.join(src,'norm_channel_stack',mask_fldr)
@@ -92,19 +151,14 @@ def check_mask_folder(src,mask_fldr):
 
 def smooth_hull_lines(cluster_data):
     hull = ConvexHull(cluster_data)
-
     # Extract vertices of the hull
     vertices = hull.points[hull.vertices]
-
     # Close the loop
     vertices = np.vstack([vertices, vertices[0, :]])
-
     # Parameterize the vertices
     tck, u = splprep(vertices.T, u=None, s=0.0)
-
     # Evaluate spline at new parameter values
     new_points = splev(np.linspace(0, 1, 100), tck)
-
     return new_points[0], new_points[1]
 
 def _gen_rgb_image(image, channels):
