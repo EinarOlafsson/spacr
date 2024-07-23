@@ -635,7 +635,7 @@ def initiate_mask_app_root(width, height):
     root = ThemedTk(theme=theme)
     style = ttk.Style(root)
     set_dark_style(style)
-    set_default_font(root, font_name="Arial", size=8)
+    #set_default_font(root, font_name="Arial", size=8)
     root.geometry(f"{width}x{height}")
     root.title("Mask App")
     create_menu_bar(root)

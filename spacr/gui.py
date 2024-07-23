@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import os
 import requests
+from multiprocessing import set_start_method
 from .gui_utils import set_dark_style, create_menu_bar, initiate_root
 from .app_annotate import initiate_annotation_app_root
 from .app_make_masks import initiate_mask_app_root
@@ -153,4 +154,5 @@ def gui_app():
     app.mainloop()
 
 if __name__ == "__main__":
+    set_start_method('spawn', force=True)
     gui_app()
