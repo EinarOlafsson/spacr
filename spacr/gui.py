@@ -1,10 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import scrolledtext
 from PIL import Image, ImageTk
 import os
 import requests
-from .gui_utils import CustomButton, set_dark_style, create_menu_bar, initiate_root, set_globals, main_thread_update_function, setup_frame, setup_console, setup_button_section, setup_plot_section, setup_settings_panel, process_fig_queue, process_console_queue
+from .gui_utils import set_dark_style, create_menu_bar, initiate_root
 from .app_annotate import initiate_annotation_app_root
 from .app_make_masks import initiate_mask_app_root
 
@@ -82,8 +81,7 @@ class MainApp(tk.Tk):
 
             # Create custom button with text
             #button = CustomButton(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), font=('Helvetica', 12))
-            button = ttk.Button(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func))
-
+            button = ttk.Button(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), style='Custom.TButton')
             button.grid(row=i, column=0, pady=10, padx=10, sticky="w")
 
             description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 12))

@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 from pyqtgraph import GraphicsLayoutWidget, ViewBox, ImageItem, mkQApp
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, set_default_font, create_dark_mode, set_dark_style, create_menu_bar
+from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, create_dark_mode, create_menu_bar, set_default_font
 
 class ModifyMasks:
     def __init__(self, root, folder_path, scale_factor):
