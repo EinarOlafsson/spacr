@@ -16,7 +16,7 @@ import requests
 from huggingface_hub import list_repo_files, hf_hub_download
 
 from .logger import log_function_call
-from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks
+from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -73,26 +73,39 @@ class spacrFrame(ttk.Frame):
             child.configure(bg='black')
 
 class spacrLabel(tk.Frame):
-    def __init__(self, parent, text="", font=None, style=None, **kwargs):
+    def __init__(self, parent, text="", font=None, style=None, align="right", **kwargs):
         label_kwargs = {k: v for k, v in kwargs.items() if k in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
         for key in label_kwargs.keys():
             kwargs.pop(key)
         super().__init__(parent, **kwargs)
         self.text = text
         self.kwargs = label_kwargs
+        self.align = align
         screen_height = self.winfo_screenheight()
         label_height = screen_height // 50
         label_width = label_height * 10
         self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=self.kwargs.get("background", "black"))
-        self.canvas.grid(row=0, column=0)
+        self.canvas.grid(row=0, column=0, sticky="ew")
+
         self.font_style = font if font else tkFont.Font(family=self.kwargs.get("font_family", "Helvetica"), size=self.kwargs.get("font_size", 12), weight=tkFont.NORMAL)
         self.style = style
+
+        if self.align == "center":
+            anchor_value = tk.CENTER
+            text_anchor = 'center'
+        else:  # default to right alignment
+            anchor_value = tk.E
+            text_anchor = 'e'
+
         if self.style:
             ttk_style = ttk.Style()
             ttk_style.configure(self.style, **label_kwargs)
-            self.label_text = ttk.Label(self.canvas, text=self.text, style=self.style)
+            self.label_text = ttk.Label(self.canvas, text=self.text, style=self.style, anchor=text_anchor, justify=text_anchor)
+            self.label_text.pack(fill=tk.BOTH, expand=True)
         else:
-            self.label_text = self.canvas.create_text(label_width // 2, label_height // 2, text=self.text, fill=self.kwargs.get("foreground", "white"), font=self.font_style, anchor=self.kwargs.get("anchor", "center"), justify=self.kwargs.get("justify", "center"))
+            self.label_text = self.canvas.create_text(label_width // 2 if self.align == "center" else label_width - 5, 
+                                                      label_height // 2, text=self.text, fill=self.kwargs.get("foreground", "white"), 
+                                                      font=self.font_style, anchor=anchor_value, justify=tk.RIGHT)
 
     def set_text(self, text):
         if self.style:
@@ -264,7 +277,6 @@ class spacrToolTip:
             self.tooltip_window.destroy()
         self.tooltip_window = None
 
-
 def initiate_abort():
     global thread_control
     if thread_control.get("stop_requested") is not None:
@@ -275,16 +287,6 @@ def initiate_abort():
         if thread_control["run_thread"].is_alive():
             thread_control["run_thread"].terminate()
         thread_control["run_thread"] = None
-
-def run_mask_gui(settings, q, fig_queue, stop_requested):
-    process_stdout_stderr(q)
-    try:
-        preprocess_generate_masks_wrapper(settings, q, fig_queue)
-    except Exception as e:
-        q.put(f"Error during processing: {e}")
-        traceback.print_exc()
-    finally:
-        stop_requested.value = 1
 
 def start_process(q, fig_queue, settings_type='mask'):
     global thread_control, vars_dict
@@ -301,6 +303,10 @@ def start_process(q, fig_queue, settings_type='mask'):
         thread_control["run_thread"] = Process(target=run_measure_gui, args=(settings, q, fig_queue, stop_requested))
     elif settings_type == 'classify':
         thread_control["run_thread"] = Process(target=run_classify_gui, args=(settings, q, fig_queue, stop_requested))
+    elif settings_type == 'sequencing':
+        thread_control["run_thread"] = Process(target=run_sequencing_gui, args=(settings, q, fig_queue, stop_requested))
+    elif settings_type == 'umap':
+        thread_control["run_thread"] = Process(target=run_umap_gui, args=(settings, q, fig_queue, stop_requested))
     thread_control["run_thread"].start()
 
 def import_settings(settings_type='mask'):
@@ -314,6 +320,10 @@ def import_settings(settings_type='mask'):
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
         settings = set_default_train_test_model(settings={})
+    elif settings_type == 'sequencing':
+        settings = get_analyze_reads_default_settings(settings={})
+    elif settings_type == 'umap':
+        settings = set_default_umap_image_settings(settings={})
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     
@@ -384,7 +394,9 @@ def create_menu_bar(root):
         "Measure": 'measure',
         "Annotate": initiate_annotation_app_root,
         "Make Masks": initiate_mask_app_root,
-        "Classify": 'classify'
+        "Classify": 'classify',
+        "Sequencing": 'sequencing',
+        "Umap": 'umap'
     }
 
     def load_app_wrapper(app_name, app_func):
@@ -429,6 +441,10 @@ def proceed_with_app(root, app_name, app_func):
         initiate_root(root.content_frame, 'measure')
     elif app_name == "Classify":
         initiate_root(root.content_frame, 'classify')
+    elif app_name == "Sequencing":
+        initiate_root(root.content_frame, 'sequencing')
+    elif app_name == "Umap":
+        initiate_root(root.content_frame, 'umap')
     elif app_name == "Annotate":
         gui_annotate()
     elif app_name == "Make Masks":
@@ -481,32 +497,39 @@ def parse_list(value):
     except (ValueError, SyntaxError):
         raise ValueError("Invalid format for list")
     
-# Create input field function ensuring all widgets are styled correctly
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
-    label = spacrLabel(frame, text=label_text, background="black", foreground="white")  # Apply Custom.TLabel style for labels
-    label.grid(column=0, row=row, sticky=tk.W, padx=5, pady=5)
-    
+    label_column = 0
+    widget_column = 1
+
+    # Configure the column widths
+    frame.grid_columnconfigure(label_column, weight=0)  # Allow the label column to expand
+    frame.grid_columnconfigure(widget_column, weight=1)  # Allow the widget column to expand
+
+    # Right-align the label text and the label itself
+    label = spacrLabel(frame, text=label_text, background="black", foreground="white", anchor='e', justify='right')
+    label.grid(column=label_column, row=row, sticky=tk.E, padx=(5, 2), pady=5)  # Align label to the right
+
     if var_type == 'entry':
         var = tk.StringVar(value=default_value)  # Set default value
         entry = ttk.Entry(frame, textvariable=var, style='TEntry')  # Apply TEntry style for entries
-        entry.grid(column=1, row=row, sticky=tk.EW, padx=5)
+        entry.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         return (label, entry, var)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
         var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
         check = spacrCheckbutton(frame, text="", variable=var, style='TCheckbutton')
-        check.grid(column=1, row=row, sticky=tk.W, padx=5)
+        check.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         return (label, check, var)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
         var = tk.StringVar(value=default_value)  # Set default value
         combo = ttk.Combobox(frame, textvariable=var, values=options, style='TCombobox')  # Apply TCombobox style
-        combo.grid(column=1, row=row, sticky=tk.EW, padx=5)
+        combo.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         if default_value:
             combo.set(default_value)
         return (label, combo, var)  # Return both the label and the combobox, and the variable
     else:
         var = None  # Placeholder in case of an undefined var_type
         return (label, None, var)
- 
+
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
     try:
         ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
@@ -562,6 +585,14 @@ def clear_canvas(canvas):
 
     # Redraw the now empty canvas without changing its size
     canvas.draw_idle()
+
+def my_show():
+    """
+    Replacement for plt.show() that queues figures instead of displaying them.
+    """
+    fig = plt.gcf()
+    fig_queue.put(fig)
+    plt.close(fig)
     
 def measure_crop_wrapper(settings, q, fig_queue):
     """
@@ -573,14 +604,6 @@ def measure_crop_wrapper(settings, q, fig_queue):
     - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
     """
 
-    def my_show():
-        """
-        Replacement for plt.show() that queues figures instead of displaying them.
-        """
-        fig = plt.gcf()
-        fig_queue.put(fig)  # Queue the figure for GUI display
-        plt.close(fig)  # Prevent the figure from being shown by plt.show()
-
     # Temporarily override plt.show
     original_show = plt.show
     plt.show = my_show
@@ -590,12 +613,11 @@ def measure_crop_wrapper(settings, q, fig_queue):
         spacr.measure.measure_crop(settings=settings)
     except Exception as e:
         errorMessage = f"Error during processing: {e}"
-        q.put(errorMessage)  # Send the error message to the GUI via the queue
+        q.put(errorMessage)
         traceback.print_exc()
     finally:
-        plt.show = original_show  # Restore the original plt.show function
+        plt.show = original_show  
         
-#@log_function_call
 def preprocess_generate_masks_wrapper(settings, q, fig_queue):
     """
     Wraps the measure_crop function to integrate with GUI processes.
@@ -606,14 +628,6 @@ def preprocess_generate_masks_wrapper(settings, q, fig_queue):
     - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
     """
 
-    def my_show():
-        """
-        Replacement for plt.show() that queues figures instead of displaying them.
-        """
-        fig = plt.gcf()
-        fig_queue.put(fig)  # Queue the figure for GUI display
-        plt.close(fig)  # Prevent the figure from being shown by plt.show()
-
     # Temporarily override plt.show
     original_show = plt.show
     plt.show = my_show
@@ -622,10 +636,40 @@ def preprocess_generate_masks_wrapper(settings, q, fig_queue):
         spacr.core.preprocess_generate_masks(src=settings['src'], settings=settings)
     except Exception as e:
         errorMessage = f"Error during processing: {e}"
-        q.put(errorMessage)  # Send the error message to the GUI via the queue
+        q.put(errorMessage)
         traceback.print_exc()
     finally:
-        plt.show = original_show  # Restore the original plt.show function
+        plt.show = original_show
+
+def sequencing_wrapper(settings, q, fig_queue):
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = my_show
+
+    try:
+        spacr.sequencing.analyze_reads(settings=settings)
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)
+        traceback.print_exc()
+    finally:
+        plt.show = original_show
+
+def umap_wrapper(settings, q, fig_queue):
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = my_show
+
+    try:
+        spacr.core.generate_image_umap(settings=settings)
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)
+        traceback.print_exc()
+    finally:
+        plt.show = original_show
 
 def train_test_model_wrapper(settings, q, fig_queue):
     """
@@ -751,7 +795,7 @@ def setup_frame(parent_frame):
 
 def setup_settings_panel(vertical_container, settings_type='mask', frame_height=500, frame_width=1000):
     global vars_dict, scrollable_frame
-    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, generate_fields
+    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields
 
     print("Setting up settings panel")
     
@@ -760,7 +804,7 @@ def setup_settings_panel(vertical_container, settings_type='mask', frame_height=
     vertical_container.add(settings_frame, stretch="always")
 
     # Add settings label
-    settings_label = spacrLabel(settings_frame, text="Settings", background="black", foreground="white")
+    settings_label = spacrLabel(settings_frame, text="Settings", background="black", foreground="white", anchor='center', justify='center', align="center")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
 
     # Create a spacrFrame inside the settings_frame
@@ -778,13 +822,16 @@ def setup_settings_panel(vertical_container, settings_type='mask', frame_height=
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
         settings = set_default_train_test_model(settings={})
+    elif settings_type == 'sequencing':
+        settings = get_analyze_reads_default_settings(settings={})
+    elif settings_type == 'umap':
+        settings = set_default_umap_image_settings(settings={})
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
 
     # Generate fields for settings
     variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
-
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
 
@@ -809,7 +856,7 @@ def setup_console(vertical_container):
     print("Setting up console frame")
     console_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(console_frame, stretch="always")
-    console_label = spacrLabel(console_frame, text="Console", background="black", foreground="white")
+    console_label = spacrLabel(console_frame, text="Console", background="black", foreground="white", anchor='center', justify='center', align="center")
     console_label.grid(row=0, column=0, pady=10, padx=10)
     console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='black', fg='white', insertbackground='white')
     console_output.grid(row=1, column=0, sticky="nsew")
@@ -824,8 +871,8 @@ def setup_progress_frame(vertical_container):
     vertical_container.add(progress_frame, stretch="always")
     label_frame = tk.Frame(progress_frame, bg='black')
     label_frame.grid(row=0, column=0, sticky="ew", pady=(5, 0), padx=10)
-    progress_label = spacrLabel(label_frame, text="Processing: 0%", background="black", foreground="white", font=('Helvetica', 12))
-    progress_label.grid(row=0, column=0, sticky="ew")
+    progress_label = spacrLabel(label_frame, text="Processing: 0%", background="black", foreground="white", font=('Helvetica', 12), anchor='w', justify='left', align="left")
+    progress_label.grid(row=0, column=0, sticky="w")
     progress_output = scrolledtext.ScrolledText(progress_frame, height=10, bg='black', fg='white', insertbackground='white')
     progress_output.grid(row=1, column=0, sticky="nsew")
     progress_frame.grid_rowconfigure(1, weight=1)
@@ -906,7 +953,7 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
     
     raise Exception("Failed to download dataset after multiple attempts.")
 
-def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, settings_row=5, run=True, abort=True, download=True, import_btn=True):
+def setup_button_section(horizontal_container, settings_type='mask', settings_row=5, run=True, abort=True, download=True, import_btn=True):
     global button_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
 
     button_frame = tk.Frame(horizontal_container, bg='black')
@@ -915,25 +962,34 @@ def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, 
     button_frame.grid_rowconfigure(1, weight=1)
     button_frame.grid_columnconfigure(0, weight=1)
 
-    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white", font=('Helvetica', 12))  # Increase font size
+    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white", font=('Helvetica', 12), anchor='center', justify='center', align="center")  # Increase font size
     categories_label.grid(row=0, column=0, pady=10, padx=10)
 
     button_scrollable_frame = spacrFrame(button_frame, bg='black')
     button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
 
+    btn_col = 0
+    btn_row = 1
+    
     if run:
         run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), font=('Helvetica', 12))
-        run_button.grid(row=btn_row, column=0, pady=5, padx=5, sticky='ew')
-    if abort:
+        run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        btn_row += 1
+
+    if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap']:
         abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 12))
-        abort_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
-    btn_row += 1
-    if download:
+        abort_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        btn_row += 1
+
+    if download and settings_type in ['mask']:
         download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset, font=('Helvetica', 12))
-        download_dataset_button.grid(row=btn_row, column=0, pady=5, padx=5, sticky='ew')
+        download_dataset_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        btn_row += 1
+
     if import_btn:
         import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_row, settings_type), font=('Helvetica', 12))
-        import_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
+        import_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+
     # Call toggle_settings after vars_dict is initialized
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
@@ -1034,6 +1090,36 @@ def process_console_queue():
     after_id = console_output.after(100, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
+def run_mask_gui(settings, q, fig_queue, stop_requested):
+    process_stdout_stderr(q)
+    try:
+        preprocess_generate_masks_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
+def run_sequencing_gui(settings, q, fig_queue, stop_requested):
+    process_stdout_stderr(q)
+    try:
+        sequencing_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
+def run_umap_gui(settings, q, fig_queue, stop_requested):
+    process_stdout_stderr(q)
+    try:
+        umap_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
 def run_measure_gui(settings, q, fig_queue, stop_requested):
     process_stdout_stderr(q)
     try:
@@ -1089,7 +1175,12 @@ def initiate_root(parent, settings_type='mask'):
     button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
     canvas, canvas_widget = setup_plot_section(vertical_container)
     console_output = setup_console(vertical_container)
-    progress_output = setup_progress_frame(vertical_container)
+
+    if settings_type in ['mask', 'measure', 'classify', 'sequencing']:
+        progress_output = setup_progress_frame(vertical_container)
+    else:
+        progress_output = None
+
     set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue)
     process_console_queue()
     process_fig_queue()
