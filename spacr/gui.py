@@ -24,7 +24,9 @@ class MainApp(tk.Tk):
             "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
             "Annotate": (initiate_annotation_app_root, "Annotation single object images on a grid. Annotations are saved to database."),
             "Make Masks": (initiate_mask_app_root, "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
-            "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images.")
+            "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
+            "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequensing data."),
+            "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embedings with datapoints represented as images.")
         }
 
         self.selected_app = tk.StringVar()
@@ -41,6 +43,10 @@ class MainApp(tk.Tk):
             self.load_app(default_app, self.gui_apps[default_app][3])
         elif default_app == "Classify":
             self.load_app(default_app, self.gui_apps[default_app][4])
+        elif default_app == "Sequencing":
+            self.load_app(default_app, self.gui_apps[default_app][5])
+        elif default_app == "Umap":
+            self.load_app(default_app, self.gui_apps[default_app][6])
 
     def create_widgets(self):
         # Create the menu bar

@@ -15,10 +15,11 @@ from . import deep_spacr
 from . import app_annotate
 from . import gui_utils
 from . import app_make_masks
-from . import app_make_masks_v2
 from . import app_mask
 from . import app_measure
 from . import app_classify
+from . import app_sequencing
+from . import app_umap
 from . import logger
 
 
@@ -40,6 +41,8 @@ __all__ = [
     "app_mask",
     "app_measure",
     "app_classify",
+    "app_sequencing",
+    "app_umap",
     "logger"
 ]
 
