@@ -13,7 +13,7 @@ from IPython.display import display, HTML
 from tkinter import font as tkFont
 from tkinter import TclError
 
-from .gui_utils import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
+from .gui_elements import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
 
 class ImageApp:
     def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
