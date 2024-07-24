@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, create_menu_bar, set_default_font
+from .gui_utils import ScrollableFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
 
 class modify_masks:
 
@@ -897,7 +897,7 @@ def initiate_mask_app_root(parent_frame):
         # Start the modify_masks application in the same root window
         app_instance = modify_masks(parent_frame, folder_path, scale_factor)
         
-    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=run_app)
+    run_button = spacrButton(scrollable_frame.scrollable_frame, text="Run", command=run_app)
     run_button.grid(row=row, column=0, columnspan=2, pady=10, padx=10)
 
     return parent_frame
