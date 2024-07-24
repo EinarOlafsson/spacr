@@ -1,4 +1,4 @@
-import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob
+import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, signal
 
 import numpy as np
 from cellpose import models as cp_models
@@ -72,12 +72,11 @@ from sklearn.cluster import KMeans
 from scipy import stats
 
 from .logger import log_function_call
-
-import os
-import signal
-import psutil
-import platform
 from multiprocessing import set_start_method, get_start_method
+
+import tkinter as tk
+from tkinter import ttk
+import tkinter.font as tkFont
 
 def reset_mp():
     current_method = get_start_method()

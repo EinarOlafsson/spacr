@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import os
-import requests
+import os, requests
 from multiprocessing import set_start_method
-from .gui_utils import set_dark_style, create_menu_bar, initiate_root, spacrButton
+from .gui_elements import spacrButton, create_menu_bar, set_dark_style
+from .gui_core import initiate_root
 from .app_annotate import initiate_annotation_app_root
 from .app_make_masks import initiate_mask_app_root
 

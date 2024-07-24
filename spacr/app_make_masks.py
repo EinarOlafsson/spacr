@@ -9,11 +9,8 @@ from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 import tkinter as tk
 from tkinter import ttk
-from ttkthemes import ThemedTk
 
-from .logger import log_function_call
-
-from .gui_utils import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
+from .gui_elements import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
 
 class modify_masks:
 
