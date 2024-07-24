@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 from pyqtgraph import GraphicsLayoutWidget, ViewBox, ImageItem, mkQApp
 
 from .logger import log_function_call
-from .gui_utils import ScrollableFrame, spacrButton, set_dark_style, create_dark_mode, create_menu_bar, set_default_font
+from .gui_utils import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
 
 class ModifyMasks:
     def __init__(self, root, folder_path, scale_factor):
@@ -635,7 +635,7 @@ def initiate_mask_app_root(width, height):
     root = ThemedTk(theme=theme)
     style = ttk.Style(root)
     set_dark_style(style)
-    #set_default_font(root, font_name="Arial", size=8)
+    set_default_font(root, font_name="Arial", size=8)
     root.geometry(f"{width}x{height}")
     root.title("Mask App")
     create_menu_bar(root)
@@ -643,7 +643,7 @@ def initiate_mask_app_root(width, height):
     container = tk.PanedWindow(root, orient=tk.HORIZONTAL)
     container.pack(fill=tk.BOTH, expand=True)
 
-    scrollable_frame = ScrollableFrame(container, bg='black')
+    scrollable_frame = spacrFrame(container, bg='black')
     container.add(scrollable_frame, stretch="always")
 
     vars_dict = {

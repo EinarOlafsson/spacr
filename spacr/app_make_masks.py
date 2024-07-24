@@ -13,7 +13,7 @@ from ttkthemes import ThemedTk
 
 from .logger import log_function_call
 
-from .gui_utils import ScrollableFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
+from .gui_utils import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
 
 class modify_masks:
 
@@ -869,7 +869,7 @@ def initiate_mask_app_root(parent_frame):
     container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
     container.pack(fill=tk.BOTH, expand=True)
 
-    scrollable_frame = ScrollableFrame(container, bg='black')
+    scrollable_frame = spacrFrame(container, bg='black')
     container.add(scrollable_frame, stretch="always")
 
     # Setup input fields
