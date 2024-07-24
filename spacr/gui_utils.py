@@ -36,72 +36,15 @@ fig_queue = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
-def set_light_mode_for_mac():
-    import platform, subprocess
-    if platform.system() == "Darwin":
-        try:
-            app_bundle_id = "com.yourcompany.yourapp"  # Replace with your app's actual bundle identifier
-            subprocess.run(["defaults", "write", app_bundle_id, "NSRequiresAquaSystemAppearance", "-bool", "true"], check=True)
-            print("Set light mode using defaults command")
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to set light mode using defaults command: {e}")
+class spacrCheckbutton(ttk.Checkbutton):
+    def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.text = text
+        self.variable = variable if variable else tk.BooleanVar()
+        self.command = command
+        self.configure(text=self.text, variable=self.variable, command=self.command, style='Spacr.TCheckbutton')
 
-def set_dark_style(style):
-    font_style = tkFont.Font(family="Helvetica", size=10)
-    
-    # Entry
-    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)
-    
-    # Combobox
-    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)
-    style.map('TCombobox', fieldbackground=[('readonly', 'black')], foreground=[('readonly', '#ffffff')])
-    
-    # Custom Button
-    style.configure('Custom.TButton', background='black', foreground='white', bordercolor='white', focusthickness=3, focuscolor='white', font=('Helvetica', 12))
-    style.map('Custom.TButton', background=[('active', 'teal'), ('!active', 'black')], foreground=[('active', 'white'), ('!active', 'white')], bordercolor=[('active', 'white'), ('!active', 'white')])
-    
-    # Custom Label
-    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style)
-    
-    # Checkbutton
-    style.configure('TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font=font_style)
-    style.map('TCheckbutton', background=[('selected', '#555555'), ('active', '#555555')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
-    
-    # General Label
-    style.configure('TLabel', background='black', foreground='#ffffff', font=font_style)
-    
-    # Frame
-    style.configure('TFrame', background='black')
-    
-    # PanedWindow
-    style.configure('TPanedwindow', background='black')
-    
-    # Notebook
-    style.configure('TNotebook', background='black', tabmargins=[2, 5, 2, 0])
-    style.configure('TNotebook.Tab', background='black', foreground='#ffffff', padding=[5, 5], font=font_style)
-    style.map('TNotebook.Tab', background=[('selected', '#555555'), ('active', '#555555')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
-    
-    # Button (regular)
-    style.configure('TButton', background='black', foreground='#ffffff', padding='5 5 5 5', font=font_style)
-    style.map('TButton', background=[('active', '#555555'), ('disabled', '#333333')])
-    
-    # Scrollbar
-    style.configure('Vertical.TScrollbar', background='black', troughcolor='black', bordercolor='black')
-    style.configure('Horizontal.TScrollbar', background='black', troughcolor='black', bordercolor='black')
-    
-    # LabelFrame
-    style.configure('Custom.TLabelFrame', font=('Helvetica', 10, 'bold'), background='black', foreground='white', relief='solid', borderwidth=1)
-    style.configure('Custom.TLabelFrame.Label', background='black', foreground='white', font=('Helvetica', 10, 'bold'))
-
-
-def set_default_font(root, font_name="Helvetica", size=12):
-    default_font = (font_name, size)
-    root.option_add("*Font", default_font)
-    root.option_add("*TButton.Font", default_font)
-    root.option_add("*TLabel.Font", default_font)
-    root.option_add("*TEntry.Font", default_font)
-
-class ScrollableFrame(ttk.Frame):
+class spacrFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
         super().__init__(container, *args, **kwargs)
         self.configure(style='TFrame')
@@ -128,21 +71,6 @@ class ScrollableFrame(ttk.Frame):
         
         for child in self.scrollable_frame.winfo_children():
             child.configure(bg='black')
-
-class StdoutRedirector:
-    def __init__(self, text_widget):
-        self.text_widget = text_widget
-
-    def write(self, string):
-        try:
-            if self.text_widget.winfo_exists():
-                self.text_widget.insert(tk.END, string)
-                self.text_widget.see(tk.END)
-        except tk.TclError:
-            pass  # Handle or log the error as needed
-
-    def flush(self):
-        pass
 
 class spacrLabel(tk.Frame):
     def __init__(self, parent, text="", font=None, style=None, **kwargs):
@@ -180,11 +108,16 @@ class spacrButton(tk.Frame):
         screen_height = self.winfo_screenheight()
         button_height = screen_height // 50
         button_width = button_height * 3
-        self.canvas = tk.Canvas(self, width=button_width, height=button_height, highlightthickness=0, bg="black")
+
+        # Increase the canvas size to accommodate the button and the rim
+        self.canvas = tk.Canvas(self, width=button_width + 4, height=button_height + 4, highlightthickness=0, bg="black")
         self.canvas.grid(row=0, column=0)
-        self.button_bg = self.create_rounded_rectangle(0, 0, button_width, button_height, radius=20, fill="#800080")
+
+        self.button_bg = self.create_rounded_rectangle(2, 2, button_width + 2, button_height + 2, radius=20, fill="#000000", outline="#ffffff")
+
         self.font_style = font if font else tkFont.Font(family="Helvetica", size=12, weight=tkFont.NORMAL)
-        self.button_text = self.canvas.create_text(button_width // 2, button_height // 2, text=self.text, fill="white", font=self.font_style)
+        self.button_text = self.canvas.create_text((button_width + 4) // 2, (button_height + 4) // 2, text=self.text, fill="white", font=self.font_style)
+
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
         self.bind("<Button-1>", self.on_click)
@@ -193,42 +126,56 @@ class spacrButton(tk.Frame):
         self.canvas.bind("<Button-1>", self.on_click)
 
     def on_enter(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill="#993399")
+        self.canvas.itemconfig(self.button_bg, fill="#008080")  # Teal color
 
     def on_leave(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill="#800080")
+        self.canvas.itemconfig(self.button_bg, fill="#000000")  # Black color
 
     def on_click(self, event=None):
         if self.command:
             self.command()
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):
-        points = [x1 + radius, y1, x1 + radius, y1, x2 - radius, y1, x2 - radius, y1, x2, y1, x2, y1 + radius, x2, y1 + radius, x2, y2 - radius, x2, y2 - radius, x2, y2, x2 - radius, y2, x2 - radius, y2, x1 + radius, y2, x1 + radius, y2, x1, y2, x1, y2 - radius, x1, y2 - radius, x1, y1 + radius, x1, y1 + radius, x1, y1]
+        points = [
+            x1 + radius, y1,
+            x1 + radius, y1,
+            x2 - radius, y1,
+            x2 - radius, y1,
+            x2, y1,
+            x2, y1 + radius,
+            x2, y1 + radius,
+            x2, y2 - radius,
+            x2, y2 - radius,
+            x2, y2,
+            x2 - radius, y2,
+            x2 - radius, y2,
+            x1 + radius, y2,
+            x1 + radius, y2,
+            x1, y2,
+            x1, y2 - radius,
+            x1, y2 - radius,
+            x1, y1 + radius,
+            x1, y1 + radius,
+            x1, y1
+        ]
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
-class ToggleSwitch(ttk.Frame):
+
+class spacrSwitch(ttk.Frame):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.text = text
         self.variable = variable if variable else tk.BooleanVar()
         self.command = command
-        
         self.canvas = tk.Canvas(self, width=40, height=20, highlightthickness=0, bd=0, bg="black")
         self.canvas.grid(row=0, column=1, padx=(10, 0))
-        
-        # Background rounded rectangle with smaller dimensions and no outline
         self.switch_bg = self.create_rounded_rectangle(2, 2, 38, 18, radius=9, outline="", fill="#fff")
-
-        # Switch ball with no outline
         self.switch = self.canvas.create_oval(4, 4, 16, 16, outline="", fill="#800080")  # Purple initially
-        
         self.label = spacrLabel(self, text=self.text, background="black", foreground="white")
         self.label.grid(row=0, column=0, padx=(0, 10))
-        
         self.bind("<Button-1>", self.toggle)
         self.canvas.bind("<Button-1>", self.toggle)
         self.label.bind("<Button-1>", self.toggle)
-        
         self.update_switch()
 
     def toggle(self, event=None):
@@ -294,7 +241,7 @@ class ToggleSwitch(ttk.Frame):
 
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
-class ToolTip:
+class spacrToolTip:
     def __init__(self, widget, text):
         self.widget = widget
         self.text = text
@@ -308,13 +255,125 @@ class ToolTip:
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(self.tooltip_window, text=self.text, background="yellow", relief='solid', borderwidth=1)
+        self.tooltip_window.configure(bg='black')
+        label = tk.Label(self.tooltip_window, text=self.text, background="#333333", foreground="white", relief='flat', borderwidth=0)
         label.grid(row=0, column=0, padx=5, pady=5)
 
     def hide_tooltip(self, event):
         if self.tooltip_window:
             self.tooltip_window.destroy()
         self.tooltip_window = None
+
+
+def initiate_abort():
+    global thread_control
+    if thread_control.get("stop_requested") is not None:
+        thread_control["stop_requested"].value = 1
+
+    if thread_control.get("run_thread") is not None:
+        thread_control["run_thread"].join(timeout=5)
+        if thread_control["run_thread"].is_alive():
+            thread_control["run_thread"].terminate()
+        thread_control["run_thread"] = None
+
+def run_mask_gui(settings, q, fig_queue, stop_requested):
+    process_stdout_stderr(q)
+    try:
+        preprocess_generate_masks_wrapper(settings, q, fig_queue)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
+def start_process(q, fig_queue, settings_type='mask'):
+    global thread_control, vars_dict
+    from .settings import check_settings
+
+    settings = check_settings(vars_dict)
+    if thread_control.get("run_thread") is not None:
+        initiate_abort()
+    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
+    thread_control["stop_requested"] = stop_requested
+    if settings_type == 'mask':
+        thread_control["run_thread"] = Process(target=run_mask_gui, args=(settings, q, fig_queue, stop_requested))
+    elif settings_type == 'measure':
+        thread_control["run_thread"] = Process(target=run_measure_gui, args=(settings, q, fig_queue, stop_requested))
+    elif settings_type == 'classify':
+        thread_control["run_thread"] = Process(target=run_classify_gui, args=(settings, q, fig_queue, stop_requested))
+    thread_control["run_thread"].start()
+
+def import_settings(settings_type='mask'):
+    global vars_dict, scrollable_frame
+    from .settings import generate_fields
+    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    csv_settings = read_settings_from_csv(csv_file_path)
+    if settings_type == 'mask':
+        settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
+    elif settings_type == 'measure':
+        settings = get_measure_crop_settings(settings={})
+    elif settings_type == 'classify':
+        settings = set_default_train_test_model(settings={})
+    else:
+        raise ValueError(f"Invalid settings type: {settings_type}")
+    
+    variables = convert_settings_dict_for_gui(settings)
+    new_settings = update_settings_from_csv(variables, csv_settings)
+    vars_dict = generate_fields(new_settings, scrollable_frame)
+
+def set_dark_style(style):
+    font_style = tkFont.Font(family="Helvetica", size=24)
+    
+    # Entry
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)
+    
+    # Combobox
+    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)
+    style.map('TCombobox', fieldbackground=[('readonly', 'black')], foreground=[('readonly', '#ffffff')])
+    
+    # Custom Button
+    style.configure('Custom.TButton', background='black', foreground='white', bordercolor='white', focusthickness=3, focuscolor='white', font=('Helvetica', 12))
+    style.map('Custom.TButton', background=[('active', 'teal'), ('!active', 'black')], foreground=[('active', 'white'), ('!active', 'white')], bordercolor=[('active', 'white'), ('!active', 'white')])
+    
+    # Custom Label
+    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style)
+    
+    # Checkbutton
+    style.configure('Spacr.TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font="15")
+    style.map('Spacr.TCheckbutton', background=[('selected', 'black'), ('active', 'black')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
+
+    # General Label
+    style.configure('TLabel', background='black', foreground='#ffffff', font=font_style)
+    
+    # Frame
+    style.configure('TFrame', background='black')
+    
+    # PanedWindow
+    style.configure('TPanedwindow', background='black')
+    
+    # Notebook
+    style.configure('TNotebook', background='black', tabmargins=[2, 5, 2, 0])
+    style.configure('TNotebook.Tab', background='black', foreground='#ffffff', padding=[5, 5], font=font_style)
+    style.map('TNotebook.Tab', background=[('selected', '#555555'), ('active', '#555555')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
+    
+    # Button (regular)
+    style.configure('TButton', background='black', foreground='#ffffff', padding='5 5 5 5', font=font_style)
+    style.map('TButton', background=[('active', '#555555'), ('disabled', '#333333')])
+    
+    # Scrollbar
+    style.configure('Vertical.TScrollbar', background='black', troughcolor='black', bordercolor='black')
+    style.configure('Horizontal.TScrollbar', background='black', troughcolor='black', bordercolor='black')
+    
+    # LabelFrame
+    style.configure('Custom.TLabelFrame', font=('Helvetica', 10, 'bold'), background='black', foreground='white', relief='solid', borderwidth=1)
+    style.configure('Custom.TLabelFrame.Label', background='black', foreground='white', font=('Helvetica', 10, 'bold'))
+
+def set_default_font(root, font_name="Helvetica", size=12):
+    default_font = (font_name, size)
+    root.option_add("*Font", default_font)
+    root.option_add("*TButton.Font", default_font)
+    root.option_add("*TLabel.Font", default_font)
+    root.option_add("*TEntry.Font", default_font)
 
 def create_menu_bar(root):
     from .app_annotate import initiate_annotation_app_root
@@ -422,311 +481,6 @@ def parse_list(value):
     except (ValueError, SyntaxError):
         raise ValueError("Invalid format for list")
     
-
-def check_settings(vars_dict):
-    global q
-    settings = {}
-    # Define the expected types for each key, including None where applicable
-    expected_types = {
-        "src": str,
-        "metadata_type": str,
-        "custom_regex": (str, type(None)),
-        "experiment": str,
-        "channels": list,
-        "magnification": int,
-        "nucleus_channel": (int, type(None)),
-        "nucleus_background": int,
-        "nucleus_Signal_to_noise": float,
-        "nucleus_CP_prob": float,
-        "nucleus_FT": float,
-        "cell_channel": (int, type(None)),
-        "cell_background": (int, float),
-        "cell_Signal_to_noise": (int, float),
-        "cell_CP_prob": (int, float),
-        "cell_FT": (int, float),
-        "pathogen_channel": (int, type(None)),
-        "pathogen_background": (int, float),
-        "pathogen_Signal_to_noise": (int, float),
-        "pathogen_CP_prob": (int, float),
-        "pathogen_FT": (int, float),
-        "preprocess": bool,
-        "masks": bool,
-        "examples_to_plot": int,
-        "randomize": bool,
-        "batch_size": int,
-        "timelapse": bool,
-        "timelapse_displacement": int,
-        "timelapse_memory": int,
-        "timelapse_frame_limits": list,  # This can be a list of lists
-        "timelapse_remove_transient": bool,
-        "timelapse_mode": str,
-        "timelapse_objects": list,
-        "fps": int,
-        "remove_background": bool,
-        "lower_percentile": (int, float),
-        "merge_pathogens": bool,
-        "normalize_plots": bool,
-        "all_to_mip": bool,
-        "pick_slice": bool,
-        "skip_mode": str,
-        "save": bool,
-        "plot": bool,
-        "workers": int,
-        "verbose": bool,
-        "input_folder": str,
-        "cell_mask_dim": int,
-        "cell_min_size": int,
-        "cytoplasm_min_size": int,
-        "nucleus_mask_dim": int,
-        "nucleus_min_size": int,
-        "pathogen_mask_dim": int,
-        "pathogen_min_size": int,
-        "save_png": bool,
-        "crop_mode": list,
-        "use_bounding_box": bool,
-        "png_size": list,  # This can be a list of lists
-        "normalize": bool,
-        "png_dims": list,
-        "normalize_by": str,
-        "save_measurements": bool,
-        "representative_images": bool,
-        "plot_filtration": bool,
-        "include_uninfected": bool,
-        "dialate_pngs": bool,
-        "dialate_png_ratios": list,
-        "max_workers": int,
-        "cells": list,
-        "cell_loc": list,
-        "pathogens": list,
-        "pathogen_loc": (list, list),  # This can be a list of lists
-        "treatments": list,
-        "treatment_loc": (list, list),  # This can be a list of lists
-        "channel_of_interest": int,
-        "compartments": list,
-        "measurement": str,
-        "nr_imgs": int,
-        "um_per_pixel": (int, float),
-        # Additional settings based on provided defaults
-        "include_noninfected": bool,
-        "include_multiinfected": bool,
-        "include_multinucleated": bool,
-        "filter_min_max": (list, type(None)),
-        "channel_dims": list,
-        "backgrounds": list,
-        "outline_thickness": int,
-        "outline_color": str,
-        "overlay_chans": list,
-        "overlay": bool,
-        "normalization_percentiles": list,
-        "print_object_number": bool,
-        "nr": int,
-        "figuresize": int,
-        "cmap": str,
-        "test_mode": bool,
-        "test_images": int,
-        "remove_background_cell": bool,
-        "remove_background_nucleus": bool,
-        "remove_background_pathogen": bool,
-        "pathogen_model": (str, type(None)),
-        "filter": bool,
-        "upscale": bool,
-        "upscale_factor": float,
-        "adjust_cells": bool,
-        "row_limit": int,
-        "tables": list,
-        "visualize": str,
-        "image_nr": int,
-        "dot_size": int,
-        "n_neighbors": int,
-        "min_dist": float,
-        "metric": str,
-        "eps": float,
-        "min_samples": int,
-        "filter_by": str,
-        "img_zoom": float,
-        "plot_by_cluster": bool,
-        "plot_cluster_grids": bool,
-        "remove_cluster_noise": bool,
-        "remove_highly_correlated": bool,
-        "log_data": bool,
-        "black_background": bool,
-        "remove_image_canvas": bool,
-        "plot_outlines": bool,
-        "plot_points": bool,
-        "smooth_lines": bool,
-        "clustering": str,
-        "exclude": (str, type(None)),
-        "col_to_compare": str,
-        "pos": str,
-        "neg": str,
-        "embedding_by_controls": bool,
-        "plot_images": bool,
-        "reduction_method": str,
-        "save_figure": bool,
-        "color_by": (str, type(None)),
-        "analyze_clusters": bool,
-        "resnet_features": bool,
-        "test_nr": int,
-        "radial_dist": bool,
-        "calculate_correlation": bool,
-        "manders_thresholds": list,
-        "homogeneity": bool,
-        "homogeneity_distances": list,
-        "save_arrays": bool,
-        "cytoplasm": bool,
-        "merge_edge_pathogen_cells": bool,
-        "cells_per_well": int,
-        "pathogen_size_range": list,
-        "nucleus_size_range": list,
-        "cell_size_range": list,
-        "pathogen_intensity_range": list,
-        "nucleus_intensity_range": list,
-        "cell_intensity_range": list,
-        "target_intensity_min": int,
-        "model_type": str,
-        "heatmap_feature": str,
-        "grouping": str,
-        "min_max": str,
-        "minimum_cell_count": int,
-        "n_estimators": int,
-        "test_size": float,
-        "location_column": str,
-        "positive_control": str,
-        "negative_control": str,
-        "n_repeats": int,
-        "top_features": int,
-        "remove_low_variance_features": bool,
-        "n_jobs": int,
-        "classes": list,
-        "schedule": str,
-        "loss_type": str,
-        "image_size": int,
-        "epochs": int,
-        "val_split": float,
-        "train_mode": str,
-        "learning_rate": float,
-        "weight_decay": float,
-        "dropout_rate": float,
-        "init_weights": bool,
-        "amsgrad": bool,
-        "use_checkpoint": bool,
-        "gradient_accumulation": bool,
-        "gradient_accumulation_steps": int,
-        "intermedeate_save": bool,
-        "pin_memory": bool,
-        "num_workers": int,
-        "augment": bool,
-        "target": str,
-        "cell_types": list,
-        "cell_plate_metadata": (list, type(None)),
-        "pathogen_types": list,
-        "pathogen_plate_metadata": (list, list),  # This can be a list of lists
-        "treatment_plate_metadata": (list, list),  # This can be a list of lists
-        "metadata_types": list,
-        "cell_chann_dim": int,
-        "nucleus_chann_dim": int,
-        "pathogen_chann_dim": int,
-        "plot_nr": int,
-        "plot_control": bool,
-        "remove_background": bool,
-        "target": str,
-        "upstream": str,
-        "downstream": str,
-        "barecode_length_1": int,
-        "barecode_length_2": int,
-        "chunk_size": int,
-        "grna": str,
-        "barcodes": str,
-        "plate_dict": dict,
-        "pc": str,
-        "pc_loc": str,
-        "nc": str,
-        "nc_loc": str,
-        "dependent_variable": str,
-        "transform": (str, type(None)),
-        "agg_type": str,
-        "min_cell_count": int,
-        "regression_type": str,
-        "remove_row_column_effect": bool,
-        "alpha": float,
-        "fraction_threshold": float,
-        "class_1_threshold": (float, type(None)),
-        "batch_size": int,
-        "CP_prob": float,
-        "flow_threshold": float,
-        "percentiles": (list, type(None)),
-        "circular": bool,
-        "invert": bool,
-        "diameter": int,
-        "grayscale": bool,
-        "resize": bool,
-        "target_height": (int, type(None)),
-        "target_width": (int, type(None)),
-        "rescale": bool,
-        "resample": bool,
-        "model_name": str,
-        "Signal_to_noise": int,
-        "learning_rate": float,
-        "weight_decay": float,
-        "batch_size": int,
-        "n_epochs": int,
-        "from_scratch": bool,
-        "width_height": list,
-        "resize": bool,
-        "gene_weights_csv": str,
-        "fraction_threshold": float,
-    }
-
-    for key, (label, widget, var) in vars_dict.items():
-        if key not in expected_types:
-            if key not in ["General","Nucleus","Cell","Pathogen","Timelapse","Plot","Object Image","Annotate Data","Measurements","Advanced","Miscellaneous","Test"]:
-                
-                q.put(f"Key {key} not found in expected types.")
-                continue
-
-        value = var.get()
-        expected_type = expected_types.get(key, str)
-
-        try:
-            if key in ["png_size", "pathogen_plate_metadata", "treatment_plate_metadata"]:
-                parsed_value = ast.literal_eval(value) if value else None
-                if isinstance(parsed_value, list):
-                    if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
-                        settings[key] = parsed_value
-                    else:
-                        raise ValueError("Invalid format: Mixed list and list of lists")
-                else:
-                    raise ValueError("Invalid format for list or list of lists")
-            elif expected_type == list:
-                settings[key] = parse_list(value) if value else None
-            elif expected_type == bool:
-                settings[key] = value if isinstance(value, bool) else value.lower() in ['true', '1', 't', 'y', 'yes']
-            elif expected_type == (int, type(None)):
-                settings[key] = int(value) if value else None
-            elif expected_type == (float, type(None)):
-                settings[key] = float(value) if value else None
-            elif expected_type == (int, float):
-                settings[key] = float(value) if '.' in value else int(value)
-            elif expected_type == (str, type(None)):
-                settings[key] = str(value) if value else None
-            elif isinstance(expected_type, tuple):
-                for typ in expected_type:
-                    try:
-                        settings[key] = typ(value) if value else None
-                        break
-                    except (ValueError, TypeError):
-                        continue
-                else:
-                    raise ValueError
-            else:
-                settings[key] = expected_type(value) if value else None
-        except (ValueError, SyntaxError):
-            expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
-            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}.")
-            return
-
-    return settings
-
 # Create input field function ensuring all widgets are styled correctly
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     label = spacrLabel(frame, text=label_text, background="black", foreground="white")  # Apply Custom.TLabel style for labels
@@ -739,7 +493,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         return (label, entry, var)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
         var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
-        check = ttk.Checkbutton(frame, text="", variable=var, style='TCheckbutton')
+        check = spacrCheckbutton(frame, text="", variable=var, style='TCheckbutton')
         check.grid(column=1, row=row, sticky=tk.W, padx=5)
         return (label, check, var)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
@@ -752,136 +506,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     else:
         var = None  # Placeholder in case of an undefined var_type
         return (label, None, var)
-
-    
-def generate_fields(variables, scrollable_frame):
-    row = 1
-    vars_dict = {}
-    tooltips = {
-        "src": "Path to the folder containing the images.",
-        "metadata_type": "Type of metadata to expect in the images. This will determine how the images are processed. If 'custom' is selected, you can provide a custom regex pattern to extract metadata from the image names.",
-        "custom_regex": "Custom regex pattern to extract metadata from the image names. This will only be used if 'custom' is selected for 'metadata_type'.",
-        "experiment": "Name of the experiment. This will be used to name the output files.",
-        "channels": "List of channels to use for the analysis. The first channel is 0, the second is 1, and so on. For example, [0,1,2] will use channels 0, 1, and 2.",
-        "magnification": "At what magnification the images were taken. This will be used to determine the size of the objects in the images.",
-        "nucleus_channel": "The channel to use for the nucleus. If None, the nucleus will not be segmented.",
-        "nucleus_background": "The background intensity for the nucleus channel. This will be used to remove background noise.",
-        "nucleus_Signal_to_noise": "The signal-to-noise ratio for the nucleus channel. This will be used to determine the range of intensities to normalize images to for nucleus segmentation.",
-        "nucleus_CP_prob": "The cellpose probability threshold for the nucleus channel. This will be used to segment the nucleus.",
-        "nucleus_FT": "The flow threshold for nucleus objects. This will be used in nuclues segmentation.",
-        "cell_channel": "The channel to use for the cell. If None, the cell will not be segmented.",
-        "cell_background": "The background intensity for the cell channel. This will be used to remove background noise.",
-        "cell_Signal_to_noise": "The signal-to-noise ratio for the cell channel. This will be used to determine the range of intensities to normalize images to for cell segmentation.",
-        "cell_CP_prob": "The cellpose probability threshold for the cell channel. This will be used in cell segmentation.",
-        "cell_FT": "The flow threshold for cell objects. This will be used to segment the cells.",
-        "pathogen_channel": "The channel to use for the pathogen. If None, the pathogen will not be segmented.",
-        "pathogen_background": "The background intensity for the pathogen channel. This will be used to remove background noise.",
-        "pathogen_Signal_to_noise": "The signal-to-noise ratio for the pathogen channel. This will be used to determine the range of intensities to normalize images to for pathogen segmentation.",
-        "pathogen_CP_prob": "The cellpose probability threshold for the pathogen channel. This will be used to segment the pathogen.",
-        "pathogen_FT": "The flow threshold for pathogen objects. This will be used in pathogen segmentation.",
-        "preprocess": "Whether to preprocess the images before segmentation. This includes background removal and normalization. Set to False only if this step has already been done.",
-        "masks": "Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
-        "examples_to_plot": "The number of images to plot for each segmented object. This will be used to visually inspect the segmentation results and normalization.",
-        "randomize": "Whether to randomize the order of the images before processing. Recommended to avoid bias in the segmentation.",
-        "batch_size": "The batch size to use for processing the images. This will determine how many images are processed at once. Images are normalized and segmented in batches. Lower if application runs out of RAM or VRAM.",
-        "timelapse": "Whether to process the images as a timelapse.",
-        "timelapse_displacement": "The displacement between frames in the timelapse. This will be used to align the frames before processing.",
-        "timelapse_memory": "The number of frames to in tandem objects must be present in to be considered the same object in the timelapse.",
-        "timelapse_frame_limits": "The frame limits to use for the timelapse. This will determine which frames are processed. For example, [5,20] will process frames 5 to 20.",
-        "timelapse_remove_transient": "Whether to remove transient objects in the timelapse. Transient objects are present in fewer than all frames.",
-        "timelapse_mode": "The mode to use for processing the timelapse. 'trackpy' uses the trackpy library for tracking objects, while 'btrack' uses the btrack library.",
-        "timelapse_objects": "The objects to track in the timelapse (cell, nucleus or pathogen). This will determine which objects are tracked over time. If None, all objects will be tracked.",
-        "fps": "Frames per second of the automatically generated timelapse movies.",
-        "remove_background": "Whether to remove background noise from the images. This will help improve the quality of the segmentation.",
-        "lower_percentile": "The lower quantile to use for normalizing the images. This will be used to determine the range of intensities to normalize images to.",
-        "merge_pathogens": "Whether to merge pathogen objects that share more than 75% of their perimeter.",
-        "normalize_plots": "Whether to normalize the plots.",
-        "all_to_mip": "Whether to convert all images to maximum intensity projections before processing.",
-        "pick_slice": "Whether to pick a single slice from the z-stack images. If False, the maximum intensity projection will be used.",
-        "skip_mode": "The mode to use for skipping images. This will determine how to handle images that cannot be processed.",
-        "save": "Whether to save the results to disk.",
-        "merge_edge_pathogen_cells": "Whether to merge cells that share pathogen objects.",
-        "plot": "Whether to plot the results.",
-        "workers": "The number of workers to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
-        "verbose": "Whether to print verbose output during processing.",
-        "input_folder": "Path to the folder containing the images.",
-        "cell_mask_dim": "The dimension of the array the cell mask is saved in.",
-        "cell_min_size": "The minimum size of cell objects in pixels^2.",
-        "cytoplasm": "Whether to segment the cytoplasm (Cell - Nucleus + Pathogen).",
-        "cytoplasm_min_size": "The minimum size of cytoplasm objects in pixels^2.",
-        "nucleus_mask_dim": "The dimension of the array the nucleus mask is saved in.",
-        "nucleus_min_size": "The minimum size of nucleus objects in pixels^2.",
-        "pathogen_mask_dim": "The dimension of the array the pathogen mask is saved in.",
-        "pathogen_min_size": "The minimum size of pathogen objects in pixels^2.",
-        "save_png": "Whether to save the segmented objects as PNG images.",
-        "crop_mode": "The mode to use for cropping the images. This will determine which objects are cropped from the images (cell, nucleus, pathogen, cytoplasm).",
-        "use_bounding_box": "Whether to use the bounding box of the objects for cropping. If False, only the object itself will be cropped.",
-        "png_size": "The size of the PNG images to save. This will determine the size of the saved images.",
-        "normalize": "The percentiles to use for normalizing the images. This will be used to determine the range of intensities to normalize images to. If None, no normalization is done.",
-        "png_dims": "The dimensions of the PNG images to save. This will determine the dimensions of the saved images. Maximum of 3 dimensions e.g. [1,2,3].",
-        "normalize_by": "Whether to normalize the images by field of view (fov) or by PNG image (png).",
-        "save_measurements": "Whether to save the measurements to disk.",
-        "representative_images": "Whether to save representative images of the segmented objects (Not working yet).",
-        "plot_filtration": "Whether to plot the filtration steps.",
-        "include_uninfected": "Whether to include uninfected cells in the analysis.",
-        "dialate_pngs": "Whether to dilate the PNG images before saving.",
-        "dialate_png_ratios": "The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
-        "max_workers": "The number of workers to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
-        "cells": "The cell types to include in the analysis.",
-        "cell_loc": "The locations of the cell types in the images.",
-        "pathogens": "The pathogen types to include in the analysis.",
-        "pathogen_loc": "The locations of the pathogen types in the images.",
-        "treatments": "The treatments to include in the analysis.",
-        "treatment_loc": "The locations of the treatments in the images.",
-        "channel_of_interest": "The channel of interest to use for the analysis.",
-        "compartments": "The compartments to measure in the images.",
-        "measurement": "The measurement to use for the analysis.",
-        "nr_imgs": "The number of images to plot.",
-        "um_per_pixel": "The micrometers per pixel for the images."
-    }
-
-    for key, (var_type, options, default_value) in variables.items():
-        label, widget, var = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        vars_dict[key] = (label, widget, var)  # Store the label, widget, and variable
-        
-        # Add tooltip to the label if it exists in the tooltips dictionary
-        if key in tooltips:
-            ToolTip(label, tooltips[key])
-        row += 1
-    return vars_dict
-
-class TextRedirector(object):
-    def __init__(self, widget, queue):
-        self.widget = widget
-        self.queue = queue
-
-    def write(self, str):
-        self.queue.put(str)
-
-    def flush(self):
-        pass
-
-def create_dark_mode(root, style, console_output):
-    dark_bg = 'black'
-    light_text = 'white'
-    dark_text = 'black'
-    input_bg = '#555555'  # Slightly lighter background for input fields
-    
-    # Configure ttkcompartments('TFrame', background=dark_bg)
-    style.configure('TLabel', background=dark_bg, foreground=light_text)
-    style.configure('TEntry', fieldbackground=input_bg, foreground=dark_text, background=dark_bg)
-    style.configure('TButton', background=dark_bg, foreground=dark_text)
-    style.map('TButton', background=[('active', dark_bg)], foreground=[('active', dark_text)])
-    style.configure('Dark.TCheckbutton', background=dark_bg, foreground=dark_text)
-    style.map('Dark.TCheckbutton', background=[('active', dark_bg)], foreground=[('active', dark_text)])
-    style.configure('TCombobox', fieldbackground=input_bg, foreground=dark_text, background=dark_bg, selectbackground=input_bg, selectforeground=dark_text)
-    style.map('TCombobox', fieldbackground=[('readonly', input_bg)], selectbackground=[('readonly', input_bg)], foreground=[('readonly', dark_text)])
-    
-    if console_output != None:
-        console_output.config(bg=dark_bg, fg=light_text, insertbackground=light_text) #, font=("Helvetica", 12)
-    root.configure(bg=dark_bg)
-
-##@log_function_call   
+ 
 def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
     try:
         ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
@@ -1104,9 +729,29 @@ def convert_settings_dict_for_gui(settings):
             variables[key] = ('entry', None, str(value))
     return variables
 
+def setup_frame(parent_frame):
+    style = ttk.Style(parent_frame)
+    set_dark_style(style)
+    set_default_font(parent_frame, font_name="Helvetica", size=8)
+    parent_frame.configure(bg='black')
+    parent_frame.grid_rowconfigure(0, weight=1)
+    parent_frame.grid_columnconfigure(0, weight=1)
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg='black')
+    vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
+    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, bg='black')
+    vertical_container.add(horizontal_container, stretch="always")
+    horizontal_container.grid_columnconfigure(0, weight=1)
+    horizontal_container.grid_columnconfigure(1, weight=1)
+    settings_frame = tk.Frame(horizontal_container, bg='black')
+    settings_frame.grid_rowconfigure(0, weight=0)
+    settings_frame.grid_rowconfigure(1, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
+    horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
+    return parent_frame, vertical_container, horizontal_container
+
 def setup_settings_panel(vertical_container, settings_type='mask', frame_height=500, frame_width=1000):
     global vars_dict, scrollable_frame
-    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
+    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, generate_fields
 
     print("Setting up settings panel")
     
@@ -1118,8 +763,8 @@ def setup_settings_panel(vertical_container, settings_type='mask', frame_height=
     settings_label = spacrLabel(settings_frame, text="Settings", background="black", foreground="white")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
 
-    # Create a ScrollableFrame inside the settings_frame
-    scrollable_frame = ScrollableFrame(settings_frame, bg='black', width=frame_width)
+    # Create a spacrFrame inside the settings_frame
+    scrollable_frame = spacrFrame(settings_frame, bg='black', width=frame_width)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
 
     # Configure the weights for resizing
@@ -1143,7 +788,6 @@ def setup_settings_panel(vertical_container, settings_type='mask', frame_height=
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
 
-
 def setup_plot_section(vertical_container):
     global canvas, canvas_widget
     plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)
@@ -1159,6 +803,35 @@ def setup_plot_section(vertical_container):
     canvas.draw()
     canvas.figure = figure
     return canvas, canvas_widget
+
+def setup_console(vertical_container):
+    global console_output
+    print("Setting up console frame")
+    console_frame = tk.Frame(vertical_container, bg='black')
+    vertical_container.add(console_frame, stretch="always")
+    console_label = spacrLabel(console_frame, text="Console", background="black", foreground="white")
+    console_label.grid(row=0, column=0, pady=10, padx=10)
+    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='black', fg='white', insertbackground='white')
+    console_output.grid(row=1, column=0, sticky="nsew")
+    console_frame.grid_rowconfigure(1, weight=1)
+    console_frame.grid_columnconfigure(0, weight=1)
+    print("Console setup complete")
+    return console_output
+
+def setup_progress_frame(vertical_container):
+    global progress_output
+    progress_frame = tk.Frame(vertical_container, bg='black')
+    vertical_container.add(progress_frame, stretch="always")
+    label_frame = tk.Frame(progress_frame, bg='black')
+    label_frame.grid(row=0, column=0, sticky="ew", pady=(5, 0), padx=10)
+    progress_label = spacrLabel(label_frame, text="Processing: 0%", background="black", foreground="white", font=('Helvetica', 12))
+    progress_label.grid(row=0, column=0, sticky="ew")
+    progress_output = scrolledtext.ScrolledText(progress_frame, height=10, bg='black', fg='white', insertbackground='white')
+    progress_output.grid(row=1, column=0, sticky="nsew")
+    progress_frame.grid_rowconfigure(1, weight=1)
+    progress_frame.grid_columnconfigure(0, weight=1)
+    print("Progress frame setup complete")
+    return progress_output
 
 def download_hug_dataset():
     global vars_dict, q
@@ -1233,8 +906,8 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
     
     raise Exception("Failed to download dataset after multiple attempts.")
 
-def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, settings_row=5, run=True, abort=True, download=True, import_btn=True, progress=True):
-    global button_frame, run_button, abort_button, download_dataset_button, import_button, progress_label, q, fig_queue, vars_dict
+def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, settings_row=5, run=True, abort=True, download=True, import_btn=True):
+    global button_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
 
     button_frame = tk.Frame(horizontal_container, bg='black')
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
@@ -1242,15 +915,11 @@ def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, 
     button_frame.grid_rowconfigure(1, weight=1)
     button_frame.grid_columnconfigure(0, weight=1)
 
-    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white")
+    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white", font=('Helvetica', 12))  # Increase font size
     categories_label.grid(row=0, column=0, pady=10, padx=10)
 
-    button_scrollable_frame = ScrollableFrame(button_frame, bg='black')
+    button_scrollable_frame = spacrFrame(button_frame, bg='black')
     button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
-
-    button_scrollable_frame.scrollable_frame.grid_columnconfigure(0, weight=1, minsize=100)
-    button_scrollable_frame.scrollable_frame.grid_columnconfigure(1, weight=1, minsize=100)
-    button_scrollable_frame.scrollable_frame.grid_columnconfigure(2, weight=1, minsize=100)
 
     if run:
         run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), font=('Helvetica', 12))
@@ -1265,31 +934,10 @@ def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, 
     if import_btn:
         import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_row, settings_type), font=('Helvetica', 12))
         import_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
-    btn_row += 1
-    if progress:
-        progress_label = spacrLabel(button_scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
-        progress_label.grid(row=btn_row, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
-
     # Call toggle_settings after vars_dict is initialized
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
-
-    return progress_label
-
-
-def setup_console(vertical_container):
-    global console_output
-    print("Setting up console frame")
-    console_frame = tk.Frame(vertical_container, bg='black')
-    vertical_container.add(console_frame, stretch="always")
-    console_label = spacrLabel(console_frame, text="Console", background="black", foreground="white")
-    console_label.grid(row=0, column=0, pady=10, padx=10)
-    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='black', fg='white', insertbackground='white')
-    console_output.grid(row=1, column=0, sticky="nsew")
-    console_frame.grid_rowconfigure(1, weight=1)
-    console_frame.grid_columnconfigure(0, weight=1)
-    print("Console setup complete")
-    return console_output
+    return button_scrollable_frame
 
 def toggle_test_mode():
     global vars_dict, test_mode_button
@@ -1303,24 +951,10 @@ def toggle_test_mode():
 
 def toggle_settings(button_scrollable_frame):
     global vars_dict
+    from .settings import categories
 
     if vars_dict is None:
         raise ValueError("vars_dict is not initialized.")
-    
-    categories = {
-        "General": ["src", "input_folder", "metadata_type", "custom_regex", "experiment", "channels", "magnification"],
-        "Nucleus": ["nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
-        "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
-        "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
-        "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-        "Plot": ["plot_filtration", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot"],
-        "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
-        "Annotate Data": ["treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "representative_images", "um_per_pixel", "nr_imgs"],
-        "Measurements": ["homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements"],
-        "Advanced": ["preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "max_workers", "workers"],
-        "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
-        "Test": ["test_mode", "test_images", "random_test", "test_nr"]
-    }
 
     def toggle_category(settings, var):
         for setting in settings:
@@ -1334,27 +968,32 @@ def toggle_settings(button_scrollable_frame):
                     widget.grid()
 
     row = 1
-    col = 2  # Start from column 2 to avoid overlap with buttons
+    col = 2 
     category_idx = 0
 
     for category, settings in categories.items():
         if any(setting in vars_dict for setting in settings):
             category_var = tk.IntVar(value=0)
             vars_dict[category] = (None, None, category_var)
-            toggle = ttk.Checkbutton(
+            toggle = spacrCheckbutton(
                 button_scrollable_frame.scrollable_frame, 
                 text=category, 
                 variable=category_var, 
-                command=lambda cat=settings, var=category_var: toggle_category(cat, var),
-                style='TCheckbutton'
+                command=lambda cat=settings, var=category_var: toggle_category(cat, var)
             )
+            # Directly set the style
+            style = ttk.Style()
+            font_style = tkFont.Font(family="Helvetica", size=12, weight="bold")
+            style.configure('Spacr.TCheckbutton', font=font_style, background='black', foreground='#ffffff', indicatoron=False, relief='flat')
+            style.map('Spacr.TCheckbutton', background=[('selected', 'black'), ('active', 'black')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
+            toggle.configure(style='Spacr.TCheckbutton')
             toggle.grid(row=row, column=col, sticky="w", pady=2, padx=2)
             col += 1
             category_idx += 1
 
             if category_idx % 4 == 0:  
                 row += 1
-                col = 2  # Reset column to 2
+                col = 2
 
     for settings in categories.values():
         for setting in settings:
@@ -1362,59 +1001,6 @@ def toggle_settings(button_scrollable_frame):
                 label, widget, _ = vars_dict[setting]
                 label.grid_remove()
                 widget.grid_remove()
-
-def initiate_abort():
-    global thread_control
-    if thread_control.get("stop_requested") is not None:
-        thread_control["stop_requested"].value = 1
-
-    if thread_control.get("run_thread") is not None:
-        thread_control["run_thread"].join(timeout=5)
-        if thread_control["run_thread"].is_alive():
-            thread_control["run_thread"].terminate()
-        thread_control["run_thread"] = None
-
-def run_mask_gui(settings, q, fig_queue, stop_requested):
-    process_stdout_stderr(q)
-    try:
-        preprocess_generate_masks_wrapper(settings, q, fig_queue)
-    except Exception as e:
-        q.put(f"Error during processing: {e}")
-        traceback.print_exc()
-    finally:
-        stop_requested.value = 1
-
-def start_process(q, fig_queue, settings_type='mask'):
-    global thread_control, vars_dict
-    settings = check_settings(vars_dict)
-    if thread_control.get("run_thread") is not None:
-        initiate_abort()
-    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
-    thread_control["stop_requested"] = stop_requested
-    if settings_type == 'mask':
-        thread_control["run_thread"] = Process(target=run_mask_gui, args=(settings, q, fig_queue, stop_requested))
-    elif settings_type == 'measure':
-        thread_control["run_thread"] = Process(target=run_measure_gui, args=(settings, q, fig_queue, stop_requested))
-    elif settings_type == 'classify':
-        thread_control["run_thread"] = Process(target=run_classify_gui, args=(settings, q, fig_queue, stop_requested))
-    thread_control["run_thread"].start()
-
-def import_settings(settings_type='mask'):
-    global vars_dict, scrollable_frame
-    csv_file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
-    csv_settings = read_settings_from_csv(csv_file_path)
-    if settings_type == 'mask':
-        settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
-    elif settings_type == 'measure':
-        settings = get_measure_crop_settings(settings={})
-    elif settings_type == 'classify':
-        settings = set_default_train_test_model(settings={})
-    else:
-        raise ValueError(f"Invalid settings type: {settings_type}")
-    
-    variables = convert_settings_dict_for_gui(settings)
-    new_settings = update_settings_from_csv(variables, csv_settings)
-    vars_dict = generate_fields(new_settings, scrollable_frame)
 
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame
@@ -1447,26 +1033,6 @@ def process_console_queue():
         console_output.see(tk.END)
     after_id = console_output.after(100, process_console_queue)
     parent_frame.after_tasks.append(after_id)
-
-def setup_frame(parent_frame):
-    style = ttk.Style(parent_frame)
-    set_dark_style(style)
-    set_default_font(parent_frame, font_name="Helvetica", size=8)
-    parent_frame.configure(bg='black')
-    parent_frame.grid_rowconfigure(0, weight=1)
-    parent_frame.grid_columnconfigure(0, weight=1)
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg='black')
-    vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
-    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, bg='black')
-    vertical_container.add(horizontal_container, stretch="always")
-    horizontal_container.grid_columnconfigure(0, weight=1)
-    horizontal_container.grid_columnconfigure(1, weight=1)
-    settings_frame = tk.Frame(horizontal_container, bg='black')
-    settings_frame.grid_rowconfigure(0, weight=0)
-    settings_frame.grid_rowconfigure(1, weight=1)
-    settings_frame.grid_columnconfigure(0, weight=1)
-    horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
-    return parent_frame, vertical_container, horizontal_container
 
 def run_measure_gui(settings, q, fig_queue, stop_requested):
     process_stdout_stderr(q)
@@ -1502,7 +1068,7 @@ def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canv
     fig_queue = fig_queue_var
 
 def initiate_root(parent, settings_type='mask'):
-    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label
+    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label, button_scrollable_frame
     print("Initializing root with settings_type:", settings_type)
     parent_frame = parent
 
@@ -1520,9 +1086,10 @@ def initiate_root(parent, settings_type='mask'):
     fig_queue = Queue()
     parent_frame, vertical_container, horizontal_container = setup_frame(parent_frame)
     scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type)  # Adjust height and width as needed
-    progress_label = setup_button_section(horizontal_container, settings_type)
+    button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
     canvas, canvas_widget = setup_plot_section(vertical_container)
     console_output = setup_console(vertical_container)
+    progress_output = setup_progress_frame(vertical_container)
     set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue)
     process_console_queue()
     process_fig_queue()
@@ -1549,3 +1116,6 @@ def start_gui_app(settings_type='mask'):
     initiate_root(root.content_frame, settings_type)
     create_menu_bar(root)
     root.mainloop()
+
+
+
