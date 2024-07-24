@@ -1,24 +1,18 @@
-import os, spacr, inspect, traceback, io, sys, ast, ctypes, matplotlib, re, csv, requests, ast
+import os, spacr, traceback, io, sys, ast, ctypes, matplotlib, re, csv, requests, ast
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
-import numpy as np
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import filedialog
 from tkinter import Checkbutton
 from tkinter import font as tkFont
-from torchvision import models
-
 from multiprocessing import Process, Value, Queue, Manager, set_start_method
-import multiprocessing as mp
-
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import time
 import requests
-from requests.exceptions import HTTPError, Timeout
 from huggingface_hub import list_repo_files, hf_hub_download
 
 from .logger import log_function_call
@@ -42,7 +36,18 @@ fig_queue = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
+def set_light_mode_for_mac():
+    import platform, subprocess
+    if platform.system() == "Darwin":
+        try:
+            app_bundle_id = "com.yourcompany.yourapp"  # Replace with your app's actual bundle identifier
+            subprocess.run(["defaults", "write", app_bundle_id, "NSRequiresAquaSystemAppearance", "-bool", "true"], check=True)
+            print("Set light mode using defaults command")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to set light mode using defaults command: {e}")
+
 def set_dark_style(style):
+    #set_light_mode_for_mac()
     font_style = tkFont.Font(family="Helvetica", size=10)
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)  # Entry
     style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)  # Combobox
@@ -120,7 +125,47 @@ class StdoutRedirector:
     def flush(self):
         pass
 
-class CustomButton(tk.Frame):
+class spacrLabel(tk.Frame):
+    def __init__(self, parent, text="", font=None, style=None, **kwargs):
+        # Extract specific kwargs for tk.Label
+        label_kwargs = {k: v for k, v in kwargs.items() if k in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
+        for key in label_kwargs.keys():
+            kwargs.pop(key)
+
+        super().__init__(parent, **kwargs)
+
+        self.text = text
+
+        # Extract any additional keyword arguments that might be relevant for the Label
+        self.kwargs = label_kwargs
+
+        # Detect screen height and calculate label dimensions
+        screen_height = self.winfo_screenheight()
+        label_height = screen_height // 50
+        label_width = label_height * 10  # Adjust the width multiplier as needed
+
+        self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=self.kwargs.get("background", "black"))
+        self.canvas.grid(row=0, column=0)
+
+        # Use the passed font or default to Helvetica if not provided
+        self.font_style = font if font else tkFont.Font(family=self.kwargs.get("font_family", "Helvetica"), size=self.kwargs.get("font_size", 12), weight=tkFont.NORMAL)
+        
+        # Apply the style if provided
+        self.style = style
+        if self.style:
+            ttk_style = ttk.Style()
+            ttk_style.configure(self.style, **label_kwargs)
+            self.label_text = ttk.Label(self.canvas, text=self.text, style=self.style)
+        else:
+            self.label_text = self.canvas.create_text(label_width // 2, label_height // 2, text=self.text, fill=self.kwargs.get("foreground", "white"), font=self.font_style, anchor=self.kwargs.get("anchor", "center"), justify=self.kwargs.get("justify", "center"))
+
+    def set_text(self, text):
+        if self.style:
+            self.label_text.config(text=text)
+        else:
+            self.canvas.itemconfig(self.label_text, text=text)
+
+class spacrButton(tk.Frame):
     def __init__(self, parent, text="", command=None, font=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.text = text
@@ -197,7 +242,7 @@ class ToggleSwitch(ttk.Frame):
         # Switch ball with no outline
         self.switch = self.canvas.create_oval(4, 4, 16, 16, outline="", fill="#800080")  # Purple initially
         
-        self.label = ttk.Label(self, text=self.text, background="black", foreground="white")
+        self.label = spacrLabel(self, text=self.text, background="black", foreground="white")
         self.label.grid(row=0, column=0, padx=(0, 10))
         
         self.bind("<Button-1>", self.toggle)
@@ -703,7 +748,7 @@ def check_settings(vars_dict):
     return settings
 
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
-    label = ttk.Label(frame, text=label_text, style='Custom.TLabel')  # Apply Custom.TLabel style for labels
+    label = spacrLabel(frame, text=label_text, background="black", foreground="white")  # Apply Custom.TLabel style for labels
     label.grid(column=0, row=row, sticky=tk.W, padx=5, pady=5)
     
     if var_type == 'entry':
@@ -1088,7 +1133,7 @@ def setup_settings_panel(vertical_container, settings_type='mask', frame_height=
     vertical_container.add(settings_frame, stretch="always")
 
     # Add settings label
-    settings_label = ttk.Label(settings_frame, text="Settings", style="Custom.TLabel", background="black", foreground="white")
+    settings_label = spacrLabel(settings_frame, text="Settings", background="black", foreground="white")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
 
     # Create a ScrollableFrame inside the settings_frame
@@ -1215,7 +1260,7 @@ def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, 
     button_frame.grid_rowconfigure(1, weight=1)
     button_frame.grid_columnconfigure(0, weight=1)
 
-    categories_label = ttk.Label(button_frame, text="Categories", style="Custom.TLabel", background="black", foreground="white")
+    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white")
     categories_label.grid(row=0, column=0, pady=10, padx=10)
 
     button_scrollable_frame = ScrollableFrame(button_frame, bg='black')
@@ -1226,21 +1271,21 @@ def setup_button_section(horizontal_container, settings_type='mask', btn_row=1, 
     button_scrollable_frame.scrollable_frame.grid_columnconfigure(2, weight=1, minsize=100)
 
     if run:
-        run_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), style='Custom.TButton')
+        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), font=('Helvetica', 12))
         run_button.grid(row=btn_row, column=0, pady=5, padx=5, sticky='ew')
     if abort:
-        abort_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, style='Custom.TButton')
+        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 12))
         abort_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
     btn_row += 1
     if download:
-        download_dataset_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset, style='Custom.TButton')
+        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset, font=('Helvetica', 12))
         download_dataset_button.grid(row=btn_row, column=0, pady=5, padx=5, sticky='ew')
     if import_btn:
-        import_button = ttk.Button(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_row, settings_type), style='Custom.TButton')
+        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_row, settings_type), font=('Helvetica', 12))
         import_button.grid(row=btn_row, column=1, pady=5, padx=5, sticky='ew')
     btn_row += 1
     if progress:
-        progress_label = ttk.Label(button_scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
+        progress_label = spacrLabel(button_scrollable_frame.scrollable_frame, text="Processing: 0%", background="black", foreground="white")
         progress_label.grid(row=btn_row, column=0, columnspan=2, sticky="ew", pady=(5, 0), padx=10)
 
     # Call toggle_settings after vars_dict is initialized
@@ -1255,7 +1300,7 @@ def setup_console(vertical_container):
     print("Setting up console frame")
     console_frame = tk.Frame(vertical_container, bg='black')
     vertical_container.add(console_frame, stretch="always")
-    console_label = ttk.Label(console_frame, text="Console", background="black", foreground="white")
+    console_label = spacrLabel(console_frame, text="Console", background="black", foreground="white")
     console_label.grid(row=0, column=0, pady=10, padx=10)
     console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='black', fg='white', insertbackground='white')
     console_output.grid(row=1, column=0, sticky="nsew")
@@ -1503,7 +1548,6 @@ def initiate_root(parent, settings_type='mask'):
     parent_frame.after_tasks.append(after_id)
     print("Root initialization complete")
     return parent_frame, vars_dict
-
 
 def cancel_after_tasks(frame):
     if hasattr(frame, 'after_tasks'):

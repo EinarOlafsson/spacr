@@ -13,7 +13,7 @@ from IPython.display import display, HTML
 from tkinter import font as tkFont
 from tkinter import TclError
 
-from .gui_utils import ScrollableFrame, CustomButton, set_dark_style, create_menu_bar, set_default_font
+from .gui_utils import ScrollableFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
 
 class ImageApp:
     def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
@@ -444,7 +444,7 @@ def initiate_annotation_app_root(parent_frame):
         # Start the annotate application in the same root window
         annotate_app(parent_frame, settings)
         
-    run_button = CustomButton(scrollable_frame.scrollable_frame, text="Run", command=run_app,
+    run_button = spacrButton(scrollable_frame.scrollable_frame, text="Run", command=run_app,
                               font=tkFont.Font(family="Arial", size=12, weight=tkFont.NORMAL))
     run_button.grid(row=row, column=0, columnspan=2, pady=10, padx=10)
 
