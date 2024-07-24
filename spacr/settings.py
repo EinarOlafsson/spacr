@@ -795,7 +795,8 @@ def check_settings(vars_dict):
     return settings
 
 def generate_fields(variables, scrollable_frame):
-    from .gui_utils import create_input_field, spacrToolTip
+    from .gui_utils import create_input_field
+    from .gui_elements import spacrToolTip
     row = 1
     vars_dict = {}
     tooltips = {
