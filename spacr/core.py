@@ -3021,7 +3021,7 @@ def generate_image_umap(settings={}):
     """
  
     from .io import _read_and_join_tables
-    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, cluster_feature_analysis, generate_umap_from_images
+    from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, cluster_feature_analysis #, generate_umap_from_images
     from .settings import get_umap_image_settings
     settings = get_umap_image_settings(settings)
 
@@ -3109,7 +3109,9 @@ def generate_image_umap(settings={}):
 
     else:
         if settings['resnet_features']:
-            numeric_data, embedding, labels = generate_umap_from_images(image_paths, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['clustering'], settings['eps'], settings['min_samples'], settings['n_jobs'], settings['verbose'])
+            # placeholder for resnet features, not implemented yet
+            pass
+            #numeric_data, embedding, labels = generate_umap_from_images(image_paths, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['clustering'], settings['eps'], settings['min_samples'], settings['n_jobs'], settings['verbose'])
         else:
             # Apply the trained reducer to the entire dataset
             numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
