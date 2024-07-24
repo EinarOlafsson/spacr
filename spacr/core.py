@@ -3022,8 +3022,8 @@ def generate_image_umap(settings={}):
  
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, cluster_feature_analysis #, generate_umap_from_images
-    from .settings import get_umap_image_settings
-    settings = get_umap_image_settings(settings)
+    from .settings import set_default_umap_image_settings
+    settings = set_default_umap_image_settings(settings)
 
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
@@ -3207,9 +3207,9 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data, search_reduction_and_clustering, generate_colors
-    from .settings import get_umap_image_settings
+    from .settings import set_default_umap_image_settings
 
-    settings = get_umap_image_settings(settings)
+    settings = set_default_umap_image_settings(settings)
     pointsize = settings['dot_size']
     if isinstance(dbscan_params, dict):
         dbscan_params = [dbscan_params]

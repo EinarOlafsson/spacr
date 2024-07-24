@@ -37,22 +37,6 @@ def analyze_reads(settings):
         None
     """
     
-    def save_chunk_to_hdf5_v1(output_file_path, data_chunk, chunk_counter):
-        """
-        Save a data chunk to an HDF5 file.
-
-        Parameters:
-        - output_file_path (str): The path to the output HDF5 file.
-        - data_chunk (list): The data chunk to be saved.
-        - chunk_counter (int): The counter for the current chunk.
-
-        Returns:
-        None
-        """
-        df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
-        with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
-            store.put(f'reads/chunk_{chunk_counter}', df, format='table', append=True)
-
     def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
         """
         Save a data chunk to an HDF5 file.
@@ -306,7 +290,7 @@ def analyze_reads(settings):
                 qc_df = pd.DataFrame([qc])
                 qc_df.to_csv(qc_file_path, index=False)
                 
-    from .utils import get_analyze_reads_default_settings
+    from .settings import get_analyze_reads_default_settings
 
     settings = get_analyze_reads_default_settings(settings)
 
