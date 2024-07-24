@@ -1,4 +1,4 @@
-import os
+import os, ast
 
 def set_default_plot_merge_settings():
     settings = {}
@@ -486,3 +486,422 @@ def get_identify_masks_finetune_default_settings(settings):
     settings.setdefault('resample', False)
     settings.setdefault('grayscale', True)
     return settings
+
+q = None
+
+def check_settings(vars_dict):
+    global q
+    from .gui_utils import parse_list
+    settings = {}
+    # Define the expected types for each key, including None where applicable
+    expected_types = {
+        "src": str,
+        "metadata_type": str,
+        "custom_regex": (str, type(None)),
+        "experiment": str,
+        "channels": list,
+        "magnification": int,
+        "nucleus_channel": (int, type(None)),
+        "nucleus_background": int,
+        "nucleus_Signal_to_noise": float,
+        "nucleus_CP_prob": float,
+        "nucleus_FT": float,
+        "cell_channel": (int, type(None)),
+        "cell_background": (int, float),
+        "cell_Signal_to_noise": (int, float),
+        "cell_CP_prob": (int, float),
+        "cell_FT": (int, float),
+        "pathogen_channel": (int, type(None)),
+        "pathogen_background": (int, float),
+        "pathogen_Signal_to_noise": (int, float),
+        "pathogen_CP_prob": (int, float),
+        "pathogen_FT": (int, float),
+        "preprocess": bool,
+        "masks": bool,
+        "examples_to_plot": int,
+        "randomize": bool,
+        "batch_size": int,
+        "timelapse": bool,
+        "timelapse_displacement": int,
+        "timelapse_memory": int,
+        "timelapse_frame_limits": list,  # This can be a list of lists
+        "timelapse_remove_transient": bool,
+        "timelapse_mode": str,
+        "timelapse_objects": list,
+        "fps": int,
+        "remove_background": bool,
+        "lower_percentile": (int, float),
+        "merge_pathogens": bool,
+        "normalize_plots": bool,
+        "all_to_mip": bool,
+        "pick_slice": bool,
+        "skip_mode": str,
+        "save": bool,
+        "plot": bool,
+        "workers": int,
+        "verbose": bool,
+        "input_folder": str,
+        "cell_mask_dim": int,
+        "cell_min_size": int,
+        "cytoplasm_min_size": int,
+        "nucleus_mask_dim": int,
+        "nucleus_min_size": int,
+        "pathogen_mask_dim": int,
+        "pathogen_min_size": int,
+        "save_png": bool,
+        "crop_mode": list,
+        "use_bounding_box": bool,
+        "png_size": list,  # This can be a list of lists
+        "normalize": bool,
+        "png_dims": list,
+        "normalize_by": str,
+        "save_measurements": bool,
+        "representative_images": bool,
+        "plot_filtration": bool,
+        "include_uninfected": bool,
+        "dialate_pngs": bool,
+        "dialate_png_ratios": list,
+        "max_workers": int,
+        "cells": list,
+        "cell_loc": list,
+        "pathogens": list,
+        "pathogen_loc": (list, list),  # This can be a list of lists
+        "treatments": list,
+        "treatment_loc": (list, list),  # This can be a list of lists
+        "channel_of_interest": int,
+        "compartments": list,
+        "measurement": str,
+        "nr_imgs": int,
+        "um_per_pixel": (int, float),
+        # Additional settings based on provided defaults
+        "include_noninfected": bool,
+        "include_multiinfected": bool,
+        "include_multinucleated": bool,
+        "filter_min_max": (list, type(None)),
+        "channel_dims": list,
+        "backgrounds": list,
+        "outline_thickness": int,
+        "outline_color": str,
+        "overlay_chans": list,
+        "overlay": bool,
+        "normalization_percentiles": list,
+        "print_object_number": bool,
+        "nr": int,
+        "figuresize": int,
+        "cmap": str,
+        "test_mode": bool,
+        "test_images": int,
+        "remove_background_cell": bool,
+        "remove_background_nucleus": bool,
+        "remove_background_pathogen": bool,
+        "pathogen_model": (str, type(None)),
+        "filter": bool,
+        "upscale": bool,
+        "upscale_factor": float,
+        "adjust_cells": bool,
+        "row_limit": int,
+        "tables": list,
+        "visualize": str,
+        "image_nr": int,
+        "dot_size": int,
+        "n_neighbors": int,
+        "min_dist": float,
+        "metric": str,
+        "eps": float,
+        "min_samples": int,
+        "filter_by": str,
+        "img_zoom": float,
+        "plot_by_cluster": bool,
+        "plot_cluster_grids": bool,
+        "remove_cluster_noise": bool,
+        "remove_highly_correlated": bool,
+        "log_data": bool,
+        "black_background": bool,
+        "remove_image_canvas": bool,
+        "plot_outlines": bool,
+        "plot_points": bool,
+        "smooth_lines": bool,
+        "clustering": str,
+        "exclude": (str, type(None)),
+        "col_to_compare": str,
+        "pos": str,
+        "neg": str,
+        "embedding_by_controls": bool,
+        "plot_images": bool,
+        "reduction_method": str,
+        "save_figure": bool,
+        "color_by": (str, type(None)),
+        "analyze_clusters": bool,
+        "resnet_features": bool,
+        "test_nr": int,
+        "radial_dist": bool,
+        "calculate_correlation": bool,
+        "manders_thresholds": list,
+        "homogeneity": bool,
+        "homogeneity_distances": list,
+        "save_arrays": bool,
+        "cytoplasm": bool,
+        "merge_edge_pathogen_cells": bool,
+        "cells_per_well": int,
+        "pathogen_size_range": list,
+        "nucleus_size_range": list,
+        "cell_size_range": list,
+        "pathogen_intensity_range": list,
+        "nucleus_intensity_range": list,
+        "cell_intensity_range": list,
+        "target_intensity_min": int,
+        "model_type": str,
+        "heatmap_feature": str,
+        "grouping": str,
+        "min_max": str,
+        "minimum_cell_count": int,
+        "n_estimators": int,
+        "test_size": float,
+        "location_column": str,
+        "positive_control": str,
+        "negative_control": str,
+        "n_repeats": int,
+        "top_features": int,
+        "remove_low_variance_features": bool,
+        "n_jobs": int,
+        "classes": list,
+        "schedule": str,
+        "loss_type": str,
+        "image_size": int,
+        "epochs": int,
+        "val_split": float,
+        "train_mode": str,
+        "learning_rate": float,
+        "weight_decay": float,
+        "dropout_rate": float,
+        "init_weights": bool,
+        "amsgrad": bool,
+        "use_checkpoint": bool,
+        "gradient_accumulation": bool,
+        "gradient_accumulation_steps": int,
+        "intermedeate_save": bool,
+        "pin_memory": bool,
+        "num_workers": int,
+        "augment": bool,
+        "target": str,
+        "cell_types": list,
+        "cell_plate_metadata": (list, type(None)),
+        "pathogen_types": list,
+        "pathogen_plate_metadata": (list, list),  # This can be a list of lists
+        "treatment_plate_metadata": (list, list),  # This can be a list of lists
+        "metadata_types": list,
+        "cell_chann_dim": int,
+        "nucleus_chann_dim": int,
+        "pathogen_chann_dim": int,
+        "plot_nr": int,
+        "plot_control": bool,
+        "remove_background": bool,
+        "target": str,
+        "upstream": str,
+        "downstream": str,
+        "barecode_length_1": int,
+        "barecode_length_2": int,
+        "chunk_size": int,
+        "grna": str,
+        "barcodes": str,
+        "plate_dict": dict,
+        "pc": str,
+        "pc_loc": str,
+        "nc": str,
+        "nc_loc": str,
+        "dependent_variable": str,
+        "transform": (str, type(None)),
+        "agg_type": str,
+        "min_cell_count": int,
+        "regression_type": str,
+        "remove_row_column_effect": bool,
+        "alpha": float,
+        "fraction_threshold": float,
+        "class_1_threshold": (float, type(None)),
+        "batch_size": int,
+        "CP_prob": float,
+        "flow_threshold": float,
+        "percentiles": (list, type(None)),
+        "circular": bool,
+        "invert": bool,
+        "diameter": int,
+        "grayscale": bool,
+        "resize": bool,
+        "target_height": (int, type(None)),
+        "target_width": (int, type(None)),
+        "rescale": bool,
+        "resample": bool,
+        "model_name": str,
+        "Signal_to_noise": int,
+        "learning_rate": float,
+        "weight_decay": float,
+        "batch_size": int,
+        "n_epochs": int,
+        "from_scratch": bool,
+        "width_height": list,
+        "resize": bool,
+        "gene_weights_csv": str,
+        "fraction_threshold": float,
+    }
+
+    for key, (label, widget, var) in vars_dict.items():
+        if key not in expected_types:
+            if key not in ["General","Nucleus","Cell","Pathogen","Timelapse","Plot","Object Image","Annotate Data","Measurements","Advanced","Miscellaneous","Test"]:
+                
+                q.put(f"Key {key} not found in expected types.")
+                continue
+
+        value = var.get()
+        expected_type = expected_types.get(key, str)
+
+        try:
+            if key in ["png_size", "pathogen_plate_metadata", "treatment_plate_metadata"]:
+                parsed_value = ast.literal_eval(value) if value else None
+                if isinstance(parsed_value, list):
+                    if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
+                        settings[key] = parsed_value
+                    else:
+                        raise ValueError("Invalid format: Mixed list and list of lists")
+                else:
+                    raise ValueError("Invalid format for list or list of lists")
+            elif expected_type == list:
+                settings[key] = parse_list(value) if value else None
+            elif expected_type == bool:
+                settings[key] = value if isinstance(value, bool) else value.lower() in ['true', '1', 't', 'y', 'yes']
+            elif expected_type == (int, type(None)):
+                settings[key] = int(value) if value else None
+            elif expected_type == (float, type(None)):
+                settings[key] = float(value) if value else None
+            elif expected_type == (int, float):
+                settings[key] = float(value) if '.' in value else int(value)
+            elif expected_type == (str, type(None)):
+                settings[key] = str(value) if value else None
+            elif isinstance(expected_type, tuple):
+                for typ in expected_type:
+                    try:
+                        settings[key] = typ(value) if value else None
+                        break
+                    except (ValueError, TypeError):
+                        continue
+                else:
+                    raise ValueError
+            else:
+                settings[key] = expected_type(value) if value else None
+        except (ValueError, SyntaxError):
+            expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
+            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}.")
+            return
+
+    return settings
+
+def generate_fields(variables, scrollable_frame):
+    from .gui_utils import create_input_field, spacrToolTip
+    row = 1
+    vars_dict = {}
+    tooltips = {
+        "src": "Path to the folder containing the images.",
+        "metadata_type": "Type of metadata to expect in the images. This will determine how the images are processed. If 'custom' is selected, you can provide a custom regex pattern to extract metadata from the image names.",
+        "custom_regex": "Custom regex pattern to extract metadata from the image names. This will only be used if 'custom' is selected for 'metadata_type'.",
+        "experiment": "Name of the experiment. This will be used to name the output files.",
+        "channels": "List of channels to use for the analysis. The first channel is 0, the second is 1, and so on. For example, [0,1,2] will use channels 0, 1, and 2.",
+        "magnification": "At what magnification the images were taken. This will be used to determine the size of the objects in the images.",
+        "nucleus_channel": "The channel to use for the nucleus. If None, the nucleus will not be segmented.",
+        "nucleus_background": "The background intensity for the nucleus channel. This will be used to remove background noise.",
+        "nucleus_Signal_to_noise": "The signal-to-noise ratio for the nucleus channel. This will be used to determine the range of intensities to normalize images to for nucleus segmentation.",
+        "nucleus_CP_prob": "The cellpose probability threshold for the nucleus channel. This will be used to segment the nucleus.",
+        "nucleus_FT": "The flow threshold for nucleus objects. This will be used in nuclues segmentation.",
+        "cell_channel": "The channel to use for the cell. If None, the cell will not be segmented.",
+        "cell_background": "The background intensity for the cell channel. This will be used to remove background noise.",
+        "cell_Signal_to_noise": "The signal-to-noise ratio for the cell channel. This will be used to determine the range of intensities to normalize images to for cell segmentation.",
+        "cell_CP_prob": "The cellpose probability threshold for the cell channel. This will be used in cell segmentation.",
+        "cell_FT": "The flow threshold for cell objects. This will be used to segment the cells.",
+        "pathogen_channel": "The channel to use for the pathogen. If None, the pathogen will not be segmented.",
+        "pathogen_background": "The background intensity for the pathogen channel. This will be used to remove background noise.",
+        "pathogen_Signal_to_noise": "The signal-to-noise ratio for the pathogen channel. This will be used to determine the range of intensities to normalize images to for pathogen segmentation.",
+        "pathogen_CP_prob": "The cellpose probability threshold for the pathogen channel. This will be used to segment the pathogen.",
+        "pathogen_FT": "The flow threshold for pathogen objects. This will be used in pathogen segmentation.",
+        "preprocess": "Whether to preprocess the images before segmentation. This includes background removal and normalization. Set to False only if this step has already been done.",
+        "masks": "Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
+        "examples_to_plot": "The number of images to plot for each segmented object. This will be used to visually inspect the segmentation results and normalization.",
+        "randomize": "Whether to randomize the order of the images before processing. Recommended to avoid bias in the segmentation.",
+        "batch_size": "The batch size to use for processing the images. This will determine how many images are processed at once. Images are normalized and segmented in batches. Lower if application runs out of RAM or VRAM.",
+        "timelapse": "Whether to process the images as a timelapse.",
+        "timelapse_displacement": "The displacement between frames in the timelapse. This will be used to align the frames before processing.",
+        "timelapse_memory": "The number of frames to in tandem objects must be present in to be considered the same object in the timelapse.",
+        "timelapse_frame_limits": "The frame limits to use for the timelapse. This will determine which frames are processed. For example, [5,20] will process frames 5 to 20.",
+        "timelapse_remove_transient": "Whether to remove transient objects in the timelapse. Transient objects are present in fewer than all frames.",
+        "timelapse_mode": "The mode to use for processing the timelapse. 'trackpy' uses the trackpy library for tracking objects, while 'btrack' uses the btrack library.",
+        "timelapse_objects": "The objects to track in the timelapse (cell, nucleus or pathogen). This will determine which objects are tracked over time. If None, all objects will be tracked.",
+        "fps": "Frames per second of the automatically generated timelapse movies.",
+        "remove_background": "Whether to remove background noise from the images. This will help improve the quality of the segmentation.",
+        "lower_percentile": "The lower quantile to use for normalizing the images. This will be used to determine the range of intensities to normalize images to.",
+        "merge_pathogens": "Whether to merge pathogen objects that share more than 75% of their perimeter.",
+        "normalize_plots": "Whether to normalize the plots.",
+        "all_to_mip": "Whether to convert all images to maximum intensity projections before processing.",
+        "pick_slice": "Whether to pick a single slice from the z-stack images. If False, the maximum intensity projection will be used.",
+        "skip_mode": "The mode to use for skipping images. This will determine how to handle images that cannot be processed.",
+        "save": "Whether to save the results to disk.",
+        "merge_edge_pathogen_cells": "Whether to merge cells that share pathogen objects.",
+        "plot": "Whether to plot the results.",
+        "workers": "The number of workers to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+        "verbose": "Whether to print verbose output during processing.",
+        "input_folder": "Path to the folder containing the images.",
+        "cell_mask_dim": "The dimension of the array the cell mask is saved in.",
+        "cell_min_size": "The minimum size of cell objects in pixels^2.",
+        "cytoplasm": "Whether to segment the cytoplasm (Cell - Nucleus + Pathogen).",
+        "cytoplasm_min_size": "The minimum size of cytoplasm objects in pixels^2.",
+        "nucleus_mask_dim": "The dimension of the array the nucleus mask is saved in.",
+        "nucleus_min_size": "The minimum size of nucleus objects in pixels^2.",
+        "pathogen_mask_dim": "The dimension of the array the pathogen mask is saved in.",
+        "pathogen_min_size": "The minimum size of pathogen objects in pixels^2.",
+        "save_png": "Whether to save the segmented objects as PNG images.",
+        "crop_mode": "The mode to use for cropping the images. This will determine which objects are cropped from the images (cell, nucleus, pathogen, cytoplasm).",
+        "use_bounding_box": "Whether to use the bounding box of the objects for cropping. If False, only the object itself will be cropped.",
+        "png_size": "The size of the PNG images to save. This will determine the size of the saved images.",
+        "normalize": "The percentiles to use for normalizing the images. This will be used to determine the range of intensities to normalize images to. If None, no normalization is done.",
+        "png_dims": "The dimensions of the PNG images to save. This will determine the dimensions of the saved images. Maximum of 3 dimensions e.g. [1,2,3].",
+        "normalize_by": "Whether to normalize the images by field of view (fov) or by PNG image (png).",
+        "save_measurements": "Whether to save the measurements to disk.",
+        "representative_images": "Whether to save representative images of the segmented objects (Not working yet).",
+        "plot_filtration": "Whether to plot the filtration steps.",
+        "include_uninfected": "Whether to include uninfected cells in the analysis.",
+        "dialate_pngs": "Whether to dilate the PNG images before saving.",
+        "dialate_png_ratios": "The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
+        "max_workers": "The number of workers to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+        "cells": "The cell types to include in the analysis.",
+        "cell_loc": "The locations of the cell types in the images.",
+        "pathogens": "The pathogen types to include in the analysis.",
+        "pathogen_loc": "The locations of the pathogen types in the images.",
+        "treatments": "The treatments to include in the analysis.",
+        "treatment_loc": "The locations of the treatments in the images.",
+        "channel_of_interest": "The channel of interest to use for the analysis.",
+        "compartments": "The compartments to measure in the images.",
+        "measurement": "The measurement to use for the analysis.",
+        "nr_imgs": "The number of images to plot.",
+        "um_per_pixel": "The micrometers per pixel for the images."
+    }
+
+    for key, (var_type, options, default_value) in variables.items():
+        label, widget, var = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+        vars_dict[key] = (label, widget, var)  # Store the label, widget, and variable
+        
+        # Add tooltip to the label if it exists in the tooltips dictionary
+        if key in tooltips:
+            spacrToolTip(label, tooltips[key])
+        row += 1
+    return vars_dict
+
+categories = {
+    "General": ["src", "input_folder", "metadata_type", "custom_regex", "experiment", "channels", "magnification"],
+    "Nucleus": ["nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
+    "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
+    "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
+    "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
+    "Plot": ["plot_filtration", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot"],
+    "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
+    "Annotate Data": ["treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "representative_images", "um_per_pixel", "nr_imgs"],
+    "Measurements": ["homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements"],
+    "Advanced": ["preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "max_workers", "workers"],
+    "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
+    "Test": ["test_mode", "test_images", "random_test", "test_nr"]
+}
