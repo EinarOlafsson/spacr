@@ -625,7 +625,8 @@ def _measure_crop_core(index, time_ls, file, settings):
             data_type_before = data_type
             data = data.astype(np.uint16)
             data_type = data.dtype
-            print(f'Converted data from {data_type_before} to {data_type}')
+            if settings['verbose']:
+                print(f'Converted data from {data_type_before} to {data_type}')
 
         if settings['save_measurements']:
             os.makedirs(source_folder+'/measurements', exist_ok=True)
