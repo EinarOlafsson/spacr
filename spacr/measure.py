@@ -620,13 +620,10 @@ def _measure_crop_core(index, time_ls, file, settings):
 
         file_name = os.path.splitext(file)[0]
         data = np.load(os.path.join(settings['input_folder'], file))
-
         data_type = data.dtype
-
-        if data_type not in [np.uint8, np.uint16]:
-            #data = normalize_to_dtype(data, p1=0, p2=100, percentile_list=None, new_dtype=np.uint16)
-            data = data.astype(np.uint16)
+        if data_type not in ['uint8','uint16']:
             data_type_before = data_type
+            data = data.astype(np.uint16)
             data_type = data.dtype
             print(f'Converted data from {data_type_before} to {data_type}')
 
