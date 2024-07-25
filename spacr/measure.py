@@ -998,12 +998,12 @@ def measure_crop(settings):
     _save_settings_to_db(settings)
 
     files = [f for f in os.listdir(settings['input_folder']) if f.endswith('.npy')]
-    max_workers = settings['max_workers'] or mp.cpu_count()-4
-    print(f'using {max_workers} cpu cores')
+    n_job = settings['n_job'] or mp.cpu_count()-4
+    print(f'using {n_job} cpu cores')
 
     with mp.Manager() as manager:
         time_ls = manager.list()
-        with mp.Pool(max_workers) as pool:
+        with mp.Pool(n_job) as pool:
             result = pool.starmap_async(_measure_crop_core, [(index, time_ls, file, settings) for index, file in enumerate(files)])
 
             # Track progress in the main process
@@ -1012,7 +1012,7 @@ def measure_crop(settings):
                 files_processed = len(time_ls)
                 files_to_process = len(files)
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-                time_left = (((files_to_process-files_processed)*average_time)/max_workers)/60
+                time_left = (((files_to_process-files_processed)*average_time)/n_job)/60
                 print(f'Progress: {files_processed}/{files_to_process} Time/img {average_time:.3f}sec, Time Remaining {time_left:.3f} min.', end='\r', flush=True)
             result.get()
 

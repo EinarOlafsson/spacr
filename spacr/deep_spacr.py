@@ -230,7 +230,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                     image_size=settings['image_size'],
                                                     batch_size=settings['batch_size'], 
                                                     classes=settings['classes'], 
-                                                    num_workers=settings['num_workers'],
+                                                    n_job=settings['n_job'],
                                                     validation_split=settings['val_split'],
                                                     pin_memory=settings['pin_memory'],
                                                     normalize=settings['normalize'],
@@ -255,7 +255,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                             optimizer_type = settings['optimizer_type'], 
                             use_checkpoint = settings['use_checkpoint'], 
                             dropout_rate = settings['dropout_rate'], 
-                            num_workers = settings['num_workers'], 
+                            n_job = settings['n_job'], 
                             val_loaders = val, 
                             test_loaders = None, 
                             intermedeate_save = settings['intermedeate_save'],
@@ -276,7 +276,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                      image_size=settings['image_size'],
                                                      batch_size=settings['batch_size'], 
                                                      classes=settings['classes'], 
-                                                     num_workers=settings['num_workers'],
+                                                     n_job=settings['n_job'],
                                                      validation_split=0.0,
                                                      pin_memory=settings['pin_memory'],
                                                      normalize=settings['normalize'],
@@ -315,7 +315,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     torch.cuda.memory.empty_cache()
     gc.collect()
     
-def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='erm', epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, num_workers=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b']):
+def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='erm', epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_job=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b']):
     """
     Trains a model using the specified parameters.
 
@@ -332,7 +332,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
         optimizer_type (str, optional): The type of optimizer to use. Defaults to 'adamw'.
         use_checkpoint (bool, optional): Whether to use checkpointing during training. Defaults to False.
         dropout_rate (float, optional): The dropout rate for the model. Defaults to 0.
-        num_workers (int, optional): The number of workers for data loading. Defaults to 20.
+        n_job (int, optional): The number of n_job for data loading. Defaults to 20.
         val_loaders (list, optional): A list of validation data loaders. Defaults to None.
         test_loaders (list, optional): A list of test data loaders. Defaults to None.
         init_weights (str, optional): The initialization weights for the model. Defaults to 'imagenet'.
@@ -357,7 +357,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
         
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
-    kwargs = {'num_workers': num_workers, 'pin_memory': True} if use_cuda else {}
+    kwargs = {'n_job': n_job, 'pin_memory': True} if use_cuda else {}
     
     for idx, (images, labels, filenames) in enumerate(train_loaders):
         batch, chans, height, width = images.shape
