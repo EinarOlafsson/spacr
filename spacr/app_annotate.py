@@ -485,12 +485,15 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     exit_button = tk.Button(root, text="Exit", command=lambda: [app.shutdown(), shutdown_callback()], background='black', foreground='white')
     exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
 
-    app.load_images()
+    #app.load_images()
 
     # Store the shutdown function and next app details in the root
     root.current_app_exit_func = lambda: [app.shutdown(), shutdown_callback()]
     root.next_app_func = proceed_with_app
-    root.next_app_args = ("Main App", gui_app)  # Specify the main app function
+    root.next_app_args = ("Main App", gui_app)
+
+    # Call load_images after setting up the root window
+    app.load_images()
 
 def load_next_app(root):
     # Get the next app function and arguments

@@ -43,7 +43,7 @@ def set_default_settings_preprocess_generate_masks(src, settings={}):
     settings.setdefault('magnification', 20)
     settings.setdefault('custom_regex', None)
     settings.setdefault('metadata_type', 'cellvoyager')
-    settings.setdefault('workers', os.cpu_count()-4)
+    settings.setdefault('n_job', os.cpu_count()-4)
     settings.setdefault('randomize', True)
     settings.setdefault('verbose', True)
     settings.setdefault('remove_background_cell', False)
@@ -254,7 +254,7 @@ def get_measure_crop_settings(settings):
     settings.setdefault('plot',False)
     settings.setdefault('plot_filtration',False)
     settings.setdefault('representative_images', False)
-    settings.setdefault('max_workers', os.cpu_count()-2)
+    settings.setdefault('n_job', os.cpu_count()-2)
 
     # Object settings
     settings.setdefault('cell_mask_dim',None)
@@ -340,7 +340,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
     settings.setdefault('pin_memory',True)
-    settings.setdefault('num_workers',cores)
+    settings.setdefault('n_job',cores)
     settings.setdefault('channels',['r','g','b'])
     settings.setdefault('augment',False)
     settings.setdefault('verbose',False)
@@ -490,266 +490,264 @@ def get_identify_masks_finetune_default_settings(settings):
     return settings
 
 q = None
+expected_types = {
+    "src": str,
+    "metadata_type": str,
+    "custom_regex": (str, type(None)),
+    "experiment": str,
+    "channels": list,
+    "magnification": int,
+    "nucleus_channel": (int, type(None)),
+    "nucleus_background": int,
+    "nucleus_Signal_to_noise": float,
+    "nucleus_CP_prob": float,
+    "nucleus_FT": float,
+    "cell_channel": (int, type(None)),
+    "cell_background": (int, float),
+    "cell_Signal_to_noise": (int, float),
+    "cell_CP_prob": (int, float),
+    "cell_FT": (int, float),
+    "pathogen_channel": (int, type(None)),
+    "pathogen_background": (int, float),
+    "pathogen_Signal_to_noise": (int, float),
+    "pathogen_CP_prob": (int, float),
+    "pathogen_FT": (int, float),
+    "preprocess": bool,
+    "masks": bool,
+    "examples_to_plot": int,
+    "randomize": bool,
+    "batch_size": int,
+    "timelapse": bool,
+    "timelapse_displacement": int,
+    "timelapse_memory": int,
+    "timelapse_frame_limits": list,  # This can be a list of lists
+    "timelapse_remove_transient": bool,
+    "timelapse_mode": str,
+    "timelapse_objects": list,
+    "fps": int,
+    "remove_background": bool,
+    "lower_percentile": (int, float),
+    "merge_pathogens": bool,
+    "normalize_plots": bool,
+    "all_to_mip": bool,
+    "pick_slice": bool,
+    "skip_mode": str,
+    "save": bool,
+    "plot": bool,
+    "n_job": int,
+    "verbose": bool,
+    "input_folder": str,
+    "cell_mask_dim": int,
+    "cell_min_size": int,
+    "cytoplasm_min_size": int,
+    "nucleus_mask_dim": int,
+    "nucleus_min_size": int,
+    "pathogen_mask_dim": int,
+    "pathogen_min_size": int,
+    "save_png": bool,
+    "crop_mode": list,
+    "use_bounding_box": bool,
+    "png_size": list,  # This can be a list of lists
+    "normalize": bool,
+    "png_dims": list,
+    "normalize_by": str,
+    "save_measurements": bool,
+    "representative_images": bool,
+    "plot_filtration": bool,
+    "include_uninfected": bool,
+    "dialate_pngs": bool,
+    "dialate_png_ratios": list,
+    "n_job": int,
+    "cells": list,
+    "cell_loc": list,
+    "pathogens": list,
+    "pathogen_loc": (list, list),  # This can be a list of lists
+    "treatments": list,
+    "treatment_loc": (list, list),  # This can be a list of lists
+    "channel_of_interest": int,
+    "compartments": list,
+    "measurement": str,
+    "nr_imgs": int,
+    "um_per_pixel": (int, float),
+    # Additional settings based on provided defaults
+    "include_noninfected": bool,
+    "include_multiinfected": bool,
+    "include_multinucleated": bool,
+    "filter_min_max": (list, type(None)),
+    "channel_dims": list,
+    "backgrounds": list,
+    "outline_thickness": int,
+    "outline_color": str,
+    "overlay_chans": list,
+    "overlay": bool,
+    "normalization_percentiles": list,
+    "print_object_number": bool,
+    "nr": int,
+    "figuresize": int,
+    "cmap": str,
+    "test_mode": bool,
+    "test_images": int,
+    "remove_background_cell": bool,
+    "remove_background_nucleus": bool,
+    "remove_background_pathogen": bool,
+    "pathogen_model": (str, type(None)),
+    "filter": bool,
+    "upscale": bool,
+    "upscale_factor": float,
+    "adjust_cells": bool,
+    "row_limit": int,
+    "tables": list,
+    "visualize": str,
+    "image_nr": int,
+    "dot_size": int,
+    "n_neighbors": int,
+    "min_dist": float,
+    "metric": str,
+    "eps": float,
+    "min_samples": int,
+    "filter_by": str,
+    "img_zoom": float,
+    "plot_by_cluster": bool,
+    "plot_cluster_grids": bool,
+    "remove_cluster_noise": bool,
+    "remove_highly_correlated": bool,
+    "log_data": bool,
+    "black_background": bool,
+    "remove_image_canvas": bool,
+    "plot_outlines": bool,
+    "plot_points": bool,
+    "smooth_lines": bool,
+    "clustering": str,
+    "exclude": (str, type(None)),
+    "col_to_compare": str,
+    "pos": str,
+    "neg": str,
+    "embedding_by_controls": bool,
+    "plot_images": bool,
+    "reduction_method": str,
+    "save_figure": bool,
+    "color_by": (str, type(None)),
+    "analyze_clusters": bool,
+    "resnet_features": bool,
+    "test_nr": int,
+    "radial_dist": bool,
+    "calculate_correlation": bool,
+    "manders_thresholds": list,
+    "homogeneity": bool,
+    "homogeneity_distances": list,
+    "save_arrays": bool,
+    "cytoplasm": bool,
+    "merge_edge_pathogen_cells": bool,
+    "cells_per_well": int,
+    "pathogen_size_range": list,
+    "nucleus_size_range": list,
+    "cell_size_range": list,
+    "pathogen_intensity_range": list,
+    "nucleus_intensity_range": list,
+    "cell_intensity_range": list,
+    "target_intensity_min": int,
+    "model_type": str,
+    "heatmap_feature": str,
+    "grouping": str,
+    "min_max": str,
+    "minimum_cell_count": int,
+    "n_estimators": int,
+    "test_size": float,
+    "location_column": str,
+    "positive_control": str,
+    "negative_control": str,
+    "n_repeats": int,
+    "top_features": int,
+    "remove_low_variance_features": bool,
+    "n_jobs": int,
+    "classes": list,
+    "schedule": str,
+    "loss_type": str,
+    "image_size": int,
+    "epochs": int,
+    "val_split": float,
+    "train_mode": str,
+    "learning_rate": float,
+    "weight_decay": float,
+    "dropout_rate": float,
+    "init_weights": bool,
+    "amsgrad": bool,
+    "use_checkpoint": bool,
+    "gradient_accumulation": bool,
+    "gradient_accumulation_steps": int,
+    "intermedeate_save": bool,
+    "pin_memory": bool,
+    "n_job": int,
+    "augment": bool,
+    "target": str,
+    "cell_types": list,
+    "cell_plate_metadata": (list, type(None)),
+    "pathogen_types": list,
+    "pathogen_plate_metadata": (list, list),  # This can be a list of lists
+    "treatment_plate_metadata": (list, list),  # This can be a list of lists
+    "metadata_types": list,
+    "cell_chann_dim": int,
+    "nucleus_chann_dim": int,
+    "pathogen_chann_dim": int,
+    "plot_nr": int,
+    "plot_control": bool,
+    "remove_background": bool,
+    "target": str,
+    "upstream": str,
+    "downstream": str,
+    "barecode_length_1": int,
+    "barecode_length_2": int,
+    "chunk_size": int,
+    "grna": str,
+    "barcodes": str,
+    "plate_dict": dict,
+    "pc": str,
+    "pc_loc": str,
+    "nc": str,
+    "nc_loc": str,
+    "dependent_variable": str,
+    "transform": (str, type(None)),
+    "agg_type": str,
+    "min_cell_count": int,
+    "regression_type": str,
+    "remove_row_column_effect": bool,
+    "alpha": float,
+    "fraction_threshold": float,
+    "class_1_threshold": (float, type(None)),
+    "batch_size": int,
+    "CP_prob": float,
+    "flow_threshold": float,
+    "percentiles": (list, type(None)),
+    "circular": bool,
+    "invert": bool,
+    "diameter": int,
+    "grayscale": bool,
+    "resize": bool,
+    "target_height": (int, type(None)),
+    "target_width": (int, type(None)),
+    "rescale": bool,
+    "resample": bool,
+    "model_name": str,
+    "Signal_to_noise": int,
+    "learning_rate": float,
+    "weight_decay": float,
+    "batch_size": int,
+    "n_epochs": int,
+    "from_scratch": bool,
+    "width_height": list,
+    "resize": bool,
+    "gene_weights_csv": str,
+    "fraction_threshold": float,
+}
 
-def check_settings(vars_dict):
-    global q
+def check_settings_v1(vars_dict, expected_types,q=None):
     from .gui_utils import parse_list
     settings = {}
     # Define the expected types for each key, including None where applicable
-    expected_types = {
-        "src": str,
-        "metadata_type": str,
-        "custom_regex": (str, type(None)),
-        "experiment": str,
-        "channels": list,
-        "magnification": int,
-        "nucleus_channel": (int, type(None)),
-        "nucleus_background": int,
-        "nucleus_Signal_to_noise": float,
-        "nucleus_CP_prob": float,
-        "nucleus_FT": float,
-        "cell_channel": (int, type(None)),
-        "cell_background": (int, float),
-        "cell_Signal_to_noise": (int, float),
-        "cell_CP_prob": (int, float),
-        "cell_FT": (int, float),
-        "pathogen_channel": (int, type(None)),
-        "pathogen_background": (int, float),
-        "pathogen_Signal_to_noise": (int, float),
-        "pathogen_CP_prob": (int, float),
-        "pathogen_FT": (int, float),
-        "preprocess": bool,
-        "masks": bool,
-        "examples_to_plot": int,
-        "randomize": bool,
-        "batch_size": int,
-        "timelapse": bool,
-        "timelapse_displacement": int,
-        "timelapse_memory": int,
-        "timelapse_frame_limits": list,  # This can be a list of lists
-        "timelapse_remove_transient": bool,
-        "timelapse_mode": str,
-        "timelapse_objects": list,
-        "fps": int,
-        "remove_background": bool,
-        "lower_percentile": (int, float),
-        "merge_pathogens": bool,
-        "normalize_plots": bool,
-        "all_to_mip": bool,
-        "pick_slice": bool,
-        "skip_mode": str,
-        "save": bool,
-        "plot": bool,
-        "workers": int,
-        "verbose": bool,
-        "input_folder": str,
-        "cell_mask_dim": int,
-        "cell_min_size": int,
-        "cytoplasm_min_size": int,
-        "nucleus_mask_dim": int,
-        "nucleus_min_size": int,
-        "pathogen_mask_dim": int,
-        "pathogen_min_size": int,
-        "save_png": bool,
-        "crop_mode": list,
-        "use_bounding_box": bool,
-        "png_size": list,  # This can be a list of lists
-        "normalize": bool,
-        "png_dims": list,
-        "normalize_by": str,
-        "save_measurements": bool,
-        "representative_images": bool,
-        "plot_filtration": bool,
-        "include_uninfected": bool,
-        "dialate_pngs": bool,
-        "dialate_png_ratios": list,
-        "max_workers": int,
-        "cells": list,
-        "cell_loc": list,
-        "pathogens": list,
-        "pathogen_loc": (list, list),  # This can be a list of lists
-        "treatments": list,
-        "treatment_loc": (list, list),  # This can be a list of lists
-        "channel_of_interest": int,
-        "compartments": list,
-        "measurement": str,
-        "nr_imgs": int,
-        "um_per_pixel": (int, float),
-        # Additional settings based on provided defaults
-        "include_noninfected": bool,
-        "include_multiinfected": bool,
-        "include_multinucleated": bool,
-        "filter_min_max": (list, type(None)),
-        "channel_dims": list,
-        "backgrounds": list,
-        "outline_thickness": int,
-        "outline_color": str,
-        "overlay_chans": list,
-        "overlay": bool,
-        "normalization_percentiles": list,
-        "print_object_number": bool,
-        "nr": int,
-        "figuresize": int,
-        "cmap": str,
-        "test_mode": bool,
-        "test_images": int,
-        "remove_background_cell": bool,
-        "remove_background_nucleus": bool,
-        "remove_background_pathogen": bool,
-        "pathogen_model": (str, type(None)),
-        "filter": bool,
-        "upscale": bool,
-        "upscale_factor": float,
-        "adjust_cells": bool,
-        "row_limit": int,
-        "tables": list,
-        "visualize": str,
-        "image_nr": int,
-        "dot_size": int,
-        "n_neighbors": int,
-        "min_dist": float,
-        "metric": str,
-        "eps": float,
-        "min_samples": int,
-        "filter_by": str,
-        "img_zoom": float,
-        "plot_by_cluster": bool,
-        "plot_cluster_grids": bool,
-        "remove_cluster_noise": bool,
-        "remove_highly_correlated": bool,
-        "log_data": bool,
-        "black_background": bool,
-        "remove_image_canvas": bool,
-        "plot_outlines": bool,
-        "plot_points": bool,
-        "smooth_lines": bool,
-        "clustering": str,
-        "exclude": (str, type(None)),
-        "col_to_compare": str,
-        "pos": str,
-        "neg": str,
-        "embedding_by_controls": bool,
-        "plot_images": bool,
-        "reduction_method": str,
-        "save_figure": bool,
-        "color_by": (str, type(None)),
-        "analyze_clusters": bool,
-        "resnet_features": bool,
-        "test_nr": int,
-        "radial_dist": bool,
-        "calculate_correlation": bool,
-        "manders_thresholds": list,
-        "homogeneity": bool,
-        "homogeneity_distances": list,
-        "save_arrays": bool,
-        "cytoplasm": bool,
-        "merge_edge_pathogen_cells": bool,
-        "cells_per_well": int,
-        "pathogen_size_range": list,
-        "nucleus_size_range": list,
-        "cell_size_range": list,
-        "pathogen_intensity_range": list,
-        "nucleus_intensity_range": list,
-        "cell_intensity_range": list,
-        "target_intensity_min": int,
-        "model_type": str,
-        "heatmap_feature": str,
-        "grouping": str,
-        "min_max": str,
-        "minimum_cell_count": int,
-        "n_estimators": int,
-        "test_size": float,
-        "location_column": str,
-        "positive_control": str,
-        "negative_control": str,
-        "n_repeats": int,
-        "top_features": int,
-        "remove_low_variance_features": bool,
-        "n_jobs": int,
-        "classes": list,
-        "schedule": str,
-        "loss_type": str,
-        "image_size": int,
-        "epochs": int,
-        "val_split": float,
-        "train_mode": str,
-        "learning_rate": float,
-        "weight_decay": float,
-        "dropout_rate": float,
-        "init_weights": bool,
-        "amsgrad": bool,
-        "use_checkpoint": bool,
-        "gradient_accumulation": bool,
-        "gradient_accumulation_steps": int,
-        "intermedeate_save": bool,
-        "pin_memory": bool,
-        "num_workers": int,
-        "augment": bool,
-        "target": str,
-        "cell_types": list,
-        "cell_plate_metadata": (list, type(None)),
-        "pathogen_types": list,
-        "pathogen_plate_metadata": (list, list),  # This can be a list of lists
-        "treatment_plate_metadata": (list, list),  # This can be a list of lists
-        "metadata_types": list,
-        "cell_chann_dim": int,
-        "nucleus_chann_dim": int,
-        "pathogen_chann_dim": int,
-        "plot_nr": int,
-        "plot_control": bool,
-        "remove_background": bool,
-        "target": str,
-        "upstream": str,
-        "downstream": str,
-        "barecode_length_1": int,
-        "barecode_length_2": int,
-        "chunk_size": int,
-        "grna": str,
-        "barcodes": str,
-        "plate_dict": dict,
-        "pc": str,
-        "pc_loc": str,
-        "nc": str,
-        "nc_loc": str,
-        "dependent_variable": str,
-        "transform": (str, type(None)),
-        "agg_type": str,
-        "min_cell_count": int,
-        "regression_type": str,
-        "remove_row_column_effect": bool,
-        "alpha": float,
-        "fraction_threshold": float,
-        "class_1_threshold": (float, type(None)),
-        "batch_size": int,
-        "CP_prob": float,
-        "flow_threshold": float,
-        "percentiles": (list, type(None)),
-        "circular": bool,
-        "invert": bool,
-        "diameter": int,
-        "grayscale": bool,
-        "resize": bool,
-        "target_height": (int, type(None)),
-        "target_width": (int, type(None)),
-        "rescale": bool,
-        "resample": bool,
-        "model_name": str,
-        "Signal_to_noise": int,
-        "learning_rate": float,
-        "weight_decay": float,
-        "batch_size": int,
-        "n_epochs": int,
-        "from_scratch": bool,
-        "width_height": list,
-        "resize": bool,
-        "gene_weights_csv": str,
-        "fraction_threshold": float,
-    }
 
     for key, (label, widget, var) in vars_dict.items():
         if key not in expected_types:
             if key not in ["General","Nucleus","Cell","Pathogen","Timelapse","Plot","Object Image","Annotate Data","Measurements","Advanced","Miscellaneous","Test"]:
-                
                 q.put(f"Key {key} not found in expected types.")
                 continue
 
@@ -792,6 +790,64 @@ def check_settings(vars_dict):
         except (ValueError, SyntaxError):
             expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
             q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}.")
+            return
+
+    return settings
+
+def check_settings(vars_dict, expected_types, q=None):
+    from .gui_utils import parse_list
+
+    if q is None:
+        from multiprocessing import Queue
+        q = Queue()
+
+    settings = {}
+
+    for key, (label, widget, var) in vars_dict.items():
+        if key not in expected_types:
+            if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test"]:
+                q.put(f"Key {key} not found in expected types.")
+                continue
+
+        value = var.get()
+        expected_type = expected_types.get(key, str)
+
+        try:
+            if key in ["png_size", "pathogen_plate_metadata", "treatment_plate_metadata"]:
+                parsed_value = ast.literal_eval(value) if value else None
+                if isinstance(parsed_value, list):
+                    if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
+                        settings[key] = parsed_value
+                    else:
+                        raise ValueError("Invalid format: Mixed list and list of lists")
+                else:
+                    raise ValueError("Invalid format for list or list of lists")
+            elif expected_type == list:
+                settings[key] = parse_list(value) if value else None
+            elif expected_type == bool:
+                settings[key] = value if isinstance(value, bool) else value.lower() in ['true', '1', 't', 'y', 'yes']
+            elif expected_type == (int, type(None)):
+                settings[key] = int(value) if value else None
+            elif expected_type == (float, type(None)):
+                settings[key] = float(value) if value else None
+            elif expected_type == (int, float):
+                settings[key] = float(value) if '.' in value else int(value)
+            elif expected_type == (str, type(None)):
+                settings[key] = str(value) if value else None
+            elif isinstance(expected_type, tuple):
+                for typ in expected_type:
+                    try:
+                        settings[key] = typ(value) if value else None
+                        break
+                    except (ValueError, TypeError):
+                        continue
+                else:
+                    raise ValueError
+            else:
+                settings[key] = expected_type(value) if value else None
+        except (ValueError, SyntaxError) as e:
+            expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
+            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}. Error: {e}")
             return
 
     return settings
@@ -846,7 +902,7 @@ def generate_fields(variables, scrollable_frame):
         "save": "Whether to save the results to disk.",
         "merge_edge_pathogen_cells": "Whether to merge cells that share pathogen objects.",
         "plot": "Whether to plot the results.",
-        "workers": "The number of workers to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+        "n_job": "The number of n_job to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
         "verbose": "Whether to print verbose output during processing.",
         "input_folder": "Path to the folder containing the images.",
         "cell_mask_dim": "The dimension of the array the cell mask is saved in.",
@@ -870,7 +926,7 @@ def generate_fields(variables, scrollable_frame):
         "include_uninfected": "Whether to include uninfected cells in the analysis.",
         "dialate_pngs": "Whether to dilate the PNG images before saving.",
         "dialate_png_ratios": "The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
-        "max_workers": "The number of workers to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+        "n_job": "The number of n_job to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
         "cells": "The cell types to include in the analysis.",
         "cell_loc": "The locations of the cell types in the images.",
         "pathogens": "The pathogen types to include in the analysis.",
@@ -899,12 +955,12 @@ categories = {
     "Nucleus": ["nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
     "Cell": ["cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
     "Pathogen": ["pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
-    "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-    "Plot": ["plot_filtration", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
+    "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
+    "Plot": ["plot_filtration", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
     "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
     "Annotate Data": ["positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "representative_images", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
     "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-    "Advanced": ["schedule", "test_size","exclude","n_repeats","top_features","n_jobs", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "max_workers", "workers", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","num_workers","channels","augment"],
+    "Advanced": ["plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_job", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","n_job","channels","augment"],
     "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
     "Embedding": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
     "Train DL Model": ["epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate","init_weights", "train", "classes"],

@@ -971,7 +971,7 @@ def generate_dataset(src, file_metadata=None, experiment='TSG101_screen', sample
     shutil.rmtree(temp_dir)
     print(f"\nSaved {total_images} images to {tar_name}")
 
-def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', num_workers=10, threshold=0.5, verbose=False):
+def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', n_job=10, threshold=0.5, verbose=False):
     
     from .io import TarImageDataset
     from .utils import process_vision_results
@@ -994,7 +994,7 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
     model = torch.load(model_path)
     
     dataset = TarImageDataset(tar_path, transform=transform)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, n_job=n_job, pin_memory=True)
     
     model_name = os.path.splitext(os.path.basename(model_path))[0] 
     dataset_name = os.path.splitext(os.path.basename(tar_path))[0]  
@@ -1034,7 +1034,7 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
     torch.cuda.memory.empty_cache()
     return df
 
-def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, num_workers=10):
+def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_job=10):
     
     from .io import NoClassDataset
     
@@ -1055,7 +1055,7 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     
     print(f'Loading dataset in {src} with {len(src)} images')
     dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=True, load_to_memory=False)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, n_job=n_job)
     print(f'Loaded {len(src)} images')
     
     result_loc = os.path.splitext(model_path)[0]+datetime.date.today().strftime('%y%m%d')+'_'+os.path.splitext(model_path)[1]+'_test_result.csv'
@@ -1302,7 +1302,7 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
     
     return
 
-def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], num_workers=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
+def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_job=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
     
     """
     Generate data loaders for training and validation/test datasets.
@@ -1314,7 +1314,7 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     - image_size (int): The size of the input images.
     - batch_size (int): The batch size for the data loaders.
     - classes (list): The list of classes to consider.
-    - num_workers (int): The number of worker threads for data loading.
+    - n_job (int): The number of worker threads for data loading.
     - validation_split (float): The fraction of data to use for validation when train_mode is 'erm'.
     - max_show (int): The maximum number of images to show when verbose is True.
     - pin_memory (bool): Whether to pin memory for faster data transfer.
@@ -1404,10 +1404,10 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
                 #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
                 print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
 
-            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, n_job=n_job if n_job is not None else 0, pin_memory=pin_memory)
+            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, n_job=n_job if n_job is not None else 0, pin_memory=pin_memory)
         else:
-            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, n_job=n_job if n_job is not None else 0, pin_memory=pin_memory)
         
     elif train_mode == 'irm':
         data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
@@ -1436,13 +1436,13 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
                     #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
                     print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
 
-                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
-                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, n_job=n_job if n_job is not None else 0, pin_memory=pin_memory)
+                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, n_job=n_job if n_job is not None else 0, pin_memory=pin_memory)
 
                 train_loaders.append(train_loader)
                 val_loaders.append(val_loader)
             else:
-                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers if num_workers is not None else 0, pin_memory=pin_memory)
+                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, n_job=n_job if n_job is not None else 0, pin_memory=pin_memory)
                 train_loaders.append(train_loader)
                 val_loaders.append(None)
     
@@ -2078,11 +2078,11 @@ def identify_masks(src, object_type, model_name, batch_size, channels, diameter,
                             else:
                                 radius = 100
 
-                            workers = os.cpu_count()-2
-                            if workers < 1:
-                                workers = 1
+                            n_job = os.cpu_count()-2
+                            if n_job < 1:
+                                n_job = 1
 
-                            mask_stack = _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D=masks, mode=timelapse_mode, timelapse_remove_transient=timelapse_remove_transient, radius=radius, workers=workers)
+                            mask_stack = _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D=masks, mode=timelapse_mode, timelapse_remove_transient=timelapse_remove_transient, radius=radius, n_job=n_job)
                         if timelapse_mode == 'trackpy':
                             mask_stack = _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelapse_displacement, timelapse_memory, timelapse_remove_transient, plot, save, timelapse_mode)
                             
@@ -2303,9 +2303,9 @@ def generate_cellpose_masks(src, settings, object_type):
                         else:
                             radius = 100
 
-                        workers = os.cpu_count()-2
-                        if workers < 1:
-                            workers = 1
+                        n_job = os.cpu_count()-2
+                        if n_job < 1:
+                            n_job = 1
 
                         mask_stack = _btrack_track_cells(src=src,
                                                          name=name,
@@ -2317,7 +2317,7 @@ def generate_cellpose_masks(src, settings, object_type):
                                                          mode=timelapse_mode,
                                                          timelapse_remove_transient=timelapse_remove_transient,
                                                          radius=radius,
-                                                         workers=workers)
+                                                         n_job=n_job)
                     if timelapse_mode == 'trackpy':
                         mask_stack = _trackpy_track_cells(src=src,
                                                           name=name,
@@ -2551,7 +2551,7 @@ def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
         common_files.intersection_update(os.listdir(d))
     common_files = list(common_files)
 
-    # Create a pool of workers
+    # Create a pool of n_job
     with Pool(processes=processes) as pool:
         args = [(src, filename, dirs, conditions) for filename in common_files]
         results = pool.map(compare_mask, args)

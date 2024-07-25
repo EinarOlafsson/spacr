@@ -4,13 +4,48 @@ matplotlib.use('Agg')
 
 fig_queue = None
 
-def my_show():
+def spacrFigShow_v1():
+    """
+    Replacement for plt.show() that queues figures instead of displaying them.
+    """
+    global fig_queue
+    fig = plt.gcf()
+    fig_queue.put(fig)
+    plt.close(fig)
+
+def spacrFigShow(fig_queue=None):
     """
     Replacement for plt.show() that queues figures instead of displaying them.
     """
     fig = plt.gcf()
-    fig_queue.put(fig)
+    if fig_queue:
+        fig_queue.put(fig)
+    else:
+        fig.show()
     plt.close(fig)
+
+def preprocess_generate_masks_wrapper(settings, q, fig_queue):
+    """
+    Wraps the measure_crop function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the measure_crop function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = lambda: spacrFigShow(fig_queue)
+
+    try:
+        spacr.core.preprocess_generate_masks(src=settings['src'], settings=settings)
+    except Exception as e:
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage)
+        traceback.print_exc()
+    finally:
+        plt.show = original_show
 
 def measure_crop_wrapper(settings, q, fig_queue):
     """
@@ -24,7 +59,7 @@ def measure_crop_wrapper(settings, q, fig_queue):
 
     # Temporarily override plt.show
     original_show = plt.show
-    plt.show = my_show
+    plt.show = lambda: spacrFigShow(fig_queue)
 
     try:
         print('start')
@@ -35,35 +70,12 @@ def measure_crop_wrapper(settings, q, fig_queue):
         traceback.print_exc()
     finally:
         plt.show = original_show  
-        
-def preprocess_generate_masks_wrapper(settings, q, fig_queue):
-    """
-    Wraps the measure_crop function to integrate with GUI processes.
-    
-    Parameters:
-    - settings: dict, The settings for the measure_crop function.
-    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
-    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
-    """
-
-    # Temporarily override plt.show
-    original_show = plt.show
-    plt.show = my_show
-
-    try:
-        spacr.core.preprocess_generate_masks(src=settings['src'], settings=settings)
-    except Exception as e:
-        errorMessage = f"Error during processing: {e}"
-        q.put(errorMessage)
-        traceback.print_exc()
-    finally:
-        plt.show = original_show
 
 def sequencing_wrapper(settings, q, fig_queue):
 
     # Temporarily override plt.show
     original_show = plt.show
-    plt.show = my_show
+    plt.show = lambda: spacrFigShow(fig_queue)
 
     try:
         spacr.sequencing.analyze_reads(settings=settings)
@@ -78,7 +90,7 @@ def umap_wrapper(settings, q, fig_queue):
 
     # Temporarily override plt.show
     original_show = plt.show
-    plt.show = my_show
+    plt.show = lambda: spacrFigShow(fig_queue)
 
     try:
         spacr.core.generate_image_umap(settings=settings)
@@ -101,7 +113,7 @@ def train_test_model_wrapper(settings, q, fig_queue):
 
     # Temporarily override plt.show
     original_show = plt.show
-    plt.show = my_show
+    plt.show = lambda: spacrFigShow(fig_queue)
 
     try:
         spacr.core.train_test_model(settings['src'], settings=settings)
@@ -125,7 +137,7 @@ def run_multiple_simulations_wrapper(settings, q, fig_queue):
 
     # Temporarily override plt.show
     original_show = plt.show
-    plt.show = my_show
+    plt.show = lambda: spacrFigShow(fig_queue)
 
     try:
         spacr.sim.run_multiple_simulations(settings=settings)
