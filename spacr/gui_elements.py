@@ -101,9 +101,11 @@ class spacrButton(tk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.text = text
         self.command = command
-        screen_height = self.winfo_screenheight()
-        button_height = screen_height // 50
-        button_width = button_height * 3
+        #screen_height = self.winfo_screenheight()
+        button_height = 50 #screen_height // 50
+        button_width = 140 #button_height * 3
+
+        #print(button_height, button_width)
 
         # Increase the canvas size to accommodate the button and the rim
         self.canvas = tk.Canvas(self, width=button_width + 4, height=button_height + 4, highlightthickness=0, bg="black")
