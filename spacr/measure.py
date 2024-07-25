@@ -624,9 +624,11 @@ def _measure_crop_core(index, time_ls, file, settings):
         data_type = data.dtype
 
         if data_type not in [np.uint8, np.uint16]:
-            data = normalize_to_dtype(data, p1=0, p2=100, percentile_list=None, new_dtype=np.uint16)
-            print(f'Converted data to {np.uint16} from {data_type}')
+            #data = normalize_to_dtype(data, p1=0, p2=100, percentile_list=None, new_dtype=np.uint16)
+            data = data.astype(np.uint16)
+            data_type_before = data_type
             data_type = data.dtype
+            print(f'Converted data from {data_type_before} to {data_type}')
 
         if settings['save_measurements']:
             os.makedirs(source_folder+'/measurements', exist_ok=True)
@@ -832,7 +834,6 @@ def _measure_crop_core(index, time_ls, file, settings):
                                     png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1], percentile_list=percentile_list)
                             else:
                                 png_channels = normalize_to_dtype(png_channels, 0, 100)
-                            print('dtype after normalize',png_channels.dtype)
                             os.makedirs(png_folder, exist_ok=True)
 
                             if png_channels.shape[2] == 2:
