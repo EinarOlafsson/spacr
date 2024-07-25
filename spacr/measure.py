@@ -16,12 +16,6 @@ from skimage.util import img_as_bool
 
 from .logger import log_function_call
 
-#from .io import create_database, _save_settings_to_db
-#from .timelapse import _timelapse_masks_to_gif, _scmovie
-#from .plot import _plot_cropped_arrays, _save_scimg_plot
-#from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects
-#from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles, normalize_to_dtype, _map_wells_png, _list_endpoint_subdirectories, _generate_representative_images
-
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """
     Get the components (nucleus and pathogens) for each cell in the given masks.
@@ -628,6 +622,12 @@ def _measure_crop_core(index, time_ls, file, settings):
         data = np.load(os.path.join(settings['input_folder'], file))
 
         data_type = data.dtype
+
+        if data_type not in [np.uint8, np.uint16]:
+            data = normalize_to_dtype(data, p1=0, p2=100, percentile_list=None, new_dtype=np.uint16)
+            print(f'Converted data to {np.uint16} from {data_type}')
+            data_type = data.dtype
+
         if settings['save_measurements']:
             os.makedirs(source_folder+'/measurements', exist_ok=True)
             _create_database(source_folder+'/measurements/measurements.db')    
@@ -832,7 +832,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                                     png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1], percentile_list=percentile_list)
                             else:
                                 png_channels = normalize_to_dtype(png_channels, 0, 100)
-
+                            print('dtype after normalize',png_channels.dtype)
                             os.makedirs(png_folder, exist_ok=True)
 
                             if png_channels.shape[2] == 2:
