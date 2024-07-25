@@ -1566,3 +1566,55 @@ def plot_feature_importance(feature_importance_df):
     ax.tick_params(axis='both', which='major', labelsize=font_size)
     plt.tight_layout()
     return fig
+
+def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time', y_lim=[0.8, 0.9]):
+    # List to store data from all CSV files
+    data_frames = []
+
+    dst = os.path.join(base_dir, 'result')
+    os.mkdir(dst,exists=True)
+
+    # Walk through the directory
+    for root, dirs, files in os.walk(base_dir):
+        for file in files:
+            if file.endswith("_test_result.csv"):
+                file_path = os.path.join(root, file)
+                # Extract model information from the file name
+                file_name = os.path.basename(file_path)
+                model = file_name.split(f'{name_split}')[0]
+                
+                # Extract epoch information from the file name
+                epoch_info = file_name.split('_time')[1]
+                base_folder = os.path.dirname(file_path)
+                epoch = os.path.basename(base_folder)
+                
+                # Read the CSV file
+                df = pd.read_csv(file_path)
+                df['model'] = model
+                df['epoch'] = epoch
+                
+                # Append the data frame to the list
+                data_frames.append(df)
+    
+    # Concatenate all data frames
+    if data_frames:
+        result_df = pd.concat(data_frames, ignore_index=True)
+        
+        # Calculate average y_axis per model
+        avg_metric = result_df.groupby('model')[y_axis].mean().reset_index()
+        avg_metric = avg_metric.sort_values(by=y_axis)
+        print(avg_metric)
+        
+        # Plotting the results
+        plt.figure(figsize=(10, 6))
+        plt.bar(avg_metric['model'], avg_metric[y_axis])
+        plt.xlabel('Model')
+        plt.ylabel(f'{y_axis}')
+        plt.title(f'Average {y_axis.capitalize()} per Model')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        if y_lim is not None:
+            plt.ylim(y_lim)
+        plt.show()
+    else:
+        print("No CSV files found in the specified directory.")

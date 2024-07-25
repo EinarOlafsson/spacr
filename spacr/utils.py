@@ -472,7 +472,7 @@ def is_list_of_lists(var):
         return True
     return False
 
-def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None):
+def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None):
     """
     Normalize each image in the stack to its own percentiles.
 
@@ -491,7 +491,16 @@ def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None):
     The normalized stack with the same shape as the input stack.
     """
 
-    out_range = (0, np.iinfo(array.dtype).max)
+    if new_dtype is None:
+        out_range = (0, np.iinfo(array.dtype).max)
+    elif new_dtype in [np.uint8, np.uint16]:
+        out_range = (0, np.iinfo(new_dtype).max)
+    elif new_dtype in ['uint8', 'uint16']:
+        new_dtype = np.uint8 if new_dtype == 'uint8' else np.uint16
+        out_range = (0, np.iinfo(new_dtype).max)
+    else:
+        out_range = (0, np.iinfo(array.dtype).max)
+
     nimg = array.shape[2]
     new_stack = np.empty_like(array, dtype=array.dtype)
 
@@ -4050,7 +4059,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     
     # Relabel the merged cell mask
     relabeled_cell_mask, _ = label(cell_mask, return_num=True)
-    return relabeled_cell_mask
+    return relabeled_cell_mask.astype(np.uint16)
 
 def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
 
@@ -4090,7 +4099,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
         merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
         
         # Force 16 bit
-        mamerged_cell_masksk = merged_cell_mask.astype(np.uint16)
+        #merged_cell_mask = merged_cell_mask.astype(np.uint16)
         
         # Overwrite the original cell mask file with the merged result
         np.save(cell_path, merged_cell_mask)
