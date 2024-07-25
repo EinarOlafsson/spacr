@@ -1,0 +1,62 @@
+Key,Value
+src,path
+verbose,False
+test_mode,False
+test_nr,10
+channels,"[0, 1, 2, 3]"
+save_measurements,True
+radial_dist,True
+calculate_correlation,True
+manders_thresholds,"[15, 85, 95]"
+homogeneity,True
+homogeneity_distances,"[8, 16, 32]"
+save_arrays,False
+save_png,True
+use_bounding_box,False
+png_size,"[[224, 224]]"
+png_dims,"[0, 2, 3]"
+normalize,False
+normalize_by,png
+crop_mode,['cell']
+dialate_pngs,False
+dialate_png_ratios,[0.2]
+timelapse,False
+timelapse_objects,['cell']
+plot,True
+plot_filtration,False
+representative_images,False
+n_job,30
+cell_mask_dim,4
+nucleus_mask_dim,5
+pathogen_mask_dim,6
+cytoplasm,True
+include_uninfected,False
+cell_min_size,8000
+nucleus_min_size,2000
+pathogen_min_size,500
+cytoplasm_min_size,0
+merge_edge_pathogen_cells,True
+experiment,exp
+cells,['Hela']
+cell_loc,
+pathogens,"['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO']"
+pathogen_loc,"['[', '[', ""'"", 'c', '1', ""'"", ',', ' ', ""'"", 'c', '2', ""'"", ',', ' ', ""'"", 'c', '3', ""'"", ',', ' ', ""'"", 'c', '4', ""'"", ',', ' ', ""'"", 'c', '5', ""'"", ',', ' ', ""'"", 'c', '6', ""'"", ']', ',', ' ', '[', ""'"", 'c', '7', ""'"", ',', ' ', ""'"", 'c', '8', ""'"", ',', ' ', ""'"", 'c', '9', ""'"", ',', ' ', ""'"", 'c', '1', '0', ""'"", ',', ' ', ""'"", 'c', '1', '1', ""'"", ',', ' ', ""'"", 'c', '1', '2', ""'"", ']', ',', ' ', '[', ""'"", 'c', '1', '3', ""'"", ',', ' ', ""'"", 'c', '1', '4', ""'"", ',', ' ', ""'"", 'c', '1', '5', ""'"", ',', ' ', ""'"", 'c', '1', '6', ""'"", ',', ' ', ""'"", 'c', '1', '7', ""'"", ',', ' ', ""'"", 'c', '1', '8', ""'"", ']', ',', ' ', '[', ""'"", 'c', '1', '9', ""'"", ',', ' ', ""'"", 'c', '2', '0', ""'"", ',', ' ', ""'"", 'c', '2', '1', ""'"", ',', ' ', ""'"", 'c', '2', '2', ""'"", ',', ' ', ""'"", 'c', '2', '3', ""'"", ',', ' ', ""'"", 'c', '2', '4', ""'"", ']', ']']"
+treatments,"['BR1', 'BR2', 'BR3']"
+treatment_loc,"['[', '[', ""'"", 'c', '1', ""'"", ',', ' ', ""'"", 'c', '2', ""'"", ',', ' ', ""'"", 'c', '7', ""'"", ',', ' ', ""'"", 'c', '8', ""'"", ',', ' ', ""'"", 'c', '1', '3', ""'"", ',', ' ', ""'"", 'c', '1', '4', ""'"", ',', ' ', ""'"", 'c', '1', '9', ""'"", ',', ' ', ""'"", 'c', '2', '0', ""'"", ']', ',', ' ', '[', ""'"", 'c', '3', ""'"", ',', ' ', ""'"", 'c', '4', ""'"", ',', ' ', ""'"", 'c', '9', ""'"", ',', ' ', ""'"", 'c', '1', '0', ""'"", ',', ' ', ""'"", 'c', '1', '5', ""'"", ',', ' ', ""'"", 'c', '1', '6', ""'"", ',', ' ', ""'"", 'c', '2', '1', ""'"", ',', ' ', ""'"", 'c', '2', '2', ""'"", ']', ',', ' ', '[', ""'"", 'c', '5', ""'"", ',', ' ', ""'"", 'c', '6', ""'"", ',', ' ', ""'"", 'c', '1', '1', ""'"", ',', ' ', ""'"", 'c', '1', '2', ""'"", ',', ' ', ""'"", 'c', '1', '7', ""'"", ',', ' ', ""'"", 'c', '1', '8', ""'"", ',', ' ', ""'"", 'c', '2', '3', ""'"", ',', ' ', ""'"", 'c', '2', '4', ""'"", ']', ']']"
+channel_of_interest,2
+compartments,"['pathogen', 'cytoplasm']"
+measurement,mean_intensity
+nr_imgs,32
+um_per_pixel,0.1
+General,
+Nucleus,
+Cell,
+Pathogen,
+Timelapse,
+Plot,
+Object Image,
+Annotate Data,
+Measurements,
+Advanced,
+Test,
+input_folder,path

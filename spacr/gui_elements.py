@@ -296,8 +296,8 @@ def create_menu_bar(root):
 def set_dark_style(style):
     font_style = tkFont.Font(family="Helvetica", size=24)
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)
-    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', font=font_style)
-    style.map('TCombobox', fieldbackground=[('readonly', 'black')], foreground=[('readonly', '#ffffff')])
+    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', selectbackground='black', selectforeground='#ffffff', font=font_style)
+    style.map('TCombobox', fieldbackground=[('readonly', 'black')], foreground=[('readonly', '#ffffff')], selectbackground=[('readonly', 'black')], selectforeground=[('readonly', '#ffffff')])
     style.configure('Custom.TButton', background='black', foreground='white', bordercolor='white', focusthickness=3, focuscolor='white', font=('Helvetica', 12))
     style.map('Custom.TButton', background=[('active', 'teal'), ('!active', 'black')], foreground=[('active', 'white'), ('!active', 'white')], bordercolor=[('active', 'white'), ('!active', 'white')])
     style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style)

@@ -5,7 +5,9 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import filedialog
 from tkinter import font as tkFont
-from multiprocessing import Process, Value, Queue, Manager, set_start_method
+from multiprocessing import Process, Value, Queue
+from multiprocessing.sharedctypes import Synchronized
+from multiprocessing import set_start_method
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -37,21 +39,18 @@ thread_control = {"run_thread": None, "stop_requested": False}
 
 def initiate_abort():
     global thread_control
-    if thread_control.get("stop_requested") is not None:
-        if isinstance(thread_control["stop_requested"], Value):
-            thread_control["stop_requested"].value = 1
-
+    if isinstance(thread_control.get("stop_requested"), Synchronized):
+        thread_control["stop_requested"].value = 1
     if thread_control.get("run_thread") is not None:
-        thread_control["run_thread"].join(timeout=5)
-        if thread_control["run_thread"].is_alive():
-            thread_control["run_thread"].terminate()
+        thread_control["run_thread"].terminate()
+        thread_control["run_thread"].join()
         thread_control["run_thread"] = None
 
-def start_process(q, fig_queue, settings_type='mask'):
+def start_process_v1(q, fig_queue, settings_type='mask'):
     global thread_control, vars_dict
-    from .settings import check_settings
+    from .settings import check_settings, expected_types
 
-    settings = check_settings(vars_dict)
+    settings = check_settings(vars_dict, expected_types, q)
     if thread_control.get("run_thread") is not None:
         initiate_abort()
     stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
@@ -68,9 +67,47 @@ def start_process(q, fig_queue, settings_type='mask'):
         thread_control["run_thread"] = Process(target=run_umap_gui, args=(settings, q, fig_queue, stop_requested))
     thread_control["run_thread"].start()
 
-def import_settings(settings_type='mask'):
+def start_process(q=None, fig_queue=None, settings_type='mask'):
+    global thread_control, vars_dict
+    from .settings import check_settings, expected_types
 
-    global vars_dict, scrollable_frame
+    if q is None:
+        q = Queue()
+    if fig_queue is None:
+        fig_queue = Queue()
+
+    try:
+        settings = check_settings(vars_dict, expected_types, q)
+    except ValueError as e:
+        q.put(f"Error: {e}")
+        return
+
+    if thread_control.get("run_thread") is not None:
+        initiate_abort()
+    
+    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
+    thread_control["stop_requested"] = stop_requested
+
+    process_args = (settings, q, fig_queue, stop_requested)
+
+    if settings_type == 'mask':
+        thread_control["run_thread"] = Process(target=run_mask_gui, args=process_args)
+    elif settings_type == 'measure':
+        thread_control["run_thread"] = Process(target=run_measure_gui, args=process_args)
+    elif settings_type == 'classify':
+        thread_control["run_thread"] = Process(target=run_classify_gui, args=process_args)
+    elif settings_type == 'sequencing':
+        thread_control["run_thread"] = Process(target=run_sequencing_gui, args=process_args)
+    elif settings_type == 'umap':
+        thread_control["run_thread"] = Process(target=run_umap_gui, args=process_args)
+    else:
+        q.put(f"Error: Unknown settings type '{settings_type}'")
+        return
+
+    thread_control["run_thread"].start()
+
+def import_settings(settings_type='mask'):
+    global vars_dict, scrollable_frame, button_scrollable_frame
     from .settings import generate_fields
 
     def read_settings_from_csv(csv_file_path):
@@ -98,6 +135,7 @@ def import_settings(settings_type='mask'):
     if not csv_file_path:  # If no file is selected, return early
         return
     
+    #vars_dict = hide_all_settings(vars_dict, categories=None)
     csv_settings = read_settings_from_csv(csv_file_path)
     if settings_type == 'mask':
         settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
@@ -115,6 +153,7 @@ def import_settings(settings_type='mask'):
     variables = convert_settings_dict_for_gui(settings)
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
+    vars_dict = hide_all_settings(vars_dict, categories=None)
 
 def convert_settings_dict_for_gui(settings):
     variables = {}
@@ -314,9 +353,8 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
 
     raise Exception("Failed to download files after multiple attempts.")
 
-
 def setup_button_section(horizontal_container, settings_type='mask', settings_row=5, run=True, abort=True, download=True, import_btn=True):
-    global button_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
+    global button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
 
     button_frame = tk.Frame(horizontal_container, bg='black')
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
@@ -357,60 +395,29 @@ def setup_button_section(horizontal_container, settings_type='mask', settings_ro
         toggle_settings(button_scrollable_frame)
     return button_scrollable_frame
 
-def toggle_settings_v1(button_scrollable_frame):
-    global vars_dict
-    from .settings import categories
+def hide_all_settings(vars_dict, categories):
+    """
+    Function to initially hide all settings in the GUI.
 
-    if vars_dict is None:
-        raise ValueError("vars_dict is not initialized.")
+    Parameters:
+    - categories: dict, The categories of settings with their corresponding settings.
+    - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.
+    """
 
-    def toggle_category(settings, var):
-        for setting in settings:
-            if setting in vars_dict:
-                label, widget, _ = vars_dict[setting]
-                if var.get() == 0:
-                    label.grid_remove()
-                    widget.grid_remove()
-                else:
-                    label.grid()
-                    widget.grid()
-
-    row = 1
-    col = 3 
-    category_idx = 0
+    if categories is None:
+        from .settings import categories
 
     for category, settings in categories.items():
         if any(setting in vars_dict for setting in settings):
-            category_var = tk.IntVar(value=0)
-            vars_dict[category] = (None, None, category_var)
-            toggle = spacrCheckbutton(
-                button_scrollable_frame.scrollable_frame, 
-                text=category, 
-                variable=category_var, 
-                command=lambda cat=settings, var=category_var: toggle_category(cat, var)
-            )
-            # Directly set the style
-            style = ttk.Style()
-            font_style = tkFont.Font(family="Helvetica", size=12, weight="bold")
-            style.configure('Spacr.TCheckbutton', font=font_style, background='black', foreground='#ffffff', indicatoron=False, relief='flat')
-            style.map('Spacr.TCheckbutton', background=[('selected', 'black'), ('active', 'black')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
-            toggle.configure(style='Spacr.TCheckbutton')
-            toggle.grid(row=row, column=col, sticky="w", pady=2, padx=2)
-            #row += 1
-            col += 1
-            category_idx += 1
-
-            if category_idx % 4 == 0:  
-                row += 1
-                col = 2
-
-    for settings in categories.values():
-        for setting in settings:
-            if setting in vars_dict:
-                label, widget, _ = vars_dict[setting]
-                label.grid_remove()
-                widget.grid_remove()
-
+            vars_dict[category] = (None, None, tk.IntVar(value=0))
+            
+            # Initially hide all settings
+            for setting in settings:
+                if setting in vars_dict:
+                    label, widget, _ = vars_dict[setting]
+                    label.grid_remove()
+                    widget.grid_remove()
+    return vars_dict
 
 def toggle_settings(button_scrollable_frame):
     global vars_dict
@@ -449,16 +456,7 @@ def toggle_settings(button_scrollable_frame):
     non_empty_categories = [category for category, settings in categories.items() if any(setting in vars_dict for setting in settings)]
     category_dropdown = spacrDropdownMenu(button_scrollable_frame.scrollable_frame, category_var, non_empty_categories, command=on_category_select)
     category_dropdown.grid(row=1, column=3, sticky="ew", pady=2, padx=2)
-
-    for category, settings in categories.items():
-        if any(setting in vars_dict for setting in settings):
-            vars_dict[category] = (None, None, tk.IntVar(value=0))
-            # Initially hide all settings
-            for setting in settings:
-                if setting in vars_dict:
-                    label, widget, _ = vars_dict[setting]
-                    label.grid_remove()
-                    widget.grid_remove()
+    vars_dict = hide_all_settings(vars_dict, categories)
 
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame
@@ -531,6 +529,8 @@ def setup_frame(parent_frame):
     return parent_frame, vertical_container, horizontal_container
 
 def initiate_root(parent, settings_type='mask'):
+
+    set_start_method('spawn', force=True)
 
     def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
         try:

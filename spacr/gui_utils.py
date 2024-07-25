@@ -68,7 +68,7 @@ def load_app(root, app_name, app_func):
     else:
         proceed_with_app(root, app_name, app_func)
 
-def parse_list(value):
+def parse_list_v1(value):
     try:
         parsed_value = ast.literal_eval(value)
         if isinstance(parsed_value, list):
@@ -77,6 +77,16 @@ def parse_list(value):
             raise ValueError
     except (ValueError, SyntaxError):
         raise ValueError("Invalid format for list")
+    
+def parse_list(value):
+    try:
+        parsed_value = ast.literal_eval(value)
+        if isinstance(parsed_value, list):
+            return parsed_value
+        else:
+            raise ValueError(f"Expected a list but got {type(parsed_value).__name__}")
+    except (ValueError, SyntaxError) as e:
+        raise ValueError(f"Invalid format for list: {value}. Error: {e}")
     
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     label_column = 0
