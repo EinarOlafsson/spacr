@@ -219,6 +219,7 @@ def set_default_umap_image_settings(settings={}):
 def get_measure_crop_settings(settings):
 
     settings.setdefault('src', 'path')
+    settings.setdefault('verbose', False)
     
     # Test mode
     settings.setdefault('test_mode', False)
@@ -282,6 +283,7 @@ def get_measure_crop_settings(settings):
     settings.setdefault('um_per_pixel', 0.1)
 
     if settings['test_mode']:
+        settings['verbose'] = True
         settings['plot'] = True
         settings['plot_filtration'] = True
         test_imgs = settings['test_nr']
