@@ -1668,7 +1668,7 @@ def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_merged, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, _merge_cells_based_on_parasite_overlap, process_masks
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks
     from .settings import set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings
     
     settings = set_default_settings_preprocess_generate_masks(src, settings)

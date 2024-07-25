@@ -41,7 +41,6 @@ __all__ = [
     "app_annotate",
     "gui_utils",
     "app_make_masks",
-    "app_make_masks_v2",
     "app_mask",
     "app_measure",
     "app_classify",
