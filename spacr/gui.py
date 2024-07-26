@@ -5,8 +5,6 @@ import os, requests
 from multiprocessing import set_start_method
 from .gui_elements import spacrButton, create_menu_bar, set_dark_style
 from .gui_core import initiate_root
-from .app_annotate import initiate_annotation_app_root
-from .app_make_masks import initiate_mask_app_root
 
 class MainApp(tk.Tk):
     def __init__(self, default_app=None):
@@ -23,7 +21,7 @@ class MainApp(tk.Tk):
             "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
             "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
             "Annotate": (lambda frame: initiate_root(frame, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
-            "Make Masks": (initiate_mask_app_root, "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
+            "Make Masks": (lambda frame: initiate_root(frame, 'make_masks'),"Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
             "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
             "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequensing data."),
             "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embedings with datapoints represented as images.")

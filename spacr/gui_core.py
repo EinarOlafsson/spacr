@@ -1,10 +1,8 @@
-import os, traceback, ctypes, matplotlib, requests, csv, re
+import os, traceback, ctypes, matplotlib, requests, csv
 matplotlib.use('Agg')
 import tkinter as tk
 from tkinter import ttk
-import tkinter.font as tkFont
 from tkinter import filedialog
-from tkinter import font as tkFont
 from multiprocessing import Process, Value, Queue
 from multiprocessing.sharedctypes import Synchronized
 from multiprocessing import set_start_method
@@ -16,7 +14,7 @@ import requests
 from huggingface_hub import list_repo_files
 
 from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
-from .gui_elements import create_menu_bar, spacrButton, spacrLabel, spacrFrame, spacrCheckbutton, spacrDropdownMenu ,set_dark_style, set_default_font
+from .gui_elements import create_menu_bar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
 from . gui_run import run_mask_gui, run_measure_gui, run_classify_gui, run_sequencing_gui, run_umap_gui
 
 try:
@@ -528,53 +526,10 @@ def setup_frame(parent_frame):
     horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
     return parent_frame, vertical_container, horizontal_container
 
-def initiate_annotation_process(parent_frame):
-    from .gui_utils import generate_annotate_fields, annotate_app
-    # Set up the settings window
-    settings_window = tk.Toplevel(parent_frame)
-    settings_window.title("Annotation Settings")
-    settings_window.configure(bg='black')  # Set the background color to black
-    
-    # Use the existing function to create the settings UI
-    settings_frame = tk.Frame(settings_window, bg='black')  # Set the background color to black
-    settings_frame.pack(fill=tk.BOTH, expand=True)
-    vars_dict = generate_annotate_fields(settings_frame)
-    
-    def start_annotation_app():
-        settings = {key: data['entry'].get() for key, data in vars_dict.items()}
-        settings['channels'] = settings['channels'].split(',')
-        settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
-        settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
-        settings['normalize'] = settings['normalize'].lower() == 'true'
-        settings['rows'] = int(settings['rows'])
-        settings['columns'] = int(settings['columns'])
-
-        try:
-            settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
-            settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
-        except:
-            settings['measurement']  = None
-            settings['threshold'] = None
-
-        settings['db'] = settings.get('db', 'default.db')
-
-        # Convert empty strings to None
-        for key, value in settings.items():
-            if isinstance(value, list):
-                settings[key] = [v if v != '' else None for v in value]
-            elif value == '':
-                settings[key] = None
-
-        settings_window.destroy()
-        annotate_app(parent_frame, settings)
-    
-    #start_button = spacrButton(settings_window, text="Start Annotation", command=lambda: start_annotation_app, font=('Helvetica', 12))
-    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app)
-    start_button.pack(pady=10)
-
 def initiate_root(parent, settings_type='mask'):
     global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label, button_scrollable_frame
     from .gui_utils import main_thread_update_function
+    from .gui import gui_app
     set_start_method('spawn', force=True)
     
     print("Initializing root with settings_type:", settings_type)
@@ -583,20 +538,27 @@ def initiate_root(parent, settings_type='mask'):
     if not hasattr(parent_frame, 'after_tasks'):
         parent_frame.after_tasks = []
 
+    # Clear previous content instead of destroying the root
     for widget in parent_frame.winfo_children():
-        if widget.winfo_exists():
-            try:
-                widget.destroy()
-            except tk.TclError as e:
-                print(f"Error destroying widget: {e}")
+        try:
+            widget.destroy()
+        except tk.TclError as e:
+            print(f"Error destroying widget: {e}")
 
     q = Queue()
     fig_queue = Queue()
     parent_frame, vertical_container, horizontal_container = setup_frame(parent_frame)
 
     if settings_type == 'annotate':
-        initiate_annotation_process(horizontal_container)
-    #elif settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap']:
+        from .app_annotate import initiate_annotation_app
+        initiate_annotation_app(horizontal_container)
+    elif settings_type == 'make_masks':
+        from .app_make_masks import initiate_make_mask_app
+        initiate_make_mask_app(horizontal_container)
+    elif settings_type is None:
+        #parent.quit()
+        parent_frame.destroy()
+        gui_app()
     else:
         scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type)
         button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
@@ -616,7 +578,6 @@ def initiate_root(parent, settings_type='mask'):
 
     print("Root initialization complete")
     return parent_frame, vars_dict
-
 
 def start_gui_app(settings_type='mask'):
     global q, fig_queue, parent_frame, scrollable_frame, vars_dict, canvas, canvas_widget, progress_label

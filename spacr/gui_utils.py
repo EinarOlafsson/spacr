@@ -1,9 +1,9 @@
-import os, io, sys, ast, ctypes, re, csv, ast, sqlite3
+import os, io, sys, ast, ctypes, re, ast, sqlite3
 import tkinter as tk
 from tkinter import ttk
 
 from . gui_core import initiate_root
-from .gui_elements import spacrLabel, spacrCheckbutton, set_dark_style, ImageApp
+from .gui_elements import spacrLabel, spacrCheckbutton, ImageApp
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -17,9 +17,7 @@ def set_default_font(root, font_name="Helvetica", size=12):
     root.option_add("*TLabel.Font", default_font)
     root.option_add("*TEntry.Font", default_font)
 
-def proceed_with_app(root, app_name, app_func):
-    from .app_annotate import gui_annotate
-    from .app_make_masks import gui_make_masks
+def proceed_with_app_v1(root, app_name, app_func):
     from .gui import gui_app
 
     # Clear the current content frame
@@ -47,11 +45,23 @@ def proceed_with_app(root, app_name, app_func):
     elif app_name == "Umap":
         initiate_root(root.content_frame, 'umap')
     elif app_name == "Annotate":
-       initiate_root(root.content_frame, 'annotate')
+        initiate_root(root.content_frame, 'annotate')
     elif app_name == "Make Masks":
-        gui_make_masks()
+        initiate_root(root.content_frame, 'make_masks')
     else:
         raise ValueError(f"Invalid app name: {app_name}")
+    
+def proceed_with_app(root, app_name, app_func):
+    # Clear the current content frame
+    if hasattr(root, 'content_frame'):
+        for widget in root.content_frame.winfo_children():
+            try:
+                widget.destroy()
+            except tk.TclError as e:
+                print(f"Error destroying widget: {e}")
+
+    # Initialize the new app in the content frame
+    app_func(root.content_frame)
 
 def load_app(root, app_name, app_func):
     # Cancel all scheduled after tasks
@@ -60,8 +70,8 @@ def load_app(root, app_name, app_func):
             root.after_cancel(task)
     root.after_tasks = []
 
-    # Exit functionality only for the annotation app
-    if app_name != "Annotate" and hasattr(root, 'current_app_exit_func'):
+    # Exit functionality only for the annotation and make_masks apps
+    if app_name not in ["Annotate", "make_masks"] and hasattr(root, 'current_app_exit_func'):
         root.next_app_func = proceed_with_app
         root.next_app_args = (app_name, app_func)  # Ensure correct arguments
         root.current_app_exit_func()
