@@ -14,6 +14,7 @@ from tkinter import font as tkFont
 from tkinter import TclError
 
 from .gui_elements import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
+from .settings import get_annotate_default_settings
 
 class ImageApp:
     def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
@@ -324,21 +325,6 @@ class ImageApp:
         self.root.destroy()
         print(f'Quit application')
 
-def get_annotate_default_settings(settings):
-    settings.setdefault('image_type', 'cell_png')
-    settings.setdefault('channels', ['r', 'g', 'b'])
-    settings.setdefault('geom', "3200x2000")
-    settings.setdefault('img_size', (200, 200))
-    settings.setdefault('rows', 10)
-    settings.setdefault('columns', 18)
-    settings.setdefault('annotation_column', 'recruited_test')
-    settings.setdefault('normalize', False)
-    settings.setdefault('percentiles', (2,98))
-    settings.setdefault('measurement', ['cytoplasm_channel_3_mean_intensity', 'pathogen_channel_3_mean_intensity'])
-    settings.setdefault('threshold', 2)
-
-    return settings
-
 def annotate(settings):
     settings = get_annotate_default_settings(settings)
     src  = settings['src']
@@ -513,7 +499,6 @@ def load_next_app(root):
             new_root.geometry(f"{width}x{height}")
             new_root.title("SpaCr Application")
             next_app_func(new_root, *next_app_args)
-
 
 def gui_annotate():
     root = tk.Tk()
