@@ -1,9 +1,9 @@
-import io, sys, ast, ctypes, re, csv, ast
+import os, io, sys, ast, ctypes, re, csv, ast, sqlite3
 import tkinter as tk
 from tkinter import ttk
 
 from . gui_core import initiate_root
-from .gui_elements import spacrLabel, spacrCheckbutton, set_dark_style
+from .gui_elements import spacrLabel, spacrCheckbutton, set_dark_style, ImageApp
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -147,3 +147,171 @@ def cancel_after_tasks(frame):
         for task in frame.after_tasks:
             frame.after_cancel(task)
         frame.after_tasks.clear()
+
+def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
+    try:
+        ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        while not q.empty():
+            message = q.get_nowait()
+            clean_message = ansi_escape_pattern.sub('', message)
+            if clean_message.startswith("Progress"):
+                progress_label.config(text=clean_message)
+            if clean_message.startswith("\rProgress"):
+                progress_label.config(text=clean_message)
+            elif clean_message.startswith("Successfully"):
+                progress_label.config(text=clean_message)
+            elif clean_message.startswith("Processing"):
+                progress_label.config(text=clean_message)
+            elif clean_message.startswith("scale"):
+                pass
+            elif clean_message.startswith("plot_cropped_arrays"):
+                pass
+            elif clean_message == "" or clean_message == "\r" or clean_message.strip() == "":
+                pass
+            else:
+                print(clean_message)
+    except Exception as e:
+        print(f"Error updating GUI canvas: {e}")
+    finally:
+        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+
+def annotate(settings):
+    from .settings import set_annotate_default_settings
+    settings = set_annotate_default_settings(settings)
+    src  = settings['src']
+
+    db = os.path.join(src, 'measurements/measurements.db')
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('PRAGMA table_info(png_list)')
+    cols = c.fetchall()
+    if settings['annotation_column'] not in [col[1] for col in cols]:
+        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+    conn.commit()
+    conn.close()
+
+    root = tk.Tk()
+    root.geometry(settings['geom'])
+    app = ImageApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+    next_button = tk.Button(root, text="Next", command=app.next_page)
+    next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
+    back_button = tk.Button(root, text="Back", command=app.previous_page)
+    back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)
+    exit_button = tk.Button(root, text="Exit", command=app.shutdown)
+    exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
+    
+    app.load_images()
+    root.mainloop()
+
+def generate_annotate_fields(frame):
+    from .settings import set_annotate_default_settings
+    vars_dict = {}
+    settings = set_annotate_default_settings(settings={})
+    
+    for setting in settings:
+        vars_dict[setting] = {
+            'entry': ttk.Entry(frame),
+            'value': settings[setting]
+        }
+
+    # Arrange input fields and labels
+    for row, (name, data) in enumerate(vars_dict.items()):
+        ttk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:",
+                  background="black", foreground="white").grid(row=row, column=0)
+        if isinstance(data['value'], list):
+            # Convert lists to comma-separated strings
+            data['entry'].insert(0, ','.join(map(str, data['value'])))
+        else:
+            data['entry'].insert(0, data['value'])
+        data['entry'].grid(row=row, column=1)
+    
+    return vars_dict
+
+
+def run_annotate_app(vars_dict, parent_frame):
+    settings = {key: data['entry'].get() for key, data in vars_dict.items()}
+    settings['channels'] = settings['channels'].split(',')
+    settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
+    settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
+    settings['normalize'] = settings['normalize'].lower() == 'true'
+    settings['rows'] = int(settings['rows'])
+    settings['columns'] = int(settings['columns'])
+    settings['measurement'] = settings['measurement'].split(',')
+    settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
+
+    # Clear previous content instead of destroying the root
+    if hasattr(parent_frame, 'winfo_children'):
+        for widget in parent_frame.winfo_children():
+            widget.destroy()
+
+    # Start the annotate application in the same root window
+    annotate_app(parent_frame, settings)
+
+# Global list to keep references to PhotoImage objects
+global_image_refs = []
+
+def annotate_app(parent_frame, settings):
+    global global_image_refs
+    global_image_refs.clear()
+    root = parent_frame.winfo_toplevel()
+    annotate_with_image_refs(settings, root, lambda: load_next_app(root))
+
+def load_next_app(root):
+    # Get the next app function and arguments
+    next_app_func = root.next_app_func
+    next_app_args = root.next_app_args
+
+    if next_app_func:
+        try:
+            if not root.winfo_exists():
+                raise tk.TclError
+            next_app_func(root, *next_app_args)
+        except tk.TclError:
+            # Reinitialize root if it has been destroyed
+            new_root = tk.Tk()
+            width = new_root.winfo_screenwidth()
+            height = new_root.winfo_screenheight()
+            new_root.geometry(f"{width}x{height}")
+            new_root.title("SpaCr Application")
+            next_app_func(new_root, *next_app_args)
+
+def annotate_with_image_refs(settings, root, shutdown_callback):
+    #from .gui_utils import proceed_with_app
+    from .gui import gui_app
+    from .settings import set_annotate_default_settings
+
+    settings = set_annotate_default_settings(settings)
+    src = settings['src']
+
+    db = os.path.join(src, 'measurements/measurements.db')
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('PRAGMA table_info(png_list)')
+    cols = c.fetchall()
+    if settings['annotation_column'] not in [col[1] for col in cols]:
+        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+    conn.commit()
+    conn.close()
+
+    app = ImageApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+
+    # Set the canvas background to black
+    root.configure(bg='black')
+
+    next_button = tk.Button(root, text="Next", command=app.next_page, background='black', foreground='white')
+    next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
+    back_button = tk.Button(root, text="Back", command=app.previous_page, background='black', foreground='white')
+    back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)
+    exit_button = tk.Button(root, text="Exit", command=lambda: [app.shutdown(), shutdown_callback()], background='black', foreground='white')
+    exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
+
+    #app.load_images()
+
+    # Store the shutdown function and next app details in the root
+    root.current_app_exit_func = lambda: [app.shutdown(), shutdown_callback()]
+    root.next_app_func = proceed_with_app
+    root.next_app_args = ("Main App", gui_app)
+
+    # Call load_images after setting up the root window
+    app.load_images()
+

@@ -528,38 +528,44 @@ def setup_frame(parent_frame):
     horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
     return parent_frame, vertical_container, horizontal_container
 
+def initiate_annotation_process(parent_frame):
+    from .gui_utils import generate_annotate_fields, annotate_app
+    # Set up the settings window
+    settings_window = tk.Toplevel(parent_frame)
+    settings_window.title("Annotation Settings")
+    
+    # Use the existing function to create the settings UI
+    settings_frame = tk.Frame(settings_window)
+    settings_frame.pack(fill=tk.BOTH, expand=True)
+    vars_dict = generate_annotate_fields(settings_frame)
+    
+    def start_annotation_app():
+        settings = {key: data['entry'].get() for key, data in vars_dict.items()}
+        # Handle settings conversion here if needed
+        settings['channels'] = settings['channels'].split(',')
+        settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
+        settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
+        settings['normalize'] = settings['normalize'].lower() == 'true'
+        settings['rows'] = int(settings['rows'])
+        settings['columns'] = int(settings['columns'])
+        settings['measurement'] = settings['measurement'].split(',')
+        settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
+        settings['db'] = settings.get('db', 'default.db')
+
+        # Destroy the settings window
+        settings_window.destroy()
+        
+        # Now initiate the annotation app
+        annotate_app(parent_frame, settings)
+    
+    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app)
+    start_button.pack(pady=10)
+
 def initiate_root(parent, settings_type='mask'):
-
-    set_start_method('spawn', force=True)
-
-    def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
-        try:
-            ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-            while not q.empty():
-                message = q.get_nowait()
-                clean_message = ansi_escape_pattern.sub('', message)
-                if clean_message.startswith("Progress"):
-                    progress_label.config(text=clean_message)
-                if clean_message.startswith("\rProgress"):
-                    progress_label.config(text=clean_message)
-                elif clean_message.startswith("Successfully"):
-                    progress_label.config(text=clean_message)
-                elif clean_message.startswith("Processing"):
-                    progress_label.config(text=clean_message)
-                elif clean_message.startswith("scale"):
-                    pass
-                elif clean_message.startswith("plot_cropped_arrays"):
-                    pass
-                elif clean_message == "" or clean_message == "\r" or clean_message.strip() == "":
-                    pass
-                else:
-                    print(clean_message)
-        except Exception as e:
-            print(f"Error updating GUI canvas: {e}")
-        finally:
-            root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
-
     global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label, button_scrollable_frame
+    from .gui_utils import main_thread_update_function
+    set_start_method('spawn', force=True)
+    
     print("Initializing root with settings_type:", settings_type)
     parent_frame = parent
 
@@ -576,23 +582,29 @@ def initiate_root(parent, settings_type='mask'):
     q = Queue()
     fig_queue = Queue()
     parent_frame, vertical_container, horizontal_container = setup_frame(parent_frame)
-    scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type)  # Adjust height and width as needed
-    button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
-    canvas, canvas_widget = setup_plot_section(vertical_container)
-    console_output = setup_console(vertical_container)
 
-    if settings_type in ['mask', 'measure', 'classify', 'sequencing']:
-        progress_output = setup_progress_frame(vertical_container)
+    if settings_type == 'annotate':
+        initiate_annotation_process(horizontal_container)
     else:
-        progress_output = None
+        scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type)
+        button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
+        canvas, canvas_widget = setup_plot_section(vertical_container)
+        console_output = setup_console(vertical_container)
 
-    set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue)
-    process_console_queue()
-    process_fig_queue()
-    after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
-    parent_frame.after_tasks.append(after_id)
+        if settings_type in ['mask', 'measure', 'classify', 'sequencing']:
+            progress_output = setup_progress_frame(vertical_container)
+        else:
+            progress_output = None
+
+        set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue)
+        process_console_queue()
+        process_fig_queue()
+        after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
+        parent_frame.after_tasks.append(after_id)
+
     print("Root initialization complete")
     return parent_frame, vars_dict
+
 
 def start_gui_app(settings_type='mask'):
     global q, fig_queue, parent_frame, scrollable_frame, vars_dict, canvas, canvas_widget, progress_label

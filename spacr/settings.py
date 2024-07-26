@@ -969,16 +969,17 @@ categories = {
     "Sequencing": ["upstream", "downstream", "barecode_length_1", "barecode_length_2", "chunk_size", "test"]
 }
 
-def get_annotate_default_settings(settings):
+def set_annotate_default_settings(settings):
+    settings.setdefault('src', 'path')
     settings.setdefault('image_type', 'cell_png')
-    settings.setdefault('channels', ['r', 'g', 'b'])
+    settings.setdefault('channels', 'r,g,b')
     settings.setdefault('geom', "3200x2000")
-    settings.setdefault('img_size', (200, 200))
+    settings.setdefault('img_size', [200, 200])
     settings.setdefault('rows', 10)
     settings.setdefault('columns', 18)
-    settings.setdefault('annotation_column', 'recruited_test')
-    settings.setdefault('normalize', False)
-    settings.setdefault('percentiles', (2,98))
-    settings.setdefault('measurement', ['cytoplasm_channel_3_mean_intensity', 'pathogen_channel_3_mean_intensity'])
-    settings.setdefault('threshold', 2)
+    settings.setdefault('annotation_column', 'test')
+    settings.setdefault('normalize', 'False')
+    settings.setdefault('percentiles', [2, 98])
+    settings.setdefault('measurement', 'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
+    settings.setdefault('threshold', '2')
     return settings
