@@ -47,7 +47,7 @@ def proceed_with_app(root, app_name, app_func):
     elif app_name == "Umap":
         initiate_root(root.content_frame, 'umap')
     elif app_name == "Annotate":
-        gui_annotate()
+       initiate_root(root.content_frame, 'annotate')
     elif app_name == "Make Masks":
         gui_make_masks()
     else:
@@ -226,7 +226,6 @@ def generate_annotate_fields(frame):
         data['entry'].grid(row=row, column=1)
     
     return vars_dict
-
 
 def run_annotate_app(vars_dict, parent_frame):
     settings = {key: data['entry'].get() for key, data in vars_dict.items()}
