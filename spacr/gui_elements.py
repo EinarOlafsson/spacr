@@ -588,7 +588,7 @@ def create_menu_bar(root):
     gui_apps = {
         "Mask": 'mask',
         "Measure": 'measure',
-        "Annotate": initiate_annotation_app_root,
+        "Annotate": 'annotate',
         "Make Masks": initiate_mask_app_root,
         "Classify": 'classify',
         "Sequencing": 'sequencing',
