@@ -22,7 +22,7 @@ class MainApp(tk.Tk):
         self.gui_apps = {
             "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
             "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
-            "Annotate": (initiate_annotation_app_root, "Annotation single object images on a grid. Annotations are saved to database."),
+            "Annotate": (lambda frame: initiate_root(frame, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
             "Make Masks": (initiate_mask_app_root, "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
             "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
             "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequensing data."),
@@ -32,21 +32,8 @@ class MainApp(tk.Tk):
         self.selected_app = tk.StringVar()
         self.create_widgets()
 
-
-        if default_app == "Mask":
+        if default_app in self.gui_apps:
             self.load_app(default_app, self.gui_apps[default_app][0])
-        elif default_app == "Measure":
-            self.load_app(default_app, self.gui_apps[default_app][1])
-        elif default_app == "Annotate":
-            self.load_app(default_app, self.gui_apps[default_app][2])
-        elif default_app == "Make Masks":
-            self.load_app(default_app, self.gui_apps[default_app][3])
-        elif default_app == "Classify":
-            self.load_app(default_app, self.gui_apps[default_app][4])
-        elif default_app == "Sequencing":
-            self.load_app(default_app, self.gui_apps[default_app][5])
-        elif default_app == "Umap":
-            self.load_app(default_app, self.gui_apps[default_app][6])
 
     def create_widgets(self):
         # Create the menu bar
@@ -88,7 +75,6 @@ class MainApp(tk.Tk):
 
             # Create custom button with text
             button = spacrButton(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), font=('Helvetica', 12))
-            #button = ttk.Button(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), style='Custom.TButton')
             button.grid(row=i, column=0, pady=10, padx=10, sticky="w")
 
             description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 12))
