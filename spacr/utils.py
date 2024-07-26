@@ -74,9 +74,18 @@ from scipy import stats
 from .logger import log_function_call
 from multiprocessing import set_start_method, get_start_method
 
-import tkinter as tk
-from tkinter import ttk
-import tkinter.font as tkFont
+import torch
+import torchvision.transforms as transforms
+from torchvision.models import resnet50
+from PIL import Image
+import numpy as np
+import umap
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import f_oneway, kruskal
+from sklearn.cluster import KMeans
+from scipy import stats
 
 def reset_mp():
     current_method = get_start_method()
@@ -3853,18 +3862,6 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
     if verbose:
         print(f'Embedding shape: {embedding.shape}')
     return embedding, labels
-import torch
-import torchvision.transforms as transforms
-from torchvision.models import resnet50
-from PIL import Image
-import numpy as np
-import umap
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
-from scipy.stats import f_oneway, kruskal
-from sklearn.cluster import KMeans
-from scipy import stats
 
 def load_image(image_path):
     """Load and preprocess an image."""
