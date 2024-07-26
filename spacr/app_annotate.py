@@ -1,51 +1,53 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import font as tkFont
+from .gui import MainApp
 
-from .gui_elements import spacrFrame, spacrButton, set_dark_style, create_menu_bar, set_default_font
-
-def initiate_annotation_app_root(parent_frame):
-    from .gui_utils import generate_annotate_fields, run_annotate_app
-
-    style = ttk.Style(parent_frame)
-    set_dark_style(style)
-    set_default_font(parent_frame, font_name="Arial", size=8)
-    parent_frame.configure(bg='black')
-    container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg='black')
-    container.pack(fill=tk.BOTH, expand=True)
-    scrollable_frame = spacrFrame(container, bg='black')
-    container.add(scrollable_frame, stretch="always")
-    vars_dict = generate_annotate_fields(scrollable_frame)
-    run_button = spacrButton(
-        scrollable_frame.scrollable_frame, 
-        text="Run", 
-        command=lambda: run_annotate_app(vars_dict, parent_frame),
-        font=tkFont.Font(family="Arial", size=12, weight=tkFont.NORMAL)
-    )
-    run_button.grid(row=12, column=0, columnspan=2, pady=10, padx=10)
-    return parent_frame
-
-def gui_annotate():
-    root = tk.Tk()
-    width = root.winfo_screenwidth()
-    height = root.winfo_screenheight()
-    root.geometry(f"{width}x{height}")
-    root.title("Annotate Application")
+def initiate_annotation_app(parent_frame):
+    from .gui_utils import generate_annotate_fields, annotate_app
+    # Set up the settings window
+    settings_window = tk.Toplevel(parent_frame)
+    settings_window.title("Annotation Settings")
+    settings_window.configure(bg='black')  # Set the background color to black
     
-    # Clear previous content if any
-    if hasattr(root, 'content_frame'):
-        for widget in root.content_frame.winfo_children():
-            widget.destroy()
-        root.content_frame.grid_forget()
-    else:
-        root.content_frame = tk.Frame(root)
-        root.content_frame.grid(row=1, column=0, sticky="nsew")
-        root.grid_rowconfigure(1, weight=1)
-        root.grid_columnconfigure(0, weight=1)
+    # Use the existing function to create the settings UI
+    settings_frame = tk.Frame(settings_window, bg='black')  # Set the background color to black
+    settings_frame.pack(fill=tk.BOTH, expand=True)
+    vars_dict = generate_annotate_fields(settings_frame)
     
-    initiate_annotation_app_root(root.content_frame)
-    create_menu_bar(root)
-    root.mainloop()
+    def start_annotation_app():
+        settings = {key: data['entry'].get() for key, data in vars_dict.items()}
+        settings['channels'] = settings['channels'].split(',')
+        settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
+        settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
+        settings['normalize'] = settings['normalize'].lower() == 'true'
+        settings['rows'] = int(settings['rows'])
+        settings['columns'] = int(settings['columns'])
+
+        try:
+            settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
+            settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
+        except:
+            settings['measurement']  = None
+            settings['threshold'] = None
+
+        settings['db'] = settings.get('db', 'default.db')
+
+        # Convert empty strings to None
+        for key, value in settings.items():
+            if isinstance(value, list):
+                settings[key] = [v if v != '' else None for v in value]
+            elif value == '':
+                settings[key] = None
+
+        settings_window.destroy()
+        annotate_app(parent_frame, settings)
+    
+    #start_button = spacrButton(settings_window, text="Start Annotation", command=lambda: start_annotation_app, font=('Helvetica', 12))
+    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app)
+    start_button.pack(pady=10)
+
+def start_annotate_app():
+    app = MainApp(default_app="Annotate")
+    app.mainloop()
 
 if __name__ == "__main__":
-    gui_annotate()
+    start_annotate_app()
