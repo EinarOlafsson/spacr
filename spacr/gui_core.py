@@ -192,15 +192,19 @@ def convert_settings_dict_for_gui(settings):
             variables[key] = ('entry', None, str(value))
     return variables
 
-def setup_settings_panel(vertical_container, settings_type='mask', frame_height=500, frame_width=1000):
+def setup_settings_panel(vertical_container, settings_type='mask', window_dimensions=[500, 1000]):
     global vars_dict, scrollable_frame
-    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields
+    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, descriptions
 
-    settings_frame = tk.Frame(vertical_container, bg='black', height=frame_height, width=frame_width)
+    width = (window_dimensions[0])//6
+    height = window_dimensions[1]
+
+    # Settings Frame
+    settings_frame = tk.Frame(vertical_container, bg='black', height=height, width=width)
     vertical_container.add(settings_frame, stretch="always")
     settings_label = spacrLabel(settings_frame, text="Settings", background="black", foreground="white", anchor='center', justify='center', align="center")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
-    scrollable_frame = spacrFrame(settings_frame, bg='black', width=frame_width)
+    scrollable_frame = spacrFrame(settings_frame, bg='black', width=width)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
     settings_frame.grid_rowconfigure(1, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)
@@ -351,18 +355,21 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
 
     raise Exception("Failed to download files after multiple attempts.")
 
-def setup_button_section(horizontal_container, settings_type='mask', settings_row=5, run=True, abort=True, download=True, import_btn=True):
+def setup_button_section(horizontal_container, settings_type='mask',  window_dimensions=[500, 1000], run=True, abort=True, download=True, import_btn=True):
     global button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
+    from .settings import descriptions
 
-    button_frame = tk.Frame(horizontal_container, bg='black')
+    width = (window_dimensions[0])//8
+    height = window_dimensions[1]
+
+    button_frame = tk.Frame(horizontal_container, bg='black', height=height, width=width)
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
     button_frame.grid_rowconfigure(0, weight=0)
     button_frame.grid_rowconfigure(1, weight=1)
     button_frame.grid_columnconfigure(0, weight=1)
 
-    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white", font=('Helvetica', 12), anchor='center', justify='center', align="center")  # Increase font size
+    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white", font=('Helvetica', 12), anchor='center', justify='center', align="center")
     categories_label.grid(row=0, column=0, pady=10, padx=10)
-
     button_scrollable_frame = spacrFrame(button_frame, bg='black')
     button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
 
@@ -391,6 +398,15 @@ def setup_button_section(horizontal_container, settings_type='mask', settings_ro
     # Call toggle_settings after vars_dict is initialized
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
+
+    # Description frame
+    description_frame = tk.Frame(horizontal_container, bg='black', height=height, width=width)
+    horizontal_container.add(description_frame, stretch="always", sticky="nsew")
+    description_label = tk.Label(description_frame, text="Module Description", bg='black', fg='white', anchor='nw', justify='left', wraplength=width//2-100)
+    description_label.pack(pady=10, padx=10)
+    description_text = descriptions.get(settings_type, "No description available for this module.")
+    description_label.config(text=description_text)
+
     return button_scrollable_frame
 
 def hide_all_settings(vars_dict, categories):
@@ -527,13 +543,18 @@ def setup_frame(parent_frame):
     return parent_frame, vertical_container, horizontal_container
 
 def initiate_root(parent, settings_type='mask'):
-    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label, button_scrollable_frame
+    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label, progress_output, button_scrollable_frame
     from .gui_utils import main_thread_update_function
     from .gui import gui_app
     set_start_method('spawn', force=True)
-    
     print("Initializing root with settings_type:", settings_type)
+
     parent_frame = parent
+    parent_frame.update_idletasks()
+    frame_width = int(parent_frame.winfo_width())
+    frame_height = int(parent_frame.winfo_height())
+    print(frame_width, frame_height)
+    dims = [frame_width, frame_height]
 
     if not hasattr(parent_frame, 'after_tasks'):
         parent_frame.after_tasks = []
@@ -555,13 +576,9 @@ def initiate_root(parent, settings_type='mask'):
     elif settings_type == 'make_masks':
         from .app_make_masks import initiate_make_mask_app
         initiate_make_mask_app(horizontal_container)
-    elif settings_type is None:
-        #parent.quit()
-        parent_frame.destroy()
-        gui_app()
     else:
-        scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type)
-        button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
+        scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type, window_dimensions=dims)
+        button_scrollable_frame = setup_button_section(horizontal_container, settings_type, window_dimensions=dims)
         canvas, canvas_widget = setup_plot_section(vertical_container)
         console_output = setup_console(vertical_container)
 
@@ -578,16 +595,3 @@ def initiate_root(parent, settings_type='mask'):
 
     print("Root initialization complete")
     return parent_frame, vars_dict
-
-def start_gui_app(settings_type='mask'):
-    global q, fig_queue, parent_frame, scrollable_frame, vars_dict, canvas, canvas_widget, progress_label
-    root = tk.Tk()
-    width = root.winfo_screenwidth()
-    height = root.winfo_screenheight()
-    root.geometry(f"{width}x{height}")
-    root.title(f"SpaCr: {settings_type.capitalize()}")
-    root.content_frame = tk.Frame(root)
-    print("Starting GUI app with settings_type:", settings_type)
-    initiate_root(root.content_frame, settings_type)
-    create_menu_bar(root)
-    root.mainloop()

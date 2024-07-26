@@ -41,8 +41,7 @@ def initiate_annotation_app(parent_frame):
         settings_window.destroy()
         annotate_app(parent_frame, settings)
     
-    #start_button = spacrButton(settings_window, text="Start Annotation", command=lambda: start_annotation_app, font=('Helvetica', 12))
-    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app)
+    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app, bg='black', fg='white')
     start_button.pack(pady=10)
 
 def start_annotate_app():
