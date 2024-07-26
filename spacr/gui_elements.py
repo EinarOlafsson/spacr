@@ -1433,7 +1433,6 @@ def create_menu_bar(root):
     from .gui_core import initiate_root
 
     gui_apps = {
-        "Main": (lambda frame: initiate_root(frame, None), "Main GUI window."),
         "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
         "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
         "Annotate": (lambda frame: initiate_root(frame, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),

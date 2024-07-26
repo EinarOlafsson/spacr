@@ -43,7 +43,7 @@ def set_default_settings_preprocess_generate_masks(src, settings={}):
     settings.setdefault('magnification', 20)
     settings.setdefault('custom_regex', None)
     settings.setdefault('metadata_type', 'cellvoyager')
-    settings.setdefault('n_job', os.cpu_count()-4)
+    settings.setdefault('n_jobs', os.cpu_count()-4)
     settings.setdefault('randomize', True)
     settings.setdefault('verbose', True)
     settings.setdefault('remove_background_cell', False)
@@ -254,7 +254,7 @@ def get_measure_crop_settings(settings):
     settings.setdefault('plot',False)
     settings.setdefault('plot_filtration',False)
     settings.setdefault('representative_images', False)
-    settings.setdefault('n_job', os.cpu_count()-2)
+    settings.setdefault('n_jobs', os.cpu_count()-2)
 
     # Object settings
     settings.setdefault('cell_mask_dim',None)
@@ -340,7 +340,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
     settings.setdefault('pin_memory',True)
-    settings.setdefault('n_job',cores)
+    settings.setdefault('n_jobs',cores)
     settings.setdefault('channels',['r','g','b'])
     settings.setdefault('augment',False)
     settings.setdefault('verbose',False)
@@ -534,7 +534,7 @@ expected_types = {
     "skip_mode": str,
     "save": bool,
     "plot": bool,
-    "n_job": int,
+    "n_jobs": int,
     "verbose": bool,
     "input_folder": str,
     "cell_mask_dim": int,
@@ -557,7 +557,7 @@ expected_types = {
     "include_uninfected": bool,
     "dialate_pngs": bool,
     "dialate_png_ratios": list,
-    "n_job": int,
+    "n_jobs": int,
     "cells": list,
     "cell_loc": list,
     "pathogens": list,
@@ -677,7 +677,7 @@ expected_types = {
     "gradient_accumulation_steps": int,
     "intermedeate_save": bool,
     "pin_memory": bool,
-    "n_job": int,
+    "n_jobs": int,
     "augment": bool,
     "target": str,
     "cell_types": list,
@@ -902,7 +902,7 @@ def generate_fields(variables, scrollable_frame):
         "save": "Whether to save the results to disk.",
         "merge_edge_pathogen_cells": "Whether to merge cells that share pathogen objects.",
         "plot": "Whether to plot the results.",
-        "n_job": "The number of n_job to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+        "n_jobs": "The number of n_jobs to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
         "verbose": "Whether to print verbose output during processing.",
         "input_folder": "Path to the folder containing the images.",
         "cell_mask_dim": "The dimension of the array the cell mask is saved in.",
@@ -926,7 +926,7 @@ def generate_fields(variables, scrollable_frame):
         "include_uninfected": "Whether to include uninfected cells in the analysis.",
         "dialate_pngs": "Whether to dilate the PNG images before saving.",
         "dialate_png_ratios": "The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
-        "n_job": "The number of n_job to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+        "n_jobs": "The number of n_jobs to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
         "cells": "The cell types to include in the analysis.",
         "cell_loc": "The locations of the cell types in the images.",
         "pathogens": "The pathogen types to include in the analysis.",
@@ -960,7 +960,7 @@ categories = {
     "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
     "Annotate Data": ["positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "representative_images", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
     "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-    "Advanced": ["plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_job", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","n_job","channels","augment"],
+    "Advanced": ["plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","n_jobs","channels","augment"],
     "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
     "Embedding": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
     "Train DL Model": ["epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate","init_weights", "train", "classes"],
@@ -968,6 +968,15 @@ categories = {
     "Test": ["test_mode", "test_images", "random_test", "test_nr"],
     "Sequencing": ["upstream", "downstream", "barecode_length_1", "barecode_length_2", "chunk_size", "test"]
 }
+
+descriptions = {
+    'mask': "This module allows you to set default settings for preprocessing and generating masks.",
+    'measure': "This module allows you to set default settings for measuring and cropping images.",
+    'classify': "This module allows you to set default settings for training and testing classification models.",
+    'sequencing': "This module allows you to set default settings for analyzing sequencing reads.",
+    'umap': "This module allows you to set default settings for UMAP image analysis."
+}
+
 
 def set_annotate_default_settings(settings):
     settings.setdefault('src', 'path')
@@ -983,3 +992,4 @@ def set_annotate_default_settings(settings):
     settings.setdefault('measurement', 'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
     settings.setdefault('threshold', '2')
     return settings
+
