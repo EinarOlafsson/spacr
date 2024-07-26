@@ -994,7 +994,7 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
     model = torch.load(model_path)
     
     dataset = TarImageDataset(tar_path, transform=transform)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, n_jobs=n_jobs, pin_memory=True)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=n_jobs, pin_memory=True)
     
     model_name = os.path.splitext(os.path.basename(model_path))[0] 
     dataset_name = os.path.splitext(os.path.basename(tar_path))[0]  
@@ -1055,7 +1055,7 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     
     print(f'Loading dataset in {src} with {len(src)} images')
     dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=True, load_to_memory=False)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, n_jobs=n_jobs)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=n_jobs)
     print(f'Loaded {len(src)} images')
     
     result_loc = os.path.splitext(model_path)[0]+datetime.date.today().strftime('%y%m%d')+'_'+os.path.splitext(model_path)[1]+'_test_result.csv'
@@ -1404,10 +1404,10 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
                 #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
                 print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
 
-            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, n_jobs=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, n_jobs=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
+            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
+            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
         else:
-            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, n_jobs=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
+            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
         
     elif train_mode == 'irm':
         data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
@@ -1436,13 +1436,13 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
                     #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
                     print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
 
-                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, n_jobs=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, n_jobs=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
+                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
+                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
 
                 train_loaders.append(train_loader)
                 val_loaders.append(val_loader)
             else:
-                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, n_jobs=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
+                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
                 train_loaders.append(train_loader)
                 val_loaders.append(None)
     
