@@ -610,7 +610,7 @@ def _measure_crop_core(index, time_ls, file, settings):
     
     start = time.time() 
     try:
-        source_folder = os.path.dirname(settings['input_folder'])
+        source_folder = os.path.dirname(settings['src'])
         #if not os.path.basename(source_folder).endswith('merged'):
         #    source_folder = os.path.join(source_folder, 'merged')
         #    print(f'changed source_folder to {source_folder}')
@@ -619,7 +619,7 @@ def _measure_crop_core(index, time_ls, file, settings):
         #    return
 
         file_name = os.path.splitext(file)[0]
-        data = np.load(os.path.join(settings['input_folder'], file))
+        data = np.load(os.path.join(settings['src'], file))
         data_type = data.dtype
         if data_type not in ['uint8','uint16']:
             data_type_before = data_type
@@ -663,7 +663,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                     cell_mask, nucleus_mask = _relabel_parent_with_child_labels(cell_mask, nucleus_mask)
                     data[:, :, settings['cell_mask_dim']] = cell_mask
                     data[:, :, settings['nucleus_mask_dim']] = nucleus_mask
-                    save_folder = settings['input_folder']
+                    save_folder = settings['src']
                     np.save(os.path.join(save_folder, file), data)
         else:
             nucleus_mask = np.zeros_like(data[:, :, 0])
@@ -941,13 +941,13 @@ def measure_crop(settings):
     settings = get_measure_crop_settings(settings)
     settings = measure_test_mode(settings)
 
-    #src_fldr = settings['input_folder']
+    #src_fldr = settings['src']
     #if not os.path.basename(src_fldr).endswith('merged'):
-    #    settings['input_folder'] = os.path.join(src_fldr, 'merged')
-    #    print(f"changed input_folder to {src_fldr}")
+    #    settings['src'] = os.path.join(src_fldr, 'merged')
+    #    print(f"changed src to {src_fldr}")
 
-    #if not os.path.exists(settings['input_folder']):
-    #    print(f'input_folder: {settings["input_folder"]} does not exist')
+    #if not os.path.exists(settings['src']):
+    #    print(f'src: {settings["src"]} does not exist')
     #    return
     
     if settings['cell_mask_dim'] is None:
@@ -961,7 +961,7 @@ def measure_crop(settings):
     else:
         settings['cytoplasm'] = False
     
-    dirname = os.path.dirname(settings['input_folder'])
+    dirname = os.path.dirname(settings['src'])
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
     os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
@@ -997,7 +997,7 @@ def measure_crop(settings):
     
     _save_settings_to_db(settings)
 
-    files = [f for f in os.listdir(settings['input_folder']) if f.endswith('.npy')]
+    files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
     n_jobs = settings['n_jobs'] or mp.cpu_count()-4
     print(f'using {n_jobs} cpu cores')
 
@@ -1018,7 +1018,7 @@ def measure_crop(settings):
 
     if settings['representative_images']:
         if settings['save_png']:
-            img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
+            img_fldr = os.path.join(os.path.dirname(settings['src']), 'data')
             sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
 
             for i, well_src in enumerate(sc_img_fldrs):
@@ -1037,7 +1037,7 @@ def measure_crop(settings):
                     #traceback.print_exc()
     
         if settings['save_measurements']:
-            db_path = os.path.join(os.path.dirname(settings['input_folder']), 'measurements', 'measurements.db')
+            db_path = os.path.join(os.path.dirname(settings['src']), 'measurements', 'measurements.db')
             channel_indices = settings['png_dims']
             channel_indices = [min(value, 2) for value in channel_indices]
             _generate_representative_images(db_path,
@@ -1061,13 +1061,13 @@ def measure_crop(settings):
 
     if settings['timelapse']:
         if settings['timelapse_objects'] == 'nucleus':
-            folder_path = settings['input_folder']
+            folder_path = settings['src']
             mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'],settings['cell_mask_dim']]
             object_types = ['nucleus','pathogen','cell']
             _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
         #if settings['save_png']:
-            img_fldr = os.path.join(os.path.dirname(settings['input_folder']), 'data')
+            img_fldr = os.path.join(os.path.dirname(settings['src']), 'data')
             sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
             _scmovie(sc_img_fldrs)
     print("Successfully completed run")

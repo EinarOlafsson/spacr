@@ -538,7 +538,7 @@ expected_types = {
     "plot": bool,
     "n_jobs": int,
     "verbose": bool,
-    "input_folder": str,
+    "src": str,
     "cell_mask_dim": int,
     "cell_min_size": int,
     "cytoplasm_min_size": int,
@@ -941,7 +941,7 @@ def generate_fields(variables, scrollable_frame):
         "include_noninfected": "(bool) - Whether to include non-infected cells in the analysis.",
         "include_uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
         "init_weights": "(bool) - Whether to initialize weights for the model.",
-        "input_folder": "(str) - Path to the folder containing the images.",
+        "src": "(str) - Path to the folder containing the images.",
         "intermedeate_save": "(bool) - Whether to save intermediate results.",
         "invert": "(bool) - Whether to invert the image intensities.",
         "learning_rate": "(float) - Learning rate for training.",
@@ -1092,7 +1092,7 @@ def generate_fields(variables, scrollable_frame):
     return vars_dict
 
 categories = {
-    "General": ["src", "input_folder", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims"],
+    "General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims"],
     "Paths":["grna", "barcodes"],
     "Regression":["class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "remove_row_column_effect", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable", "gene_weights_csv"],
     "Cellpose":["from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "circular", "invert", "diameter", "grayscale", "background", "Signal_to_noise", "resize", "target_height", "target_width"],
