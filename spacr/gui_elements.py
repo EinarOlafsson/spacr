@@ -1439,7 +1439,14 @@ def create_menu_bar(root):
         "Make Masks": (lambda frame: initiate_root(frame, 'make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
         "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
         "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequencing data."),
-        "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embeddings with datapoints represented as images.")
+        "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
+        "Train Cellpose": (lambda frame: initiate_root(frame, 'train_cellpose'), "Train custom Cellpose models."),
+        "ML Analyze": (lambda frame: initiate_root(frame, 'ml_analyze'), "Machine learning analysis of data."),
+        "Cellpose Masks": (lambda frame: initiate_root(frame, 'cellpose_masks'), "Generate Cellpose masks."),
+        "Cellpose All": (lambda frame: initiate_root(frame, 'cellpose_all'), "Run Cellpose on all images."),
+        "Map Barcodes": (lambda frame: initiate_root(frame, 'map_barcodes'), "Map barcodes to data."),
+        "Regression": (lambda frame: initiate_root(frame, 'regression'), "Perform regression analysis."),
+        "Recruitment": (lambda frame: initiate_root(frame, 'recruitment'), "Analyze recruitment data.")
     }
 
     def load_app_wrapper(app_name, app_func):
@@ -1459,6 +1466,7 @@ def create_menu_bar(root):
     app_menu.add_command(label="Exit", command=root.quit)
     # Configure the menu for the root window
     root.config(menu=menu_bar)
+
 
 def set_dark_style(style):
     font_style = tkFont.Font(family="Helvetica", size=24)

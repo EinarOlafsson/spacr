@@ -1,26 +1,23 @@
-import os, traceback, ctypes, matplotlib, requests, csv
+import os, traceback, ctypes, matplotlib, requests, csv, matplotlib, time, requests
+import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from multiprocessing import Process, Value, Queue
+from multiprocessing import Process, Value, Queue, set_start_method
 from multiprocessing.sharedctypes import Synchronized
-from multiprocessing import set_start_method
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import time
-import requests
 from huggingface_hub import list_repo_files
-
-from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
-from .gui_elements import create_menu_bar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
-from . gui_run import run_mask_gui, run_measure_gui, run_classify_gui, run_sequencing_gui, run_umap_gui
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
+
+from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
+from .gui_elements import create_menu_bar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
 
 # Define global variables
 q = None
@@ -44,26 +41,116 @@ def initiate_abort():
         thread_control["run_thread"].join()
         thread_control["run_thread"] = None
 
-def start_process_v1(q, fig_queue, settings_type='mask'):
-    global thread_control, vars_dict
-    from .settings import check_settings, expected_types
+def spacrFigShow(fig_queue=None):
+    """
+    Replacement for plt.show() that queues figures instead of displaying them.
+    """
+    fig = plt.gcf()
+    if fig_queue:
+        fig_queue.put(fig)
+    else:
+        fig.show()
+    plt.close(fig)
 
-    settings = check_settings(vars_dict, expected_types, q)
-    if thread_control.get("run_thread") is not None:
-        initiate_abort()
-    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
-    thread_control["stop_requested"] = stop_requested
+def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imports=1):
+
+    """
+    Wraps the run_multiple_simulations function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the run_multiple_simulations function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = lambda: spacrFigShow(fig_queue)
+
+    try:
+        if imports == 1:
+            function(settings=settings)
+        elif imports == 2:
+            function(src=settings['src'], settings=settings)
+    except Exception as e:
+        # Send the error message to the GUI via the queue
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage) 
+        traceback.print_exc()
+    finally:
+        # Restore the original plt.show function
+        plt.show = original_show
+
+def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
+    from .gui_utils import process_stdout_stderr
+    from .core import preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, compare_cellpose_masks, analyze_plaques, generate_dataset, apply_model_to_tar
+    from .io import generate_cellpose_train_test
+    from .measure import measure_crop
+    from .sim import run_multiple_simulations
+    from .deep_spacr import train_test_model
+    from .sequencing import analyze_reads, map_barcodes_folder, perform_regression
+    process_stdout_stderr(q)    
+    
     if settings_type == 'mask':
-        thread_control["run_thread"] = Process(target=run_mask_gui, args=(settings, q, fig_queue, stop_requested))
+        function = preprocess_generate_masks
+        imports = 2
     elif settings_type == 'measure':
-        thread_control["run_thread"] = Process(target=run_measure_gui, args=(settings, q, fig_queue, stop_requested))
-    elif settings_type == 'classify':
-        thread_control["run_thread"] = Process(target=run_classify_gui, args=(settings, q, fig_queue, stop_requested))
+        function = measure_crop
+        imports = 1
+    elif settings_type == 'simulation':
+        function = run_multiple_simulations
+        imports = 1
     elif settings_type == 'sequencing':
-        thread_control["run_thread"] = Process(target=run_sequencing_gui, args=(settings, q, fig_queue, stop_requested))
-    elif settings_type == 'umap':
-        thread_control["run_thread"] = Process(target=run_umap_gui, args=(settings, q, fig_queue, stop_requested))
-    thread_control["run_thread"].start()
+        function = analyze_reads
+        imports = 1
+    elif settings_type == 'classify':
+        function = train_test_model
+        imports = 2
+    elif settings_type == 'train_cellpose':
+        function = train_cellpose
+        imports = 1
+    elif settings_type == 'ml_analyze':
+        function = generate_ml_scores
+        imports = 2
+    elif settings_type == 'cellpose_masks':
+        function = identify_masks_finetune
+        imports = 1
+    elif settings_type == 'cellpose_all':
+        function = check_cellpose_models
+        imports = 1
+    elif settings_type == 'map_barcodes':
+        function = map_barcodes_folder
+        imports = 2
+    elif settings_type == 'regression':
+        function = perform_regression
+        imports = 2
+    elif settings_type == 'recruitment':
+        function = analyze_recruitment
+        imports = 2
+    #elif settings_type == 'cellpose_dataset':
+    #    function = generate_cellpose_train_test
+    #    imports = 1
+    #elif settings_type == 'plaques':
+    #    function = analyze_plaques
+    #    imports = 1
+    #elif settings_type == 'cellpose_compare':
+    #    function = compare_cellpose_masks
+    #    imports = 1
+    #elif settings_type == 'vision_scores':
+    #    function = apply_model_to_tar
+    #    imports = 1
+    #elif settings_type == 'vision_dataset':
+    #    function = generate_dataset
+    #    imports = 1
+    else:
+        raise ValueError(f"Invalid settings type: {settings_type}")
+    try:
+        function_gui_wrapper(function, settings, q, fig_queue, imports)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
 
 def start_process(q=None, fig_queue=None, settings_type='mask'):
     global thread_control, vars_dict
@@ -83,25 +170,15 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
     if thread_control.get("run_thread") is not None:
         initiate_abort()
     
-    stop_requested = Value('i', 0)  # multiprocessing shared value for inter-process communication
+    stop_requested = Value('i', 0)
     thread_control["stop_requested"] = stop_requested
 
-    process_args = (settings, q, fig_queue, stop_requested)
-
-    if settings_type == 'mask':
-        thread_control["run_thread"] = Process(target=run_mask_gui, args=process_args)
-    elif settings_type == 'measure':
-        thread_control["run_thread"] = Process(target=run_measure_gui, args=process_args)
-    elif settings_type == 'classify':
-        thread_control["run_thread"] = Process(target=run_classify_gui, args=process_args)
-    elif settings_type == 'sequencing':
-        thread_control["run_thread"] = Process(target=run_sequencing_gui, args=process_args)
-    elif settings_type == 'umap':
-        thread_control["run_thread"] = Process(target=run_umap_gui, args=process_args)
+    process_args = (settings_type, settings, q, fig_queue, stop_requested)
+    if settings_type in ['mask','measure','simulation','sequencing','classify','cellpose_dataset','train_cellpose','ml_analyze','cellpose_masks','cellpose_all','map_barcodes','regression','recruitment','plaques','cellpose_compare','vision_scores','vision_dataset']:
+        thread_control["run_thread"] = Process(target=run_function_gui, args=process_args)
     else:
         q.put(f"Error: Unknown settings type '{settings_type}'")
         return
-
     thread_control["run_thread"].start()
 
 def import_settings(settings_type='mask'):
@@ -194,7 +271,7 @@ def convert_settings_dict_for_gui(settings):
 
 def setup_settings_panel(vertical_container, settings_type='mask', window_dimensions=[500, 1000]):
     global vars_dict, scrollable_frame
-    from .settings import set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, descriptions
+    from .settings import descriptions, get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
 
     width = (window_dimensions[0])//6
     height = window_dimensions[1]
@@ -219,8 +296,35 @@ def setup_settings_panel(vertical_container, settings_type='mask', window_dimens
         settings = get_analyze_reads_default_settings(settings={})
     elif settings_type == 'umap':
         settings = set_default_umap_image_settings(settings={})
+    elif settings_type == 'train_cellpose':
+        settings = get_train_cellpose_default_settings(settings={})
+    elif settings_type == 'ml_analyze':
+        settings = set_default_analyze_screen(settings={})
+    elif settings_type == 'cellpose_masks':
+        settings = get_identify_masks_finetune_default_settings(settings={})
+    elif settings_type == 'cellpose_all':
+        settings = get_check_cellpose_models_default_settings(settings={})
+    elif settings_type == 'map_barcodes':
+        settings = get_map_barcodes_default_settings(settings={})
+    elif settings_type == 'regression':
+        settings = get_perform_regression_default_settings(settings={})
+    elif settings_type == 'recruitment':
+        settings = get_analyze_recruitment_default_settings(settings={})
+    #elif settings_type == 'simulation':
+    #    settings = set_default_
+    #elif settings_type == 'cellpose_dataset':
+    #    settings = set_default_
+    #elif settings_type == 'plaques':
+    #    settings = set_default_
+    #elif settings_type == 'cellpose_compare':
+    #    settings = set_default_
+    #elif settings_type == 'vision_scores':
+    #    settings = set_default_
+    #elif settings_type == 'vision_dataset':
+    #    settings = set_default_
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
+
 
     variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
@@ -402,8 +506,9 @@ def setup_button_section(horizontal_container, settings_type='mask',  window_dim
     # Description frame
     description_frame = tk.Frame(horizontal_container, bg='black', height=height, width=width)
     horizontal_container.add(description_frame, stretch="always", sticky="nsew")
-    description_label = tk.Label(description_frame, text="Module Description", bg='black', fg='white', anchor='nw', justify='left', wraplength=width//2-100)
-    description_label.pack(pady=10, padx=10)
+    description_frame.grid_columnconfigure(0, weight=1)  # Make the column stretch
+    description_label = tk.Label(description_frame, text="Module Description", bg='black', fg='white', anchor='nw', justify='left', wraplength=width-50)
+    description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')  # Use sticky='nsew' to stretch the label
     description_text = descriptions.get(settings_type, "No description available for this module.")
     description_label.config(text=description_text)
 

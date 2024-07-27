@@ -17,21 +17,33 @@ class MainApp(tk.Tk):
         style = ttk.Style()
         set_dark_style(style)
 
-        self.gui_apps = {
+        self.main_gui_apps = {
             "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
             "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
             "Annotate": (lambda frame: initiate_root(frame, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
-            "Make Masks": (lambda frame: initiate_root(frame, 'make_masks'),"Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
+            "Make Masks": (lambda frame: initiate_root(frame, 'make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
             "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
-            "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequensing data."),
-            "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embedings with datapoints represented as images.")
+        }
+
+        self.additional_gui_apps = {
+            "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequencing data."),
+            "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
+            "Train Cellpose": (lambda frame: initiate_root(frame, 'train_cellpose'), "Train custom Cellpose models."),
+            "ML Analyze": (lambda frame: initiate_root(frame, 'ml_analyze'), "Machine learning analysis of data."),
+            "Cellpose Masks": (lambda frame: initiate_root(frame, 'cellpose_masks'), "Generate Cellpose masks."),
+            "Cellpose All": (lambda frame: initiate_root(frame, 'cellpose_all'), "Run Cellpose on all images."),
+            "Map Barcodes": (lambda frame: initiate_root(frame, 'map_barcodes'), "Map barcodes to data."),
+            "Regression": (lambda frame: initiate_root(frame, 'regression'), "Perform regression analysis."),
+            "Recruitment": (lambda frame: initiate_root(frame, 'recruitment'), "Analyze recruitment data.")
         }
 
         self.selected_app = tk.StringVar()
         self.create_widgets()
 
-        if default_app in self.gui_apps:
-            self.load_app(default_app, self.gui_apps[default_app][0])
+        if default_app in self.main_gui_apps:
+            self.load_app(default_app, self.main_gui_apps[default_app][0])
+        elif default_app in self.additional_gui_apps:
+            self.load_app(default_app, self.additional_gui_apps[default_app][0])
 
     def create_widgets(self):
         # Create the menu bar
@@ -47,7 +59,7 @@ class MainApp(tk.Tk):
         self.content_frame = tk.Frame(self.canvas, bg="black")
         self.content_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Create startup screen with buttons for each GUI app
+        # Create startup screen with buttons for each main GUI app and drop-down for additional apps
         self.create_startup_screen()
 
     def create_startup_screen(self):
@@ -68,7 +80,7 @@ class MainApp(tk.Tk):
         buttons_frame = tk.Frame(self.content_frame, bg="black")
         buttons_frame.pack(pady=10, expand=True, padx=10)
 
-        for i, (app_name, app_data) in enumerate(self.gui_apps.items()):
+        for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
             app_func, app_desc = app_data
 
             # Create custom button with text
@@ -77,6 +89,17 @@ class MainApp(tk.Tk):
 
             description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 12))
             description_label.grid(row=i, column=1, pady=10, padx=10, sticky="w")
+
+        # Add drop-down menu for additional apps
+        dropdown_frame = tk.Frame(buttons_frame, bg="black")
+        dropdown_frame.grid(row=len(self.main_gui_apps), column=0, columnspan=2, pady=20)
+
+        tk.Label(dropdown_frame, text="Additional Apps", bg="black", fg="white", font=('Helvetica', 12)).pack(side=tk.LEFT, padx=5)
+        self.additional_apps_var = tk.StringVar(value="Select an app")
+        dropdown = ttk.Combobox(dropdown_frame, textvariable=self.additional_apps_var, values=list(self.additional_gui_apps.keys()))
+        dropdown.pack(side=tk.LEFT, padx=5)
+        load_button = spacrButton(dropdown_frame, text="Load", command=self.load_additional_app, font=('Helvetica', 12))
+        load_button.pack(side=tk.LEFT, padx=5)
 
         # Ensure buttons have a fixed width
         buttons_frame.grid_columnconfigure(0, minsize=150)
@@ -134,6 +157,11 @@ class MainApp(tk.Tk):
         app_frame = tk.Frame(self.content_frame, bg="black")
         app_frame.pack(fill=tk.BOTH, expand=True)
         app_func(app_frame)
+
+    def load_additional_app(self):
+        selected_app = self.additional_apps_var.get()
+        if selected_app in self.additional_gui_apps:
+            self.load_app(selected_app, self.additional_gui_apps[selected_app][0])
 
     def clear_frame(self, frame):
         for widget in frame.winfo_children():
