@@ -516,10 +516,18 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     description_frame = tk.Frame(horizontal_container)
     horizontal_container.add(description_frame, stretch="always", sticky="nsew")
     description_frame.grid_columnconfigure(0, weight=1)
+    description_frame.grid_rowconfigure(0, weight=1)  # Add this line to make the row expandable
+
     description_label = tk.Label(description_frame, text="Module Description", anchor='nw', justify='left', wraplength=width - 50)
     description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')
     description_text = descriptions.get(settings_type, "No description available for this module.")
     description_label.config(text=description_text)
+
+    def update_wraplength(event):
+        new_width = event.width - 40  # Adjust as needed
+        description_label.config(wraplength=new_width)
+
+    description_label.bind('<Configure>', update_wraplength)
 
     containers = [button_frame, description_frame]
     widgets.extend([description_label])
@@ -528,6 +536,7 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     _ = set_dark_style(style, containers=containers, widgets=widgets)
 
     return button_frame, button_scrollable_frame, description_frame, description_label
+
 
 def hide_all_settings(vars_dict, categories):
     """
