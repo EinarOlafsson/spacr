@@ -1693,7 +1693,7 @@ def _save_settings_to_db(settings):
     settings_df['setting_value'] = settings_df['setting_value'].apply(str)
     display(settings_df)
     # Determine the directory path
-    src = os.path.dirname(settings['input_folder'])
+    src = os.path.dirname(settings['src'])
     directory = f'{src}/measurements'
     # Create the directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)

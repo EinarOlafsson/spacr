@@ -17,7 +17,7 @@ except AttributeError:
     pass
 
 from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
-from .gui_elements import create_menu_bar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
+from .gui_elements import spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
 
 # Define global variables
 q = None
@@ -271,17 +271,16 @@ def convert_settings_dict_for_gui(settings):
 
 def setup_settings_panel(vertical_container, settings_type='mask', window_dimensions=[500, 1000]):
     global vars_dict, scrollable_frame
-    from .settings import descriptions, get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
+    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
 
-    width = (window_dimensions[0])//6
+    width = (window_dimensions[0]) // 6
     height = window_dimensions[1]
 
-    # Settings Frame
-    settings_frame = tk.Frame(vertical_container, bg='black', height=height, width=width)
+    settings_frame = tk.Frame(vertical_container)
     vertical_container.add(settings_frame, stretch="always")
-    settings_label = spacrLabel(settings_frame, text="Settings", background="black", foreground="white", anchor='center', justify='center', align="center")
+    settings_label = spacrLabel(settings_frame, text="Settings", anchor='center', justify='center', align="center")
     settings_label.grid(row=0, column=0, pady=10, padx=10)
-    scrollable_frame = spacrFrame(settings_frame, bg='black', width=width)
+    scrollable_frame = spacrFrame(settings_frame)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
     settings_frame.grid_rowconfigure(1, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)
@@ -310,24 +309,18 @@ def setup_settings_panel(vertical_container, settings_type='mask', window_dimens
         settings = get_perform_regression_default_settings(settings={})
     elif settings_type == 'recruitment':
         settings = get_analyze_recruitment_default_settings(settings={})
-    #elif settings_type == 'simulation':
-    #    settings = set_default_
-    #elif settings_type == 'cellpose_dataset':
-    #    settings = set_default_
-    #elif settings_type == 'plaques':
-    #    settings = set_default_
-    #elif settings_type == 'cellpose_compare':
-    #    settings = set_default_
-    #elif settings_type == 'vision_scores':
-    #    settings = set_default_
-    #elif settings_type == 'vision_dataset':
-    #    settings = set_default_
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
 
-
     variables = convert_settings_dict_for_gui(settings)
     vars_dict = generate_fields(variables, scrollable_frame)
+    
+    containers = [settings_frame]
+    widgets = [settings_label, scrollable_frame]
+
+    style = ttk.Style(vertical_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
+
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
 
@@ -335,45 +328,57 @@ def setup_plot_section(vertical_container):
     global canvas, canvas_widget
     plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)
     vertical_container.add(plot_frame, stretch="always")
-    figure = Figure(figsize=(30, 4), dpi=100, facecolor='black')
+    figure = Figure(figsize=(30, 4), dpi=100)
     plot = figure.add_subplot(111)
     plot.plot([], [])  # This creates an empty plot.
     plot.axis('off')
     canvas = FigureCanvasTkAgg(figure, master=plot_frame)
-    canvas.get_tk_widget().configure(cursor='arrow', background='black', highlightthickness=0)
+    canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
     canvas_widget = canvas.get_tk_widget()
     plot_frame.add(canvas_widget, stretch="always")
     canvas.draw()
     canvas.figure = figure
+    # Set the figure and axes background to black
+    figure.patch.set_facecolor('black')
+    plot.set_facecolor('black')
+    containers = [plot_frame]
+    widgets = [canvas_widget]
+    style = ttk.Style(vertical_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
     return canvas, canvas_widget
 
 def setup_console(vertical_container):
     global console_output
-    print("Setting up console frame")
-    console_frame = tk.Frame(vertical_container, bg='black')
+    console_frame = tk.Frame(vertical_container)
     vertical_container.add(console_frame, stretch="always")
-    console_label = spacrLabel(console_frame, text="Console", background="black", foreground="white", anchor='center', justify='center', align="center")
+    console_label = spacrLabel(console_frame, text="Console", anchor='center', justify='center', align="center")
     console_label.grid(row=0, column=0, pady=10, padx=10)
-    console_output = scrolledtext.ScrolledText(console_frame, height=10, bg='black', fg='white', insertbackground='white')
+    console_output = scrolledtext.ScrolledText(console_frame, height=10)
     console_output.grid(row=1, column=0, sticky="nsew")
     console_frame.grid_rowconfigure(1, weight=1)
     console_frame.grid_columnconfigure(0, weight=1)
-    print("Console setup complete")
+    containers = [console_frame]
+    widgets = [console_label, console_output]
+    style = ttk.Style(vertical_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
     return console_output
 
 def setup_progress_frame(vertical_container):
     global progress_output
-    progress_frame = tk.Frame(vertical_container, bg='black')
+    progress_frame = tk.Frame(vertical_container)
     vertical_container.add(progress_frame, stretch="always")
-    label_frame = tk.Frame(progress_frame, bg='black')
+    label_frame = tk.Frame(progress_frame)
     label_frame.grid(row=0, column=0, sticky="ew", pady=(5, 0), padx=10)
-    progress_label = spacrLabel(label_frame, text="Processing: 0%", background="black", foreground="white", font=('Helvetica', 12), anchor='w', justify='left', align="left")
+    progress_label = spacrLabel(label_frame, text="Processing: 0%", font=('Helvetica', 12), anchor='w', justify='left', align="left")
     progress_label.grid(row=0, column=0, sticky="w")
-    progress_output = scrolledtext.ScrolledText(progress_frame, height=10, bg='black', fg='white', insertbackground='white')
+    progress_output = scrolledtext.ScrolledText(progress_frame, height=10)
     progress_output.grid(row=1, column=0, sticky="nsew")
     progress_frame.grid_rowconfigure(1, weight=1)
     progress_frame.grid_columnconfigure(0, weight=1)
-    print("Progress frame setup complete")
+    containers = [progress_frame, label_frame]
+    widgets = [progress_label, progress_output]
+    style = ttk.Style(vertical_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
     return progress_output
 
 def download_hug_dataset():
@@ -459,60 +464,70 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
 
     raise Exception("Failed to download files after multiple attempts.")
 
-def setup_button_section(horizontal_container, settings_type='mask',  window_dimensions=[500, 1000], run=True, abort=True, download=True, import_btn=True):
+def setup_button_section(horizontal_container, settings_type='mask', window_dimensions=[500, 1000], run=True, abort=True, download=True, import_btn=True):
     global button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
     from .settings import descriptions
 
-    width = (window_dimensions[0])//8
+    width = (window_dimensions[0]) // 8
     height = window_dimensions[1]
 
-    button_frame = tk.Frame(horizontal_container, bg='black', height=height, width=width)
+    button_frame = tk.Frame(horizontal_container)
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
     button_frame.grid_rowconfigure(0, weight=0)
     button_frame.grid_rowconfigure(1, weight=1)
     button_frame.grid_columnconfigure(0, weight=1)
 
-    categories_label = spacrLabel(button_frame, text="Categories", background="black", foreground="white", font=('Helvetica', 12), anchor='center', justify='center', align="center")
+    categories_label = spacrLabel(button_frame, text="Categories", anchor='center', justify='center', align="center")
     categories_label.grid(row=0, column=0, pady=10, padx=10)
-    button_scrollable_frame = spacrFrame(button_frame, bg='black')
+    button_scrollable_frame = spacrFrame(button_frame)
     button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
+
+    widgets = [categories_label, button_scrollable_frame.scrollable_frame]
 
     btn_col = 0
     btn_row = 1
-    
+
     if run:
-        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type), font=('Helvetica', 12))
+        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type))
         run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        widgets.append(run_button)
         btn_row += 1
 
     if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap']:
-        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort, font=('Helvetica', 12))
+        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
         abort_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        widgets.append(abort_button)
         btn_row += 1
 
     if download and settings_type in ['mask']:
-        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset, font=('Helvetica', 12))
+        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset)
         download_dataset_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        widgets.append(download_dataset_button)
         btn_row += 1
 
     if import_btn:
-        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_type), font=('Helvetica', 12))
+        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_type))
         import_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        widgets.append(import_button)
 
-    # Call toggle_settings after vars_dict is initialized
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
 
-    # Description frame
-    description_frame = tk.Frame(horizontal_container, bg='black', height=height, width=width)
+    description_frame = tk.Frame(horizontal_container)
     horizontal_container.add(description_frame, stretch="always", sticky="nsew")
-    description_frame.grid_columnconfigure(0, weight=1)  # Make the column stretch
-    description_label = tk.Label(description_frame, text="Module Description", bg='black', fg='white', anchor='nw', justify='left', wraplength=width-50)
-    description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')  # Use sticky='nsew' to stretch the label
+    description_frame.grid_columnconfigure(0, weight=1)
+    description_label = tk.Label(description_frame, text="Module Description", anchor='nw', justify='left', wraplength=width - 50)
+    description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')
     description_text = descriptions.get(settings_type, "No description available for this module.")
     description_label.config(text=description_text)
 
-    return button_scrollable_frame
+    containers = [button_frame, description_frame]
+    widgets.extend([description_label])
+
+    style = ttk.Style(horizontal_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
+
+    return button_frame, button_scrollable_frame, description_frame, description_label
 
 def hide_all_settings(vars_dict, categories):
     """
@@ -561,7 +576,6 @@ def toggle_settings(button_scrollable_frame):
     def on_category_select(selected_category):
         if selected_category == "Select Category":
             return
-        #print(f"Selected category: {selected_category}")
         if selected_category in categories:
             toggle_category(categories[selected_category])
             if selected_category in active_categories:
@@ -569,7 +583,7 @@ def toggle_settings(button_scrollable_frame):
             else:
                 active_categories.add(selected_category)
         category_dropdown.update_styles(active_categories)
-        category_var.set("Select Category")  # Reset dropdown text to "Select Category"
+        category_var.set("Select Category")
 
     category_var = tk.StringVar()
     non_empty_categories = [category for category, settings in categories.items() if any(setting in vars_dict for setting in settings)]
@@ -627,24 +641,29 @@ def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canv
     progress_label = progress_label_var
     fig_queue = fig_queue_var
 
+def create_containers(parent_frame):
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
+    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL)
+    settings_frame = tk.Frame(horizontal_container)
+    return vertical_container, horizontal_container, settings_frame
+
 def setup_frame(parent_frame):
     style = ttk.Style(parent_frame)
-    set_dark_style(style)
+    vertical_container, horizontal_container, settings_frame = create_containers(parent_frame)
+    containers = [vertical_container, horizontal_container, settings_frame]
+    
+    set_dark_style(style, parent_frame, containers)
     set_default_font(parent_frame, font_name="Helvetica", size=8)
-    parent_frame.configure(bg='black')
-    parent_frame.grid_rowconfigure(0, weight=1)
-    parent_frame.grid_columnconfigure(0, weight=1)
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg='black')
+    
     vertical_container.grid(row=0, column=0, sticky=tk.NSEW)
-    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, bg='black')
     vertical_container.add(horizontal_container, stretch="always")
     horizontal_container.grid_columnconfigure(0, weight=1)
     horizontal_container.grid_columnconfigure(1, weight=1)
-    settings_frame = tk.Frame(horizontal_container, bg='black')
     settings_frame.grid_rowconfigure(0, weight=0)
     settings_frame.grid_rowconfigure(1, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)
     horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
+    
     return parent_frame, vertical_container, horizontal_container
 
 def initiate_root(parent, settings_type='mask'):
