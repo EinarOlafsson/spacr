@@ -11,11 +11,12 @@ class MainApp(tk.Tk):
         super().__init__()
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
-        self.geometry(f"{width}x{height}")  
+        self.geometry(f"{width}x{height}")
         self.title("SpaCr GUI Collection")
-        self.configure(bg="black")
+
+        # Initialize style and apply dark style to the main window
         style = ttk.Style()
-        set_dark_style(style)
+        self.color_settings = set_dark_style(style, parent_frame=self)
 
         self.main_gui_apps = {
             "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
@@ -50,14 +51,17 @@ class MainApp(tk.Tk):
         create_menu_bar(self)
 
         # Create a canvas to hold the selected app and other elements
-        self.canvas = tk.Canvas(self, bg="black", highlightthickness=0)
+        self.canvas = tk.Canvas(self, highlightthickness=0)
         self.canvas.grid(row=0, column=0, sticky="nsew")
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
         # Create a frame inside the canvas to hold the main content
-        self.content_frame = tk.Frame(self.canvas, bg="black")
+        self.content_frame = tk.Frame(self.canvas)
         self.content_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Apply dark style to canvas and content_frame
+        set_dark_style(ttk.Style(), containers=[self.canvas, self.content_frame])
 
         # Create startup screen with buttons for each main GUI app and drop-down for additional apps
         self.create_startup_screen()
@@ -66,19 +70,25 @@ class MainApp(tk.Tk):
         self.clear_frame(self.content_frame)
 
         # Create a frame for the logo and description
-        logo_frame = tk.Frame(self.content_frame, bg="black")
+        logo_frame = tk.Frame(self.content_frame)
         logo_frame.pack(pady=20, expand=True)
+        set_dark_style(ttk.Style(), containers=[logo_frame])
 
         # Load the logo image
         if not self.load_logo(logo_frame):
-            tk.Label(logo_frame, text="Logo not found", bg="black", fg="white", font=('Helvetica', 24)).pack(padx=10, pady=10)
+            logo_not_found = tk.Label(logo_frame, text="Logo not found", font=('Helvetica', 24))
+            logo_not_found.pack(padx=10, pady=10)
+            set_dark_style(ttk.Style(), widgets=[logo_not_found])
 
         # Add SpaCr text below the logo with padding for sharper text
-        tk.Label(logo_frame, text="SpaCr", bg="black", fg="#008080", font=('Helvetica', 24)).pack(padx=10, pady=10)
+        spacr_label = tk.Label(logo_frame, text="SpaCr", fg=self.color_settings['active_color'], font=('Helvetica', 24))
+        spacr_label.pack(padx=10, pady=10)
+        set_dark_style(ttk.Style(), widgets=[spacr_label])
 
         # Create a frame for the buttons and descriptions
-        buttons_frame = tk.Frame(self.content_frame, bg="black")
+        buttons_frame = tk.Frame(self.content_frame)
         buttons_frame.pack(pady=10, expand=True, padx=10)
+        set_dark_style(ttk.Style(), containers=[buttons_frame])
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
             app_func, app_desc = app_data
@@ -87,17 +97,24 @@ class MainApp(tk.Tk):
             button = spacrButton(buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), font=('Helvetica', 12))
             button.grid(row=i, column=0, pady=10, padx=10, sticky="w")
 
-            description_label = tk.Label(buttons_frame, text=app_desc, bg="black", fg="white", wraplength=800, justify="left", font=('Helvetica', 12))
+            description_label = tk.Label(buttons_frame, text=app_desc, wraplength=800, justify="left", font=('Helvetica', 12))
             description_label.grid(row=i, column=1, pady=10, padx=10, sticky="w")
+            set_dark_style(ttk.Style(), widgets=[description_label])
 
         # Add drop-down menu for additional apps
-        dropdown_frame = tk.Frame(buttons_frame, bg="black")
+        dropdown_frame = tk.Frame(buttons_frame)
         dropdown_frame.grid(row=len(self.main_gui_apps), column=0, columnspan=2, pady=20)
+        set_dark_style(ttk.Style(), containers=[dropdown_frame])
 
-        tk.Label(dropdown_frame, text="Additional Apps", bg="black", fg="white", font=('Helvetica', 12)).pack(side=tk.LEFT, padx=5)
+        additional_apps_label = tk.Label(dropdown_frame, text="Additional Apps", font=('Helvetica', 12))
+        additional_apps_label.pack(side=tk.LEFT, padx=5)
+        set_dark_style(ttk.Style(), widgets=[additional_apps_label])
+
         self.additional_apps_var = tk.StringVar(value="Select an app")
         dropdown = ttk.Combobox(dropdown_frame, textvariable=self.additional_apps_var, values=list(self.additional_gui_apps.keys()))
         dropdown.pack(side=tk.LEFT, padx=5)
+        set_dark_style(ttk.Style(), widgets=[dropdown])
+
         load_button = spacrButton(dropdown_frame, text="Load", command=self.load_additional_app, font=('Helvetica', 12))
         load_button.pack(side=tk.LEFT, padx=5)
 
@@ -141,9 +158,10 @@ class MainApp(tk.Tk):
             new_height = int(screen_height // 4)
             logo_image = logo_image.resize((new_height, new_height), Image.Resampling.LANCZOS)
             logo_photo = ImageTk.PhotoImage(logo_image)
-            logo_label = tk.Label(frame, image=logo_photo, bg="black")
+            logo_label = tk.Label(frame, image=logo_photo)
             logo_label.image = logo_photo  # Keep a reference to avoid garbage collection
             logo_label.pack()
+            set_dark_style(ttk.Style(), widgets=[logo_label])
             return True
         except Exception as e:
             print(f"An error occurred while processing the logo image: {e}")
@@ -154,8 +172,9 @@ class MainApp(tk.Tk):
         self.clear_frame(self.content_frame)
 
         # Initialize the selected app
-        app_frame = tk.Frame(self.content_frame, bg="black")
+        app_frame = tk.Frame(self.content_frame)
         app_frame.pack(fill=tk.BOTH, expand=True)
+        set_dark_style(ttk.Style(), containers=[app_frame])
         app_func(app_frame)
 
     def load_additional_app(self):

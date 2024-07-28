@@ -14,23 +14,97 @@ from collections import deque
 from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
+from tkinter import ttk, scrolledtext
+
+def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="Arial", font_size=12, bg_color='black', fg_color='white', active_color='teal', inactive_color='gray'):
+
+    if active_color == 'teal':
+        active_color = '#008080'
+    if inactive_color == 'gray':
+        inactive_color = '#555555'
+    if bg_color == 'black':
+        bg_color = '#000000'
+    if fg_color == 'white':
+        fg_color = '#ffffff'
+
+    font_style = tkFont.Font(family=font_family, size=font_size)
+    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground=bg_color, foreground=fg_color, font=font_style)
+    style.configure('TCombobox', fieldbackground=bg_color, background=bg_color, foreground=fg_color, selectbackground=bg_color, selectforeground=fg_color, font=font_style)
+    style.map('TCombobox', fieldbackground=[('readonly', bg_color)], foreground=[('readonly', fg_color)], selectbackground=[('readonly', bg_color)], selectforeground=[('readonly', fg_color)])
+    style.configure('Custom.TButton', background=bg_color, foreground=fg_color, bordercolor=fg_color, focusthickness=3, focuscolor=fg_color, font=(font_family, font_size))
+    style.map('Custom.TButton', background=[('active', active_color), ('!active', bg_color)], foreground=[('active', fg_color), ('!active', fg_color)], bordercolor=[('active', fg_color), ('!active', fg_color)])
+    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background=bg_color, foreground=fg_color, font=font_style)
+    style.configure('Spacr.TCheckbutton', background=bg_color, foreground=fg_color, indicatoron=False, relief='flat', font="15")
+    style.map('Spacr.TCheckbutton', background=[('selected', bg_color), ('active', bg_color)], foreground=[('selected', fg_color), ('active', fg_color)])
+    style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_style)
+    style.configure('TFrame', background=bg_color)
+    style.configure('TPanedwindow', background=bg_color)
+    style.configure('TNotebook', background=bg_color, tabmargins=[2, 5, 2, 0])
+    style.configure('TNotebook.Tab', background=bg_color, foreground=fg_color, padding=[5, 5], font=font_style)
+    style.map('TNotebook.Tab', background=[('selected', active_color), ('active', active_color)], foreground=[('selected', fg_color), ('active', fg_color)])
+    style.configure('TButton', background=bg_color, foreground=fg_color, padding='5 5 5 5', font=font_style)
+    style.map('TButton', background=[('active', active_color), ('disabled', inactive_color)])
+    style.configure('Vertical.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
+    style.configure('Horizontal.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
+    style.configure('Custom.TLabelFrame', font=(font_family, font_size, 'bold'), background=bg_color, foreground='white', relief='solid', borderwidth=1)
+    style.configure('Custom.TLabelFrame.Label', background=bg_color, foreground='white', font=(font_family, font_size, 'bold'))
+
+    if parent_frame:
+        parent_frame.configure(bg=bg_color)
+        parent_frame.grid_rowconfigure(0, weight=1)
+        parent_frame.grid_columnconfigure(0, weight=1)
+
+    if containers:
+        for container in containers:
+            if isinstance(container, ttk.Frame):
+                container_style = ttk.Style()
+                container_style.configure(f'{container.winfo_class()}.TFrame', background=bg_color)
+                container.configure(style=f'{container.winfo_class()}.TFrame')
+            else:
+                container.configure(bg=bg_color)
+
+    if widgets:
+        for widget in widgets:
+            if isinstance(widget, (tk.Label, tk.Button, tk.Frame, ttk.LabelFrame, tk.Canvas)):
+                widget.configure(bg=bg_color)
+            if isinstance(widget, (tk.Label, tk.Button)):
+                widget.configure(fg=fg_color, font=(font_family, font_size))
+            if isinstance(widget, scrolledtext.ScrolledText):
+                widget.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
+            if isinstance(widget, tk.OptionMenu):
+                widget.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
+                menu = widget['menu']
+                menu.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
+
+    return {'font_family':font_family, 'font_size':font_size, 'bg_color':bg_color, 'fg_color':fg_color, 'active_color':active_color, 'inactive_color':inactive_color}
+
+def set_default_font(root, font_name="Arial", size=12):
+    default_font = (font_name, size)
+    root.option_add("*Font", default_font)
+    root.option_add("*TButton.Font", default_font)
+    root.option_add("*TLabel.Font", default_font)
+    root.option_add("*TEntry.Font", default_font)
 
 class spacrDropdownMenu(tk.OptionMenu):
     def __init__(self, parent, variable, options, command=None, **kwargs):
         self.variable = variable
         self.variable.set("Select Category")
         super().__init__(parent, self.variable, *options, command=command, **kwargs)
-        self.config(bg='black', fg='white', font=('Helvetica', 12), indicatoron=0)
-        self.menu = self['menu']
-        self.menu.config(bg='black', fg='white', font=('Helvetica', 12))
+        self.update_styles()
 
-    def update_styles(self, active_categories):
-        menu = self['menu']
-        for idx, option in enumerate(self['menu'].entrycget(idx, "label") for idx in range(self['menu'].index("end")+1)):
-            if option in active_categories:
-                menu.entryconfig(idx, background='teal', foreground='white')
-            else:
-                menu.entryconfig(idx, background='black', foreground='white')
+    def update_styles(self, active_categories=None):
+        style = ttk.Style()
+        style_out = set_dark_style(style, widgets=[self])
+        self.menu = self['menu']
+        style_out = set_dark_style(style, widgets=[self.menu])
+
+        if active_categories is not None:
+            for idx in range(self.menu.index("end") + 1):
+                option = self.menu.entrycget(idx, "label")
+                if option in active_categories:
+                    self.menu.entryconfig(idx, background=style_out['active_color'], foreground=style_out['fg_color'])
+                else:
+                    self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
 
 class spacrCheckbutton(ttk.Checkbutton):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
@@ -39,6 +113,9 @@ class spacrCheckbutton(ttk.Checkbutton):
         self.variable = variable if variable else tk.BooleanVar()
         self.command = command
         self.configure(text=self.text, variable=self.variable, command=self.command, style='Spacr.TCheckbutton')
+        style = ttk.Style()
+        _ = set_dark_style(style, widgets=[self])
+
 
 class spacrFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
@@ -65,25 +142,25 @@ class spacrFrame(ttk.Frame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
         
-        for child in self.scrollable_frame.winfo_children():
-            child.configure(bg='black')
+        style = ttk.Style()
+        _ = set_dark_style(style, containers=[self], widgets=[canvas, scrollbar, self.scrollable_frame])
 
 class spacrLabel(tk.Frame):
     def __init__(self, parent, text="", font=None, style=None, align="right", **kwargs):
-        label_kwargs = {k: v for k, v in kwargs.items() if k in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
-        for key in label_kwargs.keys():
-            kwargs.pop(key)
-        super().__init__(parent, **kwargs)
+        valid_kwargs = {k: v for k, v in kwargs.items() if k not in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
+        super().__init__(parent, **valid_kwargs)
+        
         self.text = text
-        self.kwargs = label_kwargs
         self.align = align
         screen_height = self.winfo_screenheight()
         label_height = screen_height // 50
         label_width = label_height * 10
-        self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=self.kwargs.get("background", "black"))
+        style_out = set_dark_style(ttk.Style())
+
+        self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=style_out['bg_color'])
         self.canvas.grid(row=0, column=0, sticky="ew")
 
-        self.font_style = font if font else tkFont.Font(family=self.kwargs.get("font_family", "Helvetica"), size=self.kwargs.get("font_size", 12), weight=tkFont.NORMAL)
+        self.font_style = font if font else tkFont.Font(family=style_out['font_family'], size=style_out['font_size'], weight=tkFont.NORMAL)
         self.style = style
 
         if self.align == "center":
@@ -95,13 +172,15 @@ class spacrLabel(tk.Frame):
 
         if self.style:
             ttk_style = ttk.Style()
-            ttk_style.configure(self.style, **label_kwargs)
-            self.label_text = ttk.Label(self.canvas, text=self.text, style=self.style, anchor=text_anchor, justify=text_anchor)
+            ttk_style.configure(self.style, font=self.font_style, background=style_out['bg_color'], foreground=style_out['fg_color'])
+            self.label_text = ttk.Label(self.canvas, text=self.text, style=self.style, anchor=text_anchor)
             self.label_text.pack(fill=tk.BOTH, expand=True)
         else:
             self.label_text = self.canvas.create_text(label_width // 2 if self.align == "center" else label_width - 5, 
-                                                      label_height // 2, text=self.text, fill=self.kwargs.get("foreground", "white"), 
+                                                      label_height // 2, text=self.text, fill=style_out['fg_color'], 
                                                       font=self.font_style, anchor=anchor_value, justify=tk.RIGHT)
+        
+        _ = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
     def set_text(self, text):
         if self.style:
@@ -112,22 +191,23 @@ class spacrLabel(tk.Frame):
 class spacrButton(tk.Frame):
     def __init__(self, parent, text="", command=None, font=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        
         self.text = text
         self.command = command
-        #screen_height = self.winfo_screenheight()
-        button_height = 50 #screen_height // 50
-        button_width = 140 #button_height * 3
+        button_height = 50 
+        button_width = 140
+        style_out = set_dark_style(ttk.Style())
 
-        #print(button_height, button_width)
-
-        # Increase the canvas size to accommodate the button and the rim
-        self.canvas = tk.Canvas(self, width=button_width + 4, height=button_height + 4, highlightthickness=0, bg="black")
+        # Create the canvas first
+        self.canvas = tk.Canvas(self, width=button_width + 4, height=button_height + 4, highlightthickness=0, bg=style_out['bg_color'])
         self.canvas.grid(row=0, column=0)
 
-        self.button_bg = self.create_rounded_rectangle(2, 2, button_width + 2, button_height + 2, radius=20, fill="#000000", outline="#ffffff")
+        # Apply dark style and get color settings
+        color_settings = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
-        self.font_style = font if font else tkFont.Font(family="Helvetica", size=12, weight=tkFont.NORMAL)
-        self.button_text = self.canvas.create_text((button_width + 4) // 2, (button_height + 4) // 2, text=self.text, fill="white", font=self.font_style)
+        self.button_bg = self.create_rounded_rectangle(2, 2, button_width + 2, button_height + 2, radius=20, fill=color_settings['bg_color'], outline=color_settings['fg_color'])
+        self.font_style = font if font else tkFont.Font(family=color_settings['font_family'], size=color_settings['font_size'], weight=tkFont.NORMAL)
+        self.button_text = self.canvas.create_text((button_width + 4) // 2, (button_height + 4) // 2, text=self.text, fill=color_settings['fg_color'], font=self.font_style)
 
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
@@ -136,11 +216,15 @@ class spacrButton(tk.Frame):
         self.canvas.bind("<Leave>", self.on_leave)
         self.canvas.bind("<Button-1>", self.on_click)
 
+        self.bg_color = color_settings['bg_color']
+        self.active_color = color_settings['active_color']
+        self.fg_color = color_settings['fg_color']
+
     def on_enter(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill="#008080")  # Teal color
+        self.canvas.itemconfig(self.button_bg, fill=self.active_color)
 
     def on_leave(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill="#000000")  # Black color
+        self.canvas.itemconfig(self.button_bg, fill=self.bg_color)
 
     def on_click(self, event=None):
         if self.command:
@@ -177,16 +261,19 @@ class spacrSwitch(ttk.Frame):
         self.text = text
         self.variable = variable if variable else tk.BooleanVar()
         self.command = command
-        self.canvas = tk.Canvas(self, width=40, height=20, highlightthickness=0, bd=0, bg="black")
+        self.canvas = tk.Canvas(self, width=40, height=20, highlightthickness=0, bd=0)
         self.canvas.grid(row=0, column=1, padx=(10, 0))
         self.switch_bg = self.create_rounded_rectangle(2, 2, 38, 18, radius=9, outline="", fill="#fff")
-        self.switch = self.canvas.create_oval(4, 4, 16, 16, outline="", fill="#800080")  # Purple initially
-        self.label = spacrLabel(self, text=self.text, background="black", foreground="white")
+        self.switch = self.canvas.create_oval(4, 4, 16, 16, outline="", fill="#800080")
+        self.label = spacrLabel(self, text=self.text)
         self.label.grid(row=0, column=0, padx=(0, 10))
         self.bind("<Button-1>", self.toggle)
         self.canvas.bind("<Button-1>", self.toggle)
         self.label.bind("<Button-1>", self.toggle)
         self.update_switch()
+
+        style = ttk.Style()
+        _ = set_dark_style(style, containers=[self], widgets=[self.canvas, self.label])
 
     def toggle(self, event=None):
         self.variable.set(not self.variable.get())
@@ -196,19 +283,19 @@ class spacrSwitch(ttk.Frame):
 
     def update_switch(self):
         if self.variable.get():
-            self.canvas.itemconfig(self.switch, fill="#008080")  # Teal
-            self.canvas.coords(self.switch, 24, 4, 36, 16)  # Move switch to the right
+            self.canvas.itemconfig(self.switch, fill="#008080")
+            self.canvas.coords(self.switch, 24, 4, 36, 16)
         else:
-            self.canvas.itemconfig(self.switch, fill="#800080")  # Purple
-            self.canvas.coords(self.switch, 4, 4, 16, 16)  # Move switch to the left
+            self.canvas.itemconfig(self.switch, fill="#800080")
+            self.canvas.coords(self.switch, 4, 4, 16, 16)
 
     def animate_switch(self):
         if self.variable.get():
             start_x, end_x = 4, 24
-            final_color = "#008080"  # Teal
+            final_color = "#008080"
         else:
             start_x, end_x = 24, 4
-            final_color = "#800080"  # Purple
+            final_color = "#800080"
 
         self.animate_movement(start_x, end_x, final_color)
 
@@ -217,7 +304,7 @@ class spacrSwitch(ttk.Frame):
         for i in range(start_x, end_x, step):
             self.canvas.coords(self.switch, i, 4, i + 12, 16)
             self.canvas.update()
-            self.after(10)  # Small delay for smooth animation
+            self.after(10)
         self.canvas.itemconfig(self.switch, fill=final_color)
 
     def get(self):
@@ -227,7 +314,7 @@ class spacrSwitch(ttk.Frame):
         self.variable.set(value)
         self.update_switch()
 
-    def create_rounded_rectangle(self, x1, y1, x2, y2, radius=9, **kwargs):  # Smaller radius for smaller switch
+    def create_rounded_rectangle(self, x1, y1, x2, y2, radius=9, **kwargs):
         points = [x1 + radius, y1,
                   x1 + radius, y1,
                   x2 - radius, y1,
@@ -265,9 +352,11 @@ class spacrToolTip:
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
-        self.tooltip_window.configure(bg='black')
-        label = tk.Label(self.tooltip_window, text=self.text, background="#333333", foreground="white", relief='flat', borderwidth=0)
+        label = tk.Label(self.tooltip_window, text=self.text, relief='flat', borderwidth=0)
         label.grid(row=0, column=0, padx=5, pady=5)
+
+        style = ttk.Style()
+        _ = set_dark_style(style, containers=[self.tooltip_window], widgets=[label])
 
     def hide_tooltip(self, event):
         if self.tooltip_window:
@@ -275,7 +364,6 @@ class spacrToolTip:
         self.tooltip_window = None
 
 class modify_masks:
-
     def __init__(self, root, folder_path, scale_factor):
         self.root = root
         self.folder_path = folder_path
@@ -1466,34 +1554,3 @@ def create_menu_bar(root):
     app_menu.add_command(label="Exit", command=root.quit)
     # Configure the menu for the root window
     root.config(menu=menu_bar)
-
-
-def set_dark_style(style):
-    font_style = tkFont.Font(family="Helvetica", size=24)
-    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground='black', foreground='#ffffff', font=font_style)
-    style.configure('TCombobox', fieldbackground='black', background='black', foreground='#ffffff', selectbackground='black', selectforeground='#ffffff', font=font_style)
-    style.map('TCombobox', fieldbackground=[('readonly', 'black')], foreground=[('readonly', '#ffffff')], selectbackground=[('readonly', 'black')], selectforeground=[('readonly', '#ffffff')])
-    style.configure('Custom.TButton', background='black', foreground='white', bordercolor='white', focusthickness=3, focuscolor='white', font=('Helvetica', 12))
-    style.map('Custom.TButton', background=[('active', 'teal'), ('!active', 'black')], foreground=[('active', 'white'), ('!active', 'white')], bordercolor=[('active', 'white'), ('!active', 'white')])
-    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background='black', foreground='#ffffff', font=font_style)
-    style.configure('Spacr.TCheckbutton', background='black', foreground='#ffffff', indicatoron=False, relief='flat', font="15")
-    style.map('Spacr.TCheckbutton', background=[('selected', 'black'), ('active', 'black')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
-    style.configure('TLabel', background='black', foreground='#ffffff', font=font_style)
-    style.configure('TFrame', background='black')
-    style.configure('TPanedwindow', background='black')
-    style.configure('TNotebook', background='black', tabmargins=[2, 5, 2, 0])
-    style.configure('TNotebook.Tab', background='black', foreground='#ffffff', padding=[5, 5], font=font_style)
-    style.map('TNotebook.Tab', background=[('selected', '#555555'), ('active', '#555555')], foreground=[('selected', '#ffffff'), ('active', '#ffffff')])
-    style.configure('TButton', background='black', foreground='#ffffff', padding='5 5 5 5', font=font_style)
-    style.map('TButton', background=[('active', '#555555'), ('disabled', '#333333')])
-    style.configure('Vertical.TScrollbar', background='black', troughcolor='black', bordercolor='black')
-    style.configure('Horizontal.TScrollbar', background='black', troughcolor='black', bordercolor='black')
-    style.configure('Custom.TLabelFrame', font=('Helvetica', 10, 'bold'), background='black', foreground='white', relief='solid', borderwidth=1)
-    style.configure('Custom.TLabelFrame.Label', background='black', foreground='white', font=('Helvetica', 10, 'bold'))
-
-def set_default_font(root, font_name="Helvetica", size=12):
-    default_font = (font_name, size)
-    root.option_add("*Font", default_font)
-    root.option_add("*TButton.Font", default_font)
-    root.option_add("*TLabel.Font", default_font)
-    root.option_add("*TEntry.Font", default_font)
