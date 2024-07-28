@@ -15,8 +15,14 @@ from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
+import platform
 
 def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="Arial", font_size=12, bg_color='black', fg_color='white', active_color='teal', inactive_color='gray'):
+
+    if platform.system() == 'Darwin':
+        bg_color = '#313131'
+    else:
+        bg_color = '#000000'
 
     if active_color == 'teal':
         active_color = '#008080'
@@ -116,7 +122,6 @@ class spacrCheckbutton(ttk.Checkbutton):
         style = ttk.Style()
         _ = set_dark_style(style, widgets=[self])
 
-
 class spacrFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
         super().__init__(container, *args, **kwargs)
@@ -194,8 +199,16 @@ class spacrButton(tk.Frame):
         
         self.text = text
         self.command = command
-        button_height = 50 
-        button_width = 140
+
+        # Get screen dimensions
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        
+        # Set button dimensions dynamically based on screen size
+        button_height = int(screen_height * 0.04)  # 4% of screen height
+        button_width = int(screen_width * 0.08)  # 10% of screen width
+        #button_height = 50 
+        #button_width = 140
         style_out = set_dark_style(ttk.Style())
 
         # Create the canvas first
