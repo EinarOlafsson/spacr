@@ -231,25 +231,43 @@ def import_settings(settings_type='mask'):
     vars_dict = hide_all_settings(vars_dict, categories=None)
 
 def convert_settings_dict_for_gui(settings):
+    from torchvision import models as torch_models
+    torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
+    chans = ['0', '1', '2', '3', '4', '5', '6', '7', '8', None]
+    chans_v2 = [0, 1, 2, 3, None]
     variables = {}
     special_cases = {
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
         'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
-        'cell_mask_dim': ('combo', ['0', '1', '2', '3', '4', '5', '6', '7', '8', None], None),
-        'nucleus_mask_dim': ('combo', ['0', '1', '2', '3', '4', '5', '6', '7', '8', None], None),
-        'pathogen_mask_dim': ('combo', ['0', '1', '2', '3', '4', '5', '6', '7', '8', None], None),
-        #'crop_mode': ('combo', ['cell', 'nucleus', 'pathogen', '[cell, nucleus, pathogen]', '[cell,nucleus, pathogen]'], ['cell']),
+        'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'cell_mask_dim': ('combo', chans, None),
+        'cell_chann_dim': ('combo', chans, None),
+        'nucleus_mask_dim': ('combo', chans, None),
+        'nucleus_chann_dim': ('combo', chans, None),
+        'pathogen_mask_dim': ('combo', chans, None),
+        'pathogen_chann_dim': ('combo', chans, None),
+        'crop_mode': ('combo', ['cell', 'nucleus', 'pathogen', '[cell, nucleus, pathogen]', '[cell,nucleus, pathogen]'], ['cell']),
         'magnification': ('combo', [20, 40, 60], 20),
-        'nucleus_channel': ('combo', [0, 1, 2, 3, None], None),
-        'cell_channel': ('combo', [0, 1, 2, 3, None], None),
-        'pathogen_channel': ('combo', [0, 1, 2, 3, None], None),
+        'nucleus_channel': ('combo', chans_v2, None),
+        'cell_channel': ('combo', chans_v2, None),
+        'channel_of_interest': ('combo', chans_v2, None),
+        'pathogen_channel': ('combo', chans_v2, None),
         'timelapse_mode': ('combo', ['trackpy', 'btrack'], 'trackpy'),
+        'train_mode': ('combo', ['erm', 'irm'], 'erm'),
+        'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
+        'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
+        'model_name': ('combo', ['cyto', 'cyto_2', 'cyto_3', 'nuclei'], 'cyto'),
+        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
         'timelapse_objects': ('combo', ['cell', 'nucleus', 'pathogen', 'cytoplasm', None], None),
-        'model_type': ('combo', ['resnet50', 'other_model'], 'resnet50'),
+        'model_type': ('combo', torchvision_models, 'resnet50'),
         'optimizer_type': ('combo', ['adamw', 'adam'], 'adamw'),
         'schedule': ('combo', ['reduce_lr_on_plateau', 'step_lr'], 'reduce_lr_on_plateau'),
         'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
+        'agg_type': ('combo', ['mean', 'median'], 'mean'),
+        'grouping': ('combo', ['mean', 'median'], 'mean'),
+        'min_max': ('combo', ['allq', 'all'], 'allq'),
+        'transform': ('combo', ['log', 'sqrt', 'square', None], None)
     }
 
     for key, value in settings.items():
@@ -338,9 +356,10 @@ def setup_plot_section(vertical_container):
     plot_frame.add(canvas_widget, stretch="always")
     canvas.draw()
     canvas.figure = figure
-    # Set the figure and axes background to black
-    figure.patch.set_facecolor('black')
-    plot.set_facecolor('black')
+    style_out = set_dark_style(ttk.Style())
+
+    figure.patch.set_facecolor(style_out['bg_color'])
+    plot.set_facecolor(style_out['bg_color'])
     containers = [plot_frame]
     widgets = [canvas_widget]
     style = ttk.Style(vertical_container)
@@ -536,7 +555,6 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     _ = set_dark_style(style, containers=containers, widgets=widgets)
 
     return button_frame, button_scrollable_frame, description_frame, description_label
-
 
 def hide_all_settings(vars_dict, categories):
     """
