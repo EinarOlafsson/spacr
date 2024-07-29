@@ -1,15 +1,16 @@
 import tkinter as tk
+from tkinter import ttk
 from .gui import MainApp
+from .gui_elements import set_dark_style
 
 def initiate_annotation_app(parent_frame):
     from .gui_utils import generate_annotate_fields, annotate_app
     # Set up the settings window
     settings_window = tk.Toplevel(parent_frame)
     settings_window.title("Annotation Settings")
-    settings_window.configure(bg='black')  # Set the background color to black
-    
-    # Use the existing function to create the settings UI
-    settings_frame = tk.Frame(settings_window, bg='black')  # Set the background color to black
+    style_out = set_dark_style(ttk.Style())
+    settings_window.configure(bg=style_out['bg_color'])
+    settings_frame = tk.Frame(settings_window, bg=style_out['bg_color'])
     settings_frame.pack(fill=tk.BOTH, expand=True)
     vars_dict = generate_annotate_fields(settings_frame)
     
@@ -41,7 +42,7 @@ def initiate_annotation_app(parent_frame):
         settings_window.destroy()
         annotate_app(parent_frame, settings)
     
-    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app, bg='black', fg='white')
+    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app, bg=style_out['bg_color'], fg=style_out['bg_color'])
     start_button.pack(pady=10)
 
 def start_annotate_app():
