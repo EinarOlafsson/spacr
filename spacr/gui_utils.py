@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from . gui_core import initiate_root
-from .gui_elements import spacrLabel, spacrCheckbutton, ImageApp
+from .gui_elements import spacrLabel, spacrCheckbutton, AnnotateApp
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -202,7 +202,7 @@ def annotate(settings):
 
     root = tk.Tk()
     root.geometry(settings['geom'])
-    app = ImageApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
     next_button = tk.Button(root, text="Next", command=app.next_page)
     next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
     back_button = tk.Button(root, text="Back", command=app.previous_page)
@@ -302,7 +302,7 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     conn.commit()
     conn.close()
 
-    app = ImageApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
 
     # Set the canvas background to black
     root.configure(bg='black')
