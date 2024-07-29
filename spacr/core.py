@@ -1738,7 +1738,7 @@ def preprocess_generate_masks(src, settings={}):
         if os.path.exists(os.path.join(src,'measurements')):
             _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
-        #Concatinate stack with masks
+        #Concatenate stack with masks
         _load_and_concatenate_arrays(src, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'])
         
         if settings['plot']:
