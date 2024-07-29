@@ -376,7 +376,7 @@ class spacrToolTip:
             self.tooltip_window.destroy()
         self.tooltip_window = None
 
-class modify_masks:
+class ModifyMaskApp:
     def __init__(self, root, folder_path, scale_factor):
         self.root = root
         self.folder_path = folder_path
@@ -1220,7 +1220,7 @@ class modify_masks:
                 self.mask[labeled_mask == i] = 0  # Remove small objects
         self.update_display()
 
-class ImageApp:
+class AnnotateApp:
     def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
         self.root = root
         self.db_path = db_path
@@ -1484,7 +1484,7 @@ class ImageApp:
                 break
 
             if not self.update_queue.empty():
-                ImageApp.update_html("Do not exit, Updating database...")
+                AnnotateApp.update_html("Do not exit, Updating database...")
                 self.status_label.config(text='Do not exit, Updating database...')
 
                 pending_updates = self.update_queue.get()
@@ -1495,7 +1495,7 @@ class ImageApp:
                         c.execute(f'UPDATE png_list SET {self.annotation_column} = ? WHERE png_path = ?', (new_annotation, path))
                 conn.commit()
 
-                ImageApp.update_html('')
+                AnnotateApp.update_html('')
                 self.status_label.config(text='')
                 self.root.update()
             time.sleep(0.1)
