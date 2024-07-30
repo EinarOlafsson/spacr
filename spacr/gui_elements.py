@@ -308,7 +308,7 @@ class spacrButton(tk.Frame):
         parent = self.master
         while parent:
             if hasattr(parent, 'show_description'):
-                parent.show_description(parent.main_buttons.get(self, "No description available."))
+                parent.show_description(parent.main_buttons.get(self, parent.additional_buttons.get(self, "No description available.")))
                 return
             parent = parent.master
 
@@ -342,7 +342,6 @@ class spacrButton(tk.Frame):
         # Update the icon on the canvas
         self.canvas.itemconfig(self.button_icon, image=self.icon_photo)
         self.canvas.image = self.icon_photo  # Keep a reference to avoid garbage collection
-
 
 class spacrSwitch(ttk.Frame):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
