@@ -85,7 +85,7 @@ class MainApp(tk.Tk):
         set_dark_style(ttk.Style(), containers=[additional_buttons_frame])
 
         # Create a frame for the description below the icon grids
-        description_frame = tk.Frame(self.content_frame, height=70)  # Increased height to 70
+        description_frame = tk.Frame(self.content_frame, height=70)
         description_frame.pack(fill=tk.X, pady=10)
         description_frame.pack_propagate(False)  # Prevent the frame from resizing based on its content
         set_dark_style(ttk.Style(), containers=[description_frame])
@@ -110,7 +110,7 @@ class MainApp(tk.Tk):
         for i, (app_name, app_data) in enumerate(self.additional_gui_apps.items()):
             app_func, app_desc = app_data
             button = spacrButton(additional_buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), icon_name=app_name.lower(), size=75, show_text=False)
-            button.grid(row=0, column=i, padx=5, pady=5)  # Ensure all icons are in a single row
+            button.grid(row=0, column=i, padx=5, pady=5)
             self.additional_buttons[button] = app_desc
 
         # Update description initially
