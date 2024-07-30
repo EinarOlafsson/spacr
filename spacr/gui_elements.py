@@ -18,11 +18,6 @@ from tkinter import ttk, scrolledtext
 import platform
 
 def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="Arial", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
-    
-    #if platform.system() == 'Darwin':
-    #    bg_color = '#313131'
-    #else:
-    #    bg_color = '#000000'
 
     if active_color == 'teal':
         active_color = '#008080'
@@ -36,7 +31,6 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
         active_color = '#007BFF'
 
     style.theme_use('clam')
-
     font_style = tkFont.Font(family=font_family, size=font_size)
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground=bg_color, foreground=fg_color, font=font_style)
     style.configure('TCombobox', fieldbackground=bg_color, background=bg_color, foreground=fg_color, selectbackground=bg_color, selectforeground=fg_color, font=font_style)
