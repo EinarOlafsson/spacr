@@ -16,6 +16,8 @@ from . import app_annotate
 from . import gui_utils
 from . import gui_elements
 from . import gui_core
+from . import gui
+from . import gui
 from . import app_make_masks
 from . import app_mask
 from . import app_measure
@@ -38,6 +40,10 @@ __all__ = [
     "deep_spacr",
     "app_annotate",
     "gui_utils",
+    "gui_elements",
+    "gui_core",
+    "gui",
+    "gui",
     "app_make_masks",
     "app_mask",
     "app_measure",
