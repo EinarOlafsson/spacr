@@ -115,6 +115,7 @@ class MainApp(tk.Tk):
 
         # Update description initially
         self.update_description()
+        #
 
     def update_description(self):
         # Check all buttons and update description if any has the active color
