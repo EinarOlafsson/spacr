@@ -19,10 +19,10 @@ import platform
 
 def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="Arial", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
     
-    if platform.system() == 'Darwin':
-        bg_color = '#313131'
-    else:
-        bg_color = '#000000'
+    #if platform.system() == 'Darwin':
+    #    bg_color = '#313131'
+    #else:
+    #    bg_color = '#000000'
 
     if active_color == 'teal':
         active_color = '#008080'
@@ -34,6 +34,8 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
         fg_color = '#ffffff'
     if active_color == 'blue':
         active_color = '#007BFF'
+
+    style.theme_use('clam')
 
     font_style = tkFont.Font(family=font_family, size=font_size)
     style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground=bg_color, foreground=fg_color, font=font_style)
