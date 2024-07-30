@@ -1606,9 +1606,7 @@ class AnnotateApp:
         print(f'Quit application')
 
 def create_menu_bar(root):
-    from .gui_utils import load_app
-    from .gui_core import initiate_root
-
+    from .gui import initiate_root
     gui_apps = {
         "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
         "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
@@ -1627,19 +1625,23 @@ def create_menu_bar(root):
     }
 
     def load_app_wrapper(app_name, app_func):
-        load_app(root, app_name, app_func)
+        root.load_app(app_name, app_func)
 
     # Create the menu bar
     menu_bar = tk.Menu(root, bg="#008080", fg="white")
+
     # Create a "SpaCr Applications" menu
     app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
     menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
+
     # Add options to the "SpaCr Applications" menu
     for app_name, app_data in gui_apps.items():
         app_func, app_desc = app_data
         app_menu.add_command(label=app_name, command=lambda app_name=app_name, app_func=app_func: load_app_wrapper(app_name, app_func))
+
     # Add a separator and an exit option
     app_menu.add_separator()
     app_menu.add_command(label="Exit", command=root.quit)
+
     # Configure the menu for the root window
     root.config(menu=menu_bar)
