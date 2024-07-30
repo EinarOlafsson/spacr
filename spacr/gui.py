@@ -97,7 +97,7 @@ class MainApp(tk.Tk):
         # Load the logo image and place it in the main apps row
         logo_button = spacrButton(main_buttons_frame, text="SpaCr", command=lambda: self.load_app("logo_spacr", initiate_root), icon_name="logo_spacr", size=100, show_text=False)
         logo_button.grid(row=0, column=0, padx=5, pady=5)
-        self.main_buttons[logo_button] = "SpaCr: An advanced application suite for cellpose masks, measurements, annotations, and more."
+        self.main_buttons[logo_button] = "SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.."
 
         # Create icon buttons for the main apps
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
