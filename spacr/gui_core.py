@@ -507,25 +507,25 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     btn_row = 1
 
     if run:
-        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Run", command=lambda: start_process(q, fig_queue, settings_type))
+        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="run", command=lambda: start_process(q, fig_queue, settings_type))
         run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(run_button)
         btn_row += 1
 
     if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap']:
-        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Abort", command=initiate_abort)
+        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="abort", command=initiate_abort)
         abort_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(abort_button)
         btn_row += 1
 
     if download and settings_type in ['mask']:
-        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Download", command=download_hug_dataset)
+        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="download", command=download_hug_dataset)
         download_dataset_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(download_dataset_button)
         btn_row += 1
 
     if import_btn:
-        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="Import", command=lambda: import_settings(settings_type))
+        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="settings", command=lambda: import_settings(settings_type))
         import_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(import_button)
 
@@ -615,7 +615,7 @@ def toggle_settings(button_scrollable_frame):
     category_var = tk.StringVar()
     non_empty_categories = [category for category, settings in categories.items() if any(setting in vars_dict for setting in settings)]
     category_dropdown = spacrDropdownMenu(button_scrollable_frame.scrollable_frame, category_var, non_empty_categories, command=on_category_select)
-    category_dropdown.grid(row=1, column=3, sticky="ew", pady=2, padx=2)
+    category_dropdown.grid(row=5, column=0, sticky="ew", pady=2, padx=2)
     vars_dict = hide_all_settings(vars_dict, categories)
 
 def process_fig_queue():
