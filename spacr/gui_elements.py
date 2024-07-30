@@ -22,7 +22,7 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
     if active_color == 'teal':
         active_color = '#008080'
     if inactive_color == 'dark_gray':
-        inactive_color = '#050505'
+        inactive_color = '#333333' #'#050505'
     if bg_color == 'black':
         bg_color = '#000000'
     if fg_color == 'white':
@@ -192,7 +192,7 @@ class spacrLabel(tk.Frame):
             self.canvas.itemconfig(self.label_text, text=text)
 
 class spacrButton(tk.Frame):
-    def __init__(self, parent, text="", command=None, font=None, icon_name=None, size=50, show_text=True, outline=True, *args, **kwargs):
+    def __init__(self, parent, text="", command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         
         self.text = text.capitalize()  # Capitalize only the first letter of the text
@@ -210,16 +210,16 @@ class spacrButton(tk.Frame):
             self.button_width = self.size  # Make the button width equal to the size if show_text is False
 
         # Create the canvas first
-        self.canvas = tk.Canvas(self, width=self.button_width + 4, height=self.size + 4, highlightthickness=0, bg=style_out['bg_color'])
+        self.canvas = tk.Canvas(self, width=self.button_width + 4, height=self.size + 4, highlightthickness=0, bg=style_out['inactive_color'])
         self.canvas.grid(row=0, column=0)
 
         # Apply dark style and get color settings
         color_settings = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
         if self.outline:
-            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=color_settings['bg_color'], outline=color_settings['fg_color'])
+            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=color_settings['inactive_color'], outline=color_settings['fg_color'])
         else:
-            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=color_settings['bg_color'], outline=color_settings['bg_color'])
+            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=color_settings['inactive_color'], outline=color_settings['inactive_color'])
         
         self.load_icon()
         self.font_style = font if font else ("Arial", 12)  # Default font if not provided
@@ -234,7 +234,7 @@ class spacrButton(tk.Frame):
         self.canvas.bind("<Leave>", self.on_leave)
         self.canvas.bind("<Button-1>", self.on_click)
 
-        self.bg_color = color_settings['bg_color']
+        self.bg_color = color_settings['inactive_color']
         self.active_color = color_settings['active_color']
         self.fg_color = color_settings['fg_color']
         self.is_zoomed_in = False  # Track zoom state for smooth transitions
@@ -251,7 +251,7 @@ class spacrButton(tk.Frame):
                 icon_image = Image.open(self.get_icon_path("default"))
                 print(f'Icon not found: {icon_path}. Using default icon instead.')
 
-        initial_size = int(self.size * 0.9)  # Make the initial size slightly smaller
+        initial_size = int(self.size * 0.65)  # Make the initial size 65%
         self.original_icon_image = icon_image.resize((initial_size, initial_size), Image.Resampling.LANCZOS)
         self.icon_photo = ImageTk.PhotoImage(self.original_icon_image)
 
@@ -266,13 +266,13 @@ class spacrButton(tk.Frame):
         self.canvas.itemconfig(self.button_bg, fill=self.active_color)
         self.update_description(event)
         if not self.is_zoomed_in:
-            self.animate_zoom(1.1)  # Zoom in the icon by 10%
+            self.animate_zoom(0.85)  # Zoom in the icon to 85%
 
     def on_leave(self, event=None):
         self.canvas.itemconfig(self.button_bg, fill=self.bg_color)
         self.clear_description(event)
         if self.is_zoomed_in:
-            self.animate_zoom(1.0)  # Reset the icon size
+            self.animate_zoom(0.65)  # Reset the icon size to 65%
 
     def on_click(self, event=None):
         if self.command:
@@ -316,8 +316,8 @@ class spacrButton(tk.Frame):
                 return
             parent = parent.master
 
-    def animate_zoom(self, target_scale, steps=10, delay=10):
-        current_scale = 1.1 if self.is_zoomed_in else 1.0
+    def animate_zoom(self, target_scale, steps=5, delay=10):
+        current_scale = 0.85 if self.is_zoomed_in else 0.65
         step_scale = (target_scale - current_scale) / steps
         self._animate_step(current_scale, step_scale, steps, delay)
 
@@ -331,13 +331,14 @@ class spacrButton(tk.Frame):
 
     def zoom_icon(self, scale_factor):
         # Resize the original icon image
-        new_size = int(self.size * 0.9 * scale_factor)
+        new_size = int(self.size * scale_factor)
         resized_icon = self.original_icon_image.resize((new_size, new_size), Image.Resampling.LANCZOS)
         self.icon_photo = ImageTk.PhotoImage(resized_icon)
 
         # Update the icon on the canvas
         self.canvas.itemconfig(self.button_icon, image=self.icon_photo)
-        self.canvas.image = self.icon_photo  # Keep a reference to avoid garbage collection
+        self.canvas.image = self.icon_photo
+
 
 class spacrSwitch(ttk.Frame):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
