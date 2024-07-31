@@ -17,12 +17,19 @@ from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
 import platform
 
+def set_default_font(root, font_name="Arial", size=12):
+    default_font = (font_name, size)
+    root.option_add("*Font", default_font)
+    root.option_add("*TButton.Font", default_font)
+    root.option_add("*TLabel.Font", default_font)
+    root.option_add("*TEntry.Font", default_font)
+    
 def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="Arial", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
 
     if active_color == 'teal':
         active_color = '#008080'
     if inactive_color == 'dark_gray':
-        inactive_color = '#333333' #'#050505'
+        inactive_color = '#2B2B2B' # '#333333' #'#050505'
     if bg_color == 'black':
         bg_color = '#000000'
     if fg_color == 'white':
@@ -82,12 +89,109 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
 
     return {'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
-def set_default_font(root, font_name="Arial", size=12):
-    default_font = (font_name, size)
-    root.option_add("*Font", default_font)
-    root.option_add("*TButton.Font", default_font)
-    root.option_add("*TLabel.Font", default_font)
-    root.option_add("*TEntry.Font", default_font)
+class spacrEntry(tk.Canvas):
+    def __init__(self, parent, *args, **kwargs):
+        style = ttk.Style()
+        colors = set_dark_style(style)
+        super().__init__(parent, *args, **kwargs)
+        self['bg'] = colors['inactive_color']
+        self['highlightthickness'] = 0
+        self.rounded_rect = self.create_rounded_rect(0, 0, 200, 30, 15, fill=colors['inactive_color'], outline="")
+        self.entry = tk.Entry(self, bd=0, bg=colors['inactive_color'], fg=colors['fg_color'], font=(colors['font_family'], colors['font_size']))
+        self.entry.place(x=10, y=5, width=180, height=20)
+
+    def create_rounded_rect(self, x1, y1, x2, y2, radius=25, **kwargs):
+        points = [x1 + radius, y1,
+                  x1 + radius, y1,
+                  x2 - radius, y1,
+                  x2 - radius, y1,
+                  x2, y1,
+                  x2, y1 + radius,
+                  x2, y1 + radius,
+                  x2, y2 - radius,
+                  x2, y2 - radius,
+                  x2, y2,
+                  x2 - radius, y2,
+                  x2 - radius, y2,
+                  x1 + radius, y2,
+                  x1 + radius, y2,
+                  x1, y2,
+                  x1, y2 - radius,
+                  x1, y2 - radius,
+                  x1, y1 + radius,
+                  x1, y1 + radius,
+                  x1, y1]
+        return self.create_polygon(points, **kwargs)
+
+class spacrCombobox(tk.Canvas):
+    def __init__(self, parent, values, *args, **kwargs):
+        style = ttk.Style()
+        colors = set_dark_style(style)
+        super().__init__(parent, *args, **kwargs)
+        self['bg'] = colors['inactive_color']
+        self['highlightthickness'] = 0
+        self.rounded_rect = self.create_rounded_rect(0, 0, 200, 30, 15, fill=colors['inactive_color'], outline="")
+        self.combo = ttk.Combobox(self, values=values, state='readonly', font=(colors['font_family'], colors['font_size']))
+        self.combo.place(x=10, y=5, width=180, height=20)
+        self.combo.configure(style='RoundedCombobox.TCombobox')
+
+    def create_rounded_rect(self, x1, y1, x2, y2, radius=25, **kwargs):
+        points = [x1 + radius, y1,
+                  x1 + radius, y1,
+                  x2 - radius, y1,
+                  x2 - radius, y1,
+                  x2, y1,
+                  x2, y1 + radius,
+                  x2, y1 + radius,
+                  x2, y2 - radius,
+                  x2, y2 - radius,
+                  x2, y2,
+                  x2 - radius, y2,
+                  x2 - radius, y2,
+                  x1 + radius, y2,
+                  x1 + radius, y2,
+                  x1, y2,
+                  x1, y2 - radius,
+                  x1, y2 - radius,
+                  x1, y1 + radius,
+                  x1, y1 + radius,
+                  x1, y1]
+        return self.create_polygon(points, **kwargs)
+
+class spacrCheckbutton(tk.Canvas):
+    def __init__(self, parent, *args, **kwargs):
+        style = ttk.Style()
+        colors = set_dark_style(style)
+        super().__init__(parent, *args, **kwargs)
+        self['bg'] = colors['inactive_color']
+        self['highlightthickness'] = 0
+        self.rounded_rect = self.create_rounded_rect(0, 0, 200, 30, 15, fill=colors['inactive_color'], outline="")
+        self.var = kwargs.get('variable', tk.BooleanVar())
+        self.checkbutton = ttk.Checkbutton(self, variable=self.var, style='Spacr.TCheckbutton')
+        self.checkbutton.place(x=10, y=5, width=180, height=20)
+
+    def create_rounded_rect(self, x1, y1, x2, y2, radius=25, **kwargs):
+        points = [x1 + radius, y1,
+                  x1 + radius, y1,
+                  x2 - radius, y1,
+                  x2 - radius, y1,
+                  x2, y1,
+                  x2, y1 + radius,
+                  x2, y1 + radius,
+                  x2, y2 - radius,
+                  x2, y2 - radius,
+                  x2, y2,
+                  x2 - radius, y2,
+                  x2 - radius, y2,
+                  x1 + radius, y2,
+                  x1 + radius, y2,
+                  x1, y2,
+                  x1, y2 - radius,
+                  x1, y2 - radius,
+                  x1, y1 + radius,
+                  x1, y1 + radius,
+                  x1, y1]
+        return self.create_polygon(points, **kwargs)
 
 class spacrDropdownMenu(tk.OptionMenu):
     def __init__(self, parent, variable, options, command=None, **kwargs):
@@ -210,16 +314,18 @@ class spacrButton(tk.Frame):
             self.button_width = self.size  # Make the button width equal to the size if show_text is False
 
         # Create the canvas first
-        self.canvas = tk.Canvas(self, width=self.button_width + 4, height=self.size + 4, highlightthickness=0, bg=style_out['inactive_color'])
+        self.canvas = tk.Canvas(self, width=self.button_width + 4, height=self.size + 4, highlightthickness=0, bg=style_out['bg_color'])
         self.canvas.grid(row=0, column=0)
 
         # Apply dark style and get color settings
         color_settings = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
+        self.inactive_color = color_settings['inactive_color']
+
         if self.outline:
-            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=color_settings['inactive_color'], outline=color_settings['fg_color'])
+            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=self.inactive_color, outline=color_settings['fg_color'])
         else:
-            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=color_settings['inactive_color'], outline=color_settings['inactive_color'])
+            self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=self.inactive_color, outline=self.inactive_color)
         
         self.load_icon()
         self.font_style = font if font else ("Arial", 12)  # Default font if not provided
@@ -234,7 +340,7 @@ class spacrButton(tk.Frame):
         self.canvas.bind("<Leave>", self.on_leave)
         self.canvas.bind("<Button-1>", self.on_click)
 
-        self.bg_color = color_settings['inactive_color']
+        self.bg_color = self.inactive_color
         self.active_color = color_settings['active_color']
         self.fg_color = color_settings['fg_color']
         self.is_zoomed_in = False  # Track zoom state for smooth transitions
@@ -251,7 +357,7 @@ class spacrButton(tk.Frame):
                 icon_image = Image.open(self.get_icon_path("default"))
                 print(f'Icon not found: {icon_path}. Using default icon instead.')
 
-        initial_size = int(self.size * 0.65)  # Make the initial size 65%
+        initial_size = int(self.size * 0.65)  # 65% of button size initially
         self.original_icon_image = icon_image.resize((initial_size, initial_size), Image.Resampling.LANCZOS)
         self.icon_photo = ImageTk.PhotoImage(self.original_icon_image)
 
@@ -266,13 +372,13 @@ class spacrButton(tk.Frame):
         self.canvas.itemconfig(self.button_bg, fill=self.active_color)
         self.update_description(event)
         if not self.is_zoomed_in:
-            self.animate_zoom(0.85)  # Zoom in the icon to 85%
+            self.animate_zoom(0.85)  # Zoom in the icon to 85% of button size
 
     def on_leave(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill=self.bg_color)
+        self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
         self.clear_description(event)
         if self.is_zoomed_in:
-            self.animate_zoom(0.65)  # Reset the icon size to 65%
+            self.animate_zoom(0.65)  # Reset the icon size to 65% of button size
 
     def on_click(self, event=None):
         if self.command:
@@ -316,7 +422,7 @@ class spacrButton(tk.Frame):
                 return
             parent = parent.master
 
-    def animate_zoom(self, target_scale, steps=5, delay=10):
+    def animate_zoom(self, target_scale, steps=10, delay=10):
         current_scale = 0.85 if self.is_zoomed_in else 0.65
         step_scale = (target_scale - current_scale) / steps
         self._animate_step(current_scale, step_scale, steps, delay)
@@ -338,7 +444,6 @@ class spacrButton(tk.Frame):
         # Update the icon on the canvas
         self.canvas.itemconfig(self.button_icon, image=self.icon_photo)
         self.canvas.image = self.icon_photo
-
 
 class spacrSwitch(ttk.Frame):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
