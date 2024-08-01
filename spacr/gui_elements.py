@@ -1945,11 +1945,14 @@ class AnnotateApp:
     def shutdown(self):
         self.terminate = True
         self.update_queue.put(self.pending_updates.copy())
-        self.pending_updates.clear()
-        self.db_update_thread.join()
-        self.root.quit()
-        self.root.destroy()
-        print(f'Quit application')
+        if not self.pending_updates:
+            self.pending_updates.clear()
+            self.db_update_thread.join()
+            self.root.quit()
+            self.root.destroy()
+            print(f'Quit application')
+        else:
+            print('Waiting for pending updates to finish before quitting')
 
 def create_menu_bar(root):
     from .gui import initiate_root
