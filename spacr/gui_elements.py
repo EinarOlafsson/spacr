@@ -15,7 +15,6 @@ from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
-import platform
 
 def set_default_font(root, font_name="Arial", size=12):
     default_font = (font_name, size)
@@ -37,28 +36,39 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
     if active_color == 'blue':
         active_color = '#007BFF'
 
-    style.theme_use('clam')
+    padding = '5 5 5 5'
     font_style = tkFont.Font(family=font_family, size=font_size)
-    style.configure('TEntry', padding='5 5 5 5', borderwidth=1, relief='solid', fieldbackground=bg_color, foreground=fg_color, font=font_style)
-    style.configure('TCombobox', fieldbackground=bg_color, background=bg_color, foreground=fg_color, selectbackground=bg_color, selectforeground=fg_color, font=font_style)
-    style.map('TCombobox', fieldbackground=[('readonly', bg_color)], foreground=[('readonly', fg_color)], selectbackground=[('readonly', bg_color)], selectforeground=[('readonly', fg_color)])
-    style.configure('Custom.TButton', background=bg_color, foreground=fg_color, bordercolor=fg_color, focusthickness=3, focuscolor=fg_color, font=(font_family, font_size))
-    style.map('Custom.TButton', background=[('active', active_color), ('!active', bg_color)], foreground=[('active', fg_color), ('!active', fg_color)], bordercolor=[('active', fg_color), ('!active', fg_color)])
-    style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background=bg_color, foreground=fg_color, font=font_style)
-    style.configure('Spacr.TCheckbutton', background=bg_color, foreground=fg_color, indicatoron=False, relief='flat', font="15")
-    style.map('Spacr.TCheckbutton', background=[('selected', bg_color), ('active', bg_color)], foreground=[('selected', fg_color), ('active', fg_color)])
-    style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_style)
+
+    style.theme_use('clam')
+    
+    style.configure('TEntry', padding=padding)
+    style.configure('TCombobox', padding=padding)
+    style.configure('Spacr.TEntry', padding=padding)
+    style.configure('TEntry', padding=padding)
+    style.configure('Spacr.TEntry', padding=padding)
+    style.configure('Custom.TLabel', padding=padding)
+    #style.configure('Spacr.TCheckbutton', padding=padding)
+    style.configure('TButton', padding=padding)
+
     style.configure('TFrame', background=bg_color)
     style.configure('TPanedwindow', background=bg_color)
-    style.configure('TNotebook', background=bg_color, tabmargins=[2, 5, 2, 0])
-    style.configure('TNotebook.Tab', background=bg_color, foreground=fg_color, padding=[5, 5], font=font_style)
-    style.map('TNotebook.Tab', background=[('selected', active_color), ('active', active_color)], foreground=[('selected', fg_color), ('active', fg_color)])
-    style.configure('TButton', background=bg_color, foreground=fg_color, padding='5 5 5 5', font=font_style)
-    style.map('TButton', background=[('active', active_color), ('disabled', inactive_color)])
-    style.configure('Vertical.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
-    style.configure('Horizontal.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
-    style.configure('Custom.TLabelFrame', font=(font_family, font_size, 'bold'), background=bg_color, foreground='white', relief='solid', borderwidth=1)
-    style.configure('Custom.TLabelFrame.Label', background=bg_color, foreground='white', font=(font_family, font_size, 'bold'))
+    style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_style)
+
+
+    #style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background=bg_color, foreground=fg_color, font=font_style)
+    #style.configure('Spacr.TCheckbutton', background=bg_color, foreground=fg_color, indicatoron=False, relief='flat', font="15")
+    #style.map('Spacr.TCheckbutton', background=[('selected', bg_color), ('active', bg_color)], foreground=[('selected', fg_color), ('active', fg_color)])
+    
+
+    #style.configure('TNotebook', background=bg_color, tabmargins=[2, 5, 2, 0])
+    #style.configure('TNotebook.Tab', background=bg_color, foreground=fg_color, padding=[5, 5], font=font_style)
+    #style.map('TNotebook.Tab', background=[('selected', active_color), ('active', active_color)], foreground=[('selected', fg_color), ('active', fg_color)])
+    #style.configure('TButton', background=bg_color, foreground=fg_color, padding='5 5 5 5', font=font_style)
+    #style.map('TButton', background=[('active', active_color), ('disabled', inactive_color)])
+    #style.configure('Vertical.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
+    #style.configure('Horizontal.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
+    #style.configure('Custom.TLabelFrame', font=(font_family, font_size, 'bold'), background=bg_color, foreground='white', relief='solid', borderwidth=1)
+    #style.configure('Custom.TLabelFrame.Label', background=bg_color, foreground='white', font=(font_family, font_size, 'bold'))
 
     if parent_frame:
         parent_frame.configure(bg=bg_color)
@@ -89,116 +99,244 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
 
     return {'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
-class spacrEntry(tk.Canvas):
-    def __init__(self, parent, *args, **kwargs):
-        style = ttk.Style()
-        colors = set_dark_style(style)
+class spacrEntry(tk.Frame):
+    def __init__(self, parent, textvariable=None, outline=False, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self['bg'] = colors['inactive_color']
-        self['highlightthickness'] = 0
-        self.rounded_rect = self.create_rounded_rect(0, 0, 200, 30, 15, fill=colors['inactive_color'], outline="")
-        self.entry = tk.Entry(self, bd=0, bg=colors['inactive_color'], fg=colors['fg_color'], font=(colors['font_family'], colors['font_size']))
-        self.entry.place(x=10, y=5, width=180, height=20)
+        
+        # Set dark style
+        style_out = set_dark_style(ttk.Style())
+        self.bg_color = style_out['inactive_color']
+        self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']
+        self.outline = outline
+        self.font_family = style_out['font_family']
+        self.font_size = style_out['font_size']
+        
+        # Set the background color of the frame
+        self.configure(bg=style_out['bg_color'])
 
-    def create_rounded_rect(self, x1, y1, x2, y2, radius=25, **kwargs):
-        points = [x1 + radius, y1,
-                  x1 + radius, y1,
-                  x2 - radius, y1,
-                  x2 - radius, y1,
-                  x2, y1,
-                  x2, y1 + radius,
-                  x2, y1 + radius,
-                  x2, y2 - radius,
-                  x2, y2 - radius,
-                  x2, y2,
-                  x2 - radius, y2,
-                  x2 - radius, y2,
-                  x1 + radius, y2,
-                  x1 + radius, y2,
-                  x1, y2,
-                  x1, y2 - radius,
-                  x1, y2 - radius,
-                  x1, y1 + radius,
-                  x1, y1 + radius,
-                  x1, y1]
-        return self.create_polygon(points, **kwargs)
+        # Create a canvas for the rounded rectangle background
+        self.canvas_width = 220  # Adjusted for padding
+        self.canvas_height = 40   # Adjusted for padding
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=style_out['bg_color'])
+        self.canvas.pack()
+        
+        self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=(self.font_family, self.font_size), bg=self.bg_color)
+        self.entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=190, height=20)  # Centered positioning
+        
+        # Bind events to change the background color on focus
+        self.entry.bind("<FocusIn>", self.on_focus_in)
+        self.entry.bind("<FocusOut>", self.on_focus_out)
+        
+        self.draw_rounded_rectangle(self.bg_color)
 
-class spacrCombobox(tk.Canvas):
-    def __init__(self, parent, values, *args, **kwargs):
-        style = ttk.Style()
-        colors = set_dark_style(style)
+    def draw_rounded_rectangle(self, color):
+        radius = 15  # Increased radius for more rounded corners
+        x0, y0 = 10, 5
+        x1, y1 = 210, 35
+        self.canvas.delete("all")
+        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
+        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
+        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
+    
+    def on_focus_in(self, event):
+        self.draw_rounded_rectangle(self.active_color)
+        self.entry.config(bg=self.active_color)
+    
+    def on_focus_out(self, event):
+        self.draw_rounded_rectangle(self.bg_color)
+        self.entry.config(bg=self.bg_color)
+
+class spacrCheck(tk.Frame):
+    def __init__(self, parent, text="", variable=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self['bg'] = colors['inactive_color']
-        self['highlightthickness'] = 0
-        self.rounded_rect = self.create_rounded_rect(0, 0, 200, 30, 15, fill=colors['inactive_color'], outline="")
-        self.combo = ttk.Combobox(self, values=values, state='readonly', font=(colors['font_family'], colors['font_size']))
-        self.combo.place(x=10, y=5, width=180, height=20)
-        self.combo.configure(style='RoundedCombobox.TCombobox')
+        
+        style_out = set_dark_style(ttk.Style())
+        self.bg_color = style_out['bg_color']
+        self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']
+        self.inactive_color = style_out['inactive_color']
+        self.variable = variable
 
-    def create_rounded_rect(self, x1, y1, x2, y2, radius=25, **kwargs):
-        points = [x1 + radius, y1,
-                  x1 + radius, y1,
-                  x2 - radius, y1,
-                  x2 - radius, y1,
-                  x2, y1,
-                  x2, y1 + radius,
-                  x2, y1 + radius,
-                  x2, y2 - radius,
-                  x2, y2 - radius,
-                  x2, y2,
-                  x2 - radius, y2,
-                  x2 - radius, y2,
-                  x1 + radius, y2,
-                  x1 + radius, y2,
-                  x1, y2,
-                  x1, y2 - radius,
-                  x1, y2 - radius,
-                  x1, y1 + radius,
-                  x1, y1 + radius,
-                  x1, y1]
-        return self.create_polygon(points, **kwargs)
+        self.configure(bg=self.bg_color)
 
-class spacrCheckbutton(tk.Canvas):
-    def __init__(self, parent, *args, **kwargs):
-        style = ttk.Style()
-        colors = set_dark_style(style)
+        # Create a canvas for the rounded square background
+        self.canvas_width = 20
+        self.canvas_height = 20
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=self.bg_color)
+        self.canvas.pack()
+
+        # Draw the initial rounded square based on the variable's value
+        self.draw_rounded_square(self.active_color if self.variable.get() else self.inactive_color)
+
+        # Bind variable changes to update the checkbox
+        self.variable.trace_add('write', self.update_check)
+
+        # Bind click event to toggle the variable
+        self.canvas.bind("<Button-1>", self.toggle_variable)
+
+    def draw_rounded_square(self, color):
+        radius = 5  # Adjust the radius for more rounded corners
+        x0, y0 = 2, 2
+        x1, y1 = 18, 18
+        self.canvas.delete("all")
+        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=self.fg_color)
+        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=self.fg_color)
+        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=self.fg_color)
+        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=self.fg_color)
+        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
+        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
+        self.canvas.create_line(x0 + radius / 2, y0, x1 - radius / 2, y0, fill=self.fg_color)
+        self.canvas.create_line(x0 + radius / 2, y1, x1 - radius / 2, y1, fill=self.fg_color)
+        self.canvas.create_line(x0, y0 + radius / 2, x0, y1 - radius / 2, fill=self.fg_color)
+        self.canvas.create_line(x1, y0 + radius / 2, x1, y1 - radius / 2, fill=self.fg_color)
+
+    def update_check(self, *args):
+        self.draw_rounded_square(self.active_color if self.variable.get() else self.inactive_color)
+
+    def toggle_variable(self, event):
+        self.variable.set(not self.variable.get())
+
+class spacrCombo(tk.Frame):
+    def __init__(self, parent, textvariable=None, values=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self['bg'] = colors['inactive_color']
-        self['highlightthickness'] = 0
-        self.rounded_rect = self.create_rounded_rect(0, 0, 200, 30, 15, fill=colors['inactive_color'], outline="")
-        self.var = kwargs.get('variable', tk.BooleanVar())
-        self.checkbutton = ttk.Checkbutton(self, variable=self.var, style='Spacr.TCheckbutton')
-        self.checkbutton.place(x=10, y=5, width=180, height=20)
+        
+        # Set dark style
+        style_out = set_dark_style(ttk.Style())
+        self.bg_color = style_out['bg_color']
+        self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']
+        self.inactive_color = style_out['inactive_color']
+        self.font_family = style_out['font_family']
+        self.font_size = style_out['font_size']
 
-    def create_rounded_rect(self, x1, y1, x2, y2, radius=25, **kwargs):
-        points = [x1 + radius, y1,
-                  x1 + radius, y1,
-                  x2 - radius, y1,
-                  x2 - radius, y1,
-                  x2, y1,
-                  x2, y1 + radius,
-                  x2, y1 + radius,
-                  x2, y2 - radius,
-                  x2, y2 - radius,
-                  x2, y2,
-                  x2 - radius, y2,
-                  x2 - radius, y2,
-                  x1 + radius, y2,
-                  x1 + radius, y2,
-                  x1, y2,
-                  x1, y2 - radius,
-                  x1, y2 - radius,
-                  x1, y1 + radius,
-                  x1, y1 + radius,
-                  x1, y1]
-        return self.create_polygon(points, **kwargs)
+        self.values = values or []
+
+        # Create a canvas for the rounded rectangle background
+        self.canvas_width = 220  # Adjusted for padding
+        self.canvas_height = 40   # Adjusted for padding
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=self.bg_color)
+        self.canvas.pack()
+        
+        self.var = textvariable if textvariable else tk.StringVar()
+        self.selected_value = self.var.get()
+        
+        # Create the label to display the selected value
+        self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size))
+        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        # Bind events to open the dropdown menu
+        self.canvas.bind("<Button-1>", self.on_click)
+        self.label.bind("<Button-1>", self.on_click)
+        
+        self.draw_rounded_rectangle(self.inactive_color)
+
+        self.dropdown_menu = None
+
+    def draw_rounded_rectangle(self, color):
+        radius = 15  # Increased radius for more rounded corners
+        x0, y0 = 10, 5
+        x1, y1 = 210, 35
+        self.canvas.delete("all")
+        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
+        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
+        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
+        self.label.config(bg=color)  # Update label background to match rectangle color
+
+    def on_click(self, event):
+        if self.dropdown_menu is None:
+            self.open_dropdown()
+        else:
+            self.close_dropdown()
+
+    def open_dropdown(self):
+        self.draw_rounded_rectangle(self.active_color)
+        
+        self.dropdown_menu = tk.Toplevel(self)
+        self.dropdown_menu.wm_overrideredirect(True)
+        
+        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
+        self.dropdown_menu.geometry(f"{width}x{len(self.values) * 30}+{x}+{y + height}")
+        
+        for index, value in enumerate(self.values):
+            display_text = value if value is not None else 'None'
+            item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size), anchor='w')
+            item.pack(fill='both')
+            item.bind("<Button-1>", lambda e, v=value: self.on_select(v))
+            item.bind("<Enter>", lambda e, w=item: w.config(bg=self.active_color))
+            item.bind("<Leave>", lambda e, w=item: w.config(bg=self.inactive_color))
+
+    def close_dropdown(self):
+        self.draw_rounded_rectangle(self.inactive_color)
+        
+        if self.dropdown_menu:
+            self.dropdown_menu.destroy()
+            self.dropdown_menu = None
+
+    def on_select(self, value):
+        display_text = value if value is not None else 'None'
+        self.var.set(value)
+        self.label.config(text=display_text)
+        self.selected_value = value
+        self.close_dropdown()
+
+    def set(self, value):
+        display_text = value if value is not None else 'None'
+        self.var.set(value)
+        self.label.config(text=display_text)
+        self.selected_value = value
 
 class spacrDropdownMenu(tk.OptionMenu):
     def __init__(self, parent, variable, options, command=None, **kwargs):
         self.variable = variable
-        self.variable.set("Select Category")
+        self.variable.set("Settings Category")
         super().__init__(parent, self.variable, *options, command=command, **kwargs)
         self.update_styles()
+
+        # Hide the original button
+        self.configure(highlightthickness=0, relief='flat', bg='#2B2B2B', fg='#2B2B2B')
+
+        # Create custom button
+        self.create_custom_button()
+
+    def create_custom_button(self):
+        self.canvas_width = self.winfo_reqwidth()  # Use the required width of the widget
+        self.canvas_height = 40  # Adjust the height as needed
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg='#2B2B2B')
+        self.canvas.pack()
+        self.label = tk.Label(self.canvas, text="Settings Category", bg='#2B2B2B', fg='#ffffff', font=('Arial', 12))
+        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.draw_rounded_rectangle('#2B2B2B')
+
+        # Bind the click event to open the dropdown menu
+        self.canvas.bind("<Button-1>", self.on_click)
+        self.label.bind("<Button-1>", self.on_click)
+
+    def draw_rounded_rectangle(self, color):
+        radius = 15
+        x0, y0 = 10, 5
+        x1, y1 = self.canvas_width - 10, self.canvas_height - 5  # Adjust based on canvas size
+        self.canvas.delete("all")
+        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
+        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
+        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
+        self.label.config(bg=color)  # Update label background to match rectangle color
+
+    def on_click(self, event):
+        self.post_menu()
+
+    def post_menu(self):
+        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
+        self.menu.post(x, y + height)
 
     def update_styles(self, active_categories=None):
         style = ttk.Style()
@@ -223,6 +361,31 @@ class spacrCheckbutton(ttk.Checkbutton):
         self.configure(text=self.text, variable=self.variable, command=self.command, style='Spacr.TCheckbutton')
         style = ttk.Style()
         _ = set_dark_style(style, widgets=[self])
+
+class spacrProgressBar(ttk.Progressbar):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
+        # Get the style colors
+        style_out = set_dark_style(ttk.Style())
+        self.inactive_color = style_out['inactive_color']
+        self.bg_color = style_out['bg_color']
+        self.active_color = style_out['active_color']
+
+        # Configure the style for the progress bar
+        self.style = ttk.Style()
+        self.style.configure(
+            "spacr.Horizontal.TProgressbar",
+            troughcolor=self.bg_color,
+            background=self.active_color,
+            thickness=20,
+            troughrelief='flat',
+            borderwidth=0
+        )
+        self.configure(style="spacr.Horizontal.TProgressbar")
+
+        # Set initial value to 0
+        self['value'] = 0
 
 class spacrFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
@@ -1709,20 +1872,20 @@ class AnnotateApp:
 def create_menu_bar(root):
     from .gui import initiate_root
     gui_apps = {
-        "Mask": (lambda frame: initiate_root(frame, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
-        "Measure": (lambda frame: initiate_root(frame, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
-        "Annotate": (lambda frame: initiate_root(frame, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
-        "Make Masks": (lambda frame: initiate_root(frame, 'make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
-        "Classify": (lambda frame: initiate_root(frame, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
-        "Sequencing": (lambda frame: initiate_root(frame, 'sequencing'), "Analyze sequencing data."),
-        "Umap": (lambda frame: initiate_root(frame, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
-        "Train Cellpose": (lambda frame: initiate_root(frame, 'train_cellpose'), "Train custom Cellpose models."),
-        "ML Analyze": (lambda frame: initiate_root(frame, 'ml_analyze'), "Machine learning analysis of data."),
-        "Cellpose Masks": (lambda frame: initiate_root(frame, 'cellpose_masks'), "Generate Cellpose masks."),
-        "Cellpose All": (lambda frame: initiate_root(frame, 'cellpose_all'), "Run Cellpose on all images."),
-        "Map Barcodes": (lambda frame: initiate_root(frame, 'map_barcodes'), "Map barcodes to data."),
-        "Regression": (lambda frame: initiate_root(frame, 'regression'), "Perform regression analysis."),
-        "Recruitment": (lambda frame: initiate_root(frame, 'recruitment'), "Analyze recruitment data.")
+        "Mask": (lambda frame: initiate_root(frame, settings_type='mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
+        "Measure": (lambda frame: initiate_root(frame, settings_type='measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
+        "Annotate": (lambda frame: initiate_root(frame, settings_type='annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
+        "Make Masks": (lambda frame: initiate_root(frame, settings_type='make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
+        "Classify": (lambda frame: initiate_root(frame, settings_type='classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
+        "Sequencing": (lambda frame: initiate_root(frame, settings_type='sequencing'), "Analyze sequencing data."),
+        "Umap": (lambda frame: initiate_root(frame, settings_type='umap'), "Generate UMAP embeddings with datapoints represented as images."),
+        "Train Cellpose": (lambda frame: initiate_root(frame, settings_type='train_cellpose'), "Train custom Cellpose models."),
+        "ML Analyze": (lambda frame: initiate_root(frame, settings_type='ml_analyze'), "Machine learning analysis of data."),
+        "Cellpose Masks": (lambda frame: initiate_root(frame, settings_type='cellpose_masks'), "Generate Cellpose masks."),
+        "Cellpose All": (lambda frame: initiate_root(frame, settings_type='cellpose_all'), "Run Cellpose on all images."),
+        "Map Barcodes": (lambda frame: initiate_root(frame, settings_type='map_barcodes'), "Map barcodes to data."),
+        "Regression": (lambda frame: initiate_root(frame, settings_type='regression'), "Perform regression analysis."),
+        "Recruitment": (lambda frame: initiate_root(frame, settings_type='recruitment'), "Analyze recruitment data.")
     }
 
     def load_app_wrapper(app_name, app_func):

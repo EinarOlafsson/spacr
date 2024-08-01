@@ -1,4 +1,4 @@
-import os, traceback, ctypes, matplotlib, requests, csv, matplotlib, time, requests
+import os, traceback, ctypes, matplotlib, requests, csv, matplotlib, time, requests, re
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 import tkinter as tk
@@ -10,14 +10,14 @@ from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from huggingface_hub import list_repo_files
-
+import numpy as np
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
 
 from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
-from .gui_elements import spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
+from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style, set_default_font
 
 # Define global variables
 q = None
@@ -89,7 +89,9 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     from .sim import run_multiple_simulations
     from .deep_spacr import train_test_model
     from .sequencing import analyze_reads, map_barcodes_folder, perform_regression
-    process_stdout_stderr(q)    
+    process_stdout_stderr(q)
+
+    print(f'run_function_gui settings_type: {settings_type}') 
     
     if settings_type == 'mask':
         function = preprocess_generate_masks
@@ -127,21 +129,6 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     elif settings_type == 'recruitment':
         function = analyze_recruitment
         imports = 2
-    #elif settings_type == 'cellpose_dataset':
-    #    function = generate_cellpose_train_test
-    #    imports = 1
-    #elif settings_type == 'plaques':
-    #    function = analyze_plaques
-    #    imports = 1
-    #elif settings_type == 'cellpose_compare':
-    #    function = compare_cellpose_masks
-    #    imports = 1
-    #elif settings_type == 'vision_scores':
-    #    function = apply_model_to_tar
-    #    imports = 1
-    #elif settings_type == 'vision_dataset':
-    #    function = generate_dataset
-    #    imports = 1
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     try:
@@ -484,7 +471,7 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
     raise Exception("Failed to download files after multiple attempts.")
 
 def setup_button_section(horizontal_container, settings_type='mask', window_dimensions=[500, 1000], run=True, abort=True, download=True, import_btn=True):
-    global button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict
+    global button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
     from .settings import descriptions
 
     width = (window_dimensions[0]) // 8
@@ -507,6 +494,7 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     btn_row = 1
 
     if run:
+        print(f'settings_type: {settings_type}')
         run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="run", command=lambda: start_process(q, fig_queue, settings_type))
         run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(run_button)
@@ -528,6 +516,11 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
         import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="settings", command=lambda: import_settings(settings_type))
         import_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(import_button)
+        btn_row += 1
+
+    progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
+    progress_bar.grid(row=0, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
+    widgets.append(progress_bar)
 
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
@@ -535,7 +528,7 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     description_frame = tk.Frame(horizontal_container)
     horizontal_container.add(description_frame, stretch="always", sticky="nsew")
     description_frame.grid_columnconfigure(0, weight=1)
-    description_frame.grid_rowconfigure(0, weight=1)  # Add this line to make the row expandable
+    description_frame.grid_rowconfigure(0, weight=1)
 
     description_label = tk.Label(description_frame, text="Module Description", anchor='nw', justify='left', wraplength=width - 50)
     description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')
@@ -554,7 +547,8 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     style = ttk.Style(horizontal_container)
     _ = set_dark_style(style, containers=containers, widgets=widgets)
 
-    return button_frame, button_scrollable_frame, description_frame, description_label
+    return button_scrollable_frame
+
 
 def hide_all_settings(vars_dict, categories):
     """
@@ -647,17 +641,68 @@ def process_fig_queue():
         after_id = canvas_widget.after(100, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
 
-def process_console_queue():
+def process_console_queue_v1():
     global q, console_output, parent_frame
     while not q.empty():
         message = q.get_nowait()
         console_output.insert(tk.END, message)
         console_output.see(tk.END)
+    after_id = console_output.after(100, process_console_queue_v1)
+    parent_frame.after_tasks.append(after_id)
+
+def process_console_queue():
+    global q, console_output, parent_frame, progress_bar, progress_label
+
+    # Initialize function attribute if it doesn't exist
+    if not hasattr(process_console_queue, "completed_tasks"):
+        process_console_queue.completed_tasks = []
+
+    ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+    
+    while not q.empty():
+        message = q.get_nowait()
+        clean_message = ansi_escape_pattern.sub('', message)
+        console_output.insert(tk.END, clean_message + "\n")
+        console_output.see(tk.END)
+        
+        # Check if the message contains progress information
+        if clean_message.startswith("Progress"):
+            try:
+                # Extract the progress information
+                match = re.search(r'(\d+)/(\d+)', clean_message)
+                if match:
+                    current_progress = int(match.group(1))
+                    total_progress = int(match.group(2))
+
+                    # Add the task to the completed set
+                    process_console_queue.completed_tasks.append(current_progress)
+                    #print('completed_tasks', process_console_queue.completed_tasks)
+                    
+                    # Calculate the unique progress count
+                    unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
+                    
+                    # Update the progress bar
+                    if progress_bar:
+                        progress_bar['maximum'] = total_progress
+                        progress_bar['value'] = unique_progress_count
+
+                    # Update the progress label
+                    if progress_label:
+                        progress_label_text = f"Processing: {unique_progress_count}/{total_progress}"
+                        progress_label.config(text=progress_label_text)
+                        
+                    # Clear completed tasks when progress is complete
+                    if unique_progress_count > total_progress:
+                        process_console_queue.completed_tasks.clear()
+            except Exception as e:
+                print(f"Error parsing progress message: {e}")
+    
     after_id = console_output.after(100, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
-def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, progress_label_var, fig_queue_var):
-    global q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue
+
+def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var):
+    global q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue, progress_bar
     q = q_var
     console_output = console_output_var
     parent_frame = parent_frame_var
@@ -665,8 +710,8 @@ def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canv
     canvas = canvas_var
     canvas_widget = canvas_widget_var
     scrollable_frame = scrollable_frame_var
-    progress_label = progress_label_var
     fig_queue = fig_queue_var
+    progress_bar = progress_bar_var
 
 def create_containers(parent_frame):
     vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
@@ -694,7 +739,7 @@ def setup_frame(parent_frame):
     return parent_frame, vertical_container, horizontal_container
 
 def initiate_root(parent, settings_type='mask'):
-    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, progress_label, progress_output, button_scrollable_frame
+    global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar
     from .gui_utils import main_thread_update_function
     from .gui import gui_app
     set_start_method('spawn', force=True)
@@ -733,16 +778,12 @@ def initiate_root(parent, settings_type='mask'):
         canvas, canvas_widget = setup_plot_section(vertical_container)
         console_output = setup_console(vertical_container)
 
-        if settings_type in ['mask', 'measure', 'classify', 'sequencing']:
-            progress_output = setup_progress_frame(vertical_container)
-        else:
-            progress_output = None
-
-        set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue)
+        set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar)
         process_console_queue()
         process_fig_queue()
-        after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget, progress_label))
+        after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget))
         parent_frame.after_tasks.append(after_id)
 
     print("Root initialization complete")
     return parent_frame, vars_dict
+
