@@ -87,7 +87,7 @@ from scipy.stats import f_oneway, kruskal
 from sklearn.cluster import KMeans
 from scipy import stats
 
-def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
+def print_progress_v1(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     if isinstance(files_processed, list):
         files_processed = len(files_processed)
     if isinstance(files_to_process, list):
@@ -108,6 +108,39 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
             print(f'Time_left: {time_left:.3f} min.')
             
     print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type}')
+
+def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
+    if isinstance(files_processed, list):
+        files_processed = len(files_processed)
+    if isinstance(files_to_process, list):
+        files_to_process = len(files_to_process)
+    if isinstance(batch_size, list):
+        batch_size = len(batch_size)
+
+    if not isinstance(files_processed, int):
+        try:
+            files_processed = int(files_processed)
+        except:
+            files_processed = 0
+    if not isinstance(files_to_process, int):
+        try:
+            files_to_process = int(files_to_process)
+        except:
+            files_to_process = 0
+
+    time_info = ""
+    if time_ls is not None:
+        average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+        time_left = (((files_to_process - files_processed) * average_time) / n_jobs) / 60
+        if batch_size is None:
+            time_info = f'Time/image: {average_time:.3f}sec, Time_left: {time_left:.3f} min.'
+        else:
+            average_time_img = average_time / batch_size
+            time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
+
+    print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type} {time_info}')
+
+
 
 def reset_mp():
     current_method = get_start_method()

@@ -614,6 +614,14 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                         print(f'WARNING: A file with the same name already exists at location {output_filename}')
                     else:
                         mip_image.save(output_path)
+                    
+                    stop = time.time()
+                    duration = stop - start
+                    time_ls.append(duration)
+                    files_processed = processed
+                    files_to_process = len(all_filenames)
+                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
+
             else:
                 for key, images in images_by_key.items():
                     mip = np.max(np.stack(images), axis=0)
@@ -628,13 +636,13 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                         print(f'WARNING: A file with the same name already exists at location {output_filename}')
                     else:
                         mip_image.save(output_path)
+                    stop = time.time()
+                    duration = stop - start
+                    time_ls.append(duration)
+                    files_processed = processed
+                    files_to_process = len(all_filenames)
+                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            files_processed = processed
-            files_to_process = len(all_filenames)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing')
             images_by_key.clear()
 
         # Move original images to a new directory
@@ -837,6 +845,7 @@ def _merge_channels(src, plot=False):
     """
 
     from .plot import plot_arrays
+    from .utils import print_progress
     
     stack_dir = os.path.join(src, 'stack')
     allowed_names = ['01', '02', '03', '04', '00', '1', '2', '3', '4', '0']
@@ -846,8 +855,7 @@ def _merge_channels(src, plot=False):
     chan_dirs.sort()
 
     print(f'List of folders in src: {chan_dirs}. Single channel folders.')
-    start_time = time.time()
-
+    
     # Assuming chan_dirs[0] is not empty and exists, adjust according to your logic
     first_dir_path = os.path.join(src, chan_dirs[0])
     dir_files = os.listdir(first_dir_path)
@@ -858,14 +866,18 @@ def _merge_channels(src, plot=False):
     print(f'Generated folder with merged arrays: {stack_dir}')
 
     if _is_dir_empty(stack_dir):
-        for file_name in dir_files:
+        time_ls = []
+        files_to_process = len(dir_files)
+        for i, file_name in enumerate(dir_files):
+            start_time = time.time()
             full_file_path = os.path.join(first_dir_path, file_name)
             if os.path.isfile(full_file_path):
                 _merge_file([os.path.join(src, d) for d in chan_dirs], stack_dir, file_name)
-
-    elapsed_time = time.time() - start_time
-    avg_time = elapsed_time / len(dir_files) if dir_files else 0
-    print(f'Average Time: {avg_time:.3f} sec, Total Elapsed Time: {elapsed_time:.3f} sec')
+            stop_time = time.time()
+            duration = stop_time - start_time
+            time_ls.append(duration)
+            files_processed = i + 1
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type='Merging channels into npy stacks')
 
     if plot:
         plot_arrays(os.path.join(src, 'stack'))
@@ -922,6 +934,7 @@ def _mip_all(src, include_first_chan=True):
 
 #@log_function_call
 def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
+    from .utils import print_progress
     """
     Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.
 
@@ -937,6 +950,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     """
     channels = [item for item in channels if item is not None]
     paths = []
+    time_ls = []
     index = 0
     channel_stack_loc = os.path.join(os.path.dirname(src), 'channel_stack')
     os.makedirs(channel_stack_loc, exist_ok=True)
@@ -955,8 +969,13 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                     array = np.take(array, channels, axis=2)
                     stack_region.append(array)
                     filenames_region.append(os.path.basename(path))
-                #clear_output(wait=True)
-                print(f'Region {i+1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
+
+                stop = time.time()
+                duration = stop - start
+                time_ls.append(duration)
+                files_processed = i+1
+                files_to_process = time_stack_path_lists
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
                 np.savez(save_loc, data=stack, filenames=filenames_region)
@@ -975,23 +994,24 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
         nr_files = len(paths)
         batch_index = 0  # Added this to name the output files
         stack_ls = []
-        filenames_batch = []  # to hold filenames of the current batch
+        filenames_batch = []
         for i, path in enumerate(paths):
+            start = time.time()
             array = np.load(path)
             array = np.take(array, channels, axis=2)
             stack_ls.append(array)
             filenames_batch.append(os.path.basename(path))  # store the filename
-            #clear_output(wait=True)
-            print(f'Concatenated: {i+1}/{nr_files} files')
-            #print(f'Concatenated: {i+1}/{nr_files} files', end='\r', flush=True)
-
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = i+1
+            files_to_process = nr_files
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
             if (i+1) % batch_size == 0 or i+1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
-                    #clear_output(wait=True)
                     print(f'Warning: arrays with multiple shapes found in batch {i+1}. Padding arrays to max X,Y dimentions {max_dims}')
-                    #print(f'Warning: arrays with multiple shapes found in batch {i+1}. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
                     padded_stack_ls = []
                     for arr in stack_ls:
                         pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
@@ -1013,6 +1033,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
 
 def _normalize_img_batch(stack, channels, save_dtype, settings):
     
+    from .utils import print_progress
     """
     Normalize the stack of images.
 
@@ -1029,7 +1050,9 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
     
     #for channel in range(stack.shape[-1]):
-    for channel in channels:
+    time_ls = []
+    for i, channel in enumerate(channels):
+        start = time.time()
         if channel == settings['nucleus_channel']:
             background = settings['nucleus_background']
             signal_threshold = settings['nucleus_Signal_to_noise']*settings['nucleus_background']
@@ -1076,10 +1099,18 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
             normalized_stack[array_index, :, :, channel] = arr_2d_normalized
 
+        stop = time.time()
+        duration = stop - start
+        time_ls.append(duration)
+        files_processed = i+1
+        files_to_process = len(channels)
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type=f"Normalizing: Channel: {channel}")
+
     return normalized_stack.astype(save_dtype)
 
 def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={}):
-    
+    from .utils import print_progress
+
     """
     Concatenates and normalizes channel data from multiple files and saves the normalized data.
 
@@ -1099,10 +1130,11 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
     Returns:
         str: The directory path where the concatenated and normalized channel data is saved.
     """
-    # n c p
+
     channels = [item for item in channels if item is not None]
 
     paths = []
+    time_ls = []
     output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
     os.makedirs(output_fldr, exist_ok=True)
 
@@ -1110,6 +1142,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
         try:
             time_stack_path_lists = _generate_time_lists(os.listdir(src))
             for i, time_stack_list in enumerate(time_stack_path_lists):
+                start = time.time()
                 stack_region = []
                 filenames_region = []
                 for idx, file in enumerate(time_stack_list):
@@ -1121,7 +1154,12 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
                     #array = np.take(array, channels, axis=2)
                     stack_region.append(array)
                     filenames_region.append(os.path.basename(path))
-                print(f'Region {i + 1}/ {len(time_stack_path_lists)}', end='\r', flush=True)
+                stop = time.time()
+                duration = stop - start
+                time_ls.append(duration)
+                files_processed = i+1
+                files_to_process = len(time_stack_path_lists)
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
 
                 normalized_stack = _normalize_img_batch(stack=stack,
@@ -1149,13 +1187,19 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
         batch_index = 0
         stack_ls = []
         filenames_batch = []
-
+        time_ls = []
         for i, path in enumerate(paths):
+            start = time.time()
             array = np.load(path)
             #array = np.take(array, channels, axis=2)
             stack_ls.append(array)
             filenames_batch.append(os.path.basename(path))
-            print(f'Concatenated: {i + 1}/{nr_files} files')
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = i+1
+            files_to_process = nr_files
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
 
             if (i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
@@ -1230,6 +1274,7 @@ def _get_lists_for_normalization(settings):
     return backgrounds, signal_to_noise, signal_thresholds, remove_background
 
 def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
+    from .utils import print_progress
     """
     Normalize the stack of images.
 
@@ -1277,10 +1322,11 @@ def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False
                 global_upper = np.percentile(non_zero_single_channel, upper_p)
                 if global_upper >= signal_threshold:
                     break
-
+            
             # Normalize the pixels in each image to the global percentiles and then dtype.
             arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
             signal_to_noise_ratio_ls = []
+            time_ls = []
             for array_index in range(single_channel.shape[0]):
                 start = time.time()
                 arr_2d = single_channel[array_index, :, :]
@@ -1302,8 +1348,15 @@ def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False
                 duration = (stop - start) * single_channel.shape[0]
                 time_ls.append(duration)
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-                print(f'Progress: files {file_index + 1}/{len(paths)}, channels:{chan_index}/{stack.shape[-1] - 1}, arrays:{array_index + 1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
+                print(f'channels:{chan_index}/{stack.shape[-1] - 1}, arrays:{array_index + 1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
 
+                stop = time.time()
+                duration = stop - start
+                time_ls.append(duration)
+                files_processed = file_index + 1
+                files_to_process = len(paths)
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Normalizing")
+                
             normalized_stack[:, :, :, channel] = arr_2d_normalized
         
         save_loc = os.path.join(output_fldr, f'{name}_norm_stack.npz')
@@ -1314,6 +1367,7 @@ def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False
     return print(f'Saved stacks: {output_fldr}')
 
 def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
+    from .utils import print_progress
     """
     Normalize the timelapse data by rescaling the intensity values based on percentiles.
 
@@ -1337,8 +1391,9 @@ def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
 
         for chan_index in range(stack.shape[-1]):
             single_channel = stack[:, :, :, chan_index]
-
+            time_ls = []
             for array_index in range(single_channel.shape[0]):
+                start = time.time()
                 arr_2d = single_channel[array_index]
                 # Calculate the 1% and 98% percentiles for this specific image
                 q_low = np.percentile(arr_2d[arr_2d != 0], lower_percentile)
@@ -1348,7 +1403,14 @@ def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
                 arr_2d_rescaled = exposure.rescale_intensity(arr_2d, in_range=(q_low, q_high), out_range='dtype')
                 normalized_stack[array_index, :, :, chan_index] = arr_2d_rescaled
 
-                print(f'Progress: files {file_index+1}/{len(paths)}, channels:{chan_index+1}/{stack.shape[-1]}, arrays:{array_index+1}/{single_channel.shape[0]}', end='\r')
+                print(f'channels:{chan_index+1}/{stack.shape[-1]}, arrays:{array_index+1}/{single_channel.shape[0]}', end='\r')
+
+                stop = time.time()
+                duration = stop - start
+                time_ls.append(duration)
+                files_processed = file_index+1
+                files_to_process = len(paths)
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Normalizing")
 
         save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
         np.savez(save_loc, data=normalized_stack, filenames=filenames)
@@ -1613,6 +1675,7 @@ def _get_avg_object_size(masks):
         return 0  # Return 0 if no objects are found
     
 def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
+    from .utils import print_progress
     """
     Save a figure to a specified location.
 
@@ -1622,6 +1685,7 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     text (str): The text to be included in the figure name.
     dpi (int, optional): The resolution of the saved figure. Defaults to 300.
     """
+
     save_folder = os.path.dirname(src)
     obj_type = os.path.basename(src)
     name = os.path.basename(save_folder)
@@ -1630,10 +1694,11 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     fig_name = f'{obj_type}_{name}_{text}.pdf'        
     save_location = os.path.join(save_folder, fig_name)
     fig.savefig(save_location, bbox_inches='tight', dpi=dpi)
-    clear_output(wait=True)
-    print(f'Progress: {i}/{all_folders}, Saved single cell figure: {os.path.basename(save_location)}')
-    #print(f'Progress: {i}/{all_folders}, Saved single cell figure: {os.path.basename(save_location)}', end='\r', flush=True)
-    # Close and delete the figure to free up memory
+
+    files_processed = i
+    files_to_process = all_folders
+    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Saving Figures")
+    print(f'Saved single cell figure: {os.path.basename(save_location)}')
     plt.close(fig)
     del fig
     gc.collect()
@@ -1853,6 +1918,9 @@ def _create_database(db_path):
             conn.close() 
     
 def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim):
+
+    from .utils import print_progress
+
     """
     Load and concatenate arrays from multiple folders.
 
@@ -1881,9 +1949,10 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
 
     count=0
     all_imgs = len(os.listdir(reference_folder))
-
+    time_ls = []
     # Iterate through each file in the reference folder
     for filename in os.listdir(reference_folder):
+        start = time.time()
         stack_ls = []
         if filename.endswith('.npy'):
             count += 1
@@ -1940,9 +2009,13 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                     output_path = os.path.join(output_folder, filename)
                     np.save(output_path, stack)
         
-        #clear_output(wait=True)
-        print(f'Files merged: {count}/{all_imgs}')
-        #print(f'Files merged: {count}/{all_imgs}', end='\r', flush=True)
+        stop = time.time()
+        duration = stop - start
+        time_ls.append(duration)
+        files_processed = count
+        files_to_process = all_imgs
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Merging Arrays")
+
     return
     
 def _read_db(db_loc, tables):
@@ -2222,7 +2295,7 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
     
     def save_model_at_threshold(threshold, epoch, suffix=""):
         percentile = str(threshold * 100)
-        print(f'\rfound: {percentile}% accurate model', end='\r', flush=True)
+        print(f'\rfound: {percentile}% accurate model')#, end='\r', flush=True)
         torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth')
 
     if epoch % 100 == 0 or epoch == epochs:
@@ -2556,5 +2629,5 @@ def generate_cellpose_train_test(src, test_split=0.1):
             new_mask_path = os.path.join(dst_mask, filename)            
             shutil.copy(img_path, new_img_path)
             shutil.copy(mask_path, new_mask_path)
-            print(f'Copied {idx+1}/{len(ls)} images to {_type} set', end='\r', flush=True)
+            print(f'Copied {idx+1}/{len(ls)} images to {_type} set')#, end='\r', flush=True)
             

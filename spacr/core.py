@@ -974,7 +974,7 @@ def generate_dataset(src, file_metadata=None, experiment='TSG101_screen', sample
 def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', n_jobs=10, threshold=0.5, verbose=False):
     
     from .io import TarImageDataset
-    from .utils import process_vision_results
+    from .utils import process_vision_results, print_progress
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if normalize:
@@ -1015,15 +1015,26 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
         
     prediction_pos_probs = []
     filenames_list = []
+    time_ls = []
     gc.collect()
     with torch.no_grad():
         for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
+            start = time.time()
             images = batch_images.to(torch.float).to(device)
             outputs = model(images)
             batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
             prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
             filenames_list.extend(filenames)
-            print(f'batch: {batch_idx}/{len(data_loader)}', end='\r', flush=True)
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = batch_idx*batch_size
+            files_to_process = len(data_loader)
+            print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=batch_size, operation_type="Tar dataset")
+
+
+
+
 
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
     df = pd.DataFrame(data, index=None)
@@ -1037,6 +1048,7 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
     
     from .io import NoClassDataset
+    from .utils import print_progress
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
@@ -1065,14 +1077,22 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     model = model.to(device)
     prediction_pos_probs = []
     filenames_list = []
+    time_ls = []
     with torch.no_grad():
         for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
+            start = time.time()
             images = batch_images.to(torch.float).to(device)
             outputs = model(images)
             batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
             prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
             filenames_list.extend(filenames)
-            print(f'\rbatch: {batch_idx}/{len(data_loader)}', end='\r', flush=True)
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = batch_idx*batch_size
+            files_to_process = len(data_loader)
+            print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=batch_size, operation_type="Generating predictions")
+
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
     df = pd.DataFrame(data, index=None)
     df.to_csv(result_loc, index=True, header=True, mode='w')
@@ -1164,12 +1184,14 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
     return class_paths
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
+    from .utils import print_progress
     # Make sure that the length of class_data matches the length of classes
     if len(class_data) != len(classes):
         raise ValueError("class_data and classes must have the same length.")
 
     total_files = sum(len(data) for data in class_data)
     processed_files = 0
+    time_ls = []
     
     for cls, data in zip(classes, class_data):
         # Create directories
@@ -1183,15 +1205,21 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
         
         # Copy train files
         for path in train_data:
+            start = time.time()
             shutil.copy(path, os.path.join(train_class_dir, os.path.basename(path)))
             processed_files += 1
-            print(f'{processed_files}/{total_files}', end='\r', flush=True)
+            duration = time.time() - start
+            time_ls.append(duration)
+            print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Train dataset")
 
         # Copy test files
         for path in test_data:
+            start = time.time()
             shutil.copy(path, os.path.join(test_class_dir, os.path.basename(path)))
             processed_files += 1
-            print(f'{processed_files}/{total_files}', end='\r', flush=True)
+            duration = time.time() - start
+            time_ls.append(duration)
+            print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Test dataset")
 
     # Print summary
     for cls in classes:
@@ -1903,6 +1931,7 @@ def identify_masks_finetune(settings):
             files_processed = len(images)
             files_to_process = file_index+1            
             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls)
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="")
             
             
             if verbose:
@@ -1914,212 +1943,6 @@ def identify_masks_finetune(settings):
                 output_filename = os.path.join(dst, image_names[file_index])
                 cv2.imwrite(output_filename, mask)
         del images, output, mask, flows
-        gc.collect()
-    return
-
-def identify_masks(src, object_type, model_name, batch_size, channels, diameter, minimum_size, maximum_size, filter_intensity, flow_threshold=30, cellprob_threshold=1, figuresize=25, cmap='inferno', refine_masks=True, filter_size=True, filter_dimm=True, remove_border_objects=False, verbose=False, plot=False, merge=False, save=True, start_at=0, file_type='.npz', net_avg=True, resample=True, timelapse=False, timelapse_displacement=None, timelapse_frame_limits=None, timelapse_memory=3, timelapse_remove_transient=False, timelapse_mode='btrack', timelapse_objects='cell'):
-    """
-    Identify masks from the source images.
-
-    Args:
-        src (str): Path to the source images.
-        object_type (str): Type of object to identify.
-        model_name (str): Name of the model to use for identification.
-        batch_size (int): Number of images to process in each batch.
-        channels (list): List of channel names.
-        diameter (float): Diameter of the objects to identify.
-        minimum_size (int): Minimum size of objects to keep.
-        maximum_size (int): Maximum size of objects to keep.
-        flow_threshold (int, optional): Threshold for flow detection. Defaults to 30.
-        cellprob_threshold (int, optional): Threshold for cell probability. Defaults to 1.
-        figuresize (int, optional): Size of the figure. Defaults to 25.
-        cmap (str, optional): Colormap for plotting. Defaults to 'inferno'.
-        refine_masks (bool, optional): Flag indicating whether to refine masks. Defaults to True.
-        filter_size (bool, optional): Flag indicating whether to filter based on size. Defaults to True.
-        filter_dimm (bool, optional): Flag indicating whether to filter based on intensity. Defaults to True.
-        remove_border_objects (bool, optional): Flag indicating whether to remove border objects. Defaults to False.
-        verbose (bool, optional): Flag indicating whether to display verbose output. Defaults to False.
-        plot (bool, optional): Flag indicating whether to plot the masks. Defaults to False.
-        merge (bool, optional): Flag indicating whether to merge adjacent objects. Defaults to False.
-        save (bool, optional): Flag indicating whether to save the masks. Defaults to True.
-        start_at (int, optional): Index to start processing from. Defaults to 0.
-        file_type (str, optional): File type for saving the masks. Defaults to '.npz'.
-        net_avg (bool, optional): Flag indicating whether to use network averaging. Defaults to True.
-        resample (bool, optional): Flag indicating whether to resample the images. Defaults to True.
-        timelapse (bool, optional): Flag indicating whether to generate a timelapse. Defaults to False.
-        timelapse_displacement (float, optional): Displacement threshold for timelapse. Defaults to None.
-        timelapse_frame_limits (tuple, optional): Frame limits for timelapse. Defaults to None.
-        timelapse_memory (int, optional): Memory for timelapse. Defaults to 3.
-        timelapse_remove_transient (bool, optional): Flag indicating whether to remove transient objects in timelapse. Defaults to False.
-        timelapse_mode (str, optional): Mode for timelapse. Defaults to 'btrack'.
-        timelapse_objects (str, optional): Objects to track in timelapse. Defaults to 'cell'.
-
-    Returns:
-        None
-    """
-
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size
-    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
-    from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
-    from .plot import plot_masks
-    
-    #Note add logic that handles batches of size 1 as these will break the code batches must all be > 2 images
-    gc.collect()
-    
-    if not torch.cuda.is_available():
-        print(f'Torch CUDA is not available, using CPU')
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = cp_models.Cellpose(gpu=True, model_type=model_name, device=device)
-
-    if file_type == '.npz':
-        paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
-    else:
-        paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.png')]
-        if timelapse:
-            print(f'timelaps is only compatible with npz files')
-            return
-
-    chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0]
-    
-    if verbose == True:
-        print(f'source: {src}')
-        print()
-        print(f'Settings: object_type: {object_type}, minimum_size: {minimum_size}, maximum_size:{maximum_size}, figuresize:{figuresize}, cmap:{cmap}, , net_avg:{net_avg}, resample:{resample}')
-        print()
-        print(f'Cellpose settings: Model: {model_name}, batch_size: {batch_size}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
-        print()
-        print(f'Bool Settings: verbose:{verbose}, plot:{plot}, merge:{merge}, save:{save}, start_at:{start_at}, file_type:{file_type}, timelapse:{timelapse}')
-        print()
-        
-    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
-    os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
-    _create_database(count_loc)
-    
-    average_sizes = []
-    time_ls = []
-    for file_index, path in enumerate(paths):
-
-        name = os.path.basename(path)
-        name, ext = os.path.splitext(name)
-        if file_type == '.npz':
-            if start_at: 
-                print(f'starting at file index:{start_at}')
-                if file_index < start_at:
-                    continue
-            output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
-            os.makedirs(output_folder, exist_ok=True)
-            overall_average_size = 0
-            with np.load(path) as data:
-                stack = data['data']
-                filenames = data['filenames']
-            if timelapse:
-                if len(stack) != batch_size:
-                    print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
-                    batch_size = len(stack)
-                    if isinstance(timelapse_frame_limits, list):
-                        if len(timelapse_frame_limits) >= 2:
-                            stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1], :, :, :].astype(stack.dtype)
-                            filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
-                            batch_size = len(stack)
-                            print(f'Cut batch an indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
-
-            for i in range(0, stack.shape[0], batch_size):
-                mask_stack = []
-                start = time.time()
-
-                if stack.shape[3] == 1:
-                    batch = stack[i: i+batch_size, :, :, [0,0]].astype(stack.dtype)
-                else:
-                    batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
-                    
-                batch_filenames = filenames[i: i+batch_size].tolist()
-                        
-                if not plot:
-                    batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
-                if batch.size == 0:
-                    print(f'Processing: {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}')
-                    #print(f'Processing {file_index}/{len(paths)}: Images/N100pz {batch.shape[0]}', end='\r', flush=True)
-                    continue
-                if batch.max() > 1:
-                    batch = batch / batch.max()
-                    
-                if timelapse:
-                    stitch_threshold=100.0
-                    movie_path = os.path.join(os.path.dirname(src), 'movies')
-                    os.makedirs(movie_path, exist_ok=True)
-                    save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
-                    _npz_to_movie(batch, batch_filenames, save_path, fps=2)
-                else:
-                    stitch_threshold=0.0
-                    
-                cellpose_batch_size = _get_cellpose_batch_size()
-                   
-                masks, flows, _, _ = model.eval(x=batch,
-                                                batch_size=cellpose_batch_size,
-                                                normalize=False,
-                                                channels=chans,
-                                                channel_axis=3,
-                                                diameter=diameter,
-                                                flow_threshold=flow_threshold,
-                                                cellprob_threshold=cellprob_threshold,
-                                                rescale=None,
-                                                resample=resample,
-                                                stitch_threshold=stitch_threshold,
-                                                progress=None)
-                
-                print('Masks shape',masks.shape)                
-                if timelapse:
-                    _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
-                    if object_type in timelapse_objects:
-                        if timelapse_mode == 'btrack':
-                            if not timelapse_displacement is None:
-                                radius = timelapse_displacement
-                            else:
-                                radius = 100
-
-                            n_jobs = os.cpu_count()-2
-                            if n_jobs < 1:
-                                n_jobs = 1
-
-                            mask_stack = _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D=masks, mode=timelapse_mode, timelapse_remove_transient=timelapse_remove_transient, radius=radius, n_jobs=n_jobs)
-                        if timelapse_mode == 'trackpy':
-                            mask_stack = _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelapse_displacement, timelapse_memory, timelapse_remove_transient, plot, save, timelapse_mode)
-                            
-                    else:
-                        mask_stack = _masks_to_masks_stack(masks)
-
-                else:
-                    _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
-                    mask_stack = _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize)
-                    _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
-
-                if not np.any(mask_stack):
-                    average_obj_size = 0
-                else:
-                    average_obj_size = _get_avg_object_size(mask_stack)
-
-                average_sizes.append(average_obj_size) 
-                overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
-            
-            stop = time.time()
-            duration = (stop - start)
-            time_ls.append(duration)
-            average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-            time_in_min = average_time/60
-            time_per_mask = average_time/batch_size
-            print(f'Processing: {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
-            #print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2', end='\r', flush=True)
-            if not timelapse:
-                if plot:
-                    plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap=cmap, nr=batch_size, file_type='.npz')
-        if save:
-            if file_type == '.npz':
-                for mask_index, mask in enumerate(mask_stack):
-                    output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    np.save(output_filename, mask)
-            mask_stack = []
-            batch_filenames = []
         gc.collect()
     return
 
@@ -2233,7 +2056,8 @@ def generate_cellpose_masks(src, settings, object_type):
                         filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
                         batch_size = len(stack)
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
-
+        
+        files_processed = 0
         for i in range(0, stack.shape[0], batch_size):
             mask_stack = []
             start = time.time()
@@ -2379,17 +2203,14 @@ def generate_cellpose_masks(src, settings, object_type):
             average_sizes.append(average_obj_size) 
             overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
 
-        stop = time.time()
-        duration = (stop - start)
-        time_ls.append(duration)
-        #average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-        #time_in_min = average_time/60
-        #time_per_mask = average_time/batch_size
-        #print(f'Processing {len(paths)} files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
-        files_processed = (file_index+1)*(batch_size+1)
-        files_to_process = (len(paths))*(batch_size+1)
-        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f'{object_type}_mask_gen')
-        print(f'object_size:{object_type}): {overall_average_size:.3f} px2')
+            stop = time.time()
+            duration = (stop - start)
+            time_ls.append(duration)
+            files_processed += len(batch_filenames)
+            #files_processed = (file_index+1)*(batch_size+1)
+            files_to_process = (len(paths))*(batch_size)
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f'{object_type}_mask_gen')
+            print(f'object_size:{object_type}): {overall_average_size:.3f} px2')
         
         if not timelapse:
             if settings['plot']:
@@ -2408,7 +2229,7 @@ def generate_cellpose_masks(src, settings, object_type):
 def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
     
     from .io import _load_images_and_labels, _load_normalized_images_and_labels
-    from .utils import resize_images_and_labels, resizescikit
+    from .utils import resize_images_and_labels, resizescikit, print_progress
     from .plot import print_mask_and_flows
 
     dst = os.path.join(src, model_name)
@@ -2467,8 +2288,11 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
             stop = time.time()
             duration = (stop - start)
             time_ls.append(duration)
-            average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-            print(f'Processing {file_index+1}/{len(images)} images : Time/image {average_time:.3f} sec', end='\r', flush=True)
+            files_processed = file_index+1
+            files_to_process = len(images)
+
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Generating masks")
+
             if plot:
                 if resize:
                     stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)

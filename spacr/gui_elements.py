@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
 from queue import Queue
-from tkinter import Label
+from tkinter import Label, Frame, Button
 import numpy as np
 from PIL import Image, ImageOps, ImageTk
 from concurrent.futures import ThreadPoolExecutor
@@ -368,9 +368,11 @@ class spacrProgressBar(ttk.Progressbar):
 
         # Get the style colors
         style_out = set_dark_style(ttk.Style())
-        self.inactive_color = style_out['inactive_color']
+       
+        self.fg_color = style_out['fg_color']
         self.bg_color = style_out['bg_color']
         self.active_color = style_out['active_color']
+        self.inactive_color = style_out['inactive_color']
 
         # Configure the style for the progress bar
         self.style = ttk.Style()
@@ -386,6 +388,29 @@ class spacrProgressBar(ttk.Progressbar):
 
         # Set initial value to 0
         self['value'] = 0
+
+        # Create the progress label
+        self.progress_label = tk.Label(parent, text="Processing: 0/0", anchor='w', justify='left', bg=self.inactive_color, fg=self.fg_color)
+        self.progress_label.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
+
+        # Initialize attributes for time and operation
+        self.operation_type = None
+        self.time_image = None
+        self.time_batch = None
+        self.time_left = None
+
+    def update_label(self):
+        # Update the progress label with current progress and additional info
+        label_text = f"Processing: {self['value']}/{self['maximum']}"
+        if self.operation_type:
+            label_text += f", {self.operation_type}"
+        if self.time_image:
+            label_text += f", Time/image: {self.time_image:.3f} sec"
+        if self.time_batch:
+            label_text += f", Time/batch: {self.time_batch:.3f} sec"
+        if self.time_left:
+            label_text += f", Time_left: {self.time_left:.3f} min"
+        self.progress_label.config(text=label_text)
 
 class spacrFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
@@ -1561,14 +1586,19 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, grid_rows=None, grid_cols=None, image_size=(200, 200), annotation_column='annotate', normalize=False, percentiles=(1,99), measurement=None, threshold=None):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None):
         self.root = root
         self.db_path = db_path
         self.src = src
         self.index = 0
-        self.grid_rows = grid_rows
-        self.grid_cols = grid_cols
-        self.image_size = image_size
+        
+        if isinstance(image_size, list):
+            self.image_size = (int(image_size[0]), int(image_size[0]))
+        elif isinstance(image_size, int):
+            self.image_size = (image_size, image_size)
+        else:
+            raise ValueError("Invalid image size")
+        
         self.annotation_column = annotation_column
         self.image_type = image_type
         self.channels = channels
@@ -1580,10 +1610,13 @@ class AnnotateApp:
         self.adjusted_to_original_paths = {}
         self.terminate = False
         self.update_queue = Queue()
-        self.status_label = Label(self.root, text="", font=("Arial", 12))
-        self.status_label.grid(row=self.grid_rows + 1, column=0, columnspan=self.grid_cols)
         self.measurement = measurement
         self.threshold = threshold
+
+        print('self.image_size', self.image_size)
+
+        style_out = set_dark_style(ttk.Style())
+        self.root.configure(bg=style_out['inactive_color'])
 
         self.filtered_paths_annotations = []
         self.prefilter_paths_annotations()
@@ -1591,10 +1624,57 @@ class AnnotateApp:
         self.db_update_thread = threading.Thread(target=self.update_database_worker)
         self.db_update_thread.start()
 
-        for i in range(grid_rows * grid_cols):
-            label = Label(root)
-            label.grid(row=i // grid_cols, column=i % grid_cols)
+        # Set the initial window size and make it fit the screen size
+        self.root.geometry(f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}")
+        self.root.update_idletasks()
+
+        # Create the status label
+        self.status_label = Label(root, text="", font=("Arial", 12), bg=self.root.cget('bg'))
+        self.status_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+
+        # Place the buttons at the bottom right
+        self.button_frame = Frame(root, bg=self.root.cget('bg'))
+        self.button_frame.grid(row=2, column=1, padx=10, pady=10, sticky="se")
+
+        self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg='black', fg='white', highlightbackground='white', highlightcolor='white', highlightthickness=1)
+        self.next_button.pack(side="right", padx=5)
+
+        self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg='black', fg='white', highlightbackground='white', highlightcolor='white', highlightthickness=1)
+        self.previous_button.pack(side="right", padx=5)
+
+        self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg='black', fg='white', highlightbackground='white', highlightcolor='white', highlightthickness=1)
+        self.exit_button.pack(side="right", padx=5)
+
+        # Calculate grid rows and columns based on the root window size and image size
+        self.calculate_grid_dimensions()
+
+        # Create a frame to hold the image grid
+        self.grid_frame = Frame(root, bg=self.root.cget('bg'))
+        self.grid_frame.grid(row=0, column=0, columnspan=2, padx=0, pady=0, sticky="nsew")
+
+        for i in range(self.grid_rows * self.grid_cols):
+            label = Label(self.grid_frame, bg=self.root.cget('bg'))
+            label.grid(row=i // self.grid_cols, column=i % self.grid_cols, padx=2, pady=2, sticky="nsew")
             self.labels.append(label)
+
+        # Make the grid frame resize with the window
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
+
+        self.grid_frame.grid_rowconfigure(0, weight=1)
+        self.grid_frame.grid_columnconfigure(0, weight=1)
+
+    def calculate_grid_dimensions(self):
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height()
+
+        self.grid_cols = window_width // (self.image_size[0] + 4)
+        self.grid_rows = (window_height - self.button_frame.winfo_height() - 4) // (self.image_size[1] + 4)
+
+        # Update to make sure grid_rows and grid_cols are at least 1
+        self.grid_cols = max(1, self.grid_cols)
+        self.grid_rows = max(1, self.grid_rows)
 
     def prefilter_paths_annotations(self):
         from .io import _read_and_join_tables
@@ -1849,6 +1929,7 @@ class AnnotateApp:
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
         self.index += self.grid_rows * self.grid_cols
+        self.prefilter_paths_annotations()  # Re-fetch annotations from the database
         self.load_images()
 
     def previous_page(self):
@@ -1858,6 +1939,7 @@ class AnnotateApp:
         self.index -= self.grid_rows * self.grid_cols
         if self.index < 0:
             self.index = 0
+        self.prefilter_paths_annotations()  # Re-fetch annotations from the database
         self.load_images()
 
     def shutdown(self):

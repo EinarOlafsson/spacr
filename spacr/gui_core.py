@@ -491,7 +491,7 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     widgets = [categories_label, button_scrollable_frame.scrollable_frame]
 
     btn_col = 0
-    btn_row = 1
+    btn_row = 3
 
     if run:
         print(f'settings_type: {settings_type}')
@@ -518,6 +518,7 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
         widgets.append(import_button)
         btn_row += 1
 
+    # Add the progress bar under the settings category menu
     progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
     progress_bar.grid(row=0, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
     widgets.append(progress_bar)
@@ -528,7 +529,7 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     description_frame = tk.Frame(horizontal_container)
     horizontal_container.add(description_frame, stretch="always", sticky="nsew")
     description_frame.grid_columnconfigure(0, weight=1)
-    description_frame.grid_rowconfigure(0, weight=1)
+    description_frame.grid_rowconfigure(0, weight=1)  # Add this line to make the row expandable
 
     description_label = tk.Label(description_frame, text="Module Description", anchor='nw', justify='left', wraplength=width - 50)
     description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')
@@ -609,7 +610,7 @@ def toggle_settings(button_scrollable_frame):
     category_var = tk.StringVar()
     non_empty_categories = [category for category, settings in categories.items() if any(setting in vars_dict for setting in settings)]
     category_dropdown = spacrDropdownMenu(button_scrollable_frame.scrollable_frame, category_var, non_empty_categories, command=on_category_select)
-    category_dropdown.grid(row=5, column=0, sticky="ew", pady=2, padx=2)
+    category_dropdown.grid(row=7, column=0, sticky="ew", pady=2, padx=2)
     vars_dict = hide_all_settings(vars_dict, categories)
 
 def process_fig_queue():
@@ -641,17 +642,8 @@ def process_fig_queue():
         after_id = canvas_widget.after(100, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
 
-def process_console_queue_v1():
-    global q, console_output, parent_frame
-    while not q.empty():
-        message = q.get_nowait()
-        console_output.insert(tk.END, message)
-        console_output.see(tk.END)
-    after_id = console_output.after(100, process_console_queue_v1)
-    parent_frame.after_tasks.append(after_id)
-
 def process_console_queue():
-    global q, console_output, parent_frame, progress_bar, progress_label
+    global q, console_output, parent_frame, progress_bar
 
     # Initialize function attribute if it doesn't exist
     if not hasattr(process_console_queue, "completed_tasks"):
@@ -676,7 +668,6 @@ def process_console_queue():
 
                     # Add the task to the completed set
                     process_console_queue.completed_tasks.append(current_progress)
-                    #print('completed_tasks', process_console_queue.completed_tasks)
                     
                     # Calculate the unique progress count
                     unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
@@ -686,13 +677,29 @@ def process_console_queue():
                         progress_bar['maximum'] = total_progress
                         progress_bar['value'] = unique_progress_count
 
+                    # Extract and update additional information
+                    operation_match = re.search(r'operation_type: ([\w\s]+)', clean_message)
+                    if operation_match:
+                        progress_bar.operation_type = operation_match.group(1)
+
+                    time_image_match = re.search(r'Time/image: ([\d.]+) sec', clean_message)
+                    if time_image_match:
+                        progress_bar.time_image = float(time_image_match.group(1))
+
+                    time_batch_match = re.search(r'Time/batch: ([\d.]+) sec', clean_message)
+                    if time_batch_match:
+                        progress_bar.time_batch = float(time_batch_match.group(1))
+
+                    time_left_match = re.search(r'Time_left: ([\d.]+) min', clean_message)
+                    if time_left_match:
+                        progress_bar.time_left = float(time_left_match.group(1))
+
                     # Update the progress label
-                    if progress_label:
-                        progress_label_text = f"Processing: {unique_progress_count}/{total_progress}"
-                        progress_label.config(text=progress_label_text)
+                    if progress_bar.progress_label:
+                        progress_bar.update_label()
                         
                     # Clear completed tasks when progress is complete
-                    if unique_progress_count > total_progress:
+                    if unique_progress_count >= total_progress:
                         process_console_queue.completed_tasks.clear()
             except Exception as e:
                 print(f"Error parsing progress message: {e}")
@@ -700,9 +707,8 @@ def process_console_queue():
     after_id = console_output.after(100, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
-
 def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var):
-    global q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, progress_label, fig_queue, progress_bar
+    global q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar
     q = q_var
     console_output = console_output_var
     parent_frame = parent_frame_var
