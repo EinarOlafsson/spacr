@@ -318,3 +318,35 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     # Call load_images after setting up the root window
     app.load_images()
 
+def annotate_with_image_refs(settings, root, shutdown_callback):
+    from .settings import set_annotate_default_settings
+
+    settings = set_annotate_default_settings(settings)
+    src = settings['src']
+
+    db = os.path.join(src, 'measurements/measurements.db')
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('PRAGMA table_info(png_list)')
+    cols = c.fetchall()
+    if settings['annotation_column'] not in [col[1] for col in cols]:
+        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+    conn.commit()
+    conn.close()
+
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    root.geometry(f"{screen_width}x{screen_height}")
+
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+
+    # Set the canvas background to black
+    root.configure(bg='black')
+
+    # Store the shutdown function and next app details in the root
+    root.current_app_exit_func = lambda: [app.shutdown(), shutdown_callback()]
+
+    # Call load_images after setting up the root window
+    app.load_images()
+
+

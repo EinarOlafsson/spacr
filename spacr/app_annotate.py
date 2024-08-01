@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from .gui import MainApp
-from .gui_elements import set_dark_style
+from .gui_elements import set_dark_style, spacrButton
 
 def initiate_annotation_app(parent_frame):
     from .gui_utils import generate_annotate_fields, annotate_app
@@ -20,8 +20,6 @@ def initiate_annotation_app(parent_frame):
         settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
         settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
         settings['normalize'] = settings['normalize'].lower() == 'true'
-        settings['rows'] = int(settings['rows'])
-        settings['columns'] = int(settings['columns'])
 
         try:
             settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
@@ -40,9 +38,10 @@ def initiate_annotation_app(parent_frame):
                 settings[key] = None
 
         settings_window.destroy()
+
         annotate_app(parent_frame, settings)
     
-    start_button = tk.Button(settings_window, text="Start Annotation", command=start_annotation_app, bg=style_out['bg_color'], fg=style_out['bg_color'])
+    start_button = spacrButton(settings_window, text="annotate", command=start_annotation_app, show_text=False)
     start_button.pack(pady=10)
 
 def start_annotate_app():
