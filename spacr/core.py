@@ -1788,16 +1788,13 @@ def preprocess_generate_masks(src, settings={}):
 def identify_masks_finetune(settings):
     
     from .plot import print_mask_and_flows
-    from .utils import get_files_from_dir, resize_images_and_labels
+    from .utils import get_files_from_dir, resize_images_and_labels, print_progress
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
     from .settings import get_identify_masks_finetune_default_settings
 
     settings = get_identify_masks_finetune_default_settings(settings)
-
-    #User defined settings
     src=settings['src']
     dst=settings['dst']
-
     model_name=settings['model_name']
     custom_model=settings['custom_model']
     channels = settings['channels']
@@ -1903,8 +1900,11 @@ def identify_masks_finetune(settings):
             stop = time.time()
             duration = (stop - start)
             time_ls.append(duration)
-            average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-            print(f'Processing {file_index+1}/{len(images)} images : Time/image {average_time:.3f} sec', end='\r', flush=True)
+            files_processed = len(images)
+            files_to_process = file_index+1            
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls)
+            
+            
             if verbose:
                 if resize:
                     stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)
@@ -2141,7 +2141,7 @@ def prepare_batch_for_cellpose(batch):
 
 def generate_cellpose_masks(src, settings, object_type):
     
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_cellpose_channels, _choose_model, mask_object_count
+    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_cellpose_channels, _choose_model, mask_object_count, print_progress
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_masks
@@ -2382,10 +2382,15 @@ def generate_cellpose_masks(src, settings, object_type):
         stop = time.time()
         duration = (stop - start)
         time_ls.append(duration)
-        average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-        time_in_min = average_time/60
-        time_per_mask = average_time/batch_size
-        print(f'Processing {len(paths)}  files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
+        #average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+        #time_in_min = average_time/60
+        #time_per_mask = average_time/batch_size
+        #print(f'Processing {len(paths)} files with {batch_size} imgs: {(file_index+1)*(batch_size+1)}/{(len(paths))*(batch_size+1)}: Time/batch {time_in_min:.3f} min: Time/mask {time_per_mask:.3f}sec: {object_type} size: {overall_average_size:.3f} px2')
+        files_processed = (file_index+1)*(batch_size+1)
+        files_to_process = (len(paths))*(batch_size+1)
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f'{object_type}_mask_gen')
+        print(f'object_size:{object_type}): {overall_average_size:.3f} px2')
+        
         if not timelapse:
             if settings['plot']:
                 plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap='inferno', nr=batch_size)
