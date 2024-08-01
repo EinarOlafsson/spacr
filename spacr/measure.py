@@ -935,7 +935,7 @@ def measure_crop(settings):
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif, _scmovie
     from .plot import _save_scimg_plot
-    from .utils import _list_endpoint_subdirectories, _generate_representative_images, measure_test_mode
+    from .utils import _list_endpoint_subdirectories, _generate_representative_images, measure_test_mode, print_progress
     from .settings import get_measure_crop_settings
 
     settings = get_measure_crop_settings(settings)
@@ -996,24 +996,20 @@ def measure_crop(settings):
         return
     
     _save_settings_to_db(settings)
-
     files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
     n_jobs = settings['n_jobs'] or mp.cpu_count()-4
     print(f'using {n_jobs} cpu cores')
-
     with mp.Manager() as manager:
         time_ls = manager.list()
         with mp.Pool(n_jobs) as pool:
             result = pool.starmap_async(_measure_crop_core, [(index, time_ls, file, settings) for index, file in enumerate(files)])
 
             # Track progress in the main process
-            while not result.ready():  # Run the loop until all tasks have finished
-                time.sleep(1)  # Wait for a short amount of time to avoid excessive printing
+            while not result.ready():
+                time.sleep(1)
                 files_processed = len(time_ls)
                 files_to_process = len(files)
-                average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-                time_left = (((files_to_process-files_processed)*average_time)/n_jobs)/60
-                print(f'Progress: {files_processed}/{files_to_process} Time/img {average_time:.3f}sec, Time Remaining {time_left:.3f} min.', end='\r', flush=True)
+                print_progress(files_processed, files_to_process, n_jobs, time_ls=None)
             result.get()
 
     if settings['representative_images']:
@@ -1114,3 +1110,5 @@ def get_object_counts(src):
     # Close the database connection
     conn.close()
     return grouped_df
+
+

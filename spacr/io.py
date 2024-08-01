@@ -583,7 +583,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
         None
     """
     
-    from .utils import _extract_filename_metadata
+    from .utils import _extract_filename_metadata, print_progress
     
     regular_expression = re.compile(regex)
     images_by_key = defaultdict(list)
@@ -591,10 +591,15 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
     if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
         all_filenames = [filename for filename in os.listdir(src) if filename.endswith(img_format)]
         print(f'All_files:{len(all_filenames)} in {src}')
+        time_ls = []
+        processed = 0
         for i in range(0, len(all_filenames), batch_size):
+            start = time.time()
             batch_filenames = all_filenames[i:i+batch_size]
+            processed += len(batch_filenames)
             for filename in batch_filenames:
                 images_by_key = _extract_filename_metadata(batch_filenames, src, images_by_key, regular_expression, metadata_type, pick_slice, skip_mode)
+
             if pick_slice:
                 for key in images_by_key:
                     plate, well, field, channel, mode = key
@@ -624,6 +629,12 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     else:
                         mip_image.save(output_path)
 
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = processed
+            files_to_process = len(all_filenames)
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing')
             images_by_key.clear()
 
         # Move original images to a new directory
