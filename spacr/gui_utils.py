@@ -3,19 +3,12 @@ import tkinter as tk
 from tkinter import ttk
 
 from . gui_core import initiate_root
-from .gui_elements import spacrLabel, spacrCheckbutton, AnnotateApp
+from .gui_elements import spacrLabel, spacrCheckbutton, AnnotateApp, spacrEntry, spacrCheck, spacrCombo, set_default_font
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
-
-def set_default_font(root, font_name="Helvetica", size=12):
-    default_font = (font_name, size)
-    root.option_add("*Font", default_font)
-    root.option_add("*TButton.Font", default_font)
-    root.option_add("*TLabel.Font", default_font)
-    root.option_add("*TEntry.Font", default_font)
 
 def proceed_with_app_v1(root, app_name, app_func):
     from .gui import gui_app
@@ -98,6 +91,7 @@ def parse_list(value):
     except (ValueError, SyntaxError) as e:
         raise ValueError(f"Invalid format for list: {value}. Error: {e}")
     
+# Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     label_column = 0
     widget_column = 1
@@ -107,22 +101,22 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     frame.grid_columnconfigure(widget_column, weight=1)  # Allow the widget column to expand
 
     # Right-align the label text and the label itself
-    label = spacrLabel(frame, text=label_text, background="black", foreground="white", anchor='e', justify='right')
+    label = ttk.Label(frame, text=label_text, background="black", foreground="white", anchor='e', justify='right')
     label.grid(column=label_column, row=row, sticky=tk.E, padx=(5, 2), pady=5)  # Align label to the right
 
     if var_type == 'entry':
         var = tk.StringVar(value=default_value)  # Set default value
-        entry = ttk.Entry(frame, textvariable=var, style='TEntry')  # Apply TEntry style for entries
+        entry = spacrEntry(frame, textvariable=var, outline=False)
         entry.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         return (label, entry, var)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
         var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
-        check = spacrCheckbutton(frame, text="", variable=var, style='TCheckbutton')
+        check = spacrCheck(frame, text="", variable=var)
         check.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         return (label, check, var)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
         var = tk.StringVar(value=default_value)  # Set default value
-        combo = ttk.Combobox(frame, textvariable=var, values=options, style='TCombobox')  # Apply TCombobox style
+        combo = spacrCombo(frame, textvariable=var, values=options)  # Apply TCombobox style
         combo.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         if default_value:
             combo.set(default_value)
@@ -158,32 +152,32 @@ def cancel_after_tasks(frame):
             frame.after_cancel(task)
         frame.after_tasks.clear()
 
-def main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label):
+def main_thread_update_function(root, q, fig_queue, canvas_widget):
     try:
-        ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        #ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
         while not q.empty():
             message = q.get_nowait()
-            clean_message = ansi_escape_pattern.sub('', message)
-            if clean_message.startswith("Progress"):
-                progress_label.config(text=clean_message)
-            if clean_message.startswith("\rProgress"):
-                progress_label.config(text=clean_message)
-            elif clean_message.startswith("Successfully"):
-                progress_label.config(text=clean_message)
-            elif clean_message.startswith("Processing"):
-                progress_label.config(text=clean_message)
-            elif clean_message.startswith("scale"):
-                pass
-            elif clean_message.startswith("plot_cropped_arrays"):
-                pass
-            elif clean_message == "" or clean_message == "\r" or clean_message.strip() == "":
-                pass
-            else:
-                print(clean_message)
+            #clean_message = ansi_escape_pattern.sub('', message)
+            #if clean_message.startswith("Progress"):
+            #    progress_label.config(text=clean_message)
+            #if clean_message.startswith("\rProgress"):
+            #    progress_label.config(text=clean_message)
+            #elif clean_message.startswith("Successfully"):
+            #    progress_label.config(text=clean_message)
+            #elif clean_message.startswith("Processing"):
+            #    progress_label.config(text=clean_message)
+            #elif clean_message.startswith("scale"):
+            #    pass
+            #elif clean_message.startswith("plot_cropped_arrays"):
+            #    pass
+            #elif clean_message == "" or clean_message == "\r" or clean_message.strip() == "":
+            #    pass
+            #else:
+            #    print(clean_message)
     except Exception as e:
         print(f"Error updating GUI canvas: {e}")
     finally:
-        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget, progress_label))
+        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget))
 
 def annotate(settings):
     from .settings import set_annotate_default_settings
