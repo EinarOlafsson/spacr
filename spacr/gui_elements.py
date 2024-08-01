@@ -1591,14 +1591,14 @@ class AnnotateApp:
         self.db_path = db_path
         self.src = src
         self.index = 0
-        
+
         if isinstance(image_size, list):
             self.image_size = (int(image_size[0]), int(image_size[0]))
         elif isinstance(image_size, int):
             self.image_size = (image_size, image_size)
         else:
             raise ValueError("Invalid image size")
-        
+
         self.annotation_column = annotation_column
         self.image_type = image_type
         self.channels = channels
@@ -1612,8 +1612,6 @@ class AnnotateApp:
         self.update_queue = Queue()
         self.measurement = measurement
         self.threshold = threshold
-
-        print('self.image_size', self.image_size)
 
         style_out = set_dark_style(ttk.Style())
         self.root.configure(bg=style_out['inactive_color'])
@@ -1662,8 +1660,10 @@ class AnnotateApp:
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
 
-        self.grid_frame.grid_rowconfigure(0, weight=1)
-        self.grid_frame.grid_columnconfigure(0, weight=1)
+        for row in range(self.grid_rows):
+            self.grid_frame.grid_rowconfigure(row, weight=1)
+        for col in range(self.grid_cols):
+            self.grid_frame.grid_columnconfigure(col, weight=1)
 
     def calculate_grid_dimensions(self):
         window_width = self.root.winfo_width()
