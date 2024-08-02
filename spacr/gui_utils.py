@@ -349,4 +349,14 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     # Call load_images after setting up the root window
     app.load_images()
 
+def set_element_size(widget):
+    screen_width = widget.winfo_screenwidth()
+    screen_height = widget.winfo_screenheight()
+    btn_size = screen_width/50
+    bar_size = screen_width/75
+
+    size_dict = {'btn_size':btn_size,
+                 'bar_size':bar_size}
+    return size_dict
+
 

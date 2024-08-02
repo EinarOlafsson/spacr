@@ -1,4 +1,4 @@
-import os, threading, time, sqlite3
+import os, threading, time, sqlite3, webbrowser
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -47,28 +47,10 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
     style.configure('TEntry', padding=padding)
     style.configure('Spacr.TEntry', padding=padding)
     style.configure('Custom.TLabel', padding=padding)
-    #style.configure('Spacr.TCheckbutton', padding=padding)
     style.configure('TButton', padding=padding)
-
     style.configure('TFrame', background=bg_color)
     style.configure('TPanedwindow', background=bg_color)
     style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_style)
-
-
-    #style.configure('Custom.TLabel', padding='5 5 5 5', borderwidth=1, relief='flat', background=bg_color, foreground=fg_color, font=font_style)
-    #style.configure('Spacr.TCheckbutton', background=bg_color, foreground=fg_color, indicatoron=False, relief='flat', font="15")
-    #style.map('Spacr.TCheckbutton', background=[('selected', bg_color), ('active', bg_color)], foreground=[('selected', fg_color), ('active', fg_color)])
-    
-
-    #style.configure('TNotebook', background=bg_color, tabmargins=[2, 5, 2, 0])
-    #style.configure('TNotebook.Tab', background=bg_color, foreground=fg_color, padding=[5, 5], font=font_style)
-    #style.map('TNotebook.Tab', background=[('selected', active_color), ('active', active_color)], foreground=[('selected', fg_color), ('active', fg_color)])
-    #style.configure('TButton', background=bg_color, foreground=fg_color, padding='5 5 5 5', font=font_style)
-    #style.map('TButton', background=[('active', active_color), ('disabled', inactive_color)])
-    #style.configure('Vertical.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
-    #style.configure('Horizontal.TScrollbar', background=bg_color, troughcolor=bg_color, bordercolor=bg_color)
-    #style.configure('Custom.TLabelFrame', font=(font_family, font_size, 'bold'), background=bg_color, foreground='white', relief='solid', borderwidth=1)
-    #style.configure('Custom.TLabelFrame.Label', background=bg_color, foreground='white', font=(font_family, font_size, 'bold'))
 
     if parent_frame:
         parent_frame.configure(bg=bg_color)
@@ -363,12 +345,12 @@ class spacrCheckbutton(ttk.Checkbutton):
         _ = set_dark_style(style, widgets=[self])
 
 class spacrProgressBar(ttk.Progressbar):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, label=True, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         # Get the style colors
         style_out = set_dark_style(ttk.Style())
-       
+
         self.fg_color = style_out['fg_color']
         self.bg_color = style_out['bg_color']
         self.active_color = style_out['active_color']
@@ -389,28 +371,33 @@ class spacrProgressBar(ttk.Progressbar):
         # Set initial value to 0
         self['value'] = 0
 
-        # Create the progress label
-        self.progress_label = tk.Label(parent, text="Processing: 0/0", anchor='w', justify='left', bg=self.inactive_color, fg=self.fg_color)
-        self.progress_label.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
+        # Track whether to show the progress label
+        self.label = label
 
-        # Initialize attributes for time and operation
-        self.operation_type = None
-        self.time_image = None
-        self.time_batch = None
-        self.time_left = None
+        if self.label:
+            # Create the progress label
+            self.progress_label = tk.Label(parent, text="Processing: 0/0", anchor='w', justify='left', bg=self.inactive_color, fg=self.fg_color)
+            self.progress_label.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
+
+            # Initialize attributes for time and operation
+            self.operation_type = None
+            self.time_image = None
+            self.time_batch = None
+            self.time_left = None
 
     def update_label(self):
-        # Update the progress label with current progress and additional info
-        label_text = f"Processing: {self['value']}/{self['maximum']}"
-        if self.operation_type:
-            label_text += f", {self.operation_type}"
-        if self.time_image:
-            label_text += f", Time/image: {self.time_image:.3f} sec"
-        if self.time_batch:
-            label_text += f", Time/batch: {self.time_batch:.3f} sec"
-        if self.time_left:
-            label_text += f", Time_left: {self.time_left:.3f} min"
-        self.progress_label.config(text=label_text)
+        if self.label:
+            # Update the progress label with current progress and additional info
+            label_text = f"Processing: {self['value']}/{self['maximum']}"
+            if self.operation_type:
+                label_text += f", {self.operation_type}"
+            if self.time_image:
+                label_text += f", Time/image: {self.time_image:.3f} sec"
+            if self.time_batch:
+                label_text += f", Time/batch: {self.time_batch:.3f} sec"
+            if self.time_left:
+                label_text += f", Time_left: {self.time_left:.3f} min"
+            self.progress_label.config(text=label_text)
 
 class spacrFrame(ttk.Frame):
     def __init__(self, container, width=None, *args, bg='black', **kwargs):
@@ -1990,6 +1977,7 @@ def create_menu_bar(root):
 
     # Add a separator and an exit option
     app_menu.add_separator()
+    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://readthedocs.org/projects/spacr/badge/?version=latest"))
     app_menu.add_command(label="Exit", command=root.quit)
 
     # Configure the menu for the root window
