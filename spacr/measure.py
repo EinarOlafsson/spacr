@@ -941,14 +941,11 @@ def measure_crop(settings):
     settings = get_measure_crop_settings(settings)
     settings = measure_test_mode(settings)
 
-    #src_fldr = settings['src']
-    #if not os.path.basename(src_fldr).endswith('merged'):
-    #    settings['src'] = os.path.join(src_fldr, 'merged')
-    #    print(f"changed src to {src_fldr}")
-
-    #if not os.path.exists(settings['src']):
-    #    print(f'src: {settings["src"]} does not exist')
-    #    return
+    src_fldr = settings['src']
+    if not os.path.basename(src_fldr).endswith('merged'):
+        print(f"WARNING: Source folder, settings: src: {src_fldr} should end with 'merged'")
+        src_fldr = os.path.join(src_fldr, 'merged')
+        print(f"Changed source folder to: {src_fldr}")
     
     if settings['cell_mask_dim'] is None:
         settings['include_uninfected'] = True
@@ -1009,7 +1006,7 @@ def measure_crop(settings):
                 time.sleep(1)
                 files_processed = len(time_ls)
                 files_to_process = len(files)
-                print_progress(files_processed, files_to_process, n_jobs, time_ls=None)
+                print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
             result.get()
 
     if settings['representative_images']:
