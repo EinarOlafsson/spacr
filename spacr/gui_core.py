@@ -11,6 +11,13 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from huggingface_hub import list_repo_files
 import numpy as np
+
+import psutil, gpustat
+import GPUtil
+from threading import Thread
+from time import sleep
+
+
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
@@ -470,13 +477,12 @@ def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
 
     raise Exception("Failed to download files after multiple attempts.")
 
-def setup_button_section(horizontal_container, settings_type='mask', window_dimensions=[500, 1000], run=True, abort=True, download=True, import_btn=True):
+
+
+def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
     global button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
-    from .settings import descriptions
-
-    width = (window_dimensions[0]) // 8
-    height = window_dimensions[1]
-
+    from .gui_utils import set_element_size
+    size_dict = set_element_size(horizontal_container)
     button_frame = tk.Frame(horizontal_container)
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
     button_frame.grid_rowconfigure(0, weight=0)
@@ -495,25 +501,25 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
 
     if run:
         print(f'settings_type: {settings_type}')
-        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="run", command=lambda: start_process(q, fig_queue, settings_type))
+        run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="run", command=lambda: start_process(q, fig_queue, settings_type), show_text=False, size=size_dict['btn_size'])
         run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(run_button)
         btn_row += 1
 
     if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap']:
-        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="abort", command=initiate_abort)
+        abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="abort", command=initiate_abort, show_text=False, size=size_dict['btn_size'])
         abort_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(abort_button)
         btn_row += 1
 
     if download and settings_type in ['mask']:
-        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="download", command=download_hug_dataset)
+        download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="download", command=download_hug_dataset, show_text=False, size=size_dict['btn_size'])
         download_dataset_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(download_dataset_button)
         btn_row += 1
 
     if import_btn:
-        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="settings", command=lambda: import_settings(settings_type))
+        import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="settings", command=lambda: import_settings(settings_type),show_text=False, size=size_dict['btn_size'])
         import_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(import_button)
         btn_row += 1
@@ -526,30 +532,44 @@ def setup_button_section(horizontal_container, settings_type='mask', window_dime
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
 
-    description_frame = tk.Frame(horizontal_container)
-    horizontal_container.add(description_frame, stretch="always", sticky="nsew")
-    description_frame.grid_columnconfigure(0, weight=1)
-    description_frame.grid_rowconfigure(0, weight=1)  # Add this line to make the row expandable
-
-    description_label = tk.Label(description_frame, text="Module Description", anchor='nw', justify='left', wraplength=width - 50)
-    description_label.grid(row=0, column=0, pady=50, padx=20, sticky='nsew')
-    description_text = descriptions.get(settings_type, "No description available for this module.")
-    description_label.config(text=description_text)
-
-    def update_wraplength(event):
-        new_width = event.width - 40  # Adjust as needed
-        description_label.config(wraplength=new_width)
-
-    description_label.bind('<Configure>', update_wraplength)
-
-    containers = [button_frame, description_frame]
-    widgets.extend([description_label])
-
     style = ttk.Style(horizontal_container)
-    _ = set_dark_style(style, containers=containers, widgets=widgets)
+    _ = set_dark_style(style, containers=[button_frame], widgets=widgets)
 
     return button_scrollable_frame
 
+def setup_help_section(horizontal_container, settings_type='mask'):
+    from .settings import descriptions
+
+    description_frame = tk.Frame(horizontal_container)
+    horizontal_container.add(description_frame, stretch="always", sticky="nsew")
+    description_frame.grid_columnconfigure(0, weight=1)
+    description_frame.grid_rowconfigure(1, weight=1)  # Ensure the text widget row is expandable
+
+    description_label = spacrLabel(description_frame, text=f"{settings_type} Module", anchor='center', justify='center', align="center")
+    description_label.grid(row=0, column=0, pady=10, padx=10, sticky='ew')
+
+    # Set background color directly
+    style_out = set_dark_style(ttk.Style())
+    bg_color = style_out['bg_color']
+    fg_color = style_out['fg_color']
+
+    description_text_widget = tk.Text(description_frame, wrap="word", bg=bg_color, fg=fg_color)
+    description_text_widget.grid(row=1, column=0, sticky="nsew")
+
+    description_text = descriptions.get(settings_type, "No description available for this module.")
+    description_text_widget.insert("1.0", description_text)
+    description_text_widget.config(state="disabled")  # Make the text widget read-only
+
+    def update_wraplength(event):
+        new_width = event.width - 20  # Adjust as needed
+        description_text_widget.config(width=new_width)
+
+    description_text_widget.bind('<Configure>', update_wraplength)
+
+    style = ttk.Style(horizontal_container)
+    _ = set_dark_style(style, containers=[description_frame], widgets=[description_label, description_text_widget])
+
+    return description_frame
 
 def hide_all_settings(vars_dict, categories):
     """
@@ -707,8 +727,8 @@ def process_console_queue():
     after_id = console_output.after(100, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
-def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var):
-    global q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar
+def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
+    global q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
     q = q_var
     console_output = console_output_var
     parent_frame = parent_frame_var
@@ -718,6 +738,7 @@ def set_globals(q_var, console_output_var, parent_frame_var, vars_dict_var, canv
     scrollable_frame = scrollable_frame_var
     fig_queue = fig_queue_var
     progress_bar = progress_bar_var
+    usage_bars = usage_bars_var
 
 def create_containers(parent_frame):
     vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
@@ -743,6 +764,165 @@ def setup_frame(parent_frame):
     horizontal_container.add(settings_frame, stretch="always", sticky="nsew")
     
     return parent_frame, vertical_container, horizontal_container
+
+def setup_usage_panel(horizontal_container):
+    global usage_bars
+    from .gui_utils import set_element_size
+
+    def update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame):
+        # Update RAM usage
+        ram_usage = psutil.virtual_memory().percent
+        ram_bar['value'] = ram_usage
+
+        # Update GPU and VRAM usage
+        gpus = GPUtil.getGPUs()
+        if gpus:
+            gpu = gpus[0]
+            vram_usage = gpu.memoryUtil * 100
+            gpu_usage = gpu.load * 100
+            vram_bar['value'] = vram_usage
+            gpu_bar['value'] = gpu_usage
+
+        # Update CPU usage for each core
+        cpu_percentages = psutil.cpu_percent(percpu=True)
+        for bar, usage in zip(usage_bars[3:], cpu_percentages):
+            bar['value'] = usage
+
+        # Schedule the function to run again after 1000 ms (1 second)
+        parent_frame.after(1000, update_usage, ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame)
+
+    size_dict = set_element_size(horizontal_container)
+    print(size_dict)
+
+    usage_frame = tk.Frame(horizontal_container)
+    horizontal_container.add(usage_frame, stretch="always", sticky="nsew")
+    usage_frame.grid_rowconfigure(0, weight=0)
+    usage_frame.grid_rowconfigure(1, weight=1)
+    usage_frame.grid_columnconfigure(0, weight=1)
+    usage_frame.grid_columnconfigure(1, weight=1)
+
+    usage_label = spacrLabel(usage_frame, text="Hardware Stats", anchor='center', justify='center', align="center")
+    usage_label.grid(row=0, column=0, pady=10, padx=10, columnspan=2)
+    
+    usage_scrollable_frame = spacrFrame(usage_frame)
+    usage_scrollable_frame.grid(row=1, column=0, sticky="nsew", columnspan=2)
+    widgets = [usage_label, usage_scrollable_frame.scrollable_frame]
+    usage_bars = []
+    max_elements_per_column = 12
+    row = 0
+    col = 0
+
+    # Initialize RAM, VRAM, and GPU bars as None
+    ram_bar, vram_bar, gpu_bar = None, None, None
+
+    # Try adding RAM bar
+    try:
+        ram_info = psutil.virtual_memory()
+        ram_label_text = f"RAM"
+        label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=ram_label_text, anchor='w')
+        label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
+        ram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+        ram_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
+        widgets.append(label)
+        widgets.append(ram_bar)
+        usage_bars.append(ram_bar)
+        row += 1
+    except Exception as e:
+        print(f"Could not add RAM usage bar: {e}")
+
+    # Try adding VRAM and GPU usage bars
+    try:
+        gpus = GPUtil.getGPUs()
+        if gpus:
+            gpu = gpus[0]
+            vram_label_text = f"VRAM"
+            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=vram_label_text, anchor='w')
+            label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
+            vram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+            vram_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
+            widgets.append(label)
+            widgets.append(vram_bar)
+            usage_bars.append(vram_bar)
+            row += 1
+
+            gpu_label_text = f"GPU"
+            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=gpu_label_text, anchor='w')
+            label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
+            gpu_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+            gpu_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
+            widgets.append(label)
+            widgets.append(gpu_bar)
+            usage_bars.append(gpu_bar)
+            row += 1
+    except Exception as e:
+        print(f"Could not add VRAM or GPU usage bars: {e}")
+
+    # Add CPU core usage bars
+    try:
+        cpu_cores = psutil.cpu_count(logical=True)
+        cpu_freq = psutil.cpu_freq()
+        
+        for core in range(cpu_cores):
+            if row > 0 and row % max_elements_per_column == 0:
+                col += 1
+                row = 0
+            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=f"Core {core+1}", anchor='w')
+            label.grid(row=row, column=2 * col, pady=2, padx=5, sticky='w')
+            bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+            bar.grid(row=row, column=2 * col + 1, pady=2, padx=5, sticky='ew')
+            widgets.append(label)
+            widgets.append(bar)
+            usage_bars.append(bar)
+            row += 1
+    except Exception as e:
+        print(f"Could not add CPU core usage bars: {e}")
+
+    # Adding the text box for hardware information
+    #hardware_frame = tk.Frame(horizontal_container)
+    #horizontal_container.add(hardware_frame, stretch="always", sticky="nsew")
+    #hardware_frame.grid_columnconfigure(0, weight=1)
+
+    #hardware_info = tk.Text(hardware_frame, height=1, wrap='none', bg='black', fg='white', bd=0)
+    #hardware_info.grid(row=0, column=0, pady=10, padx=5, sticky='ew')
+
+    #hardware_text = ""
+    #try:
+    #    ram_info = psutil.virtual_memory()
+    #    hardware_text += f"RAM: {ram_info.total / (1024 ** 3):.1f} GB  "
+    #except Exception as e:
+    #    hardware_text += f"RAM: Could not retrieve ({e})  "
+
+    #try:
+    #    gpus = GPUtil.getGPUs()
+    #    if gpus:
+    #        gpu = gpus[0]
+    #        hardware_text += f"VRAM: {gpu.memoryTotal / 1024:.1f} GB  "
+    #        hardware_text += f"GPU: {gpu.name}  "
+    #except Exception as e:
+    #    hardware_text += f"VRAM and GPU: Could not retrieve ({e})  "
+
+    #try:
+    #    if cpu_freq:
+    #        hardware_text += f"CPU Max Clock Speed: {cpu_freq.max / 1000:.0f} GHz"
+    #except Exception as e:
+    #    hardware_text += f"CPU Max Clock Speed: Could not retrieve ({e})"
+
+    #hardware_info.insert(tk.END, hardware_text)
+    #hardware_info.configure(state='disabled')
+    #widgets.append(hardware_info)
+
+    style = ttk.Style(horizontal_container)
+    _ = set_dark_style(style, containers=[usage_frame], widgets=widgets) # hardware_frame
+
+    if ram_bar is None:
+        ram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+    if vram_bar is None:
+        vram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+    if gpu_bar is None:
+        gpu_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+
+    update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, usage_frame)
+    return usage_scrollable_frame, usage_bars
 
 def initiate_root(parent, settings_type='mask'):
     global q, fig_queue, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar
@@ -780,11 +960,15 @@ def initiate_root(parent, settings_type='mask'):
         initiate_make_mask_app(horizontal_container)
     else:
         scrollable_frame, vars_dict = setup_settings_panel(horizontal_container, settings_type, window_dimensions=dims)
-        button_scrollable_frame = setup_button_section(horizontal_container, settings_type, window_dimensions=dims)
+        button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
+
+        _, usage_bars = setup_usage_panel(horizontal_container)
+        _ = setup_help_section(horizontal_container, settings_type)
+
         canvas, canvas_widget = setup_plot_section(vertical_container)
         console_output = setup_console(vertical_container)
 
-        set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar)
+        set_globals(q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
         process_console_queue()
         process_fig_queue()
         after_id = parent_frame.after(100, lambda: main_thread_update_function(parent_frame, q, fig_queue, canvas_widget))

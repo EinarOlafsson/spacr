@@ -45,6 +45,9 @@ dependencies = [
     'customtkinter>=5.2.2,<6.0', 
     'biopython>=1.80,<2.0',
     'lxml>=5.1.0,<6.0',
+    'psutil>=5.9.8, <6.0',
+    'gputil>=1.4.0, <2.0', 
+    'gpustat>=1.1.1,<2.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
