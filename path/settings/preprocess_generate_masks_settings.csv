@@ -9,7 +9,7 @@ test_images,10
 magnification,20
 custom_regex,
 metadata_type,cellvoyager
-workers,28
+n_jobs,4
 randomize,True
 verbose,True
 remove_background_cell,False
@@ -55,3 +55,13 @@ skip_mode,01
 upscale,False
 upscale_factor,2.0
 adjust_cells,False
+General,
+Nucleus,
+Cell,
+Pathogen,
+Timelapse,
+Plot,
+Object Image,
+Advanced,
+Miscellaneous,
+Test,

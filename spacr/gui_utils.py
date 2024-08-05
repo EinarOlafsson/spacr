@@ -1,48 +1,19 @@
-import os, io, sys, ast, ctypes, re, ast, sqlite3
+import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback
+import traceback
 import tkinter as tk
 from tkinter import ttk
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('Agg')
+from huggingface_hub import list_repo_files
 
 from . gui_core import initiate_root
-from .gui_elements import spacrLabel, spacrCheckbutton, AnnotateApp, spacrEntry, spacrCheck, spacrCombo, set_default_font
+from .gui_elements import AnnotateApp, spacrEntry, spacrCheck, spacrCombo, set_default_font
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
-
-def proceed_with_app_v1(root, app_name, app_func):
-    from .gui import gui_app
-
-    # Clear the current content frame
-    if hasattr(root, 'content_frame'):
-        for widget in root.content_frame.winfo_children():
-            try:
-                widget.destroy()
-            except tk.TclError as e:
-                print(f"Error destroying widget: {e}")
-    else:
-        root.content_frame = tk.Frame(root)
-        root.content_frame.grid(row=1, column=0, sticky="nsew")
-        root.grid_rowconfigure(1, weight=1)
-        root.grid_columnconfigure(0, weight=1)
-
-    # Initialize the new app in the content frame
-    if app_name == "Mask":
-        initiate_root(root.content_frame, 'mask')
-    elif app_name == "Measure":
-        initiate_root(root.content_frame, 'measure')
-    elif app_name == "Classify":
-        initiate_root(root.content_frame, 'classify')
-    elif app_name == "Sequencing":
-        initiate_root(root.content_frame, 'sequencing')
-    elif app_name == "Umap":
-        initiate_root(root.content_frame, 'umap')
-    elif app_name == "Annotate":
-        initiate_root(root.content_frame, 'annotate')
-    elif app_name == "Make Masks":
-        initiate_root(root.content_frame, 'make_masks')
-    else:
-        raise ValueError(f"Invalid app name: {app_name}")
     
 def proceed_with_app(root, app_name, app_func):
     # Clear the current content frame
@@ -93,19 +64,25 @@ def parse_list(value):
     
 # Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
+    from .gui_elements import set_dark_style
     label_column = 0
     widget_column = 1
+
+    style_out = set_dark_style(ttk.Style())
+
+    # Replace underscores with spaces and capitalize the first letter
+    label_text = label_text.replace('_', ' ').capitalize()
 
     # Configure the column widths
     frame.grid_columnconfigure(label_column, weight=0)  # Allow the label column to expand
     frame.grid_columnconfigure(widget_column, weight=1)  # Allow the widget column to expand
 
-    # Right-align the label text and the label itself
-    label = ttk.Label(frame, text=label_text, background="black", foreground="white", anchor='e', justify='right')
-    label.grid(column=label_column, row=row, sticky=tk.E, padx=(5, 2), pady=5)  # Align label to the right
+    # Create and configure the label
+    label = ttk.Label(frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=(style_out['font_family'], style_out['font_size']), anchor='e', justify='right')
+    label.grid(column=label_column, row=row, sticky=tk.E, padx=(5, 2), pady=5)
 
     if var_type == 'entry':
-        var = tk.StringVar(value=default_value)  # Set default value
+        var = tk.StringVar(value=default_value)
         entry = spacrEntry(frame, textvariable=var, outline=False)
         entry.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
         return (label, entry, var)  # Return both the label and the entry, and the variable
@@ -352,11 +329,311 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
 def set_element_size(widget):
     screen_width = widget.winfo_screenwidth()
     screen_height = widget.winfo_screenheight()
-    btn_size = screen_width/50
-    bar_size = screen_width/75
+    btn_size = screen_width/30
+    bar_size = screen_width/50
 
     size_dict = {'btn_size':btn_size,
                  'bar_size':bar_size}
     return size_dict
 
+def convert_settings_dict_for_gui(settings):
+    from torchvision import models as torch_models
+    torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
+    chans = ['0', '1', '2', '3', '4', '5', '6', '7', '8', None]
+    chans_v2 = [0, 1, 2, 3, None]
+    variables = {}
+    special_cases = {
+        'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
+        'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'cell_mask_dim': ('combo', chans, None),
+        'cell_chann_dim': ('combo', chans, None),
+        'nucleus_mask_dim': ('combo', chans, None),
+        'nucleus_chann_dim': ('combo', chans, None),
+        'pathogen_mask_dim': ('combo', chans, None),
+        'pathogen_chann_dim': ('combo', chans, None),
+        'crop_mode': ('combo', ['cell', 'nucleus', 'pathogen', '[cell, nucleus, pathogen]', '[cell,nucleus, pathogen]'], ['cell']),
+        'magnification': ('combo', [20, 40, 60], 20),
+        'nucleus_channel': ('combo', chans_v2, None),
+        'cell_channel': ('combo', chans_v2, None),
+        'channel_of_interest': ('combo', chans_v2, None),
+        'pathogen_channel': ('combo', chans_v2, None),
+        'timelapse_mode': ('combo', ['trackpy', 'btrack'], 'trackpy'),
+        'train_mode': ('combo', ['erm', 'irm'], 'erm'),
+        'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
+        'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
+        'model_name': ('combo', ['cyto', 'cyto_2', 'cyto_3', 'nuclei'], 'cyto'),
+        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
+        'timelapse_objects': ('combo', ['cell', 'nucleus', 'pathogen', 'cytoplasm', None], None),
+        'model_type': ('combo', torchvision_models, 'resnet50'),
+        'optimizer_type': ('combo', ['adamw', 'adam'], 'adamw'),
+        'schedule': ('combo', ['reduce_lr_on_plateau', 'step_lr'], 'reduce_lr_on_plateau'),
+        'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),
+        'normalize_by': ('combo', ['fov', 'png'], 'png'),
+        'agg_type': ('combo', ['mean', 'median'], 'mean'),
+        'grouping': ('combo', ['mean', 'median'], 'mean'),
+        'min_max': ('combo', ['allq', 'all'], 'allq'),
+        'transform': ('combo', ['log', 'sqrt', 'square', None], None)
+    }
 
+    for key, value in settings.items():
+        if key in special_cases:
+            variables[key] = special_cases[key]
+        elif isinstance(value, bool):
+            variables[key] = ('check', None, value)
+        elif isinstance(value, int) or isinstance(value, float):
+            variables[key] = ('entry', None, value)
+        elif isinstance(value, str):
+            variables[key] = ('entry', None, value)
+        elif value is None:
+            variables[key] = ('entry', None, value)
+        elif isinstance(value, list):
+            variables[key] = ('entry', None, str(value))
+        else:
+            variables[key] = ('entry', None, str(value))
+    return variables
+
+def spacrFigShow(fig_queue=None):
+    """
+    Replacement for plt.show() that queues figures instead of displaying them.
+    """
+    fig = plt.gcf()
+    if fig_queue:
+        fig_queue.put(fig)
+    else:
+        fig.show()
+    plt.close(fig)
+
+def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imports=1):
+
+    """
+    Wraps the run_multiple_simulations function to integrate with GUI processes.
+    
+    Parameters:
+    - settings: dict, The settings for the run_multiple_simulations function.
+    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
+    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    """
+
+    # Temporarily override plt.show
+    original_show = plt.show
+    plt.show = lambda: spacrFigShow(fig_queue)
+
+    try:
+        if imports == 1:
+            function(settings=settings)
+        elif imports == 2:
+            function(src=settings['src'], settings=settings)
+    except Exception as e:
+        # Send the error message to the GUI via the queue
+        errorMessage = f"Error during processing: {e}"
+        q.put(errorMessage) 
+        traceback.print_exc()
+    finally:
+        # Restore the original plt.show function
+        plt.show = original_show
+
+def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
+    from .gui_utils import process_stdout_stderr
+    from .core import preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, compare_cellpose_masks, analyze_plaques, generate_dataset, apply_model_to_tar
+    from .io import generate_cellpose_train_test
+    from .measure import measure_crop
+    from .sim import run_multiple_simulations
+    from .deep_spacr import train_test_model
+    from .sequencing import analyze_reads, map_barcodes_folder, perform_regression
+    process_stdout_stderr(q)
+
+    print(f'run_function_gui settings_type: {settings_type}') 
+    
+    if settings_type == 'mask':
+        function = preprocess_generate_masks
+        imports = 2
+    elif settings_type == 'measure':
+        function = measure_crop
+        imports = 1
+    elif settings_type == 'simulation':
+        function = run_multiple_simulations
+        imports = 1
+    elif settings_type == 'sequencing':
+        function = analyze_reads
+        imports = 1
+    elif settings_type == 'classify':
+        function = train_test_model
+        imports = 2
+    elif settings_type == 'train_cellpose':
+        function = train_cellpose
+        imports = 1
+    elif settings_type == 'ml_analyze':
+        function = generate_ml_scores
+        imports = 2
+    elif settings_type == 'cellpose_masks':
+        function = identify_masks_finetune
+        imports = 1
+    elif settings_type == 'cellpose_all':
+        function = check_cellpose_models
+        imports = 1
+    elif settings_type == 'map_barcodes':
+        function = map_barcodes_folder
+        imports = 2
+    elif settings_type == 'regression':
+        function = perform_regression
+        imports = 2
+    elif settings_type == 'recruitment':
+        function = analyze_recruitment
+        imports = 2
+    else:
+        raise ValueError(f"Invalid settings type: {settings_type}")
+    try:
+        function_gui_wrapper(function, settings, q, fig_queue, imports)
+    except Exception as e:
+        q.put(f"Error during processing: {e}")
+        traceback.print_exc()
+    finally:
+        stop_requested.value = 1
+
+def hide_all_settings(vars_dict, categories):
+    """
+    Function to initially hide all settings in the GUI.
+
+    Parameters:
+    - categories: dict, The categories of settings with their corresponding settings.
+    - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.
+    """
+
+    if categories is None:
+        from .settings import categories
+
+    for category, settings in categories.items():
+        if any(setting in vars_dict for setting in settings):
+            vars_dict[category] = (None, None, tk.IntVar(value=0))
+            
+            # Initially hide all settings
+            for setting in settings:
+                if setting in vars_dict:
+                    label, widget, _ = vars_dict[setting]
+                    label.grid_remove()
+                    widget.grid_remove()
+    return vars_dict
+
+def create_containers_v1(parent_frame):
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
+    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL)
+    settings_frame = tk.Frame(horizontal_container)
+    return vertical_container, horizontal_container, settings_frame
+
+def create_containers(parent_frame):
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg="red")  # Added bg color for visibility
+    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg="blue")  # Added bg color for visibility
+    settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg="green")  # Added bg color for visibility
+    return vertical_container, horizontal_container, settings_container
+
+def setup_frame(parent_frame):
+    from .gui_elements import set_dark_style, set_default_font
+    style = ttk.Style(parent_frame)
+    vertical_container, horizontal_container, settings_container = create_containers(parent_frame)
+    containers = [vertical_container, horizontal_container, settings_container]
+    
+    set_dark_style(style, parent_frame, containers)
+    set_default_font(parent_frame, font_name="Helvetica", size=8)
+
+    parent_frame.grid_rowconfigure(0, weight=1)
+    parent_frame.grid_rowconfigure(1, weight=1)
+    parent_frame.grid_columnconfigure(0, weight=1)
+    parent_frame.grid_columnconfigure(1, weight=1)
+
+    settings_container.grid(row=0, column=0, rowspan=2, sticky=tk.NSEW)
+    vertical_container.grid(row=0, column=1, sticky=tk.NSEW)
+    horizontal_container.grid(row=1, column=1, sticky=tk.NSEW)
+
+    #settings_container.grid_rowconfigure(0, weight=1)
+    #settings_container.grid_columnconfigure(0, weight=1)
+
+    #vertical_container.grid_rowconfigure(0, weight=1)
+    #horizontal_container.grid_rowconfigure(0, weight=1)
+    #vertical_container.grid_columnconfigure(0, weight=1)
+    #horizontal_container.grid_columnconfigure(0, weight=1)
+
+    return parent_frame, vertical_container, horizontal_container, settings_container
+
+def download_hug_dataset():
+    global vars_dict, q
+    dataset_repo_id = "einarolafsson/toxo_mito"
+    settings_repo_id = "einarolafsson/spacr_settings"
+    dataset_subfolder = "plate1"
+    local_dir = os.path.join(os.path.expanduser("~"), "datasets")  # Set to the home directory
+
+    # Download the dataset
+    try:
+        dataset_path = download_dataset(dataset_repo_id, dataset_subfolder, local_dir)
+        if 'src' in vars_dict:
+            vars_dict['src'][2].set(dataset_path)
+            q.put(f"Set source path to: {vars_dict['src'][2].get()}\n")
+        q.put(f"Dataset downloaded to: {dataset_path}\n")
+    except Exception as e:
+        q.put(f"Failed to download dataset: {e}\n")
+
+    # Download the settings files
+    try:
+        settings_path = download_dataset(settings_repo_id, "", local_dir)
+        q.put(f"Settings downloaded to: {settings_path}\n")
+    except Exception as e:
+        q.put(f"Failed to download settings: {e}\n")
+
+def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
+    global q
+    """
+    Downloads a dataset or settings files from Hugging Face and returns the local path.
+
+    Args:
+        repo_id (str): The repository ID (e.g., 'einarolafsson/toxo_mito' or 'einarolafsson/spacr_settings').
+        subfolder (str): The subfolder path within the repository (e.g., 'plate1' or the settings subfolder).
+        local_dir (str): The local directory where the files will be saved. Defaults to the user's home directory.
+        retries (int): Number of retry attempts in case of failure.
+        delay (int): Delay in seconds between retries.
+
+    Returns:
+        str: The local path to the downloaded files.
+    """
+    if local_dir is None:
+        local_dir = os.path.join(os.path.expanduser("~"), "datasets")
+
+    local_subfolder_dir = os.path.join(local_dir, subfolder if subfolder else "settings")
+    if not os.path.exists(local_subfolder_dir):
+        os.makedirs(local_subfolder_dir)
+    elif len(os.listdir(local_subfolder_dir)) > 0:
+        q.put(f"Files already downloaded to: {local_subfolder_dir}")
+        return local_subfolder_dir
+
+    attempt = 0
+    while attempt < retries:
+        try:
+            files = list_repo_files(repo_id, repo_type="dataset")
+            subfolder_files = [file for file in files if file.startswith(subfolder) or (subfolder == "" and file.endswith('.csv'))]
+
+            for file_name in subfolder_files:
+                for download_attempt in range(retries):
+                    try:
+                        url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
+                        response = requests.get(url, stream=True)
+                        response.raise_for_status()
+
+                        local_file_path = os.path.join(local_subfolder_dir, os.path.basename(file_name))
+                        with open(local_file_path, 'wb') as file:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                file.write(chunk)
+                        q.put(f"Downloaded file: {file_name}")
+                        break
+                    except (requests.HTTPError, requests.Timeout) as e:
+                        q.put(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
+                        time.sleep(delay)
+                else:
+                    raise Exception(f"Failed to download {file_name} after multiple attempts.")
+
+            return local_subfolder_dir
+
+        except (requests.HTTPError, requests.Timeout) as e:
+            q.put(f"Error downloading files: {e}. Retrying in {delay} seconds...")
+            attempt += 1
+            time.sleep(delay)
+
+    raise Exception("Failed to download files after multiple attempts.")

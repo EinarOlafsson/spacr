@@ -2550,7 +2550,6 @@ def _read_mask(mask_path):
         mask = img_as_uint(mask)
     return mask
 
-
 def convert_numpy_to_tiff(folder_path, limit=None):
     """
     Converts all numpy files in a folder to TIFF format and saves them in a subdirectory 'tiff'.
