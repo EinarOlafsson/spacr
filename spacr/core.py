@@ -1745,6 +1745,10 @@ def preprocess_generate_masks(src, settings={}):
             if check_mask_folder(src, 'pathogen_mask_stack'):
                 generate_cellpose_masks(mask_src, settings, 'pathogen')
 
+        if settings['organelle'] != None:
+            if check_mask_folder(src, 'organelle_mask_stack'):
+                generate_cellpose_masks(mask_src, settings, 'organelle')
+
         if settings['adjust_cells']:
             if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
 
@@ -1752,6 +1756,7 @@ def preprocess_generate_masks(src, settings={}):
                 cell_folder = os.path.join(mask_src, 'cell_mask_stack')
                 nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                 parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                parasite_folder = os.path.join(mask_src, 'organelle_mask_stack')
                 #image_folder = os.path.join(src, 'stack')
 
                 #process_masks(cell_folder, image_folder, settings['cell_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])

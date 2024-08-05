@@ -399,15 +399,54 @@ class spacrProgressBar(ttk.Progressbar):
                 label_text += f", Time_left: {self.time_left:.3f} min"
             self.progress_label.config(text=label_text)
 
+def spacrScrollbarStyle(style, inactive_color, active_color):
+    # Check if custom elements already exist to avoid duplication
+    if not style.element_names().count('custom.Vertical.Scrollbar.trough'):
+        style.element_create('custom.Vertical.Scrollbar.trough', 'from', 'clam')
+    if not style.element_names().count('custom.Vertical.Scrollbar.thumb'):
+        style.element_create('custom.Vertical.Scrollbar.thumb', 'from', 'clam')
+
+    style.layout('Custom.Vertical.TScrollbar',
+                 [('Vertical.Scrollbar.trough', {'children': [('Vertical.Scrollbar.thumb', {'expand': '1', 'sticky': 'nswe'})], 'sticky': 'ns'})])
+
+    style.configure('Custom.Vertical.TScrollbar',
+                    background=inactive_color,
+                    troughcolor=inactive_color,
+                    bordercolor=inactive_color,
+                    lightcolor=inactive_color,
+                    darkcolor=inactive_color)
+
+    style.map('Custom.Vertical.TScrollbar',
+              background=[('!active', inactive_color), ('active', active_color)],
+              troughcolor=[('!active', inactive_color), ('active', inactive_color)],
+              bordercolor=[('!active', inactive_color), ('active', inactive_color)],
+              lightcolor=[('!active', inactive_color), ('active', active_color)],
+              darkcolor=[('!active', inactive_color), ('active', active_color)])
+
 class spacrFrame(ttk.Frame):
-    def __init__(self, container, width=None, *args, bg='black', **kwargs):
+    def __init__(self, container, width=None, *args, bg='black', radius=20, scrollbar=True, **kwargs):
         super().__init__(container, *args, **kwargs)
         self.configure(style='TFrame')
         if width is None:
             screen_width = self.winfo_screenwidth()
             width = screen_width // 4
-        canvas = tk.Canvas(self, bg=bg, width=width)
-        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+
+        # Create the canvas
+        canvas = tk.Canvas(self, bg=bg, width=width, highlightthickness=0)
+        self.rounded_rectangle(canvas, 0, 0, width, self.winfo_screenheight(), radius, fill=bg)
+
+        # Define scrollbar styles
+        style_out = set_dark_style(ttk.Style())
+        self.inactive_color = style_out['inactive_color']
+        self.active_color = style_out['active_color']
+
+        # Set custom scrollbar style
+        style = ttk.Style()
+        spacrScrollbarStyle(style, self.inactive_color, self.active_color)
+
+        # Create scrollbar with custom style if scrollbar option is True
+        if scrollbar:
+            scrollbar_widget = ttk.Scrollbar(self, orient="vertical", command=canvas.yview, style='Custom.Vertical.TScrollbar')
         
         self.scrollable_frame = ttk.Frame(canvas, style='TFrame')
         self.scrollable_frame.bind(
@@ -415,17 +454,43 @@ class spacrFrame(ttk.Frame):
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
         canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        if scrollbar:
+            canvas.configure(yscrollcommand=scrollbar_widget.set)
         
         canvas.grid(row=0, column=0, sticky="nsew")
-        scrollbar.grid(row=0, column=1, sticky="ns")
+        if scrollbar:
+            scrollbar_widget.grid(row=0, column=1, sticky="ns")
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=0)
+        if scrollbar:
+            self.grid_columnconfigure(1, weight=0)
         
-        style = ttk.Style()
-        _ = set_dark_style(style, containers=[self], widgets=[canvas, scrollbar, self.scrollable_frame])
+        _ = set_dark_style(style, containers=[self], widgets=[canvas, self.scrollable_frame])
+        if scrollbar:
+            _ = set_dark_style(style, widgets=[scrollbar_widget])
+
+    def rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=20, **kwargs):
+        points = [
+            x1 + radius, y1,
+            x2 - radius, y1,
+            x2 - radius, y1,
+            x2, y1,
+            x2, y1 + radius,
+            x2, y2 - radius,
+            x2, y2 - radius,
+            x2, y2,
+            x2 - radius, y2,
+            x1 + radius, y2,
+            x1 + radius, y2,
+            x1, y2,
+            x1, y2 - radius,
+            x1, y2 - radius,
+            x1, y1 + radius,
+            x1, y1 + radius,
+            x1, y1
+        ]
+        return canvas.create_polygon(points, **kwargs, smooth=True)
 
 class spacrLabel(tk.Frame):
     def __init__(self, parent, text="", font=None, style=None, align="right", **kwargs):
@@ -471,7 +536,7 @@ class spacrLabel(tk.Frame):
             self.canvas.itemconfig(self.label_text, text=text)
 
 class spacrButton(tk.Frame):
-    def __init__(self, parent, text="", command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, *args, **kwargs):
+    def __init__(self, parent, text="", command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, animation=True, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         
         self.text = text.capitalize()  # Capitalize only the first letter of the text
@@ -480,6 +545,7 @@ class spacrButton(tk.Frame):
         self.size = size
         self.show_text = show_text
         self.outline = outline
+        self.animation = animation  # Add animation attribute
 
         style_out = set_dark_style(ttk.Style())
 
@@ -546,13 +612,13 @@ class spacrButton(tk.Frame):
     def on_enter(self, event=None):
         self.canvas.itemconfig(self.button_bg, fill=self.active_color)
         self.update_description(event)
-        if not self.is_zoomed_in:
+        if self.animation and not self.is_zoomed_in:
             self.animate_zoom(0.85)  # Zoom in the icon to 85% of button size
 
     def on_leave(self, event=None):
         self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
         self.clear_description(event)
-        if self.is_zoomed_in:
+        if self.animation and self.is_zoomed_in:
             self.animate_zoom(0.65)  # Reset the icon size to 65% of button size
 
     def on_click(self, event=None):
