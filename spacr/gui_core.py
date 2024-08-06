@@ -253,50 +253,36 @@ def setup_plot_section(vertical_container):
 
 def setup_console(vertical_container):
     global console_output
+    from .gui_elements import set_dark_style
+
+    # Apply dark style and get style output
+    style = ttk.Style()
+    style_out = set_dark_style(style)
 
     # Create a frame to hold the console and button sections
-    console_button_frame = tk.Frame(vertical_container)
+    console_button_frame = tk.Frame(vertical_container, bg=style_out['bg_color'])
     vertical_container.add(console_button_frame, stretch="always")
 
-    # Create a PanedWindow for resizing height
-    console_paned_window = tk.PanedWindow(console_button_frame, orient=tk.VERTICAL, bg='black')
-    console_paned_window.pack(fill=tk.BOTH, expand=True)
+    # Create the main console frame
+    console_frame = tk.Frame(console_button_frame, bg=style_out['bg_color'])
+    console_frame.pack(fill=tk.BOTH, expand=True)
 
-    # Create the main console frame using spacrFrame with textbox=True
-    console_frame = spacrFrame(console_paned_window, textbox=True)
-    console_paned_window.add(console_frame, stretch="always")
-
-    # Assign the scrollable frame (which is a Text widget) to console_output
-    console_output = console_frame.scrollable_frame
-
-    # Ensure the Text widget spans the entire console frame
-    console_output.grid(row=0, column=0, sticky="nsew")
+    # Create the scrollable frame (which is a Text widget) with white text
+    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg='white')
+    console_output.pack(fill=tk.BOTH, expand=True)
 
     # Configure the grid to allow expansion
     console_frame.grid_rowconfigure(0, weight=1)
     console_frame.grid_columnconfigure(0, weight=1)
 
     # Create a lower frame to act as the anchor point
-    lower_frame = tk.Frame(console_paned_window)
-    console_paned_window.add(lower_frame, minsize=10)  # Adjust minsize to ensure usability
+    lower_frame = tk.Frame(console_button_frame, bg=style_out['bg_color'])
+    lower_frame.pack(fill=tk.X, expand=False)
 
-    # Dynamically adjust the height and width of the console_frame
-    def adjust_frame_size(event):
-        console_frame.update_idletasks()
-        new_width = console_paned_window.winfo_width()
-        new_height = console_paned_window.winfo_height()
-        console_frame.config(width=new_width, height=new_height)
-        console_output.config(width=new_width, height=new_height)
-
-    # Bind the configure event to dynamically adjust size
-    console_paned_window.bind("<Configure>", adjust_frame_size)
-
-    # Apply dark style to the PanedWindow and lower frame
-    style = ttk.Style()
-    set_dark_style(style, containers=[console_paned_window, lower_frame])
+    # Apply dark style to the frames
+    set_dark_style(style, containers=[console_button_frame, console_frame, lower_frame])
 
     return console_output, console_frame
-
 
 def setup_progress_frame(vertical_container):
     global progress_output
