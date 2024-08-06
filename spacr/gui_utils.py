@@ -509,19 +509,24 @@ def setup_frame(parent_frame):
     from .gui_elements import set_dark_style, set_default_font
     style = ttk.Style(parent_frame)
     size_dict = set_element_size(parent_frame)
+    style_out = set_dark_style(style)
     
-    settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['settings_width'])
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
-    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'])
+    settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['settings_width'], bg=style_out['bg_color'])
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg=style_out['bg_color'])
+    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'], bg=style_out['bg_color'])
 
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_rowconfigure(1, weight=0)
-    parent_frame.grid_columnconfigure(0, weight=0)  # Change this line
-    parent_frame.grid_columnconfigure(1, weight=1)  # Change this line
+    parent_frame.grid_columnconfigure(0, weight=0)
+    parent_frame.grid_columnconfigure(1, weight=1)
 
-    settings_container.grid(row=0, column=0, rowspan=2, sticky="nsew")  # Change this line
-    vertical_container.grid(row=0, column=1, sticky="nsew")  # Change this line
-    horizontal_container.grid(row=1, column=1, sticky="ew")  # Change this line
+    settings_container.grid(row=0, column=0, rowspan=2, sticky="nsew")
+    vertical_container.grid(row=0, column=1, sticky="nsew")
+    horizontal_container.grid(row=1, column=1, sticky="ew")
+
+    tk.Label(settings_container, text="Settings Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
+    tk.Label(vertical_container, text="Vertical Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
+    #tk.Label(horizontal_container, text="Horizontal Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
 
     set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container])
     set_default_font(parent_frame, font_name="Helvetica", size=8)
