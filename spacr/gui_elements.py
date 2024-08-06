@@ -288,6 +288,73 @@ class spacrDropdownMenu(tk.OptionMenu):
         self.create_custom_button()
 
     def create_custom_button(self):
+        self.canvas_width = self.winfo_reqwidth() + 20  # Adjust width based on required size
+        self.canvas_height = 40  # Adjust the height as needed
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg='#2B2B2B')
+        self.canvas.pack()
+        self.label = tk.Label(self.canvas, text="Settings Category", bg='#2B2B2B', fg='#ffffff', font=('Arial', 12))
+        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.draw_rounded_rectangle('#2B2B2B')
+
+        # Bind the click event to open the dropdown menu
+        self.canvas.bind("<Button-1>", self.on_click)
+        self.label.bind("<Button-1>", self.on_click)
+
+    def draw_rounded_rectangle(self, color):
+        radius = 15
+        x0, y0 = 10, 5
+        x1, y1 = self.canvas_width - 10, self.canvas_height - 5  # Adjust based on canvas size
+
+        self.canvas.delete("all")
+
+        # Create the rounded rectangle
+        self.canvas.create_arc(x0, y0, x0 + 2 * radius, y0 + 2 * radius, start=90, extent=90, fill=color, outline=color)
+        self.canvas.create_arc(x1 - 2 * radius, y0, x1, y0 + 2 * radius, start=0, extent=90, fill=color, outline=color)
+        self.canvas.create_arc(x0, y1 - 2 * radius, x0 + 2 * radius, y1, start=180, extent=90, fill=color, outline=color)
+        self.canvas.create_arc(x1 - 2 * radius, y1 - 2 * radius, x1, y1, start=270, extent=90, fill=color, outline=color)
+
+        self.canvas.create_rectangle(x0 + radius, y0, x1 - radius, y1, fill=color, outline=color)
+        self.canvas.create_rectangle(x0, y0 + radius, x1, y1 - radius, fill=color, outline=color)
+
+        self.label.config(bg=color)  # Update label background to match rectangle color
+
+    def on_click(self, event):
+        self.post_menu()
+
+    def post_menu(self):
+        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
+        self.menu.post(x, y + height)
+
+    def update_styles(self, active_categories=None):
+        style = ttk.Style()
+        style_out = set_dark_style(style, widgets=[self])
+        self.menu = self['menu']
+        style_out = set_dark_style(style, widgets=[self.menu])
+
+        if active_categories is not None:
+            for idx in range(self.menu.index("end") + 1):
+                option = self.menu.entrycget(idx, "label")
+                if option in active_categories:
+                    self.menu.entryconfig(idx, background=style_out['active_color'], foreground=style_out['fg_color'])
+                else:
+                    self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
+
+
+
+class spacrDropdownMenu_v1(tk.OptionMenu):
+    def __init__(self, parent, variable, options, command=None, **kwargs):
+        self.variable = variable
+        self.variable.set("Settings Category")
+        super().__init__(parent, self.variable, *options, command=command, **kwargs)
+        self.update_styles()
+
+        # Hide the original button
+        self.configure(highlightthickness=0, relief='flat', bg='#2B2B2B', fg='#2B2B2B')
+
+        # Create custom button
+        self.create_custom_button()
+
+    def create_custom_button(self):
         self.canvas_width = self.winfo_reqwidth()  # Use the required width of the widget
         self.canvas_height = 40  # Adjust the height as needed
         self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg='#2B2B2B')
@@ -374,19 +441,26 @@ class spacrProgressBar(ttk.Progressbar):
         # Track whether to show the progress label
         self.label = label
 
+        # Create the progress label (defer placement)
         if self.label:
-            # Create the progress label
             self.progress_label = tk.Label(parent, text="Processing: 0/0", anchor='w', justify='left', bg=self.inactive_color, fg=self.fg_color)
-            self.progress_label.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
+            self.progress_label.grid_forget()  # Temporarily hide it
 
-            # Initialize attributes for time and operation
-            self.operation_type = None
-            self.time_image = None
-            self.time_batch = None
-            self.time_left = None
+        # Initialize attributes for time and operation
+        self.operation_type = None
+        self.time_image = None
+        self.time_batch = None
+        self.time_left = None
+
+    def set_label_position(self):
+        if self.label and self.progress_label:
+            row_info = self.grid_info().get('row', 0)
+            col_info = self.grid_info().get('column', 0)
+            col_span = self.grid_info().get('columnspan', 1)
+            self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
 
     def update_label(self):
-        if self.label:
+        if self.label and self.progress_label:
             # Update the progress label with current progress and additional info
             label_text = f"Processing: {self['value']}/{self['maximum']}"
             if self.operation_type:
@@ -424,7 +498,7 @@ def spacrScrollbarStyle(style, inactive_color, active_color):
               darkcolor=[('!active', inactive_color), ('active', active_color)])
 
 class spacrFrame(ttk.Frame):
-    def __init__(self, container, width=None, *args, bg='black', radius=20, scrollbar=True, **kwargs):
+    def __init__(self, container, width=None, *args, bg='black', radius=20, scrollbar=True, textbox=False, **kwargs):
         super().__init__(container, *args, **kwargs)
         self.configure(style='TFrame')
         if width is None:
@@ -439,6 +513,7 @@ class spacrFrame(ttk.Frame):
         style_out = set_dark_style(ttk.Style())
         self.inactive_color = style_out['inactive_color']
         self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']  # Foreground color for text
 
         # Set custom scrollbar style
         style = ttk.Style()
@@ -448,7 +523,11 @@ class spacrFrame(ttk.Frame):
         if scrollbar:
             scrollbar_widget = ttk.Scrollbar(self, orient="vertical", command=canvas.yview, style='Custom.Vertical.TScrollbar')
         
-        self.scrollable_frame = ttk.Frame(canvas, style='TFrame')
+        if textbox:
+            self.scrollable_frame = tk.Text(canvas, bg=bg, fg=self.fg_color, wrap=tk.WORD)
+        else:
+            self.scrollable_frame = ttk.Frame(canvas, style='TFrame')
+        
         self.scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
@@ -493,15 +572,21 @@ class spacrFrame(ttk.Frame):
         return canvas.create_polygon(points, **kwargs, smooth=True)
 
 class spacrLabel(tk.Frame):
-    def __init__(self, parent, text="", font=None, style=None, align="right", **kwargs):
+    def __init__(self, parent, text="", font=None, style=None, align="right", height=None, **kwargs):
         valid_kwargs = {k: v for k, v in kwargs.items() if k not in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
         super().__init__(parent, **valid_kwargs)
         
         self.text = text
         self.align = align
-        screen_height = self.winfo_screenheight()
-        label_height = screen_height // 50
-        label_width = label_height * 10
+
+        if height is None:
+            screen_height = self.winfo_screenheight()
+            label_height = screen_height // 50
+            label_width = label_height * 10
+        else:
+            label_height = height
+            label_width = label_height * 10
+
         style_out = set_dark_style(ttk.Style())
 
         self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=style_out['bg_color'])

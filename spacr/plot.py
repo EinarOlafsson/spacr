@@ -19,6 +19,112 @@ from IPython.display import Image as ipyimage
 
 from .logger import log_function_call
 
+def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, normalize=True, thickness=3, save_pdf=True):
+    """Plot image and mask overlays."""
+
+    def _plot_merged_plot(image, outlines, outline_colors, figuresize, thickness):
+        """Plot the merged plot with overlay, image channels, and masks."""
+
+        def _normalize_image(image, percentiles=(2, 98)):
+            """Normalize the image to the given percentiles."""
+            v_min, v_max = np.percentile(image, percentiles)
+            image_normalized = np.clip((image - v_min) / (v_max - v_min), 0, 1)
+            return image_normalized
+
+        def _generate_contours(mask):
+            """Generate contours for the given mask using OpenCV."""
+            contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            return contours
+
+        def _apply_contours(image, mask, color, thickness):
+            """Apply the contours to the RGB image for each unique label."""
+            unique_labels = np.unique(mask)
+            for label in unique_labels:
+                if label == 0:
+                    continue  # Skip background
+                label_mask = np.where(mask == label, 1, 0).astype(np.uint8)
+                contours = _generate_contours(label_mask)
+                for contour in contours:
+                    cv2.drawContours(image, [contour], -1, mpl.colors.to_rgb(color), thickness)
+            return image
+
+        num_channels = image.shape[-1]
+        fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+
+        # Plot each channel with its corresponding outlines
+        for v in range(num_channels):
+            channel_image = image[..., v]
+            channel_image_normalized = _normalize_image(channel_image)
+            channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
+
+            for outline, color in zip(outlines, outline_colors):
+                channel_image_rgb = _apply_contours(channel_image_rgb, outline, color, thickness)
+
+            ax[v].imshow(channel_image_rgb)
+            ax[v].set_title(f'Image - Channel {v}')
+
+        # Plot the combined RGB image with all outlines
+        rgb_image = np.zeros((*image.shape[:2], 3), dtype=float)
+        rgb_channels = min(3, num_channels)
+        for i in range(rgb_channels):
+            channel_image = image[..., i]
+            channel_image_normalized = _normalize_image(channel_image)
+            rgb_image[..., i] = channel_image_normalized
+
+        for outline, color in zip(outlines, outline_colors):
+            rgb_image = _apply_contours(rgb_image, outline, color, thickness)
+
+        ax[-1].imshow(rgb_image)
+        ax[-1].set_title('Combined RGB Image')
+
+        plt.tight_layout()
+
+        # Save the figure as a PDF
+        if save_pdf:
+            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(file)), 'results', 'overlay')
+            os.makedirs(pdf_dir, exist_ok=True)
+            pdf_path = os.path.join(pdf_dir, os.path.basename(file).replace('.npy', '.pdf'))
+            fig.savefig(pdf_path, format='pdf')
+
+        plt.show()
+        return fig
+    
+    stack = np.load(file)
+
+    # Convert to float for normalization and ensure correct handling of both 8-bit and 16-bit arrays
+    if stack.dtype == np.uint16:
+        stack = stack.astype(np.float32)
+    elif stack.dtype == np.uint8:
+        stack = stack.astype(np.float32)
+
+    image = stack[..., channels]
+    outlines = []
+    outline_colors = []
+
+    if pathogen_channel is not None:
+        pathogen_mask_dim = -1  # last dimension
+        outlines.append(np.take(stack, pathogen_mask_dim, axis=2))
+        outline_colors.append('blue')
+
+    if nucleus_channel is not None:
+        nucleus_mask_dim = -2 if pathogen_channel is not None else -1
+        outlines.append(np.take(stack, nucleus_mask_dim, axis=2))
+        outline_colors.append('green')
+
+    if cell_channel is not None:
+        if nucleus_channel is not None and pathogen_channel is not None:
+            cell_mask_dim = -3
+        elif nucleus_channel is not None or pathogen_channel is not None:
+            cell_mask_dim = -2
+        else:
+            cell_mask_dim = -1
+        outlines.append(np.take(stack, cell_mask_dim, axis=2))
+        outline_colors.append('red')
+
+    fig = _plot_merged_plot(image=image, outlines=outlines, outline_colors=outline_colors, figuresize=figuresize, thickness=thickness)
+
+    return
+
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=20, nr=1, file_type='.npz', print_object_number=True):
     """
     Plot the masks and flows for a given batch of images.
