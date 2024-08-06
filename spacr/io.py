@@ -610,6 +610,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     os.makedirs(output_dir, exist_ok=True)
                     output_filename = f'{plate}_{well}_{field}.tif'
                     output_path = os.path.join(output_dir, output_filename)
+                    files_processed += 1
 
                     if os.path.exists(output_path):                        
                         print(f'WARNING: A file with the same name already exists at location {output_filename}')
@@ -624,6 +625,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     os.makedirs(output_dir, exist_ok=True)
                     output_filename = f'{plate}_{well}_{field}.tif'
                     output_path = os.path.join(output_dir, output_filename)
+                    files_processed += 1
 
                     if os.path.exists(output_path):                        
                         print(f'WARNING: A file with the same name already exists at location {output_filename}')
@@ -633,7 +635,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
             stop = time.time()
             duration = stop - start
             time_ls.append(duration)
-            files_processed += len(batch_filenames)
             files_to_process = len(all_filenames)
             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
@@ -999,7 +1000,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             time_ls.append(duration)
             files_processed = i+1
             files_to_process = nr_files
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
+            #print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
             if (i+1) % batch_size == 0 or i+1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
@@ -1144,7 +1145,6 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
                         parts = file.split('_')
                         name = parts[0] + '_' + parts[1] + '_' + parts[2]
                     array = np.load(path)
-                    #array = np.take(array, channels, axis=2)
                     stack_region.append(array)
                     filenames_region.append(os.path.basename(path))
                 stop = time.time()
@@ -1181,6 +1181,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
         stack_ls = []
         filenames_batch = []
         time_ls = []
+        files_processed = 0
         for i, path in enumerate(paths):
             start = time.time()
             array = np.load(path)
@@ -1189,7 +1190,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
             stop = time.time()
             duration = stop - start
             time_ls.append(duration)
-            files_processed = i+1
+            files_processed += 1
             files_to_process = nr_files
             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
 
