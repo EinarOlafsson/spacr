@@ -87,27 +87,6 @@ from scipy.stats import f_oneway, kruskal
 from sklearn.cluster import KMeans
 from scipy import stats
 
-def print_progress_v1(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
-    if isinstance(files_processed, list):
-        files_processed = len(files_processed)
-    if isinstance(files_to_process, list):
-        files_to_process = len(files_to_process)
-    if isinstance(batch_size, list):
-        batch_size = len(batch_size)
-
-    if time_ls is not None:
-        average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-        time_left = (((files_to_process-files_processed)*average_time)/n_jobs)/60
-        if batch_size is None:
-            print(f'Time/image: {average_time:.3f}sec')
-            print(f'Time_left: {time_left:.3f} min.')
-        else:
-            average_time_img = average_time/batch_size
-            print(f'Time/batch:{average_time:.3f}sec')
-            print(f'Time/image {average_time_img:.3f}')
-            print(f'Time_left: {time_left:.3f} min.')
-            
-    print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type}')
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     if isinstance(files_processed, list):
@@ -2989,11 +2968,13 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
     if restore_type == None:
         if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
             model = cp_models.Cellpose(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
-
+            return model
     else:
         if object_type == 'nucleus':
             restore = f'{type}_nuclei'
             model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
+            return model
+
         else:
             restore = f'{type}_cyto3'
             if model_name =='cyto2':
@@ -3001,8 +2982,7 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
             if model_name =='cyto':
                 chan2_restore = False
             model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
-    
-    return model
+            return model
 
 class SelectChannels:
     def __init__(self, channels):

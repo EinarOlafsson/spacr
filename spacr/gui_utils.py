@@ -134,23 +134,6 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget):
         #ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
         while not q.empty():
             message = q.get_nowait()
-            #clean_message = ansi_escape_pattern.sub('', message)
-            #if clean_message.startswith("Progress"):
-            #    progress_label.config(text=clean_message)
-            #if clean_message.startswith("\rProgress"):
-            #    progress_label.config(text=clean_message)
-            #elif clean_message.startswith("Successfully"):
-            #    progress_label.config(text=clean_message)
-            #elif clean_message.startswith("Processing"):
-            #    progress_label.config(text=clean_message)
-            #elif clean_message.startswith("scale"):
-            #    pass
-            #elif clean_message.startswith("plot_cropped_arrays"):
-            #    pass
-            #elif clean_message == "" or clean_message == "\r" or clean_message.strip() == "":
-            #    pass
-            #else:
-            #    print(clean_message)
     except Exception as e:
         print(f"Error updating GUI canvas: {e}")
     finally:
@@ -329,11 +312,18 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
 def set_element_size(widget):
     screen_width = widget.winfo_screenwidth()
     screen_height = widget.winfo_screenheight()
-    btn_size = screen_width/30
-    bar_size = screen_width/50
-
-    size_dict = {'btn_size':btn_size,
-                 'bar_size':bar_size}
+    btn_size = screen_width // 40
+    bar_size = screen_width // 50
+    settings_width = screen_width // 6
+    panel_height = screen_height // 12
+    panel_width = settings_width
+    size_dict = {
+        'btn_size': btn_size,
+        'bar_size': bar_size,
+        'settings_width': settings_width,
+        'panel_width': panel_width,
+        'panel_height': panel_height
+    }
     return size_dict
 
 def convert_settings_dict_for_gui(settings):
@@ -515,48 +505,30 @@ def hide_all_settings(vars_dict, categories):
                     widget.grid_remove()
     return vars_dict
 
-def create_containers_v1(parent_frame):
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
-    horizontal_container = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL)
-    settings_frame = tk.Frame(horizontal_container)
-    return vertical_container, horizontal_container, settings_frame
-
-def create_containers(parent_frame):
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg="red")  # Added bg color for visibility
-    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg="blue")  # Added bg color for visibility
-    settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg="green")  # Added bg color for visibility
-    return vertical_container, horizontal_container, settings_container
-
 def setup_frame(parent_frame):
     from .gui_elements import set_dark_style, set_default_font
     style = ttk.Style(parent_frame)
-    vertical_container, horizontal_container, settings_container = create_containers(parent_frame)
-    containers = [vertical_container, horizontal_container, settings_container]
+    size_dict = set_element_size(parent_frame)
     
-    set_dark_style(style, parent_frame, containers)
-    set_default_font(parent_frame, font_name="Helvetica", size=8)
+    settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['settings_width'])
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL)
+    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'])
 
     parent_frame.grid_rowconfigure(0, weight=1)
-    parent_frame.grid_rowconfigure(1, weight=1)
-    parent_frame.grid_columnconfigure(0, weight=1)
-    parent_frame.grid_columnconfigure(1, weight=1)
+    parent_frame.grid_rowconfigure(1, weight=0)
+    parent_frame.grid_columnconfigure(0, weight=0)  # Change this line
+    parent_frame.grid_columnconfigure(1, weight=1)  # Change this line
 
-    settings_container.grid(row=0, column=0, rowspan=2, sticky=tk.NSEW)
-    vertical_container.grid(row=0, column=1, sticky=tk.NSEW)
-    horizontal_container.grid(row=1, column=1, sticky=tk.NSEW)
+    settings_container.grid(row=0, column=0, rowspan=2, sticky="nsew")  # Change this line
+    vertical_container.grid(row=0, column=1, sticky="nsew")  # Change this line
+    horizontal_container.grid(row=1, column=1, sticky="ew")  # Change this line
 
-    #settings_container.grid_rowconfigure(0, weight=1)
-    #settings_container.grid_columnconfigure(0, weight=1)
-
-    #vertical_container.grid_rowconfigure(0, weight=1)
-    #horizontal_container.grid_rowconfigure(0, weight=1)
-    #vertical_container.grid_columnconfigure(0, weight=1)
-    #horizontal_container.grid_columnconfigure(0, weight=1)
+    set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container])
+    set_default_font(parent_frame, font_name="Helvetica", size=8)
 
     return parent_frame, vertical_container, horizontal_container, settings_container
 
-def download_hug_dataset():
-    global vars_dict, q
+def download_hug_dataset(q, vars_dict):
     dataset_repo_id = "einarolafsson/toxo_mito"
     settings_repo_id = "einarolafsson/spacr_settings"
     dataset_subfolder = "plate1"
@@ -564,7 +536,7 @@ def download_hug_dataset():
 
     # Download the dataset
     try:
-        dataset_path = download_dataset(dataset_repo_id, dataset_subfolder, local_dir)
+        dataset_path = download_dataset(q, dataset_repo_id, dataset_subfolder, local_dir)
         if 'src' in vars_dict:
             vars_dict['src'][2].set(dataset_path)
             q.put(f"Set source path to: {vars_dict['src'][2].get()}\n")
@@ -574,13 +546,12 @@ def download_hug_dataset():
 
     # Download the settings files
     try:
-        settings_path = download_dataset(settings_repo_id, "", local_dir)
+        settings_path = download_dataset(q, settings_repo_id, "", local_dir)
         q.put(f"Settings downloaded to: {settings_path}\n")
     except Exception as e:
         q.put(f"Failed to download settings: {e}\n")
 
-def download_dataset(repo_id, subfolder, local_dir=None, retries=5, delay=5):
-    global q
+def download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5):
     """
     Downloads a dataset or settings files from Hugging Face and returns the local path.
 
