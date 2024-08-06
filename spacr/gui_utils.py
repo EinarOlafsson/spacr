@@ -314,7 +314,7 @@ def set_element_size(widget):
     screen_height = widget.winfo_screenheight()
     btn_size = screen_width // 40
     bar_size = screen_width // 50
-    settings_width = screen_width // 6
+    settings_width = screen_width // 5
     panel_height = screen_height // 12
     panel_width = settings_width
     size_dict = {
@@ -507,6 +507,7 @@ def hide_all_settings(vars_dict, categories):
 
 def setup_frame(parent_frame):
     from .gui_elements import set_dark_style, set_default_font
+
     style = ttk.Style(parent_frame)
     size_dict = set_element_size(parent_frame)
     style_out = set_dark_style(style)
@@ -540,7 +541,6 @@ def setup_frame(parent_frame):
     set_default_font(parent_frame, font_name=style_out['font_family'], size=size)
 
     return parent_frame, vertical_container, horizontal_container, settings_container
-
 
 def download_hug_dataset(q, vars_dict):
     dataset_repo_id = "einarolafsson/toxo_mito"
