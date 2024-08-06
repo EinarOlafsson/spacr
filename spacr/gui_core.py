@@ -259,9 +259,17 @@ def setup_console(vertical_container):
     style = ttk.Style()
     style_out = set_dark_style(style)
 
+    # Create a PanedWindow to hold the main content and console sections
+    main_paned_window = tk.PanedWindow(vertical_container, orient=tk.VERTICAL, bg=style_out['bg_color'])
+    vertical_container.add(main_paned_window, stretch="always")
+
+    # Create the main content frame
+    main_content_frame = tk.Frame(main_paned_window, bg=style_out['bg_color'])
+    main_paned_window.add(main_content_frame, stretch="always")
+
     # Create a frame to hold the console and button sections
-    console_button_frame = tk.Frame(vertical_container, bg=style_out['bg_color'])
-    vertical_container.add(console_button_frame, stretch="always")
+    console_button_frame = tk.Frame(main_paned_window, bg=style_out['bg_color'])
+    main_paned_window.add(console_button_frame, stretch="always")
 
     # Create the main console frame
     console_frame = tk.Frame(console_button_frame, bg=style_out['bg_color'])
@@ -278,9 +286,6 @@ def setup_console(vertical_container):
     # Create a lower frame to act as the anchor point
     lower_frame = tk.Frame(console_button_frame, bg=style_out['bg_color'])
     lower_frame.pack(fill=tk.X, expand=False)
-
-    # Apply dark style to the frames
-    set_dark_style(style, containers=[console_button_frame, console_frame, lower_frame])
 
     return console_output, console_frame
 
@@ -307,13 +312,12 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     from .gui_utils import set_element_size, download_hug_dataset
     from .settings import categories
 
-
     size_dict = set_element_size(horizontal_container)
     button_section_height = size_dict['panel_height']
     button_frame = tk.Frame(horizontal_container, height=button_section_height)
     
     # Prevent the frame from resizing based on the child widget
-    button_frame.pack_propagate(False)
+    #button_frame.pack_propagate(False)
 
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
     button_scrollable_frame = spacrFrame(button_frame, scrollbar=False)
@@ -360,11 +364,13 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     style = ttk.Style(horizontal_container)
     _ = set_dark_style(style, containers=[button_frame], widgets=widgets)
 
-    return button_scrollable_frame
+    return button_scrollable_frame, btn_col
 
-def setup_usage_panel(horizontal_container):
+def setup_usage_panel(horizontal_container, btn_col):
     global usage_bars
     from .gui_utils import set_element_size
+
+    usg_col = 1
 
     def update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame):
         # Update RAM usage
@@ -391,7 +397,7 @@ def setup_usage_panel(horizontal_container):
     size_dict = set_element_size(horizontal_container)
     usage_panel_height = size_dict['panel_height']
     usage_frame = tk.Frame(horizontal_container, height=usage_panel_height)
-    horizontal_container.add(usage_frame, stretch="always", sticky="nsew")
+    horizontal_container.add(usage_frame)
 
     usage_frame.grid_rowconfigure(0, weight=0)
     usage_frame.grid_rowconfigure(1, weight=1)
@@ -401,6 +407,7 @@ def setup_usage_panel(horizontal_container):
     usage_scrollable_frame = spacrFrame(usage_frame, scrollbar=False)
     usage_scrollable_frame.grid(row=1, column=0, sticky="nsew", columnspan=2)
     widgets = [usage_scrollable_frame.scrollable_frame]
+    
     usage_bars = []
     max_elements_per_column = 6
     row = 0
@@ -480,58 +487,11 @@ def setup_usage_panel(horizontal_container):
         vram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
     if gpu_bar is None:
         gpu_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
+    
+    update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, usage_frame)    
+    return usage_scrollable_frame, usage_bars, usg_col
 
-    update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, usage_frame)
-    return usage_scrollable_frame, usage_bars
 
-def setup_help_section(horizontal_container, settings_type='mask'):
-    from .settings import descriptions
-    from .gui_utils import set_element_size
-
-    size_dict = set_element_size(horizontal_container)
-    help_section_height = size_dict['panel_height']
-
-    # Create the frame for the help section
-    description_frame = tk.Frame(horizontal_container, height=help_section_height)
-    description_frame.pack_propagate(False)
-
-    # Add the description frame to the horizontal container
-    horizontal_container.add(description_frame, stretch="always", sticky="nsew")
-    description_frame.grid_columnconfigure(0, weight=1)
-    description_frame.grid_rowconfigure(0, weight=1)  # Ensure the text widget row is expandable
-
-    style_out = set_dark_style(ttk.Style())
-    bg_color = style_out['bg_color']
-    fg_color = style_out['fg_color']
-
-    # Insert the description text
-    description_text = descriptions.get(settings_type, "No description available for this module.")
-    first_line, *rest_of_description = description_text.split('\n', 1)
-
-    # Create the first line label
-    first_line_label = ttk.Label(description_frame, text=first_line, anchor='w', background=bg_color, foreground=fg_color)
-    first_line_label.grid(row=0, column=0, sticky='ew')
-
-    # Create the text widget with the appropriate background and foreground colors
-    description_text_widget = tk.Text(description_frame, wrap="word", bg=bg_color, fg=fg_color, bd=0, highlightthickness=0)
-    description_text_widget.grid(row=1, column=0, sticky="nsew")
-
-    # Insert the rest of the description text
-    if rest_of_description:
-        description_text_widget.insert("1.0", rest_of_description[0].lstrip())
-    description_text_widget.config(state="disabled")  # Make the text widget read-only
-
-    def update_wraplength(event):
-        new_width = event.width - 20  # Adjust as needed
-        description_text_widget.config(width=new_width)
-
-    description_text_widget.bind('<Configure>', update_wraplength)
-
-    # Apply dark style
-    style = ttk.Style(horizontal_container)
-    _ = set_dark_style(style, containers=[description_frame], widgets=[description_text_widget, first_line_label])
-
-    return description_frame
 
 def initiate_abort():
     global thread_control, q, parent_frame
@@ -652,6 +612,8 @@ def initiate_root(parent, settings_type='mask'):
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar
     from .gui_utils import main_thread_update_function, setup_frame, set_element_size
     from .gui import gui_app
+    from .settings import descriptions
+
     set_start_method('spawn', force=True)
     print("Initializing root with settings_type:", settings_type)
 
@@ -681,13 +643,17 @@ def initiate_root(parent, settings_type='mask'):
         scrollable_frame, vars_dict = setup_settings_panel(settings_container, settings_type)
         print('setup_settings_panel')
         canvas, canvas_widget = setup_plot_section(vertical_container)
-        console_output, console_frame = setup_console(vertical_container)
-        button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
-        _, usage_bars = setup_usage_panel(horizontal_container)
-        _ = setup_help_section(horizontal_container, settings_type)
-        
+        console_output, _ = setup_console(vertical_container)
+        button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
+        _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col)
+
         set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
+        description_text = descriptions.get(settings_type, "No description available for this module.")
+        
         q.put(f"Console")
+        q.put(f" ")
+        q.put(description_text)
+        
         process_console_queue()
         process_fig_queue()
         after_id = parent_window.after(100, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
