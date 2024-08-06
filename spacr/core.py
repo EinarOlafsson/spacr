@@ -1782,7 +1782,7 @@ def preprocess_generate_masks(src, settings={}):
                     
                     for i, file in enumerate(files):
                         start = time.time()
-                        if i <= settings['examples_to_plot']:
+                        if i+1 <= settings['examples_to_plot']:
                             file_path = os.path.join(merged_src, file)
                             plot_image_mask_overlay(file_path, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'], figuresize=10, normalize=True, thickness=3, save_pdf=True)
                             stop = time.time()
@@ -2014,7 +2014,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     files_to_process = len(paths)
     for file_index, path in enumerate(paths):
-        start = time.time()
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
@@ -2051,6 +2050,7 @@ def generate_cellpose_masks(src, settings, object_type):
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
         
         for i in range(0, stack.shape[0], batch_size):
+            start = time.time()
             mask_stack = []
             if stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0,0]].astype(stack.dtype)
@@ -2062,7 +2062,6 @@ def generate_cellpose_masks(src, settings, object_type):
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
             if batch.size == 0:
-                #print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
                 continue
             
             batch = prepare_batch_for_cellpose(batch)
@@ -2073,16 +2072,14 @@ def generate_cellpose_masks(src, settings, object_type):
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
             
-            #if settings['verbose']:
-                #print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
+            stop = time.time()
+            duration = (stop - start)
+            time_ls.append(duration)
+            files_processed = (file_index+1)*len(batch_filenames)
+            files_processed = len(paths)*batch.shape[0]
+            print('file_index', file_index, 'len(paths)', len(paths), 'batch.shape[0]', batch.shape[0])
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch.shape[0], operation_type=f'{object_type}_mask_gen')
 
-            #cellpose_normalize_dict = {'lowhigh':[0.0,1.0], #pass in normalization values for 0.0 and 1.0 as list [low, high] if None all other keys ignored
-            #                           'sharpen':object_settings['diameter']/4, #recommended to be 1/4-1/8 diameter of cells in pixels
-            #                           'normalize':True, #(if False, all following parameters ignored)
-            #                           'percentile':[2,98], #[perc_low, perc_high]
-            #                           'tile_norm':224, #normalize by tile set to e.g. 100 for normailize window to be 100 px
-            #                           'norm3D':True} #compute normalization across entire z-stack rather than plane-by-plane in stitching mode.
-            
             output = model.eval(x=batch,
                                 batch_size=cellpose_batch_size,
                                 normalize=False,
@@ -2204,12 +2201,8 @@ def generate_cellpose_masks(src, settings, object_type):
                 np.save(output_filename, mask)
             mask_stack = []
             batch_filenames = []
-        stop = time.time()
-        duration = (stop - start)
-        time_ls.append(duration)
-        files_processed = file_index+1
-        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f'{object_type}_mask_gen')
-        #gc.collect()
+
+        gc.collect()
     torch.cuda.empty_cache()
     return
 
