@@ -39,6 +39,10 @@ matplotlib.use('Agg')
 
 from .logger import log_function_call
 
+import warnings
+warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+
 def analyze_plaques(folder):
     summary_data = []
     details_data = []
@@ -79,7 +83,6 @@ def analyze_plaques(folder):
     conn.close()
     
     print(f"Analysis completed and saved to database '{db_name}'.")
-
 
 def train_cellpose(settings):
     
@@ -1032,10 +1035,6 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
             files_to_process = len(data_loader)
             print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=batch_size, operation_type="Tar dataset")
 
-
-
-
-
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
     df = pd.DataFrame(data, index=None)
     df = process_vision_results(df, threshold)
@@ -1695,9 +1694,9 @@ def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
 def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
-    from .plot import plot_merged, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks
-    from .settings import set_default_settings_preprocess_generate_masks, set_default_plot_merge_settings
+    from .plot import plot_image_mask_overlay, plot_arrays
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress
+    from .settings import set_default_settings_preprocess_generate_masks
     
     settings = set_default_settings_preprocess_generate_masks(src, settings)
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
@@ -1745,9 +1744,9 @@ def preprocess_generate_masks(src, settings={}):
             if check_mask_folder(src, 'pathogen_mask_stack'):
                 generate_cellpose_masks(mask_src, settings, 'pathogen')
 
-        if settings['organelle'] != None:
-            if check_mask_folder(src, 'organelle_mask_stack'):
-                generate_cellpose_masks(mask_src, settings, 'organelle')
+        #if settings['organelle'] != None:
+        #    if check_mask_folder(src, 'organelle_mask_stack'):
+        #        generate_cellpose_masks(mask_src, settings, 'organelle')
 
         if settings['adjust_cells']:
             if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
@@ -1756,13 +1755,8 @@ def preprocess_generate_masks(src, settings={}):
                 cell_folder = os.path.join(mask_src, 'cell_mask_stack')
                 nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                 parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                parasite_folder = os.path.join(mask_src, 'organelle_mask_stack')
-                #image_folder = os.path.join(src, 'stack')
+                #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
 
-                #process_masks(cell_folder, image_folder, settings['cell_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])
-                #process_masks(nuclei_folder, image_folder, settings['nucleus_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])
-                #process_masks(parasite_folder, image_folder, settings['pathogen_channel'], settings['batch_size'], n_clusters=2, plot=settings['plot'])
-                
                 adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
                 stop = time.time()
                 adjust_time = (stop-start)/60
@@ -1776,38 +1770,28 @@ def preprocess_generate_masks(src, settings={}):
         
         if settings['plot']:
             if not settings['timelapse']:
-                plot_dims = len(settings['channels'])
-                overlay_channels = [2,1,0]
-                cell_mask_dim = nucleus_mask_dim = pathogen_mask_dim = None
-                plot_counter = plot_dims
-
-                if settings['cell_channel'] is not None:
-                    cell_mask_dim = plot_counter
-                    plot_counter += 1
-
-                if settings['nucleus_channel'] is not None:
-                    nucleus_mask_dim = plot_counter
-                    plot_counter += 1
-
-                if settings['pathogen_channel'] is not None:
-                    pathogen_mask_dim = plot_counter
-                    
-                overlay_channels = [settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel']]
-                overlay_channels = [element for element in overlay_channels if element is not None]
-
-                plot_settings = set_default_plot_merge_settings()
-                plot_settings['channel_dims'] = settings['channels']
-                plot_settings['cell_mask_dim'] = cell_mask_dim
-                plot_settings['nucleus_mask_dim'] = nucleus_mask_dim
-                plot_settings['pathogen_mask_dim'] = pathogen_mask_dim
-                plot_settings['overlay_chans'] = overlay_channels
-                plot_settings['nr'] = settings['examples_to_plot']
 
                 if settings['test_mode'] == True:
-                    plot_settings['nr'] = len(os.path.join(src,'merged'))
+                    settings['examples_to_plot'] = len(os.path.join(src,'merged'))
 
                 try:
-                    fig = plot_merged(src=os.path.join(src,'merged'), settings=plot_settings)
+                    merged_src = os.path.join(src,'merged')
+                    files = os.listdir(merged_src)
+                    random.shuffle(files)
+                    time_ls = []
+                    
+                    for i, file in enumerate(files):
+                        start = time.time()
+                        if i <= settings['examples_to_plot']:
+                            file_path = os.path.join(merged_src, file)
+                            plot_image_mask_overlay(file_path, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'], figuresize=10, normalize=True, thickness=3, save_pdf=True)
+                            stop = time.time()
+                            duration = stop-start
+                            time_ls.append(duration)
+                            files_processed = i+1
+                            files_to_process = settings['examples_to_plot']
+                            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
+                            print("Successfully completed run")
                 except Exception as e:
                     print(f'Failed to plot image mask overly. Error: {e}')
             else:
@@ -2015,7 +1999,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
         model_name = settings['pathogen_model']
-
+    
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
     chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
@@ -2027,16 +2011,20 @@ def generate_cellpose_masks(src, settings, object_type):
     
     average_sizes = []
     time_ls = []
+    
+    files_to_process = len(paths)
     for file_index, path in enumerate(paths):
+        start = time.time()
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
         os.makedirs(output_folder, exist_ok=True)
         overall_average_size = 0
+        
         with np.load(path) as data:
             stack = data['data']
             filenames = data['filenames']
-
+            
             for i, filename in enumerate(filenames):
                 output_path = os.path.join(output_folder, filename)
                 
@@ -2062,11 +2050,8 @@ def generate_cellpose_masks(src, settings, object_type):
                         batch_size = len(stack)
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
         
-        files_processed = 0
         for i in range(0, stack.shape[0], batch_size):
             mask_stack = []
-            start = time.time()
-
             if stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0,0]].astype(stack.dtype)
             else:
@@ -2077,7 +2062,7 @@ def generate_cellpose_masks(src, settings, object_type):
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
             if batch.size == 0:
-                print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
+                #print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
                 continue
             
             batch = prepare_batch_for_cellpose(batch)
@@ -2088,8 +2073,8 @@ def generate_cellpose_masks(src, settings, object_type):
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
             
-            if settings['verbose']:
-                print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
+            #if settings['verbose']:
+                #print(f'Processing {file_index}/{len(paths)}: Images/npz {batch.shape[0]}')
 
             #cellpose_normalize_dict = {'lowhigh':[0.0,1.0], #pass in normalization values for 0.0 and 1.0 as list [low, high] if None all other keys ignored
             #                           'sharpen':object_settings['diameter']/4, #recommended to be 1/4-1/8 diameter of cells in pixels
@@ -2207,16 +2192,8 @@ def generate_cellpose_masks(src, settings, object_type):
 
             average_sizes.append(average_obj_size) 
             overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
+            print(f'object_size:{object_type}: {overall_average_size:.3f} px2')
 
-            stop = time.time()
-            duration = (stop - start)
-            time_ls.append(duration)
-            files_processed += len(batch_filenames)
-            #files_processed = (file_index+1)*(batch_size+1)
-            files_to_process = (len(paths))*(batch_size)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f'{object_type}_mask_gen')
-            print(f'object_size:{object_type}): {overall_average_size:.3f} px2')
-        
         if not timelapse:
             if settings['plot']:
                 plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap='inferno', nr=batch_size)
@@ -2227,7 +2204,12 @@ def generate_cellpose_masks(src, settings, object_type):
                 np.save(output_filename, mask)
             mask_stack = []
             batch_filenames = []
-        gc.collect()
+        stop = time.time()
+        duration = (stop - start)
+        time_ls.append(duration)
+        files_processed = file_index+1
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f'{object_type}_mask_gen')
+        #gc.collect()
     torch.cuda.empty_cache()
     return
 
