@@ -10,6 +10,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import psutil
 import GPUtil
+import tkinter.font as tkFont
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -276,7 +277,10 @@ def setup_console(vertical_container):
     console_frame.pack(fill=tk.BOTH, expand=True)
 
     # Create the scrollable frame (which is a Text widget) with white text
-    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg='white')
+    family = style_out['font_family']
+    size = style_out['font_size'] -2
+    font = tkFont.Font(family=family, size=size)
+    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font)
     console_output.pack(fill=tk.BOTH, expand=True)
 
     # Configure the grid to allow expansion
@@ -328,7 +332,6 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     btn_row = 0
 
     if run:
-        print(f'settings_type: {settings_type}')
         run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="run", command=lambda: start_process(q, fig_queue, settings_type), show_text=False, size=size_dict['btn_size'], animation=False)
         run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(run_button)
@@ -354,7 +357,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
 
     # Add the progress bar under the settings category menu
     progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
-    progress_bar.grid(row=btn_row, column=0, columnspan=5, pady=5, padx=5, sticky='ew')
+    progress_bar.grid(row=btn_row, column=0, columnspan=6, pady=5, padx=5, sticky='ew')
     progress_bar.set_label_position()  # Set the label position after grid placement
     widgets.append(progress_bar)
 
@@ -369,6 +372,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
 def setup_usage_panel(horizontal_container, btn_col):
     global usage_bars
     from .gui_utils import set_element_size
+    from .gui_elements import set_dark_style
 
     usg_col = 1
 
@@ -415,12 +419,19 @@ def setup_usage_panel(horizontal_container, btn_col):
 
     # Initialize RAM, VRAM, and GPU bars as None
     ram_bar, vram_bar, gpu_bar = None, None, None
+    
+    # Configure the style for the label
+    style = ttk.Style()
+    style_out = set_dark_style(style)
+    size = style_out['font_size'] - 2
+    usage_font = tkFont.Font(family=style_out['font_family'], size=size)
+    style.configure("usage.TLabel", font=usage_font, foreground=style_out['fg_color'])
 
     # Try adding RAM bar
     try:
         ram_info = psutil.virtual_memory()
         ram_label_text = f"RAM"
-        label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=ram_label_text, anchor='w')
+        label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=ram_label_text, anchor='w', style="usage.TLabel")
         label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
         ram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
         ram_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
@@ -437,7 +448,7 @@ def setup_usage_panel(horizontal_container, btn_col):
         if gpus:
             gpu = gpus[0]
             vram_label_text = f"VRAM"
-            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=vram_label_text, anchor='w')
+            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=vram_label_text, anchor='w', style="usage.TLabel")
             label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
             vram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
             vram_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
@@ -447,7 +458,7 @@ def setup_usage_panel(horizontal_container, btn_col):
             row += 1
 
             gpu_label_text = f"GPU"
-            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=gpu_label_text, anchor='w')
+            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=gpu_label_text, anchor='w', style="usage.TLabel")
             label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
             gpu_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
             gpu_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
@@ -467,7 +478,7 @@ def setup_usage_panel(horizontal_container, btn_col):
             if row > 0 and row % max_elements_per_column == 0:
                 col += 1
                 row = 0
-            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=f"Core {core+1}", anchor='w')
+            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=f"Core {core+1}", anchor='w', style="usage.TLabel")
             label.grid(row=row, column=2 * col, pady=2, padx=5, sticky='w')
             bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
             bar.grid(row=row, column=2 * col + 1, pady=2, padx=5, sticky='ew')
@@ -490,8 +501,6 @@ def setup_usage_panel(horizontal_container, btn_col):
     
     update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, usage_frame)    
     return usage_scrollable_frame, usage_bars, usg_col
-
-
 
 def initiate_abort():
     global thread_control, q, parent_frame
@@ -548,9 +557,11 @@ def process_console_queue():
     # Initialize function attribute if it doesn't exist
     if not hasattr(process_console_queue, "completed_tasks"):
         process_console_queue.completed_tasks = []
+    if not hasattr(process_console_queue, "current_maximum"):
+        process_console_queue.current_maximum = None
 
     ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-    
+
     while not q.empty():
         message = q.get_nowait()
         clean_message = ansi_escape_pattern.sub('', message)
@@ -562,11 +573,17 @@ def process_console_queue():
             try:
                 # Extract the progress information
                 match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*)(.*)', clean_message)
+                print('match', match)
                 if match:
                     current_progress = int(match.group(1))
                     total_progress = int(match.group(2))
                     operation_type = match.group(3).strip()
                     time_info = match.group(4).strip()
+
+                    # Check if the maximum value has changed
+                    if process_console_queue.current_maximum != total_progress:
+                        process_console_queue.current_maximum = total_progress
+                        process_console_queue.completed_tasks = []
 
                     # Add the task to the completed set
                     process_console_queue.completed_tasks.append(current_progress)
@@ -602,10 +619,11 @@ def process_console_queue():
                     # Clear completed tasks when progress is complete
                     if unique_progress_count >= total_progress:
                         process_console_queue.completed_tasks.clear()
+
             except Exception as e:
                 print(f"Error parsing progress message: {e}")
 
-    after_id = console_output.after(100, process_console_queue)
+    after_id = console_output.after(10, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
 def initiate_root(parent, settings_type='mask'):

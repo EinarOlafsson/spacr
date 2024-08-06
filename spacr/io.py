@@ -594,9 +594,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
         print(f'All_files: {len(all_filenames)} in {src}')
         time_ls = []
 
-        for i in range(0, len(all_filenames), batch_size):
+        for idx in range(0, len(all_filenames), batch_size):
             start = time.time()
-            batch_filenames = all_filenames[i:i+batch_size]
+            batch_filenames = all_filenames[idx:idx+batch_size]
             files_processed = 0
             for filename in batch_filenames:
                 images_by_key = _extract_filename_metadata(batch_filenames, src, images_by_key, regular_expression, metadata_type, pick_slice, skip_mode)
@@ -611,6 +611,11 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     output_filename = f'{plate}_{well}_{field}.tif'
                     output_path = os.path.join(output_dir, output_filename)
                     files_processed += 1
+                    stop = time.time()
+                    duration = stop - start
+                    time_ls.append(duration)
+                    files_to_process = len(all_filenames)
+                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
                     if os.path.exists(output_path):                        
                         print(f'WARNING: A file with the same name already exists at location {output_filename}')
@@ -626,17 +631,17 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     output_filename = f'{plate}_{well}_{field}.tif'
                     output_path = os.path.join(output_dir, output_filename)
                     files_processed += 1
+                    stop = time.time()
+                    duration = stop - start
+                    time_ls.append(duration)
+                    files_to_process = len(all_filenames)
+                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
                     if os.path.exists(output_path):                        
                         print(f'WARNING: A file with the same name already exists at location {output_filename}')
                     else:
                         mip_image.save(output_path)
             images_by_key.clear()
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            files_to_process = len(all_filenames)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
         # Move original images to a new directory
         valid_exts = [img_format]
@@ -969,7 +974,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 time_ls.append(duration)
                 files_processed = i+1
                 files_to_process = time_stack_path_lists
-                #print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
                 np.savez(save_loc, data=stack, filenames=filenames_region)
@@ -1000,7 +1005,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             time_ls.append(duration)
             files_processed = i+1
             files_to_process = nr_files
-            #print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
             if (i+1) % batch_size == 0 or i+1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
@@ -1098,7 +1103,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         time_ls.append(duration)
         files_processed = i+1
         files_to_process = len(channels)
-        #print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type=f"Normalizing: Channel: {channel}")
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f"Normalizing")
 
     return normalized_stack.astype(save_dtype)
 
@@ -1152,7 +1157,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
                 time_ls.append(duration)
                 files_processed = i+1
                 files_to_process = len(time_stack_path_lists)
-                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=None, operation_type="Concatinating")
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
 
                 normalized_stack = _normalize_img_batch(stack=stack,
@@ -1613,8 +1618,8 @@ def preprocess_img_data(settings):
                               save_dtype=np.float32,
                               settings=settings)
 
-    if plot:
-        _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)
+    #if plot:
+    #    _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)
 
     return settings, src
     
@@ -1944,7 +1949,7 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     all_imgs = len(os.listdir(reference_folder))
     time_ls = []
     # Iterate through each file in the reference folder
-    for filename in os.listdir(reference_folder):
+    for idx, filename in enumerate(os.listdir(reference_folder)):
         start = time.time()
         stack_ls = []
         if filename.endswith('.npy'):
@@ -2005,7 +2010,7 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
         stop = time.time()
         duration = stop - start
         time_ls.append(duration)
-        files_processed = count
+        files_processed = idx+1
         files_to_process = all_imgs
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Merging Arrays")
 
