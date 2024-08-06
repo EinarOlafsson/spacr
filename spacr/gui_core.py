@@ -679,6 +679,7 @@ def initiate_root(parent, settings_type='mask'):
         initiate_make_mask_app(horizontal_container)
     else:
         scrollable_frame, vars_dict = setup_settings_panel(settings_container, settings_type)
+        print('setup_settings_panel')
         canvas, canvas_widget = setup_plot_section(vertical_container)
         console_output, console_frame = setup_console(vertical_container)
         button_scrollable_frame = setup_button_section(horizontal_container, settings_type)
