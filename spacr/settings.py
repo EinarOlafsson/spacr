@@ -1082,8 +1082,8 @@ def generate_fields(variables, scrollable_frame):
 
 
     for key, (var_type, options, default_value) in variables.items():
-        label, widget, var = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        vars_dict[key] = (label, widget, var)  # Store the label, widget, and variable
+        label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+        vars_dict[key] = (label, widget, var, frame)  # Store the label, widget, and variable
         
         # Add tooltip to the label if it exists in the tooltips dictionary
         if key in tooltips:

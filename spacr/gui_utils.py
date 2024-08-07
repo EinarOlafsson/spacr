@@ -66,7 +66,7 @@ def parse_list(value):
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     from .gui_elements import set_dark_style
     label_column = 0
-    widget_column = 1
+    widget_column = 0  # Both label and widget will be in the same column
 
     style_out = set_dark_style(ttk.Style())
 
@@ -74,33 +74,43 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     label_text = label_text.replace('_', ' ').capitalize()
 
     # Configure the column widths
-    frame.grid_columnconfigure(label_column, weight=0)  # Allow the label column to expand
-    frame.grid_columnconfigure(widget_column, weight=1)  # Allow the widget column to expand
+    frame.grid_columnconfigure(label_column, weight=1)  # Allow the column to expand
+
+    # Create a custom frame with a translucent background and rounded edges
+    custom_frame = tk.Frame(frame, bg=style_out['bg_color'], bd=2, relief='solid')
+    custom_frame.grid(column=label_column, row=row, sticky=tk.EW, padx=(5, 5), pady=5)
+
+    # Apply styles to custom frame
+    custom_frame.update_idletasks()
+    custom_frame.config(highlightbackground="white", highlightthickness=1, bd=2)
+    custom_frame.bind("<Enter>", lambda e: custom_frame.config(highlightbackground=style_out['active_color']))
+    custom_frame.bind("<Leave>", lambda e: custom_frame.config(highlightbackground="white"))
 
     # Create and configure the label
-    label = ttk.Label(frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=(style_out['font_family'], style_out['font_size']), anchor='e', justify='right')
-    label.grid(column=label_column, row=row, sticky=tk.E, padx=(5, 2), pady=5)
+    label = ttk.Label(custom_frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=(style_out['font_family'], style_out['font_size']), anchor='e', justify='right')
+    label.grid(column=label_column, row=0, sticky=tk.W, padx=(5, 2), pady=5)  # Place the label in the first row
 
+    # Create and configure the input widget based on var_type
     if var_type == 'entry':
         var = tk.StringVar(value=default_value)
-        entry = spacrEntry(frame, textvariable=var, outline=False)
-        entry.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
-        return (label, entry, var)  # Return both the label and the entry, and the variable
+        entry = spacrEntry(custom_frame, textvariable=var, outline=False)
+        entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the entry in the second row
+        return (label, entry, var, custom_frame)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
         var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
-        check = spacrCheck(frame, text="", variable=var)
-        check.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
-        return (label, check, var)  # Return both the label and the checkbutton, and the variable
+        check = spacrCheck(custom_frame, text="", variable=var)
+        check.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the checkbutton in the second row
+        return (label, check, var, custom_frame)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
         var = tk.StringVar(value=default_value)  # Set default value
-        combo = spacrCombo(frame, textvariable=var, values=options)  # Apply TCombobox style
-        combo.grid(column=widget_column, row=row, sticky=tk.W, padx=(2, 5), pady=5)  # Align widget to the left
+        combo = spacrCombo(custom_frame, textvariable=var, values=options)  # Apply TCombobox style
+        combo.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the combobox in the second row
         if default_value:
             combo.set(default_value)
-        return (label, combo, var)  # Return both the label and the combobox, and the variable
+        return (label, combo, var, custom_frame)  # Return both the label and the combobox, and the variable
     else:
         var = None  # Placeholder in case of an undefined var_type
-        return (label, None, var)
+        return (label, None, var, custom_frame)
 
 def process_stdout_stderr(q):
     """
@@ -312,11 +322,12 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
 def set_element_size(widget):
     screen_width = widget.winfo_screenwidth()
     screen_height = widget.winfo_screenheight()
-    btn_size = screen_width // 40
-    bar_size = screen_width // 50
-    settings_width = screen_width // 5
-    panel_height = screen_height // 12
-    panel_width = settings_width
+    btn_size = screen_height // 15
+    bar_size = screen_height // 30
+    settings_width = screen_height // 3
+    panel_height = screen_height // 5
+    panel_width = screen_height // 5
+    
     size_dict = {
         'btn_size': btn_size,
         'bar_size': bar_size,
@@ -495,14 +506,15 @@ def hide_all_settings(vars_dict, categories):
 
     for category, settings in categories.items():
         if any(setting in vars_dict for setting in settings):
-            vars_dict[category] = (None, None, tk.IntVar(value=0))
+            vars_dict[category] = (None, None, tk.IntVar(value=0), None)
             
             # Initially hide all settings
             for setting in settings:
                 if setting in vars_dict:
-                    label, widget, _ = vars_dict[setting]
+                    label, widget, _, frame = vars_dict[setting]
                     label.grid_remove()
                     widget.grid_remove()
+                    frame.grid_remove()
     return vars_dict
 
 def setup_frame(parent_frame):
@@ -514,7 +526,7 @@ def setup_frame(parent_frame):
 
     settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['settings_width'], bg=style_out['bg_color'])
     vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg=style_out['bg_color'])
-    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'], bg=style_out['bg_color'])
+    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg=style_out['bg_color']) #height=size_dict['panel_height'], 
 
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_rowconfigure(1, weight=0)
