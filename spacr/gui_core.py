@@ -45,13 +45,15 @@ def toggle_settings(button_scrollable_frame):
     def toggle_category(settings):
         for setting in settings:
             if setting in vars_dict:
-                label, widget, _ = vars_dict[setting]
+                label, widget, _, frame = vars_dict[setting]
                 if widget.grid_info():
                     label.grid_remove()
                     widget.grid_remove()
+                    frame.grid_remove()
                 else:
                     label.grid()
                     widget.grid()
+                    frame.grid()
 
     def on_category_select(selected_category):
         if selected_category == "Select Category":
@@ -413,7 +415,7 @@ def setup_usage_panel(horizontal_container, btn_col):
     widgets = [usage_scrollable_frame.scrollable_frame]
     
     usage_bars = []
-    max_elements_per_column = 6
+    max_elements_per_column = 4
     row = 0
     col = 0
 
