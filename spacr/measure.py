@@ -13,6 +13,7 @@ from skimage.feature import graycomatrix, graycoprops
 from mahotas.features import zernike_moments
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
+import matplotlib.pyplot as plt
 
 from .logger import log_function_call
 
@@ -607,7 +608,7 @@ def _measure_crop_core(index, time_ls, file, settings):
     from .plot import _plot_cropped_arrays
     from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype
     from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles, _map_wells_png
-    
+    figs = []
     start = time.time() 
     try:
         source_folder = os.path.dirname(settings['src'])
@@ -639,7 +640,8 @@ def _measure_crop_core(index, time_ls, file, settings):
             else:
                 figuresize = 10
             print('')
-            _plot_cropped_arrays(data, file, figuresize)
+            fig = _plot_cropped_arrays(data, file, figuresize)
+            figs.append(fig)
         
         channel_arrays = data[:, :, settings['channels']].astype(data_type)        
         if settings['cell_mask_dim'] is not None:
@@ -715,8 +717,8 @@ def _measure_crop_core(index, time_ls, file, settings):
             data = np.concatenate((data, cytoplasm_mask[:, :, np.newaxis]), axis=2)
 
         if settings['plot_filtration']:
-            _plot_cropped_arrays(data, file, figuresize)
-            #_plot_cropped_arrays(data)
+            fig = _plot_cropped_arrays(data, file, figuresize)
+            figs.append(fig)
 
         if settings['save_measurements']:
 
@@ -883,7 +885,8 @@ def _measure_crop_core(index, time_ls, file, settings):
                                     figuresize = png_channels.shape[2]*10
                                 else:
                                     figuresize = 10
-                                _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
+                                fig = _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
+                                figs.append(fig)
 
                         if settings['save_arrays']:
                             row_idx, col_idx = np.where(region)
@@ -896,7 +899,8 @@ def _measure_crop_core(index, time_ls, file, settings):
                                     figuresize = png_channels.shape[2]*10
                                 else:
                                     figuresize = 10
-                                _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
+                                fig = _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
+                                figs.append(fig)
 
                         if not settings['save_arrays'] and not settings['save_png'] and settings['plot']:
                             row_idx, col_idx = np.where(region)
@@ -905,7 +909,8 @@ def _measure_crop_core(index, time_ls, file, settings):
                                 figuresize = png_channels.shape[2]*10
                             else:
                                 figuresize = 10
-                            _plot_cropped_arrays(png_channels, file, figuresize, threshold=1)
+                            fig = _plot_cropped_arrays(png_channels, file, figuresize, threshold=1)
+                            figs.append(fig)
 
         cells = np.unique(cell_mask)
     except Exception as e:
@@ -917,7 +922,7 @@ def _measure_crop_core(index, time_ls, file, settings):
     duration = end-start
     time_ls.append(duration)
     average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-    return average_time, cells
+    return average_time, cells, figs
 
 #@log_function_call
 def measure_crop(settings):
@@ -943,7 +948,7 @@ def measure_crop(settings):
 
     src_fldr = settings['src']
     if not os.path.basename(src_fldr).endswith('merged'):
-        print(f"WARNING: Source folder, settings: src: {src_fldr} should end with 'merged'")
+        print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
         src_fldr = os.path.join(src_fldr, 'merged')
         print(f"Changed source folder to: {src_fldr}")
     
@@ -963,6 +968,8 @@ def measure_crop(settings):
     settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
     os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)
+
+    
 
     if settings['timelapse_objects'] == 'nucleus':
         if not settings['cell_mask_dim'] is None:
@@ -1002,12 +1009,42 @@ def measure_crop(settings):
             result = pool.starmap_async(_measure_crop_core, [(index, time_ls, file, settings) for index, file in enumerate(files)])
 
             # Track progress in the main process
+            processed_indices = set()            
             while not result.ready():
                 time.sleep(1)
                 files_processed = len(time_ls)
                 files_to_process = len(files)
                 print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
-            result.get()
+
+                partial_results = result._value  # Get the partial results
+                for i, res in enumerate(partial_results):
+                    if i not in processed_indices:
+                        if res is None:
+                            print(f"Warning: received None result for index {i}")
+                            continue
+                        avg_time, cells, figs = res
+                        if figs is not None:
+                            for fig in figs:
+                                plt.figure(fig.number)
+                                plt.show()
+                                plt.close(fig)
+                            partial_results[i] = (avg_time, cells, None)  # Set figures to None
+                            processed_indices.add(i)
+
+            final_results = result.get()
+            for i, res in enumerate(final_results):
+                if i not in processed_indices:
+                    if res is None:
+                        print(f"Warning: received None result for index {i}")
+                        continue
+                    avg_time, cells, figs = res
+                    if figs is not None:
+                        for fig in figs:
+                            plt.figure(fig.number)
+                            plt.show()
+                            plt.close(fig)
+                        final_results[i] = (avg_time, cells, None)  # Set figures to None
+                        processed_indices.add(i)
 
     if settings['representative_images']:
         if settings['save_png']:

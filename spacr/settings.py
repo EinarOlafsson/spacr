@@ -742,60 +742,6 @@ expected_types = {
     "fraction_threshold": float,
 }
 
-def check_settings_v1(vars_dict, expected_types,q=None):
-    from .gui_utils import parse_list
-    settings = {}
-    # Define the expected types for each key, including None where applicable
-
-    for key, (label, widget, var) in vars_dict.items():
-        if key not in expected_types:
-            if key not in ["General","Nucleus","Cell","Pathogen","Timelapse","Plot","Object Image","Annotate Data","Measurements","Advanced","Miscellaneous","Test"]:
-                q.put(f"Key {key} not found in expected types.")
-                continue
-
-        value = var.get()
-        expected_type = expected_types.get(key, str)
-
-        try:
-            if key in ["png_size", "pathogen_plate_metadata", "treatment_plate_metadata"]:
-                parsed_value = ast.literal_eval(value) if value else None
-                if isinstance(parsed_value, list):
-                    if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
-                        settings[key] = parsed_value
-                    else:
-                        raise ValueError("Invalid format: Mixed list and list of lists")
-                else:
-                    raise ValueError("Invalid format for list or list of lists")
-            elif expected_type == list:
-                settings[key] = parse_list(value) if value else None
-            elif expected_type == bool:
-                settings[key] = value if isinstance(value, bool) else value.lower() in ['true', '1', 't', 'y', 'yes']
-            elif expected_type == (int, type(None)):
-                settings[key] = int(value) if value else None
-            elif expected_type == (float, type(None)):
-                settings[key] = float(value) if value else None
-            elif expected_type == (int, float):
-                settings[key] = float(value) if '.' in value else int(value)
-            elif expected_type == (str, type(None)):
-                settings[key] = str(value) if value else None
-            elif isinstance(expected_type, tuple):
-                for typ in expected_type:
-                    try:
-                        settings[key] = typ(value) if value else None
-                        break
-                    except (ValueError, TypeError):
-                        continue
-                else:
-                    raise ValueError
-            else:
-                settings[key] = expected_type(value) if value else None
-        except (ValueError, SyntaxError):
-            expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
-            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}.")
-            return
-
-    return settings
-
 def check_settings(vars_dict, expected_types, q=None):
     from .gui_utils import parse_list
 
@@ -805,7 +751,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
     settings = {}
 
-    for key, (label, widget, var) in vars_dict.items():
+    for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types:
             if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test"]:
                 q.put(f"Key {key} not found in expected types.")
@@ -856,7 +802,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
 def generate_fields(variables, scrollable_frame):
     from .gui_utils import create_input_field
-    from .gui_elements import spacrToolTip
+    from .gui_elements import set_dark_style, spacrToolTip
     row = 1
     vars_dict = {}
     tooltips = {
@@ -1080,7 +1026,6 @@ def generate_fields(variables, scrollable_frame):
         "um_per_pixel": "(float) - The micrometers per pixel for the images."
     }
 
-
     for key, (var_type, options, default_value) in variables.items():
         label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
         vars_dict[key] = (label, widget, var, frame)  # Store the label, widget, and variable
@@ -1088,8 +1033,11 @@ def generate_fields(variables, scrollable_frame):
         # Add tooltip to the label if it exists in the tooltips dictionary
         if key in tooltips:
             spacrToolTip(label, tooltips[key])
+
         row += 1
+        
     return vars_dict
+
 
 categories = {
     "General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims"],

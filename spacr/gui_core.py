@@ -1,9 +1,8 @@
-import os, traceback, ctypes, requests, csv, time, requests, re
+import os, traceback, ctypes, csv, re, pickle
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from multiprocessing import Process, Value, Queue, set_start_method
-from multiprocessing.sharedctypes import Synchronized
+from multiprocessing import Process, Value, Queue, set_start_method, Manager
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -99,11 +98,8 @@ def process_fig_queue():
     except Exception as e:
         traceback.print_exc()
     finally:
-        after_id = canvas_widget.after(100, process_fig_queue)
+        after_id = canvas_widget.after(1, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
-
-
-
 
 def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
     global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
@@ -174,11 +170,11 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
     from .gui_utils import convert_settings_dict_for_gui, set_element_size
 
-    size_dict = set_element_size(vertical_container)
+    size_dict = set_element_size()
     settings_width = size_dict['settings_width']
 
     # Create a PanedWindow for the settings panel
-    settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL)
+    settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, width=size_dict['settings_width'])
     vertical_container.add(settings_paned_window, stretch="always")
 
     settings_frame = tk.Frame(settings_paned_window, width=settings_width)
@@ -232,8 +228,12 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
 
 def setup_plot_section(vertical_container):
     global canvas, canvas_widget
-    plot_frame = tk.PanedWindow(vertical_container, orient=tk.VERTICAL)
+
+    # Create a frame for the plot section
+    plot_frame = tk.Frame(vertical_container, bg='lightgrey')
     vertical_container.add(plot_frame, stretch="always")
+
+    # Set up the plot
     figure = Figure(figsize=(30, 4), dpi=100)
     plot = figure.add_subplot(111)
     plot.plot([], [])  # This creates an empty plot.
@@ -241,7 +241,11 @@ def setup_plot_section(vertical_container):
     canvas = FigureCanvasTkAgg(figure, master=plot_frame)
     canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
     canvas_widget = canvas.get_tk_widget()
-    plot_frame.add(canvas_widget, stretch="always")
+    canvas_widget.grid(row=0, column=0, sticky="nsew")  # Use grid for the canvas widget
+
+    plot_frame.grid_rowconfigure(0, weight=1)
+    plot_frame.grid_columnconfigure(0, weight=1)
+
     canvas.draw()
     canvas.figure = figure
     style_out = set_dark_style(ttk.Style())
@@ -252,6 +256,7 @@ def setup_plot_section(vertical_container):
     widgets = [canvas_widget]
     style = ttk.Style(vertical_container)
     _ = set_dark_style(style, containers=containers, widgets=widgets)
+
     return canvas, canvas_widget
 
 def setup_console(vertical_container):
@@ -262,36 +267,33 @@ def setup_console(vertical_container):
     style = ttk.Style()
     style_out = set_dark_style(style)
 
-    # Create a PanedWindow to hold the main content and console sections
-    main_paned_window = tk.PanedWindow(vertical_container, orient=tk.VERTICAL, bg=style_out['bg_color'])
-    vertical_container.add(main_paned_window, stretch="always")
+    # Create a frame for the console section
+    console_frame = tk.Frame(vertical_container, bg=style_out['bg_color'])
+    vertical_container.add(console_frame, stretch="always")
 
-    # Create the main content frame
-    main_content_frame = tk.Frame(main_paned_window, bg=style_out['bg_color'])
-    main_paned_window.add(main_content_frame, stretch="always")
-
-    # Create a frame to hold the console and button sections
-    console_button_frame = tk.Frame(main_paned_window, bg=style_out['bg_color'])
-    main_paned_window.add(console_button_frame, stretch="always")
-
-    # Create the main console frame
-    console_frame = tk.Frame(console_button_frame, bg=style_out['bg_color'])
-    console_frame.pack(fill=tk.BOTH, expand=True)
+    # Create a thicker frame at the top for the hover effect
+    top_border = tk.Frame(console_frame, height=5, bg=style_out['bg_color'])
+    top_border.grid(row=0, column=0, sticky="ew", pady=(0, 2))
 
     # Create the scrollable frame (which is a Text widget) with white text
     family = style_out['font_family']
-    size = style_out['font_size'] -2
+    size = style_out['font_size'] - 2
     font = tkFont.Font(family=family, size=size)
-    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font)
-    console_output.pack(fill=tk.BOTH, expand=True)
+    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font, bd=0, highlightthickness=0)
+    console_output.grid(row=1, column=0, sticky="nsew")  # Use grid for console_output
 
     # Configure the grid to allow expansion
-    console_frame.grid_rowconfigure(0, weight=1)
+    console_frame.grid_rowconfigure(1, weight=1)
     console_frame.grid_columnconfigure(0, weight=1)
 
-    # Create a lower frame to act as the anchor point
-    lower_frame = tk.Frame(console_button_frame, bg=style_out['bg_color'])
-    lower_frame.pack(fill=tk.X, expand=False)
+    def on_enter(event):
+        top_border.config(bg=style_out['active_color'])
+
+    def on_leave(event):
+        top_border.config(bg=style_out['bg_color'])
+
+    console_output.bind("<Enter>", on_enter)
+    console_output.bind("<Leave>", on_leave)
 
     return console_output, console_frame
 
@@ -318,7 +320,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     from .gui_utils import set_element_size, download_hug_dataset
     from .settings import categories
 
-    size_dict = set_element_size(horizontal_container)
+    size_dict = set_element_size()
     button_section_height = size_dict['panel_height']
     button_frame = tk.Frame(horizontal_container, height=button_section_height)
     
@@ -400,7 +402,7 @@ def setup_usage_panel(horizontal_container, btn_col):
         # Schedule the function to run again after 1000 ms (1 second)
         parent_frame.after(1000, update_usage, ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame)
 
-    size_dict = set_element_size(horizontal_container)
+    size_dict = set_element_size()
     usage_panel_height = size_dict['panel_height']
     usage_frame = tk.Frame(horizontal_container, height=usage_panel_height)
     horizontal_container.add(usage_frame)
@@ -567,15 +569,15 @@ def process_console_queue():
     while not q.empty():
         message = q.get_nowait()
         clean_message = ansi_escape_pattern.sub('', message)
-        console_output.insert(tk.END, clean_message + "\n")
-        console_output.see(tk.END)
+        #console_output.insert(tk.END, clean_message + "\n")
+        #console_output.see(tk.END)
         
         # Check if the message contains progress information
         if clean_message.startswith("Progress:"):
             try:
                 # Extract the progress information
                 match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*)(.*)', clean_message)
-                print('match', match)
+
                 if match:
                     current_progress = int(match.group(1))
                     total_progress = int(match.group(2))
@@ -624,8 +626,12 @@ def process_console_queue():
 
             except Exception as e:
                 print(f"Error parsing progress message: {e}")
-
-    after_id = console_output.after(10, process_console_queue)
+        else:
+            # Only insert messages that do not start with "Progress:"
+            console_output.insert(tk.END, clean_message + "\n")
+            console_output.see(tk.END)
+        
+    after_id = console_output.after(1, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
 def initiate_root(parent, settings_type='mask'):
@@ -681,3 +687,5 @@ def initiate_root(parent, settings_type='mask'):
 
     print("Root initialization complete")
     return parent_frame, vars_dict
+
+

@@ -48,12 +48,13 @@ dependencies = [
     'psutil>=5.9.8, <6.0',
     'gputil>=1.4.0, <2.0', 
     'gpustat>=1.1.1,<2.0',
+    'pyautogui>=0.9.54,<1.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.2.45",
+    version="0.2.5",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

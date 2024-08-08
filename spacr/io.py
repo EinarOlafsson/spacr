@@ -597,7 +597,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
         for idx in range(0, len(all_filenames), batch_size):
             start = time.time()
             batch_filenames = all_filenames[idx:idx+batch_size]
-            files_processed = 0
             for filename in batch_filenames:
                 images_by_key = _extract_filename_metadata(batch_filenames, src, images_by_key, regular_expression, metadata_type, pick_slice, skip_mode)
             
@@ -974,7 +973,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 time_ls.append(duration)
                 files_processed = i+1
                 files_to_process = time_stack_path_lists
-                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type="Concatinating")
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
                 np.savez(save_loc, data=stack, filenames=filenames_region)
@@ -1005,7 +1004,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             time_ls.append(duration)
             files_processed = i+1
             files_to_process = nr_files
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type="Concatinating")
             if (i+1) % batch_size == 0 or i+1 == nr_files:
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
