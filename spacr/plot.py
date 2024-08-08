@@ -908,49 +908,9 @@ def _plot_cropped_arrays(stack, filename, figuresize=20, cmap='inferno', thresho
         fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
         for channel in range(num_channels):
             plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
-        fig.tight_layout()
-        plt.show()
-    
-    #stop = time.time()
-    #duration = stop - start
-    #print('plot_cropped_arrays', duration)
+        fig.tight_layout()    
     print(f'{filename}')
-
-def _plot_cropped_arrays_v1(stack, figuresize=20, cmap='inferno'):
-    """
-    Plot cropped arrays.
-
-    Args:
-        stack (ndarray): The array to be plotted.
-        figuresize (int, optional): The size of the figure. Defaults to 20.
-        cmap (str, optional): The colormap to be used. Defaults to 'inferno'.
-
-    Returns:
-        None
-    """
-    start = time.time()
-    dim = stack.shape 
-    channel=min(dim)
-    if len(stack.shape) == 2:
-        f, a = plt.subplots(1, 1,figsize=(figuresize,figuresize))
-        a.imshow(stack, cmap=plt.get_cmap(cmap))
-        a.set_title('Channel one',size=18)
-        a.axis('off')
-        f.tight_layout()
-        plt.show()
-    if len(stack.shape) > 2:
-        anr = stack.shape[2]
-        f, a = plt.subplots(1, anr,figsize=(figuresize,figuresize))
-        for channel in range(anr):
-            a[channel].imshow(stack[:,:,channel], cmap=plt.get_cmap(cmap))
-            a[channel].set_title('Channel '+str(channel),size=18)
-            a[channel].axis('off')
-            f.tight_layout()
-        plt.show()
-    stop = time.time()
-    duration = stop - start
-    print('plot_cropped_arrays', duration)
-    return
+    return fig
     
 def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src, name, plot, filenames, object_type, mode='btrack', interactive=False):
     """

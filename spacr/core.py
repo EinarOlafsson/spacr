@@ -1729,20 +1729,39 @@ def preprocess_generate_masks(src, settings={}):
 
     if settings['preprocess']:
         settings, src = preprocess_img_data(settings)
-        
+
+    files_to_process = 3
     if settings['masks']:
         mask_src = os.path.join(src, 'norm_channel_stack')
         if settings['cell_channel'] != None:
+            start = time.time()
             if check_mask_folder(src, 'cell_mask_stack'):
                 generate_cellpose_masks(mask_src, settings, 'cell')
+                stop = time.time()
+                duration = (stop - start)
+                time_ls.append(duration)
+                files_processed += 1
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
             
         if settings['nucleus_channel'] != None:
+            start = time.time()
             if check_mask_folder(src, 'nucleus_mask_stack'):
                 generate_cellpose_masks(mask_src, settings, 'nucleus')
+                stop = time.time()
+                duration = (stop - start)
+                time_ls.append(duration)
+                files_processed += 1
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
             
         if settings['pathogen_channel'] != None:
+            start = time.time()
             if check_mask_folder(src, 'pathogen_mask_stack'):
+                stop = time.time()
+                duration = (stop - start)
+                time_ls.append(duration)
+                files_processed += 1
                 generate_cellpose_masks(mask_src, settings, 'pathogen')
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
 
         #if settings['organelle'] != None:
         #    if check_mask_folder(src, 'organelle_mask_stack'):
@@ -2012,7 +2031,6 @@ def generate_cellpose_masks(src, settings, object_type):
     average_sizes = []
     time_ls = []
     
-    files_to_process = len(paths)
     for file_index, path in enumerate(paths):
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
@@ -2050,7 +2068,6 @@ def generate_cellpose_masks(src, settings, object_type):
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
         
         for i in range(0, stack.shape[0], batch_size):
-            start = time.time()
             mask_stack = []
             if stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0,0]].astype(stack.dtype)
@@ -2072,14 +2089,6 @@ def generate_cellpose_masks(src, settings, object_type):
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
             
-            stop = time.time()
-            duration = (stop - start)
-            time_ls.append(duration)
-            files_processed = (file_index+1)*len(batch_filenames)
-            files_processed = len(paths)*batch.shape[0]
-            print('file_index', file_index, 'len(paths)', len(paths), 'batch.shape[0]', batch.shape[0])
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch.shape[0], operation_type=f'{object_type}_mask_gen')
-
             output = model.eval(x=batch,
                                 batch_size=cellpose_batch_size,
                                 normalize=False,

@@ -81,8 +81,101 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
 
     return {'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
+class spacrContainer(tk.Frame):
+    def __init__(self, parent, orient=tk.VERTICAL, bg=None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.orient = orient
+        self.bg = bg if bg else 'lightgrey'
+        self.sash_thickness = 10
+
+        self.panes = []
+        self.sashes = []
+        self.bind("<Configure>", self.on_configure)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+    def add(self, widget, stretch='always'):
+        print(f"Adding widget: {widget} with stretch: {stretch}")
+        pane = tk.Frame(self, bg=self.bg)
+        pane.grid_propagate(False)
+        widget.grid(in_=pane, sticky="nsew")  # Use grid for the widget within the pane
+        self.panes.append((pane, widget))
+
+        if len(self.panes) > 1:
+            self.create_sash()
+
+        self.reposition_panes()
+
+    def create_sash(self):
+        sash = tk.Frame(self, bg=self.bg, cursor='sb_v_double_arrow' if self.orient == tk.VERTICAL else 'sb_h_double_arrow', height=self.sash_thickness, width=self.sash_thickness)
+        sash.bind("<Enter>", self.on_enter_sash)
+        sash.bind("<Leave>", self.on_leave_sash)
+        sash.bind("<ButtonPress-1>", self.start_resize)
+        self.sashes.append(sash)
+
+    def reposition_panes(self):
+        if not self.panes:
+            return
+
+        total_size = self.winfo_height() if self.orient == tk.VERTICAL else self.winfo_width()
+        pane_size = total_size // len(self.panes)
+
+        print(f"Total size: {total_size}, Pane size: {pane_size}, Number of panes: {len(self.panes)}")
+
+        for i, (pane, widget) in enumerate(self.panes):
+            if self.orient == tk.VERTICAL:
+                pane.grid(row=i * 2, column=0, sticky="nsew", pady=(0, self.sash_thickness if i < len(self.panes) - 1 else 0))
+            else:
+                pane.grid(row=0, column=i * 2, sticky="nsew", padx=(0, self.sash_thickness if i < len(self.panes) - 1 else 0))
+
+        for i, sash in enumerate(self.sashes):
+            if self.orient == tk.VERTICAL:
+                sash.grid(row=(i * 2) + 1, column=0, sticky="ew")
+            else:
+                sash.grid(row=0, column=(i * 2) + 1, sticky="ns")
+
+    def on_configure(self, event):
+        print(f"Configuring container: {self}")
+        self.reposition_panes()
+
+    def on_enter_sash(self, event):
+        event.widget.config(bg='blue')
+
+    def on_leave_sash(self, event):
+        event.widget.config(bg=self.bg)
+
+    def start_resize(self, event):
+        sash = event.widget
+        self.start_pos = event.y_root if self.orient == tk.VERTICAL else event.x_root
+        self.start_size = sash.winfo_y() if self.orient == tk.VERTICAL else sash.winfo_x()
+        sash.bind("<B1-Motion>", self.perform_resize)
+
+    def perform_resize(self, event):
+        sash = event.widget
+        delta = (event.y_root - self.start_pos) if self.orient == tk.VERTICAL else (event.x_root - self.start_pos)
+        new_size = self.start_size + delta
+
+        for i, (pane, widget) in enumerate(self.panes):
+            if self.orient == tk.VERTICAL:
+                new_row = max(0, new_size // self.sash_thickness)
+                if pane.winfo_y() >= new_size:
+                    pane.grid_configure(row=new_row)
+                elif pane.winfo_y() < new_size and i > 0:
+                    previous_row = max(0, (new_size - pane.winfo_height()) // self.sash_thickness)
+                    self.panes[i - 1][0].grid_configure(row=previous_row)
+            else:
+                new_col = max(0, new_size // self.sash_thickness)
+                if pane.winfo_x() >= new_size:
+                    pane.grid_configure(column=new_col)
+                elif pane.winfo_x() < new_size and i > 0:
+                    previous_col = max(0, (new_size - pane.winfo_width()) // self.sash_thickness)
+                    self.panes[i - 1][0].grid_configure(column=previous_col)
+
+        self.reposition_panes()
+
 class spacrEntry(tk.Frame):
-    def __init__(self, parent, textvariable=None, outline=False, *args, **kwargs):
+    def __init__(self, parent, textvariable=None, outline=False, width=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         
         # Set dark style
@@ -98,13 +191,17 @@ class spacrEntry(tk.Frame):
         self.configure(bg=style_out['bg_color'])
 
         # Create a canvas for the rounded rectangle background
-        self.canvas_width = 220  # Adjusted for padding
+        if width is None:
+            self.canvas_width = 220  # Adjusted for padding
+        else:
+            self.canvas_width = width
         self.canvas_height = 40   # Adjusted for padding
         self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=style_out['bg_color'])
         self.canvas.pack()
         
+        # Create the entry widget
         self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=(self.font_family, self.font_size), bg=self.bg_color)
-        self.entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=190, height=20)  # Centered positioning
+        self.entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=self.canvas_width - 30, height=20)  # Centered positioning
         
         # Bind events to change the background color on focus
         self.entry.bind("<FocusIn>", self.on_focus_in)
@@ -115,7 +212,7 @@ class spacrEntry(tk.Frame):
     def draw_rounded_rectangle(self, color):
         radius = 15  # Increased radius for more rounded corners
         x0, y0 = 10, 5
-        x1, y1 = 210, 35
+        x1, y1 = self.canvas_width - 10, self.canvas_height - 5
         self.canvas.delete("all")
         self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
         self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
@@ -183,7 +280,7 @@ class spacrCheck(tk.Frame):
         self.variable.set(not self.variable.get())
 
 class spacrCombo(tk.Frame):
-    def __init__(self, parent, textvariable=None, values=None, *args, **kwargs):
+    def __init__(self, parent, textvariable=None, values=None, width=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         
         # Set dark style
@@ -198,7 +295,7 @@ class spacrCombo(tk.Frame):
         self.values = values or []
 
         # Create a canvas for the rounded rectangle background
-        self.canvas_width = 220  # Adjusted for padding
+        self.canvas_width = width if width is not None else 220  # Adjusted for padding
         self.canvas_height = 40   # Adjusted for padding
         self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=self.bg_color)
         self.canvas.pack()
@@ -221,7 +318,7 @@ class spacrCombo(tk.Frame):
     def draw_rounded_rectangle(self, color):
         radius = 15  # Increased radius for more rounded corners
         x0, y0 = 10, 5
-        x1, y1 = 210, 35
+        x1, y1 = self.canvas_width - 10, self.canvas_height - 5
         self.canvas.delete("all")
         self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
         self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)

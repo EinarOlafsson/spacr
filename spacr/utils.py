@@ -1,4 +1,4 @@
-import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, signal
+import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform
 
 import numpy as np
 from cellpose import models as cp_models
@@ -3628,22 +3628,22 @@ def delete_folder(folder_path):
 def measure_test_mode(settings):    
 
     if settings['test_mode']:
-        if not os.path.basename(settings['input_folder']) == 'test':
-            all_files = os.listdir(settings['input_folder'])
+        if not os.path.basename(settings['src']) == 'test':
+            all_files = os.listdir(settings['src'])
             random_files = random.sample(all_files, settings['test_nr'])
 
-            src = os.path.join(os.path.dirname(settings['input_folder']),'test', 'merged')
+            src = os.path.join(os.path.dirname(settings['src']),'test', 'merged')
             if os.path.exists(src):
                 delete_folder(src)
             os.makedirs(src, exist_ok=True)
 
             for file in random_files:
-                shutil.copy(os.path.join(settings['input_folder'], file), os.path.join(src,file))
+                shutil.copy(os.path.join(settings['src'], file), os.path.join(src,file))
 
-            settings['input_folder'] = src
+            settings['src'] = src
             print(f'Changed source folder to {src} for test mode')
         else:
-            print(f'Test mode enabled, using source folder {settings["input_folder"]}')
+            print(f'Test mode enabled, using source folder {settings["src"]}')
 
     return settings
 

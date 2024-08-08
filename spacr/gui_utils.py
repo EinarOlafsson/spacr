@@ -1,4 +1,4 @@
-import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback
+import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback, pyautogui
 import traceback
 import tkinter as tk
 from tkinter import ttk
@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from huggingface_hub import list_repo_files
+import traceback
 
 from . gui_core import initiate_root
 from .gui_elements import AnnotateApp, spacrEntry, spacrCheck, spacrCombo, set_default_font
@@ -69,6 +70,8 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     widget_column = 0  # Both label and widget will be in the same column
 
     style_out = set_dark_style(ttk.Style())
+    size_dict = set_element_size()
+    size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width']*0.1)
 
     # Replace underscores with spaces and capitalize the first letter
     label_text = label_text.replace('_', ' ').capitalize()
@@ -77,14 +80,14 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     frame.grid_columnconfigure(label_column, weight=1)  # Allow the column to expand
 
     # Create a custom frame with a translucent background and rounded edges
-    custom_frame = tk.Frame(frame, bg=style_out['bg_color'], bd=2, relief='solid')
+    custom_frame = tk.Frame(frame, bg=style_out['bg_color'], bd=2, relief='solid', width=size_dict['settings_width'])
     custom_frame.grid(column=label_column, row=row, sticky=tk.EW, padx=(5, 5), pady=5)
 
     # Apply styles to custom frame
     custom_frame.update_idletasks()
-    custom_frame.config(highlightbackground="white", highlightthickness=1, bd=2)
-    custom_frame.bind("<Enter>", lambda e: custom_frame.config(highlightbackground=style_out['active_color']))
-    custom_frame.bind("<Leave>", lambda e: custom_frame.config(highlightbackground="white"))
+    custom_frame.config(highlightbackground=style_out['bg_color'], highlightthickness=1, bd=2)
+    #custom_frame.bind("<Enter>", lambda e: custom_frame.config(highlightbackground=style_out['active_color']))
+    #custom_frame.bind("<Leave>", lambda e: custom_frame.config(highlightbackground="white"))
 
     # Create and configure the label
     label = ttk.Label(custom_frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=(style_out['font_family'], style_out['font_size']), anchor='e', justify='right')
@@ -93,7 +96,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     # Create and configure the input widget based on var_type
     if var_type == 'entry':
         var = tk.StringVar(value=default_value)
-        entry = spacrEntry(custom_frame, textvariable=var, outline=False)
+        entry = spacrEntry(custom_frame, textvariable=var, outline=False, width=size_dict['settings_width'])
         entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the entry in the second row
         return (label, entry, var, custom_frame)  # Return both the label and the entry, and the variable
     elif var_type == 'check':
@@ -103,7 +106,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         return (label, check, var, custom_frame)  # Return both the label and the checkbutton, and the variable
     elif var_type == 'combo':
         var = tk.StringVar(value=default_value)  # Set default value
-        combo = spacrCombo(custom_frame, textvariable=var, values=options)  # Apply TCombobox style
+        combo = spacrCombo(custom_frame, textvariable=var, values=options, width=size_dict['settings_width'])  # Apply TCombobox style
         combo.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the combobox in the second row
         if default_value:
             combo.set(default_value)
@@ -126,10 +129,9 @@ class WriteToQueue(io.TextIOBase):
     """
     def __init__(self, q):
         self.q = q
-
     def write(self, msg):
-        self.q.put(msg)
-
+        if msg.strip():  # Avoid empty messages
+            self.q.put(msg)
     def flush(self):
         pass
 
@@ -319,14 +321,17 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     # Call load_images after setting up the root window
     app.load_images()
 
-def set_element_size(widget):
-    screen_width = widget.winfo_screenwidth()
-    screen_height = widget.winfo_screenheight()
-    btn_size = screen_height // 15
-    bar_size = screen_height // 30
-    settings_width = screen_height // 3
-    panel_height = screen_height // 5
-    panel_width = screen_height // 5
+def set_element_size():
+
+    screen_width, screen_height = pyautogui.size()
+    screen_area = screen_width * screen_height
+    
+    # Calculate sizes based on screen dimensions
+    btn_size = int((screen_area * 0.002) ** 0.5)  # Button size as a fraction of screen area
+    bar_size = screen_height // 30  # Bar size based on screen height
+    settings_width = screen_width // 4  # Settings panel width as a fraction of screen width
+    panel_width = screen_width - settings_width  # Panel width as a fraction of screen width
+    panel_height = screen_height // 10  # Panel height as a fraction of screen height
     
     size_dict = {
         'btn_size': btn_size,
@@ -394,6 +399,7 @@ def convert_settings_dict_for_gui(settings):
             variables[key] = ('entry', None, str(value))
     return variables
 
+
 def spacrFigShow(fig_queue=None):
     """
     Replacement for plt.show() that queues figures instead of displaying them.
@@ -433,6 +439,7 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
     finally:
         # Restore the original plt.show function
         plt.show = original_show
+
 
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     from .gui_utils import process_stdout_stderr
@@ -492,6 +499,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     finally:
         stop_requested.value = 1
 
+
 def hide_all_settings(vars_dict, categories):
     """
     Function to initially hide all settings in the GUI.
@@ -521,12 +529,12 @@ def setup_frame(parent_frame):
     from .gui_elements import set_dark_style, set_default_font
 
     style = ttk.Style(parent_frame)
-    size_dict = set_element_size(parent_frame)
+    size_dict = set_element_size()
     style_out = set_dark_style(style)
 
     settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['settings_width'], bg=style_out['bg_color'])
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, bg=style_out['bg_color'])
-    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg=style_out['bg_color']) #height=size_dict['panel_height'], 
+    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['panel_width'], bg=style_out['bg_color'])
+    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'], width=size_dict['panel_width'], bg=style_out['bg_color'])
 
     parent_frame.grid_rowconfigure(0, weight=1)
     parent_frame.grid_rowconfigure(1, weight=0)
@@ -535,21 +543,17 @@ def setup_frame(parent_frame):
 
     settings_container.grid(row=0, column=0, rowspan=2, sticky="nsew")
     vertical_container.grid(row=0, column=1, sticky="nsew")
-    horizontal_container.grid(row=1, column=1, sticky="nsew")
+    horizontal_container.grid(row=1, column=1, sticky="ew")
 
-    # Lock the width of the horizontal_container
-    horizontal_container.update_idletasks()  # Ensure geometry manager calculates size
-    fixed_width = horizontal_container.winfo_width()
-    parent_frame.grid_columnconfigure(1, weight=0)
-    horizontal_container.config(width=fixed_width)
+    # Ensure settings_container maintains its width
+    settings_container.grid_propagate(False)
+    settings_container.update_idletasks()
 
-    tk.Label(settings_container, text="Settings Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
-    tk.Label(vertical_container, text="Vertical Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
+    tk.Label(settings_container, text="Settings Container", bg=style_out['bg_color']).grid(row=0, column=0, sticky="ew")
 
     set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container])
     
     size = style_out['font_size'] - 2
-    
     set_default_font(parent_frame, font_name=style_out['font_family'], size=size)
 
     return parent_frame, vertical_container, horizontal_container, settings_container
