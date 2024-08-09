@@ -14,6 +14,7 @@ from mahotas.features import zernike_moments
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
 import matplotlib.pyplot as plt
+from math import ceil, sqrt
 
 from .logger import log_function_call
 
@@ -583,6 +584,113 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
     
     return pd.concat(cell_dfs, axis=1), pd.concat(nucleus_dfs, axis=1), pd.concat(pathogen_dfs, axis=1), pd.concat(cytoplasm_dfs, axis=1)
 
+def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
+    """
+    Add an image to a grid and save it as PNG.
+
+    Args:
+        png_channels (ndarray): The array representing the image channels.
+        img_path (str): The path to save the image as PNG.
+        grid (list): The grid of images to be plotted later.
+
+    Returns:
+        grid (list): Updated grid with the new image added.
+    """
+
+    # Save the image as a PNG
+    cv2.imwrite(img_path, png_channels)
+
+    if plot:
+
+        # Ensure the image is in uint8 format for cv2 functions
+        if png_channels.dtype == np.uint16:
+            png_channels = (png_channels / 256).astype(np.uint8)
+        
+        # Get the filename without the extension
+        filename = os.path.splitext(os.path.basename(img_path))[0]
+        
+        # Add the label to the image
+        #labeled_image = cv2.putText(png_channels.copy(), filename, (10, 30), 
+        #                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        
+        # Add the labeled image to the grid
+        grid.append(png_channels)
+    
+    return grid
+
+def img_list_to_grid(grid, titles=None):
+    """
+    Plot a grid of images with optional titles.
+
+    Args:
+        grid (list): List of images to be plotted.
+        titles (list): List of titles for the images.
+
+    Returns:
+        fig (Figure): The matplotlib figure object containing the image grid.
+    """
+    n_images = len(grid)
+    grid_size = ceil(sqrt(n_images))
+    
+    fig, axs = plt.subplots(grid_size, grid_size, figsize=(15, 15), facecolor='black')
+    
+    for i, ax in enumerate(axs.flat):
+        if i < n_images:
+            image = grid[i]
+            ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            ax.axis('off')
+            ax.set_facecolor('black')
+            
+            if titles:
+                # Determine text size
+                img_height, img_width = image.shape[:2]
+                text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
+                ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
+        else:
+            fig.delaxes(ax)
+    
+    # Adjust spacing
+    plt.subplots_adjust(wspace=0.05, hspace=0.05)
+    plt.tight_layout(pad=0.1)
+    return fig
+
+def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
+    from. utils import _map_wells_png
+    png_df = pd.DataFrame(img_paths, columns=['png_path'])
+
+    png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
+
+    parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=settings['timelapse'])))
+
+    columns = ['plate', 'row', 'col', 'field']
+
+    if settings['timelapse']:
+        columns = columns + ['time_id']
+
+    columns = columns + ['prcfo']
+
+    if crop_mode == 'cell':
+        columns = columns + ['cell_id']
+
+    if crop_mode == 'nucleus':
+        columns = columns + ['nucleus_id']
+
+    if crop_mode == 'pathogen':
+        columns = columns + ['pathogen_id']
+
+    if crop_mode == 'cytoplasm':
+        columns = columns + ['cytoplasm_id']
+
+    png_df[columns] = parts
+
+    try:
+        conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
+        png_df.to_sql('png_list', conn, if_exists='append', index=False)
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        print(f"SQLite error: {e}", flush=True)
+        traceback.print_exc()
+
 #@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
 
@@ -604,20 +712,15 @@ def _measure_crop_core(index, time_ls, file, settings):
         A list of cropped images.
     """
     
-    from .io import _create_database
     from .plot import _plot_cropped_arrays
     from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype
-    from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles, _map_wells_png
-    figs = []
+    from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
+
+    figs = {}
+    grid = []
     start = time.time() 
     try:
         source_folder = os.path.dirname(settings['src'])
-        #if not os.path.basename(source_folder).endswith('merged'):
-        #    source_folder = os.path.join(source_folder, 'merged')
-        #    print(f'changed source_folder to {source_folder}')
-
-        #if not os.path.exists(source_folder):
-        #    return
 
         file_name = os.path.splitext(file)[0]
         data = np.load(os.path.join(settings['src'], file))
@@ -629,19 +732,13 @@ def _measure_crop_core(index, time_ls, file, settings):
             if settings['verbose']:
                 print(f'Converted data from {data_type_before} to {data_type}')
 
-        if settings['save_measurements']:
-            os.makedirs(source_folder+'/measurements', exist_ok=True)
-            _create_database(source_folder+'/measurements/measurements.db')    
-
-        if settings['plot_filtration']:
-            
+        if settings['plot']:
             if len(data.shape) == 3:
                 figuresize = data.shape[2]*10
             else:
                 figuresize = 10
-            print('')
             fig = _plot_cropped_arrays(data, file, figuresize)
-            figs.append(fig)
+            figs[f'{file_name}__before_filtration'] = fig
         
         channel_arrays = data[:, :, settings['channels']].astype(data_type)        
         if settings['cell_mask_dim'] is not None:
@@ -716,9 +813,9 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cytoplasm']:
             data = np.concatenate((data, cytoplasm_mask[:, :, np.newaxis]), axis=2)
 
-        if settings['plot_filtration']:
+        if settings['plot']:
             fig = _plot_cropped_arrays(data, file, figuresize)
-            figs.append(fig)
+            figs[f'{file_name}__after_filtration'] = fig
 
         if settings['save_measurements']:
 
@@ -839,54 +936,12 @@ def _measure_crop_core(index, time_ls, file, settings):
                             if png_channels.shape[2] == 2:
                                 dummy_channel = np.zeros_like(png_channels[:,:,0])  # Create a 2D zero array with same shape as one channel
                                 png_channels = np.dstack((png_channels, dummy_channel))
-                                cv2.imwrite(img_path, png_channels)
+                                grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
                             else:
-                                cv2.imwrite(img_path, png_channels)
+                                grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
 
                             if len(img_paths) == len(objects_in_image):
-
-                                png_df = pd.DataFrame(img_paths, columns=['png_path'])
-
-                                png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
-
-                                parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=settings['timelapse'])))
-
-                                columns = ['plate', 'row', 'col', 'field']
-
-                                if settings['timelapse']:
-                                    columns = columns + ['time_id']
-
-                                columns = columns + ['prcfo']
-
-                                if crop_mode == 'cell':
-                                    columns = columns + ['cell_id']
-
-                                if crop_mode == 'nucleus':
-                                    columns = columns + ['nucleus_id']
-
-                                if crop_mode == 'pathogen':
-                                    columns = columns + ['pathogen_id']
-
-                                if crop_mode == 'cytoplasm':
-                                    columns = columns + ['cytoplasm_id']
-
-                                png_df[columns] = parts
-
-                                try:
-                                    conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
-                                    png_df.to_sql('png_list', conn, if_exists='append', index=False)
-                                    conn.commit()
-                                except sqlite3.OperationalError as e:
-                                    print(f"SQLite error: {e}", flush=True)
-                                    traceback.print_exc()
-
-                            if settings['plot']:
-                                if len(png_channels.shape) == 3:
-                                    figuresize = png_channels.shape[2]*10
-                                else:
-                                    figuresize = 10
-                                fig = _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
-                                figs.append(fig)
+                                filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
                         if settings['save_arrays']:
                             row_idx, col_idx = np.where(region)
@@ -894,23 +949,12 @@ def _measure_crop_core(index, time_ls, file, settings):
                             array_folder = f"{fldr}/region_array/"            
                             os.makedirs(array_folder, exist_ok=True)
                             np.save(os.path.join(array_folder, img_name), region_array)
-                            if settings['plot']:
-                                if len(png_channels.shape) == 3:
-                                    figuresize = png_channels.shape[2]*10
-                                else:
-                                    figuresize = 10
-                                fig = _plot_cropped_arrays(png_channels, img_name, figuresize, threshold=1)
-                                figs.append(fig)
 
-                        if not settings['save_arrays'] and not settings['save_png'] and settings['plot']:
-                            row_idx, col_idx = np.where(region)
-                            region_array = data[row_idx.min():row_idx.max()+1, col_idx.min():col_idx.max()+1, :]
-                            if len(png_channels.shape) == 3:
-                                figuresize = png_channels.shape[2]*10
-                            else:
-                                figuresize = 10
-                            fig = _plot_cropped_arrays(png_channels, file, figuresize, threshold=1)
-                            figs.append(fig)
+                            grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
+
+                            img_paths.append(img_path)
+                            if len(img_paths) == len(objects_in_image):
+                                filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
         cells = np.unique(cell_mask)
     except Exception as e:
@@ -922,7 +966,10 @@ def _measure_crop_core(index, time_ls, file, settings):
     duration = end-start
     time_ls.append(duration)
     average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-    return average_time, cells, figs
+    if settings['plot']:
+        fig = img_list_to_grid(grid)
+        figs[f'{file_name}__pngs'] = fig
+    return index, average_time, cells, figs
 
 #@log_function_call
 def measure_crop(settings):
@@ -937,10 +984,9 @@ def measure_crop(settings):
         None
     """
 
-    from .io import _save_settings_to_db
-    from .timelapse import _timelapse_masks_to_gif, _scmovie
-    from .plot import _save_scimg_plot
-    from .utils import _list_endpoint_subdirectories, _generate_representative_images, measure_test_mode, print_progress
+    from .io import _save_settings_to_db, _create_database
+    from .timelapse import _timelapse_masks_to_gif
+    from .utils import measure_test_mode, print_progress
     from .settings import get_measure_crop_settings
 
     settings = get_measure_crop_settings(settings)
@@ -951,6 +997,11 @@ def measure_crop(settings):
         print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
         src_fldr = os.path.join(src_fldr, 'merged')
         print(f"Changed source folder to: {src_fldr}")
+
+    if settings['save_measurements']:
+        source_folder = os.path.dirname(settings['src'])
+        os.makedirs(source_folder+'/measurements', exist_ok=True)
+        _create_database(source_folder+'/measurements/measurements.db')
     
     if settings['cell_mask_dim'] is None:
         settings['include_uninfected'] = True
@@ -962,14 +1013,20 @@ def measure_crop(settings):
         settings['cytoplasm'] = True
     else:
         settings['cytoplasm'] = False
-    
+
+    spacr_cores = int(mp.cpu_count() - 6)
+    if spacr_cores <= 2:
+        spacr_cores = 1
+
+    if settings['n_jobs'] > spacr_cores:
+        print(f'Warning reserving 6 CPU cores for other processes, setting n_jobs to {spacr_cores}')
+        settings['n_jobs'] = spacr_cores
+
     dirname = os.path.dirname(settings['src'])
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
     os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)
-
-    
 
     if settings['timelapse_objects'] == 'nucleus':
         if not settings['cell_mask_dim'] is None:
@@ -1001,106 +1058,62 @@ def measure_crop(settings):
     
     _save_settings_to_db(settings)
     files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
-    n_jobs = settings['n_jobs'] or mp.cpu_count()-4
+    n_jobs = settings['n_jobs']
     print(f'using {n_jobs} cpu cores')
+
+    def job_callback(result):
+        completed_jobs.add(result[0])
+        process_meassure_crop_results([result], settings)
+        files_processed = len(completed_jobs)
+        files_to_process = len(files)
+        print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
+        if files_processed >= files_to_process:
+            pool.terminate()
+
     with mp.Manager() as manager:
         time_ls = manager.list()
+        completed_jobs = set()  # Set to keep track of completed jobs
+        
         with mp.Pool(n_jobs) as pool:
-            result = pool.starmap_async(_measure_crop_core, [(index, time_ls, file, settings) for index, file in enumerate(files)])
-
-            # Track progress in the main process
-            processed_indices = set()            
-            while not result.ready():
-                time.sleep(1)
-                files_processed = len(time_ls)
-                files_to_process = len(files)
-                print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
-
-                partial_results = result._value  # Get the partial results
-                for i, res in enumerate(partial_results):
-                    if i not in processed_indices:
-                        if res is None:
-                            print(f"Warning: received None result for index {i}")
-                            continue
-                        avg_time, cells, figs = res
-                        if figs is not None:
-                            for fig in figs:
-                                plt.figure(fig.number)
-                                plt.show()
-                                plt.close(fig)
-                            partial_results[i] = (avg_time, cells, None)  # Set figures to None
-                            processed_indices.add(i)
-
-            final_results = result.get()
-            for i, res in enumerate(final_results):
-                if i not in processed_indices:
-                    if res is None:
-                        print(f"Warning: received None result for index {i}")
-                        continue
-                    avg_time, cells, figs = res
-                    if figs is not None:
-                        for fig in figs:
-                            plt.figure(fig.number)
-                            plt.show()
-                            plt.close(fig)
-                        final_results[i] = (avg_time, cells, None)  # Set figures to None
-                        processed_indices.add(i)
-
-    if settings['representative_images']:
-        if settings['save_png']:
-            img_fldr = os.path.join(os.path.dirname(settings['src']), 'data')
-            sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
-
-            for i, well_src in enumerate(sc_img_fldrs):
-                if len(os.listdir(well_src)) < 16:
-                    nr_imgs = len(os.listdir(well_src))
-                    standardize = False
-                else:
-                    nr_imgs = 16
-                    standardize = True
-                try:
-                    all_folders = len(sc_img_fldrs)
-                    _save_scimg_plot(src=well_src, nr_imgs=nr_imgs, channel_indices=settings['png_dims'], um_per_pixel=0.1, scale_bar_length_um=10, standardize=standardize, fontsize=12, show_filename=True, channel_names=['red','green','blue'], dpi=300, plot=False, i=i, all_folders=all_folders)
-
-                except Exception as e:
-                    print(f"Unable to generate figure for folder {well_src}: {e}", end='\r', flush=True)
-                    #traceback.print_exc()
-    
-        if settings['save_measurements']:
-            db_path = os.path.join(os.path.dirname(settings['src']), 'measurements', 'measurements.db')
-            channel_indices = settings['png_dims']
-            channel_indices = [min(value, 2) for value in channel_indices]
-            _generate_representative_images(db_path,
-                                        cells=settings['cells'],
-                                        cell_loc=settings['cell_loc'],
-                                        pathogens=settings['pathogens'],
-                                        pathogen_loc=settings['pathogen_loc'],
-                                        treatments=settings['treatments'],
-                                        treatment_loc=settings['treatment_loc'],
-                                        channel_of_interest=settings['channel_of_interest'],
-                                        compartments = settings['compartments'],
-                                        measurement = settings['measurement'],
-                                        nr_imgs=settings['nr_imgs'],
-                                        channel_indices=channel_indices,
-                                        um_per_pixel=settings['um_per_pixel'],
-                                        scale_bar_length_um=10,
-                                        plot=False,
-                                        fontsize=12,
-                                        show_filename=True,
-                                        channel_names=None)
+            for index, file in enumerate(files):
+                pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings), callback=job_callback)
+            
+            pool.close()
+            pool.join()
 
     if settings['timelapse']:
         if settings['timelapse_objects'] == 'nucleus':
             folder_path = settings['src']
-            mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'],settings['cell_mask_dim']]
-            object_types = ['nucleus','pathogen','cell']
+            mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
+            object_types = ['nucleus', 'pathogen', 'cell']
             _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
-        #if settings['save_png']:
-            img_fldr = os.path.join(os.path.dirname(settings['src']), 'data')
-            sc_img_fldrs = _list_endpoint_subdirectories(img_fldr)
-            _scmovie(sc_img_fldrs)
     print("Successfully completed run")
+
+def process_meassure_crop_results(partial_results, settings):
+    """
+    Process the results, display, and optionally save the figures.
+
+    Args:
+        partial_results (list): List of partial results.
+        settings (dict): Settings dictionary.
+        save_figures (bool): Flag to save figures or not.
+    """
+    for result in partial_results:
+        if result is None:
+            continue
+        index, avg_time, cells, figs = result
+        if figs is not None:
+            for key, fig in figs.items():
+                part_1, part_2 = key.split('__')
+                save_dir = os.path.join(os.path.dirname(settings['src']), 'results', f"{part_1}")
+                os.makedirs(save_dir, exist_ok=True)
+                fig_path = os.path.join(save_dir, f"{part_2}.pdf")
+                fig.savefig(fig_path)
+                plt.figure(fig.number)
+                plt.show()
+                plt.close(fig)
+            result = (index, None, None, None)
             
 def generate_cellpose_train_set(folders, dst, min_objects=5):
     os.makedirs(dst, exist_ok=True)
