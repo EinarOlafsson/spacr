@@ -17,7 +17,21 @@ from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
 
 def set_default_font(root, font_name="Arial", size=12):
-    default_font = (font_name, size)
+
+    # Define default_font before the condition
+    default_font = ("Arial", size)
+    
+    if font_name == 'OpenSans':
+        try:
+            font_path = os.path.join(os.path.dirname(__file__), 'resources/font/open_sans/static/OpenSans-Regular.ttf')
+            default_font = tkFont.Font(family=font_name, size=size, file=font_path)
+        except Exception as e:
+            print(f"Failed to load OpenSans font: {e}")
+            # Fallback to a default font in case of an error
+            default_font = ("Arial", size)
+    else:
+        default_font = (font_name, size)
+    
     root.option_add("*Font", default_font)
     root.option_add("*TButton.Font", default_font)
     root.option_add("*TLabel.Font", default_font)

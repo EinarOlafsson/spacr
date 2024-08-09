@@ -90,9 +90,9 @@ from scipy import stats
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     if isinstance(files_processed, list):
-        files_processed = len(files_processed)
+        files_processed = len(set(files_processed))
     if isinstance(files_to_process, list):
-        files_to_process = len(files_to_process)
+        files_to_process = len(set(files_to_process))
     if isinstance(batch_size, list):
         batch_size = len(batch_size)
 

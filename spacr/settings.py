@@ -220,6 +220,7 @@ def get_measure_crop_settings(settings):
 
     settings.setdefault('src', 'path')
     settings.setdefault('verbose', False)
+    settings.setdefault('experiment', 'exp')
     
     # Test mode
     settings.setdefault('test_mode', False)
@@ -252,8 +253,6 @@ def get_measure_crop_settings(settings):
 
     # Operational settings
     settings.setdefault('plot',False)
-    settings.setdefault('plot_filtration',False)
-    settings.setdefault('representative_images', False)
     settings.setdefault('n_jobs', os.cpu_count()-2)
 
     # Object settings
@@ -268,24 +267,9 @@ def get_measure_crop_settings(settings):
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
 
-    # Miscellaneous settings
-    settings.setdefault('experiment', 'exp')
-    settings.setdefault('cells', ['HeLa'])
-    settings.setdefault('cell_loc', None)
-    settings.setdefault('pathogens', ['ME49Dku80WT', 'ME49Dku80dgra8:GRA8', 'ME49Dku80dgra8', 'ME49Dku80TKO'])
-    settings.setdefault('pathogen_loc', [['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], ['c7', 'c8', 'c9', 'c10', 'c11', 'c12'], ['c13', 'c14', 'c15', 'c16', 'c17', 'c18'], ['c19', 'c20', 'c21', 'c22', 'c23', 'c24']])
-    settings.setdefault('treatments', ['BR1', 'BR2', 'BR3'])
-    settings.setdefault('treatment_loc', [['c1', 'c2', 'c7', 'c8', 'c13', 'c14', 'c19', 'c20'], ['c3', 'c4', 'c9', 'c10', 'c15', 'c16', 'c21', 'c22'], ['c5', 'c6', 'c11', 'c12', 'c17', 'c18', 'c23', 'c24']])
-    settings.setdefault('channel_of_interest', 2)
-    settings.setdefault('compartments', ['pathogen', 'cytoplasm'])
-    settings.setdefault('measurement', 'mean_intensity')
-    settings.setdefault('nr_imgs', 32)
-    settings.setdefault('um_per_pixel', 0.1)
-
     if settings['test_mode']:
         settings['verbose'] = True
         settings['plot'] = True
-        settings['plot_filtration'] = True
         test_imgs = settings['test_nr']
         print(f'Test mode enabled with {test_imgs} images, plotting set to True')
 
@@ -554,8 +538,6 @@ expected_types = {
     "png_dims": list,
     "normalize_by": str,
     "save_measurements": bool,
-    "representative_images": bool,
-    "plot_filtration": bool,
     "include_uninfected": bool,
     "dialate_pngs": bool,
     "dialate_png_ratios": list,
@@ -960,7 +942,6 @@ def generate_fields(variables, scrollable_frame):
         "plot_by_cluster": "(bool) - Whether to plot images by clusters.",
         "plot_cluster_grids": "(bool) - Whether to plot grids of clustered images.",
         "plot_control": "(dict) - Control settings for plotting.",
-        "plot_filtration": "(bool) - Whether to plot the filtration steps.",
         "plot_images": "(bool) - Whether to plot images.",
         "plot_nr": "(int) - Number of plots to generate.",
         "plot_outlines": "(bool) - Whether to plot outlines of segmented objects.",
@@ -982,7 +963,6 @@ def generate_fields(variables, scrollable_frame):
         "remove_image_canvas": "(bool) - Whether to remove the image canvas after plotting.",
         "remove_low_variance_features": "(bool) - Whether to remove low variance features from the analysis.",
         "remove_row_column_effect": "(bool) - Whether to remove row and column effects from the data.",
-        "representative_images": "(bool) - Whether to save representative images of the segmented objects (Not working yet).",
         "resize": "(bool) - Resize factor for the images.",
         "resample": "(bool) - Whether to resample the images during processing.",
         "rescale": "(float) - Rescaling factor for the images.",
@@ -1048,9 +1028,9 @@ categories = {
     "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
     "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
     "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-    "Plot": ["plot_control", "plot_nr", "plot_filtration", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
+    "Plot": ["plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
     "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
-    "Annotate Data": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","pathogen_types", "pathogen_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "representative_images", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
+    "Annotate Data": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","pathogen_types", "pathogen_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
     "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
     "Advanced": ["plate_dict", "target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","n_jobs","channels","augment"],
     "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
