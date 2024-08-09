@@ -1,4 +1,4 @@
-import os, traceback, ctypes, csv, re, pickle
+import traceback, ctypes, csv, re, time
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -82,15 +82,20 @@ def process_fig_queue():
 
     try:
         while not fig_queue.empty():
+            time.sleep(1)
             clear_canvas(canvas)
             fig = fig_queue.get_nowait()
+
             for ax in fig.get_axes():
                 ax.set_xticks([])  # Remove x-axis ticks
                 ax.set_yticks([])  # Remove y-axis ticks
                 ax.xaxis.set_visible(False)  # Hide the x-axis
                 ax.yaxis.set_visible(False)  # Hide the y-axis
-            fig.tight_layout()
+
+            # Adjust layout to minimize spacing between axes
+            fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0.01, hspace=0.01)
             fig.set_facecolor('black')
+
             canvas.figure = fig
             fig_width, fig_height = canvas_widget.winfo_width(), canvas_widget.winfo_height()
             fig.set_size_inches(fig_width / fig.dpi, fig_height / fig.dpi, forward=True)
@@ -569,8 +574,8 @@ def process_console_queue():
     while not q.empty():
         message = q.get_nowait()
         clean_message = ansi_escape_pattern.sub('', message)
-        #console_output.insert(tk.END, clean_message + "\n")
-        #console_output.see(tk.END)
+        console_output.insert(tk.END, clean_message + "\n")
+        console_output.see(tk.END)
         
         # Check if the message contains progress information
         if clean_message.startswith("Progress:"):
@@ -626,10 +631,10 @@ def process_console_queue():
 
             except Exception as e:
                 print(f"Error parsing progress message: {e}")
-        else:
-            # Only insert messages that do not start with "Progress:"
-            console_output.insert(tk.END, clean_message + "\n")
-            console_output.see(tk.END)
+        #else:
+        #    # Only insert messages that do not start with "Progress:"
+        #    console_output.insert(tk.END, clean_message + "\n")
+        #    console_output.see(tk.END)
         
     after_id = console_output.after(1, process_console_queue)
     parent_frame.after_tasks.append(after_id)

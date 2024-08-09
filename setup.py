@@ -62,7 +62,7 @@ setup(
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*'],},
+    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
