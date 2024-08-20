@@ -641,6 +641,7 @@ def process_console_queue():
     after_id = console_output.after(1, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
+
 def initiate_root(parent, settings_type='mask'):
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar
     from .gui_utils import main_thread_update_function, setup_frame
@@ -693,5 +694,3 @@ def initiate_root(parent, settings_type='mask'):
 
     print("Root initialization complete")
     return parent_frame, vars_dict
-
-

@@ -1060,6 +1060,7 @@ def measure_crop(settings):
     files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
     n_jobs = settings['n_jobs']
     print(f'using {n_jobs} cpu cores')
+    print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
 
     def job_callback(result):
         completed_jobs.add(result[0])
