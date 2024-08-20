@@ -2311,24 +2311,21 @@ class AnnotateApp:
 def create_menu_bar(root):
     from .gui import initiate_root
     gui_apps = {
-        "Mask": (lambda frame: initiate_root(frame, settings_type='mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
-        "Measure": (lambda frame: initiate_root(frame, settings_type='measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
-        "Annotate": (lambda frame: initiate_root(frame, settings_type='annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
-        "Make Masks": (lambda frame: initiate_root(frame, settings_type='make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
-        "Classify": (lambda frame: initiate_root(frame, settings_type='classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
-        "Sequencing": (lambda frame: initiate_root(frame, settings_type='sequencing'), "Analyze sequencing data."),
-        "Umap": (lambda frame: initiate_root(frame, settings_type='umap'), "Generate UMAP embeddings with datapoints represented as images."),
-        "Train Cellpose": (lambda frame: initiate_root(frame, settings_type='train_cellpose'), "Train custom Cellpose models."),
-        "ML Analyze": (lambda frame: initiate_root(frame, settings_type='ml_analyze'), "Machine learning analysis of data."),
-        "Cellpose Masks": (lambda frame: initiate_root(frame, settings_type='cellpose_masks'), "Generate Cellpose masks."),
-        "Cellpose All": (lambda frame: initiate_root(frame, settings_type='cellpose_all'), "Run Cellpose on all images."),
-        "Map Barcodes": (lambda frame: initiate_root(frame, settings_type='map_barcodes'), "Map barcodes to data."),
-        "Regression": (lambda frame: initiate_root(frame, settings_type='regression'), "Perform regression analysis."),
-        "Recruitment": (lambda frame: initiate_root(frame, settings_type='recruitment'), "Analyze recruitment data.")
+        "Mask": lambda: initiate_root(root, settings_type='mask'),
+        "Measure": lambda: initiate_root(root, settings_type='measure'),
+        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
+        "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
+        "Classify": lambda: initiate_root(root, settings_type='classify'),
+        "Sequencing": lambda: initiate_root(root, settings_type='sequencing'),
+        "Umap": lambda: initiate_root(root, settings_type='umap'),
+        "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
+        "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
+        "Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
+        "Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
+        "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
+        "Regression": lambda: initiate_root(root, settings_type='regression'),
+        "Recruitment": lambda: initiate_root(root, settings_type='recruitment')
     }
-
-    def load_app_wrapper(app_name, app_func):
-        root.load_app(app_name, app_func)
 
     # Create the menu bar
     menu_bar = tk.Menu(root, bg="#008080", fg="white")
@@ -2338,13 +2335,15 @@ def create_menu_bar(root):
     menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
 
     # Add options to the "SpaCr Applications" menu
-    for app_name, app_data in gui_apps.items():
-        app_func, app_desc = app_data
-        app_menu.add_command(label=app_name, command=lambda app_name=app_name, app_func=app_func: load_app_wrapper(app_name, app_func))
+    for app_name, app_func in gui_apps.items():
+        app_menu.add_command(
+            label=app_name,
+            command=app_func
+        )
 
     # Add a separator and an exit option
     app_menu.add_separator()
-    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://readthedocs.org/projects/spacr/badge/?version=latest"))
+    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://spacr.readthedocs.io/en/latest/?badge=latest"))
     app_menu.add_command(label="Exit", command=root.quit)
 
     # Configure the menu for the root window

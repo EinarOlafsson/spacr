@@ -1731,11 +1731,13 @@ def preprocess_generate_masks(src, settings={}):
         settings, src = preprocess_img_data(settings)
 
     files_to_process = 3
+    files_processed = 0
     if settings['masks']:
         mask_src = os.path.join(src, 'norm_channel_stack')
         if settings['cell_channel'] != None:
-            start = time.time()
+            time_ls=[]
             if check_mask_folder(src, 'cell_mask_stack'):
+                start = time.time()
                 generate_cellpose_masks(mask_src, settings, 'cell')
                 stop = time.time()
                 duration = (stop - start)
@@ -1744,8 +1746,9 @@ def preprocess_generate_masks(src, settings={}):
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
             
         if settings['nucleus_channel'] != None:
-            start = time.time()
+            time_ls=[]
             if check_mask_folder(src, 'nucleus_mask_stack'):
+                start = time.time()
                 generate_cellpose_masks(mask_src, settings, 'nucleus')
                 stop = time.time()
                 duration = (stop - start)
@@ -1754,13 +1757,14 @@ def preprocess_generate_masks(src, settings={}):
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
             
         if settings['pathogen_channel'] != None:
-            start = time.time()
+            time_ls=[]
             if check_mask_folder(src, 'pathogen_mask_stack'):
+                start = time.time()
+                generate_cellpose_masks(mask_src, settings, 'pathogen')
                 stop = time.time()
                 duration = (stop - start)
                 time_ls.append(duration)
                 files_processed += 1
-                generate_cellpose_masks(mask_src, settings, 'pathogen')
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
 
         #if settings['organelle'] != None:
