@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from PIL import Image, ImageTk, ImageDraw
-import os
 from multiprocessing import set_start_method
 from .gui_elements import spacrButton, create_menu_bar, set_dark_style
 from .gui_core import initiate_root
