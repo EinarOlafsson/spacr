@@ -368,6 +368,7 @@ def get_analyze_recruitment_default_settings(settings):
     return settings
 
 def get_analyze_reads_default_settings(settings):
+    settings.setdefault('src', 'path')
     settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT') 
     settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCAG') #This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA
     settings.setdefault('barecode_length_1', 8)
@@ -380,7 +381,7 @@ def get_map_barcodes_default_settings(settings):
     settings.setdefault('src', 'path')
     settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
     settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
-    settings.setdefault('plate_dict', {'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'})
+    settings.setdefault('plate_dict', "{'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'}")
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
     settings.setdefault('pc', 'TGGT1_220950_1')
@@ -735,7 +736,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
     for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types:
-            if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test"]:
+            if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths"]:
                 q.put(f"Key {key} not found in expected types.")
                 continue
 
@@ -764,6 +765,20 @@ def check_settings(vars_dict, expected_types, q=None):
                 settings[key] = float(value) if '.' in value else int(value)
             elif expected_type == (str, type(None)):
                 settings[key] = str(value) if value else None
+            elif expected_type == dict:
+                try:
+                    # Ensure that the value is a string that can be converted to a dictionary
+                    if isinstance(value, str):
+                        settings[key] = ast.literal_eval(value)
+                    else:
+                        raise ValueError("Expected a string representation of a dictionary.")
+                    
+                    # Check if the result is actually a dictionary
+                    if not isinstance(settings[key], dict):
+                        raise ValueError("Value is not a valid dictionary.")
+                except (ValueError, SyntaxError) as e:
+                    settings[key] = {}
+                    q.put(f"Error: Invalid format for {key}. Expected type: dict. Error: {e}")
             elif isinstance(expected_type, tuple):
                 for typ in expected_type:
                     try:

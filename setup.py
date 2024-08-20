@@ -15,9 +15,9 @@ with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 dependencies = [
-    'torch>=2.2.1,<3.0',
-    'torchvision>=0.17.1,<1.0',
-    'torch-geometric>=2.5.1,<3.0',
+    'torch>=2.0,<3.0',
+    'torchvision>=0.1,<1.0',
+    'torch-geometric>=2.5,<3.0',
     'numpy>=1.26.4,<2.0',
     'pandas>=2.2.1,<3.0',
     'statsmodels>=0.14.1,<1.0',
@@ -49,12 +49,13 @@ dependencies = [
     'gputil>=1.4.0, <2.0', 
     'gpustat>=1.1.1,<2.0',
     'pyautogui>=0.9.54,<1.0',
+    'tables>=3.8.0,<4.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.2.5",
+    version="0.2.52",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
