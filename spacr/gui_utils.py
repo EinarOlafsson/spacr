@@ -26,6 +26,10 @@ def proceed_with_app(root, app_name, app_func):
     app_func(root.content_frame)
 
 def load_app(root, app_name, app_func):
+    # Clear the canvas if it exists
+    if root.canvas is not None:
+        root.clear_frame(root.canvas)
+
     # Cancel all scheduled after tasks
     if hasattr(root, 'after_tasks'):
         for task in root.after_tasks:
@@ -35,7 +39,7 @@ def load_app(root, app_name, app_func):
     # Exit functionality only for the annotation and make_masks apps
     if app_name not in ["Annotate", "make_masks"] and hasattr(root, 'current_app_exit_func'):
         root.next_app_func = proceed_with_app
-        root.next_app_args = (app_name, app_func)  # Ensure correct arguments
+        root.next_app_args = (app_name, app_func)
         root.current_app_exit_func()
     else:
         proceed_with_app(root, app_name, app_func)
@@ -605,3 +609,7 @@ def download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5):
             time.sleep(delay)
 
     raise Exception("Failed to download files after multiple attempts.")
+
+def ensure_after_tasks(frame):
+    if not hasattr(frame, 'after_tasks'):
+        frame.after_tasks = []

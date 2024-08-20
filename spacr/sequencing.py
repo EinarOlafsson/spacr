@@ -21,6 +21,96 @@ from sklearn.preprocessing import FunctionTransformer, MinMaxScaler
 from scipy.stats import shapiro
 from patsy import dmatrices
 
+import os
+import gzip
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+
+def consensus_sequence(fastq_r1, fastq_r2, output_file, chunk_size=1000000):
+
+    total_reads = 0
+    chunk_count = 0
+    
+    with gzip.open(fastq_r1, "rt") as r1_handle, gzip.open(fastq_r2, "rt") as r2_handle, gzip.open(output_file, "wt") as output_handle:
+        r1_iter = SeqIO.parse(r1_handle, "fastq")
+        r2_iter = SeqIO.parse(r2_handle, "fastq")
+        
+        while True:
+            r1_chunk = [rec for rec in (next(r1_iter, None) for _ in range(chunk_size)) if rec is not None]
+            r2_chunk = [rec for rec in (next(r2_iter, None) for _ in range(chunk_size)) if rec is not None]
+            
+            # If either chunk is empty, we have reached the end of one or both files
+            if not r1_chunk or not r2_chunk:
+                break
+            
+            chunk_count += 1
+            total_reads += len(r1_chunk)
+            
+            for r1_record, r2_record in zip(r1_chunk, r2_chunk):
+                best_sequence = []
+                best_quality = []
+                for base1, base2, qual1, qual2 in zip(r1_record.seq, r2_record.seq, r1_record.letter_annotations["phred_quality"], r2_record.letter_annotations["phred_quality"]):
+                    if qual1 >= qual2:
+                        best_sequence.append(base1)
+                        best_quality.append(qual1)
+                    else:
+                        best_sequence.append(base2)
+                        best_quality.append(qual2)
+                
+                consensus_seq = Seq("".join(best_sequence))
+                
+                # Create a new SeqRecord for the consensus sequence
+                consensus_record = SeqRecord(consensus_seq, id=r1_record.id, description="", letter_annotations={"phred_quality": best_quality})
+                
+                # Write the consensus sequence to the output file
+                SeqIO.write(consensus_record, output_handle, "fastq")
+            
+            print(f"Progress: Chunk {chunk_count} with {total_reads} reads.")
+            
+def parse_gz_files(folder_path):
+    """
+    Parses the .fastq.gz files in the specified folder path and returns a dictionary
+    containing the sample names and their corresponding file paths.
+
+    Args:
+        folder_path (str): The path to the folder containing the .fastq.gz files.
+
+    Returns:
+        dict: A dictionary where the keys are the sample names and the values are
+        dictionaries containing the file paths for the 'R1' and 'R2' read directions.
+    """
+    files = os.listdir(folder_path)
+    gz_files = [f for f in files if f.endswith('.fastq.gz')]
+
+    samples_dict = {}
+    for gz_file in gz_files:
+        parts = gz_file.split('_')
+        sample_name = parts[0]
+        read_direction = parts[1]
+
+        if sample_name not in samples_dict:
+            samples_dict[sample_name] = {}
+
+        if read_direction == "R1":
+            samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
+        elif read_direction == "R2":
+            samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
+
+    return samples_dict
+
+def generate_consensus_sequence(src, chunk_size):
+    samples_dict = parse_gz_files(src)
+    for key in samples_dict:
+        if samples_dict[key]['R1'] and samples_dict[key]['R2']:
+            R1 = samples_dict[key]['R1']
+            R2 = samples_dict[key]['R2']
+            consensus_dir = os.path.join(os.path.dirname(R1), 'consensus')
+            os.makedirs(consensus_dir, exist_ok=True)  # Use os.makedirs() instead of os.mkdir()
+            consensus = os.path.join(consensus_dir, f"{key}_consensus.fastq.gz")
+            consensus_sequence(R1, R2, consensus, chunk_size)
+
+
 def analyze_reads(settings):
     """
     Analyzes reads from gzipped fastq files and combines them based on specified settings.
@@ -1853,5 +1943,3 @@ def perform_regression(df, settings):
     print('Significant Genes')
     display(significant)
     return coef_df
-
-
