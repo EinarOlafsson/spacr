@@ -1,15 +1,12 @@
-import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback, pyautogui
-import traceback
+import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from huggingface_hub import list_repo_files
-import traceback
 
-from . gui_core import initiate_root
-from .gui_elements import AnnotateApp, spacrEntry, spacrCheck, spacrCombo, set_default_font
+from .gui_elements import AnnotateApp, spacrEntry, spacrCheck, spacrCombo
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -42,16 +39,6 @@ def load_app(root, app_name, app_func):
         root.current_app_exit_func()
     else:
         proceed_with_app(root, app_name, app_func)
-
-def parse_list_v1(value):
-    try:
-        parsed_value = ast.literal_eval(value)
-        if isinstance(parsed_value, list):
-            return parsed_value
-        else:
-            raise ValueError
-    except (ValueError, SyntaxError):
-        raise ValueError("Invalid format for list")
     
 def parse_list(value):
     try:
@@ -65,11 +52,13 @@ def parse_list(value):
     
 # Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
-    from .gui_elements import set_dark_style
+    from .gui_elements import set_dark_style, set_element_size
     label_column = 0
     widget_column = 0  # Both label and widget will be in the same column
 
     style_out = set_dark_style(ttk.Style())
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size']
     size_dict = set_element_size()
     size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width']*0.1)
 
@@ -86,10 +75,10 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     # Apply styles to custom frame
     custom_frame.update_idletasks()
     custom_frame.config(highlightbackground=style_out['bg_color'], highlightthickness=1, bd=2)
-    #custom_frame.bind("<Enter>", lambda e: custom_frame.config(highlightbackground=style_out['active_color']))
-    #custom_frame.bind("<Leave>", lambda e: custom_frame.config(highlightbackground="white"))
 
     # Create and configure the label
+    if font_loader:
+        label = ttk.Label(custom_frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=font_loader.get_font(size=font_size), anchor='e', justify='right')
     label = ttk.Label(custom_frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=(style_out['font_family'], style_out['font_size']), anchor='e', justify='right')
     label.grid(column=label_column, row=0, sticky=tk.W, padx=(5, 2), pady=5)  # Place the label in the first row
 
@@ -321,27 +310,6 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     # Call load_images after setting up the root window
     app.load_images()
 
-def set_element_size():
-
-    screen_width, screen_height = pyautogui.size()
-    screen_area = screen_width * screen_height
-    
-    # Calculate sizes based on screen dimensions
-    btn_size = int((screen_area * 0.002) ** 0.5)  # Button size as a fraction of screen area
-    bar_size = screen_height // 30  # Bar size based on screen height
-    settings_width = screen_width // 4  # Settings panel width as a fraction of screen width
-    panel_width = screen_width - settings_width  # Panel width as a fraction of screen width
-    panel_height = screen_height // 10  # Panel height as a fraction of screen height
-    
-    size_dict = {
-        'btn_size': btn_size,
-        'bar_size': bar_size,
-        'settings_width': settings_width,
-        'panel_width': panel_width,
-        'panel_height': panel_height
-    }
-    return size_dict
-
 def convert_settings_dict_for_gui(settings):
     from torchvision import models as torch_models
     torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
@@ -440,7 +408,6 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
         # Restore the original plt.show function
         plt.show = original_show
 
-
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     from .gui_utils import process_stdout_stderr
     from .core import preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, compare_cellpose_masks, analyze_plaques, generate_dataset, apply_model_to_tar
@@ -482,7 +449,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 1
     elif settings_type == 'map_barcodes':
         function = map_barcodes_folder
-        imports = 2
+        imports = 1
     elif settings_type == 'regression':
         function = perform_regression
         imports = 2
@@ -526,7 +493,7 @@ def hide_all_settings(vars_dict, categories):
     return vars_dict
 
 def setup_frame(parent_frame):
-    from .gui_elements import set_dark_style, set_default_font
+    from .gui_elements import set_dark_style, set_element_size
 
     style = ttk.Style(parent_frame)
     size_dict = set_element_size()
@@ -553,8 +520,8 @@ def setup_frame(parent_frame):
 
     set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container])
     
-    size = style_out['font_size'] - 2
-    set_default_font(parent_frame, font_name=style_out['font_family'], size=size)
+    #size = style_out['font_size'] - 2
+    #set_default_font(parent_frame, font_name=style_out['font_family'], size=size)
 
     return parent_frame, vertical_container, horizontal_container, settings_container
 

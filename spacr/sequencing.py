@@ -1,4 +1,4 @@
-import os, gc, gzip, re, time, math, subprocess
+import os, gc, gzip, re, time, math, subprocess, traceback
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -291,12 +291,15 @@ def analyze_reads(settings):
                 qc_df.to_csv(qc_file_path, index=False)
                 
     from .settings import get_analyze_reads_default_settings
-
-    settings = get_analyze_reads_default_settings(settings)
-
-    samples_dict = parse_gz_files(settings['src'])
-    combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length_1'], settings['barecode_length_2'], settings['upstream'], settings['downstream'])
-
+    try:
+        settings = get_analyze_reads_default_settings(settings)
+        samples_dict = parse_gz_files(settings['src'])
+        combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length_1'], settings['barecode_length_2'], settings['upstream'], settings['downstream'])
+    except Exception as e:
+        print(e)
+        Error = traceback.format_exc()
+        print(Error)
+    
 def map_barcodes(h5_file_path, settings={}):
     """
     Maps barcodes and performs quality control on sequencing data.
@@ -461,9 +464,7 @@ def map_barcodes(h5_file_path, settings={}):
         return filtered_df
     
     from .settings import get_map_barcodes_default_settings
-
     settings = get_map_barcodes_default_settings(settings)
-
     fldr = os.path.splitext(h5_file_path)[0]
     file_name = os.path.basename(fldr)
 
@@ -729,7 +730,12 @@ def grna_plate_heatmap(path, specific_grna=None, min_max='all', cmap='viridis', 
     
     return fig
 
-def map_barcodes_folder(src, settings={}):
+def map_barcodes_folder(settings={}):
+    from .settings import get_map_barcodes_default_settings
+    settings = get_map_barcodes_default_settings(settings)
+
+    print(settings)
+    src = settings['src']
     for file in os.listdir(src):
         if file.endswith('.h5'):
             print(file)

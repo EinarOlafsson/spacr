@@ -2,14 +2,13 @@ import traceback, ctypes, csv, re, time
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from multiprocessing import Process, Value, Queue, set_start_method, Manager
+from multiprocessing import Process, Value, Queue, set_start_method
 from tkinter import ttk, scrolledtext
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import psutil
 import GPUtil
-import tkinter.font as tkFont
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -173,7 +172,8 @@ def import_settings(settings_type='mask'):
 def setup_settings_panel(vertical_container, settings_type='mask'):
     global vars_dict, scrollable_frame
     from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
-    from .gui_utils import convert_settings_dict_for_gui, set_element_size
+    from .gui_utils import convert_settings_dict_for_gui
+    from .gui_elements import set_element_size
 
     size_dict = set_element_size()
     settings_width = size_dict['settings_width']
@@ -282,9 +282,10 @@ def setup_console(vertical_container):
 
     # Create the scrollable frame (which is a Text widget) with white text
     family = style_out['font_family']
-    size = style_out['font_size'] - 2
-    font = tkFont.Font(family=family, size=size)
-    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font, bd=0, highlightthickness=0)
+    font_size = style_out['font_size'] - 2
+    font_loader = style_out['font_loader']
+    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size), bd=0, highlightthickness=0)
+    
     console_output.grid(row=1, column=0, sticky="nsew")  # Use grid for console_output
 
     # Configure the grid to allow expansion
@@ -304,11 +305,14 @@ def setup_console(vertical_container):
 
 def setup_progress_frame(vertical_container):
     global progress_output
+    style_out = set_dark_style(ttk.Style())
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size']
     progress_frame = tk.Frame(vertical_container)
     vertical_container.add(progress_frame, stretch="always")
     label_frame = tk.Frame(progress_frame)
     label_frame.grid(row=0, column=0, sticky="ew", pady=(5, 0), padx=10)
-    progress_label = spacrLabel(label_frame, text="Processing: 0%", font=('Helvetica', 12), anchor='w', justify='left', align="left")
+    progress_label = spacrLabel(label_frame, text="Processing: 0%", font=font_loader.get_font(size=font_size), anchor='w', justify='left', align="left")
     progress_label.grid(row=0, column=0, sticky="w")
     progress_output = scrolledtext.ScrolledText(progress_frame, height=10)
     progress_output.grid(row=1, column=0, sticky="nsew")
@@ -322,8 +326,8 @@ def setup_progress_frame(vertical_container):
 
 def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
     global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
-    from .gui_utils import set_element_size, download_hug_dataset
-    from .settings import categories
+    from .gui_utils import download_hug_dataset
+    from .gui_elements import set_element_size
 
     size_dict = set_element_size()
     button_section_height = size_dict['panel_height']
@@ -366,7 +370,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
 
     # Add the progress bar under the settings category menu
     progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
-    progress_bar.grid(row=btn_row, column=0, columnspan=6, pady=5, padx=5, sticky='ew')
+    progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
     progress_bar.set_label_position()  # Set the label position after grid placement
     widgets.append(progress_bar)
 
@@ -380,8 +384,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
 
 def setup_usage_panel(horizontal_container, btn_col):
     global usage_bars
-    from .gui_utils import set_element_size
-    from .gui_elements import set_dark_style
+    from .gui_elements import set_dark_style, set_element_size
 
     usg_col = 1
 
@@ -432,9 +435,9 @@ def setup_usage_panel(horizontal_container, btn_col):
     # Configure the style for the label
     style = ttk.Style()
     style_out = set_dark_style(style)
-    size = style_out['font_size'] - 2
-    usage_font = tkFont.Font(family=style_out['font_family'], size=size)
-    style.configure("usage.TLabel", font=usage_font, foreground=style_out['fg_color'])
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size'] - 2
+    style.configure("usage.TLabel", font=font_loader.get_font(size=font_size), foreground=style_out['fg_color'])
 
     # Try adding RAM bar
     try:
@@ -534,7 +537,6 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         q = Queue()
     if fig_queue is None:
         fig_queue = Queue()
-
     try:
         settings = check_settings(vars_dict, expected_types, q)
     except ValueError as e:
@@ -641,8 +643,7 @@ def process_console_queue():
 
 def initiate_root(parent, settings_type='mask'):
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar
-    from .gui_utils import main_thread_update_function, setup_frame, set_element_size
-    from .gui import gui_app
+    from .gui_utils import main_thread_update_function, setup_frame
     from .settings import descriptions
 
     set_start_method('spawn', force=True)

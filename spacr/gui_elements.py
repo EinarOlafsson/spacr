@@ -1,7 +1,8 @@
-import os, threading, time, sqlite3, webbrowser
+import os, threading, time, sqlite3, webbrowser, pyautogui
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
+from tkinter import font
 from queue import Queue
 from tkinter import Label, Frame, Button
 import numpy as np
@@ -16,28 +17,28 @@ from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
 
-def set_default_font(root, font_name="Arial", size=12):
+def set_element_size():
 
-    # Define default_font before the condition
-    default_font = ("Arial", size)
+    screen_width, screen_height = pyautogui.size()
+    screen_area = screen_width * screen_height
     
-    if font_name == 'OpenSans':
-        try:
-            font_path = os.path.join(os.path.dirname(__file__), 'resources/font/open_sans/static/OpenSans-Regular.ttf')
-            default_font = tkFont.Font(family=font_name, size=size, file=font_path)
-        except Exception as e:
-            print(f"Failed to load OpenSans font: {e}")
-            # Fallback to a default font in case of an error
-            default_font = ("Arial", size)
-    else:
-        default_font = (font_name, size)
+    # Calculate sizes based on screen dimensions
+    btn_size = int((screen_area * 0.002) ** 0.5)  # Button size as a fraction of screen area
+    bar_size = screen_height // 20  # Bar size based on screen height
+    settings_width = screen_width // 4  # Settings panel width as a fraction of screen width
+    panel_width = screen_width - settings_width  # Panel width as a fraction of screen width
+    panel_height = screen_height // 6  # Panel height as a fraction of screen height
     
-    root.option_add("*Font", default_font)
-    root.option_add("*TButton.Font", default_font)
-    root.option_add("*TLabel.Font", default_font)
-    root.option_add("*TEntry.Font", default_font)
+    size_dict = {
+        'btn_size': btn_size,
+        'bar_size': bar_size,
+        'settings_width': settings_width,
+        'panel_width': panel_width,
+        'panel_height': panel_height
+    }
+    return size_dict
     
-def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="Arial", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
+def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="OpenSans", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
 
     if active_color == 'teal':
         active_color = '#008080'
@@ -53,6 +54,11 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
     padding = '5 5 5 5'
     font_style = tkFont.Font(family=font_family, size=font_size)
 
+    if font_family == 'OpenSans':
+        font_loader = spacrFont(font_name='OpenSans', font_style='Regular', font_size=12)
+    else:
+        font_loader = None
+        
     style.theme_use('clam')
     
     style.configure('TEntry', padding=padding)
@@ -64,7 +70,10 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
     style.configure('TButton', padding=padding)
     style.configure('TFrame', background=bg_color)
     style.configure('TPanedwindow', background=bg_color)
-    style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_style)
+    if font_loader:
+        style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_loader.get_font(size=font_size))
+    else:
+        style.configure('TLabel', background=bg_color, foreground=fg_color, font=(font_family, font_size))
 
     if parent_frame:
         parent_frame.configure(bg=bg_color)
@@ -85,15 +94,97 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
             if isinstance(widget, (tk.Label, tk.Button, tk.Frame, ttk.LabelFrame, tk.Canvas)):
                 widget.configure(bg=bg_color)
             if isinstance(widget, (tk.Label, tk.Button)):
-                widget.configure(fg=fg_color, font=(font_family, font_size))
+                if font_loader:
+                    widget.configure(fg=fg_color, font=font_loader.get_font(size=font_size))
+                else:
+                    widget.configure(fg=fg_color, font=(font_family, font_size))
             if isinstance(widget, scrolledtext.ScrolledText):
                 widget.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
             if isinstance(widget, tk.OptionMenu):
-                widget.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
+                if font_loader:
+                    widget.configure(bg=bg_color, fg=fg_color, font=font_loader.get_font(size=font_size))
+                else:
+                    widget.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
                 menu = widget['menu']
-                menu.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
+                if font_loader:
+                    menu.configure(bg=bg_color, fg=fg_color, font=font_loader.get_font(size=font_size))
+                else:
+                    menu.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
 
-    return {'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
+    return {'font_loader':font_loader, 'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
+
+class spacrFont:
+    def __init__(self, font_name, font_style, font_size=12):
+        """
+        Initializes the FontLoader class.
+
+        Parameters:
+        - font_name: str, the name of the font (e.g., 'OpenSans').
+        - font_style: str, the style of the font (e.g., 'Regular', 'Bold').
+        - font_size: int, the size of the font (default: 12).
+        """
+        self.font_name = font_name
+        self.font_style = font_style
+        self.font_size = font_size
+
+        # Determine the path based on the font name and style
+        self.font_path = self.get_font_path(font_name, font_style)
+
+        # Register the font with Tkinter
+        self.load_font()
+
+    def get_font_path(self, font_name, font_style):
+        """
+        Returns the font path based on the font name and style.
+
+        Parameters:
+        - font_name: str, the name of the font.
+        - font_style: str, the style of the font.
+
+        Returns:
+        - str, the path to the font file.
+        """
+        base_dir = os.path.dirname(__file__)
+        
+        if font_name == 'OpenSans':
+            if font_style == 'Regular':
+                return os.path.join(base_dir, 'resources/font/open_sans/static/OpenSans-Regular.ttf')
+            elif font_style == 'Bold':
+                return os.path.join(base_dir, 'resources/font/open_sans/static/OpenSans-Bold.ttf')
+            elif font_style == 'Italic':
+                return os.path.join(base_dir, 'resources/font/open_sans/static/OpenSans-Italic.ttf')
+            # Add more styles as needed
+        # Add more fonts as needed
+        
+        raise ValueError(f"Font '{font_name}' with style '{font_style}' not found.")
+
+    def load_font(self):
+        """
+        Loads the font into Tkinter.
+        """
+        try:
+            font.Font(family=self.font_name, size=self.font_size)
+        except tk.TclError:
+            # Load the font manually if it's not already loaded
+            self.tk_font = font.Font(
+                name=self.font_name,
+                file=self.font_path,
+                size=self.font_size
+            )
+
+    def get_font(self, size=None):
+        """
+        Returns the font in the specified size.
+
+        Parameters:
+        - size: int, the size of the font (optional).
+
+        Returns:
+        - tkFont.Font object.
+        """
+        if size is None:
+            size = self.font_size
+        return font.Font(family=self.font_name, size=size)
 
 class spacrContainer(tk.Frame):
     def __init__(self, parent, orient=tk.VERTICAL, bg=None, *args, **kwargs):
@@ -200,6 +291,7 @@ class spacrEntry(tk.Frame):
         self.outline = outline
         self.font_family = style_out['font_family']
         self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
         
         # Set the background color of the frame
         self.configure(bg=style_out['bg_color'])
@@ -214,7 +306,10 @@ class spacrEntry(tk.Frame):
         self.canvas.pack()
         
         # Create the entry widget
-        self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=(self.font_family, self.font_size), bg=self.bg_color)
+        if self.font_loader:
+            self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size), bg=self.bg_color)
+        else:
+            self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=(self.font_family, self.font_size), bg=self.bg_color)
         self.entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=self.canvas_width - 30, height=20)  # Centered positioning
         
         # Bind events to change the background color on focus
@@ -305,6 +400,7 @@ class spacrCombo(tk.Frame):
         self.inactive_color = style_out['inactive_color']
         self.font_family = style_out['font_family']
         self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
 
         self.values = values or []
 
@@ -318,7 +414,10 @@ class spacrCombo(tk.Frame):
         self.selected_value = self.var.get()
         
         # Create the label to display the selected value
-        self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size))
+        if self.font_loader:
+            self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size))
+        else:
+            self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size))
         self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         
         # Bind events to open the dropdown menu
@@ -359,7 +458,10 @@ class spacrCombo(tk.Frame):
         
         for index, value in enumerate(self.values):
             display_text = value if value is not None else 'None'
-            item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size), anchor='w')
+            if self.font_loader:
+                item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size), anchor='w')
+            else:
+                item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size), anchor='w')
             item.pack(fill='both')
             item.bind("<Button-1>", lambda e, v=value: self.on_select(v))
             item.bind("<Enter>", lambda e, w=item: w.config(bg=self.active_color))
@@ -385,62 +487,101 @@ class spacrCombo(tk.Frame):
         self.label.config(text=display_text)
         self.selected_value = value
 
-class spacrDropdownMenu(tk.OptionMenu):
-    def __init__(self, parent, variable, options, command=None, **kwargs):
+class spacrDropdownMenu(tk.Frame):
+
+    def __init__(self, parent, variable, options, command=None, font=None, size=50, **kwargs):
+        super().__init__(parent, **kwargs)
         self.variable = variable
-        self.variable.set("Settings Category")
-        super().__init__(parent, self.variable, *options, command=command, **kwargs)
-        self.update_styles()
+        self.options = options
+        self.command = command
+        self.text = "Settings"
+        self.size = size
 
-        # Hide the original button
-        self.configure(highlightthickness=0, relief='flat', bg='#2B2B2B', fg='#2B2B2B')
+        # Apply dark style and get color settings
+        style_out = set_dark_style(ttk.Style())
+        self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
 
-        # Create custom button
-        self.create_custom_button()
+        # Button size configuration
+        self.button_width = int(size * 3)
+        self.canvas_width = self.button_width + 4
+        self.canvas_height = self.size + 4
 
-    def create_custom_button(self):
-        self.canvas_width = self.winfo_reqwidth() + 20  # Adjust width based on required size
-        self.canvas_height = 40  # Adjust the height as needed
-        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg='#2B2B2B')
-        self.canvas.pack()
-        self.label = tk.Label(self.canvas, text="Settings Category", bg='#2B2B2B', fg='#ffffff', font=('Arial', 12))
-        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        self.draw_rounded_rectangle('#2B2B2B')
+        # Create the canvas and rounded button
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, highlightthickness=0, bg=style_out['bg_color'])
+        self.canvas.grid(row=0, column=0)
 
-        # Bind the click event to open the dropdown menu
+        # Apply dark style and get color settings
+        color_settings = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
+        self.inactive_color = color_settings['inactive_color']
+        self.active_color = color_settings['active_color']
+        self.fg_color = color_settings['fg_color']
+
+        # Create the button with rounded edges
+        self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=self.inactive_color, outline=self.inactive_color)
+
+        # Create and place the label on the button
+        if self.font_loader:
+            self.font_style = self.font_loader.get_font(size=self.font_size)
+        else:
+            self.font_style = font if font else ("Arial", 12)
+
+        self.button_text = self.canvas.create_text(self.button_width // 2, self.size // 2 + 2, text=self.text, fill=self.fg_color, font=self.font_style, anchor="center")
+
+        # Bind events for button behavior
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+        self.bind("<Button-1>", self.on_click)
+        self.canvas.bind("<Enter>", self.on_enter)
+        self.canvas.bind("<Leave>", self.on_leave)
         self.canvas.bind("<Button-1>", self.on_click)
-        self.label.bind("<Button-1>", self.on_click)
 
-    def draw_rounded_rectangle(self, color):
-        radius = 15
-        x0, y0 = 10, 5
-        x1, y1 = self.canvas_width - 10, self.canvas_height - 5  # Adjust based on canvas size
+        # Create a popup menu
+        self.menu = tk.Menu(self, tearoff=0)
+        for option in self.options:
+            self.menu.add_command(label=option, command=lambda opt=option: self.on_select(opt))
 
-        self.canvas.delete("all")
+    def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):
+        points = [
+            x1 + radius, y1,
+            x2 - radius, y1,
+            x2 - radius, y1,
+            x2, y1,
+            x2, y1 + radius,
+            x2, y2 - radius,
+            x2, y2 - radius,
+            x2, y2,
+            x2 - radius, y2,
+            x1 + radius, y2,
+            x1 + radius, y2,
+            x1, y2,
+            x1, y2 - radius,
+            x1, y2 - radius,
+            x1, y1 + radius,
+            x1, y1 + radius,
+            x1, y1
+        ]
+        return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
-        # Create the rounded rectangle
-        self.canvas.create_arc(x0, y0, x0 + 2 * radius, y0 + 2 * radius, start=90, extent=90, fill=color, outline=color)
-        self.canvas.create_arc(x1 - 2 * radius, y0, x1, y0 + 2 * radius, start=0, extent=90, fill=color, outline=color)
-        self.canvas.create_arc(x0, y1 - 2 * radius, x0 + 2 * radius, y1, start=180, extent=90, fill=color, outline=color)
-        self.canvas.create_arc(x1 - 2 * radius, y1 - 2 * radius, x1, y1, start=270, extent=90, fill=color, outline=color)
+    def on_enter(self, event=None):
+        self.canvas.itemconfig(self.button_bg, fill=self.active_color)
 
-        self.canvas.create_rectangle(x0 + radius, y0, x1 - radius, y1, fill=color, outline=color)
-        self.canvas.create_rectangle(x0, y0 + radius, x1, y1 - radius, fill=color, outline=color)
+    def on_leave(self, event=None):
+        self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
 
-        self.label.config(bg=color)  # Update label background to match rectangle color
-
-    def on_click(self, event):
+    def on_click(self, event=None):
         self.post_menu()
 
     def post_menu(self):
         x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
         self.menu.post(x, y + height)
 
+    def on_select(self, option):
+        if self.command:
+            self.command(option)
+
     def update_styles(self, active_categories=None):
-        style = ttk.Style()
-        style_out = set_dark_style(style, widgets=[self])
-        self.menu = self['menu']
-        style_out = set_dark_style(style, widgets=[self.menu])
+        style_out = set_dark_style(ttk.Style(), widgets=[self.menu])
 
         if active_categories is not None:
             for idx in range(self.menu.index("end") + 1):
@@ -450,67 +591,6 @@ class spacrDropdownMenu(tk.OptionMenu):
                 else:
                     self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
 
-
-
-class spacrDropdownMenu_v1(tk.OptionMenu):
-    def __init__(self, parent, variable, options, command=None, **kwargs):
-        self.variable = variable
-        self.variable.set("Settings Category")
-        super().__init__(parent, self.variable, *options, command=command, **kwargs)
-        self.update_styles()
-
-        # Hide the original button
-        self.configure(highlightthickness=0, relief='flat', bg='#2B2B2B', fg='#2B2B2B')
-
-        # Create custom button
-        self.create_custom_button()
-
-    def create_custom_button(self):
-        self.canvas_width = self.winfo_reqwidth()  # Use the required width of the widget
-        self.canvas_height = 40  # Adjust the height as needed
-        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg='#2B2B2B')
-        self.canvas.pack()
-        self.label = tk.Label(self.canvas, text="Settings Category", bg='#2B2B2B', fg='#ffffff', font=('Arial', 12))
-        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        self.draw_rounded_rectangle('#2B2B2B')
-
-        # Bind the click event to open the dropdown menu
-        self.canvas.bind("<Button-1>", self.on_click)
-        self.label.bind("<Button-1>", self.on_click)
-
-    def draw_rounded_rectangle(self, color):
-        radius = 15
-        x0, y0 = 10, 5
-        x1, y1 = self.canvas_width - 10, self.canvas_height - 5  # Adjust based on canvas size
-        self.canvas.delete("all")
-        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
-        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
-        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
-        self.label.config(bg=color)  # Update label background to match rectangle color
-
-    def on_click(self, event):
-        self.post_menu()
-
-    def post_menu(self):
-        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
-        self.menu.post(x, y + height)
-
-    def update_styles(self, active_categories=None):
-        style = ttk.Style()
-        style_out = set_dark_style(style, widgets=[self])
-        self.menu = self['menu']
-        style_out = set_dark_style(style, widgets=[self.menu])
-
-        if active_categories is not None:
-            for idx in range(self.menu.index("end") + 1):
-                option = self.menu.entrycget(idx, "label")
-                if option in active_categories:
-                    self.menu.entryconfig(idx, background=style_out['active_color'], foreground=style_out['fg_color'])
-                else:
-                    self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
 
 class spacrCheckbutton(ttk.Checkbutton):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
@@ -698,12 +778,16 @@ class spacrLabel(tk.Frame):
             label_height = height
             label_width = label_height * 10
 
-        style_out = set_dark_style(ttk.Style())
+        self.style_out = set_dark_style(ttk.Style())
+        self.font_style = self.style_out['font_family']
+        self.font_size = self.style_out['font_size']
+        self.font_family = self.style_out['font_family']
+        self.font_loader = self.style_out['font_loader']
 
-        self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=style_out['bg_color'])
+        self.canvas = tk.Canvas(self, width=label_width, height=label_height, highlightthickness=0, bg=self.style_out['bg_color'])
         self.canvas.grid(row=0, column=0, sticky="ew")
-
-        self.font_style = font if font else tkFont.Font(family=style_out['font_family'], size=style_out['font_size'], weight=tkFont.NORMAL)
+        if self.style_out['font_family'] != 'OpenSans':
+            self.font_style = font if font else tkFont.Font(family=self.style_out['font_family'], size=self.style_out['font_size'], weight=tkFont.NORMAL)
         self.style = style
 
         if self.align == "center":
@@ -715,13 +799,21 @@ class spacrLabel(tk.Frame):
 
         if self.style:
             ttk_style = ttk.Style()
-            ttk_style.configure(self.style, font=self.font_style, background=style_out['bg_color'], foreground=style_out['fg_color'])
+            if self.font_loader:
+                ttk_style.configure(self.style, font=self.font_loader.get_font(size=self.font_size), background=self.style_out['bg_color'], foreground=self.style_out['fg_color'])
+            else:
+                ttk_style.configure(self.style, font=self.font_style, background=self.style_out['bg_color'], foreground=self.style_out['fg_color'])
             self.label_text = ttk.Label(self.canvas, text=self.text, style=self.style, anchor=text_anchor)
             self.label_text.pack(fill=tk.BOTH, expand=True)
         else:
-            self.label_text = self.canvas.create_text(label_width // 2 if self.align == "center" else label_width - 5, 
-                                                      label_height // 2, text=self.text, fill=style_out['fg_color'], 
-                                                      font=self.font_style, anchor=anchor_value, justify=tk.RIGHT)
+            if self.font_loader:
+                self.label_text = self.canvas.create_text(label_width // 2 if self.align == "center" else label_width - 5, 
+                                                          label_height // 2, text=self.text, fill=self.style_out['fg_color'], 
+                                                          font=self.font_loader.get_font(size=self.font_size), anchor=anchor_value, justify=tk.RIGHT)
+            else:
+                self.label_text = self.canvas.create_text(label_width // 2 if self.align == "center" else label_width - 5, 
+                                                        label_height // 2, text=self.text, fill=self.style_out['fg_color'], 
+                                                        font=self.font_style, anchor=anchor_value, justify=tk.RIGHT)
         
         _ = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
@@ -744,6 +836,8 @@ class spacrButton(tk.Frame):
         self.animation = animation  # Add animation attribute
 
         style_out = set_dark_style(ttk.Style())
+        self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
 
         if self.show_text:
             self.button_width = int(size * 3)
@@ -765,7 +859,10 @@ class spacrButton(tk.Frame):
             self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=self.inactive_color, outline=self.inactive_color)
         
         self.load_icon()
-        self.font_style = font if font else ("Arial", 12)  # Default font if not provided
+        if self.font_loader:
+            self.font_style = self.font_loader.get_font(size=self.font_size)
+        else:
+            self.font_style = font if font else ("Arial", 12)
         
         if self.show_text:
             self.button_text = self.canvas.create_text(self.size + 10, self.size // 2 + 2, text=self.text, fill=color_settings['fg_color'], font=self.font_style, anchor="w")  # Align text to the left of the specified point
@@ -1863,6 +1960,14 @@ class AnnotateApp:
         self.threshold = threshold
 
         style_out = set_dark_style(ttk.Style())
+        self.font_loader = style_out['font_loader']
+        self.font_size = style_out['font_size']
+
+        if self.font_loader:
+            self.font_style = self.font_loader.get_font(size=self.font_size)
+        else:
+            self.font_style = ("Arial", 12)
+        
         self.root.configure(bg=style_out['inactive_color'])
 
         self.filtered_paths_annotations = []
@@ -1876,7 +1981,7 @@ class AnnotateApp:
         self.root.update_idletasks()
 
         # Create the status label
-        self.status_label = Label(root, text="", font=("Arial", 12), bg=self.root.cget('bg'))
+        self.status_label = Label(root, text="", font=self.font_style, bg=self.root.cget('bg'))
         self.status_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
         # Place the buttons at the bottom right
