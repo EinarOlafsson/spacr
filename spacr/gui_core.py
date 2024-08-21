@@ -15,7 +15,7 @@ try:
 except AttributeError:
     pass
 
-from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, get_analyze_reads_default_settings, set_default_umap_image_settings
+from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, set_default_generate_barecode_mapping, set_default_umap_image_settings
 from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style
 
 # Define global variables
@@ -122,7 +122,7 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
 def import_settings(settings_type='mask'):
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
     global vars_dict, scrollable_frame, button_scrollable_frame
-    from .settings import generate_fields
+    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, set_default_generate_barecode_mapping, set_default_umap_image_settings
 
     def read_settings_from_csv(csv_file_path):
         settings = {}
@@ -158,7 +158,7 @@ def import_settings(settings_type='mask'):
     elif settings_type == 'classify':
         settings = set_default_train_test_model(settings={})
     elif settings_type == 'sequencing':
-        settings = get_analyze_reads_default_settings(settings={})
+        settings = set_default_generate_barecode_mapping(settings={})
     elif settings_type == 'umap':
         settings = set_default_umap_image_settings(settings={})
     else:
@@ -171,7 +171,7 @@ def import_settings(settings_type='mask'):
 
 def setup_settings_panel(vertical_container, settings_type='mask'):
     global vars_dict, scrollable_frame
-    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, get_analyze_reads_default_settings, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
+    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, set_default_generate_barecode_mapping, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
     from .gui_utils import convert_settings_dict_for_gui
     from .gui_elements import set_element_size
 
@@ -198,8 +198,6 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
         settings = set_default_train_test_model(settings={})
-    elif settings_type == 'sequencing':
-        settings = get_analyze_reads_default_settings(settings={})
     elif settings_type == 'umap':
         settings = set_default_umap_image_settings(settings={})
     elif settings_type == 'train_cellpose':
@@ -211,7 +209,7 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     elif settings_type == 'cellpose_all':
         settings = get_check_cellpose_models_default_settings(settings={})
     elif settings_type == 'map_barcodes':
-        settings = get_map_barcodes_default_settings(settings={})
+        settings = set_default_generate_barecode_mapping(settings={})
     elif settings_type == 'regression':
         settings = get_perform_regression_default_settings(settings={})
     elif settings_type == 'recruitment':

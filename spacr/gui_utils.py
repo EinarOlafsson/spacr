@@ -413,13 +413,14 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
         plt.show = original_show
 
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
+    
     from .gui_utils import process_stdout_stderr
     from .core import preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, compare_cellpose_masks, analyze_plaques, generate_dataset, apply_model_to_tar
     from .io import generate_cellpose_train_test
     from .measure import measure_crop
     from .sim import run_multiple_simulations
     from .deep_spacr import train_test_model
-    from .sequencing import analyze_reads, map_barcodes_folder, perform_regression
+    from .sequencing import generate_barecode_mapping, perform_regression
     process_stdout_stderr(q)
 
     print(f'run_function_gui settings_type: {settings_type}') 
@@ -432,9 +433,6 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 1
     elif settings_type == 'simulation':
         function = run_multiple_simulations
-        imports = 1
-    elif settings_type == 'sequencing':
-        function = analyze_reads
         imports = 1
     elif settings_type == 'classify':
         function = train_test_model
@@ -452,7 +450,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         function = check_cellpose_models
         imports = 1
     elif settings_type == 'map_barcodes':
-        function = map_barcodes_folder
+        function = generate_barecode_mapping
         imports = 1
     elif settings_type == 'regression':
         function = perform_regression
