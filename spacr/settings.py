@@ -723,6 +723,9 @@ expected_types = {
     "resize": bool,
     "gene_weights_csv": str,
     "fraction_threshold": float,
+    "barcode_mapping":dict,
+    'barcode_coordinates':list,  # This is a list of lists
+    'reverse_complement':bool,
 }
 
 def check_settings(vars_dict, expected_types, q=None):
@@ -736,7 +739,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
     for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types:
-            if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths"]:
+            if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths", "Sequencing"]:
                 q.put(f"Key {key} not found in expected types.")
                 continue
 
@@ -744,7 +747,7 @@ def check_settings(vars_dict, expected_types, q=None):
         expected_type = expected_types.get(key, str)
 
         try:
-            if key in ["png_size", "pathogen_plate_metadata", "treatment_plate_metadata"]:
+            if key in ["png_size", "pathogen_plate_metadata", "treatment_plate_metadata", "barcode_coordinates"]:
                 parsed_value = ast.literal_eval(value) if value else None
                 if isinstance(parsed_value, list):
                     if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
@@ -829,7 +832,7 @@ def generate_fields(variables, scrollable_frame):
         "cell_Signal_to_noise": "(float) - The signal-to-noise ratio for the cell channel. This will be used to determine the range of intensities to normalize images to for cell segmentation.",
         "cell_size_range": "(list) - Size range for cell segmentation.",
         "cell_types": "(list) - Types of cells to include in the analysis.",
-        "cells": "(list) - The cell types to include in the analysis.",
+        "cells": "(list of lists) - The cell types to include in the analysis.",
         "cells_per_well": "(int) - Number of cells per well.",
         "channel_dims": "(list) - The dimensions of the image channels.",
         "channel_of_interest": "(int) - The channel of interest to use for the analysis.",
@@ -937,12 +940,7 @@ def generate_fields(variables, scrollable_frame):
         "pathogen_background": "(float) - The background intensity for the pathogen channel. This will be used to remove background noise.",
         "pathogen_chann_dim": "(int) - Dimension of the channel to use for pathogen segmentation.",
         "pathogen_channel": "(int) - The channel to use for the pathogen. If None, the pathogen will not be segmented.",
-        "pathogen_intensity_range": "(list) - Intensity range for pathogen segmentation.",
-        "pathogen_loc": "(list) - The locations of the pathogen types in the images.",
-        "pathogen_mask_dim": "(int) - The dimension of the array the pathogen mask is saved in.",
-        "pathogen_min_size": "(int) - The minimum size of pathogen objects in pixels^2.",
-        "pathogen_model": "(str) - Model to use for pathogen segmentation.",
-        "pathogen_plate_metadata": "(str) - Metadata for the pathogen plate.",
+        "pathogen_intensity_range": "(str) - Metadata for the pathogen plate.",
         "pathogen_Signal_to_noise": "(float) - The signal-to-noise ratio for the pathogen channel. This will be used to determine the range of intensities to normalize images to for pathogen segmentation.",
         "pathogen_size_range": "(list) - Size range for pathogen segmentation.",
         "pathogen_types": "(list) - Types of pathogens to include in the analysis.",
@@ -1018,6 +1016,8 @@ def generate_fields(variables, scrollable_frame):
         "verbose": "(bool) - Whether to print verbose output during processing.",
         "weight_decay": "(float) - Weight decay for regularization.",
         "width_height": "(tuple) - Width and height of the input images.",
+        "barcode_coordinates": "(list of lists) - Coordinates of the barcodes in the sequence.",
+        "barcode_mapping": "dict - names and barecode csv files",
         "um_per_pixel": "(float) - The micrometers per pixel for the images."
     }
 
@@ -1053,7 +1053,7 @@ categories = {
     "Train DL Model": ["epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes"],
     "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
     "Test": ["test_mode", "test_images", "random_test", "test_nr", "test"],
-    "Sequencing": ["upstream", "downstream", "barecode_length_1", "barecode_length_2", "chunk_size"]
+    "Sequencing": ["upstream", "downstream", "barecode_length_1", "barecode_length_2", "chunk_size", "barcode_mapping", "reverse_complement", "barcode_coordinates"]
 }
 
 descriptions = {
@@ -1062,8 +1062,6 @@ descriptions = {
     'measure': "Capture Measurements from Cells, Nuclei, Pathogens, and Cytoplasm objects. Generate single object PNG images for one or several objects. (Requires masks from the Mask module). Function: measure_crop from spacr.measure.\n\nKey Features:\n- Comprehensive Measurement Capture: Obtain detailed measurements for various cellular components, including area, perimeter, intensity, and more.\n- Image Generation: Create high-resolution PNG images of individual objects, facilitating further analysis and visualization.\n- Mask Dependency: Requires accurate masks generated by the Mask module to ensure precise measurements.",
     
     'classify': "Train and Test any Torch Computer vision model. (Requires PNG images from the Measure module). Function: train_test_model from spacr.deep_spacr.\n\nKey Features:\n- Deep Learning Integration: Train and evaluate state-of-the-art Torch models for various classification tasks.\n- Flexible Training: Supports a wide range of Torch models, allowing customization based on specific research needs.\n- Data Requirement: Requires PNG images generated by the Measure module for training and testing.",
-    
-    'sequencing': "Find Barcodes and gRNA sequences in FASTQ files. (Requires paired-end FASTQ files, R1 and R2). Function: analyze_reads from spacr.sequencing.\n\nKey Features:\n- Barcode and gRNA Identification: Efficiently detect and extract barcode and gRNA sequences from raw sequencing data.\n- Paired-End Support: Specifically designed to handle paired-end FASTQ files, ensuring accurate sequence alignment and analysis.\n- High Throughput: Capable of processing large sequencing datasets quickly and accurately.",
     
     'umap': "Generate UMAP or tSNE embeddings and represent points as single cell images. (Requires measurements.db and PNG images from the Measure module). Function: generate_image_umap from spacr.core.\n\nKey Features:\n- Dimensionality Reduction: Employ UMAP or tSNE algorithms to reduce high-dimensional data into two dimensions for visualization.\n- Single Cell Representation: Visualize embedding points as single cell images, providing an intuitive understanding of data clusters.\n- Data Integration: Requires measurements and images generated by the Measure module, ensuring comprehensive data representation.",
     
@@ -1076,7 +1074,8 @@ descriptions = {
     'cellpose_all': "Run Cellpose on all images in your dataset and obtain masks and measurements. Function: cellpose_analysis from spacr.cellpose.\n\nKey Features:\n- End-to-End Analysis: Perform both segmentation and measurement extraction in a single step.\n- Efficiency: Process entire datasets with minimal manual intervention.\n- Comprehensive Output: Obtain detailed masks and corresponding measurements for further analysis.",
     
     'map_barcodes': "Map barcodes to your data for identification and tracking. Function: barcode_mapping_tools from spacr.sequencing.\n\nKey Features:\n- Barcode Integration: Efficiently map and integrate barcode information into your dataset.\n- Tracking: Enable tracking and identification of samples using barcodes.\n- Compatibility: Works with sequencing data to ensure accurate mapping and analysis.",
-    
+    #'sequencing': "Find Barcodes and gRNA sequences in FASTQ files. (Requires paired-end FASTQ files, R1 and R2). Function: analyze_reads from spacr.sequencing.\n\nKey Features:\n- Barcode and gRNA Identification: Efficiently detect and extract barcode and gRNA sequences from raw sequencing data.\n- Paired-End Support: Specifically designed to handle paired-end FASTQ files, ensuring accurate sequence alignment and analysis.\n- High Throughput: Capable of processing large sequencing datasets quickly and accurately.",
+
     'regression': "Perform regression analysis on your data. Function: regression_tools from spacr.analysis.\n\nKey Features:\n- Statistical Analysis: Conduct various types of regression analysis to identify relationships within your data.\n- Flexible Options: Supports multiple regression models and configurations.\n- Data Insight: Gain deeper insights into your dataset through advanced regression techniques.",
     
     'recruitment': "Analyze recruitment data to understand sample recruitment dynamics. Function: recruitment_analysis_tools from spacr.analysis.\n\nKey Features:\n- Recruitment Analysis: Investigate and analyze the recruitment of samples over time or conditions.\n- Visualization: Generate visualizations to represent recruitment trends and patterns.\n- Integration: Utilize data from various sources for a comprehensive recruitment analysis."
@@ -1094,3 +1093,11 @@ def set_annotate_default_settings(settings):
     settings.setdefault('threshold', '2')
     return settings
 
+def set_default_generate_barecode_mapping(settings={}):
+    settings.setdefault('src', 'path')
+    settings.setdefault('chunk_size', 1000000)
+    
+    settings.setdefault('barcode_mapping', {'row': ['/home/carruthers/Documents/row_barcodes.csv',(80, 88), True],
+                                            'grna': ['/home/carruthers/Documents/grna_barcodes.csv',(34, 55), True],
+                                            'column': ['/home/carruthers/Documents/column_barcodes.csv',(0, 7), False]})
+    return settings

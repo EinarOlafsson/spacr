@@ -27,7 +27,7 @@ class MainApp(tk.Tk):
         }
 
         self.additional_gui_apps = {
-            "Sequencing": (lambda frame: initiate_root(self, 'sequencing'), "Analyze sequencing data."),
+            #"Sequencing": (lambda frame: initiate_root(self, 'sequencing'), "Analyze sequencing data."),
             "Umap": (lambda frame: initiate_root(self, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
             "Train Cellpose": (lambda frame: initiate_root(self, 'train_cellpose'), "Train custom Cellpose models."),
             "ML Analyze": (lambda frame: initiate_root(self, 'ml_analyze'), "Machine learning analysis of data."),
