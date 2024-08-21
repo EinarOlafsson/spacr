@@ -1,4 +1,4 @@
-import os, gc, gzip, re, time, math, subprocess, traceback
+import os, gc, gzip, re, time, math, subprocess, traceback, h5py, csv
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -21,8 +21,6 @@ from sklearn.preprocessing import FunctionTransformer, MinMaxScaler
 from scipy.stats import shapiro
 from patsy import dmatrices
 
-import os
-import gzip
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -109,6 +107,115 @@ def generate_consensus_sequence(src, chunk_size):
             os.makedirs(consensus_dir, exist_ok=True)  # Use os.makedirs() instead of os.mkdir()
             consensus = os.path.join(consensus_dir, f"{key}_consensus.fastq.gz")
             consensus_sequence(R1, R2, consensus, chunk_size)
+
+def extract_barcodes_from_fastq(fastq, names, coordinates, output_file, chunk_size=1000000, reverse_complement=False, barcode_csvs=None):
+    """
+    Extracts sequences from the given coordinates, optionally reverse complements them,
+    and saves them into an HDF5 file in chunks.
+
+    Args:
+        fastq (str): Path to the consensus FASTQ file.
+        names (list): List of names corresponding to each barcode region.
+        coordinates (list): List of lists, where each sublist contains slice indices [start:end].
+        output_file (str): Path to the output HDF5 file.
+        chunk_size (int): Number of reads to process in a single chunk.
+        reverse_complement (bool): If True, reverse complement the sequences before saving.
+        barcode_csvs (dict): A dictionary with names as keys and paths to barcode CSV files as values.
+    """
+
+    def get_closest_match(seq, barcode_dict):
+        """
+        Finds the closest match to a sequence in the barcode dictionary and returns the closest match and its score.
+        """
+        best_match = None
+        best_score = 0.0
+        for barcode_seq, barcode_name in barcode_dict.items():
+            score = SequenceMatcher(None, seq, barcode_seq).ratio()
+            if score > best_score:
+                best_match = barcode_name
+                best_score = score
+        return best_match, best_score
+    
+    # Validate barcode CSVs if provided
+    barcode_dicts = {}
+    if barcode_csvs:
+        for name, path in barcode_csvs.items():
+            df = pd.read_csv(path)
+            if 'name' not in df.columns or 'sequence' not in df.columns:
+                print(f"Warning: CSV file {path} does not have required columns 'name' and 'sequence'. Aborting.")
+                return
+            barcode_dicts[name] = df.set_index('sequence')['name'].to_dict()
+
+    with gzip.open(fastq, "rt") as handle, h5py.File(output_file, "w") as hdf:
+        chunk_count = 0
+        while True:
+            records = list(SeqIO.parse(handle, "fastq"))[:chunk_size]
+            if not records:
+                break
+            
+            chunk_count += 1
+            read_ids = []
+            data = {name: [] for name in names}
+            scores = {name: [] for name in names}  # Stores the score for each barcode match
+
+            for record in records:
+                read_ids.append(record.id)
+                for name, coord in zip(names, coordinates):
+                    if isinstance(coord, slice):
+                        extracted_seq = str(record.seq[coord])
+                    else:
+                        start, end = coord[0], coord[1]
+                        if end <= len(record.seq):
+                            extracted_seq = str(record.seq[start:end])
+                        else:
+                            extracted_seq = ""
+                    
+                    if reverse_complement:
+                        extracted_seq = str(Seq(extracted_seq).reverse_complement())
+
+                    # Handle barcode matching
+                    if name in barcode_dicts:
+                        exact_match = barcode_dicts[name].get(extracted_seq, None)
+                        if exact_match:
+                            data[name].append(exact_match)
+                            scores[name].append(1.0)  # Exact match score
+                        else:
+                            closest_match, score = get_closest_match(extracted_seq, barcode_dicts[name])
+                            data[name].append(closest_match)
+                            scores[name].append(score)
+                    else:
+                        data[name].append(extracted_seq)
+                        scores[name].append(0.0)
+
+            # Write chunk to HDF5
+            hdf.create_dataset(f"Read_ID_chunk_{chunk_count}", data=np.array(read_ids, dtype="S"))
+            for name in names:
+                hdf.create_dataset(f"{name}_chunk_{chunk_count}", data=np.array(data[name], dtype="S"))
+                if name in scores:
+                    hdf.create_dataset(f"{name}_scores_chunk_{chunk_count}", data=np.array(scores[name], dtype="f"))
+
+            print(f"Processed chunk {chunk_count} with {len(records)} reads.", flush=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def analyze_reads(settings):
