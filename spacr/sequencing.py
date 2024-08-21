@@ -25,16 +25,35 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
+def estimate_number_of_chunks(fastq_file, output_file, chunk_size):
+    """
+    Estimate the number of remaining chunks based on the size of the R1 file
+    and the size of the output file after processing the first chunk.
+    """
+    r1_size = os.path.getsize(fastq_file)
+    output_size = os.path.getsize(output_file)
+
+    read_size = r1_size/chunk_size
+    fastq_reads = (output_size/read_size)*15
+    estimated_total_chunks = int(fastq_reads/chunk_size)
+    print(f"read size: {read_size} fastq reads: {fastq_reads} estimated total chunks: {estimated_total_chunks}")
+    
+    return estimated_total_chunks
+
 def consensus_sequence(fastq_r1, fastq_r2, output_file, chunk_size=1000000):
+    from .utils import print_progress
 
     total_reads = 0
     chunk_count = 0
-    
+    time_ls = []
+
     with gzip.open(fastq_r1, "rt") as r1_handle, gzip.open(fastq_r2, "rt") as r2_handle, gzip.open(output_file, "wt") as output_handle:
         r1_iter = SeqIO.parse(r1_handle, "fastq")
         r2_iter = SeqIO.parse(r2_handle, "fastq")
         
         while True:
+            start_time = time.time()
+
             r1_chunk = [rec for rec in (next(r1_iter, None) for _ in range(chunk_size)) if rec is not None]
             r2_chunk = [rec for rec in (next(r2_iter, None) for _ in range(chunk_size)) if rec is not None]
             
@@ -63,9 +82,15 @@ def consensus_sequence(fastq_r1, fastq_r2, output_file, chunk_size=1000000):
                 
                 # Write the consensus sequence to the output file
                 SeqIO.write(consensus_record, output_handle, "fastq")
+
+            if chunk_count == 1:
+                files_to_process = estimate_number_of_chunks(fastq_r1, output_file, chunk_size)
             
-            print(f"Progress: Chunk {chunk_count} with {total_reads} reads.")
-            
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=files_to_process, n_jobs=1, time_ls=time_ls, batch_size=chunk_size, operation_type=" Consensus sequence from R1 & R2")
+
 def parse_gz_files(folder_path):
     """
     Parses the .fastq.gz files in the specified folder path and returns a dictionary
@@ -97,748 +122,133 @@ def parse_gz_files(folder_path):
 
     return samples_dict
 
-def generate_consensus_sequence(src, chunk_size):
-    samples_dict = parse_gz_files(src)
-    for key in samples_dict:
-        if samples_dict[key]['R1'] and samples_dict[key]['R2']:
-            R1 = samples_dict[key]['R1']
-            R2 = samples_dict[key]['R2']
-            consensus_dir = os.path.join(os.path.dirname(R1), 'consensus')
-            os.makedirs(consensus_dir, exist_ok=True)  # Use os.makedirs() instead of os.mkdir()
-            consensus = os.path.join(consensus_dir, f"{key}_consensus.fastq.gz")
-            consensus_sequence(R1, R2, consensus, chunk_size)
+def get_closest_match(seq, barcode_dict):
+    """
+    Finds the closest match to a sequence in the barcode dictionary and returns the closest match and its score.
+    """
+    best_match = None
+    best_score = 0.0
+    for barcode_seq, barcode_name in barcode_dict.items():
+        score = SequenceMatcher(None, seq, barcode_seq).ratio()
+        if score > best_score:
+            best_match = barcode_name
+            best_score = score
+    return best_match, best_score
 
-def extract_barcodes_from_fastq(fastq, names, coordinates, output_file, chunk_size=1000000, reverse_complement=False, barcode_csvs=None):
+def extract_barcodes_from_fastq(fastq, barcode_coordinates, output_file, chunk_size=1000000, reverse_complement=False, barcode_mapping=None):
     """
     Extracts sequences from the given coordinates, optionally reverse complements them,
     and saves them into an HDF5 file in chunks.
 
     Args:
         fastq (str): Path to the consensus FASTQ file.
-        names (list): List of names corresponding to each barcode region.
-        coordinates (list): List of lists, where each sublist contains slice indices [start:end].
+        barcode_coordinates (list): List of lists, where each sublist contains slice indices [start:end].
         output_file (str): Path to the output HDF5 file.
         chunk_size (int): Number of reads to process in a single chunk.
         reverse_complement (bool): If True, reverse complement the sequences before saving.
-        barcode_csvs (dict): A dictionary with names as keys and paths to barcode CSV files as values.
+        barcode_mapping (dict): A dictionary with names as keys and paths to barcode CSV files as values.
     """
-
-    def get_closest_match(seq, barcode_dict):
-        """
-        Finds the closest match to a sequence in the barcode dictionary and returns the closest match and its score.
-        """
-        best_match = None
-        best_score = 0.0
-        for barcode_seq, barcode_name in barcode_dict.items():
-            score = SequenceMatcher(None, seq, barcode_seq).ratio()
-            if score > best_score:
-                best_match = barcode_name
-                best_score = score
-        return best_match, best_score
-    
     # Validate barcode CSVs if provided
     barcode_dicts = {}
-    if barcode_csvs:
-        for name, path in barcode_csvs.items():
+    names = []
+    if barcode_mapping:
+        for name, path in barcode_mapping.items():
+            names.append(name)
             df = pd.read_csv(path)
             if 'name' not in df.columns or 'sequence' not in df.columns:
                 print(f"Warning: CSV file {path} does not have required columns 'name' and 'sequence'. Aborting.")
                 return
             barcode_dicts[name] = df.set_index('sequence')['name'].to_dict()
+    else:
+        print("Warning: No barcode CSVs provided. Extracting sequences without matching.")
 
     with gzip.open(fastq, "rt") as handle, h5py.File(output_file, "w") as hdf:
         chunk_count = 0
-        while True:
-            records = list(SeqIO.parse(handle, "fastq"))[:chunk_size]
-            if not records:
-                break
-            
-            chunk_count += 1
-            read_ids = []
-            data = {name: [] for name in names}
-            scores = {name: [] for name in names}  # Stores the score for each barcode match
-
-            for record in records:
-                read_ids.append(record.id)
-                for name, coord in zip(names, coordinates):
-                    if isinstance(coord, slice):
-                        extracted_seq = str(record.seq[coord])
-                    else:
-                        start, end = coord[0], coord[1]
-                        if end <= len(record.seq):
-                            extracted_seq = str(record.seq[start:end])
-                        else:
-                            extracted_seq = ""
-                    
-                    if reverse_complement:
-                        extracted_seq = str(Seq(extracted_seq).reverse_complement())
-
-                    # Handle barcode matching
-                    if name in barcode_dicts:
-                        exact_match = barcode_dicts[name].get(extracted_seq, None)
-                        if exact_match:
-                            data[name].append(exact_match)
-                            scores[name].append(1.0)  # Exact match score
-                        else:
-                            closest_match, score = get_closest_match(extracted_seq, barcode_dicts[name])
-                            data[name].append(closest_match)
-                            scores[name].append(score)
-                    else:
-                        data[name].append(extracted_seq)
-                        scores[name].append(0.0)
-
-            # Write chunk to HDF5
-            hdf.create_dataset(f"Read_ID_chunk_{chunk_count}", data=np.array(read_ids, dtype="S"))
-            for name in names:
-                hdf.create_dataset(f"{name}_chunk_{chunk_count}", data=np.array(data[name], dtype="S"))
-                if name in scores:
-                    hdf.create_dataset(f"{name}_scores_chunk_{chunk_count}", data=np.array(scores[name], dtype="f"))
-
-            print(f"Processed chunk {chunk_count} with {len(records)} reads.", flush=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def analyze_reads(settings):
-    """
-    Analyzes reads from gzipped fastq files and combines them based on specified settings.
-
-    Args:
-        settings (dict): A dictionary containing the following keys:
-            - 'src' (str): The path to the folder containing the input fastq files.
-            - 'upstream' (str, optional): The upstream sequence used for read combination. Defaults to 'CTTCTGGTAAATGGGGATGTCAAGTT'.
-            - 'downstream' (str, optional): The downstream sequence used for read combination. Defaults to 'GTTTAAGAGCTATGCTGGAAACAGCA'.
-            - 'barecode_length' (int, optional): The length of the barcode sequence. Defaults to 8.
-            - 'chunk_size' (int, optional): The number of reads to process and save at a time. Defaults to 1000000.
-
-    Returns:
-        None
-    """
-    
-    def save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter):
-        """
-        Save a data chunk to an HDF5 file.
-
-        Parameters:
-        - output_file_path (str): The path to the output HDF5 file.
-        - data_chunk (list): The data chunk to be saved.
-        - chunk_counter (int): The counter for the current chunk.
-
-        Returns:
-        None
-        """
-        df = pd.DataFrame(data_chunk, columns=['combined_read', 'grna', 'plate_row', 'column', 'sample'])
-        with pd.HDFStore(output_file_path, mode='a', complevel=5, complib='blosc') as store:
-            store.put(
-                f'reads/chunk_{chunk_counter}', 
-                df, 
-                format='table', 
-                append=True, 
-                min_itemsize={'combined_read': 300, 'grna': 50, 'plate_row': 20, 'column': 20, 'sample': 50}
-            )
-
-    def reverse_complement(seq):
-        """
-        Returns the reverse complement of a DNA sequence.
-
-        Args:
-            seq (str): The DNA sequence to be reversed and complemented.
-
-        Returns:
-            str: The reverse complement of the input DNA sequence.
-
-        Example:
-            >>> reverse_complement('ATCG')
-            'CGAT'
-        """
-        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
-        return ''.join(complement[base] for base in reversed(seq))
-    
-    def get_avg_read_length(file_path, num_reads=100):
-        """
-        Calculate the average read length from a given file.
-
-        Args:
-            file_path (str): The path to the input file.
-            num_reads (int, optional): The number of reads to process. Defaults to 100.
-
-        Returns:
-            float: The average read length.
-
-        Raises:
-            FileNotFoundError: If the input file does not exist.
-        """
-        if not file_path:
-            return 0
-        total_length = 0
-        count = 0
-        with gzip.open(file_path, 'rt') as f:
-            for _ in range(num_reads):
-                try:
-                    f.readline()  # Skip index line
-                    read = f.readline().strip()
-                    total_length += len(read)
-                    f.readline()  # Skip plus line
-                    f.readline()  # Skip quality line
-                    count += 1
-                except StopIteration:
-                    break
-        return total_length / count if count > 0 else 0
-    
-    def parse_gz_files(folder_path):
-        """
-        Parses the .fastq.gz files in the specified folder path and returns a dictionary
-        containing the sample names and their corresponding file paths.
-
-        Args:
-            folder_path (str): The path to the folder containing the .fastq.gz files.
-
-        Returns:
-            dict: A dictionary where the keys are the sample names and the values are
-            dictionaries containing the file paths for the 'R1' and 'R2' read directions.
-        """
-        files = os.listdir(folder_path)
-        gz_files = [f for f in files if f.endswith('.fastq.gz')]
-
-        samples_dict = {}
-        for gz_file in gz_files:
-            parts = gz_file.split('_')
-            sample_name = parts[0]
-            read_direction = parts[1]
-
-            if sample_name not in samples_dict:
-                samples_dict[sample_name] = {}
-
-            if read_direction == "R1":
-                samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
-            elif read_direction == "R2":
-                samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
-
-        return samples_dict
-    
-    def find_overlap(r1_read_rc, r2_read):
-        """
-        Find the best alignment between two DNA reads.
-
-        Parameters:
-        - r1_read_rc (str): The reverse complement of the first DNA read.
-        - r2_read (str): The second DNA read.
-
-        Returns:
-        - best_alignment (Alignment): The best alignment between the two DNA reads.
-        """
-        aligner = PairwiseAligner()
-        alignments = aligner.align(r1_read_rc, r2_read)
-        best_alignment = alignments[0]
-        return best_alignment
-
-    def combine_reads(samples_dict, src, chunk_size, barecode_length_1, barecode_length_2, upstream, downstream):
-        """
-        Combine reads from paired-end sequencing files and save the combined reads to a new file.
+        records = []
         
-        Args:
-            samples_dict (dict): A dictionary mapping sample names to file paths of paired-end sequencing files.
-            src (str): The source directory where the combined reads will be saved.
-            chunk_size (int): The number of reads to be processed and saved as a chunk.
-            barecode_length (int): The length of the barcode sequence.
-            upstream (str): The upstream sequence used for read splitting.
-            downstream (str): The downstream sequence used for read splitting.
-        
-        Returns:
-            None
-        """
-        dst = os.path.join(src, 'combined_reads')
-        if not os.path.exists(dst):
-            os.makedirs(dst)
+        for record in SeqIO.parse(handle, "fastq"):
+            try:
+                records.append(record.seq)
+                if len(records) >= chunk_size:
+                    process_chunk(records, names, barcode_coordinates, reverse_complement, barcode_dicts, hdf, chunk_count)
+                    chunk_count += 1
+                    records = []
+            except Exception as e:
+                print(f"Error during processing record: {e}")
+                continue  # Skip the problematic read and continue
 
-        for sample, paths in samples_dict.items():
-            print(f'Processing: {sample} with the files: {paths}')
-            r1_path = paths.get('R1')
-            r2_path = paths.get('R2')
-
-            output_file_path = os.path.join(dst, f"{sample}_combined.h5")
-            qc_file_path = os.path.join(dst, f"{sample}_qc.csv")
-
-            r1_file = gzip.open(r1_path, 'rt') if r1_path else None
-            r2_file = gzip.open(r2_path, 'rt') if r2_path else None
-
-            chunk_counter = 0
-            data_chunk = []
-            
-            success = 0
-            fail = 0
-
-            # Calculate initial average read length
-            avg_read_length_r1 = get_avg_read_length(r1_path, 100)
-            avg_read_length_r2 = get_avg_read_length(r2_path, 100)
-            avg_read_length = (avg_read_length_r1 + avg_read_length_r2) / 2 if avg_read_length_r1 and avg_read_length_r2 else 0
-            
-            print(f'Initial avg_read_length: {avg_read_length}')
-            
-            # Estimate the initial number of reads based on the file size
-            r1_size_est = os.path.getsize(r1_path) // (avg_read_length * 4) if r1_path else 0
-            r2_size_est = os.path.getsize(r2_path) // (avg_read_length * 4) if r2_path else 0
-            max_size = max(r1_size_est, r2_size_est) * 10
-            test10 =0
-            with tqdm(total=max_size, desc=f"Processing {sample}") as pbar:
-                total_length_processed = 0
-                read_count = 0
-                
-                while True:
-                    try:
-                        r1_index = next(r1_file).strip() if r1_file else None
-                        r1_read = next(r1_file).strip() if r1_file else None
-                        r1_plus = next(r1_file).strip() if r1_file else None
-                        r1_quality = next(r1_file).strip() if r1_file else None
-
-                        r2_index = next(r2_file).strip() if r2_file else None
-                        r2_read = next(r2_file).strip() if r2_file else None
-                        r2_plus = next(r2_file).strip() if r2_file else None
-                        r2_quality = next(r2_file).strip() if r2_file else None
-
-                        pbar.update(1)
-
-                        if r1_index and r2_index and r1_index.split(' ')[0] != r2_index.split(' ')[0]:
-                            fail += 1
-                            print(f"Index mismatch: {r1_index} != {r2_index}")
-                            continue
-
-                        r1_read_rc = reverse_complement(r1_read) if r1_read else ''
-                        r1_quality_rc = r1_quality[::-1] if r1_quality else ''
-
-                        r1_rc_split_index = r1_read_rc.find(upstream)
-                        r2_split_index = r2_read.find(upstream)
-
-                        if r1_rc_split_index == -1 or r2_split_index == -1:
-                            fail += 1
-                            continue
-                        else:
-                            success += 1
-
-                        read1_fragment = r1_read_rc[:r1_rc_split_index]
-                        read2_fragment = r2_read[r2_split_index:]
-                        read_combo = read1_fragment + read2_fragment
-
-                        combo_split_index_1 = read_combo.find(upstream)
-                        combo_split_index_2 = read_combo.find(downstream)
-
-                        barcode_1 = read_combo[combo_split_index_1 - barecode_length_1:combo_split_index_1]
-                        grna = read_combo[combo_split_index_1 + len(upstream):combo_split_index_2]
-                        barcode_2 = read_combo[combo_split_index_2 + len(downstream):combo_split_index_2 + len(downstream) + barecode_length_2]
-                        barcode_2 = reverse_complement(barcode_2)
-                        data_chunk.append((read_combo, grna, barcode_1, barcode_2, sample))
-
-                        if settings['test']:
-                            if read_count % 1000 == 0:
-                                print(f"Read count: {read_count}")
-                                print(f"Read 1: {r1_read_rc}")
-                                print(f"Read 2: {r2_read}")
-                                print(f"Read combo: {read_combo}")
-                                print(f"Barcode 1: {barcode_1}")
-                                print(f"gRNA: {grna}")
-                                print(f"Barcode 2: {barcode_2}")
-                                print()
-                                test10 += 1
-                                if test10 == 10:
-                                    break
-
-                        read_count += 1
-                        total_length_processed += len(r1_read) + len(r2_read)
-
-                        # Periodically update the average read length and total
-                        if read_count % 10000 == 0:
-                            avg_read_length = total_length_processed / (read_count * 2)
-                            max_size = (os.path.getsize(r1_path) + os.path.getsize(r2_path)) // (avg_read_length * 4)
-                            pbar.total = max_size
-
-                        if len(data_chunk) >= chunk_size:
-                            save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter)
-                            chunk_counter += 1
-                            data_chunk = []
-
-                    except StopIteration:
-                        break
-
-                # Save any remaining data_chunk
-                if data_chunk:
-                    save_chunk_to_hdf5(output_file_path, data_chunk, chunk_counter)
-
-                # Save QC metrics
-                qc = {'success': success, 'failed': fail}
-                qc_df = pd.DataFrame([qc])
-                qc_df.to_csv(qc_file_path, index=False)
-                
-    from .settings import get_analyze_reads_default_settings
-    try:
-        settings = get_analyze_reads_default_settings(settings)
-        samples_dict = parse_gz_files(settings['src'])
-        combine_reads(samples_dict, settings['src'], settings['chunk_size'], settings['barecode_length_1'], settings['barecode_length_2'], settings['upstream'], settings['downstream'])
-    except Exception as e:
-        print(e)
-        Error = traceback.format_exc()
-        print(Error)
+        # Process any remaining records
+        if records:
+            process_chunk(records, names, barcode_coordinates, reverse_complement, barcode_dicts, hdf, chunk_count)
     
-def map_barcodes(h5_file_path, settings={}):
-    """
-    Maps barcodes and performs quality control on sequencing data.
+def process_chunk(records, names, barcode_coordinates, reverse_complement, barcode_dicts, hdf, chunk_count):
+    print("Extracting barcodes...")
+    read_ids = []
+    data = {name: [] for name in names}
+    scores = {name: [] for name in names}
 
-    Args:
-        h5_file_path (str): The file path to the HDF5 file containing the sequencing data.
-        settings (dict, optional): Additional settings for the mapping and quality control process. Defaults to {}.
-
-    Returns:
-        None
-    """
-    def get_read_qc(df, settings):
-        """
-        Calculate quality control metrics for sequencing reads.
-
-        Parameters:
-        - df: DataFrame containing the sequencing reads.
-
-        Returns:
-        - df_cleaned: DataFrame containing the cleaned sequencing reads.
-        - qc_dict: Dictionary containing the quality control metrics.
-        """
-        
-        df_cleaned = df.dropna()
-
-        qc_dict = {}
-        qc_dict['reads'] = len(df)
-        qc_dict['cleaned_reads'] = len(df_cleaned)
-        qc_dict['NaN_grna'] = df['grna_metadata'].isna().sum()
-        qc_dict['NaN_plate_row'] = df['plate_row_metadata'].isna().sum()
-        qc_dict['NaN_column'] = df['column_metadata'].isna().sum()
-        qc_dict['NaN_plate'] = df['plate_metadata'].isna().sum()
-        qc_dict['unique_grna'] = Counter(df['grna_metadata'].dropna().tolist())
-        qc_dict['unique_plate_row'] = Counter(df['plate_row_metadata'].dropna().tolist())
-        qc_dict['unique_column'] = Counter(df['column_metadata'].dropna().tolist())
-        qc_dict['unique_plate'] = Counter(df['plate_metadata'].dropna().tolist())
-
-        # Calculate control error rates using cleaned DataFrame
-        total_pc_non_nan = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc'])].shape[0]
-        total_nc_non_nan = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc'])].shape[0]
-        
-        pc_count_pc = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc']) & (df_cleaned['grna_metadata'] == settings['pc'])].shape[0]
-        nc_count_nc = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc']) & (df_cleaned['grna_metadata'] == settings['nc'])].shape[0]
-
-        pc_error_count = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc']) & (df_cleaned['grna_metadata'] != settings['pc'])].shape[0]
-        nc_error_count = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc']) & (df_cleaned['grna_metadata'] != settings['nc'])].shape[0]
-        
-        pc_in_nc_loc_count = df_cleaned[(df_cleaned['column_metadata'] == settings['nc_loc']) & (df_cleaned['grna_metadata'] == settings['pc'])].shape[0]
-        nc_in_pc_loc_count = df_cleaned[(df_cleaned['column_metadata'] == settings['pc_loc']) & (df_cleaned['grna_metadata'] == settings['nc'])].shape[0]
-        
-        # Collect QC metrics into a dictionary
-        # PC 
-        qc_dict['pc_total_count'] = total_pc_non_nan
-        qc_dict['pc_count_pc'] = pc_count_pc
-        qc_dict['nc_count_pc'] = pc_in_nc_loc_count
-        qc_dict['pc_error_count'] = pc_error_count
-        # NC
-        qc_dict['nc_total_count'] = total_nc_non_nan
-        qc_dict['nc_count_nc'] = nc_count_nc
-        qc_dict['pc_count_nc'] = nc_in_pc_loc_count
-        qc_dict['nc_error_count'] = nc_error_count
-        
-        return df_cleaned, qc_dict
-
-    def get_per_row_qc(df, settings):
-        """
-        Calculate quality control metrics for each unique row in the control columns.
-
-        Parameters:
-        - df: DataFrame containing the sequencing reads.
-        - settings: Dictionary containing the settings for control values.
-
-        Returns:
-        - dict: Dictionary containing the quality control metrics for each unique row.
-        """
-        qc_dict_per_row = {}
-        unique_rows = df['plate_row_metadata'].dropna().unique().tolist()
-        unique_rows = list(set(unique_rows))  # Remove duplicates
-
-        for row in unique_rows:
-            df_row = df[(df['plate_row_metadata'] == row)]
-            _, qc_dict_row = get_read_qc(df_row, settings)
-            qc_dict_per_row[row] = qc_dict_row
-
-        return qc_dict_per_row
-
-    def mapping_dicts(df, settings):
-        """
-        Maps the values in the DataFrame columns to corresponding metadata using dictionaries.
-
-        Args:
-            df (pandas.DataFrame): The DataFrame containing the data to be mapped.
-            settings (dict): A dictionary containing the settings for mapping.
-
-        Returns:
-            pandas.DataFrame: The DataFrame with the mapped metadata columns added.
-        """
-        grna_df = pd.read_csv(settings['grna'])
-        barcode_df = pd.read_csv(settings['barcodes'])
-
-        grna_dict = {row['sequence']: row['name'] for _, row in grna_df.iterrows()}
-        plate_row_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('p')}
-        column_dict = {row['sequence']: row['name'] for _, row in barcode_df.iterrows() if row['name'].startswith('c')}
-        plate_dict = settings['plate_dict']
-
-        df['grna_metadata'] = df['grna'].map(grna_dict)
-        df['grna_length'] = df['grna'].apply(len)
-        df['plate_row_metadata'] = df['plate_row'].map(plate_row_dict)
-        df['column_metadata'] = df['column'].map(column_dict)
-        df['plate_metadata'] = df['sample'].map(plate_dict)
-
-        return df
-    
-    def filter_combinations(df, settings):
-        """
-        Takes the combination counts Data Frame, filters the rows based on specific conditions, 
-        and removes rows with a count lower than the highest value of max_count_c1 and max_count_c2.
-
-        Args:
-            combination_counts_file_path (str): The file path to the CSV file containing the combination counts.
-            pc (str, optional): The positive control sequence. Defaults to 'TGGT1_220950_1'.
-            nc (str, optional): The negative control sequence. Defaults to 'TGGT1_233460_4'.
-
-        Returns:
-            pd.DataFrame: The filtered DataFrame.
-        """
-
-        pc = settings['pc']
-        nc = settings['nc']
-        pc_loc = settings['pc_loc']
-        nc_loc = settings['nc_loc']
-
-        filtered_c1 = df[(df['column'] == nc_loc) & (df['grna'] != nc)]
-        max_count_c1 = filtered_c1['count'].max()
-
-        filtered_c2 = df[(df['column'] == pc_loc) & (df['grna'] != pc)]
-        max_count_c2 = filtered_c2['count'].max()
-
-        #filtered_c3 = df[(df['column'] != nc_loc) & (df['grna'] == nc)]
-        #max_count_c3 = filtered_c3['count'].max()
-
-        #filtered_c4 = df[(df['column'] != pc_loc) & (df['grna'] == pc)]
-        #max_count_c4 = filtered_c4['count'].max()
-
-        # Find the highest value between max_count_c1 and max_count_c2
-        highest_max_count = max(max_count_c1, max_count_c2)
-
-        # Filter the DataFrame to remove rows with a count lower than the highest_max_count
-        filtered_df = df[df['count'] >= highest_max_count]
-
-        # Calculate total read counts for each unique combination of plate_row and column
-        filtered_df['total_reads'] = filtered_df.groupby(['plate_row', 'column'])['count'].transform('sum')
-        
-        # Calculate read fraction for each row
-        filtered_df['read_fraction'] = filtered_df['count'] / filtered_df['total_reads']
-
-        if settings['verbose']:
-            print(f"Max count for non {nc} in {nc_loc}: {max_count_c1}")
-            print(f"Max count for non {pc} in {pc_loc}: {max_count_c2}")
-            #print(f"Max count for {nc} in other columns: {max_count_c3}")
-            
-        return filtered_df
-    
-    from .settings import get_map_barcodes_default_settings
-    settings = get_map_barcodes_default_settings(settings)
-    fldr = os.path.splitext(h5_file_path)[0]
-    file_name = os.path.basename(fldr)
-
-    if settings['test']:
-        fldr = os.path.join(fldr, 'test')
-    os.makedirs(fldr, exist_ok=True)
-
-    qc_file_path = os.path.join(fldr, f'{file_name}_qc_step_2.csv')
-    unique_grna_file_path = os.path.join(fldr, f'{file_name}_unique_grna.csv')
-    unique_plate_row_file_path = os.path.join(fldr, f'{file_name}_unique_plate_row.csv')
-    unique_column_file_path = os.path.join(fldr, f'{file_name}_unique_column.csv')
-    unique_plate_file_path = os.path.join(fldr, f'{file_name}_unique_plate.csv')
-    new_h5_file_path = os.path.join(fldr, f'{file_name}_cleaned.h5')
-    combination_counts_file_path = os.path.join(fldr, f'{file_name}_combination_counts.csv')
-    combination_counts_file_path_cleaned = os.path.join(fldr, f'{file_name}_combination_counts_cleaned.csv')
-
-    #qc_file_path = os.path.splitext(h5_file_path)[0] + '_qc_step_2.csv'
-    #unique_grna_file_path = os.path.splitext(h5_file_path)[0] + '_unique_grna.csv'
-    #unique_plate_row_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate_row.csv'
-    #unique_column_file_path = os.path.splitext(h5_file_path)[0] + '_unique_column.csv'
-    #unique_plate_file_path = os.path.splitext(h5_file_path)[0] + '_unique_plate.csv'
-    #new_h5_file_path = os.path.splitext(h5_file_path)[0] + '_cleaned.h5'
-    #combination_counts_file_path = os.path.splitext(h5_file_path)[0] + '_combination_counts.csv'
-    #combination_counts_file_path_cleaned = os.path.splitext(h5_file_path)[0] + '_combination_counts_cleaned.csv'
-    
-    # Initialize the HDF5 store for cleaned data
-    store_cleaned = pd.HDFStore(new_h5_file_path, mode='a', complevel=5, complib='blosc')
-    
-    # Initialize the overall QC metrics
-    overall_qc = {
-        'reads': 0,
-        'cleaned_reads': 0,
-        'NaN_grna': 0,
-        'NaN_plate_row': 0,
-        'NaN_column': 0,
-        'NaN_plate': 0,
-        'unique_grna': Counter(),
-        'unique_plate_row': Counter(),
-        'unique_column': Counter(),
-        'unique_plate': Counter(),
-        'pc_total_count': 0,
-        'pc_count_pc': 0,
-        'nc_total_count': 0,
-        'nc_count_nc': 0,
-        'pc_count_nc': 0,
-        'nc_count_pc': 0,
-        'pc_error_count': 0,
-        'nc_error_count': 0,
-        'pc_fraction_pc': 0,
-        'nc_fraction_nc': 0,
-        'pc_fraction_nc': 0,
-        'nc_fraction_pc': 0
-    }
-
-    per_row_qc = {}
-    combination_counts = Counter()
-
-    with pd.HDFStore(h5_file_path, mode='r') as store:
-        keys = [key for key in store.keys() if key.startswith('/reads/chunk_')]
-
-        if settings['test']:
-            keys = keys[:3]  # Only read the first chunks if in test mode
-
-        for key in keys:
-            df = store.get(key)
-            df = mapping_dicts(df, settings)
-            df_cleaned, qc_dict = get_read_qc(df, settings)
-
-            # Accumulate counts for unique combinations
-            combinations = df_cleaned[['plate_row_metadata', 'column_metadata', 'grna_metadata']].apply(tuple, axis=1)
-            
-            combination_counts.update(combinations)
-
-            if settings['test'] and settings['verbose']:
-                os.makedirs(os.path.join(os.path.splitext(h5_file_path)[0],'test'), exist_ok=True)
-                df.to_csv(os.path.join(os.path.splitext(h5_file_path)[0],'test','chunk_1_df.csv'), index=False)
-                df_cleaned.to_csv(os.path.join(os.path.splitext(h5_file_path)[0],'test','chunk_1_df_cleaned.csv'), index=False)
-
-            # Accumulate QC metrics for all rows
-            for metric in qc_dict:
-                if isinstance(overall_qc[metric], Counter):
-                    overall_qc[metric].update(qc_dict[metric])
+    for sequence in records:
+        for name, coord in zip(names, barcode_coordinates):
+            if isinstance(coord, slice):
+                extracted_seq = sequence[coord]
+            else:
+                start, end = coord[0], coord[1]
+                if end <= len(sequence):
+                    extracted_seq = sequence[start:end]
                 else:
-                    overall_qc[metric] += qc_dict[metric]
+                    extracted_seq = ""
+            
+            if reverse_complement:
+                extracted_seq = str(Seq(extracted_seq).reverse_complement())
 
-            # Update per_row_qc dictionary
-            chunk_per_row_qc = get_per_row_qc(df, settings)
-            for row in chunk_per_row_qc:
-                if row not in per_row_qc:
-                    per_row_qc[row] = chunk_per_row_qc[row]
+            # Handle barcode matching
+            if name in barcode_dicts:
+                exact_match = barcode_dicts[name].get(extracted_seq, None)
+                if exact_match:
+                    data[name].append(exact_match)
+                    scores[name].append(1.0)  # Exact match score
                 else:
-                    for metric in chunk_per_row_qc[row]:
-                        if isinstance(per_row_qc[row][metric], Counter):
-                            per_row_qc[row][metric].update(chunk_per_row_qc[row][metric])
-                        else:
-                            per_row_qc[row][metric] += chunk_per_row_qc[row][metric]
+                    closest_match, score = get_closest_match(extracted_seq, barcode_dicts[name])
+                    data[name].append(closest_match)
+                    scores[name].append(score)
+            else:
+                data[name].append(extracted_seq)
+                scores[name].append(0.0)
 
-            # Ensure the DataFrame columns are in the desired order
-            df_cleaned = df_cleaned[['grna', 'plate_row', 'column', 'sample', 'grna_metadata', 'plate_row_metadata', 'column_metadata', 'plate_metadata']]
+    print("Writing to HDF5...")
+    for name in names:
+        hdf.create_dataset(f"{name}_chunk_{chunk_count}", data=np.array(data[name], dtype="S"))
+        if name in scores:
+            hdf.create_dataset(f"{name}_scores_chunk_{chunk_count}", data=np.array(scores[name], dtype="f"))
 
-            # Save cleaned data to the new HDF5 store
-            store_cleaned.put('reads/cleaned_data', df_cleaned, format='table', append=True)
+    print(f"Processed chunk {chunk_count} with {len(records)} reads.", flush=True)
 
-            del df_cleaned, df
-            gc.collect()
+def generate_barecode_mapping(settings={}):
+    from .settings import set_default_generate_barecode_mapping
 
-    # Calculate overall fractions after accumulating all metrics
-    overall_qc['pc_fraction_pc'] = overall_qc['pc_count_pc'] / overall_qc['pc_total_count'] if overall_qc['pc_total_count'] else 0
-    overall_qc['nc_fraction_nc'] = overall_qc['nc_count_nc'] / overall_qc['nc_total_count'] if overall_qc['nc_total_count'] else 0
-    overall_qc['pc_fraction_nc'] = overall_qc['pc_count_nc'] / overall_qc['nc_total_count'] if overall_qc['nc_total_count'] else 0
-    overall_qc['nc_fraction_pc'] = overall_qc['nc_count_pc'] / overall_qc['pc_total_count'] if overall_qc['pc_total_count'] else 0
+    settings = set_default_generate_barecode_mapping(settings)
 
-    for row in per_row_qc:
-        if row != 'all_rows':
-            per_row_qc[row]['pc_fraction_pc'] = per_row_qc[row]['pc_count_pc'] / per_row_qc[row]['pc_total_count'] if per_row_qc[row]['pc_total_count'] else 0
-            per_row_qc[row]['nc_fraction_nc'] = per_row_qc[row]['nc_count_nc'] / per_row_qc[row]['nc_total_count'] if per_row_qc[row]['nc_total_count'] else 0
-            per_row_qc[row]['pc_fraction_nc'] = per_row_qc[row]['pc_count_nc'] / per_row_qc[row]['nc_total_count'] if per_row_qc[row]['nc_total_count'] else 0
-            per_row_qc[row]['nc_fraction_pc'] = per_row_qc[row]['nc_count_pc'] / per_row_qc[row]['pc_total_count'] if per_row_qc[row]['pc_total_count'] else 0
+    samples_dict = parse_gz_files(settings['src'])
+    for key in samples_dict:
+        if samples_dict[key]['R1'] and samples_dict[key]['R2']:
+            R1 = samples_dict[key]['R1']
+            R2 = samples_dict[key]['R2']
+            consensus_dir = os.path.join(os.path.dirname(R1), 'consensus')
+            os.makedirs(consensus_dir, exist_ok=True)
+            consensus = os.path.join(consensus_dir, f"{key}_consensus.fastq.gz")
+            h5 = os.path.join(consensus_dir, f"{key}_barecodes.h5")
 
-    # Add overall_qc to per_row_qc with the key 'all_rows'
-    per_row_qc['all_rows'] = overall_qc
+            if not os.path.exists(consensus):
+                consensus_sequence(R1, R2, consensus, settings['chunk_size'])
+            else:
+                print(f"Consensus file {consensus} already exists. Mapping barecodes.")
 
-    # Convert the Counter objects to DataFrames and save them to CSV files
-    unique_grna_df = pd.DataFrame(overall_qc['unique_grna'].items(), columns=['key', 'value'])
-    unique_plate_row_df = pd.DataFrame(overall_qc['unique_plate_row'].items(), columns=['key', 'value'])
-    unique_column_df = pd.DataFrame(overall_qc['unique_column'].items(), columns=['key', 'value'])
-    unique_plate_df = pd.DataFrame(overall_qc['unique_plate'].items(), columns=['key', 'value'])
-
-    unique_grna_df.to_csv(unique_grna_file_path, index=False)
-    unique_plate_row_df.to_csv(unique_plate_row_file_path, index=False)
-    unique_column_df.to_csv(unique_column_file_path, index=False)
-    unique_plate_df.to_csv(unique_plate_file_path, index=False)
-
-    # Remove the unique counts from overall_qc for the main QC CSV file
-    del overall_qc['unique_grna']
-    del overall_qc['unique_plate_row']
-    del overall_qc['unique_column']
-    del overall_qc['unique_plate']
-
-    # Combine all remaining QC metrics into a single DataFrame and save it to CSV
-    qc_df = pd.DataFrame([overall_qc])
-    qc_df.to_csv(qc_file_path, index=False)
-
-    # Convert per_row_qc to a DataFrame and save it to CSV
-    per_row_qc_df = pd.DataFrame.from_dict(per_row_qc, orient='index')
-    per_row_qc_df = per_row_qc_df.sort_values(by='reads', ascending=False)
-    per_row_qc_df = per_row_qc_df.drop(['unique_grna', 'unique_plate_row', 'unique_column', 'unique_plate'], axis=1, errors='ignore')
-    per_row_qc_df = per_row_qc_df.dropna(subset=['reads'])
-    per_row_qc_df.to_csv(os.path.splitext(h5_file_path)[0] + '_per_row_qc.csv', index=True)
-
-    if settings['verbose']:
-        display(per_row_qc_df)
-
-    # Save the combination counts to a CSV file
-    try:
-        combination_counts_df = pd.DataFrame(combination_counts.items(), columns=['combination', 'count'])
-        combination_counts_df[['plate_row', 'column', 'grna']] = pd.DataFrame(combination_counts_df['combination'].tolist(), index=combination_counts_df.index)
-        combination_counts_df = combination_counts_df.drop('combination', axis=1)
-        combination_counts_df.to_csv(combination_counts_file_path, index=False)
-
-        grna_plate_heatmap(combination_counts_file_path, specific_grna=None)
-        grna_plate_heatmap(combination_counts_file_path, specific_grna=settings['pc'])
-        grna_plate_heatmap(combination_counts_file_path, specific_grna=settings['nc'])
-
-        combination_counts_df_cleaned = filter_combinations(combination_counts_df, settings)
-        combination_counts_df_cleaned.to_csv(combination_counts_file_path_cleaned, index=False)
-
-        grna_plate_heatmap(combination_counts_file_path_cleaned, specific_grna=None)
-        grna_plate_heatmap(combination_counts_file_path_cleaned, specific_grna=settings['pc'])
-        grna_plate_heatmap(combination_counts_file_path_cleaned, specific_grna=settings['nc'])
-    except Exception as e:
-        print(e)
-    
-    # Close the HDF5 store
-    store_cleaned.close()
-    gc.collect()
-    return
+            extract_barcodes_from_fastq(fastq=consensus, 
+                                        barcode_coordinates=settings['barcode_coordinates'], 
+                                        output_file=h5, 
+                                        chunk_size=settings['chunk_size'], 
+                                        reverse_complement=settings['reverse_complement'], 
+                                        barcode_mapping=settings['barcode_mapping'])
 
 def grna_plate_heatmap(path, specific_grna=None, min_max='all', cmap='viridis', min_count=0, save=True):
     """
@@ -926,19 +336,6 @@ def grna_plate_heatmap(path, specific_grna=None, min_max='all', cmap='viridis', 
     plt.show()
     
     return fig
-
-def map_barcodes_folder(settings={}):
-    from .settings import get_map_barcodes_default_settings
-    settings = get_map_barcodes_default_settings(settings)
-
-    print(settings)
-    src = settings['src']
-    for file in os.listdir(src):
-        if file.endswith('.h5'):
-            print(file)
-            path = os.path.join(src, file)
-            map_barcodes(path, settings)
-            gc.collect() 
 
 def reverse_complement(dna_sequence):
     complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N':'N'}
