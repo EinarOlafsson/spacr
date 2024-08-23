@@ -326,9 +326,83 @@ def set_default_train_test_model(settings):
     settings.setdefault('intermedeate_save',True)
     settings.setdefault('pin_memory',True)
     settings.setdefault('n_jobs',cores)
-    settings.setdefault('channels',['r','g','b'])
+    settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
     settings.setdefault('verbose',False)
+    return settings
+
+def set_generate_training_dataset_defaults(settings):
+
+    settings.setdefault('src','path')
+    settings.setdefault('mode','annotation')
+    settings.setdefault('annotation_column','test')
+    settings.setdefault('annotated_classes',[1,2])
+    settings.setdefault('classes',['nc','pc'])
+    settings.setdefault('size',224)
+    settings.setdefault('test_split',0.1)
+    settings.setdefault('class_metadata',[['c1'],['c2']])
+    settings.setdefault('metadata_type_by','col')
+    settings.setdefault('channel_of_interest',3)
+    settings.setdefault('custom_measurement',None)
+    settings.setdefault('tables',None)
+    settings.setdefault('png_type','cell_png')
+    
+    return settings
+
+def deep_spacr_defaults(settings):
+    
+    cores = os.cpu_count()-2
+    
+    settings.setdefault('src','path')
+    settings.setdefault('mode','annotation')
+    settings.setdefault('annotation_column','test')
+    settings.setdefault('annotated_classes',[1,2])
+    settings.setdefault('classes',['nc','pc'])
+    settings.setdefault('size',224)
+    settings.setdefault('test_split',0.1)
+    settings.setdefault('class_metadata',[['c1'],['c2']])
+    settings.setdefault('metadata_type_by','col')
+    settings.setdefault('channel_of_interest',3)
+    settings.setdefault('custom_measurement',None)
+    settings.setdefault('tables',None)
+    settings.setdefault('png_type','cell_png')
+    settings.setdefault('custom_model',False)
+    settings.setdefault('custom_model_path','path')
+    settings.setdefault('train',True)
+    settings.setdefault('test',False)
+    settings.setdefault('model_type','maxvit_t')
+    settings.setdefault('optimizer_type','adamw')
+    settings.setdefault('schedule','reduce_lr_on_plateau') #reduce_lr_on_plateau, step_lr
+    settings.setdefault('loss_type','focal_loss') # binary_cross_entropy_with_logits
+    settings.setdefault('normalize',True)
+    settings.setdefault('image_size',224)
+    settings.setdefault('batch_size',64)
+    settings.setdefault('epochs',100)
+    settings.setdefault('val_split',0.1)
+    settings.setdefault('train_mode','erm')
+    settings.setdefault('learning_rate',0.001)
+    settings.setdefault('weight_decay',0.00001)
+    settings.setdefault('dropout_rate',0.1)
+    settings.setdefault('init_weights',True)
+    settings.setdefault('amsgrad',True)
+    settings.setdefault('use_checkpoint',True)
+    settings.setdefault('gradient_accumulation',True)
+    settings.setdefault('gradient_accumulation_steps',4)
+    settings.setdefault('intermedeate_save',True)
+    settings.setdefault('pin_memory',True)
+    settings.setdefault('n_jobs',cores)
+    settings.setdefault('train_channels',['r','g','b'])
+    settings.setdefault('augment',False)
+    settings.setdefault('verbose',False)
+    settings.setdefault('apply_model_to_dataset',False)
+    settings.setdefault('file_metadata',None)
+    settings.setdefault('sample',None)
+    settings.setdefault('experiment','exp.')
+    settings.setdefault('score_threshold',0.5)
+    settings.setdefault('tar_path','path')
+    settings.setdefault('model_path','path')
+    settings.setdefault('file_type','cell_png')
+    
     return settings
 
 def get_analyze_recruitment_default_settings(settings):
@@ -733,6 +807,17 @@ expected_types = {
     "remove_highly_correlated_features":bool,
     'barcode_coordinates':list,  # This is a list of lists
     'reverse_complement':bool,
+    'file_type':'cell_png',
+    'model_path':'path',
+    'tar_path':'path',
+    'score_threshold':0.5,
+    'sample':None,
+    'file_metadata':None,
+    'apply_model_to_dataset':False,
+    "train":bool,
+    "test":bool,
+    'train_channels':list,
+    "optimizer_type":str,
 }
 
 def check_settings(vars_dict, expected_types, q=None):
@@ -746,7 +831,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
     for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types:
-            if key not in ["Clustering", "Embedding", "General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths", "Sequencing"]:
+            if key not in ["", "Train DL Model","Clustering", "Embedding", "General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths", "Sequencing"]:
                 q.put(f"Key {key} not found in expected types.")
                 continue
 
@@ -1028,6 +1113,14 @@ def generate_fields(variables, scrollable_frame):
         "barcode_mapping": "dict - names and barecode csv files",
         "compression": "str - type of compression (e.g. zlib)",
         "complevel": "int - level of compression (0-9). Higher is slower and yealds smaller files",
+        "file_type": "str - type of file to process",
+        "model_path": "str - path to the model",
+        "tar_path": "str - path to the tar file with image dataset",
+        "score_threshold": "float - threshold for classification",
+        "sample": "str - number of images to sample for tar dataset (including both classes)",
+        "file_metadata": "str - ...",
+        "apply_model_to_dataset": "bool - whether to apply model to the dataset",
+        "train_channels": "list - channels to use for training",
         "um_per_pixel": "(float) - The micrometers per pixel for the images."
     }
 
@@ -1060,7 +1153,7 @@ categories = {
     "Advanced": ["complevel", "compression", "plate_dict", "target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","channels","augment"],
     "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
     "Embedding": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
-    "Train DL Model": ["epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes"],
+    "Train DL Model": ["train_channels","epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes"],
     "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
     "Test": ["test_mode", "test_images", "random_test", "test_nr", "test"],
     "Sequencing": ["upstream", "downstream", "barecode_length_1", "barecode_length_2", "chunk_size", "barcode_mapping", "reverse_complement", "barcode_coordinates"]

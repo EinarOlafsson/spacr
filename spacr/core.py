@@ -877,7 +877,108 @@ def annotate_results(pred_loc):
     display(df)
     return df
 
-def generate_dataset(src, file_metadata=None, experiment='TSG101_screen', sample=None):
+def generate_dataset(settings={}):
+
+    #settings['src'], settings['file_metadata'], settings['experiment'], sample
+    
+    from .utils import initiate_counter, add_images_to_tar
+    
+    db_path = os.path.join(settings['src'], 'measurements', 'measurements.db')
+    dst = os.path.join(settings['src'], 'datasets')
+    all_paths = []
+
+    # Connect to the database and retrieve the image paths
+    print(f"Reading DataBase: {db_path}")
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            if settings['file_metadata']:
+                if isinstance(settings['file_metadata'], str):
+                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{settings['file_metadata']}%",))
+            else:
+                cursor.execute("SELECT png_path FROM png_list")
+
+            while True:
+                rows = cursor.fetchmany(1000)
+                if not rows:
+                    break
+                all_paths.extend([row[0] for row in rows])
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+
+    if isinstance(settings['sample'], int):
+        selected_paths = random.sample(all_paths, settings['sample'])
+        print(f"Random selection of {len(selected_paths)} paths")
+    else:
+        selected_paths = all_paths
+        random.shuffle(selected_paths)
+        print(f"All paths: {len(selected_paths)} paths")
+
+    total_images = len(selected_paths)
+    print(f"Found {total_images} images")
+
+    # Create a temp folder in dst
+    temp_dir = os.path.join(dst, "temp_tars")
+    os.makedirs(temp_dir, exist_ok=True)
+
+    # Chunking the data
+    num_procs = max(2, cpu_count() - 2)
+    chunk_size = len(selected_paths) // num_procs
+    remainder = len(selected_paths) % num_procs
+
+    paths_chunks = []
+    start = 0
+    for i in range(num_procs):
+        end = start + chunk_size + (1 if i < remainder else 0)
+        paths_chunks.append(selected_paths[start:end])
+        start = end
+
+    temp_tar_files = [os.path.join(temp_dir, f"temp_{i}.tar") for i in range(num_procs)]
+
+    print(f"Generating temporary tar files in {dst}")
+
+    # Initialize shared counter and lock
+    counter = Value('i', 0)
+    lock = Lock()
+
+    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
+        pool.starmap(add_images_to_tar, [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)])
+
+    # Combine the temporary tar files into a final tar
+    date_name = datetime.date.today().strftime('%y%m%d')
+    if not settings['file_metadata'] is None:
+        tar_name = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}.tar"
+    else:
+        tar_name = f"{date_name}_{settings['experiment']}.tar"
+    tar_name = os.path.join(dst, tar_name)
+    if os.path.exists(tar_name):
+        number = random.randint(1, 100)
+        tar_name_2 = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}_{number}.tar"
+        print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
+        tar_name = os.path.join(dst, tar_name_2)
+
+    print(f"Merging temporary files")
+
+    with tarfile.open(tar_name, 'w') as final_tar:
+        for temp_tar_path in temp_tar_files:
+            with tarfile.open(temp_tar_path, 'r') as temp_tar:
+                for member in temp_tar.getmembers():
+                    file_obj = temp_tar.extractfile(member)
+                    final_tar.addfile(member, file_obj)
+            os.remove(temp_tar_path)
+
+    # Delete the temp folder
+    shutil.rmtree(temp_dir)
+    print(f"\nSaved {total_images} images to {tar_name}")
+
+    return tar_name
+
+def generate_dataset_v1(src, file_metadata=None, experiment='TSG101_screen', sample=None):
     
     from .utils import initiate_counter, add_images_to_tar
     
@@ -974,7 +1075,7 @@ def generate_dataset(src, file_metadata=None, experiment='TSG101_screen', sample
     shutil.rmtree(temp_dir)
     print(f"\nSaved {total_images} images to {tar_name}")
 
-def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', n_jobs=10, threshold=0.5, verbose=False):
+def apply_model_to_tar_v1(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', n_jobs=10, threshold=0.5, verbose=False):
     
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
@@ -1038,6 +1139,76 @@ def apply_model_to_tar(tar_path, model_path, file_type='cell_png', image_size=22
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
     df = pd.DataFrame(data, index=None)
     df = process_vision_results(df, threshold)
+
+    df.to_csv(result_loc, index=True, header=True, mode='w')
+    torch.cuda.empty_cache()
+    torch.cuda.memory.empty_cache()
+    return df
+
+def apply_model_to_tar(settings={}):
+    
+    from .io import TarImageDataset
+    from .utils import process_vision_results, print_progress
+    
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if settings['normalize']:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size']))])
+    
+    if settings['verbose']:
+        print(f"Loading model from {settings['model_path']}")
+        print(f"Loading dataset from {settings['tar_path']}")
+        
+    model = torch.load(settings['model_path'])
+    
+    dataset = TarImageDataset(settings['tar_path'], transform=transform)
+    data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=True, num_workers=settings['n_jobs'], pin_memory=True)
+    
+    model_name = os.path.splitext(os.path.basename(settings['model_path']))[0] 
+    dataset_name = os.path.splitext(os.path.basename(settings['tar_path']))[0]  
+    date_name = datetime.date.today().strftime('%y%m%d')
+    dst = os.path.dirname(settings['tar_path'])
+    result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
+
+    model.eval()
+    model = model.to(device)
+    
+    if settings['verbose']:
+        print(model)
+        print(f'Generated dataset with {len(dataset)} images')
+        print(f'Generating loader from {len(data_loader)} batches')
+        print(f'Results wil be saved in: {result_loc}')
+        print(f'Model is in eval mode')
+        print(f'Model loaded to device')
+        
+    prediction_pos_probs = []
+    filenames_list = []
+    time_ls = []
+    gc.collect()
+    with torch.no_grad():
+        for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
+            start = time.time()
+            images = batch_images.to(torch.float).to(device)
+            outputs = model(images)
+            batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
+            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
+            filenames_list.extend(filenames)
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = batch_idx*settings['batch_size']
+            files_to_process = len(data_loader)
+            print_progress(files_processed, files_to_process, n_jobs=settings['n_jobs'], time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Tar dataset")
+
+    data = {'path':filenames_list, 'pred':prediction_pos_probs}
+    df = pd.DataFrame(data, index=None)
+    df = process_vision_results(df, settings['score_threshold'])
 
     df.to_csv(result_loc, index=True, header=True, mode='w')
     torch.cuda.empty_cache()
@@ -1226,9 +1397,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
         test_class_dir = os.path.join(dst, f'test/{cls}')
         print(f'Train class {cls}: {len(os.listdir(train_class_dir))}, Test class {cls}: {len(os.listdir(test_class_dir))}')
 
-    return
+    return train_class_dir, test_class_dir
 
-def generate_training_dataset(src, mode='annotation', annotation_column='test', annotated_classes=[1,2], classes=['nc','pc'], size=200, test_split=0.1, class_metadata=[['c1'],['c2']], metadata_type_by='col', channel_of_interest=3, custom_measurement=None, tables=None, png_type='cell_png'):
+def generate_training_dataset_v1(src, mode='annotation', annotation_column='test', annotated_classes=[1,2], classes=['nc','pc'], size=200, test_split=0.1, class_metadata=[['c1'],['c2']], metadata_type_by='col', channel_of_interest=3, custom_measurement=None, tables=None, png_type='cell_png'):
     
     from .io import _read_and_merge_data, _read_db
     from .utils import get_paths_from_db, annotate_conditions
@@ -1328,6 +1499,110 @@ def generate_training_dataset(src, mode='annotation', annotation_column='test', 
     generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=classes, test_split=0.1)
     
     return
+
+def generate_training_dataset(settings):
+    
+    from .io import _read_and_merge_data, _read_db
+    from .utils import get_paths_from_db, annotate_conditions
+    from .settings import set_generate_training_dataset_defaults
+
+    settings = set_generate_training_dataset_defaults(settings)
+    
+    db_path = os.path.join(settings['src'], 'measurements','measurements.db')
+    dst = os.path.join(settings['src'], 'datasets', 'training')
+
+    if os.path.exists(dst):
+        for i in range(1, 1000):
+            dst = os.path.join(settings['src'], 'datasets', f'training_{i}')
+            if not os.path.exists(dst):
+                print(f'Creating new directory for training: {dst}')
+                break
+                
+    if settings['mode'] == 'annotation':
+        class_paths_ls_2 = []
+        class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
+        for class_paths in class_paths_ls:
+            class_paths_temp = random.sample(class_paths, settings['size'])
+            class_paths_ls_2.append(class_paths_temp)
+        class_paths_ls = class_paths_ls_2
+
+    elif settings['mode'] == 'metadata':
+        class_paths_ls = []
+        class_len_ls = []
+        [df] = _read_db(db_loc=db_path, tables=['png_list'])
+        df['metadata_based_class'] = pd.NA
+        for i, class_ in enumerate(settings['classes']):
+            ls = settings['class_metadata'][i]
+            df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
+            
+        for class_ in settings['classes']:
+            if settings['size'] == None:
+                c_s = []
+                for c in settings['classes']:
+                    c_s_t_df = df[df['metadata_based_class'] == c]
+                    c_s.append(len(c_s_t_df))
+                    print(f'Found {len(c_s_t_df)} images for class {c}')
+                size = min(c_s)
+                print(f'Using the smallest class size: {size}')
+
+            class_temp_df = df[df['metadata_based_class'] == class_]
+            class_len_ls.append(len(class_temp_df))
+            print(f'Found {len(class_temp_df)} images for class {class_}')
+            class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), settings['size'])
+            class_paths_ls.append(class_paths_temp)
+    
+    elif settings['mode'] == 'recruitment':
+        class_paths_ls = []
+        if not isinstance(settings['tables'], list):
+            tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
+        
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                    tables=tables,
+                                    verbose=False,
+                                    include_multinucleated=True,
+                                    include_multiinfected=True,
+                                    include_noninfected=True)
+        
+        print('length df 1', len(df))
+        
+        df = annotate_conditions(df, cells=['HeLa'], cell_loc=None, pathogens=['pathogen'], pathogen_loc=None, treatments=settings['classes'], treatment_loc=settings['class_metadata'], types = settings['metadata_type_by'])
+        print('length df 2', len(df))
+        [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
+	    
+        if settings['custom_measurement'] != None:
+        
+            if not isinstance(settings['custom_measurement'], list):
+                 print(f'custom_measurement should be a list, add [ measurement_1,  measurement_2 ] or [ measurement ]')
+                 return
+        	
+            if isinstance(settings['custom_measurement'], list):
+                if len(settings['custom_measurement']) == 2:
+                    print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment ({settings['custom_measurement'][0]}/{settings['custom_measurement'][1]})")
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}']/df[f'{settings['custom_measurement'][1]}"]
+                if len(settings['custom_measurement']) == 1:
+                    print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment ({settings['custom_measurement'][0]})")
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"]
+        else:
+            print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment (pathogen/cytoplasm for channel {settings['channel_of_interest']})")
+            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity']/df[f'cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+		
+        q25 = df['recruitment'].quantile(0.25)
+        q75 = df['recruitment'].quantile(0.75)
+        df_lower = df[df['recruitment'] <= q25]
+        df_upper = df[df['recruitment'] >= q75]
+        
+        class_paths_lower = get_paths_from_db(df=df_lower, png_df=png_list_df, image_type=settings['png_type'])
+        
+        class_paths_lower = random.sample(class_paths_lower['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_lower)
+        
+        class_paths_upper = get_paths_from_db(df=df_upper, png_df=png_list_df, image_type=settings['png_type'])
+        class_paths_upper = random.sample(class_paths_upper['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_upper)
+    
+    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=settings['classes'], test_split=settings['test_split'])
+    
+    return train_class_dir, test_class_dir
 
 def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
     

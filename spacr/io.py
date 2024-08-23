@@ -2293,15 +2293,19 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
     def save_model_at_threshold(threshold, epoch, suffix=""):
         percentile = str(threshold * 100)
         print(f'\rfound: {percentile}% accurate model')#, end='\r', flush=True)
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth')
+        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth'
+        torch.save(model, model_path)
+        return model_path
 
     if epoch % 100 == 0 or epoch == epochs:
-        torch.save(model, f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth')
+        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth'
+        torch.save(model, model_path)
 
     for threshold in intermedeate_save:
         if results_df['neg_accuracy'].dropna().mean() >= threshold and results_df['pos_accuracy'].dropna().mean() >= threshold:
-            save_model_at_threshold(threshold, epoch)
-            break  # Ensure we only save for the highest matching threshold
+            model_path = save_model_at_threshold(threshold, epoch)
+            break
+    return model_path
 
 def _save_progress(dst, results_df, train_metrics_df, epoch, epochs):
     """
