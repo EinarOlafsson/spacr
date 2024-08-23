@@ -196,7 +196,7 @@ def test_model_performance(loaders, model, loader_name_list, epoch, train_mode, 
     test_time = end_time - start_time
     return result, results_df
 
-def train_test_model(src, settings, custom_model=False, custom_model_path=None):
+def train_test_model(settings):
     
     from .io import _save_settings, _copy_missclassified
     from .utils import pick_best_model
@@ -208,7 +208,10 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     gc.collect()
 
     settings = set_default_train_test_model(settings)
-    channels_str = ''.join(settings['channels'])
+
+    src = settings['src']
+
+    channels_str = ''.join(settings['train_channels'])
     dst = os.path.join(src,'model', settings['model_type'], channels_str, str(f"epochs_{settings['epochs']}"))
     os.makedirs(dst, exist_ok=True)
     settings['src'] = src
@@ -217,8 +220,8 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     settings_csv = os.path.join(dst,'train_test_model_settings.csv')
     settings_df.to_csv(settings_csv, index=False)
     
-    if custom_model:
-        model = torch.load(custom_model_path)
+    if settings['custom_model']:
+        model = torch.load(settings['custom_model_path'])
     
     if settings['train']:
         _save_settings(settings, src)
@@ -234,7 +237,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                     validation_split=settings['val_split'],
                                                     pin_memory=settings['pin_memory'],
                                                     normalize=settings['normalize'],
-                                                    channels=settings['channels'],
+                                                    channels=settings['train_channels'],
                                                     augment=settings['augment'],
                                                     verbose=settings['verbose'])
         
@@ -242,28 +245,28 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
         train_fig.savefig(train_batch_1_figure, format='pdf', dpi=600)
     
     if settings['train']:
-        model = train_model(dst = settings['dst'],
-                            model_type=settings['model_type'],
-                            train_loaders = train, 
-                            train_loader_names = plate_names, 
-                            train_mode = settings['train_mode'], 
-                            epochs = settings['epochs'], 
-                            learning_rate = settings['learning_rate'],
-                            init_weights = settings['init_weights'],
-                            weight_decay = settings['weight_decay'], 
-                            amsgrad = settings['amsgrad'], 
-                            optimizer_type = settings['optimizer_type'], 
-                            use_checkpoint = settings['use_checkpoint'], 
-                            dropout_rate = settings['dropout_rate'], 
-                            n_jobs = settings['n_jobs'], 
-                            val_loaders = val, 
-                            test_loaders = None, 
-                            intermedeate_save = settings['intermedeate_save'],
-                            schedule = settings['schedule'],
-                            loss_type=settings['loss_type'], 
-                            gradient_accumulation=settings['gradient_accumulation'], 
-                            gradient_accumulation_steps=settings['gradient_accumulation_steps'],
-                            channels=settings['channels'])
+        model, model_path = train_model(dst = settings['dst'],
+                                        model_type=settings['model_type'],
+                                        train_loaders = train, 
+                                        train_loader_names = plate_names, 
+                                        train_mode = settings['train_mode'], 
+                                        epochs = settings['epochs'], 
+                                        learning_rate = settings['learning_rate'],
+                                        init_weights = settings['init_weights'],
+                                        weight_decay = settings['weight_decay'], 
+                                        amsgrad = settings['amsgrad'], 
+                                        optimizer_type = settings['optimizer_type'], 
+                                        use_checkpoint = settings['use_checkpoint'], 
+                                        dropout_rate = settings['dropout_rate'], 
+                                        n_jobs = settings['n_jobs'], 
+                                        val_loaders = val, 
+                                        test_loaders = None, 
+                                        intermedeate_save = settings['intermedeate_save'],
+                                        schedule = settings['schedule'],
+                                        loss_type=settings['loss_type'], 
+                                        gradient_accumulation=settings['gradient_accumulation'], 
+                                        gradient_accumulation_steps=settings['gradient_accumulation_steps'],
+                                        channels=settings['train_channels'])
         
         torch.cuda.empty_cache()
         torch.cuda.memory.empty_cache()
@@ -280,7 +283,7 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
                                                      validation_split=0.0,
                                                      pin_memory=settings['pin_memory'],
                                                      normalize=settings['normalize'],
-                                                     channels=settings['channels'],
+                                                     channels=settings['train_channels'],
                                                      augment=False,
                                                      verbose=settings['verbose'])
         if model == None:
@@ -314,6 +317,8 @@ def train_test_model(src, settings, custom_model=False, custom_model_path=None):
     torch.cuda.empty_cache()
     torch.cuda.memory.empty_cache()
     gc.collect()
+
+    return model_path
     
 def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='erm', epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b']):
     """
@@ -446,7 +451,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
             _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
             clear_output(wait=True)
             display(results_df)
-            _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
+            model_path = _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
             
     if train_mode == 'irm':
         dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(device)
@@ -517,9 +522,10 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
             clear_output(wait=True)
             display(results_df)
             _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
-            _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
-            print(f'Saved model: {dst}')
-    return model
+            model_path = _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
+            print(f'Saved model: {model_path}')
+    
+    return model, model_path
 
 def visualize_saliency_map(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
 
@@ -783,3 +789,29 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
 #model_path = '/path/to/model.pth'
 #target_label_idx = 0  # Change this to the target class index
 #visualize_smooth_grad(src, model_path, target_label_idx)
+
+def deep_spacr(settings={}):
+    from .settings import deep_spacr_defaults
+    from .core import generate_training_dataset, generate_dataset, apply_model_to_tar
+    
+    settings = deep_spacr_defaults(settings)
+    
+    if settings['train'] or settings['test']:
+        print(f"Generating train and test datasets ...")
+        train_path, test_path = generate_training_dataset(settings)
+    
+        print(f'Generated Train set: {train_path}')
+        print(f'Generated Train set: {test_path}')
+    
+    if not os.path.exists(settings['model_path']):
+        print(f"Training model ...")
+        model_path = train_test_model(settings)
+        settings['model_path'] = model_path
+        
+    if settings['apply_model_to_dataset']:
+        if not os.path.exists(settings['tar_path']):
+            tar_path = generate_dataset(settings)
+            settings['tar_path'] = tar_path
+            
+        if os.path.exists(settings['model_path']):
+            apply_model_to_tar(settings)

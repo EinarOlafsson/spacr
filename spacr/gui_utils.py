@@ -44,7 +44,7 @@ def load_app(root, app_name, app_func):
     else:
         proceed_with_app(root, app_name, app_func)
     
-def parse_list(value):
+def parse_list_v1(value):
     try:
         parsed_value = ast.literal_eval(value)
         if isinstance(parsed_value, list):
@@ -54,6 +54,22 @@ def parse_list(value):
     except (ValueError, SyntaxError) as e:
         raise ValueError(f"Invalid format for list: {value}. Error: {e}")
     
+def parse_list(value):
+    try:
+        parsed_value = ast.literal_eval(value)
+        if isinstance(parsed_value, list):
+            # Check if the list elements are homogeneous (all int or all str)
+            if all(isinstance(item, int) for item in parsed_value):
+                return parsed_value
+            elif all(isinstance(item, str) for item in parsed_value):
+                return parsed_value
+            else:
+                raise ValueError("List contains mixed types or unsupported types")
+        else:
+            raise ValueError(f"Expected a list but got {type(parsed_value).__name__}")
+    except (ValueError, SyntaxError) as e:
+        raise ValueError(f"Invalid format for list: {value}. Error: {e}")
+
 # Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     from .gui_elements import set_dark_style, set_element_size
@@ -323,6 +339,7 @@ def convert_settings_dict_for_gui(settings):
     special_cases = {
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
         'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
         'cell_mask_dim': ('combo', chans, None),
         'cell_chann_dim': ('combo', chans, None),
@@ -369,6 +386,7 @@ def convert_settings_dict_for_gui(settings):
             variables[key] = ('entry', None, str(value))
         else:
             variables[key] = ('entry', None, str(value))
+    
     return variables
 
 
@@ -419,7 +437,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     from .io import generate_cellpose_train_test
     from .measure import measure_crop
     from .sim import run_multiple_simulations
-    from .deep_spacr import train_test_model
+    from .deep_spacr import deep_spacr
     from .sequencing import generate_barecode_mapping, perform_regression
     process_stdout_stderr(q)
 
@@ -435,8 +453,8 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         function = run_multiple_simulations
         imports = 1
     elif settings_type == 'classify':
-        function = train_test_model
-        imports = 2
+        function = deep_spacr
+        imports = 1
     elif settings_type == 'train_cellpose':
         function = train_cellpose
         imports = 1
