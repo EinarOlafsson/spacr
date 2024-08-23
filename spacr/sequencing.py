@@ -1,8 +1,6 @@
-import os, gc, gzip, re, time, math, subprocess, traceback, h5py, csv
+import os, gzip, re, time, math, subprocess, gzip
 import pandas as pd
 import numpy as np
-from tqdm import tqdm
-from Bio.Align import PairwiseAligner
 import matplotlib.pyplot as plt
 import seaborn as sns
 from Bio import pairwise2
@@ -14,6 +12,8 @@ from scipy import stats
 from difflib import SequenceMatcher
 from collections import Counter
 from IPython.display import display
+from multiprocessing import Pool, cpu_count, Queue, Process
+from rapidfuzz import process, fuzz
 
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer, MinMaxScaler
@@ -25,23 +25,153 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-def estimate_number_of_chunks(fastq_file, output_file, chunk_size):
+def parse_gz_files(folder_path):
     """
-    Estimate the number of remaining chunks based on the size of the R1 file
-    and the size of the output file after processing the first chunk.
-    """
-    r1_size = os.path.getsize(fastq_file)
-    output_size = os.path.getsize(output_file)
+    Parses the .fastq.gz files in the specified folder path and returns a dictionary
+    containing the sample names and their corresponding file paths.
 
-    read_size = r1_size/chunk_size
-    fastq_reads = (output_size/read_size)*15
-    estimated_total_chunks = int(fastq_reads/chunk_size)
-    print(f"read size: {read_size} fastq reads: {fastq_reads} estimated total chunks: {estimated_total_chunks}")
+    Args:
+        folder_path (str): The path to the folder containing the .fastq.gz files.
+
+    Returns:
+        dict: A dictionary where the keys are the sample names and the values are
+        dictionaries containing the file paths for the 'R1' and 'R2' read directions.
+    """
+    files = os.listdir(folder_path)
+    gz_files = [f for f in files if f.endswith('.fastq.gz')]
+
+    samples_dict = {}
+    for gz_file in gz_files:
+        parts = gz_file.split('_')
+        sample_name = parts[0]
+        read_direction = parts[1]
+
+        if sample_name not in samples_dict:
+            samples_dict[sample_name] = {}
+
+        if read_direction == "R1":
+            samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
+        elif read_direction == "R2":
+            samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
+    return samples_dict
+
+def process_chunk_for_consensus(r1_chunk, r2_chunk):
+    """
+    Process a chunk of paired-end sequencing reads to generate consensus sequences.
+
+    Args:
+        r1_chunk (list): List of SeqRecord objects representing the first read in each pair.
+        r2_chunk (list): List of SeqRecord objects representing the second read in each pair.
+
+    Returns:
+        list: List of SeqRecord objects representing the consensus sequences.
+
+    """
+    consensus_records = []
     
-    return estimated_total_chunks
+    for r1_record, r2_record in zip(r1_chunk, r2_chunk):
+        best_sequence = []
+        best_quality = []
+        for base1, base2, qual1, qual2 in zip(r1_record.seq, r2_record.seq, r1_record.letter_annotations["phred_quality"], r2_record.letter_annotations["phred_quality"]):
+            if qual1 >= qual2:
+                best_sequence.append(base1)
+                best_quality.append(qual1)
+            else:
+                best_sequence.append(base2)
+                best_quality.append(qual2)
 
-def consensus_sequence(fastq_r1, fastq_r2, output_file, chunk_size=1000000):
-    from .utils import print_progress
+        consensus_seq = Seq("".join(best_sequence))
+        
+        # Create a new SeqRecord for the consensus sequence
+        consensus_record = SeqRecord(consensus_seq, id=r1_record.id, description="", letter_annotations={"phred_quality": best_quality})
+        
+        # Add the consensus record to the list
+        consensus_records.append(consensus_record)
+    
+    return consensus_records
+
+def consensus_sequence(fastq_r1, fastq_r2, output_file, chunk_size=1000000, n_jobs=None):
+    """
+    Calculate the consensus sequence from two FASTQ files (R1 and R2) and write the result to an output file.
+
+    Parameters:
+    - fastq_r1 (str): Path to the R1 FASTQ file.
+    - fastq_r2 (str): Path to the R2 FASTQ file.
+    - output_file (str): Path to the output file where the consensus sequence will be written.
+    - chunk_size (int): Number of reads to process in each chunk. Default is 1000000.
+    - n_jobs (int): Number of parallel processes to use. If None, it will use the number of available CPUs minus 2.
+
+    Returns:
+    None
+    """
+    from .utils import print_progress, count_reads_in_fastq
+
+    print(f'Calculating read count for {fastq_r1} ...')
+    total_reads = count_reads_in_fastq(fastq_r1)
+    chunks_nr = (int(total_reads / chunk_size) + 1) // (n_jobs if n_jobs else cpu_count())
+
+    total_reads_processed = 0
+    chunk_count = 0
+    time_ls = []
+
+    if n_jobs is None:
+        n_jobs = cpu_count() - 2
+
+    with gzip.open(fastq_r1, "rt") as r1_handle, gzip.open(fastq_r2, "rt") as r2_handle, gzip.open(output_file, "wt") as output_handle:
+        r1_iter = SeqIO.parse(r1_handle, "fastq")
+        r2_iter = SeqIO.parse(r2_handle, "fastq")
+        pool = Pool(processes=n_jobs)
+        
+        while True:
+            start_time = time.time()
+
+            r1_chunk = [rec for rec in (next(r1_iter, None) for _ in range(n_jobs * chunk_size)) if rec is not None]
+            r2_chunk = [rec for rec in (next(r2_iter, None) for _ in range(n_jobs * chunk_size)) if rec is not None]
+            
+            # If either chunk is empty, we have reached the end of one or both files
+            if not r1_chunk or not r2_chunk:
+                break
+
+            chunk_count += 1
+            total_reads_processed += len(r1_chunk)
+            
+            # Split the records into chunks to be processed by each core
+            r1_chunked = [r1_chunk[i:i + chunk_size] for i in range(0, len(r1_chunk), chunk_size)]
+            r2_chunked = [r2_chunk[i:i + chunk_size] for i in range(0, len(r2_chunk), chunk_size)]
+
+            # Process each chunk in parallel
+            results = pool.starmap(process_chunk_for_consensus, zip(r1_chunked, r2_chunked))
+            
+            # Write the results to the output file
+            for consensus_records in results:
+                SeqIO.write(consensus_records, output_handle, "fastq")
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type=" Consensus sequence from R1 & R2")
+
+        pool.close()
+        pool.join()
+
+def consensus_sequence_v1(fastq_r1, fastq_r2, output_file, chunk_size=1000000):
+    """
+    Generate a consensus sequence from paired-end FASTQ files.
+
+    Args:
+        fastq_r1 (str): Path to the first input FASTQ file.
+        fastq_r2 (str): Path to the second input FASTQ file.
+        output_file (str): Path to the output FASTQ file.
+        chunk_size (int, optional): Number of reads to process in each iteration. Defaults to 1000000.
+
+    Returns:
+        None
+    """
+    from .utils import print_progress, count_reads_in_fastq
+
+    print(f'Calculating read count for {fastq_r1} ...')
+    total_reads = count_reads_in_fastq(fastq_r1)
+    chunks_nr = int(total_reads/chunk_size) + 1
 
     total_reads = 0
     chunk_count = 0
@@ -82,146 +212,292 @@ def consensus_sequence(fastq_r1, fastq_r2, output_file, chunk_size=1000000):
                 
                 # Write the consensus sequence to the output file
                 SeqIO.write(consensus_record, output_handle, "fastq")
-
-            if chunk_count == 1:
-                files_to_process = estimate_number_of_chunks(fastq_r1, output_file, chunk_size)
             
             end_time = time.time()
             chunk_time = end_time - start_time
             time_ls.append(chunk_time)
-            print_progress(files_processed=chunk_count, files_to_process=files_to_process, n_jobs=1, time_ls=time_ls, batch_size=chunk_size, operation_type=" Consensus sequence from R1 & R2")
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=1, time_ls=time_ls, batch_size=chunk_size, operation_type=" Consensus sequence from R1 & R2")
 
-def parse_gz_files(folder_path):
+def save_to_hdf(queue, output_file, complevel=9, compression='zlib'):
     """
-    Parses the .fastq.gz files in the specified folder path and returns a dictionary
-    containing the sample names and their corresponding file paths.
+    Save data from a queue to an HDF file.
 
-    Args:
-        folder_path (str): The path to the folder containing the .fastq.gz files.
+    Parameters:
+    - queue: Queue object
+        The queue containing the data to be saved.
+    - output_file: strs
+        The path to the output HDF file.
+    - complevel: int, optional
+        The compression level to use (default is 9).
+    - compression: str, optional
+        The compression algorithm to use (default is 'zlib').
 
     Returns:
-        dict: A dictionary where the keys are the sample names and the values are
-        dictionaries containing the file paths for the 'R1' and 'R2' read directions.
+    None
     """
-    files = os.listdir(folder_path)
-    gz_files = [f for f in files if f.endswith('.fastq.gz')]
+    with pd.HDFStore(output_file, mode='a', complevel=complevel, complib=compression) as store:
+        while True:
+            chunk_count, df = queue.get()
+            if df is None:
+                break
+            print(f'Writing chunks to H5PY ...')
+            store.append(f'chunk_{chunk_count}', df, format='table', data_columns=True)
 
-    samples_dict = {}
-    for gz_file in gz_files:
-        parts = gz_file.split('_')
-        sample_name = parts[0]
-        read_direction = parts[1]
-
-        if sample_name not in samples_dict:
-            samples_dict[sample_name] = {}
-
-        if read_direction == "R1":
-            samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
-        elif read_direction == "R2":
-            samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
-
-    return samples_dict
-
-def get_closest_match(seq, barcode_dict):
+def get_top_two_matches(seq, barcode_dict):
     """
-    Finds the closest match to a sequence in the barcode dictionary and returns the closest match and its score.
-    """
-    best_match = None
-    best_score = 0.0
-    for barcode_seq, barcode_name in barcode_dict.items():
-        score = SequenceMatcher(None, seq, barcode_seq).ratio()
-        if score > best_score:
-            best_match = barcode_name
-            best_score = score
-    return best_match, best_score
-
-def extract_barcodes_from_fastq(fastq, barcode_coordinates, output_file, chunk_size=1000000, reverse_complement=False, barcode_mapping=None):
-    """
-    Extracts sequences from the given coordinates, optionally reverse complements them,
-    and saves them into an HDF5 file in chunks.
+    Finds the top two closest matches for a given sequence in a barcode dictionary.
 
     Args:
-        fastq (str): Path to the consensus FASTQ file.
-        barcode_coordinates (list): List of lists, where each sublist contains slice indices [start:end].
-        output_file (str): Path to the output HDF5 file.
-        chunk_size (int): Number of reads to process in a single chunk.
-        reverse_complement (bool): If True, reverse complement the sequences before saving.
-        barcode_mapping (dict): A dictionary with names as keys and paths to barcode CSV files as values.
+        seq (str): The sequence to find the closest matches for.
+        barcode_dict (dict): A dictionary containing barcodes as keys and their corresponding values.
+
+    Returns:
+        list of tuples: A list containing up to two tuples, each with a barcode match and its score.
     """
-    # Validate barcode CSVs if provided
-    barcode_dicts = {}
-    names = []
-    if barcode_mapping:
-        for name, path in barcode_mapping.items():
-            names.append(name)
-            df = pd.read_csv(path)
-            if 'name' not in df.columns or 'sequence' not in df.columns:
-                print(f"Warning: CSV file {path} does not have required columns 'name' and 'sequence'. Aborting.")
-                return
-            barcode_dicts[name] = df.set_index('sequence')['name'].to_dict()
-    else:
-        print("Warning: No barcode CSVs provided. Extracting sequences without matching.")
+    results = process.extract(seq, barcode_dict.keys(), scorer=fuzz.ratio, limit=2)
+    matches = [(barcode_dict[result[0]], result[1] / 100.0) for result in results]
+    # Pad the matches list if there are fewer than two results
+    if len(matches) < 2:
+        matches.append((None, 0.0))
+    return matches
 
-    with gzip.open(fastq, "rt") as handle, h5py.File(output_file, "w") as hdf:
-        chunk_count = 0
-        records = []
-        
-        for record in SeqIO.parse(handle, "fastq"):
-            try:
-                records.append(record.seq)
-                if len(records) >= chunk_size:
-                    process_chunk(records, names, barcode_coordinates, reverse_complement, barcode_dicts, hdf, chunk_count)
-                    chunk_count += 1
-                    records = []
-            except Exception as e:
-                print(f"Error during processing record: {e}")
-                continue  # Skip the problematic read and continue
+def process_chunk_for_mapping(records, barcode_mapping, barcode_dicts, barcode_coordinates, reverse_complements):
+    """
+    Process a chunk of records for barcode mapping, including highest and second-highest scores.
 
-        # Process any remaining records
-        if records:
-            process_chunk(records, names, barcode_coordinates, reverse_complement, barcode_dicts, hdf, chunk_count)
+    Args:
+        records (list): A list of records to process.
+        barcode_mapping (dict): A dictionary mapping barcodes to their corresponding keys.
+        barcode_dicts (dict): A dictionary of barcode dictionaries.
+        barcode_coordinates (dict): A dictionary mapping barcode keys to their start and end coordinates.
+        reverse_complements (dict): A dictionary indicating whether to reverse complement the extracted sequences for each barcode key.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the processed data.
+    """
+    data = {key: [] for key in barcode_mapping.keys()}
+    seq_data = {f"{key}_seq": [] for key in barcode_mapping.keys()}
+    score_data_1 = {f"{key}_score_1": [] for key in barcode_mapping.keys()}
+    score_data_2 = {f"{key}_score_2": [] for key in barcode_mapping.keys()}
+    sequences = []
     
-def process_chunk(records, names, barcode_coordinates, reverse_complement, barcode_dicts, hdf, chunk_count):
-    print("Extracting barcodes...")
-    read_ids = []
-    data = {name: [] for name in names}
-    scores = {name: [] for name in names}
+    for record in records:
+        sequences.append(str(record.seq))
+        for key, coord in barcode_coordinates.items():
+            start, end = coord
+            extracted_seq = str(record.seq[start:end])
 
-    for sequence in records:
-        for name, coord in zip(names, barcode_coordinates):
-            if isinstance(coord, slice):
-                extracted_seq = sequence[coord]
-            else:
-                start, end = coord[0], coord[1]
-                if end <= len(sequence):
-                    extracted_seq = sequence[start:end]
-                else:
-                    extracted_seq = ""
-            
-            if reverse_complement:
+            if reverse_complements[key]:
                 extracted_seq = str(Seq(extracted_seq).reverse_complement())
 
-            # Handle barcode matching
-            if name in barcode_dicts:
-                exact_match = barcode_dicts[name].get(extracted_seq, None)
+            seq_data[f"{key}_seq"].append(extracted_seq)
+
+            if key in barcode_dicts:
+                exact_match = barcode_dicts[key].get(extracted_seq, None)
                 if exact_match:
-                    data[name].append(exact_match)
-                    scores[name].append(1.0)  # Exact match score
+                    data[key].append(exact_match)
+                    score_data_1[f"{key}_score_1"].append(1.0)
+                    score_data_2[f"{key}_score_2"].append(0.0)
                 else:
-                    closest_match, score = get_closest_match(extracted_seq, barcode_dicts[name])
-                    data[name].append(closest_match)
-                    scores[name].append(score)
+                    matches = get_top_two_matches(extracted_seq, barcode_dicts[key])
+                    data[key].append(matches[0][0])
+                    score_data_1[f"{key}_score_1"].append(matches[0][1])
+                    score_data_2[f"{key}_score_2"].append(matches[1][1])
             else:
-                data[name].append(extracted_seq)
-                scores[name].append(0.0)
+                data[key].append(extracted_seq)
+                score_data_1[f"{key}_score_1"].append(0.0)
+                score_data_2[f"{key}_score_2"].append(0.0)
 
-    print("Writing to HDF5...")
-    for name in names:
-        hdf.create_dataset(f"{name}_chunk_{chunk_count}", data=np.array(data[name], dtype="S"))
-        if name in scores:
-            hdf.create_dataset(f"{name}_scores_chunk_{chunk_count}", data=np.array(scores[name], dtype="f"))
+    df = pd.DataFrame(data)
+    df_seq = pd.DataFrame(seq_data)
+    df_score_1 = pd.DataFrame(score_data_1)
+    df_score_2 = pd.DataFrame(score_data_2)
+    df['sequence'] = sequences
+    df = pd.concat([df, df_seq, df_score_1, df_score_2], axis=1)
+    return df
 
-    print(f"Processed chunk {chunk_count} with {len(records)} reads.", flush=True)
+def extract_barcodes_from_fastq(fastq, output_file, chunk_size, barcode_mapping, n_jobs=None, compression='zlib', complevel=9):    
+    """
+    Extracts barcodes from a FASTQ file and maps them based on a barcode mapping.
+
+    Args:
+        fastq (str): Path to the input FASTQ file.
+        output_file (str): Path to the output file where the mapped barcodes will be saved.
+        chunk_size (int): Number of records to process in each chunk.
+        barcode_mapping (dict): Dictionary containing barcode mapping information.
+            The keys are the names of the barcode sets, and the values are tuples
+            containing the path to the CSV file, barcode coordinates, and reverse complement flag.
+        n_jobs (int, optional): Number of parallel processes to use for mapping. Defaults to None.
+        compression (str, optional): Compression algorithm to use for saving the output file. Defaults to 'zlib'.
+        complevel (int, optional): Compression level to use for saving the output file. Defaults to 9.
+
+    Returns:
+        None
+    """
+    from .utils import print_progress, count_reads_in_fastq
+
+    # Ensure the file is deleted before starting
+    if os.path.exists(output_file):
+        os.remove(output_file)
+
+    # Validate and process barcode mapping
+    barcode_dicts = {}
+    barcode_coordinates = {}
+    reverse_complements = {}
+
+    for key, (csv_path, coordinates, reverse_comp) in barcode_mapping.items():
+        df = pd.read_csv(csv_path)
+        if 'name' not in df.columns or 'sequence' not in df.columns:
+            print(f"Warning: CSV file {csv_path} does not have required columns 'name' and 'sequence'. Aborting.")
+            return
+        barcode_dicts[key] = df.set_index('sequence')['name'].to_dict()
+        barcode_coordinates[key] = coordinates
+        reverse_complements[key] = reverse_comp
+
+    if n_jobs is None:
+        n_jobs = cpu_count() - 3  # Reserve one core for saving
+    
+    analyzed_chunks = 0
+    chunk_count = 0
+    time_ls = []
+    
+    print(f'Calculating read count for {fastq} ...')
+    total_reads = count_reads_in_fastq(fastq)
+    chunks_nr = int(total_reads/chunk_size)
+    
+    print(f'Mapping barcodes for {total_reads} reads in {chunks_nr} batches for {fastq} ...')
+    
+    # Create a queue to hold dataframes to be saved
+    save_queue = Queue()
+
+    # Start a separate process for saving the data
+    save_process = Process(target=save_to_hdf, args=(save_queue, output_file, complevel, compression))
+    save_process.start()
+
+    with gzip.open(fastq, "rt") as handle:
+        fastq_iter = SeqIO.parse(handle, "fastq")
+        pool = Pool(processes=n_jobs)
+
+        while True:
+            # Read n_jobs * chunk_size records into memory
+            records = [record for _, record in zip(range(n_jobs * chunk_size), fastq_iter)]
+
+            if not records:
+                break
+
+            analyzed_chunks_1 = analyzed_chunks
+            start_time = time.time()
+            chunk_count += 1
+            analyzed_chunks = int(chunk_count*n_jobs)
+            analyzed_chunks_ls = list(range(analyzed_chunks_1, analyzed_chunks))
+
+            # Split the records into chunks to be processed by each core
+            chunked_records = [records[i:i + chunk_size] for i in range(0, len(records), chunk_size)]
+
+            # Process each chunk in parallel
+            dfs = pool.starmap(process_chunk_for_mapping, [(chunk, barcode_mapping, barcode_dicts, barcode_coordinates, reverse_complements) for chunk in chunked_records])
+
+            # Queue the dataframes to be saved
+            df = pd.concat(dfs, ignore_index=True)
+            save_queue.put((chunk_count, df))
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+
+            for az_chunks in analyzed_chunks_ls:
+                print_progress(files_processed=az_chunks, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type=" Mapping Barcodes")
+
+            del records, chunked_records, dfs, df
+
+        pool.close()
+        pool.join()
+
+    # Send a sentinel value to indicate the saving process should stop
+    save_queue.put((None, None))
+    save_process.join()
+
+def extract_barcodes_from_fastq_v1(fastq, output_file, chunk_size, barcode_mapping, n_jobs=None, compression='zlib', complevel=9):    
+    """
+    Extracts barcodes from a FASTQ file and saves the results to an output file.
+
+    Parameters:
+    - fastq (str): Path to the input FASTQ file.
+    - output_file (str): Path to the output file where the barcode data will be saved.
+    - chunk_size (int): Number of records to process in each chunk.
+    - barcode_mapping (dict): Mapping of barcode keys to CSV file paths, barcode coordinates, and reverse complement flags.
+    - n_jobs (int, optional): Number of parallel processes to use for barcode mapping. Defaults to None.
+    - compression (str, optional): Compression algorithm to use for the output file. Defaults to 'zlib'.
+    - complevel (int, optional): Compression level to use for the output file. Defaults to 9.
+    """
+
+    from .utils import print_progress, count_reads_in_fastq
+
+    # Ensure the file is deleted before starting
+    if os.path.exists(output_file):
+        os.remove(output_file)
+
+    # Validate and process barcode mapping
+    barcode_dicts = {}
+    barcode_coordinates = {}
+    reverse_complements = {}
+
+    for key, (csv_path, coordinates, reverse_comp) in barcode_mapping.items():
+        df = pd.read_csv(csv_path)
+        if 'name' not in df.columns or 'sequence' not in df.columns:
+            print(f"Warning: CSV file {csv_path} does not have required columns 'name' and 'sequence'. Aborting.")
+            return
+        barcode_dicts[key] = df.set_index('sequence')['name'].to_dict()
+        barcode_coordinates[key] = coordinates
+        reverse_complements[key] = reverse_comp
+
+    if n_jobs is None:
+        n_jobs = cpu_count() - 2
+
+    chunk_count = 0
+    time_ls = []
+    
+    print(f'Calculating read count for {fastq} ...')
+    total_reads = count_reads_in_fastq(fastq)
+    chunks_nr = (int(total_reads/chunk_size) + 1) 
+    
+    print(f'Mapping barcodes for {total_reads} reads in {chunks_nr} batches for {fastq} ...')
+    with gzip.open(fastq, "rt") as handle:
+        fastq_iter = SeqIO.parse(handle, "fastq")
+        pool = Pool(processes=n_jobs)
+
+        while True:
+            # Read n_jobs * chunk_size records into memory
+            records = [record for _, record in zip(range(n_jobs * chunk_size), fastq_iter)]
+
+            if not records:
+                break
+
+            start_time = time.time()
+            chunk_count += 1
+
+            # Split the records into chunks to be processed by each core
+            chunked_records = [records[i:i + chunk_size] for i in range(0, len(records), chunk_size)]
+
+            # Process each chunk in parallel
+            dfs = pool.starmap(process_chunk_for_mapping, [(chunk, barcode_mapping, barcode_dicts, barcode_coordinates, reverse_complements) for chunk in chunked_records])
+
+            # Join the results
+            df = pd.concat(dfs, ignore_index=True)
+
+            # Save to HDF5 with compression
+            print(f'Writing chunk {chunk_count} to H5PY ...')
+            df.to_hdf(output_file, key=f'chunk_{chunk_count}', mode='a', format='table', complevel=complevel, complib=compression)
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type=" Mapping Barcodes")
+
+            del records, chunked_records, dfs, df
+
+        pool.close()
+        pool.join()
 
 def generate_barecode_mapping(settings={}):
     from .settings import set_default_generate_barecode_mapping
@@ -243,12 +519,32 @@ def generate_barecode_mapping(settings={}):
             else:
                 print(f"Consensus file {consensus} already exists. Mapping barecodes.")
 
-            extract_barcodes_from_fastq(fastq=consensus, 
-                                        barcode_coordinates=settings['barcode_coordinates'], 
-                                        output_file=h5, 
-                                        chunk_size=settings['chunk_size'], 
-                                        reverse_complement=settings['reverse_complement'], 
-                                        barcode_mapping=settings['barcode_mapping'])
+            extract_barcodes_from_fastq(fastq=consensus,
+                                        output_file=h5,
+                                        chunk_size=settings['chunk_size'],
+                                        barcode_mapping=settings['barcode_mapping'],
+                                        n_jobs=settings['n_jobs'],
+                                        compression=settings['compression'],
+                                        complevel=settings['complevel'])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def grna_plate_heatmap(path, specific_grna=None, min_max='all', cmap='viridis', min_count=0, save=True):
     """
