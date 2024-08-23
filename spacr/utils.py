@@ -1,4 +1,4 @@
-import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform
+import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip
 
 import numpy as np
 from cellpose import models as cp_models
@@ -4424,3 +4424,10 @@ def correct_masks(src):
     cell_path = os.path.join(src,'norm_channel_stack', 'cell_mask_stack')
     convert_and_relabel_masks(cell_path)
     _load_and_concatenate_arrays(src, [0,1,2,3], 1, 0, 2)
+
+def count_reads_in_fastq(fastq_file):
+    count = 0
+    with gzip.open(fastq_file, "rt") as f:
+        for _ in f:
+            count += 1
+    return count // 4
