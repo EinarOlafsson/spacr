@@ -549,7 +549,7 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
 
     process_args = (settings_type, settings, q, fig_queue, stop_requested)
     if settings_type in [
-        'mask', 'measure', 'simulation', 'sequencing', 'classify', 'cellpose_dataset', 
+        'mask', 'umap', 'measure', 'simulation', 'sequencing', 'classify', 'cellpose_dataset', 
         'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 'map_barcodes', 
         'regression', 'recruitment', 'plaques', 'cellpose_compare', 'vision_scores', 
         'vision_dataset'

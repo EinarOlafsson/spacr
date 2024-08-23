@@ -277,7 +277,7 @@ def get_measure_crop_settings(settings):
 
 def set_default_analyze_screen(settings):
     settings.setdefault('src', 'path')
-    settings.setdefault('model_type','xgboost')
+    settings.setdefault('model_type_ml','xgboost')
     settings.setdefault('heatmap_feature','predictions')
     settings.setdefault('grouping','mean')
     settings.setdefault('min_max','allq')
@@ -726,6 +726,11 @@ expected_types = {
     "gene_weights_csv": str,
     "fraction_threshold": float,
     "barcode_mapping":dict,
+    "redunction_method":str,
+    "mix":str,
+    "model_type_ml":str,
+    "exclude_conditions":list,
+    "remove_highly_correlated_features":bool,
     'barcode_coordinates':list,  # This is a list of lists
     'reverse_complement':bool,
 }
@@ -741,7 +746,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
     for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types:
-            if key not in ["General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths", "Sequencing"]:
+            if key not in ["Clustering", "Embedding", "General", "Nucleus", "Cell", "Pathogen", "Timelapse", "Plot", "Object Image", "Annotate Data", "Measurements", "Advanced", "Miscellaneous", "Test", "Paths", "Sequencing"]:
                 q.put(f"Key {key} not found in expected types.")
                 continue
 
@@ -912,6 +917,7 @@ def generate_fields(variables, scrollable_frame):
         "mix": "(dict) - Mixing settings for the samples.",
         "model_name": "(str) - Name of the Cellpose model.",
         "model_type": "(str) - Type of model to use for the analysis.",
+        "model_type_ml": "(str) - Type of model to use for machine learning.",
         "nc": "(str) - Negative control identifier.",
         "nc_loc": "(str) - Location of the negative control in the images.",
         "negative_control": "(str) - Identifier for the negative control.",
@@ -1051,7 +1057,7 @@ categories = {
     "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
     "Annotate Data": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","pathogen_types", "pathogen_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
     "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-    "Advanced": ["complevel", "compression", "plate_dict", "target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","channels","augment"],
+    "Advanced": ["complevel", "compression", "plate_dict", "target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","channels","augment"],
     "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
     "Embedding": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
     "Train DL Model": ["epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes"],
