@@ -721,6 +721,8 @@ expected_types = {
     "from_scratch": bool,
     "width_height": list,
     "resize": bool,
+    "compression": str,
+    "complevel": int,
     "gene_weights_csv": str,
     "fraction_threshold": float,
     "barcode_mapping":dict,
@@ -1018,6 +1020,8 @@ def generate_fields(variables, scrollable_frame):
         "width_height": "(tuple) - Width and height of the input images.",
         "barcode_coordinates": "(list of lists) - Coordinates of the barcodes in the sequence.",
         "barcode_mapping": "dict - names and barecode csv files",
+        "compression": "str - type of compression (e.g. zlib)",
+        "complevel": "int - level of compression (0-9). Higher is slower and yealds smaller files",
         "um_per_pixel": "(float) - The micrometers per pixel for the images."
     }
 
@@ -1047,7 +1051,7 @@ categories = {
     "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
     "Annotate Data": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","pathogen_types", "pathogen_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
     "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-    "Advanced": ["plate_dict", "target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","n_jobs","channels","augment"],
+    "Advanced": ["complevel", "compression", "plate_dict", "target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","channels","augment"],
     "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
     "Embedding": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
     "Train DL Model": ["epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes"],
@@ -1073,8 +1077,7 @@ descriptions = {
     
     'cellpose_all': "Run Cellpose on all images in your dataset and obtain masks and measurements. Function: cellpose_analysis from spacr.cellpose.\n\nKey Features:\n- End-to-End Analysis: Perform both segmentation and measurement extraction in a single step.\n- Efficiency: Process entire datasets with minimal manual intervention.\n- Comprehensive Output: Obtain detailed masks and corresponding measurements for further analysis.",
     
-    'map_barcodes': "Map barcodes to your data for identification and tracking. Function: barcode_mapping_tools from spacr.sequencing.\n\nKey Features:\n- Barcode Integration: Efficiently map and integrate barcode information into your dataset.\n- Tracking: Enable tracking and identification of samples using barcodes.\n- Compatibility: Works with sequencing data to ensure accurate mapping and analysis.",
-    #'sequencing': "Find Barcodes and gRNA sequences in FASTQ files. (Requires paired-end FASTQ files, R1 and R2). Function: analyze_reads from spacr.sequencing.\n\nKey Features:\n- Barcode and gRNA Identification: Efficiently detect and extract barcode and gRNA sequences from raw sequencing data.\n- Paired-End Support: Specifically designed to handle paired-end FASTQ files, ensuring accurate sequence alignment and analysis.\n- High Throughput: Capable of processing large sequencing datasets quickly and accurately.",
+    'map_barcodes': "\n\nHelp:\n- 1 .Generate consensus read fastq files from R1 and R2 files.\n- 2. Map barcodes from sequencing data for identification and tracking of samples.\n- 3. Run the module to extract and map barcodes from your FASTQ files in chunks.\n- Prepare your barcode CSV files with the appropriate 'name' and 'sequence' columns.\n- Configure the barcode settings (coordinates and reverse complement flags) according to your experimental setup.\n- For further help, click the Help button in the menu bar.",
 
     'regression': "Perform regression analysis on your data. Function: regression_tools from spacr.analysis.\n\nKey Features:\n- Statistical Analysis: Conduct various types of regression analysis to identify relationships within your data.\n- Flexible Options: Supports multiple regression models and configurations.\n- Data Insight: Gain deeper insights into your dataset through advanced regression techniques.",
     
@@ -1095,9 +1098,13 @@ def set_annotate_default_settings(settings):
 
 def set_default_generate_barecode_mapping(settings={}):
     settings.setdefault('src', 'path')
-    settings.setdefault('chunk_size', 1000000)
+    settings.setdefault('chunk_size', 100000)
     
     settings.setdefault('barcode_mapping', {'row': ['/home/carruthers/Documents/row_barcodes.csv',(80, 88), True],
                                             'grna': ['/home/carruthers/Documents/grna_barcodes.csv',(34, 55), True],
                                             'column': ['/home/carruthers/Documents/column_barcodes.csv',(0, 7), False]})
+    
+    settings.setdefault('n_jobs', None)
+    settings.setdefault('compression', 'zlib')
+    settings.setdefault('complevel', 5)
     return settings

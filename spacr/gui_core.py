@@ -348,7 +348,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
         widgets.append(run_button)
         btn_col += 1
 
-    if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap']:
+    if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap', 'map_barcodes']:
         abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="abort", command=lambda: initiate_abort(), show_text=False, size=size_dict['btn_size'], animation=False)
         abort_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
         widgets.append(abort_button)
