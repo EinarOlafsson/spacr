@@ -2497,7 +2497,6 @@ def ml_analysis(df, channel_of_interest=3, location_column='col', positive_contr
     df_metadata = df[[location_column]].copy()
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
     
-    
     if verbose:
         print(f'Found {len(features)} numerical features in the dataframe')
         print(f'Features used in training: {features}')
@@ -2642,7 +2641,6 @@ def check_index(df, elements=5, split_char='_'):
             print(idx)
         raise ValueError(f"Found {len(problematic_indices)} problematic indices that do not split into {elements} parts.")
 
-#def plate_heatmap(src, model_type='xgboost', variable='predictions', grouping='mean', min_max='allq', cmap='viridis', channel_of_interest=3, min_count=25, n_estimators=100, col_to_compare='col', pos='c2', neg='c1', exclude=None, n_repeats=10, clean=True, nr_to_plot=20, verbose=False, n_jobs=-1):
 def generate_ml_scores(src, settings):
     
     from .io import _read_and_merge_data
@@ -2680,7 +2678,7 @@ def generate_ml_scores(src, settings):
                                settings['top_features'],
                                settings['n_estimators'],
                                settings['test_size'],
-                               settings['model_type'],
+                               settings['model_type_ml'],
                                settings['n_jobs'],
                                settings['remove_low_variance_features'],
                                settings['remove_highly_correlated_features'],
@@ -2701,7 +2699,7 @@ def generate_ml_scores(src, settings):
                                 min_count=settings['minimum_cell_count'],
                                 verbose=settings['verbose'])
 
-    data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv = get_ml_results_paths(src, settings['model_type'], settings['channel_of_interest'])
+    data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv = get_ml_results_paths(src, settings['model_type_ml'], settings['channel_of_interest'])
     df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df = output
 
     settings_df.to_csv(settings_csv, index=False)
@@ -2858,6 +2856,7 @@ def generate_image_umap(settings={}):
         settings['plot_outlines'] = False
         settings['smooth_lines'] = False
 
+    print(f'Generating Image UMAP ...')
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     settings_dir = os.path.join(settings['src'][0],'settings')
     settings_csv = os.path.join(settings_dir,'embedding_settings.csv')
