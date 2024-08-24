@@ -632,6 +632,76 @@ class spacrProgressBar(ttk.Progressbar):
         # Track whether to show the progress label
         self.label = label
 
+        # Create the progress label with text wrapping
+        if self.label:
+            self.progress_label = tk.Label(
+                parent,
+                text="Processing: 0/0",
+                anchor='w',
+                justify='left',
+                bg=self.inactive_color,
+                fg=self.fg_color,
+                wraplength=300  # Adjust the wraplength as needed
+            )
+            self.progress_label.grid_forget()  # Temporarily hide it
+
+        # Initialize attributes for time and operation
+        self.operation_type = None
+        self.time_image = None
+        self.time_batch = None
+        self.time_left = None
+
+    def set_label_position(self):
+        if self.label and self.progress_label:
+            row_info = self.grid_info().get('row', 0)
+            col_info = self.grid_info().get('column', 0)
+            col_span = self.grid_info().get('columnspan', 1)
+            self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
+
+    def update_label(self):
+        if self.label and self.progress_label:
+            # Update the progress label with current progress and additional info
+            label_text = f"Processing: {self['value']}/{self['maximum']}"
+            if self.operation_type:
+                label_text += f", {self.operation_type}"
+            if self.time_image:
+                label_text += f", Time/image: {self.time_image:.3f} sec"
+            if self.time_batch:
+                label_text += f", Time/batch: {self.time_batch:.3f} sec"
+            if self.time_left:
+                label_text += f", Time_left: {self.time_left:.3f} min"
+            self.progress_label.config(text=label_text)
+
+class spacrProgressBar_v1(ttk.Progressbar):
+    def __init__(self, parent, label=True, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
+        # Get the style colors
+        style_out = set_dark_style(ttk.Style())
+
+        self.fg_color = style_out['fg_color']
+        self.bg_color = style_out['bg_color']
+        self.active_color = style_out['active_color']
+        self.inactive_color = style_out['inactive_color']
+
+        # Configure the style for the progress bar
+        self.style = ttk.Style()
+        self.style.configure(
+            "spacr.Horizontal.TProgressbar",
+            troughcolor=self.bg_color,
+            background=self.active_color,
+            thickness=20,
+            troughrelief='flat',
+            borderwidth=0
+        )
+        self.configure(style="spacr.Horizontal.TProgressbar")
+
+        # Set initial value to 0
+        self['value'] = 0
+
+        # Track whether to show the progress label
+        self.label = label
+
         # Create the progress label (defer placement)
         if self.label:
             self.progress_label = tk.Label(parent, text="Processing: 0/0", anchor='w', justify='left', bg=self.inactive_color, fg=self.fg_color)
