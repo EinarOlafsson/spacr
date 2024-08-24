@@ -353,7 +353,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
     """    
     
     from .io import _save_model, _save_progress
-    from .utils import compute_irm_penalty, calculate_loss, choose_model
+    from .utils import compute_irm_penalty, calculate_loss, choose_model, print_progress
     
     print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders)}')
     
@@ -391,6 +391,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
     else:
         scheduler = None
 
+    time_ls = []
     if train_mode == 'erm':
         for epoch in range(1, epochs+1):
             model.train()
@@ -417,7 +418,13 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
                     optimizer.zero_grad()
 
                 avg_loss = running_loss / batch_idx
-                print(f'\rTrain: epoch: {epoch} batch: {batch_idx}/{len(train_loaders)} avg_loss: {avg_loss:.5f} time: {(time.time()-start_time):.5f}', end='\r', flush=True)
+                #print(f'\rTrain: epoch: {epoch} batch: {batch_idx}/{len(train_loaders)} avg_loss: {avg_loss:.5f} time: {(time.time()-start_time):.5f}', end='\r', flush=True)
+                
+                batch_size = len(train_loaders)
+                duration = time.time() - start_time
+                time_ls.append(duration)
+                metricks = f"Loss: {avg_loss:.5f}"
+                print_progress(files_processed=epoch, files_to_process=epochs, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f"Training {model_type} model", metricks=metricks)
 
             end_time = time.time()
             train_time = end_time - start_time
@@ -426,6 +433,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
             train_names = 'train'
             results_df, train_test_time = evaluate_model_performance(train_loaders, model, train_names, epoch, train_mode='erm', loss_type=loss_type)
             train_metrics_df['train_test_time'] = train_test_time
+
             if val_loaders != None:
                 val_names = 'val'
                 result, val_time = evaluate_model_performance(val_loaders, model, val_names, epoch, train_mode='erm', loss_type=loss_type)
@@ -435,6 +443,7 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
                 
                 results_df = pd.concat([results_df, result])
                 train_metrics_df['val_time'] = val_time
+
             if test_loaders != None:
                 test_names = 'test'
                 result, test_test_time = evaluate_model_performance(test_loaders, model, test_names, epoch, train_mode='erm', loss_type=loss_type)
@@ -449,8 +458,29 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
                     scheduler.step()
             
             _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
-            clear_output(wait=True)
-            display(results_df)
+            #clear_output(wait=True)
+            #display(results_df)
+
+            train_idx = f"{epoch}_train"
+            val_idx = f"{epoch}_val"
+            train_acc = results_df.loc[train_idx, 'accuracy']
+            neg_train_acc = results_df.loc[train_idx, 'neg_accuracy']
+            pos_train_acc = results_df.loc[train_idx, 'pos_accuracy']
+            val_acc = results_df.loc[val_idx, 'accuracy']
+            neg_val_acc = results_df.loc[val_idx, 'neg_accuracy']
+            pos_val_acc = results_df.loc[val_idx, 'pos_accuracy']
+            train_loss = results_df.loc[train_idx, 'loss']
+            train_prauc = results_df.loc[train_idx, 'prauc']
+            val_loss = results_df.loc[val_idx, 'loss']
+            val_prauc = results_df.loc[val_idx, 'prauc']
+
+            metricks = f"Train Acc: {train_acc:.5f} Val Acc: {val_acc:.5f} Train Loss: {train_loss:.5f} Val Loss: {val_loss:.5f} Train PRAUC: {train_prauc:.5f} Val PRAUC: {val_prauc:.5f}, Nc Train Acc: {neg_train_acc:.5f} Nc Val Acc: {neg_val_acc:.5f} Pc Train Acc: {pos_train_acc:.5f} Pc Val Acc: {pos_val_acc:.5f}"
+
+            batch_size = len(train_loaders)
+            duration = time.time() - start_time
+            time_ls.append(duration)
+            print_progress(files_processed=epoch, files_to_process=epochs, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f"Training {model_type} model", metricks=metricks)
+
             model_path = _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
             
     if train_mode == 'irm':
@@ -784,32 +814,30 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
             smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
 
-# Usage
-#src = '/path/to/images'
-#model_path = '/path/to/model.pth'
-#target_label_idx = 0  # Change this to the target class index
-#visualize_smooth_grad(src, model_path, target_label_idx)
-
 def deep_spacr(settings={}):
     from .settings import deep_spacr_defaults
     from .core import generate_training_dataset, generate_dataset, apply_model_to_tar
     
     settings = deep_spacr_defaults(settings)
+    src = settings['src']
     
     if settings['train'] or settings['test']:
-        print(f"Generating train and test datasets ...")
-        train_path, test_path = generate_training_dataset(settings)
+        if settings['generate_training_dataset']:
+            print(f"Generating train and test datasets ...")
+            train_path, test_path = generate_training_dataset(settings)
+            print(f'Generated Train set: {train_path}')
+            print(f'Generated Train set: {test_path}')
+            settings['src'] = os.path.dirname(train_path)
     
-        print(f'Generated Train set: {train_path}')
-        print(f'Generated Train set: {test_path}')
-    
-    if not os.path.exists(settings['model_path']):
+    if settings['train_DL_model']:
         print(f"Training model ...")
         model_path = train_test_model(settings)
         settings['model_path'] = model_path
+        settings['src'] = src
         
     if settings['apply_model_to_dataset']:
         if not os.path.exists(settings['tar_path']):
+            print(f"Generating dataset ...")
             tar_path = generate_dataset(settings)
             settings['tar_path'] = tar_path
             

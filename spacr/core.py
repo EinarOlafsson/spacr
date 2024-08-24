@@ -878,8 +878,6 @@ def annotate_results(pred_loc):
     return df
 
 def generate_dataset(settings={}):
-
-    #settings['src'], settings['file_metadata'], settings['experiment'], sample
     
     from .utils import initiate_counter, add_images_to_tar
     
@@ -1377,19 +1375,19 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
         for path in train_data:
             start = time.time()
             shutil.copy(path, os.path.join(train_class_dir, os.path.basename(path)))
-            processed_files += 1
             duration = time.time() - start
             time_ls.append(duration)
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Train dataset")
+            processed_files += 1
 
         # Copy test files
         for path in test_data:
             start = time.time()
             shutil.copy(path, os.path.join(test_class_dir, os.path.basename(path)))
-            processed_files += 1
             duration = time.time() - start
             time_ls.append(duration)
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Test dataset")
+            processed_files += 1
 
     # Print summary
     for cls in classes:
@@ -1397,7 +1395,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
         test_class_dir = os.path.join(dst, f'test/{cls}')
         print(f'Train class {cls}: {len(os.listdir(train_class_dir))}, Test class {cls}: {len(os.listdir(test_class_dir))}')
 
-    return train_class_dir, test_class_dir
+    return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
 def generate_training_dataset_v1(src, mode='annotation', annotation_column='test', annotated_classes=[1,2], classes=['nc','pc'], size=200, test_split=0.1, class_metadata=[['c1'],['c2']], metadata_type_by='col', channel_of_interest=3, custom_measurement=None, tables=None, png_type='cell_png'):
     
@@ -1518,7 +1516,7 @@ def generate_training_dataset(settings):
                 print(f'Creating new directory for training: {dst}')
                 break
                 
-    if settings['mode'] == 'annotation':
+    if settings['dataset_mode'] == 'annotation':
         class_paths_ls_2 = []
         class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
         for class_paths in class_paths_ls:
@@ -1526,7 +1524,7 @@ def generate_training_dataset(settings):
             class_paths_ls_2.append(class_paths_temp)
         class_paths_ls = class_paths_ls_2
 
-    elif settings['mode'] == 'metadata':
+    elif settings['dataset_mode'] == 'metadata':
         class_paths_ls = []
         class_len_ls = []
         [df] = _read_db(db_loc=db_path, tables=['png_list'])
@@ -1551,7 +1549,7 @@ def generate_training_dataset(settings):
             class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), settings['size'])
             class_paths_ls.append(class_paths_temp)
     
-    elif settings['mode'] == 'recruitment':
+    elif settings['dataset_mode'] == 'recruitment':
         class_paths_ls = []
         if not isinstance(settings['tables'], list):
             tables = ['cell', 'nucleus', 'pathogen','cytoplasm']

@@ -2300,11 +2300,15 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
     if epoch % 100 == 0 or epoch == epochs:
         model_path = f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth'
         torch.save(model, model_path)
+        return model_path
 
     for threshold in intermedeate_save:
         if results_df['neg_accuracy'].dropna().mean() >= threshold and results_df['pos_accuracy'].dropna().mean() >= threshold:
             model_path = save_model_at_threshold(threshold, epoch)
             break
+        else:
+            model_path = None
+    
     return model_path
 
 def _save_progress(dst, results_df, train_metrics_df, epoch, epochs):
