@@ -10,8 +10,8 @@ project = 'spacr'
 copyright = '2024, Your Name'
 author = 'Your Name'
 
-version = '0.0.80'
-release = '0.0.80'
+version = '0.2.56'
+release = '0.2.56'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

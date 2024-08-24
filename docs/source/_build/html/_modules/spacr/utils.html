@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.utils &mdash; spacr 0.0.80 documentation</title>
+  <title>spacr.utils &mdash; spacr 0.2.56 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5c6fbccc"></script>
+        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.80
+                0.2.56
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -74,7 +74,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for spacr.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sqlite3</span><span class="o">,</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">torchvision</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">tarfile</span><span class="o">,</span> <span class="nn">glob</span>
+<span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sqlite3</span><span class="o">,</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">torchvision</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">tarfile</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">psutil</span><span class="o">,</span> <span class="nn">platform</span><span class="o">,</span> <span class="nn">gzip</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">cellpose</span> <span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">cp_models</span>
@@ -148,6 +148,123 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 
 <span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">log_function_call</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">set_start_method</span><span class="p">,</span> <span class="n">get_start_method</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.models</span> <span class="kn">import</span> <span class="n">resnet50</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">umap</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">f_oneway</span><span class="p">,</span> <span class="n">kruskal</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+
+
+<div class="viewcode-block" id="print_progress">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.print_progress">[docs]</a>
+<span class="k">def</span> <span class="nf">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">metricks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files_processed</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_to_process</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">files_to_process</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files_to_process</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">files_processed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">files_processed</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">files_processed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_to_process</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">files_to_process</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">files_to_process</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">files_to_process</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">time_info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">time_ls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">average_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_ls</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">time_left</span> <span class="o">=</span> <span class="p">(((</span><span class="n">files_to_process</span> <span class="o">-</span> <span class="n">files_processed</span><span class="p">)</span> <span class="o">*</span> <span class="n">average_time</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_jobs</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">time_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Time/image: </span><span class="si">{</span><span class="n">average_time</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">sec, Time_left: </span><span class="si">{</span><span class="n">time_left</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> min.&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">average_time_img</span> <span class="o">=</span> <span class="n">average_time</span> <span class="o">/</span> <span class="n">batch_size</span>
+            <span class="n">time_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Time/batch: </span><span class="si">{</span><span class="n">average_time</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">sec, Time/image: </span><span class="si">{</span><span class="n">average_time_img</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">sec, Time_left: </span><span class="si">{</span><span class="n">time_left</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> min.&#39;</span>
+
+    <span class="k">if</span> <span class="n">metricks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Progress: </span><span class="si">{</span><span class="n">files_processed</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">files_to_process</span><span class="si">}</span><span class="s1">, operation_type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">time_info</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Progress: </span><span class="si">{</span><span class="n">files_processed</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">files_to_process</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">metricks</span><span class="si">}</span><span class="s1">, operation_type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">time_info</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="reset_mp">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.reset_mp">[docs]</a>
+<span class="k">def</span> <span class="nf">reset_mp</span><span class="p">():</span>
+    <span class="n">current_method</span> <span class="o">=</span> <span class="n">get_start_method</span><span class="p">()</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;Windows&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_method</span> <span class="o">!=</span> <span class="s1">&#39;spawn&#39;</span><span class="p">:</span>
+            <span class="n">set_start_method</span><span class="p">(</span><span class="s1">&#39;spawn&#39;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">system</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Linux&#39;</span><span class="p">,</span> <span class="s1">&#39;Darwin&#39;</span><span class="p">):</span>  <span class="c1"># Darwin is macOS</span>
+        <span class="k">if</span> <span class="n">current_method</span> <span class="o">!=</span> <span class="s1">&#39;fork&#39;</span><span class="p">:</span>
+            <span class="n">set_start_method</span><span class="p">(</span><span class="s1">&#39;fork&#39;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="is_multiprocessing_process">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.is_multiprocessing_process">[docs]</a>
+<span class="k">def</span> <span class="nf">is_multiprocessing_process</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Check if the process is a multiprocessing process. &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">cmdline</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;multiprocessing&#39;</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">NoSuchProcess</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">AccessDenied</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">ZombieProcess</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="close_file_descriptors">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.close_file_descriptors">[docs]</a>
+<span class="k">def</span> <span class="nf">close_file_descriptors</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Close file descriptors and shared memory objects. &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">resource</span>
+
+    <span class="n">soft</span><span class="p">,</span> <span class="n">hard</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getrlimit</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RLIMIT_NOFILE</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">soft</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="close_multiprocessing_processes">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.close_multiprocessing_processes">[docs]</a>
+<span class="k">def</span> <span class="nf">close_multiprocessing_processes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Close all multiprocessing processes. &quot;&quot;&quot;</span>
+    <span class="n">current_pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">process_iter</span><span class="p">([</span><span class="s1">&#39;pid&#39;</span><span class="p">,</span> <span class="s1">&#39;cmdline&#39;</span><span class="p">]):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Skip the current process</span>
+            <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;pid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">current_pid</span><span class="p">:</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># Check if the process is a multiprocessing process</span>
+            <span class="k">if</span> <span class="n">is_multiprocessing_process</span><span class="p">(</span><span class="n">proc</span><span class="p">):</span>
+                <span class="n">proc</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># Wait up to 5 seconds for the process to terminate</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Terminated process </span><span class="si">{</span><span class="n">proc</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;pid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">except</span> <span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">NoSuchProcess</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">AccessDenied</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">ZombieProcess</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to terminate process </span><span class="si">{</span><span class="n">proc</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;pid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Close file descriptors</span>
+    <span class="n">close_file_descriptors</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="check_mask_folder">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.check_mask_folder">[docs]</a>
@@ -169,156 +286,18 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="set_default_plot_merge_settings">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.set_default_plot_merge_settings">[docs]</a>
-<span class="k">def</span> <span class="nf">set_default_plot_merge_settings</span><span class="p">():</span>
-    <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;include_noninfected&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;include_multiinfected&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;include_multinucleated&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_background&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;filter_min_max&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;channel_dims&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;backgrounds&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;outline_thickness&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;outline_color&#39;</span><span class="p">,</span> <span class="s1">&#39;gbr&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;overlay_chans&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;overlay&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalization_percentiles&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">98</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;print_object_number&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nr&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;figuresize&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span><span class="p">,</span> <span class="s1">&#39;inferno&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">settings</span></div>
-
-
-<div class="viewcode-block" id="set_default_settings_preprocess_generate_masks">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.set_default_settings_preprocess_generate_masks">[docs]</a>
-<span class="k">def</span> <span class="nf">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
-    <span class="c1"># Main settings</span>
-    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;masks&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_images&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;magnification&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;metadata_type&#39;</span><span class="p">,</span> <span class="s1">&#39;cellvoyager&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;workers&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;randomize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_background_cell&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_background_nucleus&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_background_pathogen&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-
-    <span class="c1"># Channel settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_background&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_Signal_to_noise&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_CP_prob&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_background&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_Signal_to_noise&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_CP_prob&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_background&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_Signal_to_noise&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_CP_prob&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_FT&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_FT&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_FT&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    
-    <span class="c1"># Plot settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;figuresize&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span><span class="p">,</span> <span class="s1">&#39;inferno&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize_plots&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;examples_to_plot&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="c1"># Analasys settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_model&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;merge_pathogens&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;lower_percentile&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-
-    <span class="c1"># Timelapse settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;fps&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_displacement&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_memory&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_frame_limits&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_remove_transient&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;trackpy&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">,</span> <span class="s1">&#39;cells&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Misc settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;all_to_mip&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pick_slice&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;skip_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;01&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;upscale&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;upscale_factor&#39;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;adjust_cells&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">settings</span></div>
-
-
-<div class="viewcode-block" id="set_default_settings_preprocess_img_data">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.set_default_settings_preprocess_img_data">[docs]</a>
-<span class="k">def</span> <span class="nf">set_default_settings_preprocess_img_data</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-
-    <span class="n">metadata_type</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;metadata_type&#39;</span><span class="p">,</span> <span class="s1">&#39;cellvoyager&#39;</span><span class="p">)</span>
-    <span class="n">custom_regex</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">nr</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nr&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">plot</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">timelapse</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">lower_percentile</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;lower_percentile&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">randomize</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;randomize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">all_to_mip</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;all_to_mip&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">pick_slice</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pick_slice&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">skip_mode</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;skip_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-
-    <span class="n">cmap</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span><span class="p">,</span> <span class="s1">&#39;inferno&#39;</span><span class="p">)</span>
-    <span class="n">figuresize</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;figuresize&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">normalize</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">save_dtype</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_dtype&#39;</span><span class="p">,</span> <span class="s1">&#39;uint16&#39;</span><span class="p">)</span>
-    
-    <span class="n">test_mode</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">test_images</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_images&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">random_test</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;random_test&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">settings</span><span class="p">,</span> <span class="n">metadata_type</span><span class="p">,</span> <span class="n">custom_regex</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">timelapse</span><span class="p">,</span> <span class="n">lower_percentile</span><span class="p">,</span> <span class="n">randomize</span><span class="p">,</span> <span class="n">all_to_mip</span><span class="p">,</span> <span class="n">pick_slice</span><span class="p">,</span> <span class="n">skip_mode</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">,</span> <span class="n">normalize</span><span class="p">,</span> <span class="n">save_dtype</span><span class="p">,</span> <span class="n">test_mode</span><span class="p">,</span> <span class="n">test_images</span><span class="p">,</span> <span class="n">random_test</span></div>
-
-
 <div class="viewcode-block" id="smooth_hull_lines">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.smooth_hull_lines">[docs]</a>
 <span class="k">def</span> <span class="nf">smooth_hull_lines</span><span class="p">(</span><span class="n">cluster_data</span><span class="p">):</span>
     <span class="n">hull</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">cluster_data</span><span class="p">)</span>
-
     <span class="c1"># Extract vertices of the hull</span>
     <span class="n">vertices</span> <span class="o">=</span> <span class="n">hull</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">hull</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
-
     <span class="c1"># Close the loop</span>
     <span class="n">vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">vertices</span><span class="p">,</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]])</span>
-
     <span class="c1"># Parameterize the vertices</span>
     <span class="n">tck</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">splprep</span><span class="p">(</span><span class="n">vertices</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-
     <span class="c1"># Evaluate spline at new parameter values</span>
     <span class="n">new_points</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">tck</span><span class="p">)</span>
-
     <span class="k">return</span> <span class="n">new_points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 
 
@@ -642,7 +621,7 @@
 
 <div class="viewcode-block" id="normalize_to_dtype">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.normalize_to_dtype">[docs]</a>
-<span class="k">def</span> <span class="nf">normalize_to_dtype</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="mi">98</span><span class="p">,</span> <span class="n">percentile_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">normalize_to_dtype</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="mi">98</span><span class="p">,</span> <span class="n">percentile_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize each image in the stack to its own percentiles.</span>
 
@@ -661,7 +640,16 @@
 <span class="sd">    The normalized stack with the same shape as the input stack.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">new_dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">]:</span>
+        <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">new_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">new_dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;uint8&#39;</span><span class="p">,</span> <span class="s1">&#39;uint16&#39;</span><span class="p">]:</span>
+        <span class="n">new_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="k">if</span> <span class="n">new_dtype</span> <span class="o">==</span> <span class="s1">&#39;uint8&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span>
+        <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">new_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+
     <span class="n">nimg</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">new_stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
@@ -3294,11 +3282,13 @@
     <span class="k">if</span> <span class="n">restore_type</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cyto&#39;</span><span class="p">,</span> <span class="s1">&#39;cyto2&#39;</span><span class="p">,</span> <span class="s1">&#39;cyto3&#39;</span><span class="p">,</span> <span class="s1">&#39;nuclei&#39;</span><span class="p">]:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">cp_models</span><span class="o">.</span><span class="n">Cellpose</span><span class="p">(</span><span class="n">gpu</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">(),</span> <span class="n">model_type</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-
+            <span class="k">return</span> <span class="n">model</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">object_type</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
             <span class="n">restore</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s1">_nuclei&#39;</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">denoise</span><span class="o">.</span><span class="n">CellposeDenoiseModel</span><span class="p">(</span><span class="n">gpu</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">(),</span> <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;nuclei&quot;</span><span class="p">,</span><span class="n">restore_type</span><span class="o">=</span><span class="n">restore</span><span class="p">,</span> <span class="n">chan2_restore</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">restore</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s1">_cyto3&#39;</span>
             <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span><span class="s1">&#39;cyto2&#39;</span><span class="p">:</span>
@@ -3306,8 +3296,7 @@
             <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span><span class="s1">&#39;cyto&#39;</span><span class="p">:</span>
                 <span class="n">chan2_restore</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">denoise</span><span class="o">.</span><span class="n">CellposeDenoiseModel</span><span class="p">(</span><span class="n">gpu</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">(),</span> <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;cyto3&quot;</span><span class="p">,</span><span class="n">restore_type</span><span class="o">=</span><span class="n">restore</span><span class="p">,</span> <span class="n">chan2_restore</span><span class="o">=</span><span class="n">chan2_restore</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="n">model</span>
+            <span class="k">return</span> <span class="n">model</span>
 
 <div class="viewcode-block" id="SelectChannels">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.SelectChannels">[docs]</a>
@@ -3659,14 +3648,11 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="remove_highly_correlated_columns">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.remove_highly_correlated_columns">[docs]</a>
 <span class="k">def</span> <span class="nf">remove_highly_correlated_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
     <span class="n">corr_matrix</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
     <span class="n">upper_tri</span> <span class="o">=</span> <span class="n">corr_matrix</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">corr_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
     <span class="n">to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">upper_tri</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">upper_tri</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
-
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="filter_columns">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.filter_columns">[docs]</a>
@@ -4037,128 +4023,6 @@
     <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">image_paths</span></div>
 
 
-<div class="viewcode-block" id="get_umap_image_settings">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.get_umap_image_settings">[docs]</a>
-<span class="k">def</span> <span class="nf">get_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;row_limit&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;visualize&#39;</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;image_nr&#39;</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dot_size&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;min_dist&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;min_samples&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;filter_by&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_0&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;img_zoom&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_by_cluster&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_cluster_grids&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_cluster_noise&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_highly_correlated&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;log_data&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;figuresize&#39;</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;black_background&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_image_canvas&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_outlines&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_points&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;smooth_lines&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;clustering&#39;</span><span class="p">,</span> <span class="s1">&#39;dbscan&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;exclude&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="s1">&#39;c1&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;neg&#39;</span><span class="p">,</span> <span class="s1">&#39;c2&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;embedding_by_controls&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_images&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">,</span><span class="s1">&#39;umap&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_figure&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;color_by&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;neg&#39;</span><span class="p">,</span> <span class="s1">&#39;c1&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="s1">&#39;c2&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;mix&#39;</span><span class="p">,</span> <span class="s1">&#39;c3&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;mix&#39;</span><span class="p">,</span> <span class="s1">&#39;c3&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;analyze_clusters&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;resnet_features&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">settings</span></div>
-
-
-<div class="viewcode-block" id="get_measure_crop_settings">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.get_measure_crop_settings">[docs]</a>
-<span class="k">def</span> <span class="nf">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-
-    <span class="c1"># Test mode</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_nr&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-
-    <span class="c1">#measurement settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_measurements&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;radial_dist&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;calculate_correlation&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;manders_thresholds&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">85</span><span class="p">,</span><span class="mi">95</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;homogeneity&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;homogeneity_distances&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">32</span><span class="p">])</span>
-
-    <span class="c1"># Cropping settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_arrays&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_png&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_bounding_box&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;png_size&#39;</span><span class="p">,[</span><span class="mi">224</span><span class="p">,</span><span class="mi">224</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;png_dims&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize_by&#39;</span><span class="p">,</span><span class="s1">&#39;png&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">,[</span><span class="s1">&#39;cell&#39;</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dialate_png_ratios&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">])</span>
-
-    <span class="c1"># Timelapsed settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Operational settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot_filtration&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;representative_images&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;max_workers&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-
-    <span class="c1"># Object settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;include_uninfected&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;merge_edge_pathogen_cells&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Miscellaneous settings</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;experiment&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cells&#39;</span><span class="p">,</span> <span class="s1">&#39;HeLa&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_loc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogens&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ME49Dku80WT&#39;</span><span class="p">,</span> <span class="s1">&#39;ME49Dku80dgra8:GRA8&#39;</span><span class="p">,</span> <span class="s1">&#39;ME49Dku80dgra8&#39;</span><span class="p">,</span> <span class="s1">&#39;ME49Dku80TKO&#39;</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_loc&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;c1&#39;</span><span class="p">,</span> <span class="s1">&#39;c2&#39;</span><span class="p">,</span> <span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="s1">&#39;c4&#39;</span><span class="p">,</span> <span class="s1">&#39;c5&#39;</span><span class="p">,</span> <span class="s1">&#39;c6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c7&#39;</span><span class="p">,</span> <span class="s1">&#39;c8&#39;</span><span class="p">,</span> <span class="s1">&#39;c9&#39;</span><span class="p">,</span> <span class="s1">&#39;c10&#39;</span><span class="p">,</span> <span class="s1">&#39;c11&#39;</span><span class="p">,</span> <span class="s1">&#39;c12&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c13&#39;</span><span class="p">,</span> <span class="s1">&#39;c14&#39;</span><span class="p">,</span> <span class="s1">&#39;c15&#39;</span><span class="p">,</span> <span class="s1">&#39;c16&#39;</span><span class="p">,</span> <span class="s1">&#39;c17&#39;</span><span class="p">,</span> <span class="s1">&#39;c18&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c19&#39;</span><span class="p">,</span> <span class="s1">&#39;c20&#39;</span><span class="p">,</span> <span class="s1">&#39;c21&#39;</span><span class="p">,</span> <span class="s1">&#39;c22&#39;</span><span class="p">,</span> <span class="s1">&#39;c23&#39;</span><span class="p">,</span> <span class="s1">&#39;c24&#39;</span><span class="p">]])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;treatments&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;BR1&#39;</span><span class="p">,</span> <span class="s1">&#39;BR2&#39;</span><span class="p">,</span> <span class="s1">&#39;BR3&#39;</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;treatment_loc&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;c1&#39;</span><span class="p">,</span> <span class="s1">&#39;c2&#39;</span><span class="p">,</span> <span class="s1">&#39;c7&#39;</span><span class="p">,</span> <span class="s1">&#39;c8&#39;</span><span class="p">,</span> <span class="s1">&#39;c13&#39;</span><span class="p">,</span> <span class="s1">&#39;c14&#39;</span><span class="p">,</span> <span class="s1">&#39;c19&#39;</span><span class="p">,</span> <span class="s1">&#39;c20&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="s1">&#39;c4&#39;</span><span class="p">,</span> <span class="s1">&#39;c9&#39;</span><span class="p">,</span> <span class="s1">&#39;c10&#39;</span><span class="p">,</span> <span class="s1">&#39;c15&#39;</span><span class="p">,</span> <span class="s1">&#39;c16&#39;</span><span class="p">,</span> <span class="s1">&#39;c21&#39;</span><span class="p">,</span> <span class="s1">&#39;c22&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;c5&#39;</span><span class="p">,</span> <span class="s1">&#39;c6&#39;</span><span class="p">,</span> <span class="s1">&#39;c11&#39;</span><span class="p">,</span> <span class="s1">&#39;c12&#39;</span><span class="p">,</span> <span class="s1">&#39;c17&#39;</span><span class="p">,</span> <span class="s1">&#39;c18&#39;</span><span class="p">,</span> <span class="s1">&#39;c23&#39;</span><span class="p">,</span> <span class="s1">&#39;c24&#39;</span><span class="p">]])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;channel_of_interest&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;compartments&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">])</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;measurement&#39;</span><span class="p">,</span> <span class="s1">&#39;mean_intensity&#39;</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nr_imgs&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;um_per_pixel&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]:</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_filtration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">test_imgs</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_nr&#39;</span><span class="p">]</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test mode enabled with </span><span class="si">{</span><span class="n">test_imgs</span><span class="si">}</span><span class="s1"> images, plotting set to True&#39;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">settings</span></div>
-
-
 <div class="viewcode-block" id="delete_folder">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.delete_folder">[docs]</a>
 <span class="k">def</span> <span class="nf">delete_folder</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
@@ -4179,22 +4043,22 @@
 <span class="k">def</span> <span class="nf">measure_test_mode</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>    
 
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
-            <span class="n">all_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+            <span class="n">all_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
             <span class="n">random_files</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">all_files</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_nr&#39;</span><span class="p">])</span>
 
-            <span class="n">src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">]),</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">)</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]),</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
                 <span class="n">delete_folder</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">random_files</span><span class="p">:</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">],</span> <span class="n">file</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="n">file</span><span class="p">))</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="n">file</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="n">file</span><span class="p">))</span>
 
-            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;input_folder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Changed source folder to </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s1"> for test mode&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test mode enabled, using source folder </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;input_folder&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test mode enabled, using source folder </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">settings</span></div>
 
@@ -4254,9 +4118,65 @@
     <span class="k">return</span> <span class="n">numeric_data</span></div>
 
 
+<div class="viewcode-block" id="remove_low_variance_columns">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.remove_low_variance_columns">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_low_variance_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes columns from the dataframe that have low variance.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    df (pandas.DataFrame): The DataFrame containing the data.</span>
+<span class="sd">    threshold (float): The variance threshold below which columns will be removed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    pandas.DataFrame: The DataFrame with low variance columns removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">numerical_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+    <span class="n">low_variance_cols</span> <span class="o">=</span> <span class="n">numerical_cols</span><span class="o">.</span><span class="n">var</span><span class="p">()[</span><span class="n">numerical_cols</span><span class="o">.</span><span class="n">var</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed columns due to low variance: </span><span class="si">{</span><span class="n">low_variance_cols</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">low_variance_cols</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="remove_highly_correlated_columns">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.remove_highly_correlated_columns">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_highly_correlated_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes columns from the dataframe that are highly correlated with one another.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    df (pandas.DataFrame): The DataFrame containing the data.</span>
+<span class="sd">    threshold (float): The correlation threshold above which columns will be removed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    pandas.DataFrame: The DataFrame with highly correlated columns removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">numerical_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+    <span class="n">corr_matrix</span> <span class="o">=</span> <span class="n">numerical_cols</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    
+    <span class="c1"># Upper triangle of the correlation matrix</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">corr_matrix</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">corr_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
+    
+    <span class="c1"># Find columns with correlation greater than the threshold</span>
+    <span class="n">to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">upper</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)]</span>
+    
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed columns due to high correlation: </span><span class="si">{</span><span class="n">to_drop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">to_drop</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
 <div class="viewcode-block" id="filter_dataframe_features">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.filter_dataframe_features">[docs]</a>
-<span class="k">def</span> <span class="nf">filter_dataframe_features</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">filter_dataframe_features</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_low_variance_features</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_highly_correlated_features</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.</span>
 
@@ -4270,43 +4190,54 @@
 <span class="sd">    - features (list): The list of selected features after filtering.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">channel_of_interest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">feature_string</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">elif</span> <span class="n">channel_of_interest</span> <span class="o">==</span> <span class="s1">&#39;morphology&#39;</span><span class="p">:</span>
-        <span class="n">feature_string</span> <span class="o">=</span> <span class="s1">&#39;morphology&#39;</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">feature_string</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">channel_of_interest</span><span class="p">:</span>
-            <span class="n">feature_string_tmp</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;channel_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">feature_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_string_tmp</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="n">feature_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;channel_</span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">feature_string</span> <span class="o">=</span> <span class="n">channel_of_interest</span>
 
-    <span class="c1"># Remove columns with a single value</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">df</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">count_and_id_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;_id&#39;</span> <span class="ow">in</span> <span class="n">col</span> <span class="ow">or</span> <span class="s1">&#39;count&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;pathogen_pathogen&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">count_and_id_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;pathogen_pathogen&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;cell_cell&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">count_and_id_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;cell_cell&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;nucleus_nucleus&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">count_and_id_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;nucleus_nucleus&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;cytoplasm_cytoplasm&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">count_and_id_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;cytoplasm_cytoplasm&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Columns to remove:&quot;</span><span class="p">,</span> <span class="n">count_and_id_columns</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">count_and_id_columns</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">channel_of_interest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">drop_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;channel_1&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_2&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_3&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_4&#39;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">feature_strings</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;channel_</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channel_of_interest</span><span class="p">]</span>
+            
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">feature_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;channel_</span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">feature_strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature_string</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">channel_of_interest</span> <span class="o">==</span> <span class="s1">&#39;morphology&#39;</span><span class="p">:</span>
+            <span class="n">morphological_features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;area_bbox&#39;</span><span class="p">,</span> <span class="s1">&#39;major_axis_length&#39;</span><span class="p">,</span> <span class="s1">&#39;minor_axis_length&#39;</span><span class="p">,</span> <span class="s1">&#39;eccentricity&#39;</span><span class="p">,</span> <span class="s1">&#39;extent&#39;</span><span class="p">,</span> <span class="s1">&#39;perimeter&#39;</span><span class="p">,</span> <span class="s1">&#39;euler_number&#39;</span><span class="p">,</span> <span class="s1">&#39;solidity&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_0&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_1&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_2&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_3&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_4&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_5&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_6&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_7&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_8&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_9&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_10&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_11&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_12&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_13&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_14&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_15&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_16&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_17&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_18&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_19&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_20&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_21&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_22&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_23&#39;</span><span class="p">,</span> <span class="s1">&#39;zernike_24&#39;</span><span class="p">,</span> <span class="s1">&#39;area_filled&#39;</span><span class="p">,</span> <span class="s1">&#39;convex_area&#39;</span><span class="p">,</span> <span class="s1">&#39;equivalent_diameter_area&#39;</span><span class="p">,</span> <span class="s1">&#39;feret_diameter_max&#39;</span><span class="p">]</span>
+            <span class="n">morphological_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">base</span> <span class="ow">in</span> <span class="n">item</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">morphological_features</span><span class="p">)]</span>
+            <span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">morphological_columns</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">channel_of_interest</span> <span class="o">!=</span> <span class="s1">&#39;morphology&#39;</span><span class="p">:</span>
+            <span class="c1"># Remove entries from drop_columns that are also in feature_strings</span>
+            <span class="n">drop_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">drop_columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature_strings</span><span class="p">]</span>
+
+            <span class="c1"># Remove columns from the DataFrame that contain any entry from drop_columns in the column name</span>
+            <span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">drop_col</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">for</span> <span class="n">drop_col</span> <span class="ow">in</span> <span class="n">drop_columns</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">fs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">feature_strings</span><span class="p">)]</span>
+        
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns_to_drop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed columns: </span><span class="si">{</span><span class="n">columns_to_drop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+  
+    <span class="k">if</span> <span class="n">remove_low_variance_features</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">remove_low_variance_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">remove_highly_correlated_features</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">remove_highly_correlated_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
     <span class="c1"># Select numerical features</span>
     <span class="n">features</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">feature_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">feature_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;channel_0&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_1&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_2&#39;</span><span class="p">,</span> <span class="s1">&#39;channel_3&#39;</span><span class="p">]</span>
-
-        <span class="c1"># Remove feature_string from the list if it exists</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_string</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">feature_string</span> <span class="ow">in</span> <span class="n">feature_list</span><span class="p">:</span>
-                <span class="n">feature_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">feature_string</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_string</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">feature_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_list</span> <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature_string</span><span class="p">]</span>
-        
-        <span class="k">if</span> <span class="n">feature_string</span> <span class="o">!=</span> <span class="s1">&#39;morphology&#39;</span><span class="p">:</span>
-            <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">if</span> <span class="n">feature_string</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">]</span>
-
-        <span class="c1"># Iterate through the list and remove columns from df</span>
-        <span class="k">for</span> <span class="n">feature_</span> <span class="ow">in</span> <span class="n">feature_list</span><span class="p">:</span>
-            <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">if</span> <span class="n">feature_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;After removing </span><span class="si">{</span><span class="n">feature_</span><span class="si">}</span><span class="s1"> features: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">]</span>
@@ -4403,18 +4334,6 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Embedding shape: </span><span class="si">{</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span></div>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
-<span class="kn">from</span> <span class="nn">torchvision.models</span> <span class="kn">import</span> <span class="n">resnet50</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">umap</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">f_oneway</span><span class="p">,</span> <span class="n">kruskal</span>
-<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 
 <div class="viewcode-block" id="load_image">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.load_image">[docs]</a>
@@ -4630,7 +4549,7 @@
     
     <span class="c1"># Relabel the merged cell mask</span>
     <span class="n">relabeled_cell_mask</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">return_num</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">relabeled_cell_mask</span>
+    <span class="k">return</span> <span class="n">relabeled_cell_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
 
 <div class="viewcode-block" id="adjust_cell_masks">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.adjust_cell_masks">[docs]</a>
@@ -4672,7 +4591,7 @@
         <span class="n">merged_cell_mask</span> <span class="o">=</span> <span class="n">_merge_cells_based_on_parasite_overlap</span><span class="p">(</span><span class="n">parasite_mask</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nuclei_mask</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="p">)</span>
         
         <span class="c1"># Force 16 bit</span>
-        <span class="n">mamerged_cell_masksk</span> <span class="o">=</span> <span class="n">merged_cell_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        <span class="c1">#merged_cell_mask = merged_cell_mask.astype(np.uint16)</span>
         
         <span class="c1"># Overwrite the original cell mask file with the merged result</span>
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">cell_path</span><span class="p">,</span> <span class="n">merged_cell_mask</span><span class="p">)</span></div>
@@ -4752,6 +4671,253 @@
             <span class="n">cleaned_mask</span> <span class="o">=</span> <span class="n">remove_objects_not_in_largest_cluster</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">batch_labels</span><span class="p">,</span> <span class="n">largest_cluster_label</span><span class="p">)</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mask_files</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cleaned_mask</span><span class="p">)</span>
             <span class="n">label_index</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_properties</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="merge_regression_res_with_metadata">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.merge_regression_res_with_metadata">[docs]</a>
+<span class="k">def</span> <span class="nf">merge_regression_res_with_metadata</span><span class="p">(</span><span class="n">results_file</span><span class="p">,</span> <span class="n">metadata_file</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_metadata&#39;</span><span class="p">):</span>
+    <span class="c1"># Read the CSV files into dataframes</span>
+    <span class="n">df_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">results_file</span><span class="p">)</span>
+    <span class="n">df_metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">metadata_file</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">extract_and_clean_gene</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+        <span class="c1"># Extract the part between &#39;[&#39; and &#39;]&#39;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[(.*?)\]&#39;</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">gene</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Remove &#39;T.&#39; if present</span>
+            <span class="n">gene</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^T\.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">gene</span><span class="p">)</span>
+            <span class="c1"># Remove everything after and including &#39;_&#39;</span>
+            <span class="n">gene</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">gene</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Apply the function to the feature column</span>
+    <span class="n">df_results</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_results</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">extract_and_clean_gene</span><span class="p">)</span>
+    
+    <span class="n">df_metadata</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_metadata</span><span class="p">[</span><span class="s1">&#39;Gene ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    
+    <span class="c1"># Drop rows where gene extraction failed</span>
+    <span class="n">df_results</span> <span class="o">=</span> <span class="n">df_results</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">])</span>
+    
+    <span class="c1"># Merge the two dataframes on the gene column</span>
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_results</span><span class="p">,</span> <span class="n">df_metadata</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Generate the new file name</span>
+    <span class="n">base</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">results_file</span><span class="p">)</span>
+    <span class="n">new_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}{</span><span class="n">name</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="c1"># Save the merged dataframe to the new file</span>
+    <span class="n">merged_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">new_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">merged_df</span></div>
+
+
+<div class="viewcode-block" id="process_vision_results">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.process_vision_results">[docs]</a>
+<span class="k">def</span> <span class="nf">process_vision_results</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+
+    <span class="c1"># Split the &#39;path&#39; column using _map_wells function</span>
+    <span class="n">mapped_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_map_wells</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapped_values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;object&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;row&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;cv_predictions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;pred&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="get_ml_results_paths">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.get_ml_results_paths">[docs]</a>
+<span class="k">def</span> <span class="nf">get_ml_results_paths</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;xgboost&#39;</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">feature_string</span> <span class="o">=</span> <span class="s2">&quot;channels_&quot;</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">feature_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;channel_</span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">elif</span> <span class="n">channel_of_interest</span> <span class="ow">is</span> <span class="s1">&#39;morphology&#39;</span><span class="p">:</span>
+        <span class="n">feature_string</span> <span class="o">=</span> <span class="s1">&#39;morphology&#39;</span>
+
+    <span class="k">elif</span> <span class="n">channel_of_interest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">feature_string</span> <span class="o">=</span> <span class="s1">&#39;all_features&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported channel_of_interest: </span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s2">. Supported values are &#39;int&#39;, &#39;list&#39;, &#39;None&#39;, or &#39;morphology&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="n">res_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="n">feature_string</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saving results to </span><span class="si">{</span><span class="n">res_fldr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;results.csv&#39;</span><span class="p">)</span>
+    <span class="n">permutation_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;permutation.csv&#39;</span><span class="p">)</span>
+    <span class="n">feature_importance_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;feature_importance.csv&#39;</span><span class="p">)</span>
+    <span class="n">model_metricks_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s1">_model.csv&#39;</span><span class="p">)</span>
+    <span class="n">permutation_fig_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;permutation.pdf&#39;</span><span class="p">)</span>
+    <span class="n">feature_importance_fig_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;feature_importance.pdf&#39;</span><span class="p">)</span>
+    <span class="n">shap_fig_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;shap.pdf&#39;</span><span class="p">)</span>
+    <span class="n">plate_heatmap_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;plate_heatmap.pdf&#39;</span><span class="p">)</span>
+    <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;ml_settings.csv&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">permutation_path</span><span class="p">,</span> <span class="n">feature_importance_path</span><span class="p">,</span> <span class="n">model_metricks_path</span><span class="p">,</span> <span class="n">permutation_fig_path</span><span class="p">,</span> <span class="n">feature_importance_fig_path</span><span class="p">,</span> <span class="n">shap_fig_path</span><span class="p">,</span> <span class="n">plate_heatmap_path</span><span class="p">,</span> <span class="n">settings_csv</span></div>
+
+
+<div class="viewcode-block" id="augment_image">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.augment_image">[docs]</a>
+<span class="k">def</span> <span class="nf">augment_image</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform data augmentation by rotating and reflecting the image.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    - image (PIL Image or numpy array): The input image.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - augmented_images (list): A list of augmented images.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">augmented_images</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Convert PIL image to numpy array if necessary</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">):</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    
+    <span class="c1"># Handle grayscale images</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
+
+    <span class="c1"># Rotations and reflections</span>
+    <span class="n">transformations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Original</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">ROTATE_90_CLOCKWISE</span><span class="p">,</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">ROTATE_180</span><span class="p">,</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">ROTATE_90_COUNTERCLOCKWISE</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rotated</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">transform</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rotated</span> <span class="o">=</span> <span class="n">image</span>
+        <span class="n">augmented_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rotated</span><span class="p">)</span>
+
+        <span class="c1"># Reflections</span>
+        <span class="n">flipped</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">rotated</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">augmented_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flipped</span><span class="p">)</span>
+
+    <span class="c1"># Convert numpy arrays back to PIL images</span>
+    <span class="n">augmented_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">augmented_images</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">augmented_images</span></div>
+
+
+<div class="viewcode-block" id="augment_dataset">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.augment_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">augment_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">is_grayscale</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform data augmentation on the entire dataset by rotating and reflecting the images.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).</span>
+<span class="sd">    - is_grayscale (bool): Flag indicating if the images are grayscale.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - augmented_dataset (list of tuples): A dataset with augmented (image, label, filename) tuples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">augmented_dataset</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="n">augmented_images</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Ensure the image is a tensor</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected torch.Tensor, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Rotations and reflections</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">270</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
+            <span class="n">rotated</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+            <span class="n">augmented_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rotated</span><span class="p">)</span>
+
+            <span class="c1"># Reflections</span>
+            <span class="n">flipped</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">hflip</span><span class="p">(</span><span class="n">rotated</span><span class="p">)</span>
+            <span class="n">augmented_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flipped</span><span class="p">)</span>
+
+        <span class="c1"># Add augmented images to the dataset</span>
+        <span class="k">for</span> <span class="n">aug_img</span> <span class="ow">in</span> <span class="n">augmented_images</span><span class="p">:</span>
+            <span class="n">augmented_dataset</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">aug_img</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">augmented_dataset</span></div>
+
+
+
+<div class="viewcode-block" id="convert_and_relabel_masks">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.convert_and_relabel_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_and_relabel_masks</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - folder_path (str): The path to the folder containing int64 npy mask files.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)]</span>
+    
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+        <span class="c1"># Load the mask</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="c1">#print(mask.shape)</span>
+        <span class="c1">#print(mask.dtype)</span>
+        <span class="c1"># Check the current dtype</span>
+        <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> as it is not int64.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Relabel the mask to ensure unique labels within uint16 range</span>
+        <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unique_labels</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">65535</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: The mask in </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> contains values that exceed the uint16 range and will be relabeled.&quot;</span><span class="p">)</span>
+
+        <span class="n">relabeled_mask</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># Check that relabeling worked correctly</span>
+        <span class="n">unique_relabeled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">relabeled_mask</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unique_relabeled</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">65535</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Relabeling failed for </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> as it still contains values that exceed the uint16 range.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Convert to uint16</span>
+        <span class="n">relabeled_mask</span> <span class="o">=</span> <span class="n">relabeled_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        
+        <span class="c1"># Save the converted mask</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">relabeled_mask</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> and saved as uint16_</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="correct_masks">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.correct_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">correct_masks</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_load_and_concatenate_arrays</span>
+
+    <span class="n">cell_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;norm_channel_stack&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_mask_stack&#39;</span><span class="p">)</span>
+    <span class="n">convert_and_relabel_masks</span><span class="p">(</span><span class="n">cell_path</span><span class="p">)</span>
+    <span class="n">_load_and_concatenate_arrays</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="count_reads_in_fastq">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.count_reads_in_fastq">[docs]</a>
+<span class="k">def</span> <span class="nf">count_reads_in_fastq</span><span class="p">(</span><span class="n">fastq_file</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fastq_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">count</span> <span class="o">//</span> <span class="mi">4</span></div>
 
 </pre></div>
 
