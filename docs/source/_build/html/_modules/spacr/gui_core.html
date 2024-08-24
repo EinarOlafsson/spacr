@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.gui_core &mdash; spacr 0.2.56 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            spacr
+          </a>
+              <div class="version">
+                0.2.56
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">spacr</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.gui_core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.gui_core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">traceback</span><span class="o">,</span> <span class="nn">ctypes</span><span class="o">,</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">set_start_method</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span><span class="p">,</span> <span class="n">scrolledtext</span>
+<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_tkagg</span> <span class="kn">import</span> <span class="n">FigureCanvasTkAgg</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">GPUtil</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">shcore</span><span class="o">.</span><span class="n">SetProcessDpiAwareness</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_train_test_model</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span>
+<span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">spacrProgressBar</span><span class="p">,</span> <span class="n">spacrButton</span><span class="p">,</span> <span class="n">spacrLabel</span><span class="p">,</span> <span class="n">spacrFrame</span><span class="p">,</span> <span class="n">spacrDropdownMenu</span> <span class="p">,</span><span class="n">set_dark_style</span>
+
+<span class="c1"># Define global variables</span>
+<span class="n">q</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">console_output</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">parent_frame</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">vars_dict</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">canvas_widget</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">scrollable_frame</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">progress_label</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">fig_queue</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">thread_control</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;run_thread&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;stop_requested&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+<div class="viewcode-block" id="toggle_settings">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.toggle_settings">[docs]</a>
+<span class="k">def</span> <span class="nf">toggle_settings</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">vars_dict</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">categories</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">hide_all_settings</span>
+    <span class="k">if</span> <span class="n">vars_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vars_dict is not initialized.&quot;</span><span class="p">)</span>
+
+    <span class="n">active_categories</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">toggle_category</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">vars_dict</span><span class="p">:</span>
+                <span class="n">label</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">vars_dict</span><span class="p">[</span><span class="n">setting</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">widget</span><span class="o">.</span><span class="n">grid_info</span><span class="p">():</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">grid_remove</span><span class="p">()</span>
+                    <span class="n">widget</span><span class="o">.</span><span class="n">grid_remove</span><span class="p">()</span>
+                    <span class="n">frame</span><span class="o">.</span><span class="n">grid_remove</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+                    <span class="n">widget</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+                    <span class="n">frame</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">on_category_select</span><span class="p">(</span><span class="n">selected_category</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">selected_category</span> <span class="o">==</span> <span class="s2">&quot;Select Category&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">selected_category</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+            <span class="n">toggle_category</span><span class="p">(</span><span class="n">categories</span><span class="p">[</span><span class="n">selected_category</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">selected_category</span> <span class="ow">in</span> <span class="n">active_categories</span><span class="p">:</span>
+                <span class="n">active_categories</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">selected_category</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">active_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">selected_category</span><span class="p">)</span>
+        <span class="n">category_dropdown</span><span class="o">.</span><span class="n">update_styles</span><span class="p">(</span><span class="n">active_categories</span><span class="p">)</span>
+        <span class="n">category_var</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Select Category&quot;</span><span class="p">)</span>
+
+    <span class="n">category_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">non_empty_categories</span> <span class="o">=</span> <span class="p">[</span><span class="n">category</span> <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">settings</span> <span class="ow">in</span> <span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">setting</span> <span class="ow">in</span> <span class="n">vars_dict</span> <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">)]</span>
+    <span class="n">category_dropdown</span> <span class="o">=</span> <span class="n">spacrDropdownMenu</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">category_var</span><span class="p">,</span> <span class="n">non_empty_categories</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">on_category_select</span><span class="p">)</span>
+    <span class="n">category_dropdown</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">hide_all_settings</span><span class="p">(</span><span class="n">vars_dict</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="process_fig_queue">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.process_fig_queue">[docs]</a>
+<span class="k">def</span> <span class="nf">process_fig_queue</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">parent_frame</span>
+
+    <span class="k">def</span> <span class="nf">clear_canvas</span><span class="p">(</span><span class="n">canvas</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">clear_canvas</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>  <span class="c1"># Remove x-axis ticks</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>  <span class="c1"># Remove y-axis ticks</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Hide the x-axis</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Hide the y-axis</span>
+
+            <span class="c1"># Adjust layout to minimize spacing between axes</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+            <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">fig</span>
+            <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span> <span class="o">=</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">(),</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">winfo_height</span><span class="p">()</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">fig_width</span> <span class="o">/</span> <span class="n">fig</span><span class="o">.</span><span class="n">dpi</span><span class="p">,</span> <span class="n">fig_height</span> <span class="o">/</span> <span class="n">fig</span><span class="o">.</span><span class="n">dpi</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">after_id</span> <span class="o">=</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">process_fig_queue</span><span class="p">)</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">after_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">after_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_globals">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.set_globals">[docs]</a>
+<span class="k">def</span> <span class="nf">set_globals</span><span class="p">(</span><span class="n">thread_control_var</span><span class="p">,</span> <span class="n">q_var</span><span class="p">,</span> <span class="n">console_output_var</span><span class="p">,</span> <span class="n">parent_frame_var</span><span class="p">,</span> <span class="n">vars_dict_var</span><span class="p">,</span> <span class="n">canvas_var</span><span class="p">,</span> <span class="n">canvas_widget_var</span><span class="p">,</span> <span class="n">scrollable_frame_var</span><span class="p">,</span> <span class="n">fig_queue_var</span><span class="p">,</span> <span class="n">progress_bar_var</span><span class="p">,</span> <span class="n">usage_bars_var</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span>
+    <span class="n">thread_control</span> <span class="o">=</span> <span class="n">thread_control_var</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">q_var</span>
+    <span class="n">console_output</span> <span class="o">=</span> <span class="n">console_output_var</span>
+    <span class="n">parent_frame</span> <span class="o">=</span> <span class="n">parent_frame_var</span>
+    <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">vars_dict_var</span>
+    <span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas_var</span>
+    <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">canvas_widget_var</span>
+    <span class="n">scrollable_frame</span> <span class="o">=</span> <span class="n">scrollable_frame_var</span>
+    <span class="n">fig_queue</span> <span class="o">=</span> <span class="n">fig_queue_var</span>
+    <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">progress_bar_var</span>
+    <span class="n">usage_bars</span> <span class="o">=</span> <span class="n">usage_bars_var</span></div>
+
+
+<div class="viewcode-block" id="import_settings">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.import_settings">[docs]</a>
+<span class="k">def</span> <span class="nf">import_settings</span><span class="p">(</span><span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">,</span> <span class="n">hide_all_settings</span>
+    <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_scrollable_frame</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">set_default_train_test_model</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span>
+
+    <span class="k">def</span> <span class="nf">read_settings_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">):</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">]</span>
+                <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">settings</span>
+
+    <span class="k">def</span> <span class="nf">update_settings_from_csv</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">csv_settings</span><span class="p">):</span>
+        <span class="n">new_settings</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Start with a copy of the original settings</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">csv_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new_settings</span><span class="p">:</span>
+                <span class="c1"># Get the variable type and options from the original settings</span>
+                <span class="n">var_type</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">new_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="c1"># Update the default value with the CSV value, keeping the type and options unchanged</span>
+                <span class="n">new_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">var_type</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_settings</span>
+
+    <span class="n">csv_file_path</span> <span class="o">=</span> <span class="n">filedialog</span><span class="o">.</span><span class="n">askopenfilename</span><span class="p">(</span><span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;CSV files&quot;</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">)])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">csv_file_path</span><span class="p">:</span>  <span class="c1"># If no file is selected, return early</span>
+        <span class="k">return</span>
+    
+    <span class="c1">#vars_dict = hide_all_settings(vars_dict, categories=None)</span>
+    <span class="n">csv_settings</span> <span class="o">=</span> <span class="n">read_settings_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;mask&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;measure&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;classify&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_train_test_model</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;umap&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid settings type: </span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+    <span class="n">new_settings</span> <span class="o">=</span> <span class="n">update_settings_from_csv</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">csv_settings</span><span class="p">)</span>
+    <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">generate_fields</span><span class="p">(</span><span class="n">new_settings</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">)</span>
+    <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">hide_all_settings</span><span class="p">(</span><span class="n">vars_dict</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setup_settings_panel">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_settings_panel">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_settings_panel</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">,</span> <span class="n">set_default_analyze_screen</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">deep_spacr_defaults</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span><span class="p">,</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">get_perform_regression_default_settings</span><span class="p">,</span> <span class="n">get_train_cellpose_default_settings</span><span class="p">,</span> <span class="n">get_map_barcodes_default_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">,</span> <span class="n">get_check_cellpose_models_default_settings</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_element_size</span>
+
+    <span class="n">size_dict</span> <span class="o">=</span> <span class="n">set_element_size</span><span class="p">()</span>
+    <span class="n">settings_width</span> <span class="o">=</span> <span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;settings_width&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Create a PanedWindow for the settings panel</span>
+    <span class="n">settings_paned_window</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;settings_width&#39;</span><span class="p">])</span>
+    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">settings_paned_window</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+
+    <span class="n">settings_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">settings_paned_window</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">settings_width</span><span class="p">)</span>
+    <span class="n">settings_frame</span><span class="o">.</span><span class="n">pack_propagate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Prevent the frame from resizing based on its children</span>
+
+    <span class="n">settings_paned_window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">settings_frame</span><span class="p">)</span>
+
+    <span class="n">scrollable_frame</span> <span class="o">=</span> <span class="n">spacrFrame</span><span class="p">(</span><span class="n">settings_frame</span><span class="p">)</span>
+    <span class="n">scrollable_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+    <span class="n">settings_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">settings_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;mask&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;measure&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;classify&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">deep_spacr_defaults</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;umap&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;train_cellpose&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_train_cellpose_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;ml_analyze&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_analyze_screen</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;cellpose_masks&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;cellpose_all&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_check_cellpose_models_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;map_barcodes&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;regression&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_perform_regression_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid settings type: </span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+    <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">generate_fields</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">)</span>
+    
+    <span class="n">containers</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings_frame</span><span class="p">]</span>
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">scrollable_frame</span><span class="p">]</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="n">containers</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Settings panel setup complete&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">vars_dict</span></div>
+
+
+<div class="viewcode-block" id="setup_plot_section">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_plot_section">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span>
+
+    <span class="c1"># Create a frame for the plot section</span>
+    <span class="n">plot_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s1">&#39;lightgrey&#39;</span><span class="p">)</span>
+    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plot_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set up the plot</span>
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[])</span>  <span class="c1"># This creates an empty plot.</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+    <span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvasTkAgg</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="n">plot_frame</span><span class="p">)</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span>
+    <span class="n">canvas_widget</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>  <span class="c1"># Use grid for the canvas widget</span>
+
+    <span class="n">plot_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plot_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">figure</span>
+    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
+
+    <span class="n">figure</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+    <span class="n">containers</span> <span class="o">=</span> <span class="p">[</span><span class="n">plot_frame</span><span class="p">]</span>
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">canvas_widget</span><span class="p">]</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="n">containers</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span></div>
+
+
+<div class="viewcode-block" id="setup_console">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_console">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_console</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">console_output</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span>
+
+    <span class="c1"># Apply dark style and get style output</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+
+    <span class="c1"># Create a frame for the console section</span>
+    <span class="n">console_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">console_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create a thicker frame at the top for the hover effect</span>
+    <span class="n">top_border</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">console_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+    <span class="n">top_border</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Create the scrollable frame (which is a Text widget) with white text</span>
+    <span class="n">family</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_family&#39;</span><span class="p">]</span>
+    <span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span>
+    <span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
+    <span class="n">console_output</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">console_frame</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">fg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">),</span> <span class="n">bd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="n">console_output</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>  <span class="c1"># Use grid for console_output</span>
+
+    <span class="c1"># Configure the grid to allow expansion</span>
+    <span class="n">console_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">console_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_enter</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+        <span class="n">top_border</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;active_color&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">on_leave</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+        <span class="n">top_border</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+
+    <span class="n">console_output</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Enter&gt;&quot;</span><span class="p">,</span> <span class="n">on_enter</span><span class="p">)</span>
+    <span class="n">console_output</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Leave&gt;&quot;</span><span class="p">,</span> <span class="n">on_leave</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">console_frame</span></div>
+
+
+<div class="viewcode-block" id="setup_progress_frame">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_progress_frame">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_progress_frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">progress_output</span>
+    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
+    <span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
+    <span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span>
+    <span class="n">progress_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">progress_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+    <span class="n">label_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">progress_frame</span><span class="p">)</span>
+    <span class="n">label_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">progress_label</span> <span class="o">=</span> <span class="n">spacrLabel</span><span class="p">(</span><span class="n">label_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Processing: 0%&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">),</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">progress_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">progress_output</span> <span class="o">=</span> <span class="n">scrolledtext</span><span class="o">.</span><span class="n">ScrolledText</span><span class="p">(</span><span class="n">progress_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">progress_output</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+    <span class="n">progress_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">progress_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">containers</span> <span class="o">=</span> <span class="p">[</span><span class="n">progress_frame</span><span class="p">,</span> <span class="n">label_frame</span><span class="p">]</span>
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">progress_label</span><span class="p">,</span> <span class="n">progress_output</span><span class="p">]</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="n">containers</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">progress_output</span></div>
+
+
+<div class="viewcode-block" id="setup_button_section">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_button_section">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_button_section</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">import_btn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">button_frame</span><span class="p">,</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">run_button</span><span class="p">,</span> <span class="n">abort_button</span><span class="p">,</span> <span class="n">download_dataset_button</span><span class="p">,</span> <span class="n">import_button</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">progress_bar</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">download_hug_dataset</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_element_size</span>
+
+    <span class="n">size_dict</span> <span class="o">=</span> <span class="n">set_element_size</span><span class="p">()</span>
+    <span class="n">button_section_height</span> <span class="o">=</span> <span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;panel_height&#39;</span><span class="p">]</span>
+    <span class="n">button_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">button_section_height</span><span class="p">)</span>
+    
+    <span class="c1"># Prevent the frame from resizing based on the child widget</span>
+    <span class="c1">#button_frame.pack_propagate(False)</span>
+
+    <span class="n">horizontal_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+    <span class="n">button_scrollable_frame</span> <span class="o">=</span> <span class="n">spacrFrame</span><span class="p">(</span><span class="n">button_frame</span><span class="p">,</span> <span class="n">scrollbar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">]</span>
+
+    <span class="n">btn_col</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">btn_row</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">run</span><span class="p">:</span>
+        <span class="n">run_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">start_process</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">),</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;btn_size&#39;</span><span class="p">],</span> <span class="n">animation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">run_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">btn_row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">btn_col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_button</span><span class="p">)</span>
+        <span class="n">btn_col</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">abort</span> <span class="ow">and</span> <span class="n">settings_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;measure&#39;</span><span class="p">,</span> <span class="s1">&#39;classify&#39;</span><span class="p">,</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">,</span> <span class="s1">&#39;umap&#39;</span><span class="p">,</span> <span class="s1">&#39;map_barcodes&#39;</span><span class="p">]:</span>
+        <span class="n">abort_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;abort&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">initiate_abort</span><span class="p">(),</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;btn_size&#39;</span><span class="p">],</span> <span class="n">animation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">abort_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">btn_row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">btn_col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">abort_button</span><span class="p">)</span>
+        <span class="n">btn_col</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">download</span> <span class="ow">and</span> <span class="n">settings_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]:</span>
+        <span class="n">download_dataset_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;download&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">download_hug_dataset</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">),</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;btn_size&#39;</span><span class="p">],</span> <span class="n">animation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">download_dataset_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">btn_row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">btn_col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">download_dataset_button</span><span class="p">)</span>
+        <span class="n">btn_col</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">import_btn</span><span class="p">:</span>
+        <span class="n">import_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">import_settings</span><span class="p">(</span><span class="n">settings_type</span><span class="p">),</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;btn_size&#39;</span><span class="p">],</span> <span class="n">animation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">import_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">btn_row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">btn_col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">import_button</span><span class="p">)</span>
+        <span class="n">btn_row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Add the progress bar under the settings category menu</span>
+    <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">)</span>
+    <span class="n">progress_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">btn_row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+    <span class="n">progress_bar</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">()</span>  <span class="c1"># Set the label position after grid placement</span>
+    <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">progress_bar</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">vars_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">toggle_settings</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="p">)</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">button_frame</span><span class="p">],</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">btn_col</span></div>
+
+
+<div class="viewcode-block" id="setup_usage_panel">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_usage_panel">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_usage_panel</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">btn_col</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">usage_bars</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span><span class="p">,</span> <span class="n">set_element_size</span>
+
+    <span class="n">usg_col</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">update_usage</span><span class="p">(</span><span class="n">ram_bar</span><span class="p">,</span> <span class="n">vram_bar</span><span class="p">,</span> <span class="n">gpu_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">):</span>
+        <span class="c1"># Update RAM usage</span>
+        <span class="n">ram_usage</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">percent</span>
+        <span class="n">ram_bar</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ram_usage</span>
+
+        <span class="c1"># Update GPU and VRAM usage</span>
+        <span class="n">gpus</span> <span class="o">=</span> <span class="n">GPUtil</span><span class="o">.</span><span class="n">getGPUs</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">gpus</span><span class="p">:</span>
+            <span class="n">gpu</span> <span class="o">=</span> <span class="n">gpus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">vram_usage</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">memoryUtil</span> <span class="o">*</span> <span class="mi">100</span>
+            <span class="n">gpu_usage</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">load</span> <span class="o">*</span> <span class="mi">100</span>
+            <span class="n">vram_bar</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vram_usage</span>
+            <span class="n">gpu_bar</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu_usage</span>
+
+        <span class="c1"># Update CPU usage for each core</span>
+        <span class="n">cpu_percentages</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">(</span><span class="n">percpu</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">usage</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">usage_bars</span><span class="p">[</span><span class="mi">3</span><span class="p">:],</span> <span class="n">cpu_percentages</span><span class="p">):</span>
+            <span class="n">bar</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usage</span>
+
+        <span class="c1"># Schedule the function to run again after 1000 ms (1 second)</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">update_usage</span><span class="p">,</span> <span class="n">ram_bar</span><span class="p">,</span> <span class="n">vram_bar</span><span class="p">,</span> <span class="n">gpu_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">)</span>
+
+    <span class="n">size_dict</span> <span class="o">=</span> <span class="n">set_element_size</span><span class="p">()</span>
+    <span class="n">usage_panel_height</span> <span class="o">=</span> <span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;panel_height&#39;</span><span class="p">]</span>
+    <span class="n">usage_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">usage_panel_height</span><span class="p">)</span>
+    <span class="n">horizontal_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">usage_frame</span><span class="p">)</span>
+
+    <span class="n">usage_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">usage_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">usage_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">usage_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">usage_scrollable_frame</span> <span class="o">=</span> <span class="n">spacrFrame</span><span class="p">(</span><span class="n">usage_frame</span><span class="p">,</span> <span class="n">scrollbar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">]</span>
+    
+    <span class="n">usage_bars</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">max_elements_per_column</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Initialize RAM, VRAM, and GPU bars as None</span>
+    <span class="n">ram_bar</span><span class="p">,</span> <span class="n">vram_bar</span><span class="p">,</span> <span class="n">gpu_bar</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    
+    <span class="c1"># Configure the style for the label</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+    <span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
+    <span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span>
+    <span class="n">style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;usage.TLabel&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">),</span> <span class="n">foreground</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Try adding RAM bar</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ram_info</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span>
+        <span class="n">ram_label_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;RAM&quot;</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">ram_label_text</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;usage.TLabel&quot;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">ram_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ram_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ram_bar</span><span class="p">)</span>
+        <span class="n">usage_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ram_bar</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not add RAM usage bar: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Try adding VRAM and GPU usage bars</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gpus</span> <span class="o">=</span> <span class="n">GPUtil</span><span class="o">.</span><span class="n">getGPUs</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">gpus</span><span class="p">:</span>
+            <span class="n">gpu</span> <span class="o">=</span> <span class="n">gpus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">vram_label_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;VRAM&quot;</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">vram_label_text</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;usage.TLabel&quot;</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">vram_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">vram_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+            <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vram_bar</span><span class="p">)</span>
+            <span class="n">usage_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vram_bar</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">gpu_label_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;GPU&quot;</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">gpu_label_text</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;usage.TLabel&quot;</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">gpu_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">gpu_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+            <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gpu_bar</span><span class="p">)</span>
+            <span class="n">usage_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gpu_bar</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not add VRAM or GPU usage bars: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add CPU core usage bars</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cpu_cores</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(</span><span class="n">logical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cpu_freq</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_freq</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cpu_cores</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">row</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">row</span> <span class="o">%</span> <span class="n">max_elements_per_column</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">col</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Core </span><span class="si">{</span><span class="n">core</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;usage.TLabel&quot;</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+            <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+            <span class="n">usage_bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not add CPU core usage bars: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">usage_frame</span><span class="p">],</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ram_bar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ram_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vram_bar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vram_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gpu_bar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gpu_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;bar_size&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="n">update_usage</span><span class="p">(</span><span class="n">ram_bar</span><span class="p">,</span> <span class="n">vram_bar</span><span class="p">,</span> <span class="n">gpu_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">usage_frame</span><span class="p">)</span>    
+    <span class="k">return</span> <span class="n">usage_scrollable_frame</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">usg_col</span></div>
+
+
+<div class="viewcode-block" id="initiate_abort">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.initiate_abort">[docs]</a>
+<span class="k">def</span> <span class="nf">initiate_abort</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">parent_frame</span>
+    <span class="k">if</span> <span class="n">thread_control</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_thread&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;Aborting processes...&quot;</span><span class="p">)</span>
+            <span class="n">thread_control</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_thread&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">thread_control</span><span class="p">[</span><span class="s2">&quot;run_thread&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;Processes aborted.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error aborting process: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">thread_control</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;run_thread&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;stop_requested&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="start_process">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.start_process">[docs]</a>
+<span class="k">def</span> <span class="nf">start_process</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">parent_frame</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">check_settings</span><span class="p">,</span> <span class="n">expected_types</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">run_function_gui</span>
+
+    <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fig_queue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">check_settings</span><span class="p">(</span><span class="n">vars_dict</span><span class="p">,</span> <span class="n">expected_types</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">thread_control</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_thread&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">initiate_abort</span><span class="p">()</span>
+    
+    <span class="n">stop_requested</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">thread_control</span><span class="p">[</span><span class="s2">&quot;stop_requested&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop_requested</span>
+
+    <span class="n">process_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">stop_requested</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">settings_type</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;umap&#39;</span><span class="p">,</span> <span class="s1">&#39;measure&#39;</span><span class="p">,</span> <span class="s1">&#39;simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">,</span> <span class="s1">&#39;classify&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_dataset&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;train_cellpose&#39;</span><span class="p">,</span> <span class="s1">&#39;ml_analyze&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_masks&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_all&#39;</span><span class="p">,</span> <span class="s1">&#39;map_barcodes&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;regression&#39;</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">,</span> <span class="s1">&#39;plaques&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;vision_scores&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;vision_dataset&#39;</span>
+    <span class="p">]:</span>
+        <span class="n">thread_control</span><span class="p">[</span><span class="s2">&quot;run_thread&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">run_function_gui</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">process_args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Unknown settings type &#39;</span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">thread_control</span><span class="p">[</span><span class="s2">&quot;run_thread&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="process_console_queue">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.process_console_queue">[docs]</a>
+<span class="k">def</span> <span class="nf">process_console_queue</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">progress_bar</span>
+
+    <span class="c1"># Initialize function attribute if it doesn&#39;t exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process_console_queue</span><span class="p">,</span> <span class="s2">&quot;completed_tasks&quot;</span><span class="p">):</span>
+        <span class="n">process_console_queue</span><span class="o">.</span><span class="n">completed_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process_console_queue</span><span class="p">,</span> <span class="s2">&quot;current_maximum&quot;</span><span class="p">):</span>
+        <span class="n">process_console_queue</span><span class="o">.</span><span class="n">current_maximum</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">ansi_escape_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\x1B\[[0-?]*[ -/]*[@-~]&#39;</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+        <span class="n">clean_message</span> <span class="o">=</span> <span class="n">ansi_escape_pattern</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="n">console_output</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">END</span><span class="p">,</span> <span class="n">clean_message</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">console_output</span><span class="o">.</span><span class="n">see</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">END</span><span class="p">)</span>
+        
+        <span class="c1"># Check if the message contains progress information</span>
+        <span class="k">if</span> <span class="n">clean_message</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Progress:&quot;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Extract the progress information</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Progress: (\d+)/(\d+), operation_type: ([\w\s]*)(.*)&#39;</span><span class="p">,</span> <span class="n">clean_message</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">current_progress</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="n">total_progress</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                    <span class="n">operation_type</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">time_info</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+                    <span class="c1"># Check if the maximum value has changed</span>
+                    <span class="k">if</span> <span class="n">process_console_queue</span><span class="o">.</span><span class="n">current_maximum</span> <span class="o">!=</span> <span class="n">total_progress</span><span class="p">:</span>
+                        <span class="n">process_console_queue</span><span class="o">.</span><span class="n">current_maximum</span> <span class="o">=</span> <span class="n">total_progress</span>
+                        <span class="n">process_console_queue</span><span class="o">.</span><span class="n">completed_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="c1"># Add the task to the completed set</span>
+                    <span class="n">process_console_queue</span><span class="o">.</span><span class="n">completed_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_progress</span><span class="p">)</span>
+                    
+                    <span class="c1"># Calculate the unique progress count</span>
+                    <span class="n">unique_progress_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">process_console_queue</span><span class="o">.</span><span class="n">completed_tasks</span><span class="p">))</span>
+                    
+                    <span class="c1"># Update the progress bar</span>
+                    <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="p">[</span><span class="s1">&#39;maximum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_progress</span>
+                        <span class="n">progress_bar</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_progress_count</span>
+
+                    <span class="c1"># Extract and update additional information</span>
+                    <span class="k">if</span> <span class="n">operation_type</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span>
+
+                    <span class="n">time_image_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time/image: ([\d.]+) sec&#39;</span><span class="p">,</span> <span class="n">time_info</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">time_image_match</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">time_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time_image_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+                    <span class="n">time_batch_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time/batch: ([\d.]+) sec&#39;</span><span class="p">,</span> <span class="n">time_info</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">time_batch_match</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">time_batch</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time_batch_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+                    <span class="n">time_left_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time_left: ([\d.]+) min&#39;</span><span class="p">,</span> <span class="n">time_info</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">time_left_match</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">time_left</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time_left_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+                    <span class="c1"># Update the progress label</span>
+                    <span class="k">if</span> <span class="n">progress_bar</span><span class="o">.</span><span class="n">progress_label</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">update_label</span><span class="p">()</span>
+                        
+                    <span class="c1"># Clear completed tasks when progress is complete</span>
+                    <span class="k">if</span> <span class="n">unique_progress_count</span> <span class="o">&gt;=</span> <span class="n">total_progress</span><span class="p">:</span>
+                        <span class="n">process_console_queue</span><span class="o">.</span><span class="n">completed_tasks</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error parsing progress message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1">#else:</span>
+        <span class="c1">#    # Only insert messages that do not start with &quot;Progress:&quot;</span>
+        <span class="c1">#    console_output.insert(tk.END, clean_message + &quot;\n&quot;)</span>
+        <span class="c1">#    console_output.see(tk.END)</span>
+        
+    <span class="n">after_id</span> <span class="o">=</span> <span class="n">console_output</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">process_console_queue</span><span class="p">)</span>
+    <span class="n">parent_frame</span><span class="o">.</span><span class="n">after_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">after_id</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="initiate_root">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.initiate_root">[docs]</a>
+<span class="k">def</span> <span class="nf">initiate_root</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">progress_bar</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">main_thread_update_function</span><span class="p">,</span> <span class="n">setup_frame</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">descriptions</span>
+
+    <span class="n">set_start_method</span><span class="p">(</span><span class="s1">&#39;spawn&#39;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing root with settings_type:&quot;</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">)</span>
+
+    <span class="n">parent_frame</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">,</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">)):</span>
+        <span class="n">parent_window</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_toplevel</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parent_window</span> <span class="o">=</span> <span class="n">parent_frame</span>
+
+    <span class="n">parent_window</span><span class="o">.</span><span class="n">update_idletasks</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent_window</span><span class="p">,</span> <span class="s1">&#39;after_tasks&#39;</span><span class="p">):</span>
+        <span class="n">parent_window</span><span class="o">.</span><span class="n">after_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+    <span class="n">fig_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+    <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vertical_container</span><span class="p">,</span> <span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_container</span> <span class="o">=</span> <span class="n">setup_frame</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;annotate&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.app_annotate</span> <span class="kn">import</span> <span class="n">initiate_annotation_app</span>
+        <span class="n">initiate_annotation_app</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;make_masks&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.app_make_masks</span> <span class="kn">import</span> <span class="n">initiate_make_mask_app</span>
+        <span class="n">initiate_make_mask_app</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">setup_settings_panel</span><span class="p">(</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;setup_settings_panel&#39;</span><span class="p">)</span>
+        <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+        <span class="n">console_output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">setup_console</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+        <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">setup_button_section</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">setup_usage_panel</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">btn_col</span><span class="p">)</span>
+
+        <span class="n">set_globals</span><span class="p">(</span><span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">)</span>
+        <span class="n">description_text</span> <span class="o">=</span> <span class="n">descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="s2">&quot;No description available for this module.&quot;</span><span class="p">)</span>
+        
+        <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Console&quot;</span><span class="p">)</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">description_text</span><span class="p">)</span>
+        
+        <span class="n">process_console_queue</span><span class="p">()</span>
+        <span class="n">process_fig_queue</span><span class="p">()</span>
+        <span class="n">after_id</span> <span class="o">=</span> <span class="n">parent_window</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">main_thread_update_function</span><span class="p">(</span><span class="n">parent_window</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">))</span>
+        <span class="n">parent_window</span><span class="o">.</span><span class="n">after_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">after_id</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Root initialization complete&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
