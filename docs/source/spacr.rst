@@ -4,10 +4,58 @@ spacr package
 Submodules
 ----------
 
-spacr.annotate\_app module
+spacr.app\_annotate module
 --------------------------
 
-.. automodule:: spacr.annotate_app
+.. automodule:: spacr.app_annotate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.app\_classify module
+--------------------------
+
+.. automodule:: spacr.app_classify
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.app\_make\_masks module
+-----------------------------
+
+.. automodule:: spacr.app_make_masks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.app\_mask module
+----------------------
+
+.. automodule:: spacr.app_mask
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.app\_measure module
+-------------------------
+
+.. automodule:: spacr.app_measure
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.app\_sequencing module
+----------------------------
+
+.. automodule:: spacr.app_sequencing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.app\_umap module
+----------------------
+
+.. automodule:: spacr.app_umap
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,42 +100,18 @@ spacr.gui module
    :undoc-members:
    :show-inheritance:
 
-spacr.gui\_2 module
--------------------
+spacr.gui\_core module
+----------------------
 
-.. automodule:: spacr.gui_2
+.. automodule:: spacr.gui_core
    :members:
    :undoc-members:
    :show-inheritance:
 
-spacr.gui\_classify\_app module
--------------------------------
-
-.. automodule:: spacr.gui_classify_app
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.gui\_mask\_app module
----------------------------
-
-.. automodule:: spacr.gui_mask_app
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.gui\_measure\_app module
-------------------------------
-
-.. automodule:: spacr.gui_measure_app
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.gui\_sim\_app module
+spacr.gui\_elements module
 --------------------------
 
-.. automodule:: spacr.gui_sim_app
+.. automodule:: spacr.gui_elements
    :members:
    :undoc-members:
    :show-inheritance:
@@ -116,14 +140,6 @@ spacr.logger module
    :undoc-members:
    :show-inheritance:
 
-spacr.mask\_app module
-----------------------
-
-.. automodule:: spacr.mask_app
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 spacr.measure module
 --------------------
 
@@ -148,10 +164,26 @@ spacr.sequencing module
    :undoc-members:
    :show-inheritance:
 
+spacr.settings module
+---------------------
+
+.. automodule:: spacr.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 spacr.sim module
 ----------------
 
 .. automodule:: spacr.sim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.sim\_app module
+---------------------
+
+.. automodule:: spacr.sim_app
    :members:
    :undoc-members:
    :show-inheritance:

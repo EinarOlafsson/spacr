@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.plot &mdash; spacr 0.0.80 documentation</title>
+  <title>spacr.plot &mdash; spacr 0.2.56 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5c6fbccc"></script>
+        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.80
+                0.2.56
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -94,6 +94,115 @@
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">ipyimage</span>
 
 <span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">log_function_call</span>
+
+<div class="viewcode-block" id="plot_image_mask_overlay">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_image_mask_overlay">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_image_mask_overlay</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">cell_channel</span><span class="p">,</span> <span class="n">nucleus_channel</span><span class="p">,</span> <span class="n">pathogen_channel</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot image and mask overlays.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_plot_merged_plot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">outlines</span><span class="p">,</span> <span class="n">outline_colors</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">,</span> <span class="n">thickness</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the merged plot with overlay, image channels, and masks.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_normalize_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">98</span><span class="p">)):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Normalize the image to the given percentiles.&quot;&quot;&quot;</span>
+            <span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">)</span>
+            <span class="n">image_normalized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">image</span> <span class="o">-</span> <span class="n">v_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">v_max</span> <span class="o">-</span> <span class="n">v_min</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">image_normalized</span>
+
+        <span class="k">def</span> <span class="nf">_generate_contours</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Generate contours for the given mask using OpenCV.&quot;&quot;&quot;</span>
+            <span class="n">contours</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">contours</span>
+
+        <span class="k">def</span> <span class="nf">_apply_contours</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Apply the contours to the RGB image for each unique label.&quot;&quot;&quot;</span>
+            <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">unique_labels</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c1"># Skip background</span>
+                <span class="n">label_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span> <span class="o">==</span> <span class="n">label</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+                <span class="n">contours</span> <span class="o">=</span> <span class="n">_generate_contours</span><span class="p">(</span><span class="n">label_mask</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">contour</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">contour</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">(</span><span class="n">color</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">image</span>
+
+        <span class="n">num_channels</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_channels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">figuresize</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">))</span>
+
+        <span class="c1"># Plot each channel with its corresponding outlines</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_channels</span><span class="p">):</span>
+            <span class="n">channel_image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span>
+            <span class="n">channel_image_normalized</span> <span class="o">=</span> <span class="n">_normalize_image</span><span class="p">(</span><span class="n">channel_image</span><span class="p">)</span>
+            <span class="n">channel_image_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">channel_image_normalized</span><span class="p">,</span> <span class="n">channel_image_normalized</span><span class="p">,</span> <span class="n">channel_image_normalized</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">outline</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outlines</span><span class="p">,</span> <span class="n">outline_colors</span><span class="p">):</span>
+                <span class="n">channel_image_rgb</span> <span class="o">=</span> <span class="n">_apply_contours</span><span class="p">(</span><span class="n">channel_image_rgb</span><span class="p">,</span> <span class="n">outline</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">channel_image_rgb</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Image - Channel </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Plot the combined RGB image with all outlines</span>
+        <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="o">*</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">rgb_channels</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rgb_channels</span><span class="p">):</span>
+            <span class="n">channel_image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">channel_image_normalized</span> <span class="o">=</span> <span class="n">_normalize_image</span><span class="p">(</span><span class="n">channel_image</span><span class="p">)</span>
+            <span class="n">rgb_image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_image_normalized</span>
+
+        <span class="k">for</span> <span class="n">outline</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outlines</span><span class="p">,</span> <span class="n">outline_colors</span><span class="p">):</span>
+            <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">_apply_contours</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">,</span> <span class="n">outline</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Combined RGB Image&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="c1"># Save the figure as a PDF</span>
+        <span class="k">if</span> <span class="n">save_pdf</span><span class="p">:</span>
+            <span class="n">pdf_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file</span><span class="p">)),</span> <span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="s1">&#39;overlay&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">pdf_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">pdf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdf_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;.pdf&#39;</span><span class="p">))</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">pdf_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">fig</span>
+    
+    <span class="n">stack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="c1"># Convert to float for normalization and ensure correct handling of both 8-bit and 16-bit arrays</span>
+    <span class="k">if</span> <span class="n">stack</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">:</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">stack</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">:</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">channels</span><span class="p">]</span>
+    <span class="n">outlines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">outline_colors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">pathogen_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pathogen_mask_dim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># last dimension</span>
+        <span class="n">outlines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">pathogen_mask_dim</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">outline_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nucleus_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nucleus_mask_dim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="k">if</span> <span class="n">pathogen_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">outlines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">nucleus_mask_dim</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">outline_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cell_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nucleus_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pathogen_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cell_mask_dim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">nucleus_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pathogen_channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cell_mask_dim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cell_mask_dim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">outlines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">cell_mask_dim</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">outline_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">_plot_merged_plot</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">outlines</span><span class="o">=</span><span class="n">outlines</span><span class="p">,</span> <span class="n">outline_colors</span><span class="o">=</span><span class="n">outline_colors</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="n">figuresize</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="n">thickness</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
 
 <div class="viewcode-block" id="plot_masks">
 <a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_masks">[docs]</a>
@@ -896,49 +1005,9 @@
         <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">figuresize</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_channels</span><span class="p">):</span>
             <span class="n">plot_single_array</span><span class="p">(</span><span class="n">stack</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">channel</span><span class="p">],</span> <span class="n">axs</span><span class="p">[</span><span class="n">channel</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;C. </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    
-    <span class="c1">#stop = time.time()</span>
-    <span class="c1">#duration = stop - start</span>
-    <span class="c1">#print(&#39;plot_cropped_arrays&#39;, duration)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>    
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">_plot_cropped_arrays_v1</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;inferno&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot cropped arrays.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        stack (ndarray): The array to be plotted.</span>
-<span class="sd">        figuresize (int, optional): The size of the figure. Defaults to 20.</span>
-<span class="sd">        cmap (str, optional): The colormap to be used. Defaults to &#39;inferno&#39;.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">shape</span> 
-    <span class="n">channel</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">f</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">figuresize</span><span class="p">,</span><span class="n">figuresize</span><span class="p">))</span>
-        <span class="n">a</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">))</span>
-        <span class="n">a</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Channel one&#39;</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-        <span class="n">a</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">anr</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">f</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">anr</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">figuresize</span><span class="p">,</span><span class="n">figuresize</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">anr</span><span class="p">):</span>
-            <span class="n">a</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">stack</span><span class="p">[:,:,</span><span class="n">channel</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">))</span>
-            <span class="n">a</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Channel &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">channel</span><span class="p">),</span><span class="n">size</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-            <span class="n">a</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">duration</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">start</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;plot_cropped_arrays&#39;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
-    <span class="k">return</span>
+    <span class="k">return</span> <span class="n">fig</span>
     
 <span class="k">def</span> <span class="nf">_visualize_and_save_timelapse_stack_with_tracks</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">tracks_df</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;btrack&#39;</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1204,7 +1273,7 @@
             <span class="n">idx</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_col</span> <span class="o">+</span> <span class="n">j</span>
             <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">n_images</span><span class="p">:</span>
                 <span class="n">canvas</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">img_height</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_height</span><span class="p">,</span> <span class="n">j</span> <span class="o">*</span> <span class="n">img_width</span><span class="p">:(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_width</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>        
-    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
@@ -1213,7 +1282,7 @@
         <span class="n">x</span> <span class="o">=</span> <span class="n">col</span> <span class="o">*</span> <span class="n">img_width</span> <span class="o">+</span> <span class="mi">2</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">row</span> <span class="o">*</span> <span class="n">img_height</span> <span class="o">+</span> <span class="mi">15</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span>
     
 <span class="k">def</span> <span class="nf">_plot_histograms_and_stats</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
     <span class="n">conditions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
@@ -1314,8 +1383,7 @@
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_count</span><span class="p">]</span>
 
     <span class="c1"># Explicitly set observed=True to avoid FutureWarning</span>
-    <span class="n">grouped</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">],</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
-
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">],</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># Group by row and column</span>
     
     <span class="k">if</span> <span class="n">grouping</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
         <span class="n">plate</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
@@ -1342,7 +1410,9 @@
     <span class="k">return</span> <span class="n">plate_map</span><span class="p">,</span> <span class="n">min_max</span></div>
 
 
-<span class="k">def</span> <span class="nf">_plot_plates</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">min_max</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_plates">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_plates">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_plates</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">min_max</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">plates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plates</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">n_rows</span><span class="p">))</span>
@@ -1357,8 +1427,10 @@
         <span class="n">fig</span><span class="o">.</span><span class="n">delaxes</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     
     <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">fig</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
 
 <div class="viewcode-block" id="print_mask_and_flows">
 <a class="viewcode-back" href="../../spacr.html#spacr.plot.print_mask_and_flows">[docs]</a>
@@ -1587,6 +1659,172 @@
                                <span class="n">overlay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                <span class="n">max_nr</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                                <span class="n">randomize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="volcano_plot">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.volcano_plot">[docs]</a>
+<span class="k">def</span> <span class="nf">volcano_plot</span><span class="p">(</span><span class="n">coef_df</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;volcano_plot.pdf&#39;</span><span class="p">):</span>
+    <span class="c1"># Create the volcano plot</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">coef_df</span><span class="p">,</span> 
+        <span class="n">x</span><span class="o">=</span><span class="s1">&#39;coefficient&#39;</span><span class="p">,</span> 
+        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;-log10(p_value)&#39;</span><span class="p">,</span> 
+        <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;highlight&#39;</span><span class="p">,</span> 
+        <span class="n">palette</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Volcano Plot of Coefficients&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Coefficient&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">0.05</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved Volcano plot: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_histogram">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_histogram">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_histogram</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dependent_variable</span><span class="p">):</span>
+    <span class="c1"># Plot histogram of the dependent variable</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">dependent_variable</span><span class="p">],</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Histogram of </span><span class="si">{</span><span class="n">dependent_variable</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">dependent_variable</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_lorenz_curves">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_lorenz_curves">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_lorenz_curves</span><span class="p">(</span><span class="n">csv_files</span><span class="p">,</span> <span class="n">remove_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TGGT1_220950_1&#39;</span><span class="p">,</span> <span class="s1">&#39;TGGT1_233460_4&#39;</span><span class="p">]):</span>
+    
+    <span class="k">def</span> <span class="nf">lorenz_curve</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Lorenz curve.&quot;&quot;&quot;</span>
+        <span class="n">sorted_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">cumulative_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">)</span>
+        <span class="n">lorenz_curve</span> <span class="o">=</span> <span class="n">cumulative_data</span> <span class="o">/</span> <span class="n">cumulative_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">lorenz_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">lorenz_curve</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lorenz_curve</span>
+    
+    <span class="n">combined_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csv_files</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">save_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+            <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_fldr</span><span class="p">,</span> <span class="s1">&#39;lorenz_curve.pdf&#39;</span><span class="p">)</span>
+            
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">remove</span> <span class="ow">in</span> <span class="n">remove_keys</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">remove</span><span class="p">]</span>
+        
+        <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">combined_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        
+        <span class="n">lorenz</span> <span class="o">=</span> <span class="n">lorenz_curve</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lorenz</span><span class="p">)),</span> <span class="n">lorenz</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Plot combined Lorenz curve</span>
+    <span class="n">combined_lorenz</span> <span class="o">=</span> <span class="n">lorenz_curve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">combined_data</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">combined_lorenz</span><span class="p">)),</span> <span class="n">combined_lorenz</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Combined Lorenz Curve&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Lorenz Curves&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Cumulative Share of Individuals&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cumulative Share of Value&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_permutation">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_permutation">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_permutation</span><span class="p">(</span><span class="n">permutation_df</span><span class="p">):</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutation_df</span><span class="p">)</span>
+    <span class="n">fig_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">num_features</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># Set a minimum height of 8 and adjust height based on number of features</span>
+    <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Width can be fixed or adjusted similarly</span>
+    <span class="n">font_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">12</span> <span class="o">-</span> <span class="n">num_features</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># Adjust font size dynamically</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">permutation_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">],</span> <span class="n">permutation_df</span><span class="p">[</span><span class="s1">&#39;importance_mean&#39;</span><span class="p">],</span> <span class="n">xerr</span><span class="o">=</span><span class="n">permutation_df</span><span class="p">[</span><span class="s1">&#39;importance_std&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;teal&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Permutation Importance&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="plot_feature_importance">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.plot_feature_importance">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_feature_importance</span><span class="p">(</span><span class="n">feature_importance_df</span><span class="p">):</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_importance_df</span><span class="p">)</span>
+    <span class="n">fig_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">num_features</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># Set a minimum height of 8 and adjust height based on number of features</span>
+    <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Width can be fixed or adjusted similarly</span>
+    <span class="n">font_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">12</span> <span class="o">-</span> <span class="n">num_features</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># Adjust font size dynamically</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">feature_importance_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">],</span> <span class="n">feature_importance_df</span><span class="p">[</span><span class="s1">&#39;importance&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Feature Importance&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="read_and_plot__vision_results">
+<a class="viewcode-back" href="../../spacr.html#spacr.plot.read_and_plot__vision_results">[docs]</a>
+<span class="k">def</span> <span class="nf">read_and_plot__vision_results</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">y_axis</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">name_split</span><span class="o">=</span><span class="s1">&#39;_time&#39;</span><span class="p">,</span> <span class="n">y_lim</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]):</span>
+    <span class="c1"># List to store data from all CSV files</span>
+    <span class="n">data_frames</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="s1">&#39;result&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Walk through the directory</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">base_dir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_test_result.csv&quot;</span><span class="p">):</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                <span class="c1"># Extract model information from the file name</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name_split</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                
+                <span class="c1"># Extract epoch information from the file name</span>
+                <span class="n">epoch_info</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_time&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">base_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                <span class="n">epoch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_folder</span><span class="p">)</span>
+                
+                <span class="c1"># Read the CSV file</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epoch</span>
+                
+                <span class="c1"># Append the data frame to the list</span>
+                <span class="n">data_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    
+    <span class="c1"># Concatenate all data frames</span>
+    <span class="k">if</span> <span class="n">data_frames</span><span class="p">:</span>
+        <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Calculate average y_axis per model</span>
+        <span class="n">avg_metric</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)[</span><span class="n">y_axis</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">avg_metric</span> <span class="o">=</span> <span class="n">avg_metric</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">y_axis</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">avg_metric</span><span class="p">)</span>
+        
+        <span class="c1"># Plotting the results</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">avg_metric</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">],</span> <span class="n">avg_metric</span><span class="p">[</span><span class="n">y_axis</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">y_axis</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Average </span><span class="si">{</span><span class="n">y_axis</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s1"> per Model&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">y_lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">y_lim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No CSV files found in the specified directory.&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

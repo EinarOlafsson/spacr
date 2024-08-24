@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.graph_learning &mdash; spacr 0.0.80 documentation</title>
+  <title>spacr.graph_learning &mdash; spacr 0.2.56 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5c6fbccc"></script>
+        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.0.80
+                0.2.56
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -85,6 +85,7 @@
 <span class="kn">import</span> <span class="nn">dgl.nn.pytorch</span> <span class="k">as</span> <span class="nn">dglnn</span>
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">SelectChannels</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
 
 <span class="c1"># approach outline</span>
 <span class="c1">#</span>
@@ -368,6 +369,34 @@
     <span class="k">return</span> <span class="n">sequencing_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;gRNA&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">positive_prob</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="process_sequencing_df">
+<a class="viewcode-back" href="../../spacr.html#spacr.graph_learning.process_sequencing_df">[docs]</a>
+<span class="k">def</span> <span class="nf">process_sequencing_df</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">sequencing_df</span> <span class="o">=</span> <span class="n">seq</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">sequencing_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+
+    <span class="c1"># Check if &#39;plate_row&#39; column exists and split into &#39;plate&#39; and &#39;row&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;plate_row&#39;</span> <span class="ow">in</span> <span class="n">sequencing_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">sequencing_df</span><span class="p">[[</span><span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sequencing_df</span><span class="p">[</span><span class="s1">&#39;plate_row&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Check if &#39;plate&#39;, &#39;row&#39; and &#39;col&#39; or &#39;plate&#39;, &#39;row&#39; and &#39;column&#39; exist</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">sequencing_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{</span><span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;column&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">sequencing_df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;col&#39;</span> <span class="ow">in</span> <span class="n">sequencing_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">sequencing_df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sequencing_df</span><span class="p">[[</span><span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;column&#39;</span> <span class="ow">in</span> <span class="n">sequencing_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">sequencing_df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sequencing_df</span><span class="p">[[</span><span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;column&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Check if &#39;count&#39;, &#39;total_reads&#39;, &#39;read_fraction&#39;, &#39;grna&#39; exist and create new dataframe</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;total_reads&#39;</span><span class="p">,</span> <span class="s1">&#39;read_fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;grna&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">sequencing_df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+        <span class="n">new_df</span> <span class="o">=</span> <span class="n">sequencing_df</span><span class="p">[[</span><span class="s1">&#39;grna&#39;</span><span class="p">,</span> <span class="s1">&#39;prc&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;total_reads&#39;</span><span class="p">,</span> <span class="s1">&#39;read_fraction&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">new_df</span>
+    
+    <span class="k">return</span> <span class="n">sequencing_df</span></div>
+
+
 <div class="viewcode-block" id="train_graph_transformer">
 <a class="viewcode-back" href="../../spacr.html#spacr.graph_learning.train_graph_transformer">[docs]</a>
 <span class="k">def</span> <span class="nf">train_graph_transformer</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">hidden_feats</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">row_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">test_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -389,7 +418,6 @@
 
         <span class="c1"># Normalize synthetic sequencing data</span>
         <span class="n">sequencing_data</span> <span class="o">=</span> <span class="n">normalize_sequencing_data</span><span class="p">(</span><span class="n">sequencing_data</span><span class="p">)</span>
-    
     <span class="k">else</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_join_tables</span>
         <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_db_paths</span><span class="p">,</span> <span class="n">get_sequencing_paths</span><span class="p">,</span> <span class="n">correct_paths</span>
@@ -403,18 +431,13 @@
         <span class="n">sequencing_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">seq_paths</span><span class="p">:</span>
             <span class="n">sequencing_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+            <span class="n">sequencing_df</span> <span class="o">=</span> <span class="n">process_sequencing_df</span><span class="p">(</span><span class="n">sequencing_df</span><span class="p">)</span>
             <span class="n">sequencing_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">sequencing_data</span><span class="p">,</span> <span class="n">sequencing_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">db_path</span> <span class="ow">in</span> <span class="n">db_paths</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">_read_and_join_tables</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">table_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_list&#39;</span><span class="p">])</span>
-            <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;png_list&#39;</span><span class="p">]</span>
-        <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">image_paths</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">db_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">db_paths</span><span class="p">):</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">_read_and_join_tables</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">table_names</span><span class="o">=</span><span class="n">tables</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">_read_and_join_tables</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">table_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_list&#39;</span><span class="p">])</span>
             <span class="n">df</span><span class="p">,</span> <span class="n">image_paths_tmp</span> <span class="o">=</span> <span class="n">correct_paths</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">src</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">image_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">image_paths_tmp</span><span class="p">)</span>
