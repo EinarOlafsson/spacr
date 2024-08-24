@@ -88,7 +88,7 @@ from sklearn.cluster import KMeans
 from scipy import stats
 
 
-def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
+def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type="", metricks=None):
     if isinstance(files_processed, list):
         files_processed = len(set(files_processed))
     if isinstance(files_to_process, list):
@@ -117,9 +117,10 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
             average_time_img = average_time / batch_size
             time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
 
-    print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type} {time_info}')
-
-
+    if metricks is None:
+        print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type} {time_info}')
+    else:
+        print(f'Progress: {files_processed}/{files_to_process}, {metricks}, operation_type: {operation_type} {time_info}')
 
 def reset_mp():
     current_method = get_start_method()

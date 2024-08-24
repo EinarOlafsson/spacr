@@ -341,6 +341,7 @@ def convert_settings_dict_for_gui(settings):
         'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'annotate'),
         'cell_mask_dim': ('combo', chans, None),
         'cell_chann_dim': ('combo', chans, None),
         'nucleus_mask_dim': ('combo', chans, None),
