@@ -1,4 +1,4 @@
-import os,re, random, cv2, glob, time, math
+import os,re, random, cv2, glob, time, math, torch
 
 import numpy as np
 import pandas as pd
@@ -1185,6 +1185,52 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
         x = col * img_width + 2
         y = row * img_height + 15
         plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
+    return fig
+
+def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
+    """
+    Display multiple images in a grid with corresponding labels.
+
+    Args:
+        img (torch.Tensor): A batch of images as a tensor.
+        labels (list): List of labels corresponding to each image.
+        nrow (int, optional): Number of images per row in the grid. Defaults to 20.
+        color (str, optional): Color of the label text. Defaults to 'white'.
+        fontsize (int, optional): Font size of the label text. Defaults to 12.
+    """
+    if img.is_cuda:
+        img = img.cpu()  # Move to CPU if the tensor is on GPU
+
+    n_images = len(labels)
+    n_col = nrow
+    n_row = int(np.ceil(n_images / n_col))
+
+    img_height = img.shape[2]  # Height of the image
+    img_width = img.shape[3]   # Width of the image
+
+    # Prepare the canvas on CPU
+    canvas = torch.zeros((img_height * n_row, img_width * n_col, 3))
+
+    for i in range(n_row):
+        for j in range(n_col):
+            idx = i * n_col + j
+            if idx < n_images:
+                # Place the image on the canvas
+                canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = img[idx].permute(1, 2, 0)
+
+    canvas = canvas.numpy()  # Convert to NumPy for plotting
+
+    fig = plt.figure(figsize=(50, 50))
+    plt.imshow(canvas)
+    plt.axis("off")
+
+    for i, label in enumerate(labels):
+        row = i // n_col
+        col = i % n_col
+        x = col * img_width + 2
+        y = row * img_height + 15
+        plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
+
     return fig
     
 def _plot_histograms_and_stats(df):

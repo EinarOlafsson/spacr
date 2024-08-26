@@ -1,9 +1,9 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue
 import numpy as np
 import pandas as pd
 import tifffile
-from PIL import Image
-from collections import defaultdict, Counter
+from PIL import Image, ImageOps
+from collections import defaultdict, Counter, deque
 from pathlib import Path
 from functools import partial
 from matplotlib.animation import FuncAnimation
@@ -17,12 +17,12 @@ import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
 from io import BytesIO
 from IPython.display import display, clear_output
-from multiprocessing import Pool, cpu_count
-from torch.utils.data import Dataset
+from multiprocessing import Pool, cpu_count, Process, Queue
+from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
 import seaborn as sns
-
+import atexit
 
 from .logger import log_function_call
 
@@ -444,20 +444,7 @@ class NoClassDataset(Dataset):
         # Return both the image and its filename
         return img, self.filenames[index]
 
-class MyDataset(Dataset):
-    """
-    A custom dataset class for loading and processing image data.
-
-    Args:
-        data_dir (str): The directory path where the image data is stored.
-        loader_classes (list): A list of class names for the dataset.
-        transform (callable, optional): A function/transform to apply to the image data. Default is None.
-        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
-        pin_memory (bool, optional): Whether to pin the loaded images to memory. Default is False.
-        specific_files (list, optional): A list of specific file paths to include in the dataset. Default is None.
-        specific_labels (list, optional): A list of specific labels corresponding to the specific files. Default is None.
-    """
-
+class spacrDataset(Dataset):
     def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
         self.data_dir = data_dir
         self.classes = loader_classes
@@ -466,7 +453,7 @@ class MyDataset(Dataset):
         self.pin_memory = pin_memory
         self.filenames = []
         self.labels = []
-        
+
         if specific_files and specific_labels:
             self.filenames = specific_files
             self.labels = specific_labels
@@ -479,33 +466,113 @@ class MyDataset(Dataset):
         
         if self.shuffle:
             self.shuffle_dataset()
-            
+
         if self.pin_memory:
-            self.images = [self.load_image(f) for f in self.filenames]
-    
+            # Use multiprocessing to load images in parallel
+            with Pool(processes=cpu_count()) as pool:
+                self.images = pool.map(self.load_image, self.filenames)
+        else:
+            self.images = None
+
     def load_image(self, img_path):
         img = Image.open(img_path).convert('RGB')
+        img = ImageOps.exif_transpose(img)  # Handle image orientation
         return img
-    
+
     def __len__(self):
         return len(self.filenames)
-    
+
     def shuffle_dataset(self):
         combined = list(zip(self.filenames, self.labels))
         random.shuffle(combined)
         self.filenames, self.labels = zip(*combined)
-        
+
     def get_plate(self, filepath):
-        filename = os.path.basename(filepath)  # Get just the filename from the full path
+        filename = os.path.basename(filepath)
         return filename.split('_')[0]
-    
+
     def __getitem__(self, index):
+        if self.pin_memory:
+            img = self.images[index]
+        else:
+            img = self.load_image(self.filenames[index])
         label = self.labels[index]
         filename = self.filenames[index]
-        img = self.load_image(filename)
         if self.transform:
             img = self.transform(img)
         return img, label, filename
+    
+class spacrDataLoader(DataLoader):
+    def __init__(self, *args, preload_batches=1, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.preload_batches = preload_batches
+        self.batch_queue = Queue(maxsize=preload_batches)
+        self.process = None
+        self.current_batch_index = 0
+        self._stop_event = False
+        self.pin_memory = kwargs.get('pin_memory', False)
+        atexit.register(self.cleanup)
+
+    def _preload_next_batches(self):
+        try:
+            for _ in range(self.preload_batches):
+                if self._stop_event:
+                    break
+                batch = next(self._iterator)
+                if self.pin_memory:
+                    batch = self._pin_memory_batch(batch)
+                self.batch_queue.put(batch)
+        except StopIteration:
+            pass
+
+    def _start_preloading(self):
+        if self.process is None or not self.process.is_alive():
+            self._iterator = iter(super().__iter__())
+            if not self.pin_memory:
+                self.process = Process(target=self._preload_next_batches)
+                self.process.start()
+            else:
+                self._preload_next_batches()  # Directly load if pin_memory is True
+
+    def _pin_memory_batch(self, batch):
+        if isinstance(batch, (list, tuple)):
+            return [b.pin_memory() if isinstance(b, torch.Tensor) else b for b in batch]
+        elif isinstance(batch, torch.Tensor):
+            return batch.pin_memory()
+        else:
+            return batch
+
+    def __iter__(self):
+        self._start_preloading()
+        return self
+
+    def __next__(self):
+        if self.process and not self.process.is_alive() and self.batch_queue.empty():
+            raise StopIteration
+
+        try:
+            if self.pin_memory:
+                next_batch = self.batch_queue.get(timeout=60)
+            else:
+                next_batch = self.batch_queue.get(timeout=60)
+            self.current_batch_index += 1
+
+            # Start preloading the next batches
+            if self.batch_queue.qsize() < self.preload_batches:
+                self._start_preloading()
+
+            return next_batch
+        except queue.Empty:
+            raise StopIteration
+
+    def cleanup(self):
+        self._stop_event = True
+        if self.process and self.process.is_alive():
+            self.process.terminate()
+            self.process.join()
+
+    def __del__(self):
+        self.cleanup()
 
 class NoClassDataset(Dataset):
     def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
@@ -2292,7 +2359,7 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
     
     def save_model_at_threshold(threshold, epoch, suffix=""):
         percentile = str(threshold * 100)
-        print(f'\rfound: {percentile}% accurate model')#, end='\r', flush=True)
+        print(f'Found: {percentile}% accurate model')
         model_path = f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth'
         torch.save(model, model_path)
         return model_path
@@ -2303,7 +2370,8 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
         return model_path
 
     for threshold in intermedeate_save:
-        if results_df['neg_accuracy'].dropna().mean() >= threshold and results_df['pos_accuracy'].dropna().mean() >= threshold:
+        if results_df['neg_accuracy'] >= threshold and results_df['pos_accuracy'] >= threshold:
+            print(f"Nc class accuracy: {results_df['neg_accuracy']} Pc class Accuracy: {results_df['pos_accuracy']}")
             model_path = save_model_at_threshold(threshold, epoch)
             break
         else:
@@ -2311,7 +2379,7 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
     
     return model_path
 
-def _save_progress(dst, results_df, train_metrics_df, epoch, epochs):
+def _save_progress(dst, results_df, result_type='train'):
     """
     Save the progress of the classification model.
 
@@ -2325,18 +2393,13 @@ def _save_progress(dst, results_df, train_metrics_df, epoch, epochs):
     """
     # Save accuracy, loss, PRAUC
     os.makedirs(dst, exist_ok=True)
-    results_path = os.path.join(dst, 'acc_loss_prauc.csv')
+    results_path = os.path.join(dst, f'{result_type}.csv')
     if not os.path.exists(results_path):
         results_df.to_csv(results_path, index=True, header=True, mode='w')
     else:
         results_df.to_csv(results_path, index=True, header=False, mode='a')
-    
-    training_metrics_path = os.path.join(dst, 'training_metrics.csv')
-    if not os.path.exists(training_metrics_path):
-        train_metrics_df.to_csv(training_metrics_path, index=True, header=True, mode='w')
-    else:
-        train_metrics_df.to_csv(training_metrics_path, index=True, header=False, mode='a')
-    if epoch == epochs:
+
+    if result_type == 'train':
         read_plot_model_stats(results_path, save=True)
     return
 

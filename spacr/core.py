@@ -16,7 +16,6 @@ import seaborn as sns
 import cellpose
 from skimage.measure import regionprops, label
 from skimage.transform import resize as resizescikit
-from torch.utils.data import DataLoader
 
 from skimage import measure
 from sklearn.model_selection import train_test_split
@@ -41,6 +40,16 @@ from .logger import log_function_call
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+
+from torchvision import transforms
+from torch.utils.data import DataLoader, random_split
+from collections import defaultdict
+import os
+import random
+from PIL import Image
+from torchvision.transforms import ToTensor
+
 
 
 def analyze_plaques(folder):
@@ -1602,21 +1611,19 @@ def generate_training_dataset(settings):
     
     return train_class_dir, test_class_dir
 
-def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, max_show=2, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
+def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, preload_batches=3, verbose=False):
     
     """
     Generate data loaders for training and validation/test datasets.
 
     Parameters:
     - src (str): The source directory containing the data.
-    - train_mode (str): The training mode. Options are 'erm' (Empirical Risk Minimization) or 'irm' (Invariant Risk Minimization).
     - mode (str): The mode of operation. Options are 'train' or 'test'.
     - image_size (int): The size of the input images.
     - batch_size (int): The batch size for the data loaders.
     - classes (list): The list of classes to consider.
     - n_jobs (int): The number of worker threads for data loading.
-    - validation_split (float): The fraction of data to use for validation when train_mode is 'erm'.
-    - max_show (int): The maximum number of images to show when verbose is True.
+    - validation_split (float): The fraction of data to use for validation.
     - pin_memory (bool): Whether to pin memory for faster data transfer.
     - normalize (bool): Whether to normalize the input images.
     - verbose (bool): Whether to print additional information and show images.
@@ -1625,18 +1632,10 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     Returns:
     - train_loaders (list): List of data loaders for training datasets.
     - val_loaders (list): List of data loaders for validation datasets.
-    - plate_names (list): List of plate names (only applicable when train_mode is 'irm').
     """
 
-    from .io import MyDataset
-    from .plot import _imshow
-    from torchvision import transforms
-    from torch.utils.data import DataLoader, random_split
-    from collections import defaultdict
-    import os
-    import random
-    from PIL import Image
-    from torchvision.transforms import ToTensor
+    from .io import spacrDataset, spacrDataLoader
+    from .plot import _imshow_gpu
     from .utils import SelectChannels, augment_dataset
 
     chans = []
@@ -1653,12 +1652,9 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
     if verbose:
         print(f'Training a network on channels: {channels}')
         print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
-
-    plate_to_filenames = defaultdict(list)
-    plate_to_labels = defaultdict(list)
+        
     train_loaders = []
     val_loaders = []
-    plate_names = []
 
     if normalize:
         transform = transforms.Compose([
@@ -1686,94 +1682,59 @@ def generate_loaders(src, train_mode='erm', mode='train', image_size=224, batch_
         print(f'mode:{mode} is not valid, use mode = train or test')
         return
 
-    if train_mode == 'erm':
-        
-        data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
-        
-        if validation_split > 0:
-            train_size = int((1 - validation_split) * len(data))
-            val_size = len(data) - train_size
-            if not augment:
-                print(f'Train data:{train_size}, Validation data:{val_size}')
-            train_dataset, val_dataset = random_split(data, [train_size, val_size])
-
-            if augment:
-
-                print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
-                train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
-                #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
-                print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
-
-            train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-            val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-        else:
-            train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-        
-    elif train_mode == 'irm':
-        data = MyDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
-        
-        for filename, label in zip(data.filenames, data.labels):
-            plate = data.get_plate(filename)
-            plate_to_filenames[plate].append(filename)
-            plate_to_labels[plate].append(label)
-
-        for plate, filenames in plate_to_filenames.items():
-            labels = plate_to_labels[plate]
-            plate_data = MyDataset(data_dir, classes, specific_files=filenames, specific_labels=labels, transform=transform, shuffle=False, pin_memory=pin_memory)
-            plate_names.append(plate)
-
-            if validation_split > 0:
-                train_size = int((1 - validation_split) * len(plate_data))
-                val_size = len(plate_data) - train_size
-                if not augment:
-                    print(f'Train data:{train_size}, Validation data:{val_size}')
-                train_dataset, val_dataset = random_split(plate_data, [train_size, val_size])
-
-                if augment:
-
-                    print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{val_dataset}')
-                    train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
-                    #val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))
-                    print(f'Data after augmentation: Train: {len(train_dataset)}')#, Validataion:{len(val_dataset)}')
-
-                train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-                val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-
-                train_loaders.append(train_loader)
-                val_loaders.append(val_loader)
-            else:
-                train_loader = DataLoader(plate_data, batch_size=batch_size, shuffle=shuffle, num_workers=n_jobs if n_jobs is not None else 0, pin_memory=pin_memory)
-                train_loaders.append(train_loader)
-                val_loaders.append(None)
+    data = spacrDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
+    num_workers = n_jobs if n_jobs is not None else 0
     
+    if validation_split > 0:
+        train_size = int((1 - validation_split) * len(data))
+        val_size = len(data) - train_size
+        if not augment:
+            print(f'Train data:{train_size}, Validation data:{val_size}')
+        train_dataset, val_dataset = random_split(data, [train_size, val_size])
+
+        if augment:
+
+            print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
+            train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
+            print(f'Data after augmentation: Train: {len(train_dataset)}')
+            
+        print(f'Generating Dataloader with {n_jobs} workers')
+        #train_loaders = spacrDataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)
+        #train_loaders = spacrDataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)
+
+        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+        val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
     else:
-        print(f'train_mode:{train_mode} is not valid, use: train_mode = irm or erm')
-        return
-    
-    
-    if train_mode == 'erm':
-        for idx, (images, labels, filenames) in enumerate(train_loaders):
-            if idx >= max_show:
-                break
-            images = images.cpu()
-            label_strings = [str(label.item()) for label in labels]
-            train_fig = _imshow(images, label_strings, nrow=20, fontsize=12)
-            if verbose:
-                plt.show()
+        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+        #train_loaders = spacrDataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)
 
-    elif train_mode == 'irm':
-        for plate_name, train_loader in zip(plate_names, train_loaders):
-            print(f'Plate: {plate_name} with {len(train_loader.dataset)} images')
-            for idx, (images, labels, filenames) in enumerate(train_loader):
-                if idx >= max_show:
-                    break
-                images = images.cpu()
-                label_strings = [str(label.item()) for label in labels]
-                train_fig = _imshow(images, label_strings, nrow=20, fontsize=12)
-                if verbose:
-                    plt.show()
+    #dataset (Dataset) – dataset from which to load the data.
+    #batch_size (int, optional) – how many samples per batch to load (default: 1).
+    #shuffle (bool, optional) – set to True to have the data reshuffled at every epoch (default: False).
+    #sampler (Sampler or Iterable, optional) – defines the strategy to draw samples from the dataset. Can be any Iterable with __len__ implemented. If specified, shuffle must not be specified.
+    #batch_sampler (Sampler or Iterable, optional) – like sampler, but returns a batch of indices at a time. Mutually exclusive with batch_size, shuffle, sampler, and drop_last.
+    #num_workers (int, optional) – how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)
+    #collate_fn (Callable, optional) – merges a list of samples to form a mini-batch of Tensor(s). Used when using batched loading from a map-style dataset.
+    #pin_memory (bool, optional) – If True, the data loader will copy Tensors into device/CUDA pinned memory before returning them. If your data elements are a custom type, or your collate_fn returns a batch that is a custom type, see the example below.
+    #drop_last (bool, optional) – set to True to drop the last incomplete batch, if the dataset size is not divisible by the batch size. If False and the size of dataset is not divisible by the batch size, then the last batch will be smaller. (default: False)
+    #timeout (numeric, optional) – if positive, the timeout value for collecting a batch from workers. Should always be non-negative. (default: 0)
+    #worker_init_fn (Callable, optional) – If not None, this will be called on each worker subprocess with the worker id (an int in [0, num_workers - 1]) as input, after seeding and before data loading. (default: None)
+    #multiprocessing_context (str or multiprocessing.context.BaseContext, optional) – If None, the default multiprocessing context of your operating system will be used. (default: None)
+    #generator (torch.Generator, optional) – If not None, this RNG will be used by RandomSampler to generate random indexes and multiprocessing to generate base_seed for workers. (default: None)
+    #prefetch_factor (int, optional, keyword-only arg) – Number of batches loaded in advance by each worker. 2 means there will be a total of 2 * num_workers batches prefetched across all workers. (default value depends on the set value for num_workers. If value of num_workers=0 default is None. Otherwise, if value of num_workers > 0 default is 2).
+    #persistent_workers (bool, optional) – If True, the data loader will not shut down the worker processes after a dataset has been consumed once. This allows to maintain the workers Dataset instances alive. (default: False)
+    #pin_memory_device (str, optional) – the device to pin_memory to if pin_memory is True.
 
-    return train_loaders, val_loaders, plate_names, train_fig
+    #images, labels, filenames = next(iter(train_loaders))
+    #images = images.cpu()
+    #label_strings = [str(label.item()) for label in labels]
+    #train_fig = _imshow_gpu(images, label_strings, nrow=20, fontsize=12)
+    #if verbose:
+    #    plt.show()
+    
+    train_fig = None
+
+    return train_loaders, val_loaders, train_fig
 
 def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
     """
@@ -1968,14 +1929,12 @@ def preprocess_generate_masks(src, settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_image_mask_overlay, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings
     from .settings import set_default_settings_preprocess_generate_masks
     
     settings = set_default_settings_preprocess_generate_masks(src, settings)
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(src,'settings','preprocess_generate_masks_settings.csv')
-    os.makedirs(os.path.join(src,'settings'), exist_ok=True)
-    settings_df.to_csv(settings_csv, index=False)
+    settings['src'] = src
+    save_settings(settings)
 
     if not settings['pathogen_channel'] is None:
         custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
@@ -2266,7 +2225,7 @@ def generate_cellpose_masks(src, settings, object_type):
         settings_df['setting_value'] = settings_df['setting_value'].apply(str)
         display(settings_df)
         
-    figuresize=25
+    figuresize=10
     timelapse = settings['timelapse']
     
     if timelapse:
