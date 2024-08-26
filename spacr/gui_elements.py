@@ -664,12 +664,10 @@ class spacrProgressBar(ttk.Progressbar):
             label_text = f"Processing: {self['value']}/{self['maximum']}"
             if self.operation_type:
                 label_text += f", {self.operation_type}"
-            if self.time_image:
-                label_text += f", Time/image: {self.time_image:.3f} sec"
-            if self.time_batch:
-                label_text += f", Time/batch: {self.time_batch:.3f} sec"
-            if self.time_left:
-                label_text += f", Time_left: {self.time_left:.3f} min"
+            if hasattr(self, 'additional_info') and self.additional_info:
+                # Replace commas with newline characters and add extra space between lines
+                formatted_additional_info = self.additional_info.replace(", ", "\n\n")
+                label_text += f",\n{formatted_additional_info}"
             self.progress_label.config(text=label_text)
 
 class spacrProgressBar_v1(ttk.Progressbar):

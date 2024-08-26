@@ -87,8 +87,14 @@ from scipy.stats import f_oneway, kruskal
 from sklearn.cluster import KMeans
 from scipy import stats
 
+def save_settings(settings, name='settings'):
+    
+    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    settings_csv = os.path.join(settings['src'],'settings',f'{name}.csv')
+    os.makedirs(os.path.join(settings['src'],'settings'), exist_ok=True)
+    settings_df.to_csv(settings_csv, index=False)
 
-def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type="", metricks=None):
+def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     if isinstance(files_processed, list):
         files_processed = len(set(files_processed))
     if isinstance(files_to_process, list):
@@ -116,11 +122,8 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
         else:
             average_time_img = average_time / batch_size
             time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
-
-    if metricks is None:
-        print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type} {time_info}')
     else:
-        print(f'Progress: {files_processed}/{files_to_process}, {metricks}, operation_type: {operation_type} {time_info}')
+        print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type} {time_info}')
 
 def reset_mp():
     current_method = get_start_method()
@@ -1650,7 +1653,7 @@ def split_my_dataset(dataset, split_ratio=0.1):
     val_dataset = Subset(dataset, val_indices)
     return train_dataset, val_dataset
 
-def classification_metrics(all_labels, prediction_pos_probs, loader_name, loss, epoch):
+def classification_metrics(all_labels, prediction_pos_probs, loss, epoch):
     """
     Calculate classification metrics for binary classification.
 
@@ -1699,11 +1702,9 @@ def classification_metrics(all_labels, prediction_pos_probs, loader_name, loss, 
     else:
         acc_nc = np.nan
     data_dict = {'accuracy': acc_all, 'neg_accuracy': acc_nc, 'pos_accuracy': acc_pc, 'loss':loss.item(),'prauc':pr_auc, 'optimal_threshold':optimal_threshold}
-    data_df = pd.DataFrame(data_dict, index=[str(epoch)+'_'+loader_name]) 
+    data_df = pd.DataFrame(data_dict, index=[str(epoch)]) 
     return data_df
     
-
-
 def compute_irm_penalty(losses, dummy_w, device):
     """
     Computes the Invariant Risk Minimization (IRM) penalty.
@@ -1741,7 +1742,7 @@ def compute_irm_penalty(losses, dummy_w, device):
 #    summary(base_model, (channels, height, width))
 #    return
 
-def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2):
+def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False):
     """
     Choose a model for classification.
 
@@ -1773,7 +1774,7 @@ def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_chec
         print(f'Invalid model_type: {model_type}. Compatible model_types: {model_types}')
         return
 
-    print(f'\rModel parameters: Architecture: {model_type} init_weights: {init_weights} dropout_rate: {dropout_rate} use_checkpoint: {use_checkpoint}', end='\r', flush=True)
+    print(f'Model parameters: Architecture: {model_type} init_weights: {init_weights} dropout_rate: {dropout_rate} use_checkpoint: {use_checkpoint}', end='\r', flush=True)
     
     if model_type == 'custom':
         
@@ -1784,8 +1785,8 @@ def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_chec
     else:
         print(f'Compatible model_types: {model_types}')
         raise ValueError(f"Invalid model_type: {model_type}")
-
-    print(base_model)
+    if verbose:
+        print(base_model)
     
     return base_model
 

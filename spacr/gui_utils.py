@@ -1,10 +1,11 @@
-import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback
+import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback, torch
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from huggingface_hub import list_repo_files
+import psutil
 
 from .gui_elements import AnnotateApp, spacrEntry, spacrCheck, spacrCombo
 
@@ -12,6 +13,36 @@ try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
+
+def initialize_cuda():
+    """
+    Initializes CUDA in the main process by performing a simple GPU operation.
+    """
+    if torch.cuda.is_available():
+        # Allocate a small tensor on the GPU
+        _ = torch.tensor([0.0], device='cuda')
+        print("CUDA initialized in the main process.")
+    else:
+        print("CUDA is not available.")
+
+def set_high_priority(process):
+    try:
+        p = psutil.Process(process.pid)
+        if os.name == 'nt':  # Windows
+            p.nice(psutil.HIGH_PRIORITY_CLASS)
+        else:  # Unix-like systems
+            p.nice(-10)  # Adjusted priority level
+        print(f"Successfully set high priority for process: {process.pid}")
+    except psutil.AccessDenied as e:
+        print(f"Access denied when trying to set high priority for process {process.pid}: {e}")
+    except psutil.NoSuchProcess as e:
+        print(f"No such process {process.pid}: {e}")
+    except Exception as e:
+        print(f"Failed to set high priority for process {process.pid}: {e}")
+
+def set_cpu_affinity(process):
+    p = psutil.Process(process.pid)
+    p.cpu_affinity(list(range(os.cpu_count())))
     
 def proceed_with_app(root, app_name, app_func):
     # Clear the current content frame
@@ -43,16 +74,6 @@ def load_app(root, app_name, app_func):
         root.current_app_exit_func()
     else:
         proceed_with_app(root, app_name, app_func)
-    
-def parse_list_v1(value):
-    try:
-        parsed_value = ast.literal_eval(value)
-        if isinstance(parsed_value, list):
-            return parsed_value
-        else:
-            raise ValueError(f"Expected a list but got {type(parsed_value).__name__}")
-    except (ValueError, SyntaxError) as e:
-        raise ValueError(f"Invalid format for list: {value}. Error: {e}")
     
 def parse_list(value):
     try:
@@ -149,16 +170,6 @@ def cancel_after_tasks(frame):
         for task in frame.after_tasks:
             frame.after_cancel(task)
         frame.after_tasks.clear()
-
-def main_thread_update_function(root, q, fig_queue, canvas_widget):
-    try:
-        #ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-        while not q.empty():
-            message = q.get_nowait()
-    except Exception as e:
-        print(f"Error updating GUI canvas: {e}")
-    finally:
-        root.after(100, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget))
 
 def annotate(settings):
     from .settings import set_annotate_default_settings
@@ -341,7 +352,7 @@ def convert_settings_dict_for_gui(settings):
         'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
-        'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'annotate'),
+        'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),
         'cell_mask_dim': ('combo', chans, None),
         'cell_chann_dim': ('combo', chans, None),
         'nucleus_mask_dim': ('combo', chans, None),
