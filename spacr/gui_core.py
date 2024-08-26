@@ -15,7 +15,6 @@ try:
 except AttributeError:
     pass
 
-from .settings import set_default_train_test_model, get_measure_crop_settings, set_default_settings_preprocess_generate_masks, set_default_generate_barecode_mapping, set_default_umap_image_settings
 from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style
 
 # Define global variables
@@ -72,7 +71,7 @@ def toggle_settings(button_scrollable_frame):
     vars_dict = hide_all_settings(vars_dict, categories)
 
 def process_fig_queue():
-    global canvas, fig_queue, canvas_widget, parent_frame
+    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency
 
     def clear_canvas(canvas):
         for ax in canvas.figure.get_axes():
@@ -102,11 +101,11 @@ def process_fig_queue():
     except Exception as e:
         traceback.print_exc()
     finally:
-        after_id = canvas_widget.after(1, process_fig_queue)
+        after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
 
-def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
-    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
+def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, batch_progress_bar_var, usage_bars_var):
+    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, batch_progress_bar, usage_bars
     thread_control = thread_control_var
     q = q_var
     console_output = console_output_var
@@ -117,6 +116,7 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     scrollable_frame = scrollable_frame_var
     fig_queue = fig_queue_var
     progress_bar = progress_bar_var
+    batch_progress_bar = batch_progress_bar_var
     usage_bars = usage_bars_var
 
 def import_settings(settings_type='mask'):
@@ -323,7 +323,7 @@ def setup_progress_frame(vertical_container):
     return progress_output
 
 def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
-    global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
+    global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar, batch_progress_bar
     from .gui_utils import download_hug_dataset
     from .gui_elements import set_element_size
 
@@ -331,9 +331,6 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     button_section_height = size_dict['panel_height']
     button_frame = tk.Frame(horizontal_container, height=button_section_height)
     
-    # Prevent the frame from resizing based on the child widget
-    #button_frame.pack_propagate(False)
-
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
     button_scrollable_frame = spacrFrame(button_frame, scrollbar=False)
     button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
@@ -366,11 +363,18 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
         widgets.append(import_button)
         btn_row += 1
 
-    # Add the progress bar under the settings category menu
+    # Add the batch progress bar
     progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
     progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
     progress_bar.set_label_position()  # Set the label position after grid placement
     widgets.append(progress_bar)
+
+    # Add the epoch progress bar
+    btn_row += 1  # Move to the next row
+    batch_progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
+    batch_progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
+    batch_progress_bar.set_label_position()  # Set the label position after grid placement
+    widgets.append(batch_progress_bar)
 
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
@@ -380,7 +384,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
 
     return button_scrollable_frame, btn_col
 
-def setup_usage_panel(horizontal_container, btn_col):
+def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     global usage_bars
     from .gui_elements import set_dark_style, set_element_size
 
@@ -406,7 +410,7 @@ def setup_usage_panel(horizontal_container, btn_col):
             bar['value'] = usage
 
         # Schedule the function to run again after 1000 ms (1 second)
-        parent_frame.after(1000, update_usage, ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame)
+        parent_frame.after(uppdate_frequency, update_usage, ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame)
 
     size_dict = set_element_size()
     usage_panel_height = size_dict['panel_height']
@@ -525,11 +529,10 @@ def initiate_abort():
 
     thread_control = {"run_thread": None, "stop_requested": False}
 
-
 def start_process(q=None, fig_queue=None, settings_type='mask'):
     global thread_control, vars_dict, parent_frame
     from .settings import check_settings, expected_types
-    from .gui_utils import run_function_gui
+    from .gui_utils import run_function_gui, set_high_priority, set_cpu_affinity, initialize_cuda
 
     if q is None:
         q = Queue()
@@ -547,21 +550,32 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
     stop_requested = Value('i', 0)
     thread_control["stop_requested"] = stop_requested
 
+    # Initialize CUDA in the main process
+    initialize_cuda()
+
     process_args = (settings_type, settings, q, fig_queue, stop_requested)
-    if settings_type in [
-        'mask', 'umap', 'measure', 'simulation', 'sequencing', 'classify', 'cellpose_dataset', 
-        'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 'map_barcodes', 
-        'regression', 'recruitment', 'plaques', 'cellpose_compare', 'vision_scores', 
-        'vision_dataset'
-    ]:
-        thread_control["run_thread"] = Process(target=run_function_gui, args=process_args)
+    if settings_type in ['mask', 'umap', 'measure', 'simulation', 'sequencing', 
+                         'classify', 'cellpose_dataset', 'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 'map_barcodes', 
+                         'regression', 'recruitment', 'plaques', 'cellpose_compare', 'vision_scores', 'vision_dataset']:
+
+        # Start the process
+        process = Process(target=run_function_gui, args=process_args)
+        process.start()
+
+        # Set high priority for the process
+        #set_high_priority(process)
+
+        # Set CPU affinity if necessary
+        set_cpu_affinity(process)
+
+        # Store the process in thread_control for future reference
+        thread_control["run_thread"] = process
     else:
         q.put(f"Error: Unknown settings type '{settings_type}'")
         return
-    thread_control["run_thread"].start()
 
 def process_console_queue():
-    global q, console_output, parent_frame, progress_bar
+    global q, console_output, parent_frame, batch_progress_bar, progress_bar, process_console_queue
 
     # Initialize function attribute if it doesn't exist
     if not hasattr(process_console_queue, "completed_tasks"):
@@ -574,8 +588,8 @@ def process_console_queue():
     while not q.empty():
         message = q.get_nowait()
         clean_message = ansi_escape_pattern.sub('', message)
-        console_output.insert(tk.END, clean_message + "\n")
-        console_output.see(tk.END)
+        #console_output.insert(tk.END, clean_message + "\n")
+        #console_output.see(tk.END)
         
         # Check if the message contains progress information
         if clean_message.startswith("Progress:"):
@@ -587,8 +601,8 @@ def process_console_queue():
                     current_progress = int(match.group(1))
                     total_progress = int(match.group(2))
                     operation_type = match.group(3).strip()
-                    time_info = match.group(4).strip()
-
+                    additional_info = match.group(4).strip()  # Capture everything after operation_type
+                    
                     # Check if the maximum value has changed
                     if process_console_queue.current_maximum != total_progress:
                         process_console_queue.current_maximum = total_progress
@@ -600,52 +614,71 @@ def process_console_queue():
                     # Calculate the unique progress count
                     unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
                     
+                    # Determine which progress bar to update based on the operation_type
+                    if operation_type == "DL":  # Assuming "DL" corresponds to batch progress
+                        progress_bar = batch_progress_bar
+                    else:
+                        progress_bar = progress_bar
+
                     # Update the progress bar
                     if progress_bar:
                         progress_bar['maximum'] = total_progress
                         progress_bar['value'] = unique_progress_count
 
-                    # Extract and update additional information
+                    # Store operation type and additional info
                     if operation_type:
                         progress_bar.operation_type = operation_type
-
-                    time_image_match = re.search(r'Time/image: ([\d.]+) sec', time_info)
-                    if time_image_match:
-                        progress_bar.time_image = float(time_image_match.group(1))
-
-                    time_batch_match = re.search(r'Time/batch: ([\d.]+) sec', time_info)
-                    if time_batch_match:
-                        progress_bar.time_batch = float(time_batch_match.group(1))
-
-                    time_left_match = re.search(r'Time_left: ([\d.]+) min', time_info)
-                    if time_left_match:
-                        progress_bar.time_left = float(time_left_match.group(1))
+                        progress_bar.additional_info = additional_info
 
                     # Update the progress label
                     if progress_bar.progress_label:
                         progress_bar.update_label()
-                        
+
                     # Clear completed tasks when progress is complete
                     if unique_progress_count >= total_progress:
                         process_console_queue.completed_tasks.clear()
 
             except Exception as e:
                 print(f"Error parsing progress message: {e}")
-        #else:
-        #    # Only insert messages that do not start with "Progress:"
-        #    console_output.insert(tk.END, clean_message + "\n")
-        #    console_output.see(tk.END)
+        else:
+            # Only insert messages that do not start with "Progress:"
+            console_output.insert(tk.END, clean_message + "\n")
+            console_output.see(tk.END)
         
-    after_id = console_output.after(1, process_console_queue)
+    after_id = console_output.after(uppdate_frequency, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 
+def main_thread_update_function(root, q, fig_queue, canvas_widget):
+    global uppdate_frequency
+    try:
+        while not q.empty():
+            message = q.get_nowait()
+    except Exception as e:
+        print(f"Error updating GUI canvas: {e}")
+    finally:
+        root.after(uppdate_frequency, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget))
 
 def initiate_root(parent, settings_type='mask'):
-    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar
-    from .gui_utils import main_thread_update_function, setup_frame
+    """
+    Initializes the root window and sets up the GUI components based on the specified settings type.
+
+    Args:
+        parent (tkinter.Tk or tkinter.Toplevel): The parent window for the GUI.
+        settings_type (str, optional): The type of settings to be displayed in the GUI. Defaults to 'mask'.
+
+    Returns:
+        tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.
+    """
+    
+    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, batch_progress_bar, uppdate_frequency
+    
+    from .gui_utils import setup_frame
     from .settings import descriptions
 
+    uppdate_frequency = 1000
+
     set_start_method('spawn', force=True)
+    #set_start_method('forkserver', force=True)
     print("Initializing root with settings_type:", settings_type)
 
     parent_frame = parent
@@ -676,9 +709,9 @@ def initiate_root(parent, settings_type='mask'):
         canvas, canvas_widget = setup_plot_section(vertical_container)
         console_output, _ = setup_console(vertical_container)
         button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
-        _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col)
+        _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
 
-        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
+        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, batch_progress_bar, usage_bars)
         description_text = descriptions.get(settings_type, "No description available for this module.")
         
         q.put(f"Console")
@@ -687,7 +720,7 @@ def initiate_root(parent, settings_type='mask'):
         
         process_console_queue()
         process_fig_queue()
-        after_id = parent_window.after(100, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
+        after_id = parent_window.after(uppdate_frequency, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
         parent_window.after_tasks.append(after_id)
 
     print("Root initialization complete")

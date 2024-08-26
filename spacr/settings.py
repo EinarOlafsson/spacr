@@ -20,7 +20,7 @@ def set_default_plot_merge_settings():
     settings.setdefault('normalize', True)
     settings.setdefault('print_object_number', True)
     settings.setdefault('nr', 1)
-    settings.setdefault('figuresize', 50)
+    settings.setdefault('figuresize', 10)
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('verbose', True)
     return settings
@@ -70,7 +70,7 @@ def set_default_settings_preprocess_generate_masks(src, settings={}):
     
     # Plot settings
     settings.setdefault('plot', False)
-    settings.setdefault('figuresize', 50)
+    settings.setdefault('figuresize', 10)
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('normalize', True)
     settings.setdefault('normalize_plots', True)
@@ -116,7 +116,7 @@ def set_default_settings_preprocess_img_data(settings):
     skip_mode = settings.setdefault('skip_mode', False)
 
     cmap = settings.setdefault('cmap', 'inferno')
-    figuresize = settings.setdefault('figuresize', 50)
+    figuresize = settings.setdefault('figuresize', 10)
     normalize = settings.setdefault('normalize', True)
     save_dtype = settings.setdefault('save_dtype', 'uint16')
     
@@ -189,7 +189,7 @@ def set_default_umap_image_settings(settings={}):
     settings.setdefault('remove_cluster_noise', True)
     settings.setdefault('remove_highly_correlated', True)
     settings.setdefault('log_data', False)
-    settings.setdefault('figuresize', 60)
+    settings.setdefault('figuresize', 10)
     settings.setdefault('black_background', True)
     settings.setdefault('remove_image_canvas', False)
     settings.setdefault('plot_outlines', True)
@@ -314,7 +314,6 @@ def set_default_train_test_model(settings):
     settings.setdefault('batch_size',64)
     settings.setdefault('epochs',100)
     settings.setdefault('val_split',0.1)
-    settings.setdefault('train_mode','erm')
     settings.setdefault('learning_rate',0.001)
     settings.setdefault('weight_decay',0.00001)
     settings.setdefault('dropout_rate',0.1)
@@ -324,7 +323,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
-    settings.setdefault('pin_memory',True)
+    settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
@@ -334,7 +333,7 @@ def set_default_train_test_model(settings):
 def set_generate_training_dataset_defaults(settings):
 
     settings.setdefault('src','path')
-    settings.setdefault('dataset_mode','annotation')
+    settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
     settings.setdefault('annotated_classes',[1,2])
     settings.setdefault('classes',['nc','pc'])
@@ -351,10 +350,10 @@ def set_generate_training_dataset_defaults(settings):
 
 def deep_spacr_defaults(settings):
     
-    cores = os.cpu_count()-2
+    cores = os.cpu_count()-4
     
     settings.setdefault('src','path')
-    settings.setdefault('dataset_mode','annotation')
+    settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
     settings.setdefault('annotated_classes',[1,2])
     settings.setdefault('classes',['nc','pc'])
@@ -379,7 +378,6 @@ def deep_spacr_defaults(settings):
     settings.setdefault('batch_size',64)
     settings.setdefault('epochs',100)
     settings.setdefault('val_split',0.1)
-    settings.setdefault('train_mode','erm')
     settings.setdefault('learning_rate',0.001)
     settings.setdefault('weight_decay',0.00001)
     settings.setdefault('dropout_rate',0.1)
@@ -389,11 +387,12 @@ def deep_spacr_defaults(settings):
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
-    settings.setdefault('pin_memory',True)
+    settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
-    settings.setdefault('verbose',False)
+    settings.setdefault('preload_batches', 3)
+    settings.setdefault('verbose',True)
     settings.setdefault('apply_model_to_dataset',False)
     settings.setdefault('file_metadata',None)
     settings.setdefault('sample',None)
@@ -404,7 +403,6 @@ def deep_spacr_defaults(settings):
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
     settings.setdefault('train_DL_model', True)
-
     return settings
 
 def get_analyze_recruitment_default_settings(settings):
@@ -427,7 +425,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('plot',True)
     settings.setdefault('plot_nr',10)
     settings.setdefault('plot_control',True)
-    settings.setdefault('figuresize',20)
+    settings.setdefault('figuresize',10)
     settings.setdefault('remove_background',False)
     settings.setdefault('backgrounds',100)
     settings.setdefault('include_noninfected',True)
@@ -726,7 +724,6 @@ expected_types = {
     "image_size": int,
     "epochs": int,
     "val_split": float,
-    "train_mode": str,
     "learning_rate": float,
     "weight_decay": float,
     "dropout_rate": float,
@@ -832,6 +829,7 @@ expected_types = {
     "png_type":str,
     "custom_model_path":str,
     "generate_training_dataset":bool,
+    'preload_batches':int,
     "train_DL_model":bool,
 }
 
@@ -850,12 +848,12 @@ categories = {"General": ["src", "metadata_type", "custom_regex", "experiment", 
              "Annotation": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","pathogen_types", "pathogen_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Machine Learning":[],
              "Deep Learning": ["png_type","score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment"],
-             "Generate Dataset":["file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
+             "Generate Dataset":["preload_batches", "file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Cellpose":["from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "circular", "invert", "diameter", "grayscale", "background", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Regression":["class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "remove_row_column_effect", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable", "gene_weights_csv"],
              "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
              "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
-             "Advanced": ["target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "train_mode","amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"]
+             "Advanced": ["target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"]
              }
 
 category_keys = list(categories.keys())
@@ -1139,7 +1137,6 @@ def generate_fields(variables, scrollable_frame):
         "treatments": "(list) - The treatments to include in the analysis.",
         "top_features": "(int) - Top features to include in the analysis.",
         "train": "(bool) - Whether to train the model.",
-        "train_mode": "(str) - Mode to use for training the model.",
         "transform": "(dict) - Transformation to apply to the data.",
         "upscale": "(bool) - Whether to upscale the images.",
         "upscale_factor": "(float) - Factor by which to upscale the images.",

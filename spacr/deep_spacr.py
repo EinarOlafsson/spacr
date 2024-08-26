@@ -1,4 +1,7 @@
 import os, torch, time, gc, datetime
+
+torch.backends.cudnn.benchmark = True
+
 import numpy as np
 import pandas as pd
 from torch.optim import Adagrad, AdamW
@@ -8,13 +11,14 @@ import torch.nn.functional as F
 from IPython.display import display, clear_output
 import matplotlib.pyplot as plt
 from PIL import Image
+from sklearn.metrics import auc, precision_recall_curve
+from multiprocessing import set_start_method
+#set_start_method('spawn', force=True)
 
 from .logger import log_function_call
 from .utils import close_multiprocessing_processes, reset_mp
-#reset_mp()
-#close_multiprocessing_processes()
 
-def evaluate_model_core(model, loader, loader_name, epoch, loss_type):
+def evaluate_model_performance(model, loader, epoch, loss_type):
     """
     Evaluates the performance of a model on a given data loader.
 
@@ -31,7 +35,56 @@ def evaluate_model_core(model, loader, loader_name, epoch, loss_type):
         all_labels (list): The true labels for each prediction.
     """
     
-    from .utils import calculate_loss, classification_metrics
+    from .utils import calculate_loss
+    
+    def classification_metrics(all_labels, prediction_pos_probs):
+        """
+        Calculate classification metrics for binary classification.
+
+        Parameters:
+        - all_labels (list): List of true labels.
+        - prediction_pos_probs (list): List of predicted positive probabilities.
+        - loader_name (str): Name of the data loader.
+
+        Returns:
+        - data_df (DataFrame): DataFrame containing the calculated metrics.
+        """
+
+        if len(all_labels) != len(prediction_pos_probs):
+            raise ValueError(f"all_labels ({len(all_labels)}) and pred_labels ({len(prediction_pos_probs)}) have different lengths")
+
+        unique_labels = np.unique(all_labels)
+        if len(unique_labels) >= 2:
+            pr_labels = np.array(all_labels).astype(int)
+            precision, recall, thresholds = precision_recall_curve(pr_labels, prediction_pos_probs, pos_label=1)
+            pr_auc = auc(recall, precision)
+            thresholds = np.append(thresholds, 0.0)
+            f1_scores = 2 * (precision * recall) / (precision + recall)
+            optimal_idx = np.nanargmax(f1_scores)
+            optimal_threshold = thresholds[optimal_idx]
+            pred_labels = [int(p > 0.5) for p in prediction_pos_probs]
+        if len(unique_labels) < 2:
+            optimal_threshold = 0.5
+            pred_labels = [int(p > optimal_threshold) for p in prediction_pos_probs]
+            pr_auc = np.nan
+        data = {'label': all_labels, 'pred': pred_labels}
+        df = pd.DataFrame(data)
+        pc_df = df[df['label'] == 1.0]
+        nc_df = df[df['label'] == 0.0]
+        correct = df[df['label'] == df['pred']]
+        acc_all = len(correct) / len(df)
+        if len(pc_df) > 0:
+            correct_pc = pc_df[pc_df['label'] == pc_df['pred']]
+            acc_pc = len(correct_pc) / len(pc_df)
+        else:
+            acc_pc = np.nan
+        if len(nc_df) > 0:
+            correct_nc = nc_df[nc_df['label'] == nc_df['pred']]
+            acc_nc = len(correct_nc) / len(nc_df)
+        else:
+            acc_nc = np.nan
+        data_dict = {'accuracy': acc_all, 'neg_accuracy': acc_nc, 'pos_accuracy': acc_pc, 'prauc':pr_auc, 'optimal_threshold':optimal_threshold}
+        return data_dict
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.eval()
@@ -61,48 +114,15 @@ def evaluate_model_core(model, loader, loader_name, epoch, loss_type):
             acc = correct / total_samples
             end_time = time.time()
             test_time = end_time - start_time
-            print(f'\rTest: epoch: {epoch} Accuracy: {acc:.5f} batch: {batch_idx+1}/{len(loader)} loss: {mean_loss:.5f} loss: {mean_loss:.5f} time {test_time:.5f}', end='\r', flush=True)
+            #print(f'\rTest: epoch: {epoch} Accuracy: {acc:.5f} batch: {batch_idx+1}/{len(loader)} loss: {mean_loss:.5f} loss: {mean_loss:.5f} time {test_time:.5f}', end='\r', flush=True)
+    
     loss /= len(loader)
-    data_df = classification_metrics(all_labels, prediction_pos_probs, loader_name, loss, epoch)
-    return data_df, prediction_pos_probs, all_labels
-
-def evaluate_model_performance(loaders, model, loader_name_list, epoch, train_mode, loss_type):
-    """
-    Evaluate the performance of a model on given data loaders.
-
-    Args:
-        loaders (list): List of data loaders.
-        model: The model to evaluate.
-        loader_name_list (list): List of names for the data loaders.
-        epoch (int): The current epoch.
-        train_mode (str): The training mode ('erm' or 'irm').
-        loss_type: The type of loss function.
-
-    Returns:
-        tuple: A tuple containing the evaluation result and the time taken for evaluation.
-    """
-    start_time = time.time()
-    df_list = []
-    if train_mode == 'erm':
-        result, _, _ = evaluate_model_core(model, loaders, loader_name_list, epoch, loss_type)
-    if train_mode == 'irm':
-        for loader_index in range(0, len(loaders)):
-            loader = loaders[loader_index]
-            loader_name = loader_name_list[loader_index]
-            data_df, _, _ = evaluate_model_core(model, loader, loader_name, epoch, loss_type)
-            torch.cuda.empty_cache()
-            df_list.append(data_df)
-        result = pd.concat(df_list)
-        nc_mean = result['neg_accuracy'].mean(skipna=True)
-        pc_mean = result['pos_accuracy'].mean(skipna=True)
-        tot_mean = result['accuracy'].mean(skipna=True)
-        loss_mean = result['loss'].mean(skipna=True)
-        prauc_mean = result['prauc'].mean(skipna=True)
-        data_mean = {'accuracy': tot_mean, 'neg_accuracy': nc_mean, 'pos_accuracy': pc_mean, 'loss': loss_mean, 'prauc': prauc_mean}
-        result = pd.concat([pd.DataFrame(result), pd.DataFrame(data_mean, index=[str(epoch)+'_mean'])])
-    end_time = time.time()
-    test_time = end_time - start_time
-    return result, test_time
+    data_dict = classification_metrics(all_labels, prediction_pos_probs)
+    data_dict['loss'] = loss
+    data_dict['epoch'] = epoch
+    data_dict['Accuracy'] = acc
+    
+    return data_dict, [prediction_pos_probs, all_labels]
 
 def test_model_core(model, loader, loader_name, epoch, loss_type):
     
@@ -145,7 +165,7 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
             acc = correct / total_samples
             end_time = time.time()
             test_time = end_time - start_time
-            print(f'\rTest: epoch: {epoch} Accuracy: {acc:.5f} batch: {batch_idx}/{len(loader)} loss: {mean_loss:.5f} time {test_time:.5f}', end='\r', flush=True)
+            #print(f'\rTest: epoch: {epoch} Accuracy: {acc:.5f} batch: {batch_idx}/{len(loader)} loss: {mean_loss:.5f} time {test_time:.5f}', end='\r', flush=True)
     
     # Constructing the DataFrame
     results_df = pd.DataFrame({
@@ -158,7 +178,7 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     data_df = classification_metrics(all_labels, prediction_pos_probs, loader_name, loss, epoch)
     return data_df, prediction_pos_probs, all_labels, results_df
 
-def test_model_performance(loaders, model, loader_name_list, epoch, train_mode, loss_type):
+def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     """
     Test the performance of a model on given data loaders.
 
@@ -167,7 +187,6 @@ def test_model_performance(loaders, model, loader_name_list, epoch, train_mode, 
         model: The model to be tested.
         loader_name_list (list): List of names for the data loaders.
         epoch (int): The current epoch.
-        train_mode (str): The training mode ('erm' or 'irm').
         loss_type: The type of loss function.
 
     Returns:
@@ -175,25 +194,9 @@ def test_model_performance(loaders, model, loader_name_list, epoch, train_mode, 
     """
     start_time = time.time()
     df_list = []
-    if train_mode == 'erm':
-        result, prediction_pos_probs, all_labels, results_df = test_model_core(model, loaders, loader_name_list, epoch, loss_type)
-    if train_mode == 'irm':
-        for loader_index in range(0, len(loaders)):
-            loader = loaders[loader_index]
-            loader_name = loader_name_list[loader_index]
-            data_df, prediction_pos_probs, all_labels, results_df = test_model_core(model, loader, loader_name, epoch, loss_type)
-            torch.cuda.empty_cache()
-            df_list.append(data_df)
-        result = pd.concat(df_list)
-        nc_mean = result['neg_accuracy'].mean(skipna=True)
-        pc_mean = result['pos_accuracy'].mean(skipna=True)
-        tot_mean = result['accuracy'].mean(skipna=True)
-        loss_mean = result['loss'].mean(skipna=True)
-        prauc_mean = result['prauc'].mean(skipna=True)
-        data_mean = {'accuracy': tot_mean, 'neg_accuracy': nc_mean, 'pos_accuracy': pc_mean, 'loss': loss_mean, 'prauc': prauc_mean}
-        result = pd.concat([pd.DataFrame(result), pd.DataFrame(data_mean, index=[str(epoch)+'_mean'])])
-    end_time = time.time()
-    test_time = end_time - start_time
+
+    result, prediction_pos_probs, all_labels, results_df = test_model_core(model, loaders, loader_name_list, epoch, loss_type)
+
     return result, results_df
 
 def train_test_model(settings):
@@ -201,13 +204,10 @@ def train_test_model(settings):
     from .io import _save_settings, _copy_missclassified
     from .utils import pick_best_model
     from .core import generate_loaders
-    from .settings import set_default_train_test_model
 
     torch.cuda.empty_cache()
     torch.cuda.memory.empty_cache()
     gc.collect()
-
-    settings = set_default_train_test_model(settings)
 
     src = settings['src']
 
@@ -216,9 +216,6 @@ def train_test_model(settings):
     os.makedirs(dst, exist_ok=True)
     settings['src'] = src
     settings['dst'] = dst
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(dst,'train_test_model_settings.csv')
-    settings_df.to_csv(settings_csv, index=False)
     
     if settings['custom_model']:
         model = torch.load(settings['custom_model_path'])
@@ -227,29 +224,27 @@ def train_test_model(settings):
         _save_settings(settings, src)
 
     if settings['train']:
-        train, val, plate_names, train_fig  = generate_loaders(src, 
-                                                    train_mode=settings['train_mode'], 
-                                                    mode='train', 
-                                                    image_size=settings['image_size'],
-                                                    batch_size=settings['batch_size'], 
-                                                    classes=settings['classes'], 
-                                                    n_jobs=settings['n_jobs'],
-                                                    validation_split=settings['val_split'],
-                                                    pin_memory=settings['pin_memory'],
-                                                    normalize=settings['normalize'],
-                                                    channels=settings['train_channels'],
-                                                    augment=settings['augment'],
-                                                    verbose=settings['verbose'])
+        train, val, train_fig  = generate_loaders(src, 
+                                                  mode='train', 
+                                                  image_size=settings['image_size'],
+                                                  batch_size=settings['batch_size'], 
+                                                  classes=settings['classes'], 
+                                                  n_jobs=settings['n_jobs'],
+                                                  validation_split=settings['val_split'],
+                                                  pin_memory=settings['pin_memory'],
+                                                  normalize=settings['normalize'],
+                                                  channels=settings['train_channels'],
+                                                  augment=settings['augment'],
+                                                  preload_batches=settings['preload_batches'],
+                                                  verbose=settings['verbose'])
         
-        train_batch_1_figure = os.path.join(dst, 'batch_1.pdf')
-        train_fig.savefig(train_batch_1_figure, format='pdf', dpi=600)
+        #train_batch_1_figure = os.path.join(dst, 'batch_1.pdf')
+        #train_fig.savefig(train_batch_1_figure, format='pdf', dpi=300)
     
     if settings['train']:
         model, model_path = train_model(dst = settings['dst'],
                                         model_type=settings['model_type'],
                                         train_loaders = train, 
-                                        train_loader_names = plate_names, 
-                                        train_mode = settings['train_mode'], 
                                         epochs = settings['epochs'], 
                                         learning_rate = settings['learning_rate'],
                                         init_weights = settings['init_weights'],
@@ -268,24 +263,20 @@ def train_test_model(settings):
                                         gradient_accumulation_steps=settings['gradient_accumulation_steps'],
                                         channels=settings['train_channels'])
         
-        torch.cuda.empty_cache()
-        torch.cuda.memory.empty_cache()
-        gc.collect()
-        
     if settings['test']:
         test, _, plate_names_test, train_fig = generate_loaders(src, 
-                                                     train_mode=settings['train_mode'], 
-                                                     mode='test', 
-                                                     image_size=settings['image_size'],
-                                                     batch_size=settings['batch_size'], 
-                                                     classes=settings['classes'], 
-                                                     n_jobs=settings['n_jobs'],
-                                                     validation_split=0.0,
-                                                     pin_memory=settings['pin_memory'],
-                                                     normalize=settings['normalize'],
-                                                     channels=settings['train_channels'],
-                                                     augment=False,
-                                                     verbose=settings['verbose'])
+                                                                mode='test', 
+                                                                image_size=settings['image_size'],
+                                                                batch_size=settings['batch_size'], 
+                                                                classes=settings['classes'], 
+                                                                n_jobs=settings['n_jobs'],
+                                                                validation_split=0.0,
+                                                                pin_memory=settings['pin_memory'],
+                                                                normalize=settings['normalize'],
+                                                                channels=settings['train_channels'],
+                                                                augment=False,
+                                                                preload_batches=settings['preload_batches'],
+                                                                verbose=settings['verbose'])
         if model == None:
             model_path = pick_best_model(src+'/model')
             print(f'Best model: {model_path}')
@@ -307,7 +298,6 @@ def train_test_model(settings):
                                                   model=model,
                                                   loader_name_list='test',
                                                   epoch=1,
-                                                  train_mode=settings['train_mode'],
                                                   loss_type=settings['loss_type'])
         
         result.to_csv(result_loc, index=True, header=True, mode='w')
@@ -320,7 +310,7 @@ def train_test_model(settings):
 
     return model_path
     
-def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='erm', epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b']):
+def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b'], verbose=False):
     """
     Trains a model using the specified parameters.
 
@@ -328,8 +318,6 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
         dst (str): The destination path to save the model and results.
         model_type (str): The type of model to train.
         train_loaders (list): A list of training data loaders.
-        train_loader_names (list): A list of names for the training data loaders.
-        train_mode (str, optional): The training mode. Defaults to 'erm'.
         epochs (int, optional): The number of training epochs. Defaults to 100.
         learning_rate (float, optional): The learning rate for the optimizer. Defaults to 0.0001.
         weight_decay (float, optional): The weight decay for the optimizer. Defaults to 0.05.
@@ -353,29 +341,35 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
     """    
     
     from .io import _save_model, _save_progress
-    from .utils import compute_irm_penalty, calculate_loss, choose_model, print_progress
+    from .utils import calculate_loss, choose_model
     
     print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders)}')
     
     if test_loaders != None:
         print(f'Test batches:{len(test_loaders)}')
-        
+
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
+
+    print(f'Using {device} for Torch')
+    
     kwargs = {'n_jobs': n_jobs, 'pin_memory': True} if use_cuda else {}
     
-    for idx, (images, labels, filenames) in enumerate(train_loaders):
-        batch, chans, height, width = images.shape
-        break
+    #for idx, (images, labels, filenames) in enumerate(train_loaders):
+    #    batch, chans, height, width = images.shape
+    #    break
 
-    model = choose_model(model_type, device, init_weights, dropout_rate, use_checkpoint)
-
+    
+    model = choose_model(model_type, device, init_weights, dropout_rate, use_checkpoint, verbose=verbose)
+    
+    
     if model is None:
         print(f'Model {model_type} not found')
         return
 
+    print(f'Loading Model to {device}...')
     model.to(device)
-    
+
     if optimizer_type == 'adamw':
         optimizer = AdamW(model.parameters(), lr=learning_rate,  betas=(0.9, 0.999), weight_decay=weight_decay, amsgrad=amsgrad)
     
@@ -392,169 +386,90 @@ def train_model(dst, model_type, train_loaders, train_loader_names, train_mode='
         scheduler = None
 
     time_ls = []
-    if train_mode == 'erm':
-        for epoch in range(1, epochs+1):
-            model.train()
-            start_time = time.time()
-            running_loss = 0.0
 
-            # Initialize gradients if using gradient accumulation
+    # Initialize lists to accumulate results
+    accumulated_train_dicts = []
+    accumulated_val_dicts = []
+    accumulated_test_dicts = []
+
+    print(f'Training ...')
+    for epoch in range(1, epochs+1):
+        model.train()
+        start_time = time.time()
+        running_loss = 0.0
+
+        # Initialize gradients if using gradient accumulation
+        if gradient_accumulation:
+            optimizer.zero_grad()
+
+        for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
+            data, target = data.to(device), target.to(device).float()
+            output = model(data)
+            loss = calculate_loss(output, target, loss_type=loss_type)
+            
+            # Normalize loss if using gradient accumulation
             if gradient_accumulation:
+                loss /= gradient_accumulation_steps
+            running_loss += loss.item() * gradient_accumulation_steps  # correct the running_loss
+            loss.backward()
+
+            # Step optimizer if not using gradient accumulation or every gradient_accumulation_steps
+            if not gradient_accumulation or (batch_idx % gradient_accumulation_steps == 0):
+                optimizer.step()
                 optimizer.zero_grad()
 
-            for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
-                data, target = data.to(device), target.to(device).float()
-                output = model(data)
-                loss = calculate_loss(output, target, loss_type=loss_type)
-                # Normalize loss if using gradient accumulation
-                if gradient_accumulation:
-                    loss /= gradient_accumulation_steps
-                running_loss += loss.item() * gradient_accumulation_steps  # correct the running_loss
-                loss.backward()
-
-                # Step optimizer if not using gradient accumulation or every gradient_accumulation_steps
-                if not gradient_accumulation or (batch_idx % gradient_accumulation_steps == 0):
-                    optimizer.step()
-                    optimizer.zero_grad()
-
-                avg_loss = running_loss / batch_idx
-                #print(f'\rTrain: epoch: {epoch} batch: {batch_idx}/{len(train_loaders)} avg_loss: {avg_loss:.5f} time: {(time.time()-start_time):.5f}', end='\r', flush=True)
-                
-                batch_size = len(train_loaders)
-                duration = time.time() - start_time
-                time_ls.append(duration)
-                metricks = f"Loss: {avg_loss:.5f}"
-                print_progress(files_processed=epoch, files_to_process=epochs, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f"Training {model_type} model", metricks=metricks)
-
-            end_time = time.time()
-            train_time = end_time - start_time
-            train_metrics = {'epoch':epoch,'loss':loss.cpu().item(), 'train_time':train_time}
-            train_metrics_df = pd.DataFrame(train_metrics, index=[epoch])
-            train_names = 'train'
-            results_df, train_test_time = evaluate_model_performance(train_loaders, model, train_names, epoch, train_mode='erm', loss_type=loss_type)
-            train_metrics_df['train_test_time'] = train_test_time
-
-            if val_loaders != None:
-                val_names = 'val'
-                result, val_time = evaluate_model_performance(val_loaders, model, val_names, epoch, train_mode='erm', loss_type=loss_type)
-                
-                if schedule == 'reduce_lr_on_plateau':
-                    val_loss = result['loss']
-                
-                results_df = pd.concat([results_df, result])
-                train_metrics_df['val_time'] = val_time
-
-            if test_loaders != None:
-                test_names = 'test'
-                result, test_test_time = evaluate_model_performance(test_loaders, model, test_names, epoch, train_mode='erm', loss_type=loss_type)
-                results_df = pd.concat([results_df, result])
-                test_time = (train_test_time+val_time+test_test_time)/3
-                train_metrics_df['test_time'] = test_time
-            
-            if scheduler:
-                if schedule == 'reduce_lr_on_plateau':
-                    scheduler.step(val_loss)
-                if schedule == 'step_lr':
-                    scheduler.step()
-            
-            _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
-            #clear_output(wait=True)
-            #display(results_df)
-
-            train_idx = f"{epoch}_train"
-            val_idx = f"{epoch}_val"
-            train_acc = results_df.loc[train_idx, 'accuracy']
-            neg_train_acc = results_df.loc[train_idx, 'neg_accuracy']
-            pos_train_acc = results_df.loc[train_idx, 'pos_accuracy']
-            val_acc = results_df.loc[val_idx, 'accuracy']
-            neg_val_acc = results_df.loc[val_idx, 'neg_accuracy']
-            pos_val_acc = results_df.loc[val_idx, 'pos_accuracy']
-            train_loss = results_df.loc[train_idx, 'loss']
-            train_prauc = results_df.loc[train_idx, 'prauc']
-            val_loss = results_df.loc[val_idx, 'loss']
-            val_prauc = results_df.loc[val_idx, 'prauc']
-
-            metricks = f"Train Acc: {train_acc:.5f} Val Acc: {val_acc:.5f} Train Loss: {train_loss:.5f} Val Loss: {val_loss:.5f} Train PRAUC: {train_prauc:.5f} Val PRAUC: {val_prauc:.5f}, Nc Train Acc: {neg_train_acc:.5f} Nc Val Acc: {neg_val_acc:.5f} Pc Train Acc: {pos_train_acc:.5f} Pc Val Acc: {pos_val_acc:.5f}"
-
+            avg_loss = running_loss / batch_idx
             batch_size = len(train_loaders)
             duration = time.time() - start_time
             time_ls.append(duration)
-            print_progress(files_processed=epoch, files_to_process=epochs, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type=f"Training {model_type} model", metricks=metricks)
+            print(f'Progress: {batch_idx}/{batch_size}, operation_type: DL-Batch, Epoch {epoch}/{epochs}, Loss {avg_loss}, Time {duration}')
+            
+        end_time = time.time()
+        train_time = end_time - start_time
+        train_dict, _ = evaluate_model_performance(model, train_loaders, epoch, loss_type=loss_type)
+        train_dict['train_time'] = train_time
+        accumulated_train_dicts.append(train_dict)
+        print(f"Progress: {train_dict['epoch']}/{epochs}, operation_type: DL-Epoch, Loss: {train_dict['loss']:.3f}, Accuracy: {train_dict['accuracy']:.3f}, NC accuracy: {train_dict['neg_accuracy']:.3f}, PC accuracy: {train_dict['pos_accuracy']:.3f}, PRAUC: {train_dict['prauc']:.3f}, Training")
+        
+        if val_loaders != None:
+            val_dict, _ = evaluate_model_performance(model, val_loaders, epoch, loss_type=loss_type)
+            accumulated_val_dicts.append(val_dict)
+            print(f"Progress: {val_dict['epoch']}/{epochs}, operation_type: DL-Epoch, Loss: {val_dict['loss']:.3f}, Accuracy: {val_dict['accuracy']:.3f}, NC accuracy: {val_dict['neg_accuracy']:.3f}, PC accuracy: {val_dict['pos_accuracy']:.3f}, PRAUC: {val_dict['prauc']:.3f}, Validation")
+            
+            if schedule == 'reduce_lr_on_plateau':
+                val_loss = val_dict['loss']
+            
+        if test_loaders != None:
+            test_dict, _ = evaluate_model_performance(model, test_loaders, epoch, loss_type=loss_type)
+            accumulated_test_dicts.append(test_dict)
+            print(f"Progress: {test_dict['epoch']}/{epochs}, operation_type: DL-Epoch, Loss: {test_dict['loss']:.3f}, Accuracy: {test_dict['accuracy']:.3f}, NC accuracy: {test_dict['neg_accuracy']:.3f}, PC accuracy: {test_dict['pos_accuracy']:.3f}, PRAUC: {test_dict['prauc']:.3f}, Testing")
+            
+        if scheduler:
+            if schedule == 'reduce_lr_on_plateau':
+                scheduler.step(val_loss)
+            if schedule == 'step_lr':
+                scheduler.step()
 
-            model_path = _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
-            
-    if train_mode == 'irm':
-        dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(device)
-        phi = torch.nn.Parameter (torch.ones(4,1))
-        for epoch in range(1, epochs):
-            model.train()
-            penalty_factor = epoch * 1e-5
-            epoch_names = [str(epoch) + '_' + item for item in train_loader_names]
-            loader_erm_loss_list = []
-            total_erm_loss_mean = 0
-            for loader_index in range(0, len(train_loaders)):
-                start_time = time.time()
-                loader = train_loaders[loader_index]
-                loader_erm_loss_mean = 0
-                batch_count = 0
-                batch_erm_loss_list = []
-                for batch_idx, (data, target, filenames) in enumerate(loader, start=1):
-                    optimizer.zero_grad()
-                    data, target = data.to(device), target.to(device).float()
-                    
-                    output = model(data)
-                    erm_loss = F.binary_cross_entropy_with_logits(output * dummy_w, target, reduction='none')
-                    
-                    batch_erm_loss_list.append(erm_loss.mean())
-                    print(f'\repoch: {epoch} loader: {loader_index} batch: {batch_idx+1}/{len(loader)}', end='\r', flush=True)
-                loader_erm_loss_mean = torch.stack(batch_erm_loss_list).mean()
-                loader_erm_loss_list.append(loader_erm_loss_mean)
-            total_erm_loss_mean = torch.stack(loader_erm_loss_list).mean()
-            irm_loss = compute_irm_penalty(loader_erm_loss_list, dummy_w, device)
-            
-            (total_erm_loss_mean + penalty_factor * irm_loss).backward()
-            optimizer.step()
-            
-            end_time = time.time()
-            train_time = end_time - start_time
-            
-            train_metrics = {'epoch': epoch, 'irm_loss': irm_loss, 'erm_loss': total_erm_loss_mean, 'penalty_factor': penalty_factor, 'train_time': train_time}
-            #train_metrics = {'epoch':epoch,'irm_loss':irm_loss.cpu().item(),'erm_loss':total_erm_loss_mean.cpu().item(),'penalty_factor':penalty_factor, 'train_time':train_time}
-            train_metrics_df = pd.DataFrame(train_metrics, index=[epoch])
-            print(f'\rTrain: epoch: {epoch} loader: {loader_index} batch: {batch_idx+1}/{len(loader)} irm_loss: {irm_loss:.5f} mean_erm_loss: {total_erm_loss_mean:.5f} train time {train_time:.5f}', end='\r', flush=True)            
-            
-            train_names = [item + '_train' for item in train_loader_names]
-            results_df, train_test_time = evaluate_model_performance(train_loaders, model, train_names, epoch, train_mode='irm', loss_type=loss_type)
-            train_metrics_df['train_test_time'] = train_test_time
-            
-            if val_loaders != None:
-                val_names = [item + '_val' for item in train_loader_names]
-                result, val_time = evaluate_model_performance(val_loaders, model, val_names, epoch, train_mode='irm', loss_type=loss_type)
+        if epoch % 10 == 0 or epoch == epochs:
+            if accumulated_train_dicts:
+                train_df = pd.DataFrame(accumulated_train_dicts)
+                _save_progress(dst, train_df, result_type='train')
                 
-                if schedule == 'reduce_lr_on_plateau':
-                    val_loss = result['loss']
+            if accumulated_val_dicts:
+                val_df = pd.DataFrame(accumulated_val_dicts)
+                _save_progress(dst, val_df,result_type='validation')
                 
-                results_df = pd.concat([results_df, result])
-                train_metrics_df['val_time'] = val_time
-            
-            if test_loaders != None:
-                test_names = [item + '_test' for item in train_loader_names] #test_loader_names?
-                result, test_test_time = evaluate_model_performance(test_loaders, model, test_names, epoch, train_mode='irm', loss_type=loss_type)
-                results_df = pd.concat([results_df, result])
-                train_metrics_df['test_test_time'] = test_test_time
+            if accumulated_test_dicts:
+                val_df = pd.DataFrame(accumulated_test_dicts)
+                _save_progress(dst, val_df, result_type='test')
                 
-            if scheduler:
-                if schedule == 'reduce_lr_on_plateau':
-                    scheduler.step(val_loss)
-                if schedule == 'step_lr':
-                    scheduler.step()
+
+        batch_size = len(train_loaders)
+        duration = time.time() - start_time
+        time_ls.append(duration)
+        
+        model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
             
-            clear_output(wait=True)
-            display(results_df)
-            _save_progress(dst, results_df, train_metrics_df, epoch, epochs)
-            model_path = _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94])
-            print(f'Saved model: {model_path}')
-    
     return model, model_path
 
 def visualize_saliency_map(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
@@ -817,9 +732,12 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
 def deep_spacr(settings={}):
     from .settings import deep_spacr_defaults
     from .core import generate_training_dataset, generate_dataset, apply_model_to_tar
+    from .utils import save_settings
     
     settings = deep_spacr_defaults(settings)
     src = settings['src']
+
+    save_settings(settings, name='DL_model')
     
     if settings['train'] or settings['test']:
         if settings['generate_training_dataset']:
