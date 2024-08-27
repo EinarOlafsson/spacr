@@ -393,7 +393,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('augment',False)
     settings.setdefault('preload_batches', 3)
     settings.setdefault('verbose',True)
-    settings.setdefault('apply_model_to_dataset',False)
+    settings.setdefault('apply_model_to_dataset',True)
     settings.setdefault('file_metadata',None)
     settings.setdefault('sample',None)
     settings.setdefault('experiment','exp.')

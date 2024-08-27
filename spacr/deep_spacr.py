@@ -422,28 +422,30 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
             batch_size = len(train_loaders)
             duration = time.time() - start_time
             time_ls.append(duration)
-            print(f'Progress: {batch_idx}/{batch_size}, operation_type: DL-Batch, Epoch {epoch}/{epochs}, Loss {avg_loss}, Time {duration}')
+            #print(f'Progress: {batch_idx}/{batch_size}, operation_type: DL-Batch, Epoch {epoch}/{epochs}, Loss {avg_loss}, Time {duration}')
             
         end_time = time.time()
         train_time = end_time - start_time
         train_dict, _ = evaluate_model_performance(model, train_loaders, epoch, loss_type=loss_type)
         train_dict['train_time'] = train_time
         accumulated_train_dicts.append(train_dict)
-        print(f"Progress: {train_dict['epoch']}/{epochs}, operation_type: DL-Epoch, Loss: {train_dict['loss']:.3f}, Accuracy: {train_dict['accuracy']:.3f}, NC accuracy: {train_dict['neg_accuracy']:.3f}, PC accuracy: {train_dict['pos_accuracy']:.3f}, PRAUC: {train_dict['prauc']:.3f}, Training")
         
         if val_loaders != None:
             val_dict, _ = evaluate_model_performance(model, val_loaders, epoch, loss_type=loss_type)
             accumulated_val_dicts.append(val_dict)
-            print(f"Progress: {val_dict['epoch']}/{epochs}, operation_type: DL-Epoch, Loss: {val_dict['loss']:.3f}, Accuracy: {val_dict['accuracy']:.3f}, NC accuracy: {val_dict['neg_accuracy']:.3f}, PC accuracy: {val_dict['pos_accuracy']:.3f}, PRAUC: {val_dict['prauc']:.3f}, Validation")
             
             if schedule == 'reduce_lr_on_plateau':
                 val_loss = val_dict['loss']
-            
+
+            print(f"Progress: {train_dict['epoch']}/{epochs}, operation_type: Training, Train Loss: {train_dict['loss']:.3f}, Val Loss: {val_dict['loss']:.3f}, Train acc.: {train_dict['accuracy']:.3f}, Val acc.: {val_dict['accuracy']:.3f}, Train NC acc.: {train_dict['neg_accuracy']:.3f}, Val NC acc.: {val_dict['neg_accuracy']:.3f}, Train PC acc.: {train_dict['pos_accuracy']:.3f}, Val PC acc.: {val_dict['pos_accuracy']:.3f}, Train PRAUC: {train_dict['prauc']:.3f}, Val PRAUC: {val_dict['prauc']:.3f}")
+       
+        else:
+            print(f"Progress: {train_dict['epoch']}/{epochs}, operation_type: Training, Train Loss: {train_dict['loss']:.3f}, Train acc.: {train_dict['accuracy']:.3f}, Train NC acc.: {train_dict['neg_accuracy']:.3f}, Train PC acc.: {train_dict['pos_accuracy']:.3f}, Train PRAUC: {train_dict['prauc']:.3f}")
         if test_loaders != None:
             test_dict, _ = evaluate_model_performance(model, test_loaders, epoch, loss_type=loss_type)
             accumulated_test_dicts.append(test_dict)
-            print(f"Progress: {test_dict['epoch']}/{epochs}, operation_type: DL-Epoch, Loss: {test_dict['loss']:.3f}, Accuracy: {test_dict['accuracy']:.3f}, NC accuracy: {test_dict['neg_accuracy']:.3f}, PC accuracy: {test_dict['pos_accuracy']:.3f}, PRAUC: {test_dict['prauc']:.3f}, Testing")
-            
+            print(f"Progress: {test_dict['epoch']}/{epochs}, operation_type: Training, Train Loss: {test_dict['loss']:.3f}, Train acc.: {test_dict['accuracy']:.3f}, Train NC acc.: {test_dict['neg_accuracy']:.3f}, Train PC acc.: {test_dict['pos_accuracy']:.3f}, Train PRAUC: {test_dict['prauc']:.3f}")
+
         if scheduler:
             if schedule == 'reduce_lr_on_plateau':
                 scheduler.step(val_loss)
@@ -463,7 +465,6 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
                 val_df = pd.DataFrame(accumulated_test_dicts)
                 _save_progress(dst, val_df, result_type='test')
                 
-
         batch_size = len(train_loaders)
         duration = time.time() - start_time
         time_ls.append(duration)
@@ -744,7 +745,7 @@ def deep_spacr(settings={}):
             print(f"Generating train and test datasets ...")
             train_path, test_path = generate_training_dataset(settings)
             print(f'Generated Train set: {train_path}')
-            print(f'Generated Train set: {test_path}')
+            print(f'Generated Test set: {test_path}')
             settings['src'] = os.path.dirname(train_path)
     
     if settings['train_DL_model']:
@@ -754,8 +755,8 @@ def deep_spacr(settings={}):
         settings['src'] = src
         
     if settings['apply_model_to_dataset']:
-        if not os.path.exists(settings['tar_path']):
-            print(f"Generating dataset ...")
+        if not settings['tar_path'] and os.path.isabs(settings['tar_path']) and os.path.exists(settings['tar_path']):
+            print(f"{settings['tar_path']} not found generating dataset ...")
             tar_path = generate_dataset(settings)
             settings['tar_path'] = tar_path
             
