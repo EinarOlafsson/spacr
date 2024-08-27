@@ -516,6 +516,7 @@ class spacrDropdownMenu(tk.Frame):
         self.inactive_color = color_settings['inactive_color']
         self.active_color = color_settings['active_color']
         self.fg_color = color_settings['fg_color']
+        self.bg_color = style_out['bg_color']
 
         # Create the button with rounded edges
         self.button_bg = self.create_rounded_rectangle(2, 2, self.button_width + 2, self.size + 2, radius=20, fill=self.inactive_color, outline=self.inactive_color)
@@ -536,8 +537,8 @@ class spacrDropdownMenu(tk.Frame):
         self.canvas.bind("<Leave>", self.on_leave)
         self.canvas.bind("<Button-1>", self.on_click)
 
-        # Create a popup menu
-        self.menu = tk.Menu(self, tearoff=0)
+        # Create a popup menu with the desired background color
+        self.menu = tk.Menu(self, tearoff=0, bg=self.bg_color, fg=self.fg_color)
         for option in self.options:
             self.menu.add_command(label=option, command=lambda opt=option: self.on_select(opt))
 
@@ -591,7 +592,6 @@ class spacrDropdownMenu(tk.Frame):
                 else:
                     self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
 
-
 class spacrCheckbutton(ttk.Checkbutton):
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -613,17 +613,26 @@ class spacrProgressBar(ttk.Progressbar):
         self.bg_color = style_out['bg_color']
         self.active_color = style_out['active_color']
         self.inactive_color = style_out['inactive_color']
+        self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
 
         # Configure the style for the progress bar
         self.style = ttk.Style()
+        
+        # Remove any borders and ensure the active color fills the entire space
         self.style.configure(
             "spacr.Horizontal.TProgressbar",
-            troughcolor=self.bg_color,
-            background=self.active_color,
-            thickness=20,
-            troughrelief='flat',
-            borderwidth=0
+            troughcolor=self.inactive_color,       # Set the trough to bg color
+            background=self.active_color,    # Active part is the active color
+            borderwidth=0,                   # Remove border width
+            pbarrelief="flat",               # Flat relief for the progress bar
+            troughrelief="flat",             # Flat relief for the trough
+            thickness=20,                    # Set the thickness of the progress bar
+            darkcolor=self.active_color,     # Ensure darkcolor matches the active color
+            lightcolor=self.active_color,    # Ensure lightcolor matches the active color
+            bordercolor=self.bg_color        # Set the border color to the background color to hide it
         )
+
         self.configure(style="spacr.Horizontal.TProgressbar")
 
         # Set initial value to 0
@@ -641,15 +650,14 @@ class spacrProgressBar(ttk.Progressbar):
                 justify='left',
                 bg=self.inactive_color,
                 fg=self.fg_color,
-                wraplength=300  # Adjust the wraplength as needed
+                wraplength=300,
+                font=self.font_loader.get_font(size=self.font_size)
             )
-            self.progress_label.grid_forget()  # Temporarily hide it
+            self.progress_label.grid_forget()
 
         # Initialize attributes for time and operation
         self.operation_type = None
-        self.time_image = None
-        self.time_batch = None
-        self.time_left = None
+        self.additional_info = None
 
     def set_label_position(self):
         if self.label and self.progress_label:
@@ -665,71 +673,18 @@ class spacrProgressBar(ttk.Progressbar):
             if self.operation_type:
                 label_text += f", {self.operation_type}"
             if hasattr(self, 'additional_info') and self.additional_info:
-                # Replace commas with newline characters and add extra space between lines
-                formatted_additional_info = self.additional_info.replace(", ", "\n\n")
-                label_text += f",\n{formatted_additional_info}"
-            self.progress_label.config(text=label_text)
-
-class spacrProgressBar_v1(ttk.Progressbar):
-    def __init__(self, parent, label=True, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-
-        # Get the style colors
-        style_out = set_dark_style(ttk.Style())
-
-        self.fg_color = style_out['fg_color']
-        self.bg_color = style_out['bg_color']
-        self.active_color = style_out['active_color']
-        self.inactive_color = style_out['inactive_color']
-
-        # Configure the style for the progress bar
-        self.style = ttk.Style()
-        self.style.configure(
-            "spacr.Horizontal.TProgressbar",
-            troughcolor=self.bg_color,
-            background=self.active_color,
-            thickness=20,
-            troughrelief='flat',
-            borderwidth=0
-        )
-        self.configure(style="spacr.Horizontal.TProgressbar")
-
-        # Set initial value to 0
-        self['value'] = 0
-
-        # Track whether to show the progress label
-        self.label = label
-
-        # Create the progress label (defer placement)
-        if self.label:
-            self.progress_label = tk.Label(parent, text="Processing: 0/0", anchor='w', justify='left', bg=self.inactive_color, fg=self.fg_color)
-            self.progress_label.grid_forget()  # Temporarily hide it
-
-        # Initialize attributes for time and operation
-        self.operation_type = None
-        self.time_image = None
-        self.time_batch = None
-        self.time_left = None
-
-    def set_label_position(self):
-        if self.label and self.progress_label:
-            row_info = self.grid_info().get('row', 0)
-            col_info = self.grid_info().get('column', 0)
-            col_span = self.grid_info().get('columnspan', 1)
-            self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
-
-    def update_label(self):
-        if self.label and self.progress_label:
-            # Update the progress label with current progress and additional info
-            label_text = f"Processing: {self['value']}/{self['maximum']}"
-            if self.operation_type:
-                label_text += f", {self.operation_type}"
-            if self.time_image:
-                label_text += f", Time/image: {self.time_image:.3f} sec"
-            if self.time_batch:
-                label_text += f", Time/batch: {self.time_batch:.3f} sec"
-            if self.time_left:
-                label_text += f", Time_left: {self.time_left:.3f} min"
+                # Add a space between progress information and additional information
+                label_text += "\n\n"
+                # Split the additional_info into a list of items
+                items = self.additional_info.split(", ")
+                formatted_additional_info = ""
+                # Group the items in pairs, adding them to formatted_additional_info
+                for i in range(0, len(items), 2):
+                    if i + 1 < len(items):
+                        formatted_additional_info += f"{items[i]}, {items[i + 1]}\n\n"
+                    else:
+                        formatted_additional_info += f"{items[i]}\n\n"  # If there's an odd item out, add it alone
+                label_text += formatted_additional_info.strip()
             self.progress_label.config(text=label_text)
 
 def spacrScrollbarStyle(style, inactive_color, active_color):
