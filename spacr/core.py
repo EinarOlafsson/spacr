@@ -985,173 +985,6 @@ def generate_dataset(settings={}):
 
     return tar_name
 
-def generate_dataset_v1(src, file_metadata=None, experiment='TSG101_screen', sample=None):
-    
-    from .utils import initiate_counter, add_images_to_tar
-    
-    db_path = os.path.join(src, 'measurements', 'measurements.db')
-    dst = os.path.join(src, 'datasets')
-    all_paths = []
-
-    # Connect to the database and retrieve the image paths
-    print(f'Reading DataBase: {db_path}')
-    try:
-        with sqlite3.connect(db_path) as conn:
-            cursor = conn.cursor()
-            if file_metadata:
-                if isinstance(file_metadata, str):
-                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
-            else:
-                cursor.execute("SELECT png_path FROM png_list")
-
-            while True:
-                rows = cursor.fetchmany(1000)
-                if not rows:
-                    break
-                all_paths.extend([row[0] for row in rows])
-
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return
-    except Exception as e:
-        print(f"Error: {e}")
-        return
-
-    if isinstance(sample, int):
-        selected_paths = random.sample(all_paths, sample)
-        print(f'Random selection of {len(selected_paths)} paths')
-    else:
-        selected_paths = all_paths
-        random.shuffle(selected_paths)
-        print(f'All paths: {len(selected_paths)} paths')
-
-    total_images = len(selected_paths)
-    print(f'Found {total_images} images')
-
-    # Create a temp folder in dst
-    temp_dir = os.path.join(dst, "temp_tars")
-    os.makedirs(temp_dir, exist_ok=True)
-
-    # Chunking the data
-    num_procs = max(2, cpu_count() - 2)
-    chunk_size = len(selected_paths) // num_procs
-    remainder = len(selected_paths) % num_procs
-
-    paths_chunks = []
-    start = 0
-    for i in range(num_procs):
-        end = start + chunk_size + (1 if i < remainder else 0)
-        paths_chunks.append(selected_paths[start:end])
-        start = end
-
-    temp_tar_files = [os.path.join(temp_dir, f'temp_{i}.tar') for i in range(num_procs)]
-
-    print(f'Generating temporary tar files in {dst}')
-
-    # Initialize shared counter and lock
-    counter = Value('i', 0)
-    lock = Lock()
-
-    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
-        pool.starmap(add_images_to_tar, [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)])
-
-    # Combine the temporary tar files into a final tar
-    date_name = datetime.date.today().strftime('%y%m%d')
-    if not file_metadata is None:
-        tar_name = f'{date_name}_{experiment}_{file_metadata}.tar'
-    else:
-        tar_name = f'{date_name}_{experiment}.tar'
-    tar_name = os.path.join(dst, tar_name)
-    if os.path.exists(tar_name):
-        number = random.randint(1, 100)
-        tar_name_2 = f'{date_name}_{experiment}_{file_metadata}_{number}.tar'
-        print(f'Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ')
-        tar_name = os.path.join(dst, tar_name_2)
-
-    print(f'Merging temporary files')
-
-    with tarfile.open(tar_name, 'w') as final_tar:
-        for temp_tar_path in temp_tar_files:
-            with tarfile.open(temp_tar_path, 'r') as temp_tar:
-                for member in temp_tar.getmembers():
-                    file_obj = temp_tar.extractfile(member)
-                    final_tar.addfile(member, file_obj)
-            os.remove(temp_tar_path)
-
-    # Delete the temp folder
-    shutil.rmtree(temp_dir)
-    print(f"\nSaved {total_images} images to {tar_name}")
-
-def apply_model_to_tar_v1(tar_path, model_path, file_type='cell_png', image_size=224, batch_size=64, normalize=True, preload='images', n_jobs=10, threshold=0.5, verbose=False):
-    
-    from .io import TarImageDataset
-    from .utils import process_vision_results, print_progress
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    if normalize:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
-    else:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size))])
-    
-    if verbose:
-        print(f'Loading model from {model_path}')
-        print(f'Loading dataset from {tar_path}')
-        
-    model = torch.load(model_path)
-    
-    dataset = TarImageDataset(tar_path, transform=transform)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=n_jobs, pin_memory=True)
-    
-    model_name = os.path.splitext(os.path.basename(model_path))[0] 
-    dataset_name = os.path.splitext(os.path.basename(tar_path))[0]  
-    date_name = datetime.date.today().strftime('%y%m%d')
-    dst = os.path.dirname(tar_path)
-    result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
-
-    model.eval()
-    model = model.to(device)
-    
-    if verbose:
-        print(model)
-        print(f'Generated dataset with {len(dataset)} images')
-        print(f'Generating loader from {len(data_loader)} batches')
-        print(f'Results wil be saved in: {result_loc}')
-        print(f'Model is in eval mode')
-        print(f'Model loaded to device')
-        
-    prediction_pos_probs = []
-    filenames_list = []
-    time_ls = []
-    gc.collect()
-    with torch.no_grad():
-        for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
-            start = time.time()
-            images = batch_images.to(torch.float).to(device)
-            outputs = model(images)
-            batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
-            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
-            filenames_list.extend(filenames)
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            files_processed = batch_idx*batch_size
-            files_to_process = len(data_loader)
-            print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=batch_size, operation_type="Tar dataset")
-
-    data = {'path':filenames_list, 'pred':prediction_pos_probs}
-    df = pd.DataFrame(data, index=None)
-    df = process_vision_results(df, threshold)
-
-    df.to_csv(result_loc, index=True, header=True, mode='w')
-    torch.cuda.empty_cache()
-    torch.cuda.memory.empty_cache()
-    return df
-
 def apply_model_to_tar(settings={}):
     
     from .io import TarImageDataset
@@ -1406,107 +1239,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
-def generate_training_dataset_v1(src, mode='annotation', annotation_column='test', annotated_classes=[1,2], classes=['nc','pc'], size=200, test_split=0.1, class_metadata=[['c1'],['c2']], metadata_type_by='col', channel_of_interest=3, custom_measurement=None, tables=None, png_type='cell_png'):
-    
-    from .io import _read_and_merge_data, _read_db
-    from .utils import get_paths_from_db, annotate_conditions
-    
-    db_path = os.path.join(src, 'measurements','measurements.db')
-    dst = os.path.join(src, 'datasets', 'training')
-
-    if os.path.exists(dst):
-        for i in range(1, 1000):
-            dst = os.path.join(src, 'datasets', f'training_{i}')
-            if not os.path.exists(dst):
-                print(f'Creating new directory for training: {dst}')
-                break
-                
-    if mode == 'annotation':
-        class_paths_ls_2 = []
-        class_paths_ls = training_dataset_from_annotation(db_path, dst, annotation_column, annotated_classes=annotated_classes)
-        for class_paths in class_paths_ls:
-            class_paths_temp = random.sample(class_paths, size)
-            class_paths_ls_2.append(class_paths_temp)
-        class_paths_ls = class_paths_ls_2
-
-    elif mode == 'metadata':
-        class_paths_ls = []
-        class_len_ls = []
-        [df] = _read_db(db_loc=db_path, tables=['png_list'])
-        df['metadata_based_class'] = pd.NA
-        for i, class_ in enumerate(classes):
-            ls = class_metadata[i]
-            df.loc[df[metadata_type_by].isin(ls), 'metadata_based_class'] = class_
-            
-        for class_ in classes:
-            if size == None:
-                c_s = []
-                for c in classes:
-                    c_s_t_df = df[df['metadata_based_class'] == c]
-                    c_s.append(len(c_s_t_df))
-                    print(f'Found {len(c_s_t_df)} images for class {c}')
-                size = min(c_s)
-                print(f'Using the smallest class size: {size}')
-
-            class_temp_df = df[df['metadata_based_class'] == class_]
-            class_len_ls.append(len(class_temp_df))
-            print(f'Found {len(class_temp_df)} images for class {class_}')
-            class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), size)
-            class_paths_ls.append(class_paths_temp)
-    
-    elif mode == 'recruitment':
-        class_paths_ls = []
-        if not isinstance(tables, list):
-            tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
-        
-        df, _ = _read_and_merge_data(locs=[db_path],
-                                    tables=tables,
-                                    verbose=False,
-                                    include_multinucleated=True,
-                                    include_multiinfected=True,
-                                    include_noninfected=True)
-        
-        print('length df 1', len(df))
-        
-        df = annotate_conditions(df, cells=['HeLa'], cell_loc=None, pathogens=['pathogen'], pathogen_loc=None, treatments=classes, treatment_loc=class_metadata, types = ['col','col',metadata_type_by])
-        print('length df 2', len(df))
-        [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
-	    
-        if custom_measurement != None:
-        
-            if not isinstance(custom_measurement, list):
-                 print(f'custom_measurement should be a list, add [ measurement_1,  measurement_2 ] or [ measurement ]')
-                 return
-        	
-            if isinstance(custom_measurement, list):
-                if len(custom_measurement) == 2:
-                    print(f'Classes will be defined by the Q1 and Q3 quantiles of recruitment ({custom_measurement[0]}/{custom_measurement[1]})')
-                    df['recruitment'] = df[f'{custom_measurement[0]}']/df[f'{custom_measurement[1]}']
-                if len(custom_measurement) == 1:
-                    print(f'Classes will be defined by the Q1 and Q3 quantiles of recruitment ({custom_measurement[0]})')
-                    df['recruitment'] = df[f'{custom_measurement[0]}']
-        else:
-            print(f'Classes will be defined by the Q1 and Q3 quantiles of recruitment (pathogen/cytoplasm for channel {channel_of_interest})')
-            df['recruitment'] = df[f'pathogen_channel_{channel_of_interest}_mean_intensity']/df[f'cytoplasm_channel_{channel_of_interest}_mean_intensity']
-		
-        q25 = df['recruitment'].quantile(0.25)
-        q75 = df['recruitment'].quantile(0.75)
-        df_lower = df[df['recruitment'] <= q25]
-        df_upper = df[df['recruitment'] >= q75]
-        
-        class_paths_lower = get_paths_from_db(df=df_lower, png_df=png_list_df, image_type=png_type)
-        
-        class_paths_lower = random.sample(class_paths_lower['png_path'].tolist(), size)
-        class_paths_ls.append(class_paths_lower)
-        
-        class_paths_upper = get_paths_from_db(df=df_upper, png_df=png_list_df, image_type=png_type)
-        class_paths_upper = random.sample(class_paths_upper['png_path'].tolist(), size)
-        class_paths_ls.append(class_paths_upper)
-    
-    generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=classes, test_split=0.1)
-    
-    return
-
 def generate_training_dataset(settings):
     
     from .io import _read_and_merge_data, _read_db
@@ -1736,68 +1468,60 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
 
     return train_loaders, val_loaders, train_fig
 
-def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
+def analyze_recruitment(settings={}):
     """
     Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.
 
     Parameters:
-    src (str): The source of the recruitment data.
-    metadata_settings (dict): The settings for metadata.
-    advanced_settings (dict): The advanced settings for recruitment analysis.
+    settings (dict): settings.
 
     Returns:
     None
     """
     
     from .io import _read_and_merge_data, _results_to_csv
-    from .plot import plot_merged, _plot_controls, _plot_recruitment
-    from .utils import _object_filter, annotate_conditions, _calculate_recruitment, _group_by_well
+    from .plot import plot_image_mask_overlay, _plot_controls, _plot_recruitment
+    from .utils import _object_filter, annotate_conditions, _calculate_recruitment, _group_by_well, save_settings
     from .settings import get_analyze_recruitment_default_settings
 
-    settings = get_analyze_recruitment_default_settings(settings)
-    
-    settings_dict = {**metadata_settings, **advanced_settings}
-    settings_df = pd.DataFrame(list(settings_dict.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(src,'settings','analyze_settings.csv')
-    os.makedirs(os.path.join(src,'settings'), exist_ok=True)
-    settings_df.to_csv(settings_csv, index=False)
+    settings = get_analyze_recruitment_default_settings(settings=settings)
+    save_settings(settings, name='recruitment')
 
     # metadata settings
-    target = metadata_settings['target']
-    cell_types = metadata_settings['cell_types']
-    cell_plate_metadata = metadata_settings['cell_plate_metadata']
-    pathogen_types = metadata_settings['pathogen_types']
-    pathogen_plate_metadata = metadata_settings['pathogen_plate_metadata']
-    treatments = metadata_settings['treatments']
-    treatment_plate_metadata = metadata_settings['treatment_plate_metadata']
-    metadata_types = metadata_settings['metadata_types']
-    channel_dims = metadata_settings['channel_dims']
-    cell_chann_dim = metadata_settings['cell_chann_dim']
-    cell_mask_dim = metadata_settings['cell_mask_dim']
-    nucleus_chann_dim = metadata_settings['nucleus_chann_dim']
-    nucleus_mask_dim = metadata_settings['nucleus_mask_dim']
-    pathogen_chann_dim = metadata_settings['pathogen_chann_dim']
-    pathogen_mask_dim = metadata_settings['pathogen_mask_dim']
-    channel_of_interest = metadata_settings['channel_of_interest']
+    src = settings['src']
+    target = settings['target']
+    cell_types = settings['cell_types']
+    cell_plate_metadata = settings['cell_plate_metadata']
+    pathogen_types = settings['pathogen_types']
+    pathogen_plate_metadata = settings['pathogen_plate_metadata']
+    treatments = settings['treatments']
+    treatment_plate_metadata = settings['treatment_plate_metadata']
+    metadata_types = settings['metadata_types']
+    channel_dims = settings['channel_dims']
+    cell_chann_dim = settings['cell_chann_dim']
+    cell_mask_dim = settings['cell_mask_dim']
+    nucleus_chann_dim = settings['nucleus_chann_dim']
+    nucleus_mask_dim = settings['nucleus_mask_dim']
+    pathogen_chann_dim = settings['pathogen_chann_dim']
+    pathogen_mask_dim = settings['pathogen_mask_dim']
+    channel_of_interest = settings['channel_of_interest']
     
     # Advanced settings
-    plot = advanced_settings['plot']
-    plot_nr = advanced_settings['plot_nr']
-    plot_control = advanced_settings['plot_control']
-    figuresize = advanced_settings['figuresize']
-    remove_background = advanced_settings['remove_background']
-    backgrounds = advanced_settings['backgrounds']
-    include_noninfected = advanced_settings['include_noninfected']
-    include_multiinfected = advanced_settings['include_multiinfected']
-    include_multinucleated = advanced_settings['include_multinucleated']
-    cells_per_well = advanced_settings['cells_per_well']
-    pathogen_size_range = advanced_settings['pathogen_size_range']
-    nucleus_size_range = advanced_settings['nucleus_size_range']
-    cell_size_range = advanced_settings['cell_size_range']
-    pathogen_intensity_range = advanced_settings['pathogen_intensity_range']
-    nucleus_intensity_range = advanced_settings['nucleus_intensity_range']
-    cell_intensity_range = advanced_settings['cell_intensity_range']
-    target_intensity_min = advanced_settings['target_intensity_min']
+    plot = settings['plot']
+    plot_nr = settings['plot_nr']
+    plot_control = settings['plot_control']
+    figuresize = settings['figuresize']
+    include_noninfected = settings['include_noninfected']
+    include_multiinfected = settings['include_multiinfected']
+    include_multinucleated = settings['include_multinucleated']
+    cells_per_well = settings['cells_per_well']
+    pathogen_size_range = settings['pathogen_size_range']
+    nucleus_size_range = settings['nucleus_size_range']
+    cell_size_range = settings['cell_size_range']
+    pathogen_intensity_range = settings['pathogen_intensity_range']
+    nucleus_intensity_range = settings['nucleus_intensity_range']
+    cell_intensity_range = settings['cell_intensity_range']
+    target_intensity_min = settings['target_intensity_min']
     
     print(f'Cell(s): {cell_types}, in {cell_plate_metadata}')
     print(f'Pathogen(s): {pathogen_types}, in {pathogen_plate_metadata}')
@@ -1815,9 +1539,6 @@ def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
         else:
             metadata_types = metadata_types
     
-    if isinstance(backgrounds, (int,float)):
-        backgrounds = [backgrounds, backgrounds, backgrounds, backgrounds]
-
     sns.color_palette("mako", as_cmap=True)
     print(f'channel:{channel_of_interest} = {target}')
     overlay_channels = channel_dims
@@ -1827,11 +1548,11 @@ def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
     db_loc = [src+'/measurements/measurements.db']
     tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
     df, _ = _read_and_merge_data(db_loc, 
-                                         tables, 
-                                         verbose=True, 
-                                         include_multinucleated=include_multinucleated, 
-                                         include_multiinfected=include_multiinfected, 
-                                         include_noninfected=include_noninfected)
+                                 tables, 
+                                 verbose=True, 
+                                 include_multinucleated=include_multinucleated, 
+                                 include_multiinfected=include_multiinfected, 
+                                 include_noninfected=include_noninfected)
     
     df = annotate_conditions(df, 
                              cells=cell_types, 
@@ -1850,48 +1571,31 @@ def analyze_recruitment(src, metadata_settings={}, advanced_settings={}):
     random.shuffle(files)
 
     _max = 10**100
-
-    if cell_size_range is None and nucleus_size_range is None and pathogen_size_range is None:
-        filter_min_max = None
-    else:
-        if cell_size_range is None:
-            cell_size_range = [0,_max]
-        if nucleus_size_range is None:
-            nucleus_size_range = [0,_max]
-        if pathogen_size_range is None:
-            pathogen_size_range = [0,_max]
-
-        filter_min_max = [[cell_size_range[0],cell_size_range[1]],[nucleus_size_range[0],nucleus_size_range[1]],[pathogen_size_range[0],pathogen_size_range[1]]]
+    if cell_size_range is None:
+        cell_size_range = [0,_max]
+    if nucleus_size_range is None:
+        nucleus_size_range = [0,_max]
+    if pathogen_size_range is None:
+        pathogen_size_range = [0,_max]
 
     if plot:
-        plot_settings = {'include_noninfected':include_noninfected, 
-                         'include_multiinfected':include_multiinfected,
-                         'include_multinucleated':include_multinucleated,
-                         'remove_background':remove_background,
-                         'filter_min_max':filter_min_max,
-                         'channel_dims':channel_dims,
-                         'backgrounds':backgrounds,
-                         'cell_mask_dim':mask_dims[0],
-                         'nucleus_mask_dim':mask_dims[1],
-                         'pathogen_mask_dim':mask_dims[2],
-                         'overlay_chans':overlay_channels,
-                         'outline_thickness':3,
-                         'outline_color':'gbr',
-                         'overlay_chans':overlay_channels,
-                         'overlay':True,
-                         'normalization_percentiles':[1,99],
-                         'normalize':True,
-                         'print_object_number':True,
-                         'nr':plot_nr,
-                         'figuresize':20,
-                         'cmap':'inferno',
-                         'verbose':False}
-        
-    if os.path.exists(os.path.join(src,'merged')):
-        try:
-            plot_merged(src=os.path.join(src,'merged'), settings=plot_settings)
-        except Exception as e:
-            print(f'Failed to plot images with outlines, Error: {e}')
+        merged_path = os.path.join(src,'merged')
+        if os.path.exists(merged_path):
+            try:
+                for idx, file in enumerate(os.listdir(merged_path)):
+                    file_path = os.path.join(merged_path,file)
+                    if idx <= plot_nr:
+                        plot_image_mask_overlay(file_path, 
+                                                channel_dims,
+                                                cell_chann_dim,
+                                                nucleus_chann_dim,
+                                                pathogen_chann_dim,
+                                                figuresize=10,
+                                                normalize=True,
+                                                thickness=3,
+                                                save_pdf=True)
+            except Exception as e:
+                print(f'Failed to plot images with outlines, Error: {e}')
         
     if not cell_chann_dim is None:
         df = _object_filter(df, object_type='cell', size_range=cell_size_range, intensity_range=cell_intensity_range, mask_chans=mask_chans, mask_chan=0)

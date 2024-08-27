@@ -3,8 +3,8 @@ import os, ast
 def set_default_plot_merge_settings():
     settings = {}
     settings.setdefault('include_noninfected', True)
-    settings.setdefault('include_multiinfected', True)
-    settings.setdefault('include_multinucleated', True)
+    settings.setdefault('include_multiinfected', 10)
+    settings.setdefault('include_multinucleated', 1)
     settings.setdefault('remove_background', False)
     settings.setdefault('filter_min_max', None)
     settings.setdefault('channel_dims', [0,1,2,3])
@@ -406,6 +406,7 @@ def deep_spacr_defaults(settings):
     return settings
 
 def get_analyze_recruitment_default_settings(settings):
+    settings.setdefault('src','path')
     settings.setdefault('target','protein')
     settings.setdefault('cell_types',['HeLa'])
     settings.setdefault('cell_plate_metadata',None)
@@ -426,11 +427,9 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('plot_nr',10)
     settings.setdefault('plot_control',True)
     settings.setdefault('figuresize',10)
-    settings.setdefault('remove_background',False)
-    settings.setdefault('backgrounds',100)
     settings.setdefault('include_noninfected',True)
-    settings.setdefault('include_multiinfected',True)
-    settings.setdefault('include_multinucleated',True)
+    settings.setdefault('include_multiinfected',10)
+    settings.setdefault('include_multinucleated',1)
     settings.setdefault('cells_per_well',0)
     settings.setdefault('pathogen_size_range',[0,100000])
     settings.setdefault('nucleus_size_range',[0,100000])
@@ -629,8 +628,8 @@ expected_types = {
     "nr_imgs": int,
     "um_per_pixel": (int, float),
     "include_noninfected": bool,
-    "include_multiinfected": bool,
-    "include_multinucleated": bool,
+    "include_multiinfected": int,
+    "include_multinucleated": int,
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
@@ -738,7 +737,7 @@ expected_types = {
     "augment": bool,
     "target": str,
     "cell_types": list,
-    "cell_plate_metadata": (list, type(None)),
+    "cell_plate_metadata": (list, list),
     "pathogen_types": list,
     "pathogen_plate_metadata": (list, list),  # This can be a list of lists 
     "treatment_plate_metadata": (list, list),  # This can be a list of lists
@@ -877,7 +876,7 @@ def check_settings(vars_dict, expected_types, q=None):
         expected_type = expected_types.get(key, str)
 
         try:
-            if key in ["timelapse_frame_limits", "png_size", "pathogen_loc", "treatment_loc", "pathogen_plate_metadata", "treatment_plate_metadata", "barcode_coordinates", "class_metadata"]:
+            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "pathogen_loc", "treatment_loc", "pathogen_plate_metadata", "treatment_plate_metadata", "barcode_coordinates", "class_metadata"]:
                 parsed_value = ast.literal_eval(value) if value else None
                 if isinstance(parsed_value, list):
                     if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
@@ -1012,8 +1011,8 @@ def generate_fields(variables, scrollable_frame):
         "image_nr": "(int) - Number of images to process.",
         "image_size": "(int) - Size of the images for training.",
         "img_zoom": "(float) - Zoom factor for the images in plots.",
-        "include_multinucleated": "(bool) - Whether to include multinucleated cells in the analysis.",
-        "include_multiinfected": "(bool) - Whether to include multi-infected cells in the analysis.",
+        "include_multinucleated": "(int) - Whether to include multinucleated cells in the analysis.",
+        "include_multiinfected": "(int) - Whether to include multi-infected cells in the analysis.",
         "include_noninfected": "(bool) - Whether to include non-infected cells in the analysis.",
         "include_uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
         "init_weights": "(bool) - Whether to initialize weights for the model.",
