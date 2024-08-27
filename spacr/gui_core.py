@@ -1,4 +1,4 @@
-import traceback, ctypes, csv, re, time
+import traceback, ctypes, csv, re
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -9,13 +9,17 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import psutil
 import GPUtil
+from collections import deque
+import tracemalloc
+from tkinter import Menu
+import io
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
 
-from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu ,set_dark_style
+from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu , set_dark_style
 
 # Define global variables
 q = None
@@ -27,6 +31,12 @@ canvas_widget = None
 scrollable_frame = None
 progress_label = None
 fig_queue = None
+figures = None
+figure_index = None
+progress_bar = None
+usage_bars = None
+fig_memory_limit = None
+figure_current_memory_usage = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -71,41 +81,185 @@ def toggle_settings(button_scrollable_frame):
     vars_dict = hide_all_settings(vars_dict, categories)
 
 def process_fig_queue():
-    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency
-
-    def clear_canvas(canvas):
-        for ax in canvas.figure.get_axes():
-            ax.clear()
-        canvas.draw_idle()
+    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index
 
     try:
         while not fig_queue.empty():
-            time.sleep(1)
-            clear_canvas(canvas)
             fig = fig_queue.get_nowait()
-
-            for ax in fig.get_axes():
-                ax.set_xticks([])  # Remove x-axis ticks
-                ax.set_yticks([])  # Remove y-axis ticks
-                ax.xaxis.set_visible(False)  # Hide the x-axis
-                ax.yaxis.set_visible(False)  # Hide the y-axis
-
-            # Adjust layout to minimize spacing between axes
-            fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0.01, hspace=0.01)
-            fig.set_facecolor('black')
-
-            canvas.figure = fig
-            fig_width, fig_height = canvas_widget.winfo_width(), canvas_widget.winfo_height()
-            fig.set_size_inches(fig_width / fig.dpi, fig_height / fig.dpi, forward=True)
-            canvas.draw_idle()
+            figures.append(fig)
+            figure_index = len(figures) - 1
+            display_figure(fig)
     except Exception as e:
         traceback.print_exc()
     finally:
         after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
 
-def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
-    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
+def display_figure(fig):
+    global canvas, canvas_widget
+
+    # Clear previous canvas content
+    canvas.get_tk_widget().destroy()
+
+    # Create a new canvas for the figure
+    new_canvas = FigureCanvasTkAgg(fig, master=canvas_widget.master)
+    new_canvas.draw()
+    new_canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+
+    # Update the global canvas and canvas_widget references
+    canvas = new_canvas
+    canvas_widget = new_canvas.get_tk_widget()
+
+    # Apply the dark style to the context menu
+    style_out = set_dark_style(ttk.Style())
+    bg_color = style_out['bg_color']
+    fg_color = style_out['fg_color']
+
+    # Define the save functions for the context menu
+    def save_figure_as_format(format):
+        file_path = filedialog.asksaveasfilename(defaultextension=f".{format}", filetypes=[(f"{format.upper()} files", f"*.{format}"), ("All files", "*.*")])
+        if file_path:
+            fig.savefig(file_path, format=format)
+
+    def modify_figure():
+        def apply_modifications():
+            try:
+                x_width = float(x_width_var.get())
+                y_height = float(y_height_var.get())
+                line_width = float(line_width_var.get())
+                font_size = int(font_size_var.get())
+                modify_figure_properties(fig, x_width=x_width, y_height=y_height, line_width=line_width)
+                for ax in fig.get_axes():
+                    for label in ax.get_xticklabels() + ax.get_yticklabels():
+                        label.set_fontsize(font_size)
+                    ax.title.set_fontsize(font_size)
+                    ax.xaxis.label.set_fontsize(font_size)
+                    ax.yaxis.label.set_fontsize(font_size)
+                canvas.draw_idle()  # Redraw the canvas after modifications
+            except ValueError:
+                print("Invalid input; please enter numeric values.")
+
+        # Create a new window for user input
+        modify_window = tk.Toplevel()
+        modify_window.title("Modify Figure Properties")
+
+        # Apply dark style to the popup window
+        modify_window.configure(bg=bg_color)
+
+        # Create and style the input fields
+        tk.Label(modify_window, text="X Axis Width:", bg=bg_color, fg=fg_color).grid(row=0, column=0, padx=10, pady=5)
+        x_width_var = tk.StringVar()
+        tk.Entry(modify_window, textvariable=x_width_var, bg=bg_color, fg=fg_color).grid(row=0, column=1, padx=10, pady=5)
+
+        tk.Label(modify_window, text="Y Axis Height:", bg=bg_color, fg=fg_color).grid(row=1, column=0, padx=10, pady=5)
+        y_height_var = tk.StringVar()
+        tk.Entry(modify_window, textvariable=y_height_var, bg=bg_color, fg=fg_color).grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(modify_window, text="Line Width:", bg=bg_color, fg=fg_color).grid(row=2, column=0, padx=10, pady=5)
+        line_width_var = tk.StringVar()
+        tk.Entry(modify_window, textvariable=line_width_var, bg=bg_color, fg=fg_color).grid(row=2, column=1, padx=10, pady=5)
+
+        tk.Label(modify_window, text="Font Size:", bg=bg_color, fg=fg_color).grid(row=3, column=0, padx=10, pady=5)
+        font_size_var = tk.StringVar()
+        tk.Entry(modify_window, textvariable=font_size_var, bg=bg_color, fg=fg_color).grid(row=3, column=1, padx=10, pady=5)
+
+        # Apply button
+        apply_button = tk.Button(modify_window, text="Apply", command=apply_modifications, bg=bg_color, fg=fg_color)
+        apply_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+    # Create the context menu
+    context_menu = tk.Menu(canvas_widget, tearoff=0, bg=bg_color, fg=fg_color)
+    context_menu.add_command(label="Save Figure as PDF", command=lambda: save_figure_as_format('pdf'))
+    context_menu.add_command(label="Save Figure as PNG", command=lambda: save_figure_as_format('png'))
+    context_menu.add_command(label="Modify Figure", command=modify_figure)
+
+    def on_right_click(event):
+        context_menu.post(event.x_root, event.y_root)
+
+    new_canvas.get_tk_widget().bind("<Button-3>", on_right_click)
+
+def clear_unused_figures():
+    global figures, figure_index
+
+    lower_bound = max(0, figure_index - 20)
+    upper_bound = min(len(figures), figure_index + 20)
+
+    # Clear figures outside of the +/- 20 range
+    figures = deque([fig for i, fig in enumerate(figures) if lower_bound <= i <= upper_bound])
+
+    # Update the figure index after clearing
+    figure_index = min(max(figure_index, 0), len(figures) - 1)
+
+def show_previous_figure():
+    global figure_index, figures
+    if figure_index is not None and figure_index > 0:
+        figure_index -= 1
+        display_figure(figures[figure_index])
+        clear_unused_figures()
+
+def show_next_figure():
+    global figure_index, figures
+    if figure_index is not None and figure_index < len(figures) - 1:
+        figure_index += 1
+        display_figure(figures[figure_index])
+        clear_unused_figures()
+
+def save_figure_as_format(fig, file_format):
+    file_path = filedialog.asksaveasfilename(defaultextension=f".{file_format}", filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")])
+    if file_path:
+        try:
+            fig.savefig(file_path, format=file_format)
+            print(f"Figure saved as {file_format.upper()} at {file_path}")
+        except Exception as e:
+            print(f"Error saving figure: {e}")
+
+def modify_figure_properties(fig, x_width=None, y_height=None, line_width=None):
+    """
+    Modifies the properties of the figure, including axis dimensions and line widths.
+    
+    Parameters:
+    - fig: The matplotlib figure object to modify.
+    - x_width: Desired width for the x-axis (optional).
+    - y_height: Desired height for the y-axis (optional).
+    - line_width: Desired line width for all lines (optional).
+    """
+    for ax in fig.get_axes():
+        # Scaling the figure
+        if x_width is not None or y_height is not None:
+            # Get the current axis limits
+            current_xlim = ax.get_xlim()
+            current_ylim = ax.get_ylim()
+
+            # Set new limits
+            if x_width is not None:
+                scale_factor_x = x_width / (current_xlim[1] - current_xlim[0])
+            else:
+                scale_factor_x = 1
+
+            if y_height is not None:
+                scale_factor_y = y_height / (current_ylim[1] - current_ylim[0])
+            else:
+                scale_factor_y = 1
+
+            # Adjust the figure size and elements proportionally
+            fig.set_size_inches(fig.get_size_inches() * scale_factor_x * scale_factor_y, forward=True)
+            ax.set_xlim(left=current_xlim[0] * scale_factor_x, right=current_xlim[1] * scale_factor_x)
+            ax.set_ylim(bottom=current_ylim[0] * scale_factor_y, top=current_ylim[1] * scale_factor_y)
+
+        # Adjust line width and other elements if specified
+        if line_width is not None:
+            for line in ax.get_lines():
+                line.set_linewidth(line_width)
+            for spine in ax.spines.values():  # Modify width of spines (e.g., scale bars)
+                spine.set_linewidth(line_width)
+            ax.tick_params(width=line_width)  # Modify width of ticks
+            for text in ax.get_xticklabels() + ax.get_yticklabels():
+                text.set_fontsize(ax.get_xticklabels()[0].get_fontsize())
+
+    fig.canvas.draw_idle()
+
+def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, figures_var, figure_index_var, progress_bar_var, usage_bars_var, fig_memory_limit_var, figure_current_memory_usage_var):
+    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, fig_memory_limit, figure_current_memory_usage
     thread_control = thread_control_var
     q = q_var
     console_output = console_output_var
@@ -115,13 +269,17 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     canvas_widget = canvas_widget_var
     scrollable_frame = scrollable_frame_var
     fig_queue = fig_queue_var
+    figures = figures_var
+    figure_index = figure_index_var
     progress_bar = progress_bar_var
     usage_bars = usage_bars_var
+    fig_memory_limit = fig_memory_limit_var
+    figure_current_memory_usage = figure_current_memory_usage_var
 
 def import_settings(settings_type='mask'):
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
     global vars_dict, scrollable_frame, button_scrollable_frame
-    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, set_default_generate_barecode_mapping, set_default_umap_image_settings
+    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
 
     def read_settings_from_csv(csv_file_path):
         settings = {}
@@ -160,6 +318,8 @@ def import_settings(settings_type='mask'):
         settings = set_default_generate_barecode_mapping(settings={})
     elif settings_type == 'umap':
         settings = set_default_umap_image_settings(settings={})
+    elif settings_type == 'recruitment':
+        settings = get_analyze_recruitment_default_settings(settings={})
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     
@@ -229,21 +389,28 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     return scrollable_frame, vars_dict
 
 def setup_plot_section(vertical_container):
-    global canvas, canvas_widget
+    global canvas, canvas_widget, figures, figure_index
+
+    from .gui_elements import set_element_size
+
+    # Initialize deque for storing figures and the current index
+    figures = deque()
+    figure_index = -1
 
     # Create a frame for the plot section
-    plot_frame = tk.Frame(vertical_container, bg='lightgrey')
+    plot_frame = tk.Frame(vertical_container)
     vertical_container.add(plot_frame, stretch="always")
 
     # Set up the plot
     figure = Figure(figsize=(30, 4), dpi=100)
     plot = figure.add_subplot(111)
-    plot.plot([], [])  # This creates an empty plot.
+    plot.plot([], [])
     plot.axis('off')
+    
     canvas = FigureCanvasTkAgg(figure, master=plot_frame)
     canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
     canvas_widget = canvas.get_tk_widget()
-    canvas_widget.grid(row=0, column=0, sticky="nsew")  # Use grid for the canvas widget
+    canvas_widget.grid(row=0, column=0, sticky="nsew")
 
     plot_frame.grid_rowconfigure(0, weight=1)
     plot_frame.grid_columnconfigure(0, weight=1)
@@ -259,6 +426,19 @@ def setup_plot_section(vertical_container):
     style = ttk.Style(vertical_container)
     _ = set_dark_style(style, containers=containers, widgets=widgets)
 
+    # Add navigation buttons using spacrButton
+    button_frame = tk.Frame(plot_frame, bg=style_out['bg_color'])
+    button_frame.grid(row=1, column=0, sticky='ew', pady=5)
+
+    size_dict = set_element_size()
+
+    btn_size = int(size_dict['btn_size']*0.75)
+    prev_button = spacrButton(button_frame, text="Previous", command=show_previous_figure, bg=style_out['bg_color'], show_text=False, size=btn_size, animation=False)
+    prev_button.pack(side='left', padx=5)
+
+    next_button = spacrButton(button_frame, text="Next", command=show_next_figure, bg=style_out['bg_color'], show_text=False, size=btn_size, animation=False)
+    next_button.pack(side='right', padx=5)
+    
     return canvas, canvas_widget
 
 def setup_console(vertical_container):
@@ -657,16 +837,25 @@ def initiate_root(parent, settings_type='mask'):
         tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.
     """
     
-    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency
+    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, fig_memory_limit, figure_current_memory_usage
     
     from .gui_utils import setup_frame
     from .settings import descriptions
 
     uppdate_frequency = 1000
 
+    # Start tracemalloc and initialize global variables
+    tracemalloc.start()
+
     set_start_method('spawn', force=True)
     #set_start_method('forkserver', force=True)
     print("Initializing root with settings_type:", settings_type)
+
+    # Initialize global variables
+    figures = deque()
+    figure_index = -1
+    fig_memory_limit = 200 * 1024 * 1024  # 200 MB limit
+    figure_current_memory_usage = 0
 
     parent_frame = parent
 
@@ -698,7 +887,7 @@ def initiate_root(parent, settings_type='mask'):
         button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
         _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
 
-        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
+        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, fig_memory_limit, figure_current_memory_usage)
         description_text = descriptions.get(settings_type, "No description available for this module.")
         
         q.put(f"Console")
