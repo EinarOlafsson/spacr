@@ -104,8 +104,8 @@ def process_fig_queue():
         after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
 
-def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, batch_progress_bar_var, usage_bars_var):
-    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, batch_progress_bar, usage_bars
+def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
+    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
     thread_control = thread_control_var
     q = q_var
     console_output = console_output_var
@@ -116,7 +116,6 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     scrollable_frame = scrollable_frame_var
     fig_queue = fig_queue_var
     progress_bar = progress_bar_var
-    batch_progress_bar = batch_progress_bar_var
     usage_bars = usage_bars_var
 
 def import_settings(settings_type='mask'):
@@ -280,7 +279,7 @@ def setup_console(vertical_container):
 
     # Create the scrollable frame (which is a Text widget) with white text
     family = style_out['font_family']
-    font_size = style_out['font_size'] - 2
+    font_size = style_out['font_size']
     font_loader = style_out['font_loader']
     console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size), bd=0, highlightthickness=0)
     
@@ -323,7 +322,7 @@ def setup_progress_frame(vertical_container):
     return progress_output
 
 def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
-    global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar, batch_progress_bar
+    global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
     from .gui_utils import download_hug_dataset
     from .gui_elements import set_element_size
 
@@ -368,13 +367,6 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
     progress_bar.set_label_position()  # Set the label position after grid placement
     widgets.append(progress_bar)
-
-    # Add the epoch progress bar
-    btn_row += 1  # Move to the next row
-    batch_progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
-    batch_progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
-    batch_progress_bar.set_label_position()  # Set the label position after grid placement
-    widgets.append(batch_progress_bar)
 
     if vars_dict is not None:
         toggle_settings(button_scrollable_frame)
@@ -427,7 +419,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     widgets = [usage_scrollable_frame.scrollable_frame]
     
     usage_bars = []
-    max_elements_per_column = 4
+    max_elements_per_column = 6
     row = 0
     col = 0
 
@@ -445,7 +437,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     try:
         ram_info = psutil.virtual_memory()
         ram_label_text = f"RAM"
-        label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=ram_label_text, anchor='w', style="usage.TLabel")
+        label = tk.Label(usage_scrollable_frame.scrollable_frame,text=ram_label_text,anchor='w',font=font_loader.get_font(size=font_size),bg=style_out['bg_color'],fg=style_out['fg_color'])
         label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
         ram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
         ram_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
@@ -462,7 +454,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
         if gpus:
             gpu = gpus[0]
             vram_label_text = f"VRAM"
-            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=vram_label_text, anchor='w', style="usage.TLabel")
+            label = tk.Label(usage_scrollable_frame.scrollable_frame,text=vram_label_text,anchor='w',font=font_loader.get_font(size=font_size),bg=style_out['bg_color'],fg=style_out['fg_color'])
             label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
             vram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
             vram_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
@@ -472,7 +464,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
             row += 1
 
             gpu_label_text = f"GPU"
-            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=gpu_label_text, anchor='w', style="usage.TLabel")
+            label = tk.Label(usage_scrollable_frame.scrollable_frame,text=gpu_label_text,anchor='w',font=font_loader.get_font(size=font_size),bg=style_out['bg_color'],fg=style_out['fg_color'])
             label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
             gpu_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
             gpu_bar.grid(row=row, column=2 * col + 1, pady=5, padx=5, sticky='ew')
@@ -492,7 +484,8 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
             if row > 0 and row % max_elements_per_column == 0:
                 col += 1
                 row = 0
-            label = ttk.Label(usage_scrollable_frame.scrollable_frame, text=f"Core {core+1}", anchor='w', style="usage.TLabel")
+
+            label = tk.Label(usage_scrollable_frame.scrollable_frame,text=f"C{core+1}",anchor='w',font=font_loader.get_font(size=font_size),bg=style_out['bg_color'],fg=style_out['fg_color'])
             label.grid(row=row, column=2 * col, pady=2, padx=5, sticky='w')
             bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)
             bar.grid(row=row, column=2 * col + 1, pady=2, padx=5, sticky='ew')
@@ -575,7 +568,7 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         return
 
 def process_console_queue():
-    global q, console_output, parent_frame, batch_progress_bar, progress_bar, process_console_queue
+    global q, console_output, parent_frame, progress_bar, process_console_queue
 
     # Initialize function attribute if it doesn't exist
     if not hasattr(process_console_queue, "completed_tasks"):
@@ -595,7 +588,7 @@ def process_console_queue():
         if clean_message.startswith("Progress:"):
             try:
                 # Extract the progress information
-                match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*)(.*)', clean_message)
+                match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*),(.*)', clean_message)
 
                 if match:
                     current_progress = int(match.group(1))
@@ -613,12 +606,6 @@ def process_console_queue():
                     
                     # Calculate the unique progress count
                     unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
-                    
-                    # Determine which progress bar to update based on the operation_type
-                    if operation_type == "DL":  # Assuming "DL" corresponds to batch progress
-                        progress_bar = batch_progress_bar
-                    else:
-                        progress_bar = progress_bar
 
                     # Update the progress bar
                     if progress_bar:
@@ -670,7 +657,7 @@ def initiate_root(parent, settings_type='mask'):
         tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.
     """
     
-    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, batch_progress_bar, uppdate_frequency
+    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency
     
     from .gui_utils import setup_frame
     from .settings import descriptions
@@ -711,7 +698,7 @@ def initiate_root(parent, settings_type='mask'):
         button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
         _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
 
-        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, batch_progress_bar, usage_bars)
+        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
         description_text = descriptions.get(settings_type, "No description available for this module.")
         
         q.put(f"Console")
