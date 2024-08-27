@@ -104,6 +104,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width']*0.1)
 
     # Replace underscores with spaces and capitalize the first letter
+
     label_text = label_text.replace('_', ' ').capitalize()
 
     # Configure the column widths
@@ -118,32 +119,35 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     custom_frame.config(highlightbackground=style_out['bg_color'], highlightthickness=1, bd=2)
 
     # Create and configure the label
-    if font_loader:
-        label = ttk.Label(custom_frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=font_loader.get_font(size=font_size), anchor='e', justify='right')
-    label = ttk.Label(custom_frame, text=label_text, background=style_out['bg_color'], foreground=style_out['fg_color'], font=(style_out['font_family'], style_out['font_size']), anchor='e', justify='right')
+    label = tk.Label(custom_frame, text=label_text, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size), anchor='e', justify='right')
     label.grid(column=label_column, row=0, sticky=tk.W, padx=(5, 2), pady=5)  # Place the label in the first row
 
     # Create and configure the input widget based on var_type
-    if var_type == 'entry':
-        var = tk.StringVar(value=default_value)
-        entry = spacrEntry(custom_frame, textvariable=var, outline=False, width=size_dict['settings_width'])
-        entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the entry in the second row
-        return (label, entry, var, custom_frame)  # Return both the label and the entry, and the variable
-    elif var_type == 'check':
-        var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
-        check = spacrCheck(custom_frame, text="", variable=var)
-        check.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the checkbutton in the second row
-        return (label, check, var, custom_frame)  # Return both the label and the checkbutton, and the variable
-    elif var_type == 'combo':
-        var = tk.StringVar(value=default_value)  # Set default value
-        combo = spacrCombo(custom_frame, textvariable=var, values=options, width=size_dict['settings_width'])  # Apply TCombobox style
-        combo.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the combobox in the second row
-        if default_value:
-            combo.set(default_value)
-        return (label, combo, var, custom_frame)  # Return both the label and the combobox, and the variable
-    else:
-        var = None  # Placeholder in case of an undefined var_type
-        return (label, None, var, custom_frame)
+    try:
+        if var_type == 'entry':
+            var = tk.StringVar(value=default_value)
+            entry = spacrEntry(custom_frame, textvariable=var, outline=False, width=size_dict['settings_width'])
+            entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the entry in the second row
+            return (label, entry, var, custom_frame)  # Return both the label and the entry, and the variable
+        elif var_type == 'check':
+            var = tk.BooleanVar(value=default_value)  # Set default value (True/False)
+            check = spacrCheck(custom_frame, text="", variable=var)
+            check.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the checkbutton in the second row
+            return (label, check, var, custom_frame)  # Return both the label and the checkbutton, and the variable
+        elif var_type == 'combo':
+            var = tk.StringVar(value=default_value)  # Set default value
+            combo = spacrCombo(custom_frame, textvariable=var, values=options, width=size_dict['settings_width'])  # Apply TCombobox style
+            combo.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the combobox in the second row
+            if default_value:
+                combo.set(default_value)
+            return (label, combo, var, custom_frame)  # Return both the label and the combobox, and the variable
+        else:
+            var = None  # Placeholder in case of an undefined var_type
+            return (label, None, var, custom_frame)
+    except Exception as e:
+        traceback.print_exc()
+        print(f"Error creating input field: {e}")
+        print(f"Wrong type for {label_text} Expected {var_type}")
 
 def process_stdout_stderr(q):
     """
@@ -487,7 +491,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 2
     elif settings_type == 'recruitment':
         function = analyze_recruitment
-        imports = 2
+        imports = 1
     elif settings_type == 'umap':
         function = generate_image_umap
         imports = 1
@@ -500,7 +504,6 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         traceback.print_exc()
     finally:
         stop_requested.value = 1
-
 
 def hide_all_settings(vars_dict, categories):
     """
