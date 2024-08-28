@@ -1,5 +1,5 @@
 .. spacr documentation master file, created by
-   sphinx-quickstart on Wed Aug 28 06:13:14 PM EDT 2024.
+   sphinx-quickstart on Wed Aug 28 06:14:09 PM EDT 2024.
 
 Welcome to spacr's documentation!
 =================================
