@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.core &mdash; spacr 0.2.56 documentation</title>
+  <title>spacr.core &mdash; spacr 0.2.65 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
+        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.2.56
+                0.2.65
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -92,7 +92,6 @@
 <span class="kn">import</span> <span class="nn">cellpose</span>
 <span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="kn">import</span> <span class="n">regionprops</span><span class="p">,</span> <span class="n">label</span>
 <span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span> <span class="k">as</span> <span class="n">resizescikit</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">measure</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
@@ -117,6 +116,16 @@
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only&quot;</span><span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">random_split</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">ToTensor</span>
+
 
 
 <div class="viewcode-block" id="analyze_plaques">
@@ -1076,179 +1085,6 @@
     <span class="k">return</span> <span class="n">tar_name</span></div>
 
 
-<div class="viewcode-block" id="generate_dataset_v1">
-<a class="viewcode-back" href="../../spacr.html#spacr.core.generate_dataset_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_dataset_v1</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">file_metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="s1">&#39;TSG101_screen&#39;</span><span class="p">,</span> <span class="n">sample</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">initiate_counter</span><span class="p">,</span> <span class="n">add_images_to_tar</span>
-    
-    <span class="n">db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;measurements&#39;</span><span class="p">,</span> <span class="s1">&#39;measurements.db&#39;</span><span class="p">)</span>
-    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
-    <span class="n">all_paths</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="c1"># Connect to the database and retrieve the image paths</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reading DataBase: </span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">file_metadata</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT png_path FROM png_list WHERE png_path LIKE ?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%</span><span class="si">{</span><span class="n">file_metadata</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT png_path FROM png_list&quot;</span><span class="p">)</span>
-
-            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchmany</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
-                    <span class="k">break</span>
-                <span class="n">all_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">])</span>
-
-    <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Database error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="n">selected_paths</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">all_paths</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Random selection of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">)</span><span class="si">}</span><span class="s1"> paths&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">selected_paths</span> <span class="o">=</span> <span class="n">all_paths</span>
-        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;All paths: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">)</span><span class="si">}</span><span class="s1"> paths&#39;</span><span class="p">)</span>
-
-    <span class="n">total_images</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="n">total_images</span><span class="si">}</span><span class="s1"> images&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Create a temp folder in dst</span>
-    <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s2">&quot;temp_tars&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Chunking the data</span>
-    <span class="n">num_procs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">)</span> <span class="o">//</span> <span class="n">num_procs</span>
-    <span class="n">remainder</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">)</span> <span class="o">%</span> <span class="n">num_procs</span>
-
-    <span class="n">paths_chunks</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">chunk_size</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">remainder</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">paths_chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">selected_paths</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">])</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
-
-    <span class="n">temp_tar_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;temp_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">.tar&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_procs</span><span class="p">)]</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generating temporary tar files in </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Initialize shared counter and lock</span>
-    <span class="n">counter</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
-
-    <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">num_procs</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="n">initiate_counter</span><span class="p">,</span> <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span> <span class="n">lock</span><span class="p">))</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-        <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">add_images_to_tar</span><span class="p">,</span> <span class="p">[(</span><span class="n">paths_chunks</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">temp_tar_files</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">total_images</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_procs</span><span class="p">)])</span>
-
-    <span class="c1"># Combine the temporary tar files into a final tar</span>
-    <span class="n">date_name</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">tar_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">date_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">file_metadata</span><span class="si">}</span><span class="s1">.tar&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">tar_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">date_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">.tar&#39;</span>
-    <span class="n">tar_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">tar_name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tar_name</span><span class="p">):</span>
-        <span class="n">number</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-        <span class="n">tar_name_2</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">date_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">file_metadata</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1">.tar&#39;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tar_name</span><span class="p">)</span><span class="si">}</span><span class="s1"> exists, saving as </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tar_name_2</span><span class="p">)</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
-        <span class="n">tar_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">tar_name_2</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Merging temporary files&#39;</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">tar_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">final_tar</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">temp_tar_path</span> <span class="ow">in</span> <span class="n">temp_tar_files</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">temp_tar_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp_tar</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">temp_tar</span><span class="o">.</span><span class="n">getmembers</span><span class="p">():</span>
-                    <span class="n">file_obj</span> <span class="o">=</span> <span class="n">temp_tar</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
-                    <span class="n">final_tar</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">file_obj</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">temp_tar_path</span><span class="p">)</span>
-
-    <span class="c1"># Delete the temp folder</span>
-    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Saved </span><span class="si">{</span><span class="n">total_images</span><span class="si">}</span><span class="s2"> images to </span><span class="si">{</span><span class="n">tar_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="apply_model_to_tar_v1">
-<a class="viewcode-back" href="../../spacr.html#spacr.core.apply_model_to_tar_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">apply_model_to_tar_v1</span><span class="p">(</span><span class="n">tar_path</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">file_type</span><span class="o">=</span><span class="s1">&#39;cell_png&#39;</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">preload</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    
-    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">TarImageDataset</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">process_vision_results</span><span class="p">,</span> <span class="n">print_progress</span>
-    
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
-        <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
-            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
-            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">)),</span>
-            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">std</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
-            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
-            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">))])</span>
-    
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading model from </span><span class="si">{</span><span class="n">model_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading dataset from </span><span class="si">{</span><span class="n">tar_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        
-    <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
-    
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">TarImageDataset</span><span class="p">(</span><span class="n">tar_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
-    <span class="n">data_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    
-    <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">model_path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> 
-    <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tar_path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>  
-    <span class="n">date_name</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tar_path</span><span class="p">)</span>
-    <span class="n">result_loc</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">date_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">_result.csv&#39;</span>
-
-    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generated dataset with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s1"> images&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generating loader from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span><span class="si">}</span><span class="s1"> batches&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Results wil be saved in: </span><span class="si">{</span><span class="n">result_loc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model is in eval mode&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model loaded to device&#39;</span><span class="p">)</span>
-        
-    <span class="n">prediction_pos_probs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">filenames_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">batch_images</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_loader</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">images</span> <span class="o">=</span> <span class="n">batch_images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-            <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
-            <span class="n">batch_prediction_pos_prob</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-            <span class="n">prediction_pos_probs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">batch_prediction_pos_prob</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-            <span class="n">filenames_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
-            <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">duration</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">start</span>
-            <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
-            <span class="n">files_processed</span> <span class="o">=</span> <span class="n">batch_idx</span><span class="o">*</span><span class="n">batch_size</span>
-            <span class="n">files_to_process</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
-            <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;Tar dataset&quot;</span><span class="p">)</span>
-
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span><span class="n">filenames_list</span><span class="p">,</span> <span class="s1">&#39;pred&#39;</span><span class="p">:</span><span class="n">prediction_pos_probs</span><span class="p">}</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">process_vision_results</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
-
-    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">result_loc</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
-    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
-    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">df</span></div>
-
-
 <div class="viewcode-block" id="apply_model_to_tar">
 <a class="viewcode-back" href="../../spacr.html#spacr.core.apply_model_to_tar">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_model_to_tar</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
@@ -1518,110 +1354,6 @@
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="generate_training_dataset_v1">
-<a class="viewcode-back" href="../../spacr.html#spacr.core.generate_training_dataset_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_training_dataset_v1</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;annotation&#39;</span><span class="p">,</span> <span class="n">annotation_column</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">annotated_classes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nc&#39;</span><span class="p">,</span><span class="s1">&#39;pc&#39;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">class_metadata</span><span class="o">=</span><span class="p">[[</span><span class="s1">&#39;c1&#39;</span><span class="p">],[</span><span class="s1">&#39;c2&#39;</span><span class="p">]],</span> <span class="n">metadata_type_by</span><span class="o">=</span><span class="s1">&#39;col&#39;</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">custom_measurement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">png_type</span><span class="o">=</span><span class="s1">&#39;cell_png&#39;</span><span class="p">):</span>
-    
-    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_merge_data</span><span class="p">,</span> <span class="n">_read_db</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_paths_from_db</span><span class="p">,</span> <span class="n">annotate_conditions</span>
-    
-    <span class="n">db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;measurements&#39;</span><span class="p">,</span><span class="s1">&#39;measurements.db&#39;</span><span class="p">)</span>
-    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;training&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dst</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">):</span>
-            <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;training_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dst</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Creating new directory for training: </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">break</span>
-                
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;annotation&#39;</span><span class="p">:</span>
-        <span class="n">class_paths_ls_2</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">class_paths_ls</span> <span class="o">=</span> <span class="n">training_dataset_from_annotation</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">annotation_column</span><span class="p">,</span> <span class="n">annotated_classes</span><span class="o">=</span><span class="n">annotated_classes</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">class_paths</span> <span class="ow">in</span> <span class="n">class_paths_ls</span><span class="p">:</span>
-            <span class="n">class_paths_temp</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">class_paths</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
-            <span class="n">class_paths_ls_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_paths_temp</span><span class="p">)</span>
-        <span class="n">class_paths_ls</span> <span class="o">=</span> <span class="n">class_paths_ls_2</span>
-
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;metadata&#39;</span><span class="p">:</span>
-        <span class="n">class_paths_ls</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">class_len_ls</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="p">[</span><span class="n">df</span><span class="p">]</span> <span class="o">=</span> <span class="n">_read_db</span><span class="p">(</span><span class="n">db_loc</span><span class="o">=</span><span class="n">db_path</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_list&#39;</span><span class="p">])</span>
-        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;metadata_based_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">class_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classes</span><span class="p">):</span>
-            <span class="n">ls</span> <span class="o">=</span> <span class="n">class_metadata</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">metadata_type_by</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ls</span><span class="p">),</span> <span class="s1">&#39;metadata_based_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_</span>
-            
-        <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">c_s</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
-                    <span class="n">c_s_t_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;metadata_based_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span>
-                    <span class="n">c_s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c_s_t_df</span><span class="p">))</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">c_s_t_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> images for class </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">c_s</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Using the smallest class size: </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-            <span class="n">class_temp_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;metadata_based_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_</span><span class="p">]</span>
-            <span class="n">class_len_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">class_temp_df</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">class_temp_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> images for class </span><span class="si">{</span><span class="n">class_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">class_paths_temp</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">class_temp_df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">size</span><span class="p">)</span>
-            <span class="n">class_paths_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_paths_temp</span><span class="p">)</span>
-    
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">:</span>
-        <span class="n">class_paths_ls</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span>
-        
-        <span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_read_and_merge_data</span><span class="p">(</span><span class="n">locs</span><span class="o">=</span><span class="p">[</span><span class="n">db_path</span><span class="p">],</span>
-                                    <span class="n">tables</span><span class="o">=</span><span class="n">tables</span><span class="p">,</span>
-                                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                    <span class="n">include_multinucleated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                    <span class="n">include_multiinfected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                    <span class="n">include_noninfected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;length df 1&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
-        
-        <span class="n">df</span> <span class="o">=</span> <span class="n">annotate_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cells</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;HeLa&#39;</span><span class="p">],</span> <span class="n">cell_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pathogens</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="n">pathogen_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">treatments</span><span class="o">=</span><span class="n">classes</span><span class="p">,</span> <span class="n">treatment_loc</span><span class="o">=</span><span class="n">class_metadata</span><span class="p">,</span> <span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col&#39;</span><span class="p">,</span><span class="s1">&#39;col&#39;</span><span class="p">,</span><span class="n">metadata_type_by</span><span class="p">])</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;length df 2&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
-        <span class="p">[</span><span class="n">png_list_df</span><span class="p">]</span> <span class="o">=</span> <span class="n">_read_db</span><span class="p">(</span><span class="n">db_loc</span><span class="o">=</span><span class="n">db_path</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_list&#39;</span><span class="p">])</span>
-	    
-        <span class="k">if</span> <span class="n">custom_measurement</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-        
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">custom_measurement</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;custom_measurement should be a list, add [ measurement_1,  measurement_2 ] or [ measurement ]&#39;</span><span class="p">)</span>
-                 <span class="k">return</span>
-        	
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">custom_measurement</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_measurement</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Classes will be defined by the Q1 and Q3 quantiles of recruitment (</span><span class="si">{</span><span class="n">custom_measurement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">custom_measurement</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">custom_measurement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">custom_measurement</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">custom_measurement</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Classes will be defined by the Q1 and Q3 quantiles of recruitment (</span><span class="si">{</span><span class="n">custom_measurement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">custom_measurement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Classes will be defined by the Q1 and Q3 quantiles of recruitment (pathogen/cytoplasm for channel </span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;pathogen_channel_</span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s1">_mean_intensity&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;cytoplasm_channel_</span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s1">_mean_intensity&#39;</span><span class="p">]</span>
-		
-        <span class="n">q25</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
-        <span class="n">q75</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-        <span class="n">df_lower</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">q25</span><span class="p">]</span>
-        <span class="n">df_upper</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">q75</span><span class="p">]</span>
-        
-        <span class="n">class_paths_lower</span> <span class="o">=</span> <span class="n">get_paths_from_db</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_lower</span><span class="p">,</span> <span class="n">png_df</span><span class="o">=</span><span class="n">png_list_df</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">png_type</span><span class="p">)</span>
-        
-        <span class="n">class_paths_lower</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">class_paths_lower</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">size</span><span class="p">)</span>
-        <span class="n">class_paths_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_paths_lower</span><span class="p">)</span>
-        
-        <span class="n">class_paths_upper</span> <span class="o">=</span> <span class="n">get_paths_from_db</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_upper</span><span class="p">,</span> <span class="n">png_df</span><span class="o">=</span><span class="n">png_list_df</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">png_type</span><span class="p">)</span>
-        <span class="n">class_paths_upper</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">class_paths_upper</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">size</span><span class="p">)</span>
-        <span class="n">class_paths_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_paths_upper</span><span class="p">)</span>
-    
-    <span class="n">generate_dataset_from_lists</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">class_data</span><span class="o">=</span><span class="n">class_paths_ls</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-    
-    <span class="k">return</span></div>
-
-
 <div class="viewcode-block" id="generate_training_dataset">
 <a class="viewcode-back" href="../../spacr.html#spacr.core.generate_training_dataset">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_training_dataset</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
@@ -1731,21 +1463,19 @@
 
 <div class="viewcode-block" id="generate_loaders">
 <a class="viewcode-back" href="../../spacr.html#spacr.core.generate_loaders">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_loaders</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">train_mode</span><span class="o">=</span><span class="s1">&#39;erm&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nc&#39;</span><span class="p">,</span><span class="s1">&#39;pc&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_show</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">augment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_loaders</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nc&#39;</span><span class="p">,</span><span class="s1">&#39;pc&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">augment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preload_batches</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate data loaders for training and validation/test datasets.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    - src (str): The source directory containing the data.</span>
-<span class="sd">    - train_mode (str): The training mode. Options are &#39;erm&#39; (Empirical Risk Minimization) or &#39;irm&#39; (Invariant Risk Minimization).</span>
 <span class="sd">    - mode (str): The mode of operation. Options are &#39;train&#39; or &#39;test&#39;.</span>
 <span class="sd">    - image_size (int): The size of the input images.</span>
 <span class="sd">    - batch_size (int): The batch size for the data loaders.</span>
 <span class="sd">    - classes (list): The list of classes to consider.</span>
 <span class="sd">    - n_jobs (int): The number of worker threads for data loading.</span>
-<span class="sd">    - validation_split (float): The fraction of data to use for validation when train_mode is &#39;erm&#39;.</span>
-<span class="sd">    - max_show (int): The maximum number of images to show when verbose is True.</span>
+<span class="sd">    - validation_split (float): The fraction of data to use for validation.</span>
 <span class="sd">    - pin_memory (bool): Whether to pin memory for faster data transfer.</span>
 <span class="sd">    - normalize (bool): Whether to normalize the input images.</span>
 <span class="sd">    - verbose (bool): Whether to print additional information and show images.</span>
@@ -1754,18 +1484,10 @@
 <span class="sd">    Returns:</span>
 <span class="sd">    - train_loaders (list): List of data loaders for training datasets.</span>
 <span class="sd">    - val_loaders (list): List of data loaders for validation datasets.</span>
-<span class="sd">    - plate_names (list): List of plate names (only applicable when train_mode is &#39;irm&#39;).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">MyDataset</span>
-    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_imshow</span>
-    <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
-    <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">random_split</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="kn">import</span> <span class="nn">random</span>
-    <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-    <span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">ToTensor</span>
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">spacrDataset</span><span class="p">,</span> <span class="n">spacrDataLoader</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_imshow_gpu</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">SelectChannels</span><span class="p">,</span> <span class="n">augment_dataset</span>
 
     <span class="n">chans</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1782,12 +1504,9 @@
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Training a network on channels: </span><span class="si">{</span><span class="n">channels</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Channel 1: Red, Channel 2: Green, Channel 3: Blue&#39;</span><span class="p">)</span>
-
-    <span class="n">plate_to_filenames</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-    <span class="n">plate_to_labels</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        
     <span class="n">train_loaders</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">val_loaders</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">plate_names</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
@@ -1815,160 +1534,117 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mode:</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1"> is not valid, use mode = train or test&#39;</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="k">if</span> <span class="n">train_mode</span> <span class="o">==</span> <span class="s1">&#39;erm&#39;</span><span class="p">:</span>
-        
-        <span class="n">data</span> <span class="o">=</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">validation_split</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">validation_split</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-            <span class="n">val_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">train_size</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">augment</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Train data:</span><span class="si">{</span><span class="n">train_size</span><span class="si">}</span><span class="s1">, Validation data:</span><span class="si">{</span><span class="n">val_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">train_dataset</span><span class="p">,</span> <span class="n">val_dataset</span> <span class="o">=</span> <span class="n">random_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">])</span>
-
-            <span class="k">if</span> <span class="n">augment</span><span class="p">:</span>
-
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data before augmentation: Train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">, Validataion:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">augment_dataset</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">is_grayscale</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
-                <span class="c1">#val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data after augmentation: Train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="c1">#, Validataion:{len(val_dataset)}&#39;)</span>
-
-            <span class="n">train_loaders</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-            <span class="n">val_loaders</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">train_loaders</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-        
-    <span class="k">elif</span> <span class="n">train_mode</span> <span class="o">==</span> <span class="s1">&#39;irm&#39;</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-        
-        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">filenames</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">labels</span><span class="p">):</span>
-            <span class="n">plate</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_plate</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="n">plate_to_filenames</span><span class="p">[</span><span class="n">plate</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="n">plate_to_labels</span><span class="p">[</span><span class="n">plate</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">plate</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">plate_to_filenames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">labels</span> <span class="o">=</span> <span class="n">plate_to_labels</span><span class="p">[</span><span class="n">plate</span><span class="p">]</span>
-            <span class="n">plate_data</span> <span class="o">=</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">specific_files</span><span class="o">=</span><span class="n">filenames</span><span class="p">,</span> <span class="n">specific_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-            <span class="n">plate_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">validation_split</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">validation_split</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">plate_data</span><span class="p">))</span>
-                <span class="n">val_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">plate_data</span><span class="p">)</span> <span class="o">-</span> <span class="n">train_size</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">augment</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Train data:</span><span class="si">{</span><span class="n">train_size</span><span class="si">}</span><span class="s1">, Validation data:</span><span class="si">{</span><span class="n">val_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">train_dataset</span><span class="p">,</span> <span class="n">val_dataset</span> <span class="o">=</span> <span class="n">random_split</span><span class="p">(</span><span class="n">plate_data</span><span class="p">,</span> <span class="p">[</span><span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">])</span>
-
-                <span class="k">if</span> <span class="n">augment</span><span class="p">:</span>
-
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data before augmentation: Train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">, Validataion:</span><span class="si">{</span><span class="n">val_dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">augment_dataset</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">is_grayscale</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
-                    <span class="c1">#val_dataset = augment_dataset(val_dataset, is_grayscale=(len(channels) == 1))</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data after augmentation: Train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="c1">#, Validataion:{len(val_dataset)}&#39;)</span>
-
-                <span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-                <span class="n">val_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-
-                <span class="n">train_loaders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
-                <span class="n">val_loaders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val_loader</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">plate_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
-                <span class="n">train_loaders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
-                <span class="n">val_loaders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">spacrDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">)</span>
+    <span class="n">num_workers</span> <span class="o">=</span> <span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
     
+    <span class="k">if</span> <span class="n">validation_split</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">validation_split</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">val_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">train_size</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">augment</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Train data:</span><span class="si">{</span><span class="n">train_size</span><span class="si">}</span><span class="s1">, Validation data:</span><span class="si">{</span><span class="n">val_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">train_dataset</span><span class="p">,</span> <span class="n">val_dataset</span> <span class="o">=</span> <span class="n">random_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="n">train_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">augment</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data before augmentation: Train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">, Validataion:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">augment_dataset</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">is_grayscale</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data after augmentation: Train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generating Dataloader with </span><span class="si">{</span><span class="n">n_jobs</span><span class="si">}</span><span class="s1"> workers&#39;</span><span class="p">)</span>
+        <span class="c1">#train_loaders = spacrDataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)</span>
+        <span class="c1">#train_loaders = spacrDataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)</span>
+
+        <span class="n">train_loaders</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">,</span> <span class="n">persistent_workers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">val_loaders</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">,</span> <span class="n">persistent_workers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;train_mode:</span><span class="si">{</span><span class="n">train_mode</span><span class="si">}</span><span class="s1"> is not valid, use: train_mode = irm or erm&#39;</span><span class="p">)</span>
-        <span class="k">return</span>
-    
-    
-    <span class="k">if</span> <span class="n">train_mode</span> <span class="o">==</span> <span class="s1">&#39;erm&#39;</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loaders</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">max_show</span><span class="p">:</span>
-                <span class="k">break</span>
-            <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-            <span class="n">label_strings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
-            <span class="n">train_fig</span> <span class="o">=</span> <span class="n">_imshow</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">label_strings</span><span class="p">,</span> <span class="n">nrow</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">train_loaders</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="n">pin_memory</span><span class="p">,</span> <span class="n">persistent_workers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1">#train_loaders = spacrDataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)</span>
 
-    <span class="k">elif</span> <span class="n">train_mode</span> <span class="o">==</span> <span class="s1">&#39;irm&#39;</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">plate_name</span><span class="p">,</span> <span class="n">train_loader</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">plate_names</span><span class="p">,</span> <span class="n">train_loaders</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plate: </span><span class="si">{</span><span class="n">plate_name</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s1"> images&#39;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">max_show</span><span class="p">:</span>
-                    <span class="k">break</span>
-                <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-                <span class="n">label_strings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
-                <span class="n">train_fig</span> <span class="o">=</span> <span class="n">_imshow</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">label_strings</span><span class="p">,</span> <span class="n">nrow</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="c1">#dataset (Dataset) – dataset from which to load the data.</span>
+    <span class="c1">#batch_size (int, optional) – how many samples per batch to load (default: 1).</span>
+    <span class="c1">#shuffle (bool, optional) – set to True to have the data reshuffled at every epoch (default: False).</span>
+    <span class="c1">#sampler (Sampler or Iterable, optional) – defines the strategy to draw samples from the dataset. Can be any Iterable with __len__ implemented. If specified, shuffle must not be specified.</span>
+    <span class="c1">#batch_sampler (Sampler or Iterable, optional) – like sampler, but returns a batch of indices at a time. Mutually exclusive with batch_size, shuffle, sampler, and drop_last.</span>
+    <span class="c1">#num_workers (int, optional) – how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)</span>
+    <span class="c1">#collate_fn (Callable, optional) – merges a list of samples to form a mini-batch of Tensor(s). Used when using batched loading from a map-style dataset.</span>
+    <span class="c1">#pin_memory (bool, optional) – If True, the data loader will copy Tensors into device/CUDA pinned memory before returning them. If your data elements are a custom type, or your collate_fn returns a batch that is a custom type, see the example below.</span>
+    <span class="c1">#drop_last (bool, optional) – set to True to drop the last incomplete batch, if the dataset size is not divisible by the batch size. If False and the size of dataset is not divisible by the batch size, then the last batch will be smaller. (default: False)</span>
+    <span class="c1">#timeout (numeric, optional) – if positive, the timeout value for collecting a batch from workers. Should always be non-negative. (default: 0)</span>
+    <span class="c1">#worker_init_fn (Callable, optional) – If not None, this will be called on each worker subprocess with the worker id (an int in [0, num_workers - 1]) as input, after seeding and before data loading. (default: None)</span>
+    <span class="c1">#multiprocessing_context (str or multiprocessing.context.BaseContext, optional) – If None, the default multiprocessing context of your operating system will be used. (default: None)</span>
+    <span class="c1">#generator (torch.Generator, optional) – If not None, this RNG will be used by RandomSampler to generate random indexes and multiprocessing to generate base_seed for workers. (default: None)</span>
+    <span class="c1">#prefetch_factor (int, optional, keyword-only arg) – Number of batches loaded in advance by each worker. 2 means there will be a total of 2 * num_workers batches prefetched across all workers. (default value depends on the set value for num_workers. If value of num_workers=0 default is None. Otherwise, if value of num_workers &gt; 0 default is 2).</span>
+    <span class="c1">#persistent_workers (bool, optional) – If True, the data loader will not shut down the worker processes after a dataset has been consumed once. This allows to maintain the workers Dataset instances alive. (default: False)</span>
+    <span class="c1">#pin_memory_device (str, optional) – the device to pin_memory to if pin_memory is True.</span>
 
-    <span class="k">return</span> <span class="n">train_loaders</span><span class="p">,</span> <span class="n">val_loaders</span><span class="p">,</span> <span class="n">plate_names</span><span class="p">,</span> <span class="n">train_fig</span></div>
+    <span class="c1">#images, labels, filenames = next(iter(train_loaders))</span>
+    <span class="c1">#images = images.cpu()</span>
+    <span class="c1">#label_strings = [str(label.item()) for label in labels]</span>
+    <span class="c1">#train_fig = _imshow_gpu(images, label_strings, nrow=20, fontsize=12)</span>
+    <span class="c1">#if verbose:</span>
+    <span class="c1">#    plt.show()</span>
+    
+    <span class="n">train_fig</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">train_loaders</span><span class="p">,</span> <span class="n">val_loaders</span><span class="p">,</span> <span class="n">train_fig</span></div>
 
 
 <div class="viewcode-block" id="analyze_recruitment">
 <a class="viewcode-back" href="../../spacr.html#spacr.core.analyze_recruitment">[docs]</a>
-<span class="k">def</span> <span class="nf">analyze_recruitment</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">metadata_settings</span><span class="o">=</span><span class="p">{},</span> <span class="n">advanced_settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">def</span> <span class="nf">analyze_recruitment</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.</span>
 
 <span class="sd">    Parameters:</span>
-<span class="sd">    src (str): The source of the recruitment data.</span>
-<span class="sd">    metadata_settings (dict): The settings for metadata.</span>
-<span class="sd">    advanced_settings (dict): The advanced settings for recruitment analysis.</span>
+<span class="sd">    settings (dict): settings.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_merge_data</span><span class="p">,</span> <span class="n">_results_to_csv</span>
-    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_merged</span><span class="p">,</span> <span class="n">_plot_controls</span><span class="p">,</span> <span class="n">_plot_recruitment</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_object_filter</span><span class="p">,</span> <span class="n">annotate_conditions</span><span class="p">,</span> <span class="n">_calculate_recruitment</span><span class="p">,</span> <span class="n">_group_by_well</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_image_mask_overlay</span><span class="p">,</span> <span class="n">_plot_controls</span><span class="p">,</span> <span class="n">_plot_recruitment</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_object_filter</span><span class="p">,</span> <span class="n">annotate_conditions</span><span class="p">,</span> <span class="n">_calculate_recruitment</span><span class="p">,</span> <span class="n">_group_by_well</span><span class="p">,</span> <span class="n">save_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_analyze_recruitment_default_settings</span>
 
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-    
-    <span class="n">settings_dict</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">metadata_settings</span><span class="p">,</span> <span class="o">**</span><span class="n">advanced_settings</span><span class="p">}</span>
-    <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
-    <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span><span class="s1">&#39;analyze_settings.csv&#39;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+    <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;recruitment&#39;</span><span class="p">)</span>
 
     <span class="c1"># metadata settings</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
-    <span class="n">cell_types</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;cell_types&#39;</span><span class="p">]</span>
-    <span class="n">cell_plate_metadata</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;cell_plate_metadata&#39;</span><span class="p">]</span>
-    <span class="n">pathogen_types</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;pathogen_types&#39;</span><span class="p">]</span>
-    <span class="n">pathogen_plate_metadata</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;pathogen_plate_metadata&#39;</span><span class="p">]</span>
-    <span class="n">treatments</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;treatments&#39;</span><span class="p">]</span>
-    <span class="n">treatment_plate_metadata</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;treatment_plate_metadata&#39;</span><span class="p">]</span>
-    <span class="n">metadata_types</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;metadata_types&#39;</span><span class="p">]</span>
-    <span class="n">channel_dims</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;channel_dims&#39;</span><span class="p">]</span>
-    <span class="n">cell_chann_dim</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;cell_chann_dim&#39;</span><span class="p">]</span>
-    <span class="n">cell_mask_dim</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span>
-    <span class="n">nucleus_chann_dim</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;nucleus_chann_dim&#39;</span><span class="p">]</span>
-    <span class="n">nucleus_mask_dim</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]</span>
-    <span class="n">pathogen_chann_dim</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;pathogen_chann_dim&#39;</span><span class="p">]</span>
-    <span class="n">pathogen_mask_dim</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">]</span>
-    <span class="n">channel_of_interest</span> <span class="o">=</span> <span class="n">metadata_settings</span><span class="p">[</span><span class="s1">&#39;channel_of_interest&#39;</span><span class="p">]</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
+    <span class="n">cell_types</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_types&#39;</span><span class="p">]</span>
+    <span class="n">cell_plate_metadata</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_plate_metadata&#39;</span><span class="p">]</span>
+    <span class="n">pathogen_types</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_types&#39;</span><span class="p">]</span>
+    <span class="n">pathogen_plate_metadata</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_plate_metadata&#39;</span><span class="p">]</span>
+    <span class="n">treatments</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;treatments&#39;</span><span class="p">]</span>
+    <span class="n">treatment_plate_metadata</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;treatment_plate_metadata&#39;</span><span class="p">]</span>
+    <span class="n">metadata_types</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metadata_types&#39;</span><span class="p">]</span>
+    <span class="n">channel_dims</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channel_dims&#39;</span><span class="p">]</span>
+    <span class="n">cell_chann_dim</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_chann_dim&#39;</span><span class="p">]</span>
+    <span class="n">cell_mask_dim</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span>
+    <span class="n">nucleus_chann_dim</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_chann_dim&#39;</span><span class="p">]</span>
+    <span class="n">nucleus_mask_dim</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]</span>
+    <span class="n">pathogen_chann_dim</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_chann_dim&#39;</span><span class="p">]</span>
+    <span class="n">pathogen_mask_dim</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">]</span>
+    <span class="n">channel_of_interest</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channel_of_interest&#39;</span><span class="p">]</span>
     
     <span class="c1"># Advanced settings</span>
-    <span class="n">plot</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]</span>
-    <span class="n">plot_nr</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;plot_nr&#39;</span><span class="p">]</span>
-    <span class="n">plot_control</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;plot_control&#39;</span><span class="p">]</span>
-    <span class="n">figuresize</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">]</span>
-    <span class="n">remove_background</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;remove_background&#39;</span><span class="p">]</span>
-    <span class="n">backgrounds</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;backgrounds&#39;</span><span class="p">]</span>
-    <span class="n">include_noninfected</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;include_noninfected&#39;</span><span class="p">]</span>
-    <span class="n">include_multiinfected</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;include_multiinfected&#39;</span><span class="p">]</span>
-    <span class="n">include_multinucleated</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;include_multinucleated&#39;</span><span class="p">]</span>
-    <span class="n">cells_per_well</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;cells_per_well&#39;</span><span class="p">]</span>
-    <span class="n">pathogen_size_range</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;pathogen_size_range&#39;</span><span class="p">]</span>
-    <span class="n">nucleus_size_range</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;nucleus_size_range&#39;</span><span class="p">]</span>
-    <span class="n">cell_size_range</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;cell_size_range&#39;</span><span class="p">]</span>
-    <span class="n">pathogen_intensity_range</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;pathogen_intensity_range&#39;</span><span class="p">]</span>
-    <span class="n">nucleus_intensity_range</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;nucleus_intensity_range&#39;</span><span class="p">]</span>
-    <span class="n">cell_intensity_range</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;cell_intensity_range&#39;</span><span class="p">]</span>
-    <span class="n">target_intensity_min</span> <span class="o">=</span> <span class="n">advanced_settings</span><span class="p">[</span><span class="s1">&#39;target_intensity_min&#39;</span><span class="p">]</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]</span>
+    <span class="n">plot_nr</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_nr&#39;</span><span class="p">]</span>
+    <span class="n">plot_control</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_control&#39;</span><span class="p">]</span>
+    <span class="n">figuresize</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">]</span>
+    <span class="n">include_noninfected</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_noninfected&#39;</span><span class="p">]</span>
+    <span class="n">include_multiinfected</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_multiinfected&#39;</span><span class="p">]</span>
+    <span class="n">include_multinucleated</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_multinucleated&#39;</span><span class="p">]</span>
+    <span class="n">cells_per_well</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cells_per_well&#39;</span><span class="p">]</span>
+    <span class="n">pathogen_size_range</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_size_range&#39;</span><span class="p">]</span>
+    <span class="n">nucleus_size_range</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_size_range&#39;</span><span class="p">]</span>
+    <span class="n">cell_size_range</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_size_range&#39;</span><span class="p">]</span>
+    <span class="n">pathogen_intensity_range</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_intensity_range&#39;</span><span class="p">]</span>
+    <span class="n">nucleus_intensity_range</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_intensity_range&#39;</span><span class="p">]</span>
+    <span class="n">cell_intensity_range</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_intensity_range&#39;</span><span class="p">]</span>
+    <span class="n">target_intensity_min</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;target_intensity_min&#39;</span><span class="p">]</span>
     
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cell(s): </span><span class="si">{</span><span class="n">cell_types</span><span class="si">}</span><span class="s1">, in </span><span class="si">{</span><span class="n">cell_plate_metadata</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pathogen(s): </span><span class="si">{</span><span class="n">pathogen_types</span><span class="si">}</span><span class="s1">, in </span><span class="si">{</span><span class="n">pathogen_plate_metadata</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1986,9 +1662,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">metadata_types</span> <span class="o">=</span> <span class="n">metadata_types</span>
     
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backgrounds</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">)):</span>
-        <span class="n">backgrounds</span> <span class="o">=</span> <span class="p">[</span><span class="n">backgrounds</span><span class="p">,</span> <span class="n">backgrounds</span><span class="p">,</span> <span class="n">backgrounds</span><span class="p">,</span> <span class="n">backgrounds</span><span class="p">]</span>
-
     <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;mako&quot;</span><span class="p">,</span> <span class="n">as_cmap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;channel:</span><span class="si">{</span><span class="n">channel_of_interest</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">overlay_channels</span> <span class="o">=</span> <span class="n">channel_dims</span>
@@ -1998,11 +1671,11 @@
     <span class="n">db_loc</span> <span class="o">=</span> <span class="p">[</span><span class="n">src</span><span class="o">+</span><span class="s1">&#39;/measurements/measurements.db&#39;</span><span class="p">]</span>
     <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_read_and_merge_data</span><span class="p">(</span><span class="n">db_loc</span><span class="p">,</span> 
-                                         <span class="n">tables</span><span class="p">,</span> 
-                                         <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                                         <span class="n">include_multinucleated</span><span class="o">=</span><span class="n">include_multinucleated</span><span class="p">,</span> 
-                                         <span class="n">include_multiinfected</span><span class="o">=</span><span class="n">include_multiinfected</span><span class="p">,</span> 
-                                         <span class="n">include_noninfected</span><span class="o">=</span><span class="n">include_noninfected</span><span class="p">)</span>
+                                 <span class="n">tables</span><span class="p">,</span> 
+                                 <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                 <span class="n">include_multinucleated</span><span class="o">=</span><span class="n">include_multinucleated</span><span class="p">,</span> 
+                                 <span class="n">include_multiinfected</span><span class="o">=</span><span class="n">include_multiinfected</span><span class="p">,</span> 
+                                 <span class="n">include_noninfected</span><span class="o">=</span><span class="n">include_noninfected</span><span class="p">)</span>
     
     <span class="n">df</span> <span class="o">=</span> <span class="n">annotate_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> 
                              <span class="n">cells</span><span class="o">=</span><span class="n">cell_types</span><span class="p">,</span> 
@@ -2021,48 +1694,31 @@
     <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
 
     <span class="n">_max</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">100</span>
-
-    <span class="k">if</span> <span class="n">cell_size_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nucleus_size_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pathogen_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">filter_min_max</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">cell_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cell_size_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">_max</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">nucleus_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">nucleus_size_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">_max</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">pathogen_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pathogen_size_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">_max</span><span class="p">]</span>
-
-        <span class="n">filter_min_max</span> <span class="o">=</span> <span class="p">[[</span><span class="n">cell_size_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">cell_size_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],[</span><span class="n">nucleus_size_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">nucleus_size_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],[</span><span class="n">pathogen_size_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">pathogen_size_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]]]</span>
+    <span class="k">if</span> <span class="n">cell_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cell_size_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">_max</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">nucleus_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nucleus_size_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">_max</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">pathogen_size_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pathogen_size_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">_max</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
-        <span class="n">plot_settings</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;include_noninfected&#39;</span><span class="p">:</span><span class="n">include_noninfected</span><span class="p">,</span> 
-                         <span class="s1">&#39;include_multiinfected&#39;</span><span class="p">:</span><span class="n">include_multiinfected</span><span class="p">,</span>
-                         <span class="s1">&#39;include_multinucleated&#39;</span><span class="p">:</span><span class="n">include_multinucleated</span><span class="p">,</span>
-                         <span class="s1">&#39;remove_background&#39;</span><span class="p">:</span><span class="n">remove_background</span><span class="p">,</span>
-                         <span class="s1">&#39;filter_min_max&#39;</span><span class="p">:</span><span class="n">filter_min_max</span><span class="p">,</span>
-                         <span class="s1">&#39;channel_dims&#39;</span><span class="p">:</span><span class="n">channel_dims</span><span class="p">,</span>
-                         <span class="s1">&#39;backgrounds&#39;</span><span class="p">:</span><span class="n">backgrounds</span><span class="p">,</span>
-                         <span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">:</span><span class="n">mask_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                         <span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">:</span><span class="n">mask_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                         <span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">:</span><span class="n">mask_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                         <span class="s1">&#39;overlay_chans&#39;</span><span class="p">:</span><span class="n">overlay_channels</span><span class="p">,</span>
-                         <span class="s1">&#39;outline_thickness&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
-                         <span class="s1">&#39;outline_color&#39;</span><span class="p">:</span><span class="s1">&#39;gbr&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;overlay_chans&#39;</span><span class="p">:</span><span class="n">overlay_channels</span><span class="p">,</span>
-                         <span class="s1">&#39;overlay&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="s1">&#39;normalization_percentiles&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">99</span><span class="p">],</span>
-                         <span class="s1">&#39;normalize&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="s1">&#39;print_object_number&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="s1">&#39;nr&#39;</span><span class="p">:</span><span class="n">plot_nr</span><span class="p">,</span>
-                         <span class="s1">&#39;figuresize&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span>
-                         <span class="s1">&#39;cmap&#39;</span><span class="p">:</span><span class="s1">&#39;inferno&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;verbose&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">}</span>
-        
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;merged&#39;</span><span class="p">)):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">plot_merged</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;merged&#39;</span><span class="p">),</span> <span class="n">settings</span><span class="o">=</span><span class="n">plot_settings</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to plot images with outlines, Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">merged_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;merged&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">merged_path</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">merged_path</span><span class="p">)):</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">merged_path</span><span class="p">,</span><span class="n">file</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;=</span> <span class="n">plot_nr</span><span class="p">:</span>
+                        <span class="n">plot_image_mask_overlay</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> 
+                                                <span class="n">channel_dims</span><span class="p">,</span>
+                                                <span class="n">cell_chann_dim</span><span class="p">,</span>
+                                                <span class="n">nucleus_chann_dim</span><span class="p">,</span>
+                                                <span class="n">pathogen_chann_dim</span><span class="p">,</span>
+                                                <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                                <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                <span class="n">thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                                <span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to plot images with outlines, Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cell_chann_dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">_object_filter</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="n">size_range</span><span class="o">=</span><span class="n">cell_size_range</span><span class="p">,</span> <span class="n">intensity_range</span><span class="o">=</span><span class="n">cell_intensity_range</span><span class="p">,</span> <span class="n">mask_chans</span><span class="o">=</span><span class="n">mask_chans</span><span class="p">,</span> <span class="n">mask_chan</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -2103,14 +1759,12 @@
 
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">preprocess_img_data</span><span class="p">,</span> <span class="n">_load_and_concatenate_arrays</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_image_mask_overlay</span><span class="p">,</span> <span class="n">plot_arrays</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_pivot_counts_table</span><span class="p">,</span> <span class="n">check_mask_folder</span><span class="p">,</span> <span class="n">adjust_cell_masks</span><span class="p">,</span> <span class="n">print_progress</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_pivot_counts_table</span><span class="p">,</span> <span class="n">check_mask_folder</span><span class="p">,</span> <span class="n">adjust_cell_masks</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_settings_preprocess_generate_masks</span>
     
     <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
-    <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
-    <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span><span class="s1">&#39;preprocess_generate_masks_settings.csv&#39;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
+    <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">custom_model_ls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;toxo_pv_lumen&#39;</span><span class="p">,</span><span class="s1">&#39;toxo_cyto&#39;</span><span class="p">]</span>
@@ -2413,7 +2067,7 @@
         <span class="n">settings_df</span><span class="p">[</span><span class="s1">&#39;setting_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings_df</span><span class="p">[</span><span class="s1">&#39;setting_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
         <span class="n">display</span><span class="p">(</span><span class="n">settings_df</span><span class="p">)</span>
         
-    <span class="n">figuresize</span><span class="o">=</span><span class="mi">25</span>
+    <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span>
     <span class="n">timelapse</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]</span>
     
     <span class="k">if</span> <span class="n">timelapse</span><span class="p">:</span>
