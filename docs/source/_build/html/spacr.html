@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr package &mdash; spacr 0.2.56 documentation</title>
+  <title>spacr package &mdash; spacr 0.2.65 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=aa0fc99b"></script>
+        <script src="_static/documentation_options.js?v=30a7333d"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -36,7 +36,7 @@
             spacr
           </a>
               <div class="version">
-                0.2.56
+                0.2.65
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -81,7 +81,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.app_umap.start_umap_app"><code class="docutils literal notranslate"><span class="pre">start_umap_app()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#spacr-chris-module">spacr.chris module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.core">spacr.core module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.all_elements_match"><code class="docutils literal notranslate"><span class="pre">all_elements_match()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.analyze_data_reg"><code class="docutils literal notranslate"><span class="pre">analyze_data_reg()</span></code></a></li>
@@ -90,7 +89,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.annotate_results"><code class="docutils literal notranslate"><span class="pre">annotate_results()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.apply_model"><code class="docutils literal notranslate"><span class="pre">apply_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.apply_model_to_tar"><code class="docutils literal notranslate"><span class="pre">apply_model_to_tar()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.core.apply_model_to_tar_v1"><code class="docutils literal notranslate"><span class="pre">apply_model_to_tar_v1()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.check_cellpose_models"><code class="docutils literal notranslate"><span class="pre">check_cellpose_models()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.check_index"><code class="docutils literal notranslate"><span class="pre">check_index()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.compare_cellpose_masks"><code class="docutils literal notranslate"><span class="pre">compare_cellpose_masks()</span></code></a></li>
@@ -99,14 +97,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_cellpose_masks"><code class="docutils literal notranslate"><span class="pre">generate_cellpose_masks()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_dataset"><code class="docutils literal notranslate"><span class="pre">generate_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_dataset_from_lists"><code class="docutils literal notranslate"><span class="pre">generate_dataset_from_lists()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_dataset_v1"><code class="docutils literal notranslate"><span class="pre">generate_dataset_v1()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_image_umap"><code class="docutils literal notranslate"><span class="pre">generate_image_umap()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_loaders"><code class="docutils literal notranslate"><span class="pre">generate_loaders()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_masks_from_imgs"><code class="docutils literal notranslate"><span class="pre">generate_masks_from_imgs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_ml_scores"><code class="docutils literal notranslate"><span class="pre">generate_ml_scores()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_training_data_file_list"><code class="docutils literal notranslate"><span class="pre">generate_training_data_file_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_training_dataset"><code class="docutils literal notranslate"><span class="pre">generate_training_dataset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.core.generate_training_dataset_v1"><code class="docutils literal notranslate"><span class="pre">generate_training_dataset_v1()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.identify_masks_finetune"><code class="docutils literal notranslate"><span class="pre">identify_masks_finetune()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.jitterplot_by_annotation"><code class="docutils literal notranslate"><span class="pre">jitterplot_by_annotation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.core.join_measurments_and_annotation"><code class="docutils literal notranslate"><span class="pre">join_measurments_and_annotation()</span></code></a></li>
@@ -127,7 +123,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.deep_spacr">spacr.deep_spacr module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.SmoothGrad"><code class="docutils literal notranslate"><span class="pre">SmoothGrad</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.deep_spacr"><code class="docutils literal notranslate"><span class="pre">deep_spacr()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.evaluate_model_core"><code class="docutils literal notranslate"><span class="pre">evaluate_model_core()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.evaluate_model_performance"><code class="docutils literal notranslate"><span class="pre">evaluate_model_performance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.test_model_core"><code class="docutils literal notranslate"><span class="pre">test_model_core()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.test_model_performance"><code class="docutils literal notranslate"><span class="pre">test_model_performance()</span></code></a></li>
@@ -165,9 +160,12 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.gui_core">spacr.gui_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.clear_unused_figures"><code class="docutils literal notranslate"><span class="pre">clear_unused_figures()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.display_figure"><code class="docutils literal notranslate"><span class="pre">display_figure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.import_settings"><code class="docutils literal notranslate"><span class="pre">import_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.initiate_abort"><code class="docutils literal notranslate"><span class="pre">initiate_abort()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.initiate_root"><code class="docutils literal notranslate"><span class="pre">initiate_root()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.main_thread_update_function"><code class="docutils literal notranslate"><span class="pre">main_thread_update_function()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.process_console_queue"><code class="docutils literal notranslate"><span class="pre">process_console_queue()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.process_fig_queue"><code class="docutils literal notranslate"><span class="pre">process_fig_queue()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.set_globals"><code class="docutils literal notranslate"><span class="pre">set_globals()</span></code></a></li>
@@ -177,6 +175,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.setup_progress_frame"><code class="docutils literal notranslate"><span class="pre">setup_progress_frame()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.setup_settings_panel"><code class="docutils literal notranslate"><span class="pre">setup_settings_panel()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.setup_usage_panel"><code class="docutils literal notranslate"><span class="pre">setup_usage_panel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.show_next_figure"><code class="docutils literal notranslate"><span class="pre">show_next_figure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.show_previous_figure"><code class="docutils literal notranslate"><span class="pre">show_previous_figure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.start_process"><code class="docutils literal notranslate"><span class="pre">start_process()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.toggle_settings"><code class="docutils literal notranslate"><span class="pre">toggle_settings()</span></code></a></li>
 </ul>
@@ -185,6 +185,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.AnnotateApp"><code class="docutils literal notranslate"><span class="pre">AnnotateApp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.ModifyMaskApp"><code class="docutils literal notranslate"><span class="pre">ModifyMaskApp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.create_menu_bar"><code class="docutils literal notranslate"><span class="pre">create_menu_bar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.modify_figure"><code class="docutils literal notranslate"><span class="pre">modify_figure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.modify_figure_properties"><code class="docutils literal notranslate"><span class="pre">modify_figure_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.save_figure_as_format"><code class="docutils literal notranslate"><span class="pre">save_figure_as_format()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.set_dark_style"><code class="docutils literal notranslate"><span class="pre">set_dark_style()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.set_element_size"><code class="docutils literal notranslate"><span class="pre">set_element_size()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrButton"><code class="docutils literal notranslate"><span class="pre">spacrButton</span></code></a></li>
@@ -198,10 +201,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrFrame"><code class="docutils literal notranslate"><span class="pre">spacrFrame</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrLabel"><code class="docutils literal notranslate"><span class="pre">spacrLabel</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrProgressBar"><code class="docutils literal notranslate"><span class="pre">spacrProgressBar</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrProgressBar_v1"><code class="docutils literal notranslate"><span class="pre">spacrProgressBar_v1</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrScrollbarStyle"><code class="docutils literal notranslate"><span class="pre">spacrScrollbarStyle()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrSwitch"><code class="docutils literal notranslate"><span class="pre">spacrSwitch</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrToolTip"><code class="docutils literal notranslate"><span class="pre">spacrToolTip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.standardize_figure"><code class="docutils literal notranslate"><span class="pre">standardize_figure()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.gui_utils">spacr.gui_utils module</a><ul>
@@ -218,15 +221,16 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.function_gui_wrapper"><code class="docutils literal notranslate"><span class="pre">function_gui_wrapper()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.generate_annotate_fields"><code class="docutils literal notranslate"><span class="pre">generate_annotate_fields()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.hide_all_settings"><code class="docutils literal notranslate"><span class="pre">hide_all_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.initialize_cuda"><code class="docutils literal notranslate"><span class="pre">initialize_cuda()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.load_app"><code class="docutils literal notranslate"><span class="pre">load_app()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.load_next_app"><code class="docutils literal notranslate"><span class="pre">load_next_app()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.main_thread_update_function"><code class="docutils literal notranslate"><span class="pre">main_thread_update_function()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.parse_list"><code class="docutils literal notranslate"><span class="pre">parse_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.parse_list_v1"><code class="docutils literal notranslate"><span class="pre">parse_list_v1()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.proceed_with_app"><code class="docutils literal notranslate"><span class="pre">proceed_with_app()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.process_stdout_stderr"><code class="docutils literal notranslate"><span class="pre">process_stdout_stderr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.run_annotate_app"><code class="docutils literal notranslate"><span class="pre">run_annotate_app()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.run_function_gui"><code class="docutils literal notranslate"><span class="pre">run_function_gui()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.set_cpu_affinity"><code class="docutils literal notranslate"><span class="pre">set_cpu_affinity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.set_high_priority"><code class="docutils literal notranslate"><span class="pre">set_high_priority()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.setup_frame"><code class="docutils literal notranslate"><span class="pre">setup_frame()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_utils.spacrFigShow"><code class="docutils literal notranslate"><span class="pre">spacrFigShow()</span></code></a></li>
 </ul>
@@ -234,7 +238,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.io">spacr.io module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.CombineLoaders"><code class="docutils literal notranslate"><span class="pre">CombineLoaders</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.CombinedDataset"><code class="docutils literal notranslate"><span class="pre">CombinedDataset</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.io.MyDataset"><code class="docutils literal notranslate"><span class="pre">MyDataset</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.NoClassDataset"><code class="docutils literal notranslate"><span class="pre">NoClassDataset</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.TarImageDataset"><code class="docutils literal notranslate"><span class="pre">TarImageDataset</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.concatenate_and_normalize"><code class="docutils literal notranslate"><span class="pre">concatenate_and_normalize()</span></code></a></li>
@@ -243,6 +246,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.generate_cellpose_train_test"><code class="docutils literal notranslate"><span class="pre">generate_cellpose_train_test()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.preprocess_img_data"><code class="docutils literal notranslate"><span class="pre">preprocess_img_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.read_plot_model_stats"><code class="docutils literal notranslate"><span class="pre">read_plot_model_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.io.spacrDataLoader"><code class="docutils literal notranslate"><span class="pre">spacrDataLoader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.io.spacrDataset"><code class="docutils literal notranslate"><span class="pre">spacrDataset</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.logger">spacr.logger module</a><ul>
@@ -527,6 +532,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.resize_images_and_labels"><code class="docutils literal notranslate"><span class="pre">resize_images_and_labels()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.resize_labels_back"><code class="docutils literal notranslate"><span class="pre">resize_labels_back()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.save_file_lists"><code class="docutils literal notranslate"><span class="pre">save_file_lists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.save_settings"><code class="docutils literal notranslate"><span class="pre">save_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.search_reduction_and_clustering"><code class="docutils literal notranslate"><span class="pre">search_reduction_and_clustering()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.setup_plot"><code class="docutils literal notranslate"><span class="pre">setup_plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.show_cam_on_image"><code class="docutils literal notranslate"><span class="pre">show_cam_on_image()</span></code></a></li>
@@ -638,9 +644,6 @@
 <dd></dd></dl>
 
 </section>
-<section id="spacr-chris-module">
-<h2>spacr.chris module<a class="headerlink" href="#spacr-chris-module" title="Link to this heading"></a></h2>
-</section>
 <section id="module-spacr.core">
 <span id="spacr-core-module"></span><h2>spacr.core module<a class="headerlink" href="#module-spacr.core" title="Link to this heading"></a></h2>
 <dl class="py function">
@@ -660,12 +663,10 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.analyze_recruitment">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">analyze_recruitment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advanced_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#analyze_recruitment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.analyze_recruitment" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">analyze_recruitment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#analyze_recruitment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.analyze_recruitment" title="Link to this definition"></a></dt>
 <dd><p>Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.</p>
 <p>Parameters:
-src (str): The source of the recruitment data.
-metadata_settings (dict): The settings for metadata.
-advanced_settings (dict): The advanced settings for recruitment analysis.</p>
+settings (dict): settings.</p>
 <p>Returns:
 None</p>
 </dd></dl>
@@ -683,11 +684,6 @@ None</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.apply_model_to_tar">
 <span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">apply_model_to_tar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#apply_model_to_tar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.apply_model_to_tar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.core.apply_model_to_tar_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">apply_model_to_tar_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tar_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'images'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#apply_model_to_tar_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.apply_model_to_tar_v1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -737,11 +733,6 @@ float: The optimal threshold.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.core.generate_dataset_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_dataset_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TSG101_screen'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#generate_dataset_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_dataset_v1" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_image_umap">
 <span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_image_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#generate_image_umap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_image_umap" title="Link to this definition"></a></dt>
 <dd><p>Generate UMAP or tSNE embedding and visualize the data with clustering.</p>
@@ -776,26 +767,23 @@ pd.DataFrame: DataFrame with the original data and an additional column ‘clust
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_loaders">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_loaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'erm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['nc',</span> <span class="pre">'pc']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#generate_loaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_loaders" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_loaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['nc',</span> <span class="pre">'pc']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preload_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#generate_loaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_loaders" title="Link to this definition"></a></dt>
 <dd><p>Generate data loaders for training and validation/test datasets.</p>
 <p>Parameters:
 - src (str): The source directory containing the data.
-- train_mode (str): The training mode. Options are ‘erm’ (Empirical Risk Minimization) or ‘irm’ (Invariant Risk Minimization).
 - mode (str): The mode of operation. Options are ‘train’ or ‘test’.
 - image_size (int): The size of the input images.
 - batch_size (int): The batch size for the data loaders.
 - classes (list): The list of classes to consider.
 - n_jobs (int): The number of worker threads for data loading.
-- validation_split (float): The fraction of data to use for validation when train_mode is ‘erm’.
-- max_show (int): The maximum number of images to show when verbose is True.
+- validation_split (float): The fraction of data to use for validation.
 - pin_memory (bool): Whether to pin memory for faster data transfer.
 - normalize (bool): Whether to normalize the input images.
 - verbose (bool): Whether to print additional information and show images.
 - channels (list): The list of channels to retain. Options are [1, 2, 3] for all channels, [1, 2] for blue and green, etc.</p>
 <p>Returns:
 - train_loaders (list): List of data loaders for training datasets.
-- val_loaders (list): List of data loaders for validation datasets.
-- plate_names (list): List of plate names (only applicable when train_mode is ‘irm’).</p>
+- val_loaders (list): List of data loaders for validation datasets.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -816,11 +804,6 @@ pd.DataFrame: DataFrame with the original data and an additional column ‘clust
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_training_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_training_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#generate_training_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_training_dataset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.core.generate_training_dataset_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_training_dataset_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'annotation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['nc',</span> <span class="pre">'pc']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[['c1'],</span> <span class="pre">['c2']]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_type_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">png_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_png'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#generate_training_dataset_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_training_dataset_v1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -972,8 +955,8 @@ fig: Matplotlib figure object containing the SHAP summary plot.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.deep_spacr.evaluate_model_core">
-<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">evaluate_model_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#evaluate_model_core"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.evaluate_model_core" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.deep_spacr.evaluate_model_performance">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">evaluate_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#evaluate_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.evaluate_model_performance" title="Link to this definition"></a></dt>
 <dd><p>Evaluates the performance of a model on a given data loader.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -997,37 +980,13 @@ all_labels (list): The true labels for each prediction.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.deep_spacr.evaluate_model_performance">
-<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">evaluate_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#evaluate_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.evaluate_model_performance" title="Link to this definition"></a></dt>
-<dd><p>Evaluate the performance of a model on given data loaders.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>loaders</strong> (<em>list</em>) – List of data loaders.</p></li>
-<li><p><strong>model</strong> – The model to evaluate.</p></li>
-<li><p><strong>loader_name_list</strong> (<em>list</em>) – List of names for the data loaders.</p></li>
-<li><p><strong>epoch</strong> (<em>int</em>) – The current epoch.</p></li>
-<li><p><strong>train_mode</strong> (<em>str</em>) – The training mode (‘erm’ or ‘irm’).</p></li>
-<li><p><strong>loss_type</strong> – The type of loss function.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the evaluation result and the time taken for evaluation.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_core">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">test_model_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#test_model_core"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.test_model_core" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_performance">
-<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">test_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#test_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.test_model_performance" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">test_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#test_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.test_model_performance" title="Link to this definition"></a></dt>
 <dd><p>Test the performance of a model on given data loaders.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1036,7 +995,6 @@ all_labels (list): The true labels for each prediction.</p>
 <li><p><strong>model</strong> – The model to be tested.</p></li>
 <li><p><strong>loader_name_list</strong> (<em>list</em>) – List of names for the data loaders.</p></li>
 <li><p><strong>epoch</strong> (<em>int</em>) – The current epoch.</p></li>
-<li><p><strong>train_mode</strong> (<em>str</em>) – The training mode (‘erm’ or ‘irm’).</p></li>
 <li><p><strong>loss_type</strong> – The type of loss function.</p></li>
 </ul>
 </dd>
@@ -1051,7 +1009,7 @@ all_labels (list): The true labels for each prediction.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.train_model">
-<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'erm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amsgrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adamw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imagenet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermedeate_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'binary_cross_entropy_with_logits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'g',</span> <span class="pre">'b']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#train_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.train_model" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amsgrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adamw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imagenet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermedeate_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'binary_cross_entropy_with_logits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'g',</span> <span class="pre">'b']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#train_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.train_model" title="Link to this definition"></a></dt>
 <dd><p>Trains a model using the specified parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1059,8 +1017,6 @@ all_labels (list): The true labels for each prediction.</p>
 <li><p><strong>dst</strong> (<em>str</em>) – The destination path to save the model and results.</p></li>
 <li><p><strong>model_type</strong> (<em>str</em>) – The type of model to train.</p></li>
 <li><p><strong>train_loaders</strong> (<em>list</em>) – A list of training data loaders.</p></li>
-<li><p><strong>train_loader_names</strong> (<em>list</em>) – A list of names for the training data loaders.</p></li>
-<li><p><strong>train_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – The training mode. Defaults to ‘erm’.</p></li>
 <li><p><strong>epochs</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of training epochs. Defaults to 100.</p></li>
 <li><p><strong>learning_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – The learning rate for the optimizer. Defaults to 0.0001.</p></li>
 <li><p><strong>weight_decay</strong> (<em>float</em><em>, </em><em>optional</em>) – The weight decay for the optimizer. Defaults to 0.05.</p></li>
@@ -1303,6 +1259,16 @@ dict: A dictionary with the extracted metadata.</p>
 <section id="module-spacr.gui_core">
 <span id="spacr-gui-core-module"></span><h2>spacr.gui_core module<a class="headerlink" href="#module-spacr.gui_core" title="Link to this heading"></a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.clear_unused_figures">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">clear_unused_figures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#clear_unused_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.clear_unused_figures" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.display_figure">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">display_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#display_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.display_figure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.import_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">import_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#import_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.import_settings" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1315,6 +1281,26 @@ dict: A dictionary with the extracted metadata.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.initiate_root">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">initiate_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#initiate_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.initiate_root" title="Link to this definition"></a></dt>
+<dd><p>Initializes the root window and sets up the GUI components based on the specified settings type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>tkinter.Tk</em><em> or </em><em>tkinter.Toplevel</em>) – The parent window for the GUI.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of settings to be displayed in the GUI. Defaults to ‘mask’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the parent frame and the dictionary of variables used in the GUI.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.main_thread_update_function">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">main_thread_update_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#main_thread_update_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.main_thread_update_function" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1329,7 +1315,7 @@ dict: A dictionary with the extracted metadata.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.set_globals">
-<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">set_globals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_control_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_output_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollable_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_bars_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#set_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.set_globals" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">set_globals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_control_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_output_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollable_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figures_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_index_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_bars_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_memory_limit_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_current_memory_usage_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#set_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.set_globals" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1359,7 +1345,17 @@ dict: A dictionary with the extracted metadata.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.setup_usage_panel">
-<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_usage_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizontal_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btn_col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#setup_usage_panel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_usage_panel" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_usage_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizontal_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btn_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uppdate_frequency</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#setup_usage_panel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_usage_panel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.show_next_figure">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">show_next_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#show_next_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.show_next_figure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.show_previous_figure">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">show_previous_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#show_previous_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.show_previous_figure" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1743,6 +1739,38 @@ dict: A dictionary with the extracted metadata.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_elements.modify_figure">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">modify_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#modify_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.modify_figure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_elements.modify_figure_properties">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">modify_figure_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#modify_figure_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.modify_figure_properties" title="Link to this definition"></a></dt>
+<dd><p>Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.</p>
+<p>Parameters:
+- fig: The Matplotlib figure object to modify.
+- scale_x: Scaling factor for the width of subplots (optional).
+- scale_y: Scaling factor for the height of subplots (optional).
+- line_width: Desired line width for all lines (optional).
+- font_size: Desired font size for all text (optional).
+- x_lim: Tuple specifying the x-axis limits (min, max) (optional).
+- y_lim: Tuple specifying the y-axis limits (min, max) (optional).
+- grid: Boolean to add grid lines to the plot (optional).
+- legend: Boolean to show/hide the legend (optional).
+- title: String to set as the title of the plot (optional).
+- x_label_rotation: Angle to rotate the x-axis labels (optional).
+- remove_axes: Boolean to remove or show the axes labels (optional).
+- bg_color: Color for the figure and subplot background (optional).
+- text_color: Color for all text in the figure (optional).
+- line_color: Color for all lines in the figure (optional).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_elements.save_figure_as_format">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">save_figure_as_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#save_figure_as_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.save_figure_as_format" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.set_dark_style">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">set_dark_style</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">style</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">containers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OpenSans'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fg_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dark_gray'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#set_dark_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.set_dark_style" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -2050,22 +2078,6 @@ dict: A dictionary with the extracted metadata.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="spacr.gui_elements.spacrProgressBar_v1">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrProgressBar_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#spacrProgressBar_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrProgressBar_v1" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Progressbar</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.gui_elements.spacrProgressBar_v1.set_label_position">
-<span class="sig-name descname"><span class="pre">set_label_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#spacrProgressBar_v1.set_label_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrProgressBar_v1.set_label_position" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.gui_elements.spacrProgressBar_v1.update_label">
-<span class="sig-name descname"><span class="pre">update_label</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#spacrProgressBar_v1.update_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrProgressBar_v1.update_label" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrScrollbarStyle">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrScrollbarStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">style</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_color</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#spacrScrollbarStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrScrollbarStyle" title="Link to this definition"></a></dt>
@@ -2128,6 +2140,11 @@ dict: A dictionary with the extracted metadata.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_elements.standardize_figure">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">standardize_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#standardize_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.standardize_figure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-spacr.gui_utils">
 <span id="spacr-gui-utils-module"></span><h2>spacr.gui_utils module<a class="headerlink" href="#module-spacr.gui_utils" title="Link to this heading"></a></h2>
@@ -2182,7 +2199,29 @@ the length of the string).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.create_input_field">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">create_input_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'entry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#create_input_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.create_input_field" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create an input field in the specified frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>tk.Frame</em>) – The frame in which the input field will be created.</p></li>
+<li><p><strong>label_text</strong> (<em>str</em>) – The text to be displayed as the label for the input field.</p></li>
+<li><p><strong>row</strong> (<em>int</em>) – The row in which the input field will be placed.</p></li>
+<li><p><strong>var_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of input field to create. Defaults to ‘entry’.</p></li>
+<li><p><strong>options</strong> (<em>list</em><em>, </em><em>optional</em>) – The list of options for a combo box input field. Defaults to None.</p></li>
+<li><p><strong>default_value</strong> (<em>str</em><em>, </em><em>optional</em>) – The default value for the input field. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the label, input widget, variable, and custom frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If an error occurs while creating the input field.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.download_dataset">
@@ -2242,6 +2281,12 @@ the length of the string).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.initialize_cuda">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">initialize_cuda</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#initialize_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.initialize_cuda" title="Link to this definition"></a></dt>
+<dd><p>Initializes CUDA in the main process by performing a simple GPU operation.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.load_app">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">load_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#load_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.load_app" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -2252,19 +2297,24 @@ the length of the string).</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.gui_utils.main_thread_update_function">
-<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">main_thread_update_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#main_thread_update_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.main_thread_update_function" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.parse_list">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">parse_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#parse_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.parse_list" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.gui_utils.parse_list_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">parse_list_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#parse_list_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.parse_list_v1" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Parses a string representation of a list and returns the parsed list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – The string representation of the list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed list.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the input value is not a valid list format or contains mixed types or unsupported types.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.proceed_with_app">
@@ -2285,6 +2335,16 @@ the length of the string).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.run_function_gui">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">run_function_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_requested</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#run_function_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.run_function_gui" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.set_cpu_affinity">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">set_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#set_cpu_affinity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.set_cpu_affinity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.set_high_priority">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">set_high_priority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_utils.html#set_high_priority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.set_high_priority" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2368,41 +2428,6 @@ the length of the string).</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="spacr.io.MyDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">MyDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#MyDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.MyDataset" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
-<p>A custom dataset class for loading and processing image data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_dir</strong> (<em>str</em>) – The directory path where the image data is stored.</p></li>
-<li><p><strong>loader_classes</strong> (<em>list</em>) – A list of class names for the dataset.</p></li>
-<li><p><strong>transform</strong> (<em>callable</em><em>, </em><em>optional</em>) – A function/transform to apply to the image data. Default is None.</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to shuffle the dataset. Default is True.</p></li>
-<li><p><strong>pin_memory</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to pin the loaded images to memory. Default is False.</p></li>
-<li><p><strong>specific_files</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of specific file paths to include in the dataset. Default is None.</p></li>
-<li><p><strong>specific_labels</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of specific labels corresponding to the specific files. Default is None.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.io.MyDataset.get_plate">
-<span class="sig-name descname"><span class="pre">get_plate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#MyDataset.get_plate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.MyDataset.get_plate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.io.MyDataset.load_image">
-<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#MyDataset.load_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.MyDataset.load_image" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.io.MyDataset.shuffle_dataset">
-<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#MyDataset.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.MyDataset.shuffle_dataset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#NoClassDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
@@ -2459,6 +2484,38 @@ folder_path (str): The path to the folder containing numpy files.</p>
 <dt class="sig sig-object py" id="spacr.io.read_plot_model_stats">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">read_plot_model_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#read_plot_model_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.read_plot_model_stats" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spacr.io.spacrDataLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preload_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#spacrDataLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataLoader.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#spacrDataLoader.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.cleanup" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spacr.io.spacrDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#spacrDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataset.get_plate">
+<span class="sig-name descname"><span class="pre">get_plate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#spacrDataset.get_plate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.get_plate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataset.load_image">
+<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#spacrDataset.load_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.load_image" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataset.shuffle_dataset">
+<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#spacrDataset.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.shuffle_dataset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
 
 </section>
 <section id="module-spacr.logger">
@@ -2612,7 +2669,7 @@ matplotlib.colors.ListedColormap: The random colormap.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_arrays">
-<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_arrays" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_arrays" title="Link to this definition"></a></dt>
 <dd><p>Plot randomly selected arrays from a given directory.</p>
 <p>Parameters:
 - src (str): The directory path containing the arrays.
@@ -2672,7 +2729,7 @@ None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.npz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_object_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.npz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_object_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_masks" title="Link to this definition"></a></dt>
 <dd><p>Plot the masks and flows for a given batch of images.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4485,7 +4542,7 @@ based on parasite overlap and cell perimeter sharing conditions.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.choose_model">
-<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">choose_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#choose_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.choose_model" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">choose_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#choose_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.choose_model" title="Link to this definition"></a></dt>
 <dd><p>Choose a model for classification.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4518,7 +4575,7 @@ based on parasite overlap and cell perimeter sharing conditions.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.classification_metrics">
-<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">classification_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_pos_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#classification_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.classification_metrics" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">classification_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_pos_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#classification_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.classification_metrics" title="Link to this definition"></a></dt>
 <dd><p>Calculate classification metrics for binary classification.</p>
 <p>Parameters:
 - all_labels (list): List of true labels.
@@ -4848,7 +4905,7 @@ The normalized stack with the same shape as the input stack.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.plot_clusters">
-<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">plot_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_centers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_outlines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dot_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#plot_clusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.plot_clusters" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">plot_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_centers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_outlines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dot_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#plot_clusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.plot_clusters" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -4907,7 +4964,7 @@ ValueError: If no numeric columns are available after filtering.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.print_progress">
-<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">print_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files_processed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_to_process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_ls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metricks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#print_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.print_progress" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">print_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files_processed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_to_process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_ls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#print_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.print_progress" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -5023,6 +5080,11 @@ pandas.DataFrame: The DataFrame with low variance columns removed.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.save_file_lists">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">save_file_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#save_file_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.save_file_lists" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.utils.save_settings">
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">save_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'settings'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#save_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.save_settings" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
