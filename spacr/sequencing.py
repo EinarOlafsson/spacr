@@ -223,14 +223,10 @@ def save_to_hdf(queue, output_file, complevel=9, compression='zlib'):
     Save data from a queue to an HDF file.
 
     Parameters:
-    - queue: Queue object
-        The queue containing the data to be saved.
-    - output_file: strs
-        The path to the output HDF file.
-    - complevel: int, optional
-        The compression level to use (default is 9).
-    - compression: str, optional
-        The compression algorithm to use (default is 'zlib').
+    - queue: Queue object containing chunks of data to be saved
+    - output_file: Path to the output HDF file
+    - complevel: Compression level (default: 9)
+    - compression: Compression algorithm (default: 'zlib')
 
     Returns:
     None
