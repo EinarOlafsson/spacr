@@ -60,14 +60,6 @@ spacr.app\_umap module
    :undoc-members:
    :show-inheritance:
 
-spacr.chris module
-------------------
-
-.. automodule:: spacr.chris
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 spacr.core module
 -----------------
 

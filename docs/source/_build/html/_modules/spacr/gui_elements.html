@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui_elements &mdash; spacr 0.2.56 documentation</title>
+  <title>spacr.gui_elements &mdash; spacr 0.2.65 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
+        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.2.56
+                0.2.65
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -78,6 +78,7 @@
 <span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>
 <span class="kn">import</span> <span class="nn">tkinter.font</span> <span class="k">as</span> <span class="nn">tkFont</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">font</span>
 <span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">Label</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Button</span>
@@ -92,6 +93,7 @@
 <span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span>
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">binary_fill_holes</span><span class="p">,</span> <span class="n">label</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span><span class="p">,</span> <span class="n">scrolledtext</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="set_element_size">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.set_element_size">[docs]</a>
@@ -684,6 +686,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span> <span class="o">=</span> <span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;inactive_color&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_color</span> <span class="o">=</span> <span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;active_color&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fg_color</span> <span class="o">=</span> <span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">]</span>
 
         <span class="c1"># Create the button with rounded edges</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_bg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_rounded_rectangle</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">button_width</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">)</span>
@@ -704,8 +707,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Leave&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_leave</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-1&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_click</span><span class="p">)</span>
 
-        <span class="c1"># Create a popup menu</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tearoff</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Create a popup menu with the desired background color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tearoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_color</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="n">opt</span><span class="o">=</span><span class="n">option</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_select</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
 
@@ -781,7 +784,6 @@
 </div>
 
 
-
 <div class="viewcode-block" id="spacrCheckbutton">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.spacrCheckbutton">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrCheckbutton</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Checkbutton</span><span class="p">):</span>
@@ -808,17 +810,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;active_color&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;inactive_color&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
 
         <span class="c1"># Configure the style for the progress bar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+        
+        <span class="c1"># Remove any borders and ensure the active color fills the entire space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
             <span class="s2">&quot;spacr.Horizontal.TProgressbar&quot;</span><span class="p">,</span>
-            <span class="n">troughcolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span><span class="p">,</span>
-            <span class="n">background</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">,</span>
-            <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-            <span class="n">troughrelief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span>
-            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">0</span>
+            <span class="n">troughcolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">,</span>       <span class="c1"># Set the trough to bg color</span>
+            <span class="n">background</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">,</span>    <span class="c1"># Active part is the active color</span>
+            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>                   <span class="c1"># Remove border width</span>
+            <span class="n">pbarrelief</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">,</span>               <span class="c1"># Flat relief for the progress bar</span>
+            <span class="n">troughrelief</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">,</span>             <span class="c1"># Flat relief for the trough</span>
+            <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>                    <span class="c1"># Set the thickness of the progress bar</span>
+            <span class="n">darkcolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">,</span>     <span class="c1"># Ensure darkcolor matches the active color</span>
+            <span class="n">lightcolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">,</span>    <span class="c1"># Ensure lightcolor matches the active color</span>
+            <span class="n">bordercolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span>        <span class="c1"># Set the border color to the background color to hide it</span>
         <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;spacr.Horizontal.TProgressbar&quot;</span><span class="p">)</span>
 
         <span class="c1"># Set initial value to 0</span>
@@ -836,15 +847,14 @@
                 <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
                 <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">,</span>
                 <span class="n">fg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_color</span><span class="p">,</span>
-                <span class="n">wraplength</span><span class="o">=</span><span class="mi">300</span>  <span class="c1"># Adjust the wraplength as needed</span>
+                <span class="n">wraplength</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                <span class="n">font</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="o">.</span><span class="n">grid_forget</span><span class="p">()</span>  <span class="c1"># Temporarily hide it</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="o">.</span><span class="n">grid_forget</span><span class="p">()</span>
 
         <span class="c1"># Initialize attributes for time and operation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_image</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_batch</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_left</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_info</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="spacrProgressBar.set_label_position">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.spacrProgressBar.set_label_position">[docs]</a>
@@ -864,83 +874,19 @@
             <span class="n">label_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Processing: </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;maximum&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="p">:</span>
                 <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_image</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Time/image: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_image</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_batch</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Time/batch: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_batch</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_left</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Time_left: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_left</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> min&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">label_text</span><span class="p">)</span></div>
-</div>
-
-
-<div class="viewcode-block" id="spacrProgressBar_v1">
-<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.spacrProgressBar_v1">[docs]</a>
-<span class="k">class</span> <span class="nc">spacrProgressBar_v1</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Progressbar</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="c1"># Get the style colors</span>
-        <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">fg_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;active_color&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;inactive_color&#39;</span><span class="p">]</span>
-
-        <span class="c1"># Configure the style for the progress bar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
-            <span class="s2">&quot;spacr.Horizontal.TProgressbar&quot;</span><span class="p">,</span>
-            <span class="n">troughcolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span><span class="p">,</span>
-            <span class="n">background</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">,</span>
-            <span class="n">thickness</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-            <span class="n">troughrelief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span>
-            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">0</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;spacr.Horizontal.TProgressbar&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Set initial value to 0</span>
-        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="c1"># Track whether to show the progress label</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
-
-        <span class="c1"># Create the progress label (defer placement)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Processing: 0/0&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_color</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="o">.</span><span class="n">grid_forget</span><span class="p">()</span>  <span class="c1"># Temporarily hide it</span>
-
-        <span class="c1"># Initialize attributes for time and operation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_image</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_batch</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_left</span> <span class="o">=</span> <span class="kc">None</span>
-
-<div class="viewcode-block" id="spacrProgressBar_v1.set_label_position">
-<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.spacrProgressBar_v1.set_label_position">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_label_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="p">:</span>
-            <span class="n">row_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">col_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">col_span</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;columnspan&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_info</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">col_info</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">col_span</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="spacrProgressBar_v1.update_label">
-<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.spacrProgressBar_v1.update_label">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="p">:</span>
-            <span class="c1"># Update the progress label with current progress and additional info</span>
-            <span class="n">label_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Processing: </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;maximum&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_image</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Time/image: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_image</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_batch</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Time/batch: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_batch</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_left</span><span class="p">:</span>
-                <span class="n">label_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Time_left: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_left</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> min&quot;</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;additional_info&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_info</span><span class="p">:</span>
+                <span class="c1"># Add a space between progress information and additional information</span>
+                <span class="n">label_text</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                <span class="c1"># Split the additional_info into a list of items</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_info</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+                <span class="n">formatted_additional_info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="c1"># Group the items in pairs, adding them to formatted_additional_info</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+                        <span class="n">formatted_additional_info</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">formatted_additional_info</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>  <span class="c1"># If there&#39;s an odd item out, add it alone</span>
+                <span class="n">label_text</span> <span class="o">+=</span> <span class="n">formatted_additional_info</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">label_text</span><span class="p">)</span></div>
 </div>
 
@@ -2928,6 +2874,314 @@
 
     <span class="c1"># Configure the menu for the root window</span>
     <span class="n">root</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">menu</span><span class="o">=</span><span class="n">menu_bar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="standardize_figure">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.standardize_figure">[docs]</a>
+<span class="k">def</span> <span class="nf">standardize_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span>
+    <span class="kn">from</span> <span class="nn">matplotlib.font_manager</span> <span class="kn">import</span> <span class="n">FontProperties</span>
+
+    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
+    <span class="n">bg_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">]</span>
+    <span class="n">fg_color</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">]</span>
+    <span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span>
+    <span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Get the custom font path from the font loader</span>
+    <span class="n">font_path</span> <span class="o">=</span> <span class="n">font_loader</span><span class="o">.</span><span class="n">font_path</span>
+    <span class="n">font_prop</span> <span class="o">=</span> <span class="n">FontProperties</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">font_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardizes the appearance of the figure:</span>
+<span class="sd">    - Font size: from style</span>
+<span class="sd">    - Font color: from style</span>
+<span class="sd">    - Font family: custom OpenSans from font_loader</span>
+<span class="sd">    - Removes top and right spines</span>
+<span class="sd">    - Figure and subplot background: from style</span>
+<span class="sd">    - Line width: 1</span>
+<span class="sd">    - Line color: from style</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+        <span class="c1"># Set font properties for title and labels</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">fg_color</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_fontproperties</span><span class="p">(</span><span class="n">font_prop</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">fg_color</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_fontproperties</span><span class="p">(</span><span class="n">font_prop</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">fg_color</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_fontproperties</span><span class="p">(</span><span class="n">font_prop</span><span class="p">)</span>
+
+        <span class="c1"># Set font properties for tick labels</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()</span> <span class="o">+</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">fg_color</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">set_fontproperties</span><span class="p">(</span><span class="n">font_prop</span><span class="p">)</span>
+
+        <span class="c1"># Remove top and right spines</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Set spine line width and color</span>
+        <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">spine</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">spine</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="n">fg_color</span><span class="p">)</span>
+
+        <span class="c1"># Set line width and color</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">():</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">fg_color</span><span class="p">)</span>
+
+        <span class="c1"># Set subplot background color</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">bg_color</span><span class="p">)</span>
+
+        <span class="c1"># Adjust the grid if needed</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="c1"># Set figure background color</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">bg_color</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="modify_figure_properties">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.modify_figure_properties">[docs]</a>
+<span class="k">def</span> <span class="nf">modify_figure_properties</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">scale_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_label_rotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bg_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - fig: The Matplotlib figure object to modify.</span>
+<span class="sd">    - scale_x: Scaling factor for the width of subplots (optional).</span>
+<span class="sd">    - scale_y: Scaling factor for the height of subplots (optional).</span>
+<span class="sd">    - line_width: Desired line width for all lines (optional).</span>
+<span class="sd">    - font_size: Desired font size for all text (optional).</span>
+<span class="sd">    - x_lim: Tuple specifying the x-axis limits (min, max) (optional).</span>
+<span class="sd">    - y_lim: Tuple specifying the y-axis limits (min, max) (optional).</span>
+<span class="sd">    - grid: Boolean to add grid lines to the plot (optional).</span>
+<span class="sd">    - legend: Boolean to show/hide the legend (optional).</span>
+<span class="sd">    - title: String to set as the title of the plot (optional).</span>
+<span class="sd">    - x_label_rotation: Angle to rotate the x-axis labels (optional).</span>
+<span class="sd">    - remove_axes: Boolean to remove or show the axes labels (optional).</span>
+<span class="sd">    - bg_color: Color for the figure and subplot background (optional).</span>
+<span class="sd">    - text_color: Color for all text in the figure (optional).</span>
+<span class="sd">    - line_color: Color for all lines in the figure (optional).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: The figure provided is None.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+        <span class="c1"># Rescale subplots if scaling factors are provided</span>
+        <span class="k">if</span> <span class="n">scale_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scale_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="p">(</span><span class="n">scale_x</span> <span class="k">if</span> <span class="n">scale_x</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="p">(</span><span class="n">scale_y</span> <span class="k">if</span> <span class="n">scale_y</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">new_bbox</span> <span class="o">=</span> <span class="p">[</span><span class="n">bbox</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">bbox</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">]</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">new_bbox</span><span class="p">)</span>
+
+        <span class="c1"># Set axis limits if provided</span>
+        <span class="k">if</span> <span class="n">x_lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y_lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lim</span><span class="p">)</span>
+
+        <span class="c1"># Set grid visibility only</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+
+        <span class="c1"># Adjust line width and color if specified</span>
+        <span class="k">if</span> <span class="n">line_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">line_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">line_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">line</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="n">line_width</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">line</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">line_color</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># Modify width and color of spines (e.g., scale bars)</span>
+                <span class="k">if</span> <span class="n">line_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">spine</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="n">line_width</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">spine</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="n">line_color</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">line_width</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">text_color</span> <span class="k">if</span> <span class="n">text_color</span> <span class="k">else</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Adjust font size if specified</span>
+        <span class="k">if</span> <span class="n">font_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()</span> <span class="o">+</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
+                <span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend_</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend_</span><span class="o">.</span><span class="n">get_texts</span><span class="p">():</span>
+                    <span class="n">text</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">font_size</span><span class="p">)</span>
+
+        <span class="c1"># Rotate x-axis labels if rotation is specified</span>
+        <span class="k">if</span> <span class="n">x_label_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">():</span>
+                <span class="n">label</span><span class="o">.</span><span class="n">set_rotation</span><span class="p">(</span><span class="n">x_label_rotation</span><span class="p">)</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x_label_rotation</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">:</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">set_ha</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Toggle axes labels visibility without affecting the grid or spines</span>
+        <span class="k">if</span> <span class="n">remove_axes</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Set text color if specified</span>
+        <span class="k">if</span> <span class="n">text_color</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">text_color</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">text_color</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">text_color</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">colors</span><span class="o">=</span><span class="n">text_color</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()</span> <span class="o">+</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
+                <span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">text_color</span><span class="p">)</span>
+
+        <span class="c1"># Set background color for subplots if specified</span>
+        <span class="k">if</span> <span class="n">bg_color</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">bg_color</span><span class="p">)</span>
+
+    <span class="c1"># Set figure background color if specified</span>
+    <span class="k">if</span> <span class="n">bg_color</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">bg_color</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="save_figure_as_format">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.save_figure_as_format">[docs]</a>
+<span class="k">def</span> <span class="nf">save_figure_as_format</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">file_format</span><span class="p">):</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">filedialog</span><span class="o">.</span><span class="n">asksaveasfilename</span><span class="p">(</span><span class="n">defaultextension</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;*.</span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;All files&quot;</span><span class="p">,</span> <span class="s2">&quot;*.*&quot;</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">file_format</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure saved as </span><span class="si">{</span><span class="n">file_format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving figure: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="modify_figure">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_elements.modify_figure">[docs]</a>
+<span class="k">def</span> <span class="nf">modify_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.gui_core</span> <span class="kn">import</span> <span class="n">display_figure</span>
+    <span class="k">def</span> <span class="nf">apply_modifications</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Only apply changes if the fields are filled</span>
+            <span class="n">scale_x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale_x_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">scale_x_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">scale_y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale_y_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">scale_y_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">line_width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line_width_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">line_width_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">font_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">font_size_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">font_size_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">x_lim</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">x_lim_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">x_lim_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">y_lim</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">y_lim_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">y_lim_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">title_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">if</span> <span class="n">title_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">bg_color</span> <span class="o">=</span> <span class="n">bg_color_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">if</span> <span class="n">bg_color_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">text_color</span> <span class="o">=</span> <span class="n">text_color_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">if</span> <span class="n">text_color_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">line_color</span> <span class="o">=</span> <span class="n">line_color_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">if</span> <span class="n">line_color_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">x_label_rotation</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x_label_rotation_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="k">if</span> <span class="n">x_label_rotation_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+
+            <span class="n">modify_figure_properties</span><span class="p">(</span>
+                <span class="n">fig</span><span class="p">,</span>
+                <span class="n">scale_x</span><span class="o">=</span><span class="n">scale_x</span><span class="p">,</span>
+                <span class="n">scale_y</span><span class="o">=</span><span class="n">scale_y</span><span class="p">,</span>
+                <span class="n">line_width</span><span class="o">=</span><span class="n">line_width</span><span class="p">,</span>
+                <span class="n">font_size</span><span class="o">=</span><span class="n">font_size</span><span class="p">,</span>
+                <span class="n">x_lim</span><span class="o">=</span><span class="n">x_lim</span><span class="p">,</span>
+                <span class="n">y_lim</span><span class="o">=</span><span class="n">y_lim</span><span class="p">,</span>
+                <span class="n">grid</span><span class="o">=</span><span class="n">grid_var</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="n">legend</span><span class="o">=</span><span class="n">legend_var</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+                <span class="n">x_label_rotation</span><span class="o">=</span><span class="n">x_label_rotation</span><span class="p">,</span>
+                <span class="n">remove_axes</span><span class="o">=</span><span class="n">remove_axes_var</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+                <span class="n">bg_color</span><span class="o">=</span><span class="n">bg_color</span><span class="p">,</span>
+                <span class="n">text_color</span><span class="o">=</span><span class="n">text_color</span><span class="p">,</span>
+                <span class="n">line_color</span><span class="o">=</span><span class="n">line_color</span>
+            <span class="p">)</span>
+            <span class="n">display_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid input; please enter numeric values.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">toggle_spleens</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">spleens_var</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">display_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+    <span class="c1"># Create a new window for user input</span>
+    <span class="n">modify_window</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">()</span>
+    <span class="n">modify_window</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Modify Figure Properties&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Apply dark style to the popup window</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+    <span class="n">style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;TCheckbutton&quot;</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#2E2E2E&quot;</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">selectcolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+
+    <span class="n">modify_window</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s2">&quot;#2E2E2E&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create and style the input fields</span>
+    <span class="n">scale_x_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">scale_y_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">line_width_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">font_size_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">x_lim_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">y_lim_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">title_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">bg_color_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">text_color_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">line_color_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">x_label_rotation_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+    <span class="n">remove_axes_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">BooleanVar</span><span class="p">()</span>
+    <span class="n">grid_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">BooleanVar</span><span class="p">()</span>
+    <span class="n">legend_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">BooleanVar</span><span class="p">()</span>
+    <span class="n">spleens_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">BooleanVar</span><span class="p">()</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Rescale X:&quot;</span><span class="p">,</span> <span class="n">scale_x_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Rescale Y:&quot;</span><span class="p">,</span> <span class="n">scale_y_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Line Width:&quot;</span><span class="p">,</span> <span class="n">line_width_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Font Size:&quot;</span><span class="p">,</span> <span class="n">font_size_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;X Axis Limits (tuple):&quot;</span><span class="p">,</span> <span class="n">x_lim_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Y Axis Limits (tuple):&quot;</span><span class="p">,</span> <span class="n">y_lim_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Title:&quot;</span><span class="p">,</span> <span class="n">title_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;X Label Rotation (degrees):&quot;</span><span class="p">,</span> <span class="n">x_label_rotation_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Background Color:&quot;</span><span class="p">,</span> <span class="n">bg_color_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Text Color:&quot;</span><span class="p">,</span> <span class="n">text_color_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Line Color:&quot;</span><span class="p">,</span> <span class="n">line_color_var</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">label_text</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">modify_window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">label_text</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;#2E2E2E&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Entry</span><span class="p">(</span><span class="n">modify_window</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;#2E2E2E&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">checkboxes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Grid&quot;</span><span class="p">,</span> <span class="n">grid_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Legend&quot;</span><span class="p">,</span> <span class="n">legend_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Spleens&quot;</span><span class="p">,</span> <span class="n">spleens_var</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Remove Axes&quot;</span><span class="p">,</span> <span class="n">remove_axes_var</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">label_text</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">checkboxes</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)):</span>
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Checkbutton</span><span class="p">(</span><span class="n">modify_window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">label_text</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;TCheckbutton&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+    <span class="n">spleens_var</span><span class="o">.</span><span class="n">trace_add</span><span class="p">(</span><span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">toggle_spleens</span><span class="p">())</span>
+
+    <span class="c1"># Apply button</span>
+    <span class="n">apply_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">modify_window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Apply&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">apply_modifications</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;#2E2E2E&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="n">apply_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkboxes</span><span class="p">),</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
 
 </pre></div>
 

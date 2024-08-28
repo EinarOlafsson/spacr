@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.utils &mdash; spacr 0.2.56 documentation</title>
+  <title>spacr.utils &mdash; spacr 0.2.65 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=aa0fc99b"></script>
+        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             spacr
           </a>
               <div class="version">
-                0.2.56
+                0.2.65
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -163,10 +163,19 @@
 <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 
+<div class="viewcode-block" id="save_settings">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.save_settings">[docs]</a>
+<span class="k">def</span> <span class="nf">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;settings&#39;</span><span class="p">):</span>
+    
+    <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
+    <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span><span class="s1">&#39;settings&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="print_progress">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.print_progress">[docs]</a>
-<span class="k">def</span> <span class="nf">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">metricks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files_processed</span><span class="p">))</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_to_process</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -194,11 +203,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">average_time_img</span> <span class="o">=</span> <span class="n">average_time</span> <span class="o">/</span> <span class="n">batch_size</span>
             <span class="n">time_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Time/batch: </span><span class="si">{</span><span class="n">average_time</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">sec, Time/image: </span><span class="si">{</span><span class="n">average_time_img</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">sec, Time_left: </span><span class="si">{</span><span class="n">time_left</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> min.&#39;</span>
-
-    <span class="k">if</span> <span class="n">metricks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Progress: </span><span class="si">{</span><span class="n">files_processed</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">files_to_process</span><span class="si">}</span><span class="s1">, operation_type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">time_info</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Progress: </span><span class="si">{</span><span class="n">files_processed</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">files_to_process</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">metricks</span><span class="si">}</span><span class="s1">, operation_type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">time_info</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Progress: </span><span class="si">{</span><span class="n">files_processed</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">files_to_process</span><span class="si">}</span><span class="s1">, operation_type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">time_info</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="reset_mp">
@@ -1851,7 +1857,7 @@
 
 <div class="viewcode-block" id="classification_metrics">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.classification_metrics">[docs]</a>
-<span class="k">def</span> <span class="nf">classification_metrics</span><span class="p">(</span><span class="n">all_labels</span><span class="p">,</span> <span class="n">prediction_pos_probs</span><span class="p">,</span> <span class="n">loader_name</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">classification_metrics</span><span class="p">(</span><span class="n">all_labels</span><span class="p">,</span> <span class="n">prediction_pos_probs</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate classification metrics for binary classification.</span>
 
@@ -1900,12 +1906,10 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">acc_nc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="n">acc_all</span><span class="p">,</span> <span class="s1">&#39;neg_accuracy&#39;</span><span class="p">:</span> <span class="n">acc_nc</span><span class="p">,</span> <span class="s1">&#39;pos_accuracy&#39;</span><span class="p">:</span> <span class="n">acc_pc</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">:</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span><span class="s1">&#39;prauc&#39;</span><span class="p">:</span><span class="n">pr_auc</span><span class="p">,</span> <span class="s1">&#39;optimal_threshold&#39;</span><span class="p">:</span><span class="n">optimal_threshold</span><span class="p">}</span>
-    <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">loader_name</span><span class="p">])</span> 
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">)])</span> 
     <span class="k">return</span> <span class="n">data_df</span></div>
 
     
-
-
 <div class="viewcode-block" id="compute_irm_penalty">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.compute_irm_penalty">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_irm_penalty</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="n">dummy_w</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
@@ -1948,7 +1952,7 @@
 
 <div class="viewcode-block" id="choose_model">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.choose_model">[docs]</a>
-<span class="k">def</span> <span class="nf">choose_model</span><span class="p">(</span><span class="n">model_type</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">init_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">chan_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">choose_model</span><span class="p">(</span><span class="n">model_type</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">init_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">chan_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Choose a model for classification.</span>
 
@@ -1980,7 +1984,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid model_type: </span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s1">. Compatible model_types: </span><span class="si">{</span><span class="n">model_types</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">Model parameters: Architecture: </span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s1"> init_weights: </span><span class="si">{</span><span class="n">init_weights</span><span class="si">}</span><span class="s1"> dropout_rate: </span><span class="si">{</span><span class="n">dropout_rate</span><span class="si">}</span><span class="s1"> use_checkpoint: </span><span class="si">{</span><span class="n">use_checkpoint</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model parameters: Architecture: </span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s1"> init_weights: </span><span class="si">{</span><span class="n">init_weights</span><span class="si">}</span><span class="s1"> dropout_rate: </span><span class="si">{</span><span class="n">dropout_rate</span><span class="si">}</span><span class="s1"> use_checkpoint: </span><span class="si">{</span><span class="n">use_checkpoint</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;custom&#39;</span><span class="p">:</span>
         
@@ -1991,8 +1995,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Compatible model_types: </span><span class="si">{</span><span class="n">model_types</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid model_type: </span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">base_model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">base_model</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">base_model</span></div>
 
@@ -3837,7 +3841,7 @@
 
 <div class="viewcode-block" id="plot_clusters">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.plot_clusters">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_clusters</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">cluster_centers</span><span class="p">,</span> <span class="n">plot_outlines</span><span class="p">,</span> <span class="n">plot_points</span><span class="p">,</span> <span class="n">smooth_lines</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">dot_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">plot_clusters</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">cluster_centers</span><span class="p">,</span> <span class="n">plot_outlines</span><span class="p">,</span> <span class="n">plot_points</span><span class="p">,</span> <span class="n">smooth_lines</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">dot_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">cluster_label</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">center</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">cluster_centers</span><span class="p">):</span>
         <span class="n">cluster_data</span> <span class="o">=</span> <span class="n">embedding</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">cluster_label</span><span class="p">]</span>
