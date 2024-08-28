@@ -83,12 +83,22 @@ def toggle_settings(button_scrollable_frame):
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index
 
+    from .gui_elements import standardize_figure
     try:
         while not fig_queue.empty():
             fig = fig_queue.get_nowait()
+
+            if fig is None:
+                print("Warning: Retrieved a None figure from fig_queue.")
+                continue  # Skip processing if the figure is None
+
+            # Standardize the figure appearance before adding it to the list
+            standardize_figure(fig)
+
             figures.append(fig)
-            figure_index = len(figures) - 1
-            display_figure(fig)
+            if figure_index == len(figures) - 2:
+                figure_index += 1
+                display_figure(fig)
     except Exception as e:
         traceback.print_exc()
     finally:
@@ -98,8 +108,23 @@ def process_fig_queue():
 def display_figure(fig):
     global canvas, canvas_widget
 
+    from .gui_elements import modify_figure_properties, save_figure_as_format, modify_figure
+
+    # Apply the dark style to the context menu
+    style_out = set_dark_style(ttk.Style())
+    bg_color = style_out['bg_color']
+    fg_color = style_out['fg_color']
+
+    # Initialize the scale factor for zooming
+    scale_factor = 1.0
+
+    # Save the original x and y limits of the first axis (assuming all axes have the same limits)
+    original_xlim = [ax.get_xlim() for ax in fig.get_axes()]
+    original_ylim = [ax.get_ylim() for ax in fig.get_axes()]
+
     # Clear previous canvas content
-    canvas.get_tk_widget().destroy()
+    if canvas:
+        canvas.get_tk_widget().destroy()
 
     # Create a new canvas for the figure
     new_canvas = FigureCanvasTkAgg(fig, master=canvas_widget.master)
@@ -109,154 +134,141 @@ def display_figure(fig):
     # Update the global canvas and canvas_widget references
     canvas = new_canvas
     canvas_widget = new_canvas.get_tk_widget()
-
-    # Apply the dark style to the context menu
-    style_out = set_dark_style(ttk.Style())
-    bg_color = style_out['bg_color']
-    fg_color = style_out['fg_color']
-
-    # Define the save functions for the context menu
-    def save_figure_as_format(format):
-        file_path = filedialog.asksaveasfilename(defaultextension=f".{format}", filetypes=[(f"{format.upper()} files", f"*.{format}"), ("All files", "*.*")])
-        if file_path:
-            fig.savefig(file_path, format=format)
-
-    def modify_figure():
-        def apply_modifications():
-            try:
-                x_width = float(x_width_var.get())
-                y_height = float(y_height_var.get())
-                line_width = float(line_width_var.get())
-                font_size = int(font_size_var.get())
-                modify_figure_properties(fig, x_width=x_width, y_height=y_height, line_width=line_width)
-                for ax in fig.get_axes():
-                    for label in ax.get_xticklabels() + ax.get_yticklabels():
-                        label.set_fontsize(font_size)
-                    ax.title.set_fontsize(font_size)
-                    ax.xaxis.label.set_fontsize(font_size)
-                    ax.yaxis.label.set_fontsize(font_size)
-                canvas.draw_idle()  # Redraw the canvas after modifications
-            except ValueError:
-                print("Invalid input; please enter numeric values.")
-
-        # Create a new window for user input
-        modify_window = tk.Toplevel()
-        modify_window.title("Modify Figure Properties")
-
-        # Apply dark style to the popup window
-        modify_window.configure(bg=bg_color)
-
-        # Create and style the input fields
-        tk.Label(modify_window, text="X Axis Width:", bg=bg_color, fg=fg_color).grid(row=0, column=0, padx=10, pady=5)
-        x_width_var = tk.StringVar()
-        tk.Entry(modify_window, textvariable=x_width_var, bg=bg_color, fg=fg_color).grid(row=0, column=1, padx=10, pady=5)
-
-        tk.Label(modify_window, text="Y Axis Height:", bg=bg_color, fg=fg_color).grid(row=1, column=0, padx=10, pady=5)
-        y_height_var = tk.StringVar()
-        tk.Entry(modify_window, textvariable=y_height_var, bg=bg_color, fg=fg_color).grid(row=1, column=1, padx=10, pady=5)
-
-        tk.Label(modify_window, text="Line Width:", bg=bg_color, fg=fg_color).grid(row=2, column=0, padx=10, pady=5)
-        line_width_var = tk.StringVar()
-        tk.Entry(modify_window, textvariable=line_width_var, bg=bg_color, fg=fg_color).grid(row=2, column=1, padx=10, pady=5)
-
-        tk.Label(modify_window, text="Font Size:", bg=bg_color, fg=fg_color).grid(row=3, column=0, padx=10, pady=5)
-        font_size_var = tk.StringVar()
-        tk.Entry(modify_window, textvariable=font_size_var, bg=bg_color, fg=fg_color).grid(row=3, column=1, padx=10, pady=5)
-
-        # Apply button
-        apply_button = tk.Button(modify_window, text="Apply", command=apply_modifications, bg=bg_color, fg=fg_color)
-        apply_button.grid(row=4, column=0, columnspan=2, pady=10)
+    canvas_widget.configure(bg=bg_color)
 
     # Create the context menu
     context_menu = tk.Menu(canvas_widget, tearoff=0, bg=bg_color, fg=fg_color)
-    context_menu.add_command(label="Save Figure as PDF", command=lambda: save_figure_as_format('pdf'))
-    context_menu.add_command(label="Save Figure as PNG", command=lambda: save_figure_as_format('png'))
-    context_menu.add_command(label="Modify Figure", command=modify_figure)
+    context_menu.add_command(label="Save Figure as PDF", command=lambda: save_figure_as_format(fig, 'pdf'))
+    context_menu.add_command(label="Save Figure as PNG", command=lambda: save_figure_as_format(fig, 'png'))
+    context_menu.add_command(label="Modify Figure", command=lambda: modify_figure(fig))
+    context_menu.add_command(label="Reset Zoom", command=lambda: reset_zoom(fig))  # Add Reset Zoom option
+
+    def reset_zoom(fig):
+        global scale_factor
+        scale_factor = 1.0  # Reset the scale factor
+
+        for i, ax in enumerate(fig.get_axes()):
+            ax.set_xlim(original_xlim[i])
+            ax.set_ylim(original_ylim[i])
+        fig.canvas.draw_idle()
 
     def on_right_click(event):
         context_menu.post(event.x_root, event.y_root)
 
-    new_canvas.get_tk_widget().bind("<Button-3>", on_right_click)
+    def on_hover(event):
+        widget_width = event.widget.winfo_width()
+        x_position = event.x
+
+        if x_position < widget_width / 2:
+            canvas_widget.config(cursor="hand2")
+        else:
+            canvas_widget.config(cursor="hand2")
+
+    def on_leave(event):
+        canvas_widget.config(cursor="arrow")
+
+    def flash_feedback(side):
+        flash = tk.Toplevel(canvas_widget.master)
+        flash.overrideredirect(True)
+        flash_width = int(canvas_widget.winfo_width() / 2)
+        flash_height = canvas_widget.winfo_height()
+        flash.configure(bg='white')
+        flash.attributes('-alpha', 0.9)
+
+        if side == "left":
+            flash.geometry(f"{flash_width}x{flash_height}+{canvas_widget.winfo_rootx()}+{canvas_widget.winfo_rooty()}")
+        else:
+            flash.geometry(f"{flash_width}x{flash_height}+{canvas_widget.winfo_rootx() + flash_width}+{canvas_widget.winfo_rooty()}")
+
+        flash.lift()
+
+        # Ensure the flash covers the correct area only
+        flash.update_idletasks()
+        flash.after(100, flash.destroy)
+
+    def on_click(event):
+        widget_width = event.widget.winfo_width()
+        x_position = event.x
+
+        if x_position < widget_width / 2:
+            #flash_feedback("left")
+            show_previous_figure()
+        else:
+            #flash_feedback("right")
+            show_next_figure()
+
+    def zoom(event):
+        nonlocal scale_factor
+
+        zoom_speed = 0.1  # Adjust the zoom speed for smoother experience
+
+        # Adjust zoom factor based on the operating system and mouse event
+        if event.num == 4 or event.delta > 0:  # Scroll up
+            scale_factor *= (1 + zoom_speed)
+        elif event.num == 5 or event.delta < 0:  # Scroll down
+            scale_factor /= (1 + zoom_speed)
+
+        # Get mouse position relative to the figure
+        x_mouse, y_mouse = event.x, event.y
+        x_ratio = x_mouse / canvas_widget.winfo_width()
+        y_ratio = y_mouse / canvas_widget.winfo_height()
+
+        for ax in fig.get_axes():
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            # Calculate the new limits
+            x_center = xlim[0] + x_ratio * (xlim[1] - xlim[0])
+            y_center = ylim[0] + (1 - y_ratio) * (ylim[1] - ylim[0])
+
+            x_range = (xlim[1] - xlim[0]) * scale_factor
+            y_range = (ylim[1] - ylim[0]) * scale_factor
+
+            ax.set_xlim([x_center - x_range * x_ratio, x_center + x_range * (1 - x_ratio)])
+            ax.set_ylim([y_center - y_range * (1 - y_ratio), y_center + y_range * y_ratio])
+
+        # Redraw the figure
+        fig.canvas.draw_idle()
+
+    # Bind events for hover, click interactions, and zoom
+    canvas_widget.bind("<Motion>", on_hover)
+    canvas_widget.bind("<Leave>", on_leave)
+    canvas_widget.bind("<Button-1>", on_click)
+    canvas_widget.bind("<Button-3>", on_right_click)
+
+    # Bind mouse wheel for zooming (cross-platform)
+    canvas_widget.bind("<MouseWheel>", zoom)  # Windows
+    canvas_widget.bind("<Button-4>", zoom)  # Linux/macOS Scroll Up
+    canvas_widget.bind("<Button-5>", zoom)  # Linux/macOS Scroll Down
 
 def clear_unused_figures():
     global figures, figure_index
 
     lower_bound = max(0, figure_index - 20)
     upper_bound = min(len(figures), figure_index + 20)
-
     # Clear figures outside of the +/- 20 range
     figures = deque([fig for i, fig in enumerate(figures) if lower_bound <= i <= upper_bound])
-
     # Update the figure index after clearing
     figure_index = min(max(figure_index, 0), len(figures) - 1)
 
 def show_previous_figure():
-    global figure_index, figures
+    global figure_index, figures, fig_queue
     if figure_index is not None and figure_index > 0:
         figure_index -= 1
         display_figure(figures[figure_index])
         clear_unused_figures()
 
 def show_next_figure():
-    global figure_index, figures
+    global figure_index, figures, fig_queue
     if figure_index is not None and figure_index < len(figures) - 1:
         figure_index += 1
         display_figure(figures[figure_index])
         clear_unused_figures()
-
-def save_figure_as_format(fig, file_format):
-    file_path = filedialog.asksaveasfilename(defaultextension=f".{file_format}", filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")])
-    if file_path:
-        try:
-            fig.savefig(file_path, format=file_format)
-            print(f"Figure saved as {file_format.upper()} at {file_path}")
-        except Exception as e:
-            print(f"Error saving figure: {e}")
-
-def modify_figure_properties(fig, x_width=None, y_height=None, line_width=None):
-    """
-    Modifies the properties of the figure, including axis dimensions and line widths.
-    
-    Parameters:
-    - fig: The matplotlib figure object to modify.
-    - x_width: Desired width for the x-axis (optional).
-    - y_height: Desired height for the y-axis (optional).
-    - line_width: Desired line width for all lines (optional).
-    """
-    for ax in fig.get_axes():
-        # Scaling the figure
-        if x_width is not None or y_height is not None:
-            # Get the current axis limits
-            current_xlim = ax.get_xlim()
-            current_ylim = ax.get_ylim()
-
-            # Set new limits
-            if x_width is not None:
-                scale_factor_x = x_width / (current_xlim[1] - current_xlim[0])
-            else:
-                scale_factor_x = 1
-
-            if y_height is not None:
-                scale_factor_y = y_height / (current_ylim[1] - current_ylim[0])
-            else:
-                scale_factor_y = 1
-
-            # Adjust the figure size and elements proportionally
-            fig.set_size_inches(fig.get_size_inches() * scale_factor_x * scale_factor_y, forward=True)
-            ax.set_xlim(left=current_xlim[0] * scale_factor_x, right=current_xlim[1] * scale_factor_x)
-            ax.set_ylim(bottom=current_ylim[0] * scale_factor_y, top=current_ylim[1] * scale_factor_y)
-
-        # Adjust line width and other elements if specified
-        if line_width is not None:
-            for line in ax.get_lines():
-                line.set_linewidth(line_width)
-            for spine in ax.spines.values():  # Modify width of spines (e.g., scale bars)
-                spine.set_linewidth(line_width)
-            ax.tick_params(width=line_width)  # Modify width of ticks
-            for text in ax.get_xticklabels() + ax.get_yticklabels():
-                text.set_fontsize(ax.get_xticklabels()[0].get_fontsize())
-
-    fig.canvas.draw_idle()
+    elif figure_index == len(figures) - 1 and not fig_queue.empty():
+        fig = fig_queue.get_nowait()
+        figures.append(fig)
+        figure_index += 1
+        display_figure(fig)
 
 def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, figures_var, figure_index_var, progress_bar_var, usage_bars_var, fig_memory_limit_var, figure_current_memory_usage_var):
     global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, fig_memory_limit, figure_current_memory_usage
@@ -416,7 +428,7 @@ def setup_plot_section(vertical_container):
     plot_frame.grid_columnconfigure(0, weight=1)
 
     canvas.draw()
-    canvas.figure = figure
+    canvas.figure = figure  # Ensure that the figure is linked to the canvas
     style_out = set_dark_style(ttk.Style())
 
     figure.patch.set_facecolor(style_out['bg_color'])
@@ -425,19 +437,6 @@ def setup_plot_section(vertical_container):
     widgets = [canvas_widget]
     style = ttk.Style(vertical_container)
     _ = set_dark_style(style, containers=containers, widgets=widgets)
-
-    # Add navigation buttons using spacrButton
-    button_frame = tk.Frame(plot_frame, bg=style_out['bg_color'])
-    button_frame.grid(row=1, column=0, sticky='ew', pady=5)
-
-    size_dict = set_element_size()
-
-    btn_size = int(size_dict['btn_size']*0.75)
-    prev_button = spacrButton(button_frame, text="Previous", command=show_previous_figure, bg=style_out['bg_color'], show_text=False, size=btn_size, animation=False)
-    prev_button.pack(side='left', padx=5)
-
-    next_button = spacrButton(button_frame, text="Next", command=show_next_figure, bg=style_out['bg_color'], show_text=False, size=btn_size, animation=False)
-    next_button.pack(side='right', padx=5)
     
     return canvas, canvas_widget
 
