@@ -2083,6 +2083,7 @@ class AnnotateApp:
                                 print(f"median threshold measurement: {np.median(df[self.measurement])}")
                                 df = df[df[f'threshold_measurement_{idx}'] > thd]
                         after = len(df)
+            
             elif isinstance(self.measurement, list):
                 df['threshold_measurement'] = df[self.measurement[0]]/df[self.measurement[1]]
                 print(f"mean threshold measurement: {np.mean(df['threshold_measurement'])}")
@@ -2091,6 +2092,7 @@ class AnnotateApp:
                 after = len(df)
                 self.measurement = 'threshold_measurement'
                 print(f'Removed: {before-after} rows, retained {after}')
+            
             else:
                 print(f"mean threshold measurement: {np.mean(df[self.measurement])}")
                 print(f"median threshold measurement: {np.median(df[self.measurement])}")
