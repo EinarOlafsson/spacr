@@ -2,6 +2,7 @@ import os, threading, time, sqlite3, webbrowser, pyautogui
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
+from tkinter import filedialog
 from tkinter import font
 from queue import Queue
 from tkinter import Label, Frame, Button
@@ -16,6 +17,7 @@ from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
+fig = None
 
 def set_element_size():
 
@@ -2371,3 +2373,299 @@ def create_menu_bar(root):
 
     # Configure the menu for the root window
     root.config(menu=menu_bar)
+
+def standardize_figure(fig):
+    from .gui_elements import set_dark_style
+    from matplotlib.font_manager import FontProperties
+
+    style_out = set_dark_style(ttk.Style())
+    bg_color = style_out['bg_color']
+    fg_color = style_out['fg_color']
+    font_size = style_out['font_size']
+    font_loader = style_out['font_loader']
+
+    # Get the custom font path from the font loader
+    font_path = font_loader.font_path
+    font_prop = FontProperties(fname=font_path, size=font_size)
+
+    """
+    Standardizes the appearance of the figure:
+    - Font size: from style
+    - Font color: from style
+    - Font family: custom OpenSans from font_loader
+    - Removes top and right spines
+    - Figure and subplot background: from style
+    - Line width: 1
+    - Line color: from style
+    """
+
+    for ax in fig.get_axes():
+        # Set font properties for title and labels
+        ax.title.set_fontsize(font_size)
+        ax.title.set_color(fg_color)
+        ax.title.set_fontproperties(font_prop)
+
+        ax.xaxis.label.set_fontsize(font_size)
+        ax.xaxis.label.set_color(fg_color)
+        ax.xaxis.label.set_fontproperties(font_prop)
+
+        ax.yaxis.label.set_fontsize(font_size)
+        ax.yaxis.label.set_color(fg_color)
+        ax.yaxis.label.set_fontproperties(font_prop)
+
+        # Set font properties for tick labels
+        for label in ax.get_xticklabels() + ax.get_yticklabels():
+            label.set_fontsize(font_size)
+            label.set_color(fg_color)
+            label.set_fontproperties(font_prop)
+
+        # Remove top and right spines
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(True)
+        ax.spines['bottom'].set_visible(True)
+
+        # Set spine line width and color
+        for spine in ax.spines.values():
+            spine.set_linewidth(1)
+            spine.set_edgecolor(fg_color)
+
+        # Set line width and color
+        for line in ax.get_lines():
+            line.set_linewidth(1)
+            line.set_color(fg_color)
+
+        # Set subplot background color
+        ax.set_facecolor(bg_color)
+
+        # Adjust the grid if needed
+        ax.grid(True, color='gray', linestyle='--', linewidth=0.5)
+
+    # Set figure background color
+    fig.patch.set_facecolor(bg_color)
+
+    fig.canvas.draw_idle()
+
+def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, font_size=None, x_lim=None, y_lim=None, grid=False, legend=None, title=None, x_label_rotation=None, remove_axes=False, bg_color=None, text_color=None, line_color=None):
+    """
+    Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.
+
+    Parameters:
+    - fig: The Matplotlib figure object to modify.
+    - scale_x: Scaling factor for the width of subplots (optional).
+    - scale_y: Scaling factor for the height of subplots (optional).
+    - line_width: Desired line width for all lines (optional).
+    - font_size: Desired font size for all text (optional).
+    - x_lim: Tuple specifying the x-axis limits (min, max) (optional).
+    - y_lim: Tuple specifying the y-axis limits (min, max) (optional).
+    - grid: Boolean to add grid lines to the plot (optional).
+    - legend: Boolean to show/hide the legend (optional).
+    - title: String to set as the title of the plot (optional).
+    - x_label_rotation: Angle to rotate the x-axis labels (optional).
+    - remove_axes: Boolean to remove or show the axes labels (optional).
+    - bg_color: Color for the figure and subplot background (optional).
+    - text_color: Color for all text in the figure (optional).
+    - line_color: Color for all lines in the figure (optional).
+    """
+    if fig is None:
+        print("Error: The figure provided is None.")
+        return
+
+    for ax in fig.get_axes():
+        # Rescale subplots if scaling factors are provided
+        if scale_x is not None or scale_y is not None:
+            bbox = ax.get_position()
+            width = bbox.width * (scale_x if scale_x else 1)
+            height = bbox.height * (scale_y if scale_y else 1)
+            new_bbox = [bbox.x0, bbox.y0, width, height]
+            ax.set_position(new_bbox)
+
+        # Set axis limits if provided
+        if x_lim is not None:
+            ax.set_xlim(x_lim)
+        if y_lim is not None:
+            ax.set_ylim(y_lim)
+
+        # Set grid visibility only
+        ax.grid(grid)
+
+        # Adjust line width and color if specified
+        if line_width is not None or line_color is not None:
+            for line in ax.get_lines():
+                if line_width is not None:
+                    line.set_linewidth(line_width)
+                if line_color is not None:
+                    line.set_color(line_color)
+            for spine in ax.spines.values():  # Modify width and color of spines (e.g., scale bars)
+                if line_width is not None:
+                    spine.set_linewidth(line_width)
+                if line_color is not None:
+                    spine.set_edgecolor(line_color)
+            ax.tick_params(width=line_width, colors=text_color if text_color else 'black')
+
+        # Adjust font size if specified
+        if font_size is not None:
+            for label in ax.get_xticklabels() + ax.get_yticklabels():
+                label.set_fontsize(font_size)
+            ax.title.set_fontsize(font_size)
+            ax.xaxis.label.set_fontsize(font_size)
+            ax.yaxis.label.set_fontsize(font_size)
+            if ax.legend_:
+                for text in ax.legend_.get_texts():
+                    text.set_fontsize(font_size)
+
+        # Rotate x-axis labels if rotation is specified
+        if x_label_rotation is not None:
+            for label in ax.get_xticklabels():
+                label.set_rotation(x_label_rotation)
+                if 0 <= x_label_rotation <= 90:
+                    label.set_ha('center')
+
+        # Toggle axes labels visibility without affecting the grid or spines
+        if remove_axes:
+            ax.xaxis.set_visible(False)
+            ax.yaxis.set_visible(False)
+        else:
+            ax.xaxis.set_visible(True)
+            ax.yaxis.set_visible(True)
+
+        # Set text color if specified
+        if text_color:
+            ax.title.set_color(text_color)
+            ax.xaxis.label.set_color(text_color)
+            ax.yaxis.label.set_color(text_color)
+            ax.tick_params(colors=text_color)
+            for label in ax.get_xticklabels() + ax.get_yticklabels():
+                label.set_color(text_color)
+
+        # Set background color for subplots if specified
+        if bg_color:
+            ax.set_facecolor(bg_color)
+
+    # Set figure background color if specified
+    if bg_color:
+        fig.patch.set_facecolor(bg_color)
+
+    fig.canvas.draw_idle()
+
+def save_figure_as_format(fig, file_format):
+    file_path = filedialog.asksaveasfilename(defaultextension=f".{file_format}", filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")])
+    if file_path:
+        try:
+            fig.savefig(file_path, format=file_format)
+            print(f"Figure saved as {file_format.upper()} at {file_path}")
+        except Exception as e:
+            print(f"Error saving figure: {e}")
+
+def modify_figure(fig):
+    from .gui_core import display_figure
+    def apply_modifications():
+        try:
+            # Only apply changes if the fields are filled
+            scale_x = float(scale_x_var.get()) if scale_x_var.get() else None
+            scale_y = float(scale_y_var.get()) if scale_y_var.get() else None
+            line_width = float(line_width_var.get()) if line_width_var.get() else None
+            font_size = int(font_size_var.get()) if font_size_var.get() else None
+            x_lim = eval(x_lim_var.get()) if x_lim_var.get() else None
+            y_lim = eval(y_lim_var.get()) if y_lim_var.get() else None
+            title = title_var.get() if title_var.get() else None
+            bg_color = bg_color_var.get() if bg_color_var.get() else None
+            text_color = text_color_var.get() if text_color_var.get() else None
+            line_color = line_color_var.get() if line_color_var.get() else None
+            x_label_rotation = int(x_label_rotation_var.get()) if x_label_rotation_var.get() else None
+
+            modify_figure_properties(
+                fig,
+                scale_x=scale_x,
+                scale_y=scale_y,
+                line_width=line_width,
+                font_size=font_size,
+                x_lim=x_lim,
+                y_lim=y_lim,
+                grid=grid_var.get(),
+                legend=legend_var.get(),
+                title=title,
+                x_label_rotation=x_label_rotation,
+                remove_axes=remove_axes_var.get(),
+                bg_color=bg_color,
+                text_color=text_color,
+                line_color=line_color
+            )
+            display_figure(fig)
+        except ValueError:
+            print("Invalid input; please enter numeric values.")
+
+    def toggle_spleens():
+        for ax in fig.get_axes():
+            if spleens_var.get():
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
+                ax.spines['left'].set_visible(True)
+                ax.spines['bottom'].set_visible(True)
+                ax.spines['top'].set_linewidth(2)
+                ax.spines['right'].set_linewidth(2)
+            else:
+                ax.spines['top'].set_visible(True)
+                ax.spines['right'].set_visible(True)
+            display_figure(fig)
+
+    # Create a new window for user input
+    modify_window = tk.Toplevel()
+    modify_window.title("Modify Figure Properties")
+
+    # Apply dark style to the popup window
+    style = ttk.Style()
+    style.configure("TCheckbutton", background="#2E2E2E", foreground="white", selectcolor="blue")
+
+    modify_window.configure(bg="#2E2E2E")
+
+    # Create and style the input fields
+    scale_x_var = tk.StringVar()
+    scale_y_var = tk.StringVar()
+    line_width_var = tk.StringVar()
+    font_size_var = tk.StringVar()
+    x_lim_var = tk.StringVar()
+    y_lim_var = tk.StringVar()
+    title_var = tk.StringVar()
+    bg_color_var = tk.StringVar()
+    text_color_var = tk.StringVar()
+    line_color_var = tk.StringVar()
+    x_label_rotation_var = tk.StringVar()
+    remove_axes_var = tk.BooleanVar()
+    grid_var = tk.BooleanVar()
+    legend_var = tk.BooleanVar()
+    spleens_var = tk.BooleanVar()
+
+    options = [
+        ("Rescale X:", scale_x_var),
+        ("Rescale Y:", scale_y_var),
+        ("Line Width:", line_width_var),
+        ("Font Size:", font_size_var),
+        ("X Axis Limits (tuple):", x_lim_var),
+        ("Y Axis Limits (tuple):", y_lim_var),
+        ("Title:", title_var),
+        ("X Label Rotation (degrees):", x_label_rotation_var),
+        ("Background Color:", bg_color_var),
+        ("Text Color:", text_color_var),
+        ("Line Color:", line_color_var)
+    ]
+
+    for i, (label_text, var) in enumerate(options):
+        tk.Label(modify_window, text=label_text, bg="#2E2E2E", fg="white").grid(row=i, column=0, padx=10, pady=5)
+        tk.Entry(modify_window, textvariable=var, bg="#2E2E2E", fg="white").grid(row=i, column=1, padx=10, pady=5)
+
+    checkboxes = [
+        ("Grid", grid_var),
+        ("Legend", legend_var),
+        ("Spleens", spleens_var),
+        ("Remove Axes", remove_axes_var)
+    ]
+
+    for i, (label_text, var) in enumerate(checkboxes, start=len(options)):
+        ttk.Checkbutton(modify_window, text=label_text, variable=var, style="TCheckbutton").grid(row=i, column=0, padx=10, pady=5, columnspan=2, sticky='w')
+
+    spleens_var.trace_add("write", lambda *args: toggle_spleens())
+
+    # Apply button
+    apply_button = tk.Button(modify_window, text="Apply", command=apply_modifications, bg="#2E2E2E", fg="white")
+    apply_button.grid(row=len(options) + len(checkboxes), column=0, columnspan=2, pady=10)
