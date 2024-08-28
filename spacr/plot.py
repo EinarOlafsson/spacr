@@ -125,7 +125,7 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
 
     return
 
-def plot_masks(batch, masks, flows, cmap='inferno', figuresize=20, nr=1, file_type='.npz', print_object_number=True):
+def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True):
     """
     Plot the masks and flows for a given batch of images.
 
@@ -476,7 +476,7 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
 
     return stack
 
-def plot_arrays(src, figuresize=50, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
+def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
     """
     Plot randomly selected arrays from a given directory.
 
@@ -870,7 +870,7 @@ def _save_scimg_plot(src, nr_imgs=16, channel_indices=[0,1,2], um_per_pixel=0.1,
 
     return
 
-def _plot_cropped_arrays(stack, filename, figuresize=20, cmap='inferno', threshold=500):
+def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', threshold=500):
     """
     Plot cropped arrays.
 
@@ -997,7 +997,7 @@ def _display_gif(path):
     with open(path, 'rb') as file:
         display(ipyimage(file.read()))
         
-def _plot_recruitment(df, df_type, channel_of_interest, target, columns=[], figuresize=50):
+def _plot_recruitment(df, df_type, channel_of_interest, target, columns=[], figuresize=10):
     """
     Plot recruitment data for different conditions and pathogens.
 

@@ -841,7 +841,7 @@ def initiate_root(parent, settings_type='mask'):
     from .gui_utils import setup_frame
     from .settings import descriptions
 
-    uppdate_frequency = 1000
+    uppdate_frequency = 100
 
     # Start tracemalloc and initialize global variables
     tracemalloc.start()

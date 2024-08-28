@@ -76,6 +76,18 @@ def load_app(root, app_name, app_func):
         proceed_with_app(root, app_name, app_func)
     
 def parse_list(value):
+    """
+    Parses a string representation of a list and returns the parsed list.
+
+    Args:
+        value (str): The string representation of the list.
+
+    Returns:
+        list: The parsed list.
+
+    Raises:
+        ValueError: If the input value is not a valid list format or contains mixed types or unsupported types.
+    """
     try:
         parsed_value = ast.literal_eval(value)
         if isinstance(parsed_value, list):
@@ -93,7 +105,26 @@ def parse_list(value):
 
 # Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
+    """
+    Create an input field in the specified frame.
+
+    Args:
+        frame (tk.Frame): The frame in which the input field will be created.
+        label_text (str): The text to be displayed as the label for the input field.
+        row (int): The row in which the input field will be placed.
+        var_type (str, optional): The type of input field to create. Defaults to 'entry'.
+        options (list, optional): The list of options for a combo box input field. Defaults to None.
+        default_value (str, optional): The default value for the input field. Defaults to None.
+
+    Returns:
+        tuple: A tuple containing the label, input widget, variable, and custom frame.
+
+    Raises:
+        Exception: If an error occurs while creating the input field.
+
+    """
     from .gui_elements import set_dark_style, set_element_size
+    
     label_column = 0
     widget_column = 0  # Both label and widget will be in the same column
 
@@ -205,6 +236,12 @@ def annotate(settings):
 
 def generate_annotate_fields(frame):
     from .settings import set_annotate_default_settings
+    from .gui_elements import set_dark_style
+
+    style_out = set_dark_style(ttk.Style())
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size'] - 2
+
     vars_dict = {}
     settings = set_annotate_default_settings(settings={})
     
@@ -216,8 +253,8 @@ def generate_annotate_fields(frame):
 
     # Arrange input fields and labels
     for row, (name, data) in enumerate(vars_dict.items()):
-        ttk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:",
-                  background="black", foreground="white").grid(row=row, column=0)
+        tk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:", bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size)).grid(row=row, column=0)
+        #ttk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:", background="black", foreground="white").grid(row=row, column=0)
         if isinstance(data['value'], list):
             # Convert lists to comma-separated strings
             data['entry'].insert(0, ','.join(map(str, data['value'])))
