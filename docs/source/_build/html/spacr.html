@@ -3163,27 +3163,10 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">save_to_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zlib'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sequencing.html#save_to_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.save_to_hdf" title="Link to this definition"></a></dt>
 <dd><p>Save data from a queue to an HDF file.</p>
 <p>Parameters:
-- queue: Queue object</p>
-<blockquote>
-<div><p>The queue containing the data to be saved.</p>
-</div></blockquote>
-<ul class="simple">
-<li><dl class="simple">
-<dt>output_file: strs</dt><dd><p>The path to the output HDF file.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>complevel: int, optional</dt><dd><p>The compression level to use (default is 9).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>compression: str, optional</dt><dd><p>The compression algorithm to use (default is ‘zlib’).</p>
-</dd>
-</dl>
-</li>
-</ul>
+- queue: Queue object containing chunks of data to be saved
+- output_file: Path to the output HDF file
+- complevel: Compression level (default: 9)
+- compression: Compression algorithm (default: ‘zlib’)</p>
 <p>Returns:
 None</p>
 </dd></dl>

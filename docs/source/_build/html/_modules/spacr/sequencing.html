@@ -313,14 +313,10 @@
 <span class="sd">    Save data from a queue to an HDF file.</span>
 
 <span class="sd">    Parameters:</span>
-<span class="sd">    - queue: Queue object</span>
-<span class="sd">        The queue containing the data to be saved.</span>
-<span class="sd">    - output_file: strs</span>
-<span class="sd">        The path to the output HDF file.</span>
-<span class="sd">    - complevel: int, optional</span>
-<span class="sd">        The compression level to use (default is 9).</span>
-<span class="sd">    - compression: str, optional</span>
-<span class="sd">        The compression algorithm to use (default is &#39;zlib&#39;).</span>
+<span class="sd">    - queue: Queue object containing chunks of data to be saved</span>
+<span class="sd">    - output_file: Path to the output HDF file</span>
+<span class="sd">    - complevel: Compression level (default: 9)</span>
+<span class="sd">    - compression: Compression algorithm (default: &#39;zlib&#39;)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    None</span>
