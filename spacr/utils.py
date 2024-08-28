@@ -3451,7 +3451,7 @@ def setup_plot(figuresize, black_background):
     fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
     return fig, ax
 
-def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=50, dot_size=50, verbose=False):
+def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=10, dot_size=50, verbose=False):
     unique_labels = np.unique(labels)
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
