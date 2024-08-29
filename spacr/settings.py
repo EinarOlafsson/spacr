@@ -580,7 +580,7 @@ expected_types = {
     "timelapse": bool,
     "timelapse_displacement": int,
     "timelapse_memory": int,
-    "timelapse_frame_limits": list,  # This can be a list of lists
+    "timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
     "timelapse_remove_transient": bool,
     "timelapse_mode": str,
     "timelapse_objects": list,
@@ -883,6 +883,8 @@ def check_settings(vars_dict, expected_types, q=None):
                         settings[key] = parsed_value
                     else:
                         raise ValueError("Invalid format: Mixed list and list of lists")
+                #elif parsed_value == None:
+                #    settings[key] = None
                 else:
                     raise ValueError("Invalid format for list or list of lists")
             elif expected_type == list:
@@ -1201,7 +1203,7 @@ descriptions = {
 def set_annotate_default_settings(settings):
     settings.setdefault('src', 'path')
     settings.setdefault('image_type', 'cell_png')
-    settings.setdefault('channels', "'r','g','b'")
+    settings.setdefault('channels', "r,g,b")
     settings.setdefault('img_size', 200)
     settings.setdefault('annotation_column', 'test')
     settings.setdefault('normalize', 'False')

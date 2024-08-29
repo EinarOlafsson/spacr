@@ -670,24 +670,91 @@ class spacrProgressBar(ttk.Progressbar):
 
     def update_label(self):
         if self.label and self.progress_label:
-            # Update the progress label with current progress and additional info
+            # Start with the base progress information
             label_text = f"Processing: {self['value']}/{self['maximum']}"
+            
+            # Include the operation type if it exists
             if self.operation_type:
                 label_text += f", {self.operation_type}"
+            
+            # Handle additional info without adding newlines
             if hasattr(self, 'additional_info') and self.additional_info:
-                # Add a space between progress information and additional information
-                label_text += "\n\n"
-                # Split the additional_info into a list of items
+                # Join all additional info items with a space and ensure they're on the same line
                 items = self.additional_info.split(", ")
-                formatted_additional_info = ""
-                # Group the items in pairs, adding them to formatted_additional_info
-                for i in range(0, len(items), 2):
-                    if i + 1 < len(items):
-                        formatted_additional_info += f"{items[i]}, {items[i + 1]}\n\n"
-                    else:
-                        formatted_additional_info += f"{items[i]}\n\n"  # If there's an odd item out, add it alone
-                label_text += formatted_additional_info.strip()
+                formatted_additional_info = " ".join(items)
+
+                # Append the additional info to the label_text, ensuring it's all in one line
+                label_text += f" {formatted_additional_info.strip()}"
+
+            # Update the progress label
             self.progress_label.config(text=label_text)
+
+class spacrSlider(ttk.Scale):
+    def __init__(self, master=None, sliderlength=20, thickness=8, length=300, **kwargs):
+        # Initialize the style name and ttk style object
+        style_name = "CustomHorizontal.TScale"
+        style = ttk.Style(master)
+        style_out = set_dark_style(style)  # Assumes this function sets up the style
+
+        # Configure the style for the TScale widget
+        style.configure(
+            style_name,
+            background=style_out['bg_color'],        # Background of the slider
+            troughcolor=style_out['fg_color'],       # Line (trough) color
+            sliderlength=sliderlength,               # Length of the slider (knob)
+            thickness=thickness,                     # Width of the trough
+        )
+
+        # Define the layout explicitly if not available
+        style.layout(style_name, [('Horizontal.Scale.trough', {'children': [('Horizontal.Scale.slider', {'side': 'left', 'sticky': 'ns'})], 'sticky': 'we'})])
+
+        # Call the parent class constructor with the custom style
+        super().__init__(master, style=style_name, **kwargs)
+
+        # Additional configuration for the widget
+        self.config(
+            orient='horizontal', 
+            length=length,           # Length of the slider
+            from_=kwargs.get('from_', 0), 
+            to=kwargs.get('to', 100)
+        )
+
+        # Create a canvas overlay to draw the custom slider
+        self.canvas = tk.Canvas(self, width=length, height=sliderlength, bg=style_out['bg_color'], highlightthickness=0)
+        self.canvas.place(relx=0.5, rely=0.5, anchor="center")  # Center the canvas over the scale
+
+        # Bind the custom drawing method for the slider
+        self.bind("<Motion>", self.custom_draw)
+        self.bind("<Enter>", self.custom_draw)
+        self.bind("<Leave>", self.custom_draw)
+
+    def custom_draw(self, event=None):
+        # Clear the canvas
+        self.canvas.delete('slider')  # Remove any existing slider drawing
+
+        style_out = set_dark_style(ttk.Style())
+
+        # Calculate the position and dimensions for the custom slider
+        length = int(self['sliderlength'])
+        slider_pos = self.get_slider_pos()
+
+        # Draw the custom slider (blue circle) on the canvas
+        self.canvas.create_oval(
+            slider_pos - length / 2,        # Left
+            0,                              # Top
+            slider_pos + length / 2,        # Right
+            length,                         # Bottom
+            fill=style_out['active_color'], # Slider color
+            outline="",                     # No outline
+            tags='slider'                   # Tag for easy deletion
+        )
+
+    def get_slider_pos(self):
+        """Calculate the slider position based on the current value."""
+        val_range = self['to'] - self['from_']
+        pixel_range = int(self['length']) - int(self['sliderlength'])
+        value = self.get()
+        return (value - self['from_']) / val_range * pixel_range + int(self['sliderlength']) / 2
 
 def spacrScrollbarStyle(style, inactive_color, active_color):
     # Check if custom elements already exist to avoid duplication
@@ -2400,6 +2467,7 @@ def standardize_figure(fig):
     - Line width: 1
     - Line color: from style
     """
+    
 
     for ax in fig.get_axes():
         # Set font properties for title and labels
@@ -2447,6 +2515,8 @@ def standardize_figure(fig):
     fig.patch.set_facecolor(bg_color)
 
     fig.canvas.draw_idle()
+
+    return fig
 
 def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, font_size=None, x_lim=None, y_lim=None, grid=False, legend=None, title=None, x_label_rotation=None, remove_axes=False, bg_color=None, text_color=None, line_color=None):
     """

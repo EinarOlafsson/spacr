@@ -1638,7 +1638,7 @@ def preprocess_generate_masks(src, settings={}):
     
     settings = set_default_settings_preprocess_generate_masks(src, settings)
     settings['src'] = src
-    save_settings(settings)
+    save_settings(settings, name='gen_mask')
 
     if not settings['pathogen_channel'] is None:
         custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
