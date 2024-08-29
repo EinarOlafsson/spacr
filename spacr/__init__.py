@@ -51,13 +51,5 @@ __all__ = [
     "logger"
 ]
 
-# Check for CUDA GPU availability
-if torch.cuda.is_available():
-    from . import graph_learning
-    __all__.append("graph_learning")
-    logging.info("CUDA GPU detected. Graph learning module loaded.")
-else:
-    logging.info("No CUDA GPU detected. Graph learning module not loaded.")
-
 logging.basicConfig(filename='spacr.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')

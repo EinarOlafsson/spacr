@@ -1,4 +1,4 @@
-import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip
+import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess
 
 import numpy as np
 from cellpose import models as cp_models
@@ -4433,3 +4433,13 @@ def count_reads_in_fastq(fastq_file):
         for _ in f:
             count += 1
     return count // 4
+
+
+# Function to determine the CUDA version
+def get_cuda_version():
+    try:
+        output = subprocess.check_output(['nvcc', '--version'], stderr=subprocess.STDOUT).decode('utf-8')
+        if 'release' in output:
+            return output.split('release ')[1].split(',')[0].replace('.', '')
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None

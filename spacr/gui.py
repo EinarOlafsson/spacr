@@ -7,6 +7,15 @@ from .gui_core import initiate_root
 class MainApp(tk.Tk):
     def __init__(self, default_app=None):
         super().__init__()
+
+        # Initialize the window
+        self.geometry("100x100")
+        self.update_idletasks()
+
+        # Expand the window to fullscreen
+        self.attributes('-fullscreen', True)
+        self.update_idletasks()
+
         width = self.winfo_screenwidth()
         height = self.winfo_screenheight()
         self.geometry(f"{width}x{height}")

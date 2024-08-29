@@ -1,15 +1,6 @@
 from setuptools import setup, find_packages
 import subprocess
 
-# Function to determine the CUDA version
-def get_cuda_version():
-    try:
-        output = subprocess.check_output(['nvcc', '--version'], stderr=subprocess.STDOUT).decode('utf-8')
-        if 'release' in output:
-            return output.split('release ')[1].split(',')[0].replace('.', '')
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return None
-
 # Ensure you have read the README.rst content into a variable, e.g., `long_description`
 with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -20,6 +11,8 @@ dependencies = [
     'torch-geometric>=2.5,<3.0',
     'numpy>=1.26.4,<2.0',
     'pandas>=2.2.1,<3.0',
+    'bottleneck>=1.3.6,<2.0',
+    'numexpr>=2.8.4,<3.0',
     'statsmodels>=0.14.1,<1.0',
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
@@ -56,7 +49,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.2.65",
+    version="0.2.66",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
@@ -88,17 +81,6 @@ setup(
         "Operating System :: OS Independent",
     ]
 )
-
-cuda_version = get_cuda_version()
-
-if cuda_version:
-    dgl = f'dgl-cu{cuda_version}==0.9.1'
-else:
-    dgl = 'dgl==0.9.1'  # Fallback to CPU version if no CUDA is detected
-try:
-    subprocess.run(['pip', 'install', dgl], check=True)
-except subprocess.CalledProcessError:
-    subprocess.run(['pip', 'install', 'dgl'], check=True)
 
 deps = ['pyqtgraph>=0.13.7,<0.14',
         'pyqt6>=6.7.1,<6.8',
