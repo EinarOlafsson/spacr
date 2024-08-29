@@ -123,7 +123,8 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
             average_time_img = average_time / batch_size
             time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
     else:
-        print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type} {time_info}')
+        time_info = None
+    print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type}, {time_info}')
 
 def reset_mp():
     current_method = get_start_method()

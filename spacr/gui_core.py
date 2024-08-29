@@ -1,4 +1,4 @@
-import traceback, ctypes, csv, re
+import traceback, ctypes, csv, re, platform, time
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -19,7 +19,7 @@ try:
 except AttributeError:
     pass
 
-from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu , set_dark_style
+from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu , set_dark_style, standardize_figure
 
 # Define global variables
 q = None
@@ -93,9 +93,10 @@ def process_fig_queue():
                 continue  # Skip processing if the figure is None
 
             # Standardize the figure appearance before adding it to the list
-            standardize_figure(fig)
+            fig = standardize_figure(fig)
 
             figures.append(fig)
+            time.sleep(1)  # Sleep for a short duration to allow the figure to be displayed
             if figure_index == len(figures) - 2:
                 figure_index += 1
                 display_figure(fig)
@@ -197,7 +198,7 @@ def display_figure(fig):
             #flash_feedback("right")
             show_next_figure()
 
-    def zoom(event):
+    def zoom_v1(event):
         nonlocal scale_factor
 
         zoom_speed = 0.1  # Adjust the zoom speed for smoother experience
@@ -230,16 +231,55 @@ def display_figure(fig):
         # Redraw the figure
         fig.canvas.draw_idle()
 
+    def zoom(event):
+        nonlocal scale_factor
+
+        zoom_speed = 0.1  # Adjust the zoom speed for smoother experience
+
+        # Determine the zoom direction based on the scroll event
+        if event.num == 4 or event.delta > 0:  # Scroll up (zoom in)
+            scale_factor /= (1 + zoom_speed)  # Divide to zoom in
+        elif event.num == 5 or event.delta < 0:  # Scroll down (zoom out)
+            scale_factor *= (1 + zoom_speed)  # Multiply to zoom out
+
+        # Adjust the axes limits based on the new scale factor
+        for ax in canvas.figure.get_axes():
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            x_center = (xlim[1] + xlim[0]) / 2
+            y_center = (ylim[1] + ylim[0]) / 2
+
+            x_range = (xlim[1] - xlim[0]) * scale_factor
+            y_range = (ylim[1] - ylim[0]) * scale_factor
+
+            # Set the new limits
+            ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
+            ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
+
+        # Redraw the figure efficiently
+        canvas.draw_idle()
+
+
     # Bind events for hover, click interactions, and zoom
     canvas_widget.bind("<Motion>", on_hover)
     canvas_widget.bind("<Leave>", on_leave)
     canvas_widget.bind("<Button-1>", on_click)
     canvas_widget.bind("<Button-3>", on_right_click)
 
-    # Bind mouse wheel for zooming (cross-platform)
-    canvas_widget.bind("<MouseWheel>", zoom)  # Windows
-    canvas_widget.bind("<Button-4>", zoom)  # Linux/macOS Scroll Up
-    canvas_widget.bind("<Button-5>", zoom)  # Linux/macOS Scroll Down
+
+    # Detect the operating system and bind the appropriate mouse wheel events
+    current_os = platform.system()
+
+    if current_os == "Windows":
+        canvas_widget.bind("<MouseWheel>", zoom)  # Windows
+    elif current_os == "Darwin":  # macOS
+        canvas_widget.bind("<MouseWheel>", zoom)
+        canvas_widget.bind("<Button-4>", zoom)  # Scroll up
+        canvas_widget.bind("<Button-5>", zoom)  # Scroll down
+    elif current_os == "Linux":
+        canvas_widget.bind("<Button-4>", zoom)  # Linux Scroll up
+        canvas_widget.bind("<Button-5>", zoom)  # Linux Scroll down
 
 def clear_unused_figures():
     global figures, figure_index
@@ -253,6 +293,7 @@ def clear_unused_figures():
 
 def show_previous_figure():
     global figure_index, figures, fig_queue
+    
     if figure_index is not None and figure_index > 0:
         figure_index -= 1
         display_figure(figures[figure_index])
@@ -269,6 +310,85 @@ def show_next_figure():
         figures.append(fig)
         figure_index += 1
         display_figure(fig)
+
+def update_figure(index):
+    global figure_index, figures
+
+    # Convert the index to an integer
+    index = int(index)
+    
+    # Check if the index is valid
+    if 0 <= index < len(figures):
+        figure_index = index
+        display_figure(figures[figure_index])
+
+    # Update the index control widget's range and value
+    index_control.config(to=len(figures) - 1)
+    index_control.set(figure_index)
+
+def setup_plot_section(vertical_container):
+    global canvas, canvas_widget, figures, figure_index, index_control
+
+    from .gui_elements import set_element_size, set_dark_style, spacrSlider
+
+    # Initialize deque for storing figures and the current index
+    figures = deque()
+    figure_index = -1
+
+    # Create a frame for the plot section
+    plot_frame = tk.Frame(vertical_container)
+    vertical_container.add(plot_frame, stretch="always")
+
+    # Set up the plot
+    figure = Figure(figsize=(30, 4), dpi=100)
+    plot = figure.add_subplot(111)
+    plot.plot([], [])
+    plot.axis('off')
+    
+    canvas = FigureCanvasTkAgg(figure, master=plot_frame)
+    canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
+    canvas_widget = canvas.get_tk_widget()
+    canvas_widget.grid(row=0, column=0, sticky="nsew")
+
+    plot_frame.grid_rowconfigure(0, weight=1)
+    plot_frame.grid_columnconfigure(0, weight=1)
+
+    canvas.draw()
+    canvas.figure = figure  # Ensure that the figure is linked to the canvas
+    style_out = set_dark_style(ttk.Style())
+
+    figure.patch.set_facecolor(style_out['bg_color'])
+    plot.set_facecolor(style_out['bg_color'])
+    containers = [plot_frame]
+
+    # Create a frame below the plot to hold the index control widget
+    control_frame = tk.Frame(vertical_container)
+    vertical_container.add(control_frame, stretch="always")
+
+    # Use the custom spacrSlider instead of tk.Scale
+    index_control = spacrSlider(
+        control_frame,
+        from_=0,
+        to=0,
+        orient="horizontal",
+        command=update_figure,
+        sliderlength=20,     # Length of the slider (knob)
+        thickness=8,         # Width of the trough (line)
+        length=400,          # Length of the slider
+    )
+
+    # Place the slider using grid
+    index_control.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
+
+    # Configure the grid to expand the control_frame horizontally
+    control_frame.grid_rowconfigure(1, weight=1)
+    control_frame.grid_columnconfigure(0, weight=1)
+
+    widgets = [canvas_widget, index_control]
+    style = ttk.Style(vertical_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
+
+    return canvas, canvas_widget
 
 def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, figures_var, figure_index_var, progress_bar_var, usage_bars_var, fig_memory_limit_var, figure_current_memory_usage_var):
     global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, fig_memory_limit, figure_current_memory_usage
@@ -400,46 +520,6 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
 
-def setup_plot_section(vertical_container):
-    global canvas, canvas_widget, figures, figure_index
-
-    from .gui_elements import set_element_size
-
-    # Initialize deque for storing figures and the current index
-    figures = deque()
-    figure_index = -1
-
-    # Create a frame for the plot section
-    plot_frame = tk.Frame(vertical_container)
-    vertical_container.add(plot_frame, stretch="always")
-
-    # Set up the plot
-    figure = Figure(figsize=(30, 4), dpi=100)
-    plot = figure.add_subplot(111)
-    plot.plot([], [])
-    plot.axis('off')
-    
-    canvas = FigureCanvasTkAgg(figure, master=plot_frame)
-    canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
-    canvas_widget = canvas.get_tk_widget()
-    canvas_widget.grid(row=0, column=0, sticky="nsew")
-
-    plot_frame.grid_rowconfigure(0, weight=1)
-    plot_frame.grid_columnconfigure(0, weight=1)
-
-    canvas.draw()
-    canvas.figure = figure  # Ensure that the figure is linked to the canvas
-    style_out = set_dark_style(ttk.Style())
-
-    figure.patch.set_facecolor(style_out['bg_color'])
-    plot.set_facecolor(style_out['bg_color'])
-    containers = [plot_frame]
-    widgets = [canvas_widget]
-    style = ttk.Style(vertical_container)
-    _ = set_dark_style(style, containers=containers, widgets=widgets)
-    
-    return canvas, canvas_widget
-
 def setup_console(vertical_container):
     global console_output
     from .gui_elements import set_dark_style
@@ -478,27 +558,6 @@ def setup_console(vertical_container):
     console_output.bind("<Leave>", on_leave)
 
     return console_output, console_frame
-
-def setup_progress_frame(vertical_container):
-    global progress_output
-    style_out = set_dark_style(ttk.Style())
-    font_loader = style_out['font_loader']
-    font_size = style_out['font_size']
-    progress_frame = tk.Frame(vertical_container)
-    vertical_container.add(progress_frame, stretch="always")
-    label_frame = tk.Frame(progress_frame)
-    label_frame.grid(row=0, column=0, sticky="ew", pady=(5, 0), padx=10)
-    progress_label = spacrLabel(label_frame, text="Processing: 0%", font=font_loader.get_font(size=font_size), anchor='w', justify='left', align="left")
-    progress_label.grid(row=0, column=0, sticky="w")
-    progress_output = scrolledtext.ScrolledText(progress_frame, height=10)
-    progress_output.grid(row=1, column=0, sticky="nsew")
-    progress_frame.grid_rowconfigure(1, weight=1)
-    progress_frame.grid_columnconfigure(0, weight=1)
-    containers = [progress_frame, label_frame]
-    widgets = [progress_label, progress_output]
-    style = ttk.Style(vertical_container)
-    _ = set_dark_style(style, containers=containers, widgets=widgets)
-    return progress_output
 
 def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
     global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
