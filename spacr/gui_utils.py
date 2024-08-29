@@ -574,31 +574,42 @@ def setup_frame(parent_frame):
     size_dict = set_element_size()
     style_out = set_dark_style(style)
 
-    settings_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['settings_width'], bg=style_out['bg_color'])
-    vertical_container = tk.PanedWindow(parent_frame, orient=tk.VERTICAL, width=size_dict['panel_width'], bg=style_out['bg_color'])
-    horizontal_container = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'], width=size_dict['panel_width'], bg=style_out['bg_color'])
+    # Configure the main layout using PanedWindow
+    main_paned = tk.PanedWindow(parent_frame, orient=tk.HORIZONTAL, bg=style_out['bg_color'], bd=0, relief='flat')
+    main_paned.grid(row=0, column=0, sticky="nsew")
 
+    # Allow the main_paned to expand and fill the window
     parent_frame.grid_rowconfigure(0, weight=1)
-    parent_frame.grid_rowconfigure(1, weight=0)
-    parent_frame.grid_columnconfigure(0, weight=0)
-    parent_frame.grid_columnconfigure(1, weight=1)
+    parent_frame.grid_columnconfigure(0, weight=1)
 
-    settings_container.grid(row=0, column=0, rowspan=2, sticky="nsew")
-    vertical_container.grid(row=0, column=1, sticky="nsew")
-    horizontal_container.grid(row=1, column=1, sticky="ew")
+    # Create the settings container on the left
+    settings_container = tk.PanedWindow(main_paned, orient=tk.VERTICAL, width=size_dict['settings_width'], bg=style_out['bg_color'], bd=0, relief='flat')
+    main_paned.add(settings_container, minsize=100)  # Allow resizing with a minimum size
 
-    # Ensure settings_container maintains its width
-    settings_container.grid_propagate(False)
-    settings_container.update_idletasks()
+    # Create a right container frame to hold vertical and horizontal containers
+    right_frame = tk.Frame(main_paned, bg=style_out['bg_color'], bd=0, highlightthickness=0, relief='flat')
+    main_paned.add(right_frame, stretch="always")
 
-    tk.Label(settings_container, text="Settings Container", bg=style_out['bg_color']).grid(row=0, column=0, sticky="ew")
+    # Configure the right_frame grid layout
+    right_frame.grid_rowconfigure(0, weight=1)  # Vertical container expands
+    right_frame.grid_rowconfigure(1, weight=0)  # Horizontal container at bottom
+    right_frame.grid_columnconfigure(0, weight=1)
 
-    set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container])
-    
-    #size = style_out['font_size'] - 2
-    #set_default_font(parent_frame, font_name=style_out['font_family'], size=size)
+    # Inside right_frame, add vertical_container at the top
+    vertical_container = tk.PanedWindow(right_frame, orient=tk.VERTICAL, bg=style_out['bg_color'], bd=0, relief='flat')
+    vertical_container.grid(row=0, column=0, sticky="nsew")
+
+    # Add horizontal_container aligned with the bottom of settings_container
+    horizontal_container = tk.PanedWindow(right_frame, orient=tk.HORIZONTAL, height=size_dict['panel_height'], bg=style_out['bg_color'], bd=0, relief='flat')
+    horizontal_container.grid(row=1, column=0, sticky="ew")
+
+    # Example content for settings_container
+    tk.Label(settings_container, text="Settings Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
+
+    set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container, main_paned])
 
     return parent_frame, vertical_container, horizontal_container, settings_container
+
 
 def download_hug_dataset(q, vars_dict):
     dataset_repo_id = "einarolafsson/toxo_mito"
