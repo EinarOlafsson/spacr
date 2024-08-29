@@ -3,6 +3,7 @@ from tkinter import ttk
 from multiprocessing import set_start_method
 from .gui_elements import spacrButton, create_menu_bar, set_dark_style
 from .gui_core import initiate_root
+from screeninfo import get_monitors
 
 class MainApp(tk.Tk):
     def __init__(self, default_app=None):
@@ -12,12 +13,23 @@ class MainApp(tk.Tk):
         self.geometry("100x100")
         self.update_idletasks()
 
-        # Expand the window to fullscreen
-        self.attributes('-fullscreen', True)
+        # Get the current window position
         self.update_idletasks()
+        x = self.winfo_x()
+        y = self.winfo_y()
 
-        width = self.winfo_screenwidth()
-        height = self.winfo_screenheight()
+        # Find the monitor where the window is located
+        for monitor in get_monitors():
+            if monitor.x <= x < monitor.x + monitor.width and monitor.y <= y < monitor.y + monitor.height:
+                width = monitor.width
+                height = monitor.height
+                break
+        else:
+            monitor = get_monitors()[0]
+            width = monitor.width
+            height = monitor.height
+
+        # Set the window size to the dimensions of the monitor where it is located
         self.geometry(f"{width}x{height}")
         self.title("SpaCr GUI Collection")
         self.configure(bg='#333333')  # Set window background to dark gray
@@ -36,7 +48,6 @@ class MainApp(tk.Tk):
         }
 
         self.additional_gui_apps = {
-            #"Sequencing": (lambda frame: initiate_root(self, 'sequencing'), "Analyze sequencing data."),
             "Umap": (lambda frame: initiate_root(self, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
             "Train Cellpose": (lambda frame: initiate_root(self, 'train_cellpose'), "Train custom Cellpose models."),
             "ML Analyze": (lambda frame: initiate_root(self, 'ml_analyze'), "Machine learning analysis of data."),
@@ -58,32 +69,36 @@ class MainApp(tk.Tk):
     def create_widgets(self):
         create_menu_bar(self)
 
-        self.canvas = tk.Canvas(self, highlightthickness=0)
-        self.canvas.grid(row=0, column=0, sticky="nsew")
+        # Use a grid layout for centering
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self.content_frame = tk.Frame(self.canvas)
+        self.content_frame = tk.Frame(self)
         self.content_frame.grid(row=0, column=0, sticky="nsew")
+        
+        # Center the content frame within the window
+        self.content_frame.grid_rowconfigure(0, weight=1)
+        self.content_frame.grid_columnconfigure(0, weight=1)
 
-        self.canvas.create_window((self.winfo_screenwidth() // 2, self.winfo_screenheight() // 2), window=self.content_frame, anchor="center")
-
-        set_dark_style(ttk.Style(), containers=[self.canvas, self.content_frame])
+        self.inner_frame = tk.Frame(self.content_frame)
+        self.inner_frame.grid(row=0, column=0)
+        
+        set_dark_style(ttk.Style(), containers=[self.content_frame, self.inner_frame])
 
         self.create_startup_screen()
 
     def create_startup_screen(self):
-        self.clear_frame(self.content_frame)
+        self.clear_frame(self.inner_frame)
 
-        main_buttons_frame = tk.Frame(self.content_frame)
+        main_buttons_frame = tk.Frame(self.inner_frame)
         main_buttons_frame.pack(pady=10)
         set_dark_style(ttk.Style(), containers=[main_buttons_frame])
 
-        additional_buttons_frame = tk.Frame(self.content_frame)
+        additional_buttons_frame = tk.Frame(self.inner_frame)
         additional_buttons_frame.pack(pady=10)
         set_dark_style(ttk.Style(), containers=[additional_buttons_frame])
 
-        description_frame = tk.Frame(self.content_frame, height=70)
+        description_frame = tk.Frame(self.inner_frame, height=70)
         description_frame.pack(fill=tk.X, pady=10)
         description_frame.pack_propagate(False)
         set_dark_style(ttk.Style(), containers=[description_frame])
@@ -93,7 +108,7 @@ class MainApp(tk.Tk):
 
         logo_button = spacrButton(main_buttons_frame, text="SpaCr", command=lambda: self.load_app("logo_spacr", initiate_root), icon_name="logo_spacr", size=100, show_text=False)
         logo_button.grid(row=0, column=0, padx=5, pady=5)
-        self.main_buttons[logo_button] = "SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.."
+        self.main_buttons[logo_button] = "SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens."
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
             app_func, app_desc = app_data
@@ -127,9 +142,9 @@ class MainApp(tk.Tk):
             self.description_label.update_idletasks()
 
     def load_app(self, app_name, app_func):
-        self.clear_frame(self.canvas)
+        self.clear_frame(self.inner_frame)
 
-        app_frame = tk.Frame(self.canvas)
+        app_frame = tk.Frame(self.inner_frame)
         app_frame.pack(fill=tk.BOTH, expand=True)
         set_dark_style(ttk.Style(), containers=[app_frame])
         app_func(app_frame)

@@ -10,9 +10,9 @@ dependencies = [
     'torchvision>=0.1,<1.0',
     'torch-geometric>=2.5,<3.0',
     'numpy>=1.26.4,<2.0',
-    'pandas>=2.2.1,<3.0',
     'bottleneck>=1.3.6,<2.0',
     'numexpr>=2.8.4,<3.0',
+    'pandas>=2.2.1,<3.0',
     'statsmodels>=0.14.1,<1.0',
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
@@ -44,12 +44,15 @@ dependencies = [
     'pyautogui>=0.9.54,<1.0',
     'tables>=3.8.0,<4.0',
     'rapidfuzz>=3.9, <4.0',
+    'importlib-metadata>=3.6, <4.0',
+    'keyring>=15.1, <16.0',
+    'screeninfo>=0.8.1,<1.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.2.66",
+    version="0.2.68",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
