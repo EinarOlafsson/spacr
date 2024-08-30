@@ -44,15 +44,15 @@ dependencies = [
     'pyautogui>=0.9.54,<1.0',
     'tables>=3.8.0,<4.0',
     'rapidfuzz>=3.9, <4.0',
-    'importlib-metadata>=3.6, <4.0',
     'keyring>=15.1, <16.0',
     'screeninfo>=0.8.1,<1.0',
+    'ipykernel',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.2.7",
+    version="0.2.8",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

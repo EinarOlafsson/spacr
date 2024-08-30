@@ -689,72 +689,169 @@ class spacrProgressBar(ttk.Progressbar):
             # Update the progress label
             self.progress_label.config(text=label_text)
 
-class spacrSlider(ttk.Scale):
-    def __init__(self, master=None, sliderlength=20, thickness=8, length=300, **kwargs):
-        # Initialize the style name and ttk style object
-        style_name = "CustomHorizontal.TScale"
-        style = ttk.Style(master)
-        style_out = set_dark_style(style)  # Assumes this function sets up the style
+class spacrSlider(tk.Frame):
+    def __init__(self, master=None, length=None, thickness=2, knob_radius=10, position="center", from_=0, to=100, value=None, show_index=False, command=None, **kwargs):
+        super().__init__(master, **kwargs)
 
-        # Configure the style for the TScale widget
-        style.configure(
-            style_name,
-            background=style_out['bg_color'],        # Background of the slider
-            troughcolor=style_out['fg_color'],       # Line (trough) color
-            sliderlength=sliderlength,               # Length of the slider (knob)
-            thickness=thickness,                     # Width of the trough
-        )
+        self.specified_length = length  # Store the specified length, if any
+        self.knob_radius = knob_radius
+        self.thickness = thickness
+        self.knob_position = knob_radius  # Start at the beginning of the slider
+        self.slider_line = None
+        self.knob = None
+        self.position = position.lower()  # Store the position option
+        self.offset = 0  # Initialize offset
+        self.from_ = from_  # Minimum value of the slider
+        self.to = to  # Maximum value of the slider
+        self.value = value if value is not None else from_  # Initial value of the slider
+        self.show_index = show_index  # Whether to show the index Entry widget
+        self.command = command  # Callback function to handle value changes
 
-        # Define the layout explicitly if not available
-        style.layout(style_name, [('Horizontal.Scale.trough', {'children': [('Horizontal.Scale.slider', {'side': 'left', 'sticky': 'ns'})], 'sticky': 'we'})])
-
-        # Call the parent class constructor with the custom style
-        super().__init__(master, style=style_name, **kwargs)
-
-        # Additional configuration for the widget
-        self.config(
-            orient='horizontal', 
-            length=length,           # Length of the slider
-            from_=kwargs.get('from_', 0), 
-            to=kwargs.get('to', 100)
-        )
-
-        # Create a canvas overlay to draw the custom slider
-        self.canvas = tk.Canvas(self, width=length, height=sliderlength, bg=style_out['bg_color'], highlightthickness=0)
-        self.canvas.place(relx=0.5, rely=0.5, anchor="center")  # Center the canvas over the scale
-
-        # Bind the custom drawing method for the slider
-        self.bind("<Motion>", self.custom_draw)
-        self.bind("<Enter>", self.custom_draw)
-        self.bind("<Leave>", self.custom_draw)
-
-    def custom_draw(self, event=None):
-        # Clear the canvas
-        self.canvas.delete('slider')  # Remove any existing slider drawing
-
+        # Initialize the style and colors
         style_out = set_dark_style(ttk.Style())
+        self.fg_color = style_out['fg_color']
+        self.bg_color = style_out['bg_color']
+        self.active_color = style_out['active_color']
+        self.inactive_color = style_out['inactive_color']
 
-        # Calculate the position and dimensions for the custom slider
-        length = int(self['sliderlength'])
-        slider_pos = self.get_slider_pos()
+        # Configure the frame's background color
+        self.configure(bg=self.bg_color)
 
-        # Draw the custom slider (blue circle) on the canvas
-        self.canvas.create_oval(
-            slider_pos - length / 2,        # Left
-            0,                              # Top
-            slider_pos + length / 2,        # Right
-            length,                         # Bottom
-            fill=style_out['active_color'], # Slider color
-            outline="",                     # No outline
-            tags='slider'                   # Tag for easy deletion
+        # Create a frame for the slider and entry if needed
+        self.grid_columnconfigure(1, weight=1)
+
+        # Entry widget for showing and editing index, if enabled
+        if self.show_index:
+            self.index_var = tk.StringVar(value=str(int(self.value)))
+            self.index_entry = tk.Entry(self, textvariable=self.index_var, width=5, bg=self.bg_color, fg=self.fg_color, insertbackground=self.fg_color)
+            self.index_entry.grid(row=0, column=0, padx=5)
+            # Bind the entry to update the slider on change
+            self.index_entry.bind("<Return>", self.update_slider_from_entry)
+
+        # Create the slider canvas
+        self.canvas = tk.Canvas(self, height=knob_radius * 2, bg=self.bg_color, highlightthickness=0)
+        self.canvas.grid(row=0, column=1, sticky="ew")
+
+        # Set initial length to specified length or default value
+        self.length = self.specified_length if self.specified_length is not None else self.canvas.winfo_reqwidth()
+
+        # Calculate initial knob position based on the initial value
+        self.knob_position = self.value_to_position(self.value)
+
+        # Bind resize event to dynamically adjust the slider length if no length is specified
+        self.canvas.bind("<Configure>", self.resize_slider)
+
+        # Draw the slider components
+        self.draw_slider(inactive=True)
+
+        # Bind mouse events to the knob and slider
+        self.canvas.bind("<B1-Motion>", self.move_knob)
+        self.canvas.bind("<Button-1>", self.activate_knob)  # Activate knob on click
+        self.canvas.bind("<ButtonRelease-1>", self.release_knob)  # Trigger command on release
+
+    def resize_slider(self, event):
+        if self.specified_length is not None:
+            self.length = self.specified_length
+        else:
+            self.length = int(event.width * 0.9)  # 90% of the container width
+        
+        # Calculate the horizontal offset based on the position
+        if self.position == "center":
+            self.offset = (event.width - self.length) // 2
+        elif self.position == "right":
+            self.offset = event.width - self.length
+        else:  # position is "left"
+            self.offset = 0
+
+        # Update the knob position after resizing
+        self.knob_position = self.value_to_position(self.value)
+        self.draw_slider(inactive=True)
+
+    def value_to_position(self, value):
+        if self.to == self.from_:
+            return self.knob_radius
+        relative_value = (value - self.from_) / (self.to - self.from_)
+        return self.knob_radius + relative_value * (self.length - 2 * self.knob_radius)
+
+    def position_to_value(self, position):
+        if self.to == self.from_:
+            return self.from_
+        relative_position = (position - self.knob_radius) / (self.length - 2 * self.knob_radius)
+        return self.from_ + relative_position * (self.to - self.from_)
+
+    def draw_slider(self, inactive=False):
+        self.canvas.delete("all")
+
+        self.slider_line = self.canvas.create_line(
+            self.offset + self.knob_radius, 
+            self.knob_radius, 
+            self.offset + self.length - self.knob_radius, 
+            self.knob_radius, 
+            fill=self.fg_color, 
+            width=self.thickness
         )
 
-    def get_slider_pos(self):
-        """Calculate the slider position based on the current value."""
-        val_range = self['to'] - self['from_']
-        pixel_range = int(self['length']) - int(self['sliderlength'])
-        value = self.get()
-        return (value - self['from_']) / val_range * pixel_range + int(self['sliderlength']) / 2
+        knob_color = self.inactive_color if inactive else self.active_color
+        self.knob = self.canvas.create_oval(
+            self.offset + self.knob_position - self.knob_radius, 
+            self.knob_radius - self.knob_radius, 
+            self.offset + self.knob_position + self.knob_radius, 
+            self.knob_radius + self.knob_radius, 
+            fill=knob_color, 
+            outline=""
+        )
+
+    def move_knob(self, event):
+        new_position = min(max(event.x - self.offset, self.knob_radius), self.length - self.knob_radius)
+        self.knob_position = new_position
+        self.value = self.position_to_value(self.knob_position)
+        self.canvas.coords(
+            self.knob, 
+            self.offset + self.knob_position - self.knob_radius, 
+            self.knob_radius - self.knob_radius, 
+            self.offset + self.knob_position + self.knob_radius, 
+            self.knob_radius + self.knob_radius
+        )
+        if self.show_index:
+            self.index_var.set(str(int(self.value)))
+
+    def activate_knob(self, event):
+        self.draw_slider(inactive=False)
+        self.move_knob(event)
+
+    def release_knob(self, event):
+        self.draw_slider(inactive=True)
+        if self.command:
+            self.command(self.value)  # Call the command with the final value when the knob is released
+
+    def set_to(self, new_to):
+        self.to = new_to
+        self.knob_position = self.value_to_position(self.value)
+        self.draw_slider(inactive=False)
+
+    def get(self):
+        return self.value
+
+    def set(self, value):
+        """Set the slider's value and update the knob position."""
+        self.value = max(self.from_, min(value, self.to))  # Ensure the value is within bounds
+        self.knob_position = self.value_to_position(self.value)
+        self.draw_slider(inactive=False)
+        if self.show_index:
+            self.index_var.set(str(int(self.value)))
+
+    def jump_to_click(self, event):
+        self.activate_knob(event)
+
+    def update_slider_from_entry(self, event):
+        """Update the slider's value from the entry."""
+        try:
+            index = int(self.index_var.get())
+            self.set(index)
+            if self.command:
+                self.command(self.value)
+        except ValueError:
+            pass
 
 def spacrScrollbarStyle(style, inactive_color, active_color):
     # Check if custom elements already exist to avoid duplication
@@ -2054,6 +2151,11 @@ class AnnotateApp:
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
         self.font_size = style_out['font_size']
+        self.bg_color = style_out['bg_color']
+        self.fg_color = style_out['fg_color']
+        self.active_color = style_out['active_color']
+        self.inactive_color = style_out['inactive_color']
+
 
         if self.font_loader:
             self.font_style = self.font_loader.get_font(size=self.font_size)
@@ -2080,13 +2182,13 @@ class AnnotateApp:
         self.button_frame = Frame(root, bg=self.root.cget('bg'))
         self.button_frame.grid(row=2, column=1, padx=10, pady=10, sticky="se")
 
-        self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg='black', fg='white', highlightbackground='white', highlightcolor='white', highlightthickness=1)
+        self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.next_button.pack(side="right", padx=5)
 
-        self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg='black', fg='white', highlightbackground='white', highlightcolor='white', highlightthickness=1)
+        self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.previous_button.pack(side="right", padx=5)
 
-        self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg='black', fg='white', highlightbackground='white', highlightcolor='white', highlightthickness=1)
+        self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button.pack(side="right", padx=5)
 
         # Calculate grid rows and columns based on the root window size and image size
@@ -2236,7 +2338,7 @@ class AnnotateApp:
 
         for i, (img, annotation) in enumerate(loaded_images):
             if annotation:
-                border_color = 'teal' if annotation == 1 else 'red'
+                border_color = self.active_color if annotation == 1 else 'red'
                 img = self.add_colored_border(img, border_width=5, border_color=border_color)
 
             photo = ImageTk.PhotoImage(img)
@@ -2282,7 +2384,7 @@ class AnnotateApp:
         left_border = Image.new('RGB', (border_width, img.height), color=border_color)
         right_border = Image.new('RGB', (border_width, img.height), color=border_color)
 
-        bordered_img = Image.new('RGB', (img.width + 2 * border_width, img.height + 2 * border_width), color='white')
+        bordered_img = Image.new('RGB', (img.width + 2 * border_width, img.height + 2 * border_width), color=self.fg_color)
         bordered_img.paste(top_border, (border_width, 0))
         bordered_img.paste(bottom_border, (border_width, img.height + border_width))
         bordered_img.paste(left_border, (0, border_width))
@@ -2322,7 +2424,7 @@ class AnnotateApp:
             print(f"Image {os.path.split(path)[1]} annotated: {new_annotation}")
             
             img_ = img.crop((5, 5, img.width-5, img.height-5))
-            border_fill = 'teal' if new_annotation == 1 else ('red' if new_annotation == 2 else None)
+            border_fill = self.active_color if new_annotation == 1 else ('red' if new_annotation == 2 else None)
             img_ = ImageOps.expand(img_, border=5, fill=border_fill) if border_fill else img_
 
             photo = ImageTk.PhotoImage(img_)
