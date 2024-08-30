@@ -19,7 +19,7 @@ try:
 except AttributeError:
     pass
 
-from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu , set_dark_style, standardize_figure
+from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu , spacrSlider, set_dark_style, standardize_figure
 
 # Define global variables
 q = None
@@ -35,8 +35,6 @@ figures = None
 figure_index = None
 progress_bar = None
 usage_bars = None
-fig_memory_limit = None
-figure_current_memory_usage = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -80,36 +78,10 @@ def toggle_settings(button_scrollable_frame):
     category_dropdown.grid(row=0, column=4, sticky="ew", pady=2, padx=2)
     vars_dict = hide_all_settings(vars_dict, categories)
 
-def process_fig_queue():
-    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index
-
-    from .gui_elements import standardize_figure
-    try:
-        while not fig_queue.empty():
-            fig = fig_queue.get_nowait()
-
-            if fig is None:
-                print("Warning: Retrieved a None figure from fig_queue.")
-                continue  # Skip processing if the figure is None
-
-            # Standardize the figure appearance before adding it to the list
-            fig = standardize_figure(fig)
-
-            figures.append(fig)
-            time.sleep(1)  # Sleep for a short duration to allow the figure to be displayed
-            if figure_index == len(figures) - 2:
-                figure_index += 1
-                display_figure(fig)
-    except Exception as e:
-        traceback.print_exc()
-    finally:
-        after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
-        parent_frame.after_tasks.append(after_id)
-
 def display_figure(fig):
     global canvas, canvas_widget
 
-    from .gui_elements import modify_figure_properties, save_figure_as_format, modify_figure
+    from .gui_elements import save_figure_as_format, modify_figure
 
     # Apply the dark style to the context menu
     style_out = set_dark_style(ttk.Style())
@@ -311,11 +283,42 @@ def show_next_figure():
         figure_index += 1
         display_figure(fig)
 
-def update_figure(index):
+def process_fig_queue():
+    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
+
+    from .gui_elements import standardize_figure
+    try:
+        while not fig_queue.empty():
+            fig = fig_queue.get_nowait()
+
+            if fig is None:
+                print("Warning: Retrieved a None figure from fig_queue.")
+                continue  # Skip processing if the figure is None
+
+            # Standardize the figure appearance before adding it to the list
+            fig = standardize_figure(fig)
+
+            figures.append(fig)
+
+            # Update the slider range and set the value to the latest figure index
+            index_control.set_to(len(figures) - 1)
+
+            if figure_index == -1:
+                figure_index += 1
+                display_figure(figures[figure_index])
+                index_control.set(figure_index)
+            
+    except Exception as e:
+        traceback.print_exc()
+    finally:
+        after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
+        parent_frame.after_tasks.append(after_id)
+
+def update_figure(value):
     global figure_index, figures
 
-    # Convert the index to an integer
-    index = int(index)
+    # Convert the value to an integer
+    index = int(value)
     
     # Check if the index is valid
     if 0 <= index < len(figures):
@@ -323,17 +326,14 @@ def update_figure(index):
         display_figure(figures[figure_index])
 
     # Update the index control widget's range and value
-    index_control.config(to=len(figures) - 1)
+    index_control.set_to(len(figures) - 1)
     index_control.set(figure_index)
 
 def setup_plot_section(vertical_container):
     global canvas, canvas_widget, figures, figure_index, index_control
 
-    from .gui_elements import set_element_size, set_dark_style, spacrSlider
-
     # Initialize deque for storing figures and the current index
     figures = deque()
-    figure_index = -1
 
     # Create a frame for the plot section
     plot_frame = tk.Frame(vertical_container)
@@ -356,32 +356,21 @@ def setup_plot_section(vertical_container):
     canvas.draw()
     canvas.figure = figure  # Ensure that the figure is linked to the canvas
     style_out = set_dark_style(ttk.Style())
+    bg = style_out['bg_color']
+    fg = style_out['fg_color']
 
-    figure.patch.set_facecolor(style_out['bg_color'])
-    plot.set_facecolor(style_out['bg_color'])
+    figure.patch.set_facecolor(bg)
+    plot.set_facecolor(bg)
     containers = [plot_frame]
 
-    # Create a frame below the plot to hold the index control widget
-    control_frame = tk.Frame(vertical_container)
-    vertical_container.add(control_frame, stretch="always")
+    # Create slider
+    control_frame = tk.Frame(plot_frame, height=15*2,  bg=bg)  # Fixed height based on knob_radius
+    control_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
+    control_frame.grid_propagate(False)  # Prevent the frame from resizing
 
-    # Use the custom spacrSlider instead of tk.Scale
-    index_control = spacrSlider(
-        control_frame,
-        from_=0,
-        to=0,
-        orient="horizontal",
-        command=update_figure,
-        sliderlength=20,     # Length of the slider (knob)
-        thickness=8,         # Width of the trough (line)
-        length=400,          # Length of the slider
-    )
-
-    # Place the slider using grid
-    index_control.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
-
-    # Configure the grid to expand the control_frame horizontally
-    control_frame.grid_rowconfigure(1, weight=1)
+    # Pass the update_figure function as the command to spacrSlider
+    index_control = spacrSlider(control_frame, from_=0, to=0, value=0, thickness=2, knob_radius=10, position="center", show_index=True, command=update_figure)
+    index_control.grid(row=0, column=0, sticky="ew")
     control_frame.grid_columnconfigure(0, weight=1)
 
     widgets = [canvas_widget, index_control]
@@ -390,8 +379,8 @@ def setup_plot_section(vertical_container):
 
     return canvas, canvas_widget
 
-def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, figures_var, figure_index_var, progress_bar_var, usage_bars_var, fig_memory_limit_var, figure_current_memory_usage_var):
-    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, fig_memory_limit, figure_current_memory_usage
+def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, figures_var, figure_index_var, index_control_var, progress_bar_var, usage_bars_var):
+    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, index_control
     thread_control = thread_control_var
     q = q_var
     console_output = console_output_var
@@ -405,8 +394,7 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     figure_index = figure_index_var
     progress_bar = progress_bar_var
     usage_bars = usage_bars_var
-    fig_memory_limit = fig_memory_limit_var
-    figure_current_memory_usage = figure_current_memory_usage_var
+    index_control = index_control_var
 
 def import_settings(settings_type='mask'):
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
@@ -895,7 +883,7 @@ def initiate_root(parent, settings_type='mask'):
         tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.
     """
     
-    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, fig_memory_limit, figure_current_memory_usage
+    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
     
     from .gui_utils import setup_frame
     from .settings import descriptions
@@ -912,8 +900,6 @@ def initiate_root(parent, settings_type='mask'):
     # Initialize global variables
     figures = deque()
     figure_index = -1
-    fig_memory_limit = 200 * 1024 * 1024  # 200 MB limit
-    figure_current_memory_usage = 0
 
     parent_frame = parent
 
@@ -945,7 +931,7 @@ def initiate_root(parent, settings_type='mask'):
         button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
         _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
 
-        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, fig_memory_limit, figure_current_memory_usage)
+        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, index_control, progress_bar, usage_bars)
         description_text = descriptions.get(settings_type, "No description available for this module.")
         
         q.put(f"Console")
