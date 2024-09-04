@@ -945,3 +945,5 @@ def initiate_root(parent, settings_type='mask'):
 
     print("Root initialization complete")
     return parent_frame, vars_dict
+
+

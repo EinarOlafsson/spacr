@@ -1212,15 +1212,39 @@ def set_annotate_default_settings(settings):
     settings.setdefault('threshold', '2')
     return settings
 
-def set_default_generate_barecode_mapping(settings={}):
+def set_default_generate_barecode_mapping_v1(settings={}):
     settings.setdefault('src', 'path')
     settings.setdefault('chunk_size', 100000)
     
-    settings.setdefault('barcode_mapping', {'row': ['/home/carruthers/Documents/row_barcodes.csv',(80, 88), True],
-                                            'grna': ['/home/carruthers/Documents/grna_barcodes.csv',(34, 55), True],
-                                            'column': ['/home/carruthers/Documents/column_barcodes.csv',(0, 7), False]})
+    settings.setdefault('barcode_mapping', {'row': ['/home/carruthers/Documents/row_barcodes.csv',(62, 70), False, True],
+                                            'grna': ['/home/carruthers/Documents/grna_barcodes.csv',(96, 117), False, True],
+                                            'column': ['/home/carruthers/Documents/column_barcodes.csv',(0, 7), False, False]})
     
     settings.setdefault('n_jobs', None)
     settings.setdefault('compression', 'zlib')
     settings.setdefault('complevel', 5)
+
+    settings.setdefault('row_score_threshold', 1.0)
+    settings.setdefault('grna_score_threshold', 1.0)
+    settings.setdefault('column_score_threshold', 1.0)
+    settings.setdefault('test', False)
+    return settings
+
+def set_default_generate_barecode_mapping(settings={}):
+    settings.setdefault('src', 'path')
+    settings.setdefault('chunk_size', 100000)
+    settings.setdefault('regex', r"^(?P<column>.{8}).*AAAC(?P<grna>.{20,21})AACT.*AGAAG(?P<row>.{8}).*")
+    
+    settings.setdefault('barcode_mapping', {'column': ['/home/carruthers/Documents/column_barcodes.csv', False],
+                                            'grna': ['/home/carruthers/Documents/grna_barcodes.csv', True],
+                                            'row': ['/home/carruthers/Documents/row_barcodes.csv', True]})
+    
+    settings.setdefault('n_jobs', None)
+    settings.setdefault('compression', 'zlib')
+    settings.setdefault('complevel', 5)
+
+    settings.setdefault('row_score_threshold', 1.0)
+    settings.setdefault('grna_score_threshold', 1.0)
+    settings.setdefault('column_score_threshold', 1.0)
+    settings.setdefault('test', False)
     return settings
