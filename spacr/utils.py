@@ -4444,3 +4444,5 @@ def get_cuda_version():
             return output.split('release ')[1].split(',')[0].replace('.', '')
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
+
+
