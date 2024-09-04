@@ -27,6 +27,16 @@ from Bio.SeqRecord import SeqRecord
 
 from collections import defaultdict
 
+import gzip, re
+from Bio.Seq import Seq
+import pandas as pd
+import numpy as np
+import gzip, re
+from Bio.Seq import Seq
+import pandas as pd
+import numpy as np
+from multiprocessing import Pool, cpu_count
+
 def parse_gz_files(folder_path):
     """
     Parses the .fastq.gz files in the specified folder path and returns a dictionary
@@ -57,7 +67,237 @@ def parse_gz_files(folder_path):
             samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
     return samples_dict
 
+# Function to map sequences to names (same as your original)
+def map_sequences_to_names(csv_file, sequences, rc):
+    def rev_comp(dna_sequence):
+        complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
+        reverse_seq = dna_sequence[::-1]
+        return ''.join([complement_dict[base] for base in reverse_seq])
+    
+    df = pd.read_csv(csv_file)
+    if rc:
+        df['sequence'] = df['sequence'].apply(rev_comp)
+    
+    csv_sequences = pd.Series(df['name'].values, index=df['sequence']).to_dict()
+    return [csv_sequences.get(sequence, pd.NA) for sequence in sequences]
 
+# Functions to save data (same as your original)
+def save_df_to_hdf5(df, hdf5_file, key='df', comp_type='zlib', comp_level=5):
+    try:
+        with pd.HDFStore(hdf5_file, 'a', complib=comp_type, complevel=comp_level) as store:
+            if key in store:
+                existing_df = store[key]
+                df = pd.concat([existing_df, df], ignore_index=True)
+            store.put(key, df, format='table')
+    except Exception as e:
+        print(f"Error while saving DataFrame to HDF5: {e}")
+
+def save_unique_combinations_to_csv(unique_combinations, csv_file):
+    try:
+        try:
+            existing_df = pd.read_csv(csv_file)
+        except FileNotFoundError:
+            existing_df = pd.DataFrame()
+        
+        if not existing_df.empty:
+            unique_combinations = pd.concat([existing_df, unique_combinations])
+            unique_combinations = unique_combinations.groupby(
+                ['row_name', 'column_name', 'grna_name'], as_index=False).sum()
+
+        unique_combinations.to_csv(csv_file, index=False)
+    except Exception as e:
+        print(f"Error while saving unique combinations to CSV: {e}")
+
+def save_qc_df_to_csv(qc_df, qc_csv_file):
+    try:
+        try:
+            existing_qc_df = pd.read_csv(qc_csv_file)
+        except FileNotFoundError:
+            existing_qc_df = pd.DataFrame()
+
+        if not existing_qc_df.empty:
+            qc_df = qc_df.add(existing_qc_df, fill_value=0)
+
+        qc_df.to_csv(qc_csv_file, index=False)
+    except Exception as e:
+        print(f"Error while saving QC DataFrame to CSV: {e}")
+
+def extract_sequence_and_quality(sequence, quality, start, end):
+    return sequence[start:end], quality[start:end]
+
+def create_consensus(seq1, qual1, seq2, qual2):
+    consensus_seq = []
+    for i in range(len(seq1)):
+        bases = [(seq1[i], qual1[i]), (seq2[i], qual2[i])]
+        consensus_seq.append(get_consensus_base(bases))
+    return ''.join(consensus_seq)
+
+def get_consensus_base(bases):
+    # Prefer non-'N' bases, if 'N' exists, pick the other one.
+    if bases[0][0] == 'N':
+        return bases[1][0]
+    elif bases[1][0] == 'N':
+        return bases[0][0]
+    else:
+        # Return the base with the highest quality score
+        return bases[0][0] if bases[0][1] >= bases[1][1] else bases[1][0]
+
+def reverse_complement(seq):
+    return str(Seq(seq).reverse_complement())
+
+# Core logic for processing a chunk (same as your original)
+def process_chunk(chunk_data):
+    
+    def find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end):
+        i = 0
+        fail_count = 0
+        failed_cases = []
+        regex = r"^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*"
+        consensus_sequences, columns, grnas, rows = [], [], [], []
+        
+        for r1_lines, r2_lines in zip(r1_chunk, r2_chunk):
+            r1_header, r1_sequence, r1_plus, r1_quality = r1_lines.split('\n')
+            r2_header, r2_sequence, r2_plus, r2_quality = r2_lines.split('\n')
+            r2_sequence = reverse_complement(r2_sequence)
+
+            r1_pos = r1_sequence.find(target_sequence)
+            r2_pos = r2_sequence.find(target_sequence)
+
+            if r1_pos != -1 and r2_pos != -1:
+                r1_start = max(r1_pos + offset_start, 0)
+                r1_end = min(r1_start + expected_end, len(r1_sequence))
+                r2_start = max(r2_pos + offset_start, 0)
+                r2_end = min(r2_start + expected_end, len(r2_sequence))
+
+                r1_seq, r1_qual = extract_sequence_and_quality(r1_sequence, r1_quality, r1_start, r1_end)
+                r2_seq, r2_qual = extract_sequence_and_quality(r2_sequence, r2_quality, r2_start, r2_end)
+
+                if len(r1_seq) < expected_end:
+                    r1_seq += 'N' * (expected_end - len(r1_seq))
+                    r1_qual += '!' * (expected_end - len(r1_qual))
+
+                if len(r2_seq) < expected_end:
+                    r2_seq += 'N' * (expected_end - len(r2_seq))
+                    r2_qual += '!' * (expected_end - len(r2_qual))
+
+                consensus_seq = create_consensus(r1_seq, r1_qual, r2_seq, r2_qual)
+                if len(consensus_seq) >= expected_end:
+                    match = re.match(regex, consensus_seq)
+                    if match:
+                        consensus_sequences.append(consensus_seq)
+                        column_sequence = match.group('column')
+                        grna_sequence = match.group('grna')
+                        row_sequence = match.group('row')
+                        columns.append(column_sequence)
+                        grnas.append(grna_sequence)
+                        rows.append(row_sequence)
+
+        return consensus_sequences, columns, grnas, rows, fail_count
+
+    r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv = chunk_data
+    consensus_sequences, columns, grnas, rows, _ = find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end)
+    
+    column_names = map_sequences_to_names(column_csv, columns, rc=False)
+    grna_names = map_sequences_to_names(grna_csv, grnas, rc=True)
+    row_names = map_sequences_to_names(row_csv, rows, rc=True)
+    
+    df = pd.DataFrame({
+        'read': consensus_sequences,
+        'column_sequence': columns,
+        'column_name': column_names,
+        'row_sequence': rows,
+        'row_name': row_names,
+        'grna_sequence': grnas,
+        'grna_name': grna_names
+    })
+
+    qc_df = df.isna().sum().to_frame().T
+    qc_df.columns = df.columns
+    qc_df.index = ["NaN_Counts"]
+    qc_df['total_reads'] = len(df)
+
+    unique_combinations = df.groupby(['row_name', 'column_name', 'grna_name']).size().reset_index(name='count')
+    return df, unique_combinations, qc_df
+
+# Function to save data from the queue
+def saver_process(save_queue, hdf5_file, unique_combinations_csv, qc_csv_file, comp_type, comp_level):
+    while True:
+        item = save_queue.get()
+        if item == "STOP":
+            break
+        df, unique_combinations, qc_df = item
+        save_df_to_hdf5(df, hdf5_file, key='df', comp_type=comp_type, comp_level=comp_level)
+        save_unique_combinations_to_csv(unique_combinations, unique_combinations_csv)
+        save_qc_df_to_csv(qc_df, qc_csv_file)
+
+# Updated chunked_processing with improved multiprocessing logic
+def chunked_processing(r1_file, r2_file, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None):
+
+    from .utils import count_reads_in_fastq, print_progress
+
+    # Use cpu_count minus 3 cores if n_jobs isn't specified
+    if n_jobs is None:
+        n_jobs = cpu_count() - 3
+
+    analyzed_chunks = 0
+    chunk_count = 0
+    time_ls = []
+
+    print(f'Calculating read count for {r1_file}...')
+    total_reads = count_reads_in_fastq(r1_file)
+    chunks_nr = int(total_reads / chunk_size)
+    print(f'Mapping barcodes for {total_reads} reads in {chunks_nr} batches for {r1_file}...')
+
+    # Queue for saving
+    save_queue = Queue()
+
+    # Start the saving process
+    save_process = Process(target=saver_process, args=(save_queue, hdf5_file, unique_combinations_csv, qc_csv_file, comp_type, comp_level))
+    save_process.start()
+
+    pool = Pool(n_jobs)
+
+    with gzip.open(r1_file, 'rt') as r1, gzip.open(r2_file, 'rt') as r2:
+        fastq_iter = zip(r1, r2)
+        while True:
+            start_time = time.time()
+            r1_chunk = []
+            r2_chunk = []
+
+            for _ in range(chunk_size):
+                try:
+                    r1_lines = [r1.readline().strip() for _ in range(4)]
+                    r2_lines = [r2.readline().strip() for _ in range(4)]
+                    r1_chunk.append('\n'.join(r1_lines))
+                    r2_chunk.append('\n'.join(r2_lines))
+                except StopIteration:
+                    break
+
+            if not r1_chunk:
+                break
+
+            chunk_count += 1
+            chunk_data = (r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv)
+
+            # Process chunks in parallel
+            result = pool.apply_async(process_chunk, (chunk_data,))
+            df, unique_combinations, qc_df = result.get()
+
+            # Queue the results for saving
+            save_queue.put((df, unique_combinations, qc_df))
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type="Mapping Barcodes")
+
+    # Cleanup the pool
+    pool.close()
+    pool.join()
+
+    # Send stop signal to saver process
+    save_queue.put("STOP")
+    save_process.join()
 
 def generate_barecode_mapping(settings={}):
 
@@ -66,46 +306,40 @@ def generate_barecode_mapping(settings={}):
     settings = set_default_generate_barecode_mapping(settings)
 
     samples_dict = parse_gz_files(settings['src'])
-
-    counts_ls = []
-    removed_rows_ls = []
-
+    
     for key in samples_dict:
 
         if samples_dict[key]['R1'] and samples_dict[key]['R2']:
-
-            R1 = samples_dict[key]['R1']
-            R2 = samples_dict[key]['R2']
-            consensus_dir = os.path.join(os.path.dirname(R1), 'consensus')
-            os.makedirs(consensus_dir, exist_ok=True)
-            consensus = os.path.join(consensus_dir, f"{key}_consensus.fastq.gz")
-            h5 = os.path.join(consensus_dir, f"{key}_barecodes.h5")
-
-            if not os.path.exists(consensus):
-                consensus_sequence(R1, R2, consensus, settings['chunk_size'], test=settings['test'])
-            else:
-                print(f"Consensus file {consensus} already exists. Mapping barecodes.")
-
-            if settings['test']:
-                settings['n_jobs'] = 1
-
-            extract_barcodes_from_fastq(fastq=consensus,
-                                        output_file=h5,
-                                        chunk_size=settings['chunk_size'],
-                                        barcode_mapping=settings['barcode_mapping'],
-                                        regex=settings['regex'],
-                                        n_jobs=settings['n_jobs'],
-                                        compression=settings['compression'],
-                                        complevel=settings['complevel'],
-                                        test=settings['test'])
             
-            counts_df, removed_rows_df = count_grnas(h5, settings['row_score_threshold'], settings['grna_score_threshold'], settings['column_score_threshold'], settings['test'])
-            counts_ls.append(counts_df)
-            removed_rows_ls.append(removed_rows_df)
+            dst = os.path.join(settings['src'], key)
+            hdf5_file = os.path.join(dst, 'annotated_reads.h5')
+            unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
+            qc_csv_file = os.path.join(dst, 'qc.csv')
+            os.makedirs(dst, exist_ok=True)
 
-        return counts_ls, removed_rows_ls
-                        
-                        
+            print(f'Analyzing reads from sample {key}')
+
+            chunked_processing(r1_file=samples_dict[key]['R1'],
+                               r2_file=samples_dict[key]['R2'],
+                               target_sequence=settings['target_sequence'],
+                               offset_start=settings['offset_start'],
+                               expected_end=settings['expected_end'],
+                               column_csv=settings['column_csv'],
+                               grna_csv=settings['grna_csv'],
+                               row_csv=settings['row_csv'],
+                               save_h5 = settings['save_h5'],
+                               comp_type = settings['comp_type'],
+                               comp_level=settings['comp_level'],
+                               hdf5_file=hdf5_file,
+                               unique_combinations_csv=unique_combinations_csv,
+                               qc_csv_file=qc_csv_file,
+                               chunk_size=settings['chunk_size'],
+                               n_jobs=settings['n_jobs'])
+
+
+
+
+
 
 
 
