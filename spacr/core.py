@@ -50,8 +50,6 @@ import random
 from PIL import Image
 from torchvision.transforms import ToTensor
 
-
-
 def analyze_plaques(folder):
     summary_data = []
     details_data = []
