@@ -998,10 +998,10 @@ def measure_crop(settings):
         src_fldr = os.path.join(src_fldr, 'merged')
         print(f"Changed source folder to: {src_fldr}")
 
-    if settings['save_measurements']:
-        source_folder = os.path.dirname(settings['src'])
-        os.makedirs(source_folder+'/measurements', exist_ok=True)
-        _create_database(source_folder+'/measurements/measurements.db')
+    #if settings['save_measurements']:
+        #source_folder = os.path.dirname(settings['src'])
+        #os.makedirs(source_folder+'/measurements', exist_ok=True)
+        #_create_database(source_folder+'/measurements/measurements.db')
     
     if settings['cell_mask_dim'] is None:
         settings['include_uninfected'] = True

@@ -486,7 +486,7 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .gui_utils import process_stdout_stderr
-    from .core import generate_image_umap, preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, compare_cellpose_masks, analyze_plaques, generate_dataset, apply_model_to_tar
+    from .core import generate_image_umap, preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, analyze_plaques, compare_cellpose_masks, generate_dataset, apply_model_to_tar
     from .io import generate_cellpose_train_test
     from .measure import measure_crop
     from .sim import run_multiple_simulations
@@ -531,6 +531,9 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 1
     elif settings_type == 'umap':
         function = generate_image_umap
+        imports = 1
+    elif settings_type == 'analyze_plaques':
+        function = analyze_plaques
         imports = 1
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
