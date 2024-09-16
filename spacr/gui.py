@@ -32,7 +32,7 @@ class MainApp(tk.Tk):
         # Set the window size to the dimensions of the monitor where it is located
         self.geometry(f"{width}x{height}")
         self.title("SpaCr GUI Collection")
-        self.configure(bg='#333333')  # Set window background to dark gray
+        self.configure(bg='#333333')
 
         style = ttk.Style()
         self.color_settings = set_dark_style(style, parent_frame=self)
@@ -55,7 +55,8 @@ class MainApp(tk.Tk):
             "Cellpose All": (lambda frame: initiate_root(self, 'cellpose_all'), "Run Cellpose on all images."),
             "Map Barcodes": (lambda frame: initiate_root(self, 'map_barcodes'), "Map barcodes to data."),
             "Regression": (lambda frame: initiate_root(self, 'regression'), "Perform regression analysis."),
-            "Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data.")
+            "Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data."),
+            "Plaque": (lambda frame: initiate_root(self, 'analyze_plaques'), "Analyze plaque data.")
         }
 
         self.selected_app = tk.StringVar()

@@ -440,6 +440,8 @@ def import_settings(settings_type='mask'):
         settings = set_default_umap_image_settings(settings={})
     elif settings_type == 'recruitment':
         settings = get_analyze_recruitment_default_settings(settings={})
+    elif settings_type == 'analyze_plaques':
+        settings = {}
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     
@@ -493,6 +495,8 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
         settings = get_perform_regression_default_settings(settings={})
     elif settings_type == 'recruitment':
         settings = get_analyze_recruitment_default_settings(settings={})
+    elif settings_type == 'analyze_plaques':
+        settings = {}
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
 
@@ -645,7 +649,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     widgets = [usage_scrollable_frame.scrollable_frame]
     
     usage_bars = []
-    max_elements_per_column = 6
+    max_elements_per_column = 5
     row = 0
     col = 0
 
@@ -773,9 +777,9 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
     initialize_cuda()
 
     process_args = (settings_type, settings, q, fig_queue, stop_requested)
-    if settings_type in ['mask', 'umap', 'measure', 'simulation', 'sequencing', 
-                         'classify', 'cellpose_dataset', 'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 'map_barcodes', 
-                         'regression', 'recruitment', 'plaques', 'cellpose_compare', 'vision_scores', 'vision_dataset']:
+    if settings_type in ['mask', 'umap', 'measure', 'simulation', 'sequencing', 'classify', 'analyze_plaques', 
+                         'cellpose_dataset', 'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 'map_barcodes', 
+                         'regression', 'recruitment', 'cellpose_compare', 'vision_scores', 'vision_dataset']:
 
         # Start the process
         process = Process(target=run_function_gui, args=process_args)
