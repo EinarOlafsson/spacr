@@ -1,1 +1,5 @@
-include spacr/models/cp/*
+recursive-include spacr/resources/models/cp *
+recursive-include spacr/resources/icons *
+recursive-include spacr/resources/font *
+recursive-include spacr/resources/MEDIAR *
+recursive-include spacr/resources/MEDIAR_weights *
