@@ -4,19 +4,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from monai.inferers import sliding_window_inference
 
+from spacr.resources.MEDIAR import *
+
 # Store the original sys.path
 original_sys_path = sys.path.copy()
 
 # Temporarily add spacr/resources/MEDIAR to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'resources/MEDIAR')))
 
-try:
-    from core.MEDIAR.Predictor import Predictor
-    from train_tools.models.MEDIARFormer import MEDIARFormer
-except ImportError as e:
-    print(f"ImportError: {e}")
-    print("sys.path:", sys.path)
-    raise
+from core.MEDIAR.Predictor import Predictor
+from train_tools.models.MEDIARFormer import MEDIARFormer
 
 def display_imgs_in_list(imgs, cmap='gray'):
     plt.figure(figsize=(15, 10))
