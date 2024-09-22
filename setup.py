@@ -48,7 +48,13 @@ dependencies = [
     'screeninfo>=0.8.1,<1.0',
     'ipykernel',
     'gdown',
-    'monai',
+    'fastremap>=1.14.1',
+    'monai>=1.3.0',
+    'pytz>=2023.3.post1',
+    'segmentation_models_pytorch>=0.3.3',
+    'tifffile>=2023.4.12',
+    'tqdm>=4.65.0',
+    'wandb>=0.16.2',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
@@ -62,7 +68,7 @@ setup(
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*'],},
+    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*', 'resources/images/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
