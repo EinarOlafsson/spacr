@@ -4,16 +4,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 from monai.inferers import sliding_window_inference
 
-from spacr.resources.MEDIAR import *
+# Path to the MEDIAR directory
+mediar_path = os.path.join(os.path.dirname(__file__), 'resources', 'MEDIAR')
 
-# Store the original sys.path
-original_sys_path = sys.path.copy()
+print('mediar path', mediar_path)
 
-# Temporarily add spacr/resources/MEDIAR to sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'resources/MEDIAR')))
+# Temporarily create __init__.py to make MEDIAR a package
+init_file = os.path.join(mediar_path, '__init__.py')
+if not os.path.exists(init_file):
+    with open(init_file, 'w'):  # Create the __init__.py file
+        pass
 
-from core.MEDIAR.Predictor import Predictor
-from train_tools.models.MEDIARFormer import MEDIARFormer
+# Add MEDIAR to sys.path
+sys.path.insert(0, mediar_path)
+
+try:
+    # Now import the dependencies from MEDIAR
+    from core.MEDIAR import Predictor
+    from train_tools.models import MEDIARFormer
+
+    print("Imports successful.")
+finally:
+    # Remove the temporary __init__.py file after the import
+    if os.path.exists(init_file):
+        os.remove(init_file)  # Remove the __init__.py file
+
+# Import using the exact structure within the MEDIAR submodule
+from core.MEDIAR import Predictor
+from train_tools.models import MEDIARFormer
+
 
 def display_imgs_in_list(imgs, cmap='gray'):
     plt.figure(figsize=(15, 10))
@@ -31,7 +50,6 @@ def display_imgs_in_list(imgs, cmap='gray'):
             cell_count = len(np.unique(img)) - 1  # exclude the background
             print(f"\n{cell_count} objects detected!")
     plt.show()
-
 
 def get_weights(finetuned_weights=False):
     if model_path1 is None:
@@ -239,6 +257,3 @@ class MEDIARPredictor:
 
         # Display the predicted masks
         display_imgs_in_list(masks, cmap='viridis')
-
-# Restore the original sys.path
-sys.path = original_sys_path
