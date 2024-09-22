@@ -24,6 +24,7 @@ from . import app_classify
 from . import app_sequencing
 from . import app_umap
 from . import logger
+from . import mediar
 
 
 __all__ = [
@@ -48,6 +49,7 @@ __all__ = [
     "app_classify",
     "app_sequencing",
     "app_umap",
+    "mediar",
     "logger"
 ]
 
