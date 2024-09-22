@@ -23,9 +23,8 @@ from . import app_measure
 from . import app_classify
 from . import app_sequencing
 from . import app_umap
-from . import logger
 from . import mediar
-
+from . import logger
 
 __all__ = [
     "core",

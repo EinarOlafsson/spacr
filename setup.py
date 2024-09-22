@@ -48,12 +48,13 @@ dependencies = [
     'screeninfo>=0.8.1,<1.0',
     'ipykernel',
     'gdown',
+    'monai',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.3,0",
+    version="0.3.0",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
@@ -61,7 +62,7 @@ setup(
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*'],},
+    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
