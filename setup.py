@@ -47,12 +47,13 @@ dependencies = [
     'keyring>=15.1, <16.0',
     'screeninfo>=0.8.1,<1.0',
     'ipykernel',
+    'gdown',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.2.81",
+    version="0.3,0",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
