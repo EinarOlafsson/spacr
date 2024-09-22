@@ -1,3 +1,6 @@
 [submodule "spacr/spacr/resources/MEDIAR"]
 	path = spacr/spacr/resources/MEDIAR
 	url = https://github.com/Lee-Gihun/MEDIAR.git
+[submodule "spacr/resources/MEDIAR"]
+	path = spacr/resources/MEDIAR
+	url = https://github.com/Lee-Gihun/MEDIAR.git
