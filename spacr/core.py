@@ -1672,7 +1672,10 @@ def preprocess_generate_masks(src, settings={}):
             time_ls=[]
             if check_mask_folder(src, 'cell_mask_stack'):
                 start = time.time()
-                generate_cellpose_masks(mask_src, settings, 'cell')
+                if settings['segmantation_model'] == 'cellpose':
+                    generate_cellpose_masks(mask_src, settings, 'cell')
+                elif settings['segmantation_model'] == 'mediar':
+                    generate_mediar_masks(mask_src, settings, 'cell')
                 stop = time.time()
                 duration = (stop - start)
                 time_ls.append(duration)
@@ -1683,7 +1686,10 @@ def preprocess_generate_masks(src, settings={}):
             time_ls=[]
             if check_mask_folder(src, 'nucleus_mask_stack'):
                 start = time.time()
-                generate_cellpose_masks(mask_src, settings, 'nucleus')
+                if settings['segmantation_model'] == 'cellpose':
+                    generate_cellpose_masks(mask_src, settings, 'nucleus')
+                elif settings['segmantation_model'] == 'mediar':
+                    generate_mediar_masks(mask_src, settings, 'nucleus')
                 stop = time.time()
                 duration = (stop - start)
                 time_ls.append(duration)
@@ -1694,7 +1700,10 @@ def preprocess_generate_masks(src, settings={}):
             time_ls=[]
             if check_mask_folder(src, 'pathogen_mask_stack'):
                 start = time.time()
-                generate_cellpose_masks(mask_src, settings, 'pathogen')
+                if settings['segmantation_model'] == 'cellpose':
+                    generate_cellpose_masks(mask_src, settings, 'pathogen')
+                elif settings['segmantation_model'] == 'mediar':
+                    generate_mediar_masks(mask_src, settings, 'pathogen')
                 stop = time.time()
                 duration = (stop - start)
                 time_ls.append(duration)
@@ -1896,7 +1905,7 @@ def all_elements_match(list1, list2):
     # Check if all elements in list1 are in list2
     return all(element in list2 for element in list1)
 
-def prepare_batch_for_cellpose(batch):
+def prepare_batch_for_segmentation(batch):
     # Ensure the batch is of dtype float32
     if batch.dtype != np.float32:
         batch = batch.astype(np.float32)
@@ -2019,7 +2028,7 @@ def generate_cellpose_masks(src, settings, object_type):
             if batch.size == 0:
                 continue
             
-            batch = prepare_batch_for_cellpose(batch)
+            batch = prepare_batch_for_segmentation(batch)
 
             if timelapse:
                 movie_path = os.path.join(os.path.dirname(src), 'movies')
@@ -3101,3 +3110,91 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
         plt.show()
 
     return
+
+def generate_mediar_masks(src, settings, object_type):
+    """
+    Generates masks using the MEDIARPredictor.
+    
+    :param src: Source folder containing images or npz files.
+    :param settings: Dictionary of settings for generating masks.
+    :param object_type: Type of object to detect (e.g., 'cell', 'nucleus', etc.).
+    """
+    from .mediar import MEDIARPredictor
+    from .io import _create_database, _save_object_counts_to_database
+    from .plot import plot_masks
+    from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
+
+    # Clear CUDA cache and check if CUDA is available
+    gc.collect()
+    if not torch.cuda.is_available():
+        print(f'Torch CUDA is not available, using CPU')
+
+    # Preprocess settings
+    settings = set_default_settings_preprocess_generate_masks(src, settings)
+
+    if settings['verbose']:
+        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+        display(settings_df)
+
+    figuresize = 10
+    timelapse = settings['timelapse']
+    batch_size = settings['batch_size']
+
+    # Get object settings and initialize MEDIARPredictor
+    mediar_predictor = MEDIARPredictor(input_path=None, output_path=None, normalize=settings['normalize'])
+
+    # Paths to input npz files
+    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
+
+    # Initialize a database for saving measurements
+    count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
+    os.makedirs(os.path.dirname(src) + '/measurements', exist_ok=True)
+    _create_database(count_loc)
+
+    for file_index, path in enumerate(paths):
+        name = os.path.basename(path)
+        name, ext = os.path.splitext(name)
+        output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
+        os.makedirs(output_folder, exist_ok=True)
+
+        with np.load(path) as data:
+            stack = data['data']
+            filenames = data['filenames']
+
+            for i, filename in enumerate(filenames):
+                output_path = os.path.join(output_folder, filename)
+                if os.path.exists(output_path):
+                    print(f"File {filename} already exists. Skipping...")
+                    continue
+
+        # Process each batch of images in the stack
+        for i in range(0, stack.shape[0], batch_size):
+            batch = stack[i: i + batch_size]
+            batch_filenames = filenames[i: i + batch_size]
+
+            # Prepare batch for MEDIARPredictor (optional)
+            batch = prepare_batch_for_segmentation(batch)
+
+            # Predict masks using MEDIARPredictor
+            predicted_masks = mediar_predictor.predict_batch(batch)
+
+            # Save predicted masks
+            for j, mask in enumerate(predicted_masks):
+                output_filename = os.path.join(output_folder, batch_filenames[j])
+                mask = mask.astype(np.uint16)
+                np.save(output_filename, mask)
+
+            # Optional: Plot the masks
+            if settings['plot']:
+                for idx, mask in enumerate(predicted_masks):
+                    plot_masks(batch[idx], mask, cmap='inferno', figuresize=figuresize)
+
+            # Save object counts to database
+            _save_object_counts_to_database(predicted_masks, object_type, batch_filenames, count_loc)
+
+        # Clear CUDA cache after each file
+        gc.collect()
+        torch.cuda.empty_cache()
+
+    print("Mask generation completed.")
