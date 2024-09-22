@@ -34,6 +34,7 @@ def set_default_settings_preprocess_generate_masks(src, settings={}):
     if 'src' not in settings:
         settings['src'] = 'path'
 
+    settings.setdefault('segmentation_mode', 'cellpose')
     settings.setdefault('preprocess', True)
     settings.setdefault('masks', True)
     settings.setdefault('save', True)
@@ -829,10 +830,11 @@ expected_types = {
     "custom_model_path":str,
     "generate_training_dataset":bool,
     'preload_batches':int,
+    "segmentation_mode":str,
     "train_DL_model":bool,
 }
 
-categories = {"General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model"],
+categories = {"General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
              "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
              "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
