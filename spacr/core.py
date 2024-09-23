@@ -3142,7 +3142,7 @@ def generate_mediar_masks(src, settings, object_type):
     batch_size = settings['batch_size']
 
     # Get object settings and initialize MEDIARPredictor
-    mediar_predictor = MEDIARPredictor(input_path=None, output_path=None, normalize=settings['normalize'])
+    mediar_predictor = MEDIARPredictor(input_path=None, output_path=None, normalize=settings['normalize'], use_tta=False)
 
     # Paths to input npz files
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
