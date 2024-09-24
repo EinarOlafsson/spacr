@@ -303,7 +303,10 @@ def _get_cellpose_batch_size():
     except Exception as e:
         return 8
 
-def _extract_filename_metadata(filenames, src, images_by_key, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
+def _extract_filename_metadata_v1(filenames, src, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
+    
+    images_by_key = defaultdict(list)
+    
     for filename in filenames:
         match = regular_expression.match(filename)
         if match:
@@ -328,7 +331,6 @@ def _extract_filename_metadata(filenames, src, images_by_key, regular_expression
                 if metadata_type =='cq1':
                     orig_wellID = wellID
                     wellID = _convert_cq1_well_id(wellID)
-                    #clear_output(wait=True)
                     print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
 
                 if pick_slice:
@@ -338,11 +340,62 @@ def _extract_filename_metadata(filenames, src, images_by_key, regular_expression
                         sliceid = '00'
 
                     if mode == skip_mode:
-                        continue      
+                        continue
                         
                 key = (plate, well, field, channel, mode)
                 with Image.open(os.path.join(src, filename)) as img:
                     images_by_key[key].append(np.array(img))
+            except IndexError:
+                print(f"Could not extract information from filename {filename} using provided regex")
+        else:
+            print(f"Filename {filename} did not match provided regex")
+            continue
+        
+    return images_by_key
+
+def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
+    
+    images_by_key = defaultdict(list)
+    
+    for filename in filenames:
+        match = regular_expression.match(filename)
+        if match:
+            try:
+                try:
+                    plate = match.group('plateID')
+                except:
+                    plate = os.path.basename(src)
+
+                well = match.group('wellID')
+                field = match.group('fieldID')
+                channel = match.group('chanID')
+                mode = None
+
+                if well[0].isdigit():
+                    well = str(_safe_int_convert(well))
+                if field[0].isdigit():
+                    field = str(_safe_int_convert(field))
+                if channel[0].isdigit():
+                    channel = str(_safe_int_convert(channel))
+
+                if metadata_type =='cq1':
+                    orig_wellID = wellID
+                    wellID = _convert_cq1_well_id(wellID)
+                    print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
+
+                if pick_slice:
+                    try:
+                        mode = match.group('AID')
+                    except IndexError:
+                        sliceid = '00'
+
+                    if mode == skip_mode:
+                        continue
+                        
+                key = (plate, well, field, channel, mode)
+                file_path = os.path.join(src, filename)  # Store the full path
+                images_by_key[key].append(file_path)
+                
             except IndexError:
                 print(f"Could not extract information from filename {filename} using provided regex")
         else:
@@ -1210,16 +1263,16 @@ def _calculate_recruitment(df, channel):
     for chan in channels:
         df[f'{object_type}_slope_channel_{chan}'] = 1
 
-    for chan in channels:
-        df[f'nucleus_coordinates_{chan}'] = df[[f'nucleus_channel_{chan}_centroid_weighted_local-0', f'nucleus_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-        df[f'pathogen_coordinates_{chan}'] = df[[f'pathogen_channel_{chan}_centroid_weighted_local-0', f'pathogen_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-        df[f'cell_coordinates_{chan}'] = df[[f'cell_channel_{chan}_centroid_weighted_local-0', f'cell_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-        df[f'cytoplasm_coordinates_{chan}'] = df[[f'cytoplasm_channel_{chan}_centroid_weighted_local-0', f'cytoplasm_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-
-        df[f'pathogen_cell_distance_channel_{chan}'] = df.apply(lambda row: np.sqrt((row[f'pathogen_coordinates_{chan}'][0] - row[f'cell_coordinates_{chan}'][0])**2 + 
-                                                      (row[f'pathogen_coordinates_{chan}'][1] - row[f'cell_coordinates_{chan}'][1])**2), axis=1)
-        df[f'nucleus_cell_distance_channel_{chan}'] = df.apply(lambda row: np.sqrt((row[f'nucleus_coordinates_{chan}'][0] - row[f'cell_coordinates_{chan}'][0])**2 + 
-                                                      (row[f'nucleus_coordinates_{chan}'][1] - row[f'cell_coordinates_{chan}'][1])**2), axis=1)
+    #for chan in channels:
+    #    df[f'nucleus_coordinates_{chan}'] = df[[f'nucleus_channel_{chan}_centroid_weighted_local-0', f'nucleus_channel_{chan}_centroid_weighted_local-1']].values.tolist()
+    #    df[f'pathogen_coordinates_{chan}'] = df[[f'pathogen_channel_{chan}_centroid_weighted_local-0', f'pathogen_channel_{chan}_centroid_weighted_local-1']].values.tolist()
+    #    df[f'cell_coordinates_{chan}'] = df[[f'cell_channel_{chan}_centroid_weighted_local-0', f'cell_channel_{chan}_centroid_weighted_local-1']].values.tolist()
+    #    df[f'cytoplasm_coordinates_{chan}'] = df[[f'cytoplasm_channel_{chan}_centroid_weighted_local-0', f'cytoplasm_channel_{chan}_centroid_weighted_local-1']].values.tolist()
+    # 
+    #    df[f'pathogen_cell_distance_channel_{chan}'] = df.apply(lambda row: np.sqrt((row[f'pathogen_coordinates_{chan}'][0] - row[f'cell_coordinates_{chan}'][0])**2 + 
+    #                                                  (row[f'pathogen_coordinates_{chan}'][1] - row[f'cell_coordinates_{chan}'][1])**2), axis=1)
+    #    df[f'nucleus_cell_distance_channel_{chan}'] = df.apply(lambda row: np.sqrt((row[f'nucleus_coordinates_{chan}'][0] - row[f'cell_coordinates_{chan}'][0])**2 + 
+    #                                                  (row[f'nucleus_coordinates_{chan}'][1] - row[f'cell_coordinates_{chan}'][1])**2), axis=1)
     return df
     
 def _group_by_well(df):

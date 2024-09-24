@@ -217,7 +217,7 @@ def set_default_umap_image_settings(settings={}):
     settings.setdefault('verbose',True)
     return settings
 
-def get_measure_crop_settings(settings):
+def get_measure_crop_settings(settings={}):
 
     settings.setdefault('src', 'path')
     settings.setdefault('verbose', False)
@@ -246,7 +246,7 @@ def get_measure_crop_settings(settings):
     settings.setdefault('normalize_by','png')
     settings.setdefault('crop_mode',['cell'])
     settings.setdefault('dialate_pngs', False)
-    settings.setdefault('dialate_png_ratios', [0.2])
+    settings.setdefault('dialate_png_ratios', [0.2, 0,2])
 
     # Timelapsed settings
     settings.setdefault('timelapse', False)

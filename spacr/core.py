@@ -1672,9 +1672,9 @@ def preprocess_generate_masks(src, settings={}):
             time_ls=[]
             if check_mask_folder(src, 'cell_mask_stack'):
                 start = time.time()
-                if settings['segmantation_model'] == 'cellpose':
+                if settings['segmentation_mode'] == 'cellpose':
                     generate_cellpose_masks(mask_src, settings, 'cell')
-                elif settings['segmantation_model'] == 'mediar':
+                elif settings['segmentation_mode'] == 'mediar':
                     generate_mediar_masks(mask_src, settings, 'cell')
                 stop = time.time()
                 duration = (stop - start)
@@ -1686,9 +1686,9 @@ def preprocess_generate_masks(src, settings={}):
             time_ls=[]
             if check_mask_folder(src, 'nucleus_mask_stack'):
                 start = time.time()
-                if settings['segmantation_model'] == 'cellpose':
+                if settings['segmentation_mode'] == 'cellpose':
                     generate_cellpose_masks(mask_src, settings, 'nucleus')
-                elif settings['segmantation_model'] == 'mediar':
+                elif settings['segmentation_mode'] == 'mediar':
                     generate_mediar_masks(mask_src, settings, 'nucleus')
                 stop = time.time()
                 duration = (stop - start)
@@ -1700,9 +1700,9 @@ def preprocess_generate_masks(src, settings={}):
             time_ls=[]
             if check_mask_folder(src, 'pathogen_mask_stack'):
                 start = time.time()
-                if settings['segmantation_model'] == 'cellpose':
+                if settings['segmentation_mode'] == 'cellpose':
                     generate_cellpose_masks(mask_src, settings, 'pathogen')
-                elif settings['segmantation_model'] == 'mediar':
+                elif settings['segmentation_mode'] == 'mediar':
                     generate_mediar_masks(mask_src, settings, 'pathogen')
                 stop = time.time()
                 duration = (stop - start)
@@ -1722,7 +1722,7 @@ def preprocess_generate_masks(src, settings={}):
                 nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                 parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
                 #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
-
+                print(f'Adjusting cell masks with nuclei and pathogen masks')
                 adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
                 stop = time.time()
                 adjust_time = (stop-start)/60
@@ -1757,7 +1757,7 @@ def preprocess_generate_masks(src, settings={}):
                             files_processed = i+1
                             files_to_process = settings['examples_to_plot']
                             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
-                            print("Successfully completed run")
+                            
                 except Exception as e:
                     print(f'Failed to plot image mask overly. Error: {e}')
             else:
@@ -2187,7 +2187,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
         image_files = all_image_files[i:i+batch_size]
 
         if normalize:
-            images, _, image_names, _ = _load_normalized_images_and_labels(image_files, None, channels, percentiles,  circular, invert, plot, remove_background, background, Signal_to_noise)
+            images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files, None, channels, percentiles,  circular, invert, plot, remove_background, background, Signal_to_noise, target_height, target_width)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
@@ -2307,7 +2307,7 @@ def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
     from .io import _read_mask
 
     dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d != 'results']
-    dirs.sort()  # Optional: sort directories if needed
+    dirs.sort()
     conditions = [os.path.basename(d) for d in dirs]
 
     # Get common files in all directories
@@ -2323,7 +2323,7 @@ def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
 
     # Filter out None results (from skipped files)
     results = [res for res in results if res is not None]
-    #print(results)
+    print(results)
     if verbose:
         for result in results:
             filename = result['filename']
