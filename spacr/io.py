@@ -26,7 +26,7 @@ import atexit
 
 from .logger import log_function_call
 
-def _load_images_and_labels(image_files, label_files, circular=False, invert=False, image_extension="*.tif", label_extension="*.tif"):
+def _load_images_and_labels(image_files, label_files, circular=False, invert=False):
     
     from .utils import invert_image, apply_mask
     
@@ -632,6 +632,20 @@ class TarImageDataset(Dataset):
             img = self.transform(img)
         
         return img, m.name
+    
+def load_images_from_paths(images_by_key):
+    images_dict = {}
+
+    for key, paths in images_by_key.items():
+        images_dict[key] = []
+        for path in paths:
+            try:
+                with Image.open(path) as img:
+                    images_dict[key].append(np.array(img))
+            except Exception as e:
+                print(f"Error loading image from {path}: {e}")
+    
+    return images_dict
 
 #@log_function_call
 def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=False, skip_mode='01', metadata_type='', img_format='.tif'):
@@ -653,20 +667,24 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
     from .utils import _extract_filename_metadata, print_progress
     
     regular_expression = re.compile(regex)
-    images_by_key = defaultdict(list)
     stack_path = os.path.join(src, 'stack')
     files_processed = 0
     if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
         all_filenames = [filename for filename in os.listdir(src) if filename.endswith(img_format)]
-        print(f'All_files: {len(all_filenames)} in {src}')
+        print(f'All files: {len(all_filenames)} in {src}')
         time_ls = []
-
-        for idx in range(0, len(all_filenames), batch_size):
+        image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type, pick_slice, skip_mode)
+        # Convert dictionary keys to a list for batching
+        batching_keys = list(image_paths_by_key.keys())
+        print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
+        for idx in range(0, len(image_paths_by_key), batch_size):
             start = time.time()
-            batch_filenames = all_filenames[idx:idx+batch_size]
-            for filename in batch_filenames:
-                images_by_key = _extract_filename_metadata(batch_filenames, src, images_by_key, regular_expression, metadata_type, pick_slice, skip_mode)
-            
+
+            # Select batch keys and create a subset of the dictionary for this batch
+            batch_keys = batching_keys[idx:idx+batch_size]
+            batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
+            images_by_key = load_images_from_paths(batch_images_by_key)
+
             if pick_slice:
                 for i, key in enumerate(images_by_key):
                     plate, well, field, channel, mode = key
@@ -683,16 +701,16 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     files_to_process = len(all_filenames)
                     print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
-                    if os.path.exists(output_path):                        
-                        print(f'WARNING: A file with the same name already exists at location {output_filename}')
-                    else:
+                    if not os.path.exists(output_path):
                         mip_image.save(output_path)
+                    else:
+                        print(f'WARNING: A file with the same name already exists at location {output_filename}')
             else:
                 for i, (key, images) in enumerate(images_by_key.items()):
-                    mip = np.max(np.stack(images), axis=0)
-                    mip_image = Image.fromarray(mip)
                     plate, well, field, channel = key[:4]
                     output_dir = os.path.join(src, channel)
+                    mip = np.max(np.stack(images), axis=0)
+                    mip_image = Image.fromarray(mip)
                     os.makedirs(output_dir, exist_ok=True)
                     output_filename = f'{plate}_{well}_{field}.tif'
                     output_path = os.path.join(output_dir, output_filename)
@@ -703,10 +721,11 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
                     files_to_process = len(all_filenames)
                     print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
-                    if os.path.exists(output_path):                        
-                        print(f'WARNING: A file with the same name already exists at location {output_filename}')
-                    else:
+                    if not os.path.exists(output_path):
                         mip_image.save(output_path)
+                    else:
+                        print(f'WARNING: A file with the same name already exists at location {output_filename}')
+
             images_by_key.clear()
 
         # Move original images to a new directory
@@ -972,8 +991,8 @@ def _mip_all(src, include_first_chan=True):
         if filename.endswith('.npy'):
             # Load the array from the file.
             array = np.load(os.path.join(src, filename))
-            # Normalize the array using custom parameters (q1=2, q2=98).
-            array = normalize_to_dtype(array, q1=2, q2=98, percentiles=None)
+            # Normalize the array 
+            #array = normalize_to_dtype(array, q1=0, q2=99, percentiles=None)
 
             if array.ndim != 3: # Check if the array is not 3-dimensional.
                 # Log a message indicating a zero array will be generated due to unexpected dimensions.
@@ -1671,6 +1690,7 @@ def preprocess_img_data(settings):
                 if plot:
                     print(f'plotting {nr} images from {src}/stack')
                     plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+
                 if all_to_mip:
                     _mip_all(src+'/stack')
                     if plot:

@@ -170,39 +170,6 @@ def display_figure(fig):
             #flash_feedback("right")
             show_next_figure()
 
-    def zoom_v1(event):
-        nonlocal scale_factor
-
-        zoom_speed = 0.1  # Adjust the zoom speed for smoother experience
-
-        # Adjust zoom factor based on the operating system and mouse event
-        if event.num == 4 or event.delta > 0:  # Scroll up
-            scale_factor *= (1 + zoom_speed)
-        elif event.num == 5 or event.delta < 0:  # Scroll down
-            scale_factor /= (1 + zoom_speed)
-
-        # Get mouse position relative to the figure
-        x_mouse, y_mouse = event.x, event.y
-        x_ratio = x_mouse / canvas_widget.winfo_width()
-        y_ratio = y_mouse / canvas_widget.winfo_height()
-
-        for ax in fig.get_axes():
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
-
-            # Calculate the new limits
-            x_center = xlim[0] + x_ratio * (xlim[1] - xlim[0])
-            y_center = ylim[0] + (1 - y_ratio) * (ylim[1] - ylim[0])
-
-            x_range = (xlim[1] - xlim[0]) * scale_factor
-            y_range = (ylim[1] - ylim[0]) * scale_factor
-
-            ax.set_xlim([x_center - x_range * x_ratio, x_center + x_range * (1 - x_ratio)])
-            ax.set_ylim([y_center - y_range * (1 - y_ratio), y_center + y_range * y_ratio])
-
-        # Redraw the figure
-        fig.canvas.draw_idle()
-
     def zoom(event):
         nonlocal scale_factor
 
@@ -282,7 +249,7 @@ def show_next_figure():
         figures.append(fig)
         figure_index += 1
         display_figure(fig)
-
+                       
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
 

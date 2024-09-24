@@ -148,16 +148,13 @@ def reverse_complement(seq):
 # Core logic for processing a chunk (same as your original)
 def process_chunk(chunk_data):
     
-    def find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end):
-        i = 0
-        fail_count = 0
-        failed_cases = []
-        regex = r"^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*"
+    def paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex):
+
         consensus_sequences, columns, grnas, rows = [], [], [], []
-        
+
         for r1_lines, r2_lines in zip(r1_chunk, r2_chunk):
-            r1_header, r1_sequence, r1_plus, r1_quality = r1_lines.split('\n')
-            r2_header, r2_sequence, r2_plus, r2_quality = r2_lines.split('\n')
+            _, r1_sequence, _, r1_quality = r1_lines.split('\n')
+            _, r2_sequence, _, r2_quality = r2_lines.split('\n')
             r2_sequence = reverse_complement(r2_sequence)
 
             r1_pos = r1_sequence.find(target_sequence)
@@ -192,10 +189,60 @@ def process_chunk(chunk_data):
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
 
-        return consensus_sequences, columns, grnas, rows, fail_count
+        return consensus_sequences, columns, grnas, rows
+    
+    def single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex):
 
-    r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv = chunk_data
-    consensus_sequences, columns, grnas, rows, _ = find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end)
+        consensus_sequences, columns, grnas, rows = [], [], [], []
+
+        for r1_lines in r1_chunk:
+            _, r1_sequence, _, r1_quality = r1_lines.split('\n')
+
+            # Find the target sequence in R1
+            r1_pos = r1_sequence.find(target_sequence)
+
+            if r1_pos != -1:
+                # Adjust start and end positions based on the offset and expected length
+                r1_start = max(r1_pos + offset_start, 0)
+                r1_end = min(r1_start + expected_end, len(r1_sequence))
+
+                # Extract the sequence and quality within the defined region
+                r1_seq, r1_qual = extract_sequence_and_quality(r1_sequence, r1_quality, r1_start, r1_end)
+
+                # If the sequence is shorter than expected, pad with 'N's and '!' for quality
+                if len(r1_seq) < expected_end:
+                    r1_seq += 'N' * (expected_end - len(r1_seq))
+                    r1_qual += '!' * (expected_end - len(r1_qual))
+
+                # Use the R1 sequence as the "consensus"
+                consensus_seq = r1_seq
+
+                # Check if the consensus sequence matches the regex
+                if len(consensus_seq) >= expected_end:
+                    match = re.match(regex, consensus_seq)
+                    if match:
+                        consensus_sequences.append(consensus_seq)
+                        column_sequence = match.group('column')
+                        grna_sequence = match.group('grna')
+                        row_sequence = match.group('row')
+                        columns.append(column_sequence)
+                        grnas.append(grna_sequence)
+                        rows.append(row_sequence)
+
+        return consensus_sequences, columns, grnas, rows
+
+    if len(chunk_data) == 8:
+        r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv = chunk_data
+    if len(chunk_data) == 7:
+        r1_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv = chunk_data
+        r2_chunk = None
+
+    if r2_chunk is not None:
+        regex = r"^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*"
+        consensus_sequences, columns, grnas, rows = single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex)
+    else:
+        regex = r"^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*"
+        consensus_sequences, columns, grnas, rows = paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex)
     
     column_names = map_sequences_to_names(column_csv, columns, rc=False)
     grna_names = map_sequences_to_names(grna_csv, grnas, rc=True)
@@ -230,8 +277,7 @@ def saver_process(save_queue, hdf5_file, unique_combinations_csv, qc_csv_file, c
         save_unique_combinations_to_csv(unique_combinations, unique_combinations_csv)
         save_qc_df_to_csv(qc_df, qc_csv_file)
 
-# Updated chunked_processing with improved multiprocessing logic
-def chunked_processing(r1_file, r2_file, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None):
+def paired_read_chunked_processing(r1_file, r2_file, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None):
 
     from .utils import count_reads_in_fastq, print_progress
 
@@ -265,19 +311,91 @@ def chunked_processing(r1_file, r2_file, target_sequence, offset_start, expected
             r2_chunk = []
 
             for _ in range(chunk_size):
-                try:
-                    r1_lines = [r1.readline().strip() for _ in range(4)]
-                    r2_lines = [r2.readline().strip() for _ in range(4)]
-                    r1_chunk.append('\n'.join(r1_lines))
-                    r2_chunk.append('\n'.join(r2_lines))
-                except StopIteration:
+                # Read the next 4 lines for both R1 and R2 files
+                r1_lines = [r1.readline().strip() for _ in range(4)]
+                r2_lines = [r2.readline().strip() for _ in range(4)]
+
+                # Break if we've reached the end of either file
+                if not r1_lines[0] or not r2_lines[0]:
                     break
 
+                r1_chunk.append('\n'.join(r1_lines))
+                r2_chunk.append('\n'.join(r2_lines))
+
+            # If the chunks are empty, break the outer while loop
             if not r1_chunk:
                 break
 
             chunk_count += 1
             chunk_data = (r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv)
+
+            # Process chunks in parallel
+            result = pool.apply_async(process_chunk, (chunk_data,))
+            df, unique_combinations, qc_df = result.get()
+
+            # Queue the results for saving
+            save_queue.put((df, unique_combinations, qc_df))
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type="Mapping Barcodes")
+
+    # Cleanup the pool
+    pool.close()
+    pool.join()
+
+    # Send stop signal to saver process
+    save_queue.put("STOP")
+    save_process.join()
+
+def single_read_chunked_processing(r1_file, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None):
+
+    from .utils import count_reads_in_fastq, print_progress
+
+    # Use cpu_count minus 3 cores if n_jobs isn't specified
+    if n_jobs is None:
+        n_jobs = cpu_count() - 3
+
+    analyzed_chunks = 0
+    chunk_count = 0
+    time_ls = []
+
+    print(f'Calculating read count for {r1_file}...')
+    total_reads = count_reads_in_fastq(r1_file)
+    chunks_nr = int(total_reads / chunk_size)
+    print(f'Mapping barcodes for {total_reads} reads in {chunks_nr} batches for {r1_file}...')
+
+    # Queue for saving
+    save_queue = Queue()
+
+    # Start the saving process
+    save_process = Process(target=saver_process, args=(save_queue, hdf5_file, unique_combinations_csv, qc_csv_file, comp_type, comp_level))
+    save_process.start()
+
+    pool = Pool(n_jobs)
+
+    with gzip.open(r1_file, 'rt') as r1:
+        while True:
+            start_time = time.time()
+            r1_chunk = []
+
+            for _ in range(chunk_size):
+                # Read the next 4 lines for both R1 and R2 files
+                r1_lines = [r1.readline().strip() for _ in range(4)]
+
+                # Break if we've reached the end of either file
+                if not r1_lines[0]:
+                    break
+
+                r1_chunk.append('\n'.join(r1_lines))
+
+            # If the chunks are empty, break the outer while loop
+            if not r1_chunk:
+                break
+
+            chunk_count += 1
+            chunk_data = (r1_chunk, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv)
 
             # Process chunks in parallel
             result = pool.apply_async(process_chunk, (chunk_data,))
@@ -319,22 +437,22 @@ def generate_barecode_mapping(settings={}):
 
             print(f'Analyzing reads from sample {key}')
 
-            chunked_processing(r1_file=samples_dict[key]['R1'],
-                               r2_file=samples_dict[key]['R2'],
-                               target_sequence=settings['target_sequence'],
-                               offset_start=settings['offset_start'],
-                               expected_end=settings['expected_end'],
-                               column_csv=settings['column_csv'],
-                               grna_csv=settings['grna_csv'],
-                               row_csv=settings['row_csv'],
-                               save_h5 = settings['save_h5'],
-                               comp_type = settings['comp_type'],
-                               comp_level=settings['comp_level'],
-                               hdf5_file=hdf5_file,
-                               unique_combinations_csv=unique_combinations_csv,
-                               qc_csv_file=qc_csv_file,
-                               chunk_size=settings['chunk_size'],
-                               n_jobs=settings['n_jobs'])
+            paired_read_chunked_processing(r1_file=samples_dict[key]['R1'],
+                                           r2_file=samples_dict[key]['R2'],
+                                           target_sequence=settings['target_sequence'],
+                                           offset_start=settings['offset_start'],
+                                           expected_end=settings['expected_end'],
+                                           column_csv=settings['column_csv'],
+                                           grna_csv=settings['grna_csv'],
+                                           row_csv=settings['row_csv'],
+                                           save_h5 = settings['save_h5'],
+                                           comp_type = settings['comp_type'],
+                                           comp_level=settings['comp_level'],
+                                           hdf5_file=hdf5_file,
+                                           unique_combinations_csv=unique_combinations_csv,
+                                           qc_csv_file=qc_csv_file,
+                                           chunk_size=settings['chunk_size'],
+                                           n_jobs=settings['n_jobs'])
 
 
 

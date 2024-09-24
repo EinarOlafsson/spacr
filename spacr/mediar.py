@@ -22,8 +22,6 @@ try:
     # Now import the dependencies from MEDIAR
     from core.MEDIAR import Predictor, EnsemblePredictor
     from train_tools.models import MEDIARFormer
-
-    print("Imports successful.")
 finally:
     # Remove the temporary __init__.py file after the import
     if os.path.exists(init_file):
@@ -172,6 +170,9 @@ class MEDIARPredictor:
 
         if self.test:
             self.run_test()
+
+        if not self.model in ["model1", "model2", "ensemble"]:
+            raise ValueError("Invalid model type. Choose from 'model1', 'model2', or 'ensemble'.")
 
     def load_model(self, model_path, device):
         model_args = {
