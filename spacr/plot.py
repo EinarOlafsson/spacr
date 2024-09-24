@@ -123,7 +123,7 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
 
     fig = _plot_merged_plot(image=image, outlines=outlines, outline_colors=outline_colors, figuresize=figuresize, thickness=thickness)
 
-    return
+    return fig
 
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True):
     """
@@ -274,6 +274,7 @@ def _generate_mask_random_cmap(mask):
     return random_cmap
 
 def _get_colours_merged(outline_color):
+    
     """
     Get the merged outline colors based on the specified outline color format.
 
@@ -283,6 +284,7 @@ def _get_colours_merged(outline_color):
     Returns:
     list: A list of merged outline colors based on the specified format.
     """
+
     if outline_color == 'rgb':
         outline_colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]  # rgb
     elif outline_color == 'bgr':
@@ -296,6 +298,7 @@ def _get_colours_merged(outline_color):
     return outline_colors
 
 def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=['.npy', '.tif', '.tiff', '.png'], overlay=False, max_nr=None, randomize=True):
+    
     """
     Plot images and arrays from the given folders.
 
@@ -1055,7 +1058,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, target, columns=[], figu
     plt.show()
 
     columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
-    columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
+    #columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
 
     width = figuresize*2
     columns_per_row = math.ceil(len(columns) / 2)
