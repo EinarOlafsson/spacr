@@ -486,7 +486,8 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .gui_utils import process_stdout_stderr
-    from .core import generate_image_umap, preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, train_cellpose, analyze_plaques, compare_cellpose_masks, generate_dataset, apply_model_to_tar
+    from .core import generate_image_umap, preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, compare_cellpose_masks, generate_dataset, apply_model_to_tar
+    from .submodules import train_cellpose, analyze_plaques
     from .io import generate_cellpose_train_test
     from .measure import measure_crop
     from .sim import run_multiple_simulations
