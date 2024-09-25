@@ -7,8 +7,6 @@ import skimage.io as io
 # Path to the MEDIAR directory
 mediar_path = os.path.join(os.path.dirname(__file__), 'resources', 'MEDIAR')
 
-print('mediar path', mediar_path)
-
 # Temporarily create __init__.py to make MEDIAR a package
 init_file = os.path.join(mediar_path, '__init__.py')
 if not os.path.exists(init_file):

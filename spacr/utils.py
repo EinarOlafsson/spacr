@@ -73,7 +73,7 @@ from scipy import stats
 
 from .logger import log_function_call
 from multiprocessing import set_start_method, get_start_method
-
+from IPython.display import display
 import torch
 import torchvision.transforms as transforms
 from torchvision.models import resnet50
@@ -87,9 +87,11 @@ from scipy.stats import f_oneway, kruskal
 from sklearn.cluster import KMeans
 from scipy import stats
 
-def save_settings(settings, name='settings'):
+def save_settings(settings, name='settings', show=False):
     
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+    if show:
+        display(settings_df)
     settings_csv = os.path.join(settings['src'],'settings',f'{name}.csv')
     os.makedirs(os.path.join(settings['src'],'settings'), exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)

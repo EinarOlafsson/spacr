@@ -1,4 +1,4 @@
-import os, threading, time, sqlite3, webbrowser, pyautogui
+import os, threading, time, sqlite3, webbrowser, pyautogui, random
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -7,7 +7,7 @@ from tkinter import font
 from queue import Queue
 from tkinter import Label, Frame, Button
 import numpy as np
-from PIL import Image, ImageOps, ImageTk
+from PIL import Image, ImageOps, ImageTk, ImageDraw, ImageFont
 from concurrent.futures import ThreadPoolExecutor
 from skimage.exposure import rescale_intensity
 from IPython.display import display, HTML
@@ -16,7 +16,8 @@ from collections import deque
 from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
-from tkinter import ttk, scrolledtext
+from tkinter import ttk, scrolledtext 
+
 fig = None
 
 def set_element_size():
@@ -2843,3 +2844,106 @@ def modify_figure(fig):
     # Apply button
     apply_button = tk.Button(modify_window, text="Apply", command=apply_modifications, bg="#2E2E2E", fg="white")
     apply_button.grid(row=len(options) + len(checkboxes), column=0, columnspan=2, pady=10)
+
+def generate_dna_matrix_gif(output_path, canvas_width=500, canvas_height=500, duration=5, fps=25, base_size=20):
+    # DNA bases
+    bases = ['A', 'T', 'C', 'G']
+    
+    # Colors for each base (greenish shades for 'matrix' effect)
+    base_colors = {
+        'A': (0, 55, 255),  # Green
+        'T': (0, 255, 55),  # Lighter green
+        'C': (255, 55, 55),  # Green variant
+        'G': (255, 55, 255),  # Another green variant
+    }
+    head_color = (255, 255, 255)  # White for the head (first base in the string)
+
+    # Calculate the number of frames based on the duration and FPS
+    num_frames = duration * fps
+    frame_duration = int(1000 / fps)  # Convert FPS to milliseconds per frame
+    
+    # Columns for bases, each base in its own column
+    num_columns = canvas_width // base_size
+    
+    # Track the length of DNA strings in each column
+    shortest, longest = 1, 50
+    string_lengths = [random.randint(shortest, longest) for _ in range(num_columns)]
+    
+    # Track the number of visible bases in each column
+    visible_bases = [0 for _ in range(num_columns)]
+    
+    # Initialize the starting positions for each column (off-screen, moving downward)
+    base_positions = [random.randint(-canvas_height // base_size, 0) for _ in range(num_columns)]
+    
+    # Store the DNA strings for each column
+    column_strings = [[''] * longest for _ in range(num_columns)]
+    
+    # Track random sequences of 8 white bases for strings > 8 bases
+    random_white_sequences = [None for _ in range(num_columns)]
+
+    # Load a font (adjust path if needed)
+    try:
+        font = ImageFont.truetype("arial.ttf", base_size)
+    except IOError:
+        font = ImageFont.load_default()
+
+    frames = []
+    
+    # Last part of the GIF duration to let strings leave the view
+    end_frame_start = int(num_frames * 0.8)
+
+    for frame_idx in range(num_frames):
+        # Create a black canvas with RGBA mode (to support transparency)
+        img = Image.new('RGBA', (canvas_width, canvas_height), color=(0, 0, 0, 255))
+        draw = ImageDraw.Draw(img)
+
+        for col_idx in range(num_columns):
+            # If the current string is fully off-screen, start a new string unless we are in the last 20% of the frames
+            if base_positions[col_idx] >= canvas_height // base_size and frame_idx < end_frame_start:
+                string_lengths[col_idx] = random.randint(shortest, longest)  # Generate a new string length
+                base_positions[col_idx] = -string_lengths[col_idx]  # Reset position to just above the screen
+                visible_bases[col_idx] = 0  # Reset visible bases
+                column_strings[col_idx] = [random.choice(bases) for _ in range(string_lengths[col_idx])]  # New random string
+                # Randomly assign a sequence of 8 white bases if the string length > 8
+                if string_lengths[col_idx] > 8:
+                    random_start = random.randint(0, string_lengths[col_idx] - 8)
+                    random_white_sequences[col_idx] = range(random_start, random_start + 8)
+
+            # Calculate the position where the last 10% of the string starts
+            last_10_percent_start = max(0, int(string_lengths[col_idx] * 0.9))
+
+            # Draw the current column of DNA bases, but only show up to `visible_bases[col_idx]`
+            for row_idx in range(min(visible_bases[col_idx], string_lengths[col_idx])):  # Only draw visible bases
+                base_position = base_positions[col_idx] + row_idx  # Compute the position of the base in the column
+                if 0 <= base_position * base_size < canvas_height:
+                    # Draw the base at the current position
+                    base = column_strings[col_idx][row_idx]
+                    if base:  # Ensure base is not an empty string
+                        # The first character (head) of the string should be white
+                        if row_idx == visible_bases[col_idx] - 1:
+                            draw.text((col_idx * base_size, base_position * base_size), base, fill=(255, 255, 255, 255), font=font)
+                        # Apply transparency to the last 10% of the string
+                        elif row_idx >= last_10_percent_start:
+                            # Calculate transparency (50% for the last base, gradually less for the previous ones)
+                            alpha = 255 - int(((row_idx - last_10_percent_start) / (string_lengths[col_idx] - last_10_percent_start)) * 127)
+                            color_with_alpha = (*base_colors[base], alpha)
+                            draw.text((col_idx * base_size, base_position * base_size), base, fill=color_with_alpha, font=font)
+                        # Apply random white sequence of 8 bases
+                        elif random_white_sequences[col_idx] and row_idx in random_white_sequences[col_idx]:
+                            draw.text((col_idx * base_size, base_position * base_size), base, fill=(255, 255, 255, 255), font=font)
+                        else:
+                            # Default color for bases
+                            draw.text((col_idx * base_size, base_position * base_size), base, fill=(*base_colors[base], 255), font=font)
+
+            # Synchronize visible bases with string movement (both should grow together)
+            if visible_bases[col_idx] < string_lengths[col_idx]:
+                visible_bases[col_idx] += 1  # Increment visible bases at the same rate as downward movement
+
+            # Move the string downward by increasing the base's vertical position
+            base_positions[col_idx] += 2  # Increase the downward speed for a faster flow effect
+
+        # Save the frame
+        frames.append(img)
+
+    # Make the GIF loop seamlessly
+    frames[0].save(output_path, save_all=True, append_images=frames[1:], optimize=False, duration=frame_duration, loop=0)

@@ -1216,6 +1216,7 @@ def set_annotate_default_settings(settings):
 
 def set_default_generate_barecode_mapping(settings={}):
     settings.setdefault('src', 'path')
+    settings.setdefault('regex', '^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*'),
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
     settings.setdefault('offset_start', -8)
     settings.setdefault('expected_end', 89)
@@ -1227,4 +1228,7 @@ def set_default_generate_barecode_mapping(settings={}):
     settings.setdefault('comp_level', 5)
     settings.setdefault('chunk_size', 100000)
     settings.setdefault('n_jobs', None)
+    settings.setdefault('mode', 'paired')
+    settings.setdefault('single_direction', 'R1')
+    settings.setdefault('test', False)
     return settings
