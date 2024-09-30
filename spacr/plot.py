@@ -1359,7 +1359,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         
     return plate_map, min_max
 
-def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True):
+def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
@@ -1374,6 +1374,12 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
         fig.delaxes(ax[i])
     
     plt.subplots_adjust(wspace=0.1, hspace=0.4)
+
+    if not dst is None:
+        filename = os.path.join(dst, 'plate_heatmap.pdf')
+        fig.savefig(filename, format='pdf')
+        print(f'Saved heatmap to {filename}')
+
     if verbose:
         plt.show()
     return fig
@@ -1605,13 +1611,19 @@ def volcano_plot(coef_df, filename='volcano_plot.pdf'):
     print(f'Saved Volcano plot: {filename}')
     plt.show()
 
-def plot_histogram(df, dependent_variable):
+def plot_histogram(df, dependent_variable, dst=None):
     # Plot histogram of the dependent variable
     plt.figure(figsize=(10, 6))
     sns.histplot(df[dependent_variable], kde=True)
     plt.title(f'Histogram of {dependent_variable}')
     plt.xlabel(dependent_variable)
     plt.ylabel('Frequency')
+    
+    if not dst is None:
+        filename = os.path.join(dst, 'dependent_variable_histogram.pdf')
+        plt.savefig(filename, format='pdf')
+        print(f'Saved histogram to {filename}')
+
     plt.show()
 
 def plot_lorenz_curves(csv_files, remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4']):
