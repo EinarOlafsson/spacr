@@ -55,12 +55,13 @@ dependencies = [
     'tifffile>=2023.4.12',
     'tqdm>=4.65.0',
     'wandb>=0.16.2',
+    'openai>=1.50.2, <2.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.3.11",
+    version="0.3.2",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

@@ -482,7 +482,7 @@ def get_train_cellpose_default_settings(settings):
     return settings
 
 def get_perform_regression_default_settings(settings):
-    settings.setdefault('gene_weights_csv', '/nas_mnt/carruthers/Einar/mitoscreen/sequencing/combined_reads/EO1_combined/EO1_combined_combination_counts.csv')
+    settings.setdefault('highlight','239740')
     settings.setdefault('dependent_variable','predictions')
     settings.setdefault('transform',None)
     settings.setdefault('agg_type','mean')

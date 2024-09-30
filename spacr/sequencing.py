@@ -464,12 +464,13 @@ def generate_barecode_mapping(settings={}):
     from .settings import set_default_generate_barecode_mapping
     from .utils import save_settings
 
+    settings = set_default_generate_barecode_mapping(settings)
+    save_settings(settings, name=f"sequencing_{settings['mode']}_{settings['single_direction']}", show=True)
+
     regex = settings['regex']
 
     print(f'Using regex: {regex} to extract barcode information')
 
-    settings = set_default_generate_barecode_mapping(settings)
-    save_settings(settings, name=f"sequencing_{settings['mode']}_{settings['single_direction']}", show=True)
     samples_dict = parse_gz_files(settings['src'])
 
     print(f'If compression is low and save_h5 is True, saving might take longer than processing.')
@@ -757,6 +758,7 @@ def plot_plates(df, variable, grouping, min_max, cmap):
     # Show the plot
     plt.show()
     print()
+
     return
 
 def count_mismatches(seq1, seq2, align_length=10):
@@ -1276,19 +1278,22 @@ def generate_fraction_map(df, gene_column, min_=10, plates=['p1','p2','p3','p4']
 def precess_reads(csv_path, fraction_threshold, plate):
     # Read the CSV file into a DataFrame
     csv_df = pd.read_csv(csv_path)
-
-    # Ensure the necessary columns are present
-    if not all(col in csv_df.columns for col in ['grna', 'count', 'column']):
-        raise ValueError("The CSV file must contain 'grna', 'count', 'plate_row', and 'column' columns.")
-
+    
+    if 'column_name' in csv_df.columns:
+        csv_df = csv_df.rename(columns={'column_name': 'column'})
+    if 'row_name' in csv_df.columns:
+        csv_df = csv_df.rename(columns={'row_name': 'row'})
+    if 'grna_name' in csv_df.columns:
+        csv_df = csv_df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in csv_df.columns:
         csv_df[['plate', 'row']] = csv_df['plate_row'].str.split('_', expand=True)
-        if plate is not None:
-            csv_df = csv_df.drop(columns=['plate'])
+    if not 'plate' in csv_df.columns:
+        if not plate is None:
             csv_df['plate'] = plate
-
-    if plate is not None:
-        csv_df['plate'] = plate
+    
+    # Ensure the necessary columns are present
+    if not all(col in csv_df.columns for col in ['row','column','grna','count']):
+        raise ValueError("The CSV file must contain 'grna', 'count', 'row', and 'column' columns.")
 
     # Create the prc column
     csv_df['prc'] = csv_df['plate'] + '_' + csv_df['row'] + '_' + csv_df['column']
@@ -1537,7 +1542,7 @@ def calculate_p_values(X, y, model):
     
     return np.array(p_values)  # Ensure p_values is a 1-dimensional array
 
-def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, remove_row_column_effect=False):
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, remove_row_column_effect=False, highlight='220950', dst=None):
 
     from .plot import volcano_plot, plot_histogram
 
@@ -1545,7 +1550,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     volcano_filename = regression_type+'_'+volcano_filename
     if regression_type == 'quantile':
         volcano_filename = str(alpha)+'_'+volcano_filename
-    volcano_path=os.path.join(os.path.dirname(csv_path), volcano_filename)
+    if not dst is None:
+        volcano_path=os.path.join(dst, volcano_filename)
+    else:
+        volcano_path=os.path.join(os.path.dirname(csv_path), volcano_filename)
 
     is_normal = check_normality(df[dependent_variable], dependent_variable)
 
@@ -1590,7 +1598,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         y, X = dmatrices(formula_without_row_col, data=df, return_type='dataframe')
 
         # Plot histogram of the residuals
-        plot_histogram(df, 'residuals')
+        plot_histogram(df, 'residuals', dst=dst)
 
         # Scale the independent variables and residuals
         scaler_X = MinMaxScaler()
@@ -1602,7 +1610,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         formula = f'{dependent_variable} ~ fraction:gene + fraction:grna + row + column'
         y, X = dmatrices(formula, data=df, return_type='dataframe')
 
-        plot_histogram(y, dependent_variable)
+        plot_histogram(y, dependent_variable, dst=dst)
 
         # Scale the independent variables and dependent variable
         scaler_X = MinMaxScaler()
@@ -1652,30 +1660,25 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     coef_df_v = coef_df[coef_df['feature'] != 'Intercept']
 
     # Create the highlight column
-    coef_df['highlight'] = coef_df['feature'].apply(lambda x: '220950' in x)
+    coef_df['highlight'] = coef_df['feature'].apply(lambda x: highlight in x)
     coef_df = coef_df[~coef_df['feature'].str.contains('row|column')]
     volcano_plot(coef_df, volcano_path)
 
     return model, coef_df
 
-def perform_regression(df, settings):
+def perform_regression(settings):
 
-    from spacr.plot import plot_plates
-    from .utils import merge_regression_res_with_metadata
+    from .plot import plot_plates
+    from .utils import merge_regression_res_with_metadata, save_settings
     from .settings import get_perform_regression_default_settings
+
+    df = pd.read_csv(settings['count_data'])
+    df = pd.read_csv(settings['score_data'])
 
     reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
     if settings['regression_type'] not in reg_types:
         print(f'Possible regression types: {reg_types}')
         raise ValueError(f"Unsupported regression type {settings['regression_type']}")
-
-    if isinstance(df, str):
-        df = pd.read_csv(df)
-    elif isinstance(df, pd.DataFrame):
-        pass
-    else:
-        raise ValueError("Data must be a DataFrame or a path to a CSV file")
-    
     
     if settings['dependent_variable'] not in df.columns:
         print(f'Columns in DataFrame:')
@@ -1683,26 +1686,24 @@ def perform_regression(df, settings):
             print(col)
         raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
         
-    results_filename = os.path.splitext(os.path.basename(settings['gene_weights_csv']))[0] + '_results.csv'
-    hits_filename = os.path.splitext(os.path.basename(settings['gene_weights_csv']))[0] + '_results_significant.csv'
-    
-    results_filename = settings['regression_type']+'_'+results_filename
-    hits_filename = settings['regression_type']+'_'+hits_filename
+    src = os.path.dirname(settings['count_data'])
+    settings['src'] = src
+    fldr = 'results_' + settings['regression_type']
+
     if settings['regression_type'] == 'quantile':
-        results_filename = str(settings['alpha'])+'_'+results_filename
-        hits_filename = str(settings['alpha'])+'_'+hits_filename
-    results_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), results_filename)
-    hits_path=os.path.join(os.path.dirname(settings['gene_weights_csv']), hits_filename)
+        fldr = fldr + '_' + str(settings['alpha'])
+
+    res_folder = os.path.join(src, fldr)
+    os.makedirs(res_folder, exist_ok=True)
+    results_filename = 'results.csv'
+    hits_filename = 'results_significant.csv'
+    results_path=os.path.join(res_folder, results_filename)
+    hits_path=os.path.join(res_folder, hits_filename)
     
     settings = get_perform_regression_default_settings(settings)
-
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_dir = os.path.dirname(settings['gene_weights_csv'])
-    settings_csv = os.path.join(settings_dir,f"{settings['regression_type']}_regression_settings.csv")
-    settings_df.to_csv(settings_csv, index=False)
-    display(settings_df)
+    save_settings(settings, name='regression', show=True)
     
-    df = clean_controls(df,settings['pc'],settings['nc'],settings['other'])
+    df = clean_controls(df, settings['pc'], settings['nc'], settings['other'])
 
     if 'prediction_probability_class_1' in df.columns:
         if not settings['class_1_threshold'] is None:
@@ -1712,17 +1713,21 @@ def perform_regression(df, settings):
     
     display(dependent_df)
     
-    independent_df = precess_reads(settings['gene_weights_csv'], settings['fraction_threshold'], settings['plate'])
+    independent_df = precess_reads(settings['count_data'], settings['fraction_threshold'], settings['plate'])
+
     display(independent_df)
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
-    
+
+    data_path = os.path.join(res_folder, 'regression_data.csv')
+    merged_df.to_csv(data_path, index=False)
+
     merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
     
     if settings['transform'] is None:
-        _ = plot_plates(df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'])                
+        _ = plot_plates(df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'], dst = res_folder)                
 
-    model, coef_df = regression(merged_df, settings['gene_weights_csv'], dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'])
+    model, coef_df = regression(merged_df, settings['count_data'], dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'], highlight=settings['highlight'], dst=res_folder)
     
     coef_df.to_csv(results_path, index=False)
     

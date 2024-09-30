@@ -2579,20 +2579,30 @@ def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=Fal
         pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
         pathogens = pathogens.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
         pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
+        
+        print(f"before noninfected: {len(pathogens)}")
         if include_noninfected == False:
             pathogens = pathogens[pathogens['pathogen_prcfo_count']>=1]
+            print(f"after noninfected: {len(pathogens)}")
+
         if isinstance(include_multiinfected, bool):
             if include_multiinfected == False:
                 pathogens = pathogens[pathogens['pathogen_prcfo_count']<=1]
+                print(f"after multiinfected Bool: {len(pathogens)}")
         if isinstance(include_multiinfected, float):
+            include_multiinfected = int(include_multiinfected)
+        if isinstance(include_multiinfected, int):
             pathogens = pathogens[pathogens['pathogen_prcfo_count']<=include_multiinfected]
+            print(f"afer multiinfected Float: {len(pathogens)}")
         if not 'cell' in tables:
             pathogens_g_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
         else:
             pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
+        
         if verbose:
             print(f'pathogens: {len(pathogens)}')
             print(f'pathogens grouped: {len(pathogens_g_df)}')
+        
         if len(merged_df) == 0:
             merged_df = pathogens_g_df
         else:
