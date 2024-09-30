@@ -1050,7 +1050,174 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
-def generate_training_dataset(settings):
+def generate_training_dataset_v2(settings):
+    
+    from .io import _read_and_merge_data, _read_db
+    from .utils import get_paths_from_db, annotate_conditions, save_settings
+    from .settings import set_generate_training_dataset_defaults
+    
+    def filter_png_list(db_path, settings):
+        from .io import _read_and_merge_data, _read_db
+
+        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                    tables=tables,
+                                    verbose=False,
+                                    include_multinucleated=settings['include_multinucleated'],
+                                    include_multiinfected=settings['include_multiinfected'],
+                                    include_noninfected=settings['include_noninfected'])
+        [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
+        
+        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df['prcfo'])]
+        return filtered_png_list_df
+
+    def get_smallest_class_size(df, settings):
+        if settings['dataset_mode'] == 'metadata':
+            if settings['size'] == None:
+                c_s = []
+                for c in settings['classes']:
+                    c_s_t_df = df[df['metadata_based_class'] == c]
+                    c_s.append(len(c_s_t_df))
+                    print(f'Found {len(c_s_t_df)} images for class {c}')
+                size = min(c_s)
+                print(f'Using the smallest class size: {size}')
+            else:
+                size = settings['size']
+        if settings['dataset_mode'] == 'annotation':
+            if settings['size'] is None:
+                sizes = []
+                for i, class_paths in enumerate(df):
+                    s = len(class_paths)
+                    print(f'Found {s} images for class {i}')
+                    sizes.append(s)
+                size = min(sizes)
+            else:
+                size = settings['size']
+        return size
+    
+    def measurement_based_selection(settings, db_path):
+        from .io import _read_and_merge_data, _read_db
+
+        class_paths_ls = []
+        if not isinstance(settings['tables'], list):
+            tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
+
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                    tables=tables,
+                                    verbose=False,
+                                    include_multinucleated=settings['include_multinucleated'],
+                                    include_multiinfected=settings['include_multiinfected'],
+                                    include_noninfected=settings['include_noninfected'])
+
+        print('length df 1', len(df))
+        df = annotate_conditions(df,
+                                 cells=['HeLa'],
+                                 cell_loc=None,
+                                 pathogens=['pathogen'],
+                                 pathogen_loc=None,
+                                 treatments=settings['classes'],
+                                 treatment_loc=settings['class_metadata'],
+                                 types = settings['metadata_type_by'])
+
+        print('length df 2', len(df))
+        png_list_df = filter_png_list(db_path, settings['include_multinucleated'], settings['include_multiinfected'], settings['include_noninfected'])
+
+        if settings['custom_measurement'] != None:
+
+            if not isinstance(settings['custom_measurement'], list):
+                 print(f"custom_measurement should be a list, add [ measurement_1,  measurement_2 ] or [ measurement ]")
+                 return
+
+            if isinstance(settings['custom_measurement'], list):
+                if len(settings['custom_measurement']) == 2:
+                    print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment ({settings['custom_measurement'][0]}/{settings['custom_measurement'][1]})")
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"] / df[f"{settings['custom_measurement'][1]}"]
+
+                if len(settings['custom_measurement']) == 1:
+                    print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment ({settings['custom_measurement'][0]})")
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"]
+
+        else:
+            print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment (pathogen/cytoplasm for channel {settings['channel_of_interest']})")
+            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity']/df[f'cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+
+        q25 = df['recruitment'].quantile(0.25)
+        q75 = df['recruitment'].quantile(0.75)
+        df_lower = df[df['recruitment'] <= q25]
+        df_upper = df[df['recruitment'] >= q75]
+
+        class_paths_lower = get_paths_from_db(df=df_lower, png_df=png_list_df, image_type=settings['png_type'])
+
+        class_paths_lower = random.sample(class_paths_lower['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_lower)
+
+        class_paths_upper = get_paths_from_db(df=df_upper, png_df=png_list_df, image_type=settings['png_type'])
+        class_paths_upper = random.sample(class_paths_upper['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_upper)
+
+        return class_paths_ls
+                       
+    def metadata_based_selection(db_path, settings):
+
+        from .io import _read_db
+        class_paths_ls = []
+        class_len_ls = []
+
+        df = filter_png_list(db_path, settings['include_multinucleated'], settings['include_multiinfected'], settings['include_noninfected'])
+        size = get_smallest_class_size(df, settings)
+        df['metadata_based_class'] = pd.NA
+
+        for i, class_ in enumerate(settings['classes']):
+            ls = settings['class_metadata'][i]                
+            df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
+
+        for class_ in settings['classes']:
+            class_temp_df = df[df['metadata_based_class'] == class_]
+            class_len_ls.append(len(class_temp_df))
+            print(f'Found {len(class_temp_df)} images for class {class_}')
+            class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), size)
+            class_paths_ls.append(class_paths_temp)
+
+        return class_paths_ls
+                       
+    def annotation_based_selection(db_path, dst, settings):
+
+        class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
+        size = get_smallest_class_size(class_paths_ls, settings)
+
+        for i, class_paths in enumerate(class_paths_ls):
+            class_paths_temp = random.sample(class_paths, size)
+            class_paths_ls[i] = class_paths_temp
+
+        return class_paths_ls
+
+    settings = set_generate_training_dataset_defaults(settings)
+    save_settings(settings, 'cv_dataset', show=True)
+    
+    db_path = os.path.join(settings['src'], 'measurements','measurements.db')
+    dst = os.path.join(settings['src'], 'datasets', 'training')
+    
+    if os.path.exists(dst):
+        for i in range(1, 100000):
+            dst = os.path.join(settings['src'], 'datasets', f'training_{i}')
+            if not os.path.exists(dst):
+                print(f'Creating new directory for training: {dst}')
+                break
+                
+    if settings['dataset_mode'] == 'annotation':
+        class_paths_ls = annotation_based_selection(db_path, dst, settings)
+
+    elif settings['dataset_mode'] == 'metadata':
+        class_paths_ls = metadata_based_selection(db_path, settings)
+    
+    elif settings['dataset_mode'] == 'measurement':           
+        class_paths_ls = measurement_based_selection(settings, db_path)
+    
+    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=settings['classes'], test_split=settings['test_split'])
+    
+    return train_class_dir, test_class_dir
+
+def generate_training_dataset_v1(settings):
     
     from .io import _read_and_merge_data, _read_db
     from .utils import get_paths_from_db, annotate_conditions, save_settings
@@ -1071,7 +1238,7 @@ def generate_training_dataset(settings):
         return size
 
     settings = set_generate_training_dataset_defaults(settings)
-    save_settings(settings, settings['src'], show=True)
+    save_settings(settings, 'cv_dataset', show=True)
     
     db_path = os.path.join(settings['src'], 'measurements','measurements.db')
     dst = os.path.join(settings['src'], 'datasets', 'training')
@@ -1161,6 +1328,147 @@ def generate_training_dataset(settings):
     
     train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=settings['classes'], test_split=settings['test_split'])
     
+    return train_class_dir, test_class_dir
+
+def generate_training_dataset(settings):
+    
+    from .io import _read_and_merge_data, _read_db
+    from .utils import get_paths_from_db, annotate_conditions, save_settings
+    from .settings import set_generate_training_dataset_defaults
+    
+    # Function to filter png_list_df by prcfo present in df without merging
+    def filter_png_list(db_path, settings):
+        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                     tables=tables,
+                                     verbose=False,
+                                     include_multinucleated=settings['include_multinucleated'],
+                                     include_multiinfected=settings['include_multiinfected'],
+                                     include_noninfected=settings['include_noninfected'])
+        [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
+        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df['prcfo'])]
+        return filtered_png_list_df
+
+    # Function to get the smallest class size based on the dataset mode
+    def get_smallest_class_size(df, settings, dataset_mode):
+        if dataset_mode == 'metadata':
+            sizes = [len(df[df['metadata_based_class'] == c]) for c in settings['classes']]
+        elif dataset_mode == 'annotation':
+            sizes = [len(class_paths) for class_paths in df]
+        size = min(sizes)
+        print(f'Using the smallest class size: {size}')
+        return size
+    
+    # Measurement-based selection logic
+    def measurement_based_selection(settings, db_path):
+        class_paths_ls = []
+        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                     tables=tables,
+                                     verbose=False,
+                                     include_multinucleated=settings['include_multinucleated'],
+                                     include_multiinfected=settings['include_multiinfected'],
+                                     include_noninfected=settings['include_noninfected'])
+
+        print('length df 1', len(df))
+        df = annotate_conditions(df, cells=['HeLa'], pathogens=['pathogen'], treatments=settings['classes'],
+                                 treatment_loc=settings['class_metadata'], types=settings['metadata_type_by'])
+        print('length df 2', len(df))
+        
+        png_list_df = filter_png_list(db_path, settings)
+
+        if settings['custom_measurement']:
+            if isinstance(settings['custom_measurement'], list):
+                if len(settings['custom_measurement']) == 2:
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"] / df[f"{settings['custom_measurement'][1]}"]
+                else:
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"]
+            else:
+                print("custom_measurement should be a list.")
+                return
+
+        else:
+            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"] / \
+                                df[f'cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity']
+
+        q25 = df['recruitment'].quantile(0.25)
+        q75 = df['recruitment'].quantile(0.75)
+        df_lower = df[df['recruitment'] <= q25]
+        df_upper = df[df['recruitment'] >= q75]
+
+        class_paths_lower = get_paths_from_db(df=df_lower, png_df=png_list_df, image_type=settings['png_type'])
+        class_paths_lower = random.sample(class_paths_lower['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_lower)
+
+        class_paths_upper = get_paths_from_db(df=df_upper, png_df=png_list_df, image_type=settings['png_type'])
+        class_paths_upper = random.sample(class_paths_upper['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_upper)
+
+        return class_paths_ls
+
+    # Metadata-based selection logic
+    def metadata_based_selection(db_path, settings):
+        class_paths_ls = []
+        df = filter_png_list(db_path, settings)
+
+        df['metadata_based_class'] = pd.NA
+        for i, class_ in enumerate(settings['classes']):
+            ls = settings['class_metadata'][i]
+            df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
+
+        size = get_smallest_class_size(df, settings, 'metadata')
+        for class_ in settings['classes']:
+            class_temp_df = df[df['metadata_based_class'] == class_]
+            print(f'Found {len(class_temp_df)} images for class {class_}')
+            class_paths_temp = class_temp_df['png_path'].tolist()
+
+            # Ensure to sample `size` number of images (smallest class size)
+            if len(class_paths_temp) > size:
+                class_paths_temp = random.sample(class_paths_temp, size)
+
+            class_paths_ls.append(class_paths_temp)
+
+        return class_paths_ls
+
+    # Annotation-based selection logic
+    def annotation_based_selection(db_path, dst, settings):
+        class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
+
+        size = get_smallest_class_size(class_paths_ls, settings, 'annotation')
+        for i, class_paths in enumerate(class_paths_ls):
+            if len(class_paths) > size:
+                class_paths_ls[i] = random.sample(class_paths, size)
+
+        return class_paths_ls
+
+    # Set default settings and save
+    settings = set_generate_training_dataset_defaults(settings)
+    save_settings(settings, 'cv_dataset', show=True)
+
+    db_path = os.path.join(settings['src'], 'measurements', 'measurements.db')
+    dst = os.path.join(settings['src'], 'datasets', 'training')
+
+    # Create a new directory for training data if necessary
+    if os.path.exists(dst):
+        for i in range(1, 100000):
+            dst = os.path.join(settings['src'], 'datasets', f'training_{i}')
+            if not os.path.exists(dst):
+                print(f'Creating new directory for training: {dst}')
+                break
+
+    # Select dataset based on dataset mode
+    if settings['dataset_mode'] == 'annotation':
+        class_paths_ls = annotation_based_selection(db_path, dst, settings)
+
+    elif settings['dataset_mode'] == 'metadata':
+        class_paths_ls = metadata_based_selection(db_path, settings)
+
+    elif settings['dataset_mode'] == 'measurement':
+        class_paths_ls = measurement_based_selection(settings, db_path)
+
+    # Generate and return training and testing directories
+    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=settings['classes'], test_split=settings['test_split'])
+
     return train_class_dir, test_class_dir
 
 def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, preload_batches=3, verbose=False):
