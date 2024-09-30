@@ -25,6 +25,7 @@ from . import app_sequencing
 from . import app_umap
 from . import mediar
 from . import submodules
+from . import openai
 from . import logger
 
 __all__ = [
@@ -51,6 +52,7 @@ __all__ = [
     "app_umap",
     "mediar",
     "submodules",
+    "openai",
     "logger"
 ]
 

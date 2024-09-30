@@ -1,9 +1,9 @@
-import traceback, ctypes, csv, re, platform, time
+import os, traceback, ctypes, csv, re, platform
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from multiprocessing import Process, Value, Queue, set_start_method
-from tkinter import ttk, scrolledtext
+from tkinter import ttk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
@@ -11,15 +11,14 @@ import psutil
 import GPUtil
 from collections import deque
 import tracemalloc
-from tkinter import Menu
-import io
+from PIL import Image, ImageTk
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
 except AttributeError:
     pass
 
-from .gui_elements import spacrProgressBar, spacrButton, spacrLabel, spacrFrame, spacrDropdownMenu , spacrSlider, set_dark_style, standardize_figure
+from .gui_elements import spacrProgressBar, spacrButton, spacrFrame, spacrDropdownMenu , spacrSlider, set_dark_style
 
 # Define global variables
 q = None
@@ -35,6 +34,7 @@ figures = None
 figure_index = None
 progress_bar = None
 usage_bars = None
+index_control = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
@@ -296,44 +296,60 @@ def update_figure(value):
     index_control.set_to(len(figures) - 1)
     index_control.set(figure_index)
 
-def setup_plot_section(vertical_container):
+def setup_plot_section(vertical_container, settings_type):
     global canvas, canvas_widget, figures, figure_index, index_control
+    from .gui_utils import display_media_in_plot_frame
+
+    style_out = set_dark_style(ttk.Style())
+    bg = style_out['bg_color']
+    fg = style_out['fg_color']
 
     # Initialize deque for storing figures and the current index
     figures = deque()
 
     # Create a frame for the plot section
     plot_frame = tk.Frame(vertical_container)
+    plot_frame.configure(bg=bg)
     vertical_container.add(plot_frame, stretch="always")
 
-    # Set up the plot
+    # Clear the plot_frame (optional, to handle cases where it may already have content)
+    for widget in plot_frame.winfo_children():
+        widget.destroy()
+
+    # Create a figure and plot
     figure = Figure(figsize=(30, 4), dpi=100)
     plot = figure.add_subplot(111)
     plot.plot([], [])
     plot.axis('off')
+
+    if settings_type == 'map_barcodes':
+        # Load and display GIF
+        current_dir = os.path.dirname(__file__)
+        resources_path = os.path.join(current_dir, 'resources', 'icons')
+        gif_path = os.path.join(resources_path, 'dna_matrix.mp4')
+
+        display_media_in_plot_frame(gif_path, plot_frame)
+        canvas = FigureCanvasTkAgg(figure, master=plot_frame)
+        canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
+        canvas_widget = canvas.get_tk_widget()
+        return canvas, canvas_widget
     
     canvas = FigureCanvasTkAgg(figure, master=plot_frame)
     canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
     canvas_widget = canvas.get_tk_widget()
     canvas_widget.grid(row=0, column=0, sticky="nsew")
-
     plot_frame.grid_rowconfigure(0, weight=1)
     plot_frame.grid_columnconfigure(0, weight=1)
-
     canvas.draw()
-    canvas.figure = figure  # Ensure that the figure is linked to the canvas
-    style_out = set_dark_style(ttk.Style())
-    bg = style_out['bg_color']
-    fg = style_out['fg_color']
-
+    canvas.figure = figure
     figure.patch.set_facecolor(bg)
     plot.set_facecolor(bg)
     containers = [plot_frame]
 
     # Create slider
-    control_frame = tk.Frame(plot_frame, height=15*2,  bg=bg)  # Fixed height based on knob_radius
+    control_frame = tk.Frame(plot_frame, height=15*2,  bg=bg)
     control_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
-    control_frame.grid_propagate(False)  # Prevent the frame from resizing
+    control_frame.grid_propagate(False) 
 
     # Pass the update_figure function as the command to spacrSlider
     index_control = spacrSlider(control_frame, from_=0, to=0, value=0, thickness=2, knob_radius=10, position="center", show_index=True, command=update_figure)
@@ -482,7 +498,7 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
 def setup_console(vertical_container):
     global console_output
     from .gui_elements import set_dark_style
-
+    
     # Apply dark style and get style output
     style = ttk.Style()
     style_out = set_dark_style(style)
@@ -513,8 +529,26 @@ def setup_console(vertical_container):
     def on_leave(event):
         top_border.config(bg=style_out['bg_color'])
 
+    #def on_enter_key(event):
+    #    user_input = console_output.get("1.0", "end-1c").strip()  # Get the user input from the console
+    #    if user_input:
+    #        # Print the user input with the (user) tag
+    #        console_output.insert("end", f"\n(user): {user_input}\n")
+    #        
+    #        # Get the AI response from the chatbot
+    #        response = chatbot.ask_question(user_input)
+    #        
+    #        # Print the AI response with the (ai) tag
+    #        console_output.insert("end", f"(ai): {response}\n")
+    #        
+    #        console_output.see("end")  # Scroll to the end
+    #        #console_output.delete("1.0", "end")  # Clear the input field
+    #    return "break"  # Prevent the default behavior of inserting a new line
+
     console_output.bind("<Enter>", on_enter)
     console_output.bind("<Leave>", on_leave)
+
+    #console_output.bind("<Return>", on_enter_key)
 
     return console_output, console_frame
 
@@ -722,7 +756,7 @@ def initiate_abort():
 def start_process(q=None, fig_queue=None, settings_type='mask'):
     global thread_control, vars_dict, parent_frame
     from .settings import check_settings, expected_types
-    from .gui_utils import run_function_gui, set_high_priority, set_cpu_affinity, initialize_cuda
+    from .gui_utils import run_function_gui, set_cpu_affinity, initialize_cuda, display_gif_in_plot_frame, print_widget_structure
 
     if q is None:
         q = Queue()
@@ -751,9 +785,6 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         # Start the process
         process = Process(target=run_function_gui, args=process_args)
         process.start()
-
-        # Set high priority for the process
-        #set_high_priority(process)
 
         # Set CPU affinity if necessary
         set_cpu_affinity(process)
@@ -856,10 +887,14 @@ def initiate_root(parent, settings_type='mask'):
     
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
     
-    from .gui_utils import setup_frame
+    from .gui_utils import setup_frame, get_screen_dimensions
     from .settings import descriptions
+    #from .openai import Chatbot
 
     uppdate_frequency = 500
+    num_cores = os.cpu_count()
+
+    #chatbot = Chatbot(api_key="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")
 
     # Start tracemalloc and initialize global variables
     tracemalloc.start()
@@ -897,10 +932,14 @@ def initiate_root(parent, settings_type='mask'):
     else:
         scrollable_frame, vars_dict = setup_settings_panel(settings_container, settings_type)
         print('setup_settings_panel')
-        canvas, canvas_widget = setup_plot_section(vertical_container)
-        console_output, _ = setup_console(vertical_container)
+        canvas, canvas_widget = setup_plot_section(vertical_container, settings_type)
+        console_output, _ = setup_console(vertical_container) #, chatbot)
         button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
-        _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
+        
+        if num_cores > 12:
+            _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
+        else:
+            usage_bars = []
 
         set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, index_control, progress_bar, usage_bars)
         description_text = descriptions.get(settings_type, "No description available for this module.")

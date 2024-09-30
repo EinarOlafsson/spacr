@@ -1053,16 +1053,31 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
 def generate_training_dataset(settings):
     
     from .io import _read_and_merge_data, _read_db
-    from .utils import get_paths_from_db, annotate_conditions
+    from .utils import get_paths_from_db, annotate_conditions, save_settings
     from .settings import set_generate_training_dataset_defaults
 
+    def get_smallest_class_size(df, settings):
+        if settings['size'] == None:
+            c_s = []
+            for c in settings['classes']:
+                c_s_t_df = df[df['metadata_based_class'] == c]
+                c_s.append(len(c_s_t_df))
+                print(f'Found {len(c_s_t_df)} images for class {c}')
+            size = min(c_s)
+            print(f'Using the smallest class size: {size}')
+        else:
+            size = settings['size']
+
+        return size
+
     settings = set_generate_training_dataset_defaults(settings)
+    save_settings(settings, settings['src'], show=True)
     
     db_path = os.path.join(settings['src'], 'measurements','measurements.db')
     dst = os.path.join(settings['src'], 'datasets', 'training')
 
     if os.path.exists(dst):
-        for i in range(1, 1000):
+        for i in range(1, 100000):
             dst = os.path.join(settings['src'], 'datasets', f'training_{i}')
             if not os.path.exists(dst):
                 print(f'Creating new directory for training: {dst}')
@@ -1071,6 +1086,7 @@ def generate_training_dataset(settings):
     if settings['dataset_mode'] == 'annotation':
         class_paths_ls_2 = []
         class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
+
         for class_paths in class_paths_ls:
             class_paths_temp = random.sample(class_paths, settings['size'])
             class_paths_ls_2.append(class_paths_temp)
@@ -1080,25 +1096,17 @@ def generate_training_dataset(settings):
         class_paths_ls = []
         class_len_ls = []
         [df] = _read_db(db_loc=db_path, tables=['png_list'])
+        size = get_smallest_class_size(df, settings)
         df['metadata_based_class'] = pd.NA
         for i, class_ in enumerate(settings['classes']):
-            ls = settings['class_metadata'][i]
+            ls = settings['class_metadata'][i]                
             df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
-            
-        for class_ in settings['classes']:
-            if settings['size'] == None:
-                c_s = []
-                for c in settings['classes']:
-                    c_s_t_df = df[df['metadata_based_class'] == c]
-                    c_s.append(len(c_s_t_df))
-                    print(f'Found {len(c_s_t_df)} images for class {c}')
-                size = min(c_s)
-                print(f'Using the smallest class size: {size}')
 
+        for class_ in settings['classes']:
             class_temp_df = df[df['metadata_based_class'] == class_]
             class_len_ls.append(len(class_temp_df))
             print(f'Found {len(class_temp_df)} images for class {class_}')
-            class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), settings['size'])
+            class_paths_temp = random.sample(class_temp_df['png_path'].tolist(), size)
             class_paths_ls.append(class_paths_temp)
     
     elif settings['dataset_mode'] == 'recruitment':
@@ -1128,7 +1136,8 @@ def generate_training_dataset(settings):
             if isinstance(settings['custom_measurement'], list):
                 if len(settings['custom_measurement']) == 2:
                     print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment ({settings['custom_measurement'][0]}/{settings['custom_measurement'][1]})")
-                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}']/df[f'{settings['custom_measurement'][1]}"]
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"] / df[f"{settings['custom_measurement'][1]}"]
+
                 if len(settings['custom_measurement']) == 1:
                     print(f"Classes will be defined by the Q1 and Q3 quantiles of recruitment ({settings['custom_measurement'][0]})")
                     df['recruitment'] = df[f"{settings['custom_measurement'][0]}"]
@@ -2250,8 +2259,11 @@ def ml_analysis(df, channel_of_interest=3, location_column='col', positive_contr
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
+    
     df_metadata = df[[location_column]].copy()
+
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
+    print('After filtration:', len(df))
     
     if verbose:
         print(f'Found {len(features)} numerical features in the dataframe')
@@ -2274,6 +2286,9 @@ def ml_analysis(df, channel_of_interest=3, location_column='col', positive_contr
 
     X = combined_df[features]
     y = combined_df['target']
+
+    print(X)
+    print(y)
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
@@ -2411,7 +2426,7 @@ def generate_ml_scores(src, settings):
 
     db_loc = [src+'/measurements/measurements.db']
     tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
-    include_multinucleated, include_multiinfected, include_noninfected = True, 2.0, True
+    include_multinucleated, include_multiinfected, include_noninfected = True, 3, True
     
     df, _ = _read_and_merge_data(db_loc, 
                                  tables,
