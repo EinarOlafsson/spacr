@@ -32,6 +32,6 @@
 #        print(f"Error: {str(e)}")
 
 # Replace with your actual API key or ensure it's set as an environment variable
-#api_key="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"
+
 #openai.api_key = api_key
 #list_available_models()
