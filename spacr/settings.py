@@ -398,7 +398,6 @@ def deep_spacr_defaults(settings):
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
-    settings.setdefault('preload_batches', 3)
     settings.setdefault('verbose',True)
     settings.setdefault('apply_model_to_dataset',True)
     settings.setdefault('file_metadata',None)
@@ -866,7 +865,6 @@ expected_types = {
     "png_type":str,
     "custom_model_path":str,
     "generate_training_dataset":bool,
-    'preload_batches':int,
     "segmentation_mode":str,
     "train_DL_model":bool,
 }
@@ -879,7 +877,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "tar_pat
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
-             "Sequencing": ["signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex"],
+             "Sequencing": ["signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
@@ -1234,7 +1232,8 @@ def generate_fields(variables, scrollable_frame):
         "comp_type": "(str) - Compression type for the HDF5 file (e.g. zlib).",
         "comp_level": "(int) - Compression level for the HDF5 file (0-9). Higher is slower and yields smaller files.",
         "mode": "(str) - Mode to use for sequence analysis (either single for R1 or R2 fastq files or paired for the combination of R1 and R2).",
-        "signal_direction": "(str) - Direction of fastq file (R1 or R2). only relevent when mode is single."
+        "signal_direction": "(str) - Direction of fastq file (R1 or R2). only relevent when mode is single.",
+        "custom_model_path": "(str) - Path to the custom model to finetune.",
     }
     
     for key, (var_type, options, default_value) in variables.items():

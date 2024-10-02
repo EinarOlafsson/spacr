@@ -2514,7 +2514,6 @@ def create_menu_bar(root):
         "Annotate": lambda: initiate_root(root, settings_type='annotate'),
         "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
         "Classify": lambda: initiate_root(root, settings_type='classify'),
-        "Sequencing": lambda: initiate_root(root, settings_type='sequencing'),
         "Umap": lambda: initiate_root(root, settings_type='umap'),
         "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
         "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
