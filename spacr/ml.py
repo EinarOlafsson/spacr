@@ -255,21 +255,45 @@ def perform_regression(settings):
     from .utils import merge_regression_res_with_metadata, save_settings
     from .settings import get_perform_regression_default_settings
 
-    df = pd.read_csv(settings['count_data'])
-    df = pd.read_csv(settings['score_data'])
+    if isinstance(settings['score_data'], list) and isinstance(settings['count_data'], list):
+        count_data_df = pd.DataFrame()
+        for i, count_data in enumerate(settings['count_data']):
+            df = pd.read_csv(count_data)
+            df['plate_name'] = f'plate{i}'
+            count_data_df = pd.concat([count_data_df, df])
+            print('Count data:', len(count_data_df))
+
+        score_data_df = pd.DataFrame()
+        for i, score_data in enumerate(settings['score_data']):
+            df = pd.read_csv(score_data)
+            df['plate_name'] = f'plate{i}'
+            score_data_df = pd.concat([score_data_df, df])
+            print('Score data:', len(score_data_df))
+        
+        #count_data_df.reset_index(drop=True, inplace=True)
+        #score_data_df.reset_index(drop=True, inplace=True)
+    else:
+        count_data_df = pd.read_csv(settings['count_data'])
+        score_data_df = pd.read_csv(settings['score_data'])
 
     reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
     if settings['regression_type'] not in reg_types:
         print(f'Possible regression types: {reg_types}')
         raise ValueError(f"Unsupported regression type {settings['regression_type']}")
     
-    if settings['dependent_variable'] not in df.columns:
+    if settings['dependent_variable'] not in score_data_df.columns:
         print(f'Columns in DataFrame:')
-        for col in df.columns:
+        for col in score_data_df.columns:
             print(col)
         raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
-        
-    src = os.path.dirname(settings['count_data'])
+
+    if isinstance(settings['count_data'], list):
+        src = os.path.dirname(settings['count_data'][0])
+        csv_path = settings['count_data'][0]
+    else:
+        src = os.path.dirname(settings['count_data'])
+        csv_path = settings['count_data']
+
     settings['src'] = src
     fldr = 'results_' + settings['regression_type']
 
@@ -286,17 +310,17 @@ def perform_regression(settings):
     settings = get_perform_regression_default_settings(settings)
     save_settings(settings, name='regression', show=True)
     
-    df = clean_controls(df, settings['pc'], settings['nc'], settings['other'])
+    score_data_df = clean_controls(score_data_df, settings['pc'], settings['nc'], settings['other'])
 
     if 'prediction_probability_class_1' in df.columns:
         if not settings['class_1_threshold'] is None:
             df['predictions'] = (df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
 
-    dependent_df, dependent_variable = process_scores(df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
+    dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     
     display(dependent_df)
     
-    independent_df = process_reads(settings['count_data'], settings['fraction_threshold'], settings['plate'])
+    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'])
 
     display(independent_df)
     
@@ -308,9 +332,9 @@ def perform_regression(settings):
     merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
     
     if settings['transform'] is None:
-        _ = plot_plates(df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'], dst = res_folder)                
+        _ = plot_plates(score_data_df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'], dst = res_folder)                
 
-    model, coef_df = regression(merged_df, settings['count_data'], dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'], highlight=settings['highlight'], dst=res_folder)
+    model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'], highlight=settings['highlight'], dst=res_folder)
     
     coef_df.to_csv(results_path, index=False)
     
@@ -341,9 +365,15 @@ def perform_regression(settings):
     return coef_df
 
 def process_reads(csv_path, fraction_threshold, plate):
-    # Read the CSV file into a DataFrame
-    csv_df = pd.read_csv(csv_path)
+
+    if isinstance(csv_path, pd.DataFrame):
+        csv_df = csv_path
+    else:
+        # Read the CSV file into a DataFrame
+        csv_df = pd.read_csv(csv_path)
     
+    if 'plate_name' in csv_df.columns:
+        csv_df = csv_df.rename(columns={'plate_name': 'plate'})
     if 'column_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'column_name': 'column'})
     if 'row_name' in csv_df.columns:
@@ -355,6 +385,8 @@ def process_reads(csv_path, fraction_threshold, plate):
     if not 'plate' in csv_df.columns:
         if not plate is None:
             csv_df['plate'] = plate
+        else:
+            csv_df['plate'] = 'plate1'
     
     # Ensure the necessary columns are present
     if not all(col in csv_df.columns for col in ['row','column','grna','count']):
@@ -427,6 +459,12 @@ def clean_controls(df,pc,nc,other):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
+
+
+
+    if 'plate_name' in df.columns:
+        df.drop(columns=['plate'], inplace=True)
+        df = df.rename(columns={'plate_name': 'plate'})
     
     if plate is not None:
         df['plate'] = plate
