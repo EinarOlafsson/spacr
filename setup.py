@@ -56,6 +56,8 @@ dependencies = [
     'tqdm>=4.65.0',
     'wandb>=0.16.2',
     'openai>=1.50.2, <2.0',
+    'nd2reader>=3.3.0, <4.0',
+    'czifile',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 

@@ -1,9 +1,8 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit
 import numpy as np
 import pandas as pd
-import tifffile
 from PIL import Image, ImageOps
-from collections import defaultdict, Counter, deque
+from collections import defaultdict, Counter
 from pathlib import Path
 from functools import partial
 from matplotlib.animation import FuncAnimation
@@ -16,15 +15,120 @@ from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
 from io import BytesIO
-from IPython.display import display, clear_output
+from IPython.display import display
 from multiprocessing import Pool, cpu_count, Process, Queue
 from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
-import seaborn as sns
-import atexit
+import seaborn as sns 
+from nd2reader import ND2Reader
 
 from .logger import log_function_call
+
+def process_non_tif_non_2D_images(folder):
+    """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
+    
+    # Helper function to save grayscale images
+    def save_grayscale_images(image, base_name, folder, dtype, channel=None, z=None, t=None):
+        """Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth."""
+        suffix = ""
+        if channel is not None:
+            suffix += f"_C{channel}"
+        if z is not None:
+            suffix += f"_Z{z}"
+        if t is not None:
+            suffix += f"_T{t}"
+
+        output_filename = os.path.join(folder, f"{base_name}{suffix}.tif")
+        tifffile.imwrite(output_filename, image.astype(dtype))
+
+    # Function to handle splitting of multi-dimensional images into grayscale channels
+    def split_channels(image, folder, base_name, dtype):
+        """Splits the image into channels and handles 3D, 4D, and 5D image cases."""
+        if image.ndim == 2:
+            # Grayscale image, already processed separately
+            return
+        
+        elif image.ndim == 3:
+            # 3D image: (height, width, channels)
+            for c in range(image.shape[2]):
+                save_grayscale_images(image[..., c], base_name, folder, dtype, channel=c+1)
+        
+        elif image.ndim == 4:
+            # 4D image: (height, width, channels, Z-dimension)
+            for z in range(image.shape[3]):
+                for c in range(image.shape[2]):
+                    save_grayscale_images(image[..., c, z], base_name, folder, dtype, channel=c+1, z=z+1)
+        
+        elif image.ndim == 5:
+            # 5D image: (height, width, channels, Z-dimension, Time)
+            for t in range(image.shape[4]):
+                for z in range(image.shape[3]):
+                    for c in range(image.shape[2]):
+                        save_grayscale_images(image[..., c, z, t], base_name, folder, dtype, channel=c+1, z=z+1, t=t+1)
+
+    # Function to load images in various formats
+    def load_image(file_path):
+        """Loads image from various formats and returns it as a numpy array along with its dtype."""
+        ext = os.path.splitext(file_path)[1].lower()
+        
+        if ext in ['.tif', '.tiff']:
+            image = tifffile.imread(file_path)
+            return image, image.dtype
+        
+        elif ext in ['.png', '.jpg', '.jpeg']:
+            image = Image.open(file_path)
+            return np.array(image), image.mode
+        
+        elif ext == '.czi':
+            with czifile.CziFile(file_path) as czi:
+                image = czi.asarray()
+                return image, image.dtype
+        
+        elif ext == '.nd2':
+            with ND2Reader(file_path) as nd2:
+                image = np.array(nd2)
+                return image, image.dtype
+        
+        else:
+            raise ValueError(f"Unsupported file extension: {ext}")
+
+    # Function to check if an image is grayscale and save it as a TIFF if it isn't already
+    def convert_grayscale_to_tiff(image, filename, folder, dtype):
+        """Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth."""
+        base_name = os.path.splitext(filename)[0]
+        output_filename = os.path.join(folder, f"{base_name}.tif")
+        tifffile.imwrite(output_filename, image.astype(dtype))
+        print(f"Converted grayscale image {filename} to TIFF with bit depth {dtype}.")
+
+    # Supported formats
+    supported_formats = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.czi', '.nd2']
+    
+    # Loop through all files in the folder
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        ext = os.path.splitext(file_path)[1].lower()
+
+        if ext in supported_formats:
+            print(f"Processing {filename}")
+            try:
+                # Load the image and its dtype
+                image, dtype = load_image(file_path)
+                
+                # If the image is grayscale (2D), convert it to TIFF if it's not already in TIFF format
+                if image.ndim == 2:
+                    if ext not in ['.tif', '.tiff']:
+                        convert_grayscale_to_tiff(image, filename, folder, dtype)
+                    else:
+                        print(f"Image {filename} is already grayscale and in TIFF format, skipping.")
+                    continue
+                
+                # Otherwise, split channels and save images
+                base_name = os.path.splitext(filename)[0]
+                split_channels(image, folder, base_name, dtype)
+            
+            except Exception as e:
+                print(f"Error processing {filename}: {str(e)}")
 
 def _load_images_and_labels(image_files, label_files, circular=False, invert=False):
     
@@ -2074,7 +2178,6 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                     padded_shapes = [shape + (0,) * (max_tuple_length - len(shape)) for shape in unique_shapes]
                     # Now create a NumPy array and find the maximum dimensions
                     max_dims = np.max(np.array(padded_shapes), axis=0)
-                    #clear_output(wait=True)
                     print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}')
                     #print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
                     padded_stack_ls = []
@@ -2727,4 +2830,34 @@ def generate_cellpose_train_test(src, test_split=0.1):
             shutil.copy(img_path, new_img_path)
             shutil.copy(mask_path, new_mask_path)
             print(f'Copied {idx+1}/{len(ls)} images to {_type} set')#, end='\r', flush=True)
+
+def parse_gz_files(folder_path):
+    """
+    Parses the .fastq.gz files in the specified folder path and returns a dictionary
+    containing the sample names and their corresponding file paths.
+
+    Args:
+        folder_path (str): The path to the folder containing the .fastq.gz files.
+
+    Returns:
+        dict: A dictionary where the keys are the sample names and the values are
+        dictionaries containing the file paths for the 'R1' and 'R2' read directions.
+    """
+    files = os.listdir(folder_path)
+    gz_files = [f for f in files if f.endswith('.fastq.gz')]
+
+    samples_dict = {}
+    for gz_file in gz_files:
+        parts = gz_file.split('_')
+        sample_name = parts[0]
+        read_direction = parts[1]
+
+        if sample_name not in samples_dict:
+            samples_dict[sample_name] = {}
+
+        if read_direction == "R1":
+            samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
+        elif read_direction == "R2":
+            samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
+    return samples_dict
             

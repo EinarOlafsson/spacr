@@ -1,54 +1,37 @@
-import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime, shap
+import os, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, datetime
 
 import numpy as np
 import pandas as pd
 
-from cellpose import train
 from cellpose import models as cp_models
 
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
+
 from functools import reduce
 from IPython.display import display
 from multiprocessing import Pool, cpu_count, Value, Lock
 
 import seaborn as sns
-import cellpose
-from skimage.measure import regionprops, label
 from skimage.transform import resize as resizescikit
 
-from skimage import measure
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import  IsolationForest, RandomForestClassifier, HistGradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.inspection import permutation_importance
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import precision_recall_curve, f1_score
+from sklearn.ensemble import  IsolationForest
 
-from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
-
-import torchvision.transforms as transforms
-from xgboost import XGBClassifier
-import shap
+#import torchvision.transforms as transforms
+from torchvision import transforms
+from torch.utils.data import DataLoader, random_split
 
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
+
+
 from .logger import log_function_call
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
-
-
-from torchvision import transforms
-from torch.utils.data import DataLoader, random_split
-from collections import defaultdict
-import os
-import random
-from PIL import Image
-from torchvision.transforms import ToTensor
 
 def analyze_data_reg(sequencing_loc, dv_loc, agg_type = 'mean', dv_col='pred', transform=None, min_cell_count=50, min_reads=100, min_wells=2, max_wells=1000, min_frequency=0.0,remove_outlier_genes=False, refine_model=False,by_plate=False, regression_type='mlr', alpha_value=0.01, fishers=False, fisher_threshold=0.9):
     
@@ -1068,7 +1051,7 @@ def generate_training_dataset_v2(settings):
                                     include_noninfected=settings['include_noninfected'])
         [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
         
-        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df['prcfo'])]
+        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df.index)]
         return filtered_png_list_df
 
     def get_smallest_class_size(df, settings):
@@ -1346,7 +1329,7 @@ def generate_training_dataset(settings):
                                      include_multiinfected=settings['include_multiinfected'],
                                      include_noninfected=settings['include_noninfected'])
         [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
-        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df['prcfo'])]
+        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df.index)]
         return filtered_png_list_df
 
     # Function to get the smallest class size based on the dataset mode
@@ -1388,8 +1371,7 @@ def generate_training_dataset(settings):
                 return
 
         else:
-            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"] / \
-                                df[f'cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity']
+            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"] / df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
 
         q25 = df['recruitment'].quantile(0.25)
         q75 = df['recruitment'].quantile(0.75)
@@ -1471,7 +1453,7 @@ def generate_training_dataset(settings):
 
     return train_class_dir, test_class_dir
 
-def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, preload_batches=3, verbose=False):
+def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
     
     """
     Generate data loaders for training and validation/test datasets.
@@ -1494,7 +1476,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
     - val_loaders (list): List of data loaders for validation datasets.
     """
 
-    from .io import spacrDataset, spacrDataLoader
+    from .io import spacrDataset
     from .plot import _imshow_gpu
     from .utils import SelectChannels, augment_dataset
 
@@ -1559,14 +1541,10 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
             print(f'Data after augmentation: Train: {len(train_dataset)}')
             
         print(f'Generating Dataloader with {n_jobs} workers')
-        #train_loaders = spacrDataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)
-        #train_loaders = spacrDataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)
-
         train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
         val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
     else:
         train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
-        #train_loaders = spacrDataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=True, preload_batches=preload_batches)
 
     #dataset (Dataset) – dataset from which to load the data.
     #batch_size (int, optional) – how many samples per batch to load (default: 1).
@@ -1763,139 +1741,152 @@ def preprocess_generate_masks(src, settings={}):
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings
     from .settings import set_default_settings_preprocess_generate_masks
+
+    if not isinstance(settings['src'], (str, list)):
+        ValueError(f'src must be a string or a list of strings')
+        return
     
-    settings = set_default_settings_preprocess_generate_masks(src, settings)
-    settings['src'] = src
-    save_settings(settings, name='gen_mask')
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
 
-    if not settings['pathogen_channel'] is None:
-        custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
-        if settings['pathogen_model'] not in custom_model_ls:
-            ValueError(f'Pathogen model must be {custom_model_ls} or None')
-    
-    if settings['timelapse']:
-        settings['randomize'] = False
-    
-    if settings['preprocess']:
-        if not settings['masks']:
-            print(f'WARNING: channels for mask generation are defined when preprocess = True')
-    
-    if isinstance(settings['save'], bool):
-        settings['save'] = [settings['save']]*3
-
-    if settings['verbose']:
-        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
-        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
-        display(settings_df)
-
-    if settings['test_mode']:
-        print(f'Starting Test mode ...')
-
-    if settings['preprocess']:
-        settings, src = preprocess_img_data(settings)
-
-    files_to_process = 3
-    files_processed = 0
-    if settings['masks']:
-        mask_src = os.path.join(src, 'norm_channel_stack')
-        if settings['cell_channel'] != None:
-            time_ls=[]
-            if check_mask_folder(src, 'cell_mask_stack'):
-                start = time.time()
-                if settings['segmentation_mode'] == 'cellpose':
-                    generate_cellpose_masks(mask_src, settings, 'cell')
-                elif settings['segmentation_mode'] == 'mediar':
-                    generate_mediar_masks(mask_src, settings, 'cell')
-                stop = time.time()
-                duration = (stop - start)
-                time_ls.append(duration)
-                files_processed += 1
-                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
+    if isinstance(settings['src'], list):
+        source_folders = settings['src']
+        for source_folder in source_folders:
+            print(f'Processing folder: {source_folder}')
+            settings['src'] = source_folder
+            src = source_folder
+            settings = set_default_settings_preprocess_generate_masks(src, settings)
             
-        if settings['nucleus_channel'] != None:
-            time_ls=[]
-            if check_mask_folder(src, 'nucleus_mask_stack'):
-                start = time.time()
-                if settings['segmentation_mode'] == 'cellpose':
-                    generate_cellpose_masks(mask_src, settings, 'nucleus')
-                elif settings['segmentation_mode'] == 'mediar':
-                    generate_mediar_masks(mask_src, settings, 'nucleus')
-                stop = time.time()
-                duration = (stop - start)
-                time_ls.append(duration)
-                files_processed += 1
-                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
+            save_settings(settings, name='gen_mask')
+
+            if not settings['pathogen_channel'] is None:
+                custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
+                if settings['pathogen_model'] not in custom_model_ls:
+                    ValueError(f'Pathogen model must be {custom_model_ls} or None')
             
-        if settings['pathogen_channel'] != None:
-            time_ls=[]
-            if check_mask_folder(src, 'pathogen_mask_stack'):
-                start = time.time()
-                if settings['segmentation_mode'] == 'cellpose':
-                    generate_cellpose_masks(mask_src, settings, 'pathogen')
-                elif settings['segmentation_mode'] == 'mediar':
-                    generate_mediar_masks(mask_src, settings, 'pathogen')
-                stop = time.time()
-                duration = (stop - start)
-                time_ls.append(duration)
-                files_processed += 1
-                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
-
-        #if settings['organelle'] != None:
-        #    if check_mask_folder(src, 'organelle_mask_stack'):
-        #        generate_cellpose_masks(mask_src, settings, 'organelle')
-
-        if settings['adjust_cells']:
-            if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
-
-                start = time.time()
-                cell_folder = os.path.join(mask_src, 'cell_mask_stack')
-                nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
-                parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
-                print(f'Adjusting cell masks with nuclei and pathogen masks')
-                adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
-                stop = time.time()
-                adjust_time = (stop-start)/60
-                print(f'Cell mask adjustment: {adjust_time} min.')
+            if settings['timelapse']:
+                settings['randomize'] = False
             
-        if os.path.exists(os.path.join(src,'measurements')):
-            _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
+            if settings['preprocess']:
+                if not settings['masks']:
+                    print(f'WARNING: channels for mask generation are defined when preprocess = True')
+            
+            if isinstance(settings['save'], bool):
+                settings['save'] = [settings['save']]*3
 
-        #Concatenate stack with masks
-        _load_and_concatenate_arrays(src, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'])
-        
-        if settings['plot']:
-            if not settings['timelapse']:
+            if settings['verbose']:
+                settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+                settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+                display(settings_df)
 
-                if settings['test_mode'] == True:
-                    settings['examples_to_plot'] = len(os.path.join(src,'merged'))
+            if settings['test_mode']:
+                print(f'Starting Test mode ...')
 
-                try:
-                    merged_src = os.path.join(src,'merged')
-                    files = os.listdir(merged_src)
-                    random.shuffle(files)
-                    time_ls = []
-                    
-                    for i, file in enumerate(files):
+            if settings['preprocess']:
+                settings, src = preprocess_img_data(settings)
+
+            files_to_process = 3
+            files_processed = 0
+            if settings['masks']:
+                mask_src = os.path.join(src, 'norm_channel_stack')
+                if settings['cell_channel'] != None:
+                    time_ls=[]
+                    if check_mask_folder(src, 'cell_mask_stack'):
                         start = time.time()
-                        if i+1 <= settings['examples_to_plot']:
-                            file_path = os.path.join(merged_src, file)
-                            plot_image_mask_overlay(file_path, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'], figuresize=10, normalize=True, thickness=3, save_pdf=True)
-                            stop = time.time()
-                            duration = stop-start
-                            time_ls.append(duration)
-                            files_processed = i+1
-                            files_to_process = settings['examples_to_plot']
-                            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
+                        if settings['segmentation_mode'] == 'cellpose':
+                            generate_cellpose_masks(mask_src, settings, 'cell')
+                        elif settings['segmentation_mode'] == 'mediar':
+                            generate_mediar_masks(mask_src, settings, 'cell')
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
+                    
+                if settings['nucleus_channel'] != None:
+                    time_ls=[]
+                    if check_mask_folder(src, 'nucleus_mask_stack'):
+                        start = time.time()
+                        if settings['segmentation_mode'] == 'cellpose':
+                            generate_cellpose_masks(mask_src, settings, 'nucleus')
+                        elif settings['segmentation_mode'] == 'mediar':
+                            generate_mediar_masks(mask_src, settings, 'nucleus')
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
+                    
+                if settings['pathogen_channel'] != None:
+                    time_ls=[]
+                    if check_mask_folder(src, 'pathogen_mask_stack'):
+                        start = time.time()
+                        if settings['segmentation_mode'] == 'cellpose':
+                            generate_cellpose_masks(mask_src, settings, 'pathogen')
+                        elif settings['segmentation_mode'] == 'mediar':
+                            generate_mediar_masks(mask_src, settings, 'pathogen')
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
+
+                #if settings['organelle'] != None:
+                #    if check_mask_folder(src, 'organelle_mask_stack'):
+                #        generate_cellpose_masks(mask_src, settings, 'organelle')
+
+                if settings['adjust_cells']:
+                    if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
+
+                        start = time.time()
+                        cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+                        nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+                        parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                        #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
+                        print(f'Adjusting cell masks with nuclei and pathogen masks')
+                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
+                        stop = time.time()
+                        adjust_time = (stop-start)/60
+                        print(f'Cell mask adjustment: {adjust_time} min.')
+                    
+                if os.path.exists(os.path.join(src,'measurements')):
+                    _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
+
+                #Concatenate stack with masks
+                _load_and_concatenate_arrays(src, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'])
+                
+                if settings['plot']:
+                    if not settings['timelapse']:
+
+                        if settings['test_mode'] == True:
+                            settings['examples_to_plot'] = len(os.path.join(src,'merged'))
+
+                        try:
+                            merged_src = os.path.join(src,'merged')
+                            files = os.listdir(merged_src)
+                            random.shuffle(files)
+                            time_ls = []
                             
-                except Exception as e:
-                    print(f'Failed to plot image mask overly. Error: {e}')
-            else:
-                plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
-            
-    torch.cuda.empty_cache()
-    gc.collect()
-    print("Successfully completed run")
+                            for i, file in enumerate(files):
+                                start = time.time()
+                                if i+1 <= settings['examples_to_plot']:
+                                    file_path = os.path.join(merged_src, file)
+                                    plot_image_mask_overlay(file_path, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'], figuresize=10, normalize=True, thickness=3, save_pdf=True)
+                                    stop = time.time()
+                                    duration = stop-start
+                                    time_ls.append(duration)
+                                    files_processed = i+1
+                                    files_to_process = settings['examples_to_plot']
+                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
+                                    
+                        except Exception as e:
+                            print(f'Failed to plot image mask overly. Error: {e}')
+                    else:
+                        plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
+                    
+            torch.cuda.empty_cache()
+            gc.collect()
+            print("Successfully completed run")
     return
 
 def identify_masks_finetune(settings):
@@ -2464,250 +2455,6 @@ def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
     save_results_and_figure(src, fig, results)
     return
 
-def _calculate_similarity(df, features, col_to_compare, val1, val2):
-    """
-    Calculate similarity scores of each well to the positive and negative controls using various metrics.
-    
-    Args:
-    df (pandas.DataFrame): DataFrame containing the data.
-    features (list): List of feature columns to use for similarity calculation.
-    col_to_compare (str): Column name to use for comparing groups.
-    val1, val2 (str): Values in col_to_compare to create subsets for comparison.
-
-    Returns:
-    pandas.DataFrame: DataFrame with similarity scores.
-    """
-    # Separate positive and negative control wells
-    pos_control = df[df[col_to_compare] == val1][features].mean()
-    neg_control = df[df[col_to_compare] == val2][features].mean()
-    
-    # Standardize features for Mahalanobis distance
-    scaler = StandardScaler()
-    scaled_features = scaler.fit_transform(df[features])
-    
-    # Regularize the covariance matrix to avoid singularity
-    cov_matrix = np.cov(scaled_features, rowvar=False)
-    inv_cov_matrix = None
-    try:
-        inv_cov_matrix = np.linalg.inv(cov_matrix)
-    except np.linalg.LinAlgError:
-        # Add a small value to the diagonal elements for regularization
-        epsilon = 1e-5
-        inv_cov_matrix = np.linalg.inv(cov_matrix + np.eye(cov_matrix.shape[0]) * epsilon)
-    
-    # Calculate similarity scores
-    df['similarity_to_pos_euclidean'] = df[features].apply(lambda row: euclidean(row, pos_control), axis=1)
-    df['similarity_to_neg_euclidean'] = df[features].apply(lambda row: euclidean(row, neg_control), axis=1)
-    df['similarity_to_pos_cosine'] = df[features].apply(lambda row: cosine(row, pos_control), axis=1)
-    df['similarity_to_neg_cosine'] = df[features].apply(lambda row: cosine(row, neg_control), axis=1)
-    df['similarity_to_pos_mahalanobis'] = df[features].apply(lambda row: mahalanobis(row, pos_control, inv_cov_matrix), axis=1)
-    df['similarity_to_neg_mahalanobis'] = df[features].apply(lambda row: mahalanobis(row, neg_control, inv_cov_matrix), axis=1)
-    df['similarity_to_pos_manhattan'] = df[features].apply(lambda row: cityblock(row, pos_control), axis=1)
-    df['similarity_to_neg_manhattan'] = df[features].apply(lambda row: cityblock(row, neg_control), axis=1)
-    df['similarity_to_pos_minkowski'] = df[features].apply(lambda row: minkowski(row, pos_control, p=3), axis=1)
-    df['similarity_to_neg_minkowski'] = df[features].apply(lambda row: minkowski(row, neg_control, p=3), axis=1)
-    df['similarity_to_pos_chebyshev'] = df[features].apply(lambda row: chebyshev(row, pos_control), axis=1)
-    df['similarity_to_neg_chebyshev'] = df[features].apply(lambda row: chebyshev(row, neg_control), axis=1)
-    df['similarity_to_pos_hamming'] = df[features].apply(lambda row: hamming(row, pos_control), axis=1)
-    df['similarity_to_neg_hamming'] = df[features].apply(lambda row: hamming(row, neg_control), axis=1)
-    df['similarity_to_pos_jaccard'] = df[features].apply(lambda row: jaccard(row, pos_control), axis=1)
-    df['similarity_to_neg_jaccard'] = df[features].apply(lambda row: jaccard(row, neg_control), axis=1)
-    df['similarity_to_pos_braycurtis'] = df[features].apply(lambda row: braycurtis(row, pos_control), axis=1)
-    df['similarity_to_neg_braycurtis'] = df[features].apply(lambda row: braycurtis(row, neg_control), axis=1)
-    
-    return df
-
-def find_optimal_threshold(y_true, y_pred_proba):
-    """
-    Find the optimal threshold for binary classification based on the F1-score.
-
-    Args:
-    y_true (array-like): True binary labels.
-    y_pred_proba (array-like): Predicted probabilities for the positive class.
-
-    Returns:
-    float: The optimal threshold.
-    """
-    precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
-    f1_scores = 2 * (precision * recall) / (precision + recall)
-    optimal_idx = np.argmax(f1_scores)
-    optimal_threshold = thresholds[optimal_idx]
-    return optimal_threshold
-
-def ml_analysis(df, channel_of_interest=3, location_column='col', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
-    """
-    Calculates permutation importance for numerical features in the dataframe,
-    comparing groups based on specified column values and uses the model to predict 
-    the class for all other rows in the dataframe.
-
-    Args:
-    df (pandas.DataFrame): The DataFrame containing the data.
-    feature_string (str): String to filter features that contain this substring.
-    location_column (str): Column name to use for comparing groups.
-    positive_control, negative_control (str): Values in location_column to create subsets for comparison.
-    exclude (list or str, optional): Columns to exclude from features.
-    n_repeats (int): Number of repeats for permutation importance.
-    top_features (int): Number of top features to plot based on permutation importance.
-    n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
-    test_size (float): Proportion of the dataset to include in the test split.
-    random_state (int): Random seed for reproducibility.
-    model_type (str): Type of model to use ('random_forest', 'logistic_regression', 'gradient_boosting', 'xgboost').
-    n_jobs (int): Number of jobs to run in parallel for applicable models.
-
-    Returns:
-    pandas.DataFrame: The original dataframe with added prediction and data usage columns.
-    pandas.DataFrame: DataFrame containing the importances and standard deviations.
-    """
-
-    from .utils import filter_dataframe_features
-    from .plot import plot_permutation, plot_feature_importance
-
-    random_state = 42
-    
-    if 'cells_per_well' in df.columns:
-        df = df.drop(columns=['cells_per_well'])
-
-    
-    df_metadata = df[[location_column]].copy()
-
-    df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
-    print('After filtration:', len(df))
-    
-    if verbose:
-        print(f'Found {len(features)} numerical features in the dataframe')
-        print(f'Features used in training: {features}')
-    df = pd.concat([df, df_metadata[location_column]], axis=1)
-
-    # Subset the dataframe based on specified column values
-    df1 = df[df[location_column] == negative_control].copy()
-    df2 = df[df[location_column] == positive_control].copy()
-
-    # Create target variable
-    df1['target'] = 0 # Negative control
-    df2['target'] = 1 # Positive control
-
-    # Combine the subsets for analysis
-    combined_df = pd.concat([df1, df2])
-    combined_df = combined_df.drop(columns=[location_column])
-    if verbose:
-        print(f'Found {len(df1)} samples for {negative_control} and {len(df2)} samples for {positive_control}. Total: {len(combined_df)}')
-
-    X = combined_df[features]
-    y = combined_df['target']
-
-    print(X)
-    print(y)
-
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
-
-    # Add data usage labels
-    combined_df['data_usage'] = 'train'
-    combined_df.loc[X_test.index, 'data_usage'] = 'test'
-    df['data_usage'] = 'not_used'
-    df.loc[combined_df.index, 'data_usage'] = combined_df['data_usage']
-    
-    # Initialize the model based on model_type
-    if model_type == 'random_forest':
-        model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
-    elif model_type == 'logistic_regression':
-        model = LogisticRegression(max_iter=1000, random_state=random_state, n_jobs=n_jobs)
-    elif model_type == 'gradient_boosting':
-        model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)  # Supports n_jobs internally
-    elif model_type == 'xgboost':
-        model = XGBClassifier(n_estimators=n_estimators, random_state=random_state, nthread=n_jobs, use_label_encoder=False, eval_metric='logloss')
-    else:
-        raise ValueError(f"Unsupported model_type: {model_type}")
-
-    model.fit(X_train, y_train)
-
-    perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
-
-    # Create a DataFrame for permutation importances
-    permutation_df = pd.DataFrame({
-        'feature': [features[i] for i in perm_importance.importances_mean.argsort()],
-        'importance_mean': perm_importance.importances_mean[perm_importance.importances_mean.argsort()],
-        'importance_std': perm_importance.importances_std[perm_importance.importances_mean.argsort()]
-    }).tail(top_features)
-
-    permutation_fig = plot_permutation(permutation_df)
-    if verbose:
-        permutation_fig.show()
-
-    # Feature importance for models that support it
-    if model_type in ['random_forest', 'xgboost', 'gradient_boosting']:
-        feature_importances = model.feature_importances_
-        feature_importance_df = pd.DataFrame({
-            'feature': features,
-            'importance': feature_importances
-        }).sort_values(by='importance', ascending=False).head(top_features)
-        
-        feature_importance_fig = plot_feature_importance(feature_importance_df)
-        if verbose:
-            feature_importance_fig.show()
-
-    else:
-        feature_importance_df = pd.DataFrame()
-
-    # Predicting the target variable for the test set
-    predictions_test = model.predict(X_test)
-    combined_df.loc[X_test.index, 'predictions'] = predictions_test
-
-    # Get prediction probabilities for the test set
-    prediction_probabilities_test = model.predict_proba(X_test)
-
-    # Find the optimal threshold
-    optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
-    if verbose:
-        print(f'Optimal threshold: {optimal_threshold}')
-
-    # Predicting the target variable for all other rows in the dataframe
-    X_all = df[features]
-    all_predictions = model.predict(X_all)
-    df['predictions'] = all_predictions
-
-    # Get prediction probabilities for all rows in the dataframe
-    prediction_probabilities = model.predict_proba(X_all)
-    for i in range(prediction_probabilities.shape[1]):
-        df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
-    if verbose:
-        print("\nClassification Report:")
-        print(classification_report(y_test, predictions_test))
-    report_dict = classification_report(y_test, predictions_test, output_dict=True)
-    metrics_df = pd.DataFrame(report_dict).transpose()
-
-    df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
-
-    df['prcfo'] = df.index.astype(str)
-    df[['plate', 'row', 'col', 'field', 'object']] = df['prcfo'].str.split('_', expand=True)
-    df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
-    
-    return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df], [permutation_fig, feature_importance_fig]
-
-def shap_analysis(model, X_train, X_test):
-    
-    """
-    Performs SHAP analysis on the given model and data.
-
-    Args:
-    model: The trained model.
-    X_train (pandas.DataFrame): Training feature set.
-    X_test (pandas.DataFrame): Testing feature set.
-    Returns:
-    fig: Matplotlib figure object containing the SHAP summary plot.
-    """
-    
-    explainer = shap.Explainer(model, X_train)
-    shap_values = explainer(X_test)
-    # Create a new figure
-    fig, ax = plt.subplots()
-    # Summary plot
-    shap.summary_plot(shap_values, X_test, show=False)
-    # Save the current figure (the one that SHAP just created)
-    fig = plt.gcf()
-    plt.close(fig)  # Close the figure to prevent it from displaying immediately
-    return fig
-
 def check_index(df, elements=5, split_char='_'):
     problematic_indices = []
     for idx in df.index:
@@ -2719,80 +2466,6 @@ def check_index(df, elements=5, split_char='_'):
         for idx in problematic_indices:
             print(idx)
         raise ValueError(f"Found {len(problematic_indices)} problematic indices that do not split into {elements} parts.")
-
-def generate_ml_scores(src, settings):
-    
-    from .io import _read_and_merge_data
-    from .plot import plot_plates
-    from .utils import get_ml_results_paths
-    from .settings import set_default_analyze_screen
-
-    settings = set_default_analyze_screen(settings)
-
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    display(settings_df)
-
-    db_loc = [src+'/measurements/measurements.db']
-    tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
-    include_multinucleated, include_multiinfected, include_noninfected = True, 3, True
-    
-    df, _ = _read_and_merge_data(db_loc, 
-                                 tables,
-                                 settings['verbose'],
-                                 include_multinucleated,
-                                 include_multiinfected,
-                                 include_noninfected)
-    
-    if settings['channel_of_interest'] in [0,1,2,3]:
-
-        df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
-    
-    output, figs = ml_analysis(df,
-                               settings['channel_of_interest'],
-                               settings['location_column'],
-                               settings['positive_control'],
-                               settings['negative_control'],
-                               settings['exclude'],
-                               settings['n_repeats'],
-                               settings['top_features'],
-                               settings['n_estimators'],
-                               settings['test_size'],
-                               settings['model_type_ml'],
-                               settings['n_jobs'],
-                               settings['remove_low_variance_features'],
-                               settings['remove_highly_correlated_features'],
-                               settings['verbose'])
-    
-    shap_fig = shap_analysis(output[3], output[4], output[5])
-
-    features = output[0].select_dtypes(include=[np.number]).columns.tolist()
-
-    if not settings['heatmap_feature'] in features:
-        raise ValueError(f"Variable {settings['heatmap_feature']} not found in the dataframe. Please choose one of the following: {features}")
-    
-    plate_heatmap = plot_plates(df=output[0],
-                                variable=settings['heatmap_feature'],
-                                grouping=settings['grouping'],
-                                min_max=settings['min_max'],
-                                cmap=settings['cmap'],
-                                min_count=settings['minimum_cell_count'],
-                                verbose=settings['verbose'])
-
-    data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv = get_ml_results_paths(src, settings['model_type_ml'], settings['channel_of_interest'])
-    df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df = output
-
-    settings_df.to_csv(settings_csv, index=False)
-    df.to_csv(data_path, mode='w', encoding='utf-8')
-    permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
-    feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
-    metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
-    
-    plate_heatmap.savefig(plate_heatmap_path, format='pdf')
-    figs[0].savefig(permutation_fig_path, format='pdf')
-    figs[1].savefig(feature_importance_fig_path, format='pdf')
-    shap_fig.savefig(shap_fig_path, format='pdf')
-
-    return [output, plate_heatmap]
 
 def join_measurments_and_annotation(src, tables = ['cell', 'nucleus', 'pathogen','cytoplasm']):
     

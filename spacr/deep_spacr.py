@@ -204,6 +204,9 @@ def train_test_model(settings):
     from .io import _save_settings, _copy_missclassified
     from .utils import pick_best_model
     from .core import generate_loaders
+    from .settings import get_train_test_model_settings
+
+    settings = get_train_test_model_settings(settings)
 
     torch.cuda.empty_cache()
     torch.cuda.memory.empty_cache()
@@ -235,7 +238,6 @@ def train_test_model(settings):
                                                   normalize=settings['normalize'],
                                                   channels=settings['train_channels'],
                                                   augment=settings['augment'],
-                                                  preload_batches=settings['preload_batches'],
                                                   verbose=settings['verbose'])
         
         #train_batch_1_figure = os.path.join(dst, 'batch_1.pdf')
@@ -275,7 +277,6 @@ def train_test_model(settings):
                                                                 normalize=settings['normalize'],
                                                                 channels=settings['train_channels'],
                                                                 augment=False,
-                                                                preload_batches=settings['preload_batches'],
                                                                 verbose=settings['verbose'])
         if model == None:
             model_path = pick_best_model(src+'/model')
@@ -354,11 +355,6 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
     print(f'Using {device} for Torch')
     
     kwargs = {'n_jobs': n_jobs, 'pin_memory': True} if use_cuda else {}
-    
-    #for idx, (images, labels, filenames) in enumerate(train_loaders):
-    #    batch, chans, height, width = images.shape
-    #    break
-
     
     model = choose_model(model_type, device, init_weights, dropout_rate, use_checkpoint, verbose=verbose)
     

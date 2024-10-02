@@ -425,6 +425,8 @@ def import_settings(settings_type='mask'):
         settings = get_analyze_recruitment_default_settings(settings={})
     elif settings_type == 'analyze_plaques':
         settings = {}
+    elif settings_type == 'convert':
+        settings = {}
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
     
@@ -479,7 +481,9 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     elif settings_type == 'recruitment':
         settings = get_analyze_recruitment_default_settings(settings={})
     elif settings_type == 'analyze_plaques':
-        settings = {}
+        settings = {'src':'path to images'}
+    elif settings_type == 'convert':
+        settings = {'src':'path to images'}
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")
 
@@ -779,8 +783,9 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
 
     process_args = (settings_type, settings, q, fig_queue, stop_requested)
     if settings_type in ['mask', 'umap', 'measure', 'simulation', 'sequencing', 'classify', 'analyze_plaques', 
-                         'cellpose_dataset', 'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 'map_barcodes', 
-                         'regression', 'recruitment', 'cellpose_compare', 'vision_scores', 'vision_dataset']:
+                         'cellpose_dataset', 'train_cellpose', 'ml_analyze', 'cellpose_masks', 'cellpose_all', 
+                         'map_barcodes', 'regression', 'recruitment', 'cellpose_compare', 'vision_scores', 
+                         'vision_dataset', 'convert']:
 
         # Start the process
         process = Process(target=run_function_gui, args=process_args)
