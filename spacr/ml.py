@@ -296,6 +296,8 @@ def perform_regression(settings):
 
     settings['src'] = src
     fldr = 'results_' + settings['regression_type']
+    if isinstance(settings['count_data'], list):
+        fldr = fldr + '_list'
 
     if settings['regression_type'] == 'quantile':
         fldr = fldr + '_' + str(settings['alpha'])
@@ -459,8 +461,6 @@ def clean_controls(df,pc,nc,other):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
-
-
 
     if 'plate_name' in df.columns:
         df.drop(columns=['plate'], inplace=True)
