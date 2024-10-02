@@ -488,13 +488,14 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .gui_utils import process_stdout_stderr
-    from .core import generate_image_umap, preprocess_generate_masks, generate_ml_scores, identify_masks_finetune, check_cellpose_models, analyze_recruitment, compare_cellpose_masks, generate_dataset, apply_model_to_tar
+    from .core import generate_image_umap, preprocess_generate_masks, identify_masks_finetune, check_cellpose_models, analyze_recruitment, compare_cellpose_masks, generate_dataset, apply_model_to_tar
+    from .ml import generate_ml_scores, perform_regression
     from .submodules import train_cellpose, analyze_plaques
-    from .io import generate_cellpose_train_test
+    from .io import process_non_tif_non_2D_images, generate_cellpose_train_test
     from .measure import measure_crop
     from .sim import run_multiple_simulations
     from .deep_spacr import deep_spacr
-    from .sequencing import generate_barecode_mapping, perform_regression
+    from .sequencing import generate_barecode_mapping
     process_stdout_stderr(q)
 
     print(f'run_function_gui settings_type: {settings_type}') 
@@ -537,6 +538,9 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 1
     elif settings_type == 'analyze_plaques':
         function = analyze_plaques
+        imports = 1
+    elif settings_type == 'convert':
+        function = process_non_tif_non_2D_images
         imports = 1
     else:
         raise ValueError(f"Invalid settings type: {settings_type}")

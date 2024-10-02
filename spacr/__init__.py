@@ -26,6 +26,7 @@ from . import app_umap
 from . import mediar
 from . import submodules
 from . import openai
+from . import ml
 from . import logger
 
 __all__ = [
@@ -53,6 +54,7 @@ __all__ = [
     "mediar",
     "submodules",
     "openai",
+    "ml"
     "logger"
 ]
 

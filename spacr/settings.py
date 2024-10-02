@@ -291,6 +291,9 @@ def set_default_analyze_screen(settings):
     settings.setdefault('positive_control','c2')
     settings.setdefault('negative_control','c1')
     settings.setdefault('exclude',None)
+    settings.setdefault('include_multinucleated',True)
+    settings.setdefault('include_multiinfected',3)
+    settings.setdefault('include_noninfected',True)
     settings.setdefault('n_repeats',10)
     settings.setdefault('top_features',30)
     settings.setdefault('remove_low_variance_features',True)
@@ -345,6 +348,9 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
+    settings.setdefault('include_multinucleated',True)
+    settings.setdefault('include_multiinfected',True)
+    settings.setdefault('include_noninfected',True)
     settings.setdefault('png_type','cell_png')
     
     return settings
@@ -405,6 +411,37 @@ def deep_spacr_defaults(settings):
     settings.setdefault('generate_training_dataset', True)
     settings.setdefault('train_DL_model', True)
     return settings
+
+def get_train_test_model_settings(settings):
+     settings.setdefault('src', 'path')
+     settings.setdefault('train', True)
+     settings.setdefault('test', False)
+     settings.setdefault('custom_model', False)
+     settings.setdefault('classes', ['nc','pc'])
+     settings.setdefault('train_channels', ['r','g','b'])
+     settings.setdefault('model_type', 'maxvit_t')
+     settings.setdefault('optimizer_type', 'adamw')
+     settings.setdefault('schedule', 'reduce_lr_on_plateau')
+     settings.setdefault('loss_type', 'focal_loss')
+     settings.setdefault('normalize', True)
+     settings.setdefault('image_size', 224)
+     settings.setdefault('batch_size', 64)
+     settings.setdefault('epochs', 100)
+     settings.setdefault('val_split', 0.1)
+     settings.setdefault('learning_rate', 0.0001)
+     settings.setdefault('weight_decay', 0.00001)
+     settings.setdefault('dropout_rate', 0.1)
+     settings.setdefault('init_weights', True)
+     settings.setdefault('amsgrad', True)
+     settings.setdefault('use_checkpoint', True)
+     settings.setdefault('gradient_accumulation', True)
+     settings.setdefault('gradient_accumulation_steps', 4)
+     settings.setdefault('intermedeate_save',True)
+     settings.setdefault('pin_memory', True)
+     settings.setdefault('n_jobs', 30)
+     settings.setdefault('augment', True)
+     settings.setdefault('verbose', True)
+     return settings
 
 def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('src','path')
@@ -552,7 +589,7 @@ def get_identify_masks_finetune_default_settings(settings):
 
 q = None
 expected_types = {
-    "src": str,
+    "src": (str, list),
     "metadata_type": str,
     "custom_regex": (str, type(None)),
     "experiment": str,
@@ -834,28 +871,28 @@ expected_types = {
     "train_DL_model":bool,
 }
 
-categories = {"General": ["src", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
-             "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells"],
-             "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
-             "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim"],
-             "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Plot": ["plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "normalize", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
-             "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-             "Paths":["grna", "barcodes", "custom_model_path", "tar_path","model_path"],
-             "Sequencing": ["upstream", "downstream", "barecode_length_1", "barecode_length_2", "chunk_size", "barcode_mapping", "reverse_complement", "barcode_coordinates", "complevel", "compression","plate_dict"],
-             "Embedding": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
-             "Clustering": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
-             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
-             "Annotation": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","pathogen_types", "pathogen_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "cells", "cell_loc", "pathogens", "pathogen_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
-             "Machine Learning":[],
-             "Deep Learning": ["png_type","score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment"],
-             "Generate Dataset":["preload_batches", "file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
+categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "tar_path","model_path","grna_csv","row_csv","column_csv"],
+             "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
              "Cellpose":["from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "circular", "invert", "diameter", "grayscale", "background", "Signal_to_noise", "resize", "target_height", "target_width"],
+             "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
+             "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
+             "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
+             "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
+             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
+             "Sequencing": ["signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex"],
+             "Generate Dataset":["file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
+             "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
+             "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
+             "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
+             "Annotation": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Regression":["class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "remove_row_column_effect", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable", "gene_weights_csv"],
-             "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"],
+             "Plot": ["plot", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
-             "Advanced": ["target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "plot", "timelapse", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"]
+             "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
+             "Advanced": ["target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
              }
+
 
 category_keys = list(categories.keys())
 
@@ -1163,9 +1200,43 @@ def generate_fields(variables, scrollable_frame):
         "train_channels": "list - channels to use for training",
         "dataset_mode": "str - How to generate train/test dataset.",
         "annotated_classes": "list - list of numbers in annotation column.",
-        "um_per_pixel": "(float) - The micrometers per pixel for the images."
+        "um_per_pixel": "(float) - The micrometers per pixel for the images.",
+        "segmentation_model": "(str) - The segmentation model to use, either cellpose or mediar.",
+        "pathogen_model": "(str) - use a custom cellpose model to detect pathogen objects.",
+        "timelapse_displacement": "(int) - Displacement for timelapse tracking.",
+        "timelapse_memory": "(int) - Memory for timelapse tracking.",
+        "timelapse_mode": "(str) - Mode for timelapse tracking, trackpy or btrack.",
+        "timelapse_frame_limits": "(list) - Frame limits for timelapse tracking [start,end].",
+        "timelapse_objects": "(list) - Objects to track in the timelapse, cells, nuclei, or pathogens.",
+        "timelapse_remove_transient": "(bool) - Whether to remove transient objects in the timelapse.",
+        "masks": "(bool) - Whether to generate masks for the segmented objects.",
+        "timelapse": "(bool) - Whether to analyze images as a timelapse.",
+        "pathogen_min_size": "(int) - The minimum size of pathogen objects in pixels^2.",
+        "pathogen_mask_dim": "(int) - The dimension of the array the pathogen mask is saved in.",
+        "use_bounding_box": "(bool) - Whether to use the bounding box for cropping the images.",
+        "plot_points": "(bool) - Whether to plot scatterplot points.",
+        "embedding_by_controls": "(bool) - Use the controlls to greate the embedding, then apply this embedding to all of the data.",
+        "pos": "(str) - Positive control identifier.",
+        "neg": "(str) - Negative control identifier.",
+        "minimum_cell_count": "(int) - Minimum number of cells/well. if number of cells < minimum_cell_count, the well is excluded from the analysis.",
+        "circular": "(bool) - If a circle is to be drawn and corners excluded (e.g. square images of round wells).",
+        "highlight": "(str) - highlight genes/grnas containing this string.",
+        "pathogen_plate_metadata": "(str) - Metadata for the pathogen plate.",
+        "treatment_plate_metadata": "(str) - Metadata for the treatment plate.",
+        "regex": "(str) - Regular expression to use.",
+        "target_sequence": "(str) - The DNA sequence to look for that the consensus sequence will start with directly downstream of the first barcode.",
+        "offset": "(int) - The offset to use for the consensus sequence, e.g. -8 if the barecode is 8 bases before target_sequence.",
+        "expected_end": "(int) - The expected length of the sequence from the start of the first barcode to the end of the last.",
+        "column_csv": "(path) - path to the csv file containing column barcodes.",
+        "row_csv": "(path) - path to the csv file containing row barcodes.",
+        "grna_csv": "(path) - path to the csv file containing gRNA sequences.",
+        "save_h5": "(bool) - Whether to save the results to an HDF5 file. (this generates a large file, if compression is used this can be very time consuming)",
+        "comp_type": "(str) - Compression type for the HDF5 file (e.g. zlib).",
+        "comp_level": "(int) - Compression level for the HDF5 file (0-9). Higher is slower and yields smaller files.",
+        "mode": "(str) - Mode to use for sequence analysis (either single for R1 or R2 fastq files or paired for the combination of R1 and R2).",
+        "signal_direction": "(str) - Direction of fastq file (R1 or R2). only relevent when mode is single."
     }
-
+    
     for key, (var_type, options, default_value) in variables.items():
         label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
         vars_dict[key] = (label, widget, var, frame)  # Store the label, widget, and variable

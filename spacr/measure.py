@@ -989,107 +989,121 @@ def measure_crop(settings):
     from .utils import measure_test_mode, print_progress
     from .settings import get_measure_crop_settings
 
-    settings = get_measure_crop_settings(settings)
-    settings = measure_test_mode(settings)
-
-    src_fldr = settings['src']
-    if not os.path.basename(src_fldr).endswith('merged'):
-        print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
-        src_fldr = os.path.join(src_fldr, 'merged')
-        print(f"Changed source folder to: {src_fldr}")
-
-    #if settings['save_measurements']:
-        #source_folder = os.path.dirname(settings['src'])
-        #os.makedirs(source_folder+'/measurements', exist_ok=True)
-        #_create_database(source_folder+'/measurements/measurements.db')
-    
-    if settings['cell_mask_dim'] is None:
-        settings['include_uninfected'] = True
-    if settings['pathogen_mask_dim'] is None:
-        settings['include_uninfected'] = True
-    if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
-        settings['cytoplasm'] = True
-    elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
-        settings['cytoplasm'] = True
-    else:
-        settings['cytoplasm'] = False
-
-    spacr_cores = int(mp.cpu_count() - 6)
-    if spacr_cores <= 2:
-        spacr_cores = 1
-
-    if settings['n_jobs'] > spacr_cores:
-        print(f'Warning reserving 6 CPU cores for other processes, setting n_jobs to {spacr_cores}')
-        settings['n_jobs'] = spacr_cores
-
-    dirname = os.path.dirname(settings['src'])
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
-    os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
-    settings_df.to_csv(settings_csv, index=False)
-
-    if settings['timelapse_objects'] == 'nucleus':
-        if not settings['cell_mask_dim'] is None:
-            tlo = settings['timelapse_objects']
-            print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
-
-    int_setting_keys = ['cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim', 'cell_min_size', 'nucleus_min_size', 'pathogen_min_size', 'cytoplasm_min_size']
-    
-    if isinstance(settings['normalize'], bool) and settings['normalize']:
-        print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
+    if not isinstance(settings['src'], (str, list)):
+        ValueError(f'src must be a string or a list of strings')
         return
     
-    if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
-        if settings['normalize_by'] not in ['png', 'fov']:
-            print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
-            return
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
 
-    if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
-        print(f"WARNING: {int_setting_keys} must all be integers")
-        return
+    if isinstance(settings['src'], list):
+        source_folders = settings['src']
+        for source_folder in source_folders:
+            print(f'Processing folder: {source_folder}')
+            settings['src'] = source_folder
+            src = source_folder
 
-    if not isinstance(settings['channels'], list):
-        print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
-        return
+            settings = get_measure_crop_settings(settings)
+            settings = measure_test_mode(settings)
 
-    if not isinstance(settings['crop_mode'], list):
-        print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None]")
-        return
-    
-    _save_settings_to_db(settings)
-    files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
-    n_jobs = settings['n_jobs']
-    print(f'using {n_jobs} cpu cores')
-    print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
+            src_fldr = settings['src']
+            if not os.path.basename(src_fldr).endswith('merged'):
+                print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
+                src_fldr = os.path.join(src_fldr, 'merged')
+                print(f"Changed source folder to: {src_fldr}")
 
-    def job_callback(result):
-        completed_jobs.add(result[0])
-        process_meassure_crop_results([result], settings)
-        files_processed = len(completed_jobs)
-        files_to_process = len(files)
-        print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
-        if files_processed >= files_to_process:
-            pool.terminate()
-
-    with mp.Manager() as manager:
-        time_ls = manager.list()
-        completed_jobs = set()  # Set to keep track of completed jobs
-        
-        with mp.Pool(n_jobs) as pool:
-            for index, file in enumerate(files):
-                pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings), callback=job_callback)
+            #if settings['save_measurements']:
+                #source_folder = os.path.dirname(settings['src'])
+                #os.makedirs(source_folder+'/measurements', exist_ok=True)
+                #_create_database(source_folder+'/measurements/measurements.db')
             
-            pool.close()
-            pool.join()
+            if settings['cell_mask_dim'] is None:
+                settings['include_uninfected'] = True
+            if settings['pathogen_mask_dim'] is None:
+                settings['include_uninfected'] = True
+            if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
+                settings['cytoplasm'] = True
+            elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
+                settings['cytoplasm'] = True
+            else:
+                settings['cytoplasm'] = False
 
-    if settings['timelapse']:
-        if settings['timelapse_objects'] == 'nucleus':
-            folder_path = settings['src']
-            mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
-            object_types = ['nucleus', 'pathogen', 'cell']
-            _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
+            spacr_cores = int(mp.cpu_count() - 6)
+            if spacr_cores <= 2:
+                spacr_cores = 1
 
-    print("Successfully completed run")
+            if settings['n_jobs'] > spacr_cores:
+                print(f'Warning reserving 6 CPU cores for other processes, setting n_jobs to {spacr_cores}')
+                settings['n_jobs'] = spacr_cores
+
+            dirname = os.path.dirname(settings['src'])
+            settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+            settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
+            os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
+            settings_df.to_csv(settings_csv, index=False)
+
+            if settings['timelapse_objects'] == 'nucleus':
+                if not settings['cell_mask_dim'] is None:
+                    tlo = settings['timelapse_objects']
+                    print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
+
+            int_setting_keys = ['cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim', 'cell_min_size', 'nucleus_min_size', 'pathogen_min_size', 'cytoplasm_min_size']
+            
+            if isinstance(settings['normalize'], bool) and settings['normalize']:
+                print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
+                return
+            
+            if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
+                if settings['normalize_by'] not in ['png', 'fov']:
+                    print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                    return
+
+            if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
+                print(f"WARNING: {int_setting_keys} must all be integers")
+                return
+
+            if not isinstance(settings['channels'], list):
+                print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
+                return
+
+            if not isinstance(settings['crop_mode'], list):
+                print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None]")
+                return
+            
+            _save_settings_to_db(settings)
+            files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
+            n_jobs = settings['n_jobs']
+            print(f'using {n_jobs} cpu cores')
+            print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
+
+            def job_callback(result):
+                completed_jobs.add(result[0])
+                process_meassure_crop_results([result], settings)
+                files_processed = len(completed_jobs)
+                files_to_process = len(files)
+                print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
+                if files_processed >= files_to_process:
+                    pool.terminate()
+
+            with mp.Manager() as manager:
+                time_ls = manager.list()
+                completed_jobs = set()  # Set to keep track of completed jobs
+                
+                with mp.Pool(n_jobs) as pool:
+                    for index, file in enumerate(files):
+                        pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings), callback=job_callback)
+                    
+                    pool.close()
+                    pool.join()
+
+            if settings['timelapse']:
+                if settings['timelapse_objects'] == 'nucleus':
+                    folder_path = settings['src']
+                    mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
+                    object_types = ['nucleus', 'pathogen', 'cell']
+                    _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
+
+            print("Successfully completed run")
 
 def process_meassure_crop_results(partial_results, settings):
     """
