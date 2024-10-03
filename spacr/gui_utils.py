@@ -396,6 +396,7 @@ def convert_settings_dict_for_gui(settings):
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
         'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),
+        'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'cell_mask_dim': ('combo', chans, None),
         'cell_chann_dim': ('combo', chans, None),
         'nucleus_mask_dim': ('combo', chans, None),
@@ -488,13 +489,15 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .gui_utils import process_stdout_stderr
-    from .core import generate_image_umap, preprocess_generate_masks, identify_masks_finetune, check_cellpose_models, analyze_recruitment, compare_cellpose_masks, generate_dataset, apply_model_to_tar
+    from .core import generate_image_umap, preprocess_generate_masks
+    from .cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
+    from .submodules import analyze_recruitment
     from .ml import generate_ml_scores, perform_regression
     from .submodules import train_cellpose, analyze_plaques
-    from .io import process_non_tif_non_2D_images, generate_cellpose_train_test
+    from .io import process_non_tif_non_2D_images, generate_cellpose_train_test, generate_dataset
     from .measure import measure_crop
     from .sim import run_multiple_simulations
-    from .deep_spacr import deep_spacr
+    from .deep_spacr import deep_spacr, apply_model_to_tar
     from .sequencing import generate_barecode_mapping
     process_stdout_stderr(q)
 

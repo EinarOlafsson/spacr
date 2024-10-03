@@ -409,7 +409,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
     plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile, overlay, save=False)
     return
 
-def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, include_multinucleated, include_multiinfected):
+def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, nuclei_limit, pathogen_limit):
     """
     Filters objects in a plot based on various criteria.
 
@@ -420,8 +420,8 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         pathogen_mask_dim (int): The dimension index of the pathogen mask.
         mask_dims (list): A list of dimension indices for additional masks.
         filter_min_max (list): A list of minimum and maximum area values for each mask.
-        include_multinucleated (bool): Whether to include multinucleated cells.
-        include_multiinfected (bool): Whether to include multiinfected cells.
+        nuclei_limit (bool): Whether to include multinucleated cells.
+        pathogen_limit (bool): Whether to include multiinfected cells.
 
     Returns:
         numpy.ndarray: The filtered stack of masks.
@@ -451,9 +451,9 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         total_count_after = len(props_after['label'])
 
         if mask_dim == cell_mask_dim:
-            if include_multinucleated is False and nucleus_mask_dim is not None:
+            if nuclei_limit is False and nucleus_mask_dim is not None:
                 stack = _remove_multiobject_cells(stack, mask_dim, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, object_dim=pathogen_mask_dim)
-            if include_multiinfected is False and cell_mask_dim is not None and pathogen_mask_dim is not None:
+            if pathogen_limit is False and cell_mask_dim is not None and pathogen_mask_dim is not None:
                 stack = _remove_multiobject_cells(stack, mask_dim, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, object_dim=nucleus_mask_dim)
             cell_area_before = avg_size_before
             cell_count_before = total_count_before
@@ -662,18 +662,18 @@ def plot_merged(src, settings):
         display(settings)
         
     if settings['pathogen_mask_dim'] is None:
-        settings['include_multiinfected'] = True
+        settings['pathogen_limit'] = True
 
     for file in os.listdir(src):
         path = os.path.join(src, file)
         stack = np.load(path)
         print(f'Loaded: {path}')
-        if not settings['include_noninfected']:
+        if not settings['uninfected']:
             if settings['pathogen_mask_dim'] is not None and settings['cell_mask_dim'] is not None:
                 stack = _remove_noninfected(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'])
 
-        if settings['include_multiinfected'] is not True or settings['include_multinucleated'] is not True or settings['filter_min_max'] is not None:
-            stack = _filter_objects_in_plot(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], mask_dims, settings['filter_min_max'], settings['include_multinucleated'], settings['include_multiinfected'])
+        if settings['pathogen_limit'] is not True or settings['nuclei_limit'] is not True or settings['filter_min_max'] is not None:
+            stack = _filter_objects_in_plot(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], mask_dims, settings['filter_min_max'], settings['nuclei_limit'], settings['pathogen_limit'])
 
         overlayed_image, image, outlines = _normalize_and_outline(image=stack, 
                                                                   remove_background=settings['remove_background'],
@@ -1745,3 +1745,90 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
         plt.show()
     else:
         print("No CSV files found in the specified directory.")
+
+def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', output_path=None, filter_column=None, filter_values=None):
+    """
+    Reads a CSV file and creates a jitter plot of one column grouped by another column.
+    
+    Args:
+    src (str): Path to the source data.
+    x_column (str): Name of the column to be used for the x-axis.
+    y_column (str): Name of the column to be used for the y-axis.
+    plot_title (str): Title of the plot. Default is 'Jitter Plot'.
+    output_path (str): Path to save the plot image. If None, the plot will be displayed. Default is None.
+    
+    Returns:
+    pd.DataFrame: The filtered and balanced DataFrame.
+    """
+
+    def join_measurments_and_annotation(src, tables = ['cell', 'nucleus', 'pathogen','cytoplasm']):
+        from .io import _read_and_merge_data, _read_db
+        db_loc = [src+'/measurements/measurements.db']
+        loc = src+'/measurements/measurements.db'
+        df, _ = _read_and_merge_data(db_loc, 
+                                    tables, 
+                                    verbose=True, 
+                                    nuclei_limit=True, 
+                                    pathogen_limit=True, 
+                                    uninfected=True)
+        paths_df = _read_db(loc, tables=['png_list'])
+        merged_df = pd.merge(df, paths_df[0], on='prcfo', how='left')
+        return merged_df
+
+    # Read the CSV file into a DataFrame
+    df = join_measurments_and_annotation(src, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+
+    # Print column names for debugging
+    print(f"Generated dataframe with: {df.shape[1]} columns and {df.shape[0]} rows")
+    #print("Columns in DataFrame:", df.columns.tolist())
+
+    # Replace NaN values with a specific label in x_column
+    df[x_column] = df[x_column].fillna('NaN')
+
+    # Filter the DataFrame if filter_column and filter_values are provided
+    if not filter_column is None:
+        if isinstance(filter_column, str):
+            df = df[df[filter_column].isin(filter_values)]
+        if isinstance(filter_column, list):
+            for i,val in enumerate(filter_column):
+                print(f'hello {len(df)}')
+                df = df[df[val].isin(filter_values[i])]
+
+    # Use the correct column names based on your DataFrame
+    required_columns = ['plate_x', 'row_x', 'col_x']
+    if not all(column in df.columns for column in required_columns):
+        raise KeyError(f"DataFrame does not contain the necessary columns: {required_columns}")
+
+    # Filter to retain rows with non-NaN values in x_column and with matching plate, row, col values
+    non_nan_df = df[df[x_column] != 'NaN']
+    retained_rows = df[df[['plate_x', 'row_x', 'col_x']].apply(tuple, axis=1).isin(non_nan_df[['plate_x', 'row_x', 'col_x']].apply(tuple, axis=1))]
+
+    # Determine the minimum count of examples across all groups in x_column
+    min_count = retained_rows[x_column].value_counts().min()
+    print(f'Found {min_count} annotated images')
+
+    # Randomly sample min_count examples from each group in x_column
+    balanced_df = retained_rows.groupby(x_column).apply(lambda x: x.sample(min_count, random_state=42)).reset_index(drop=True)
+
+    # Create the jitter plot
+    plt.figure(figsize=(10, 6))
+    jitter_plot = sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column, jitter=True, palette='viridis', dodge=False)
+    plt.title(plot_title)
+    plt.xlabel(x_column)
+    plt.ylabel(y_column)
+    
+    # Customize the x-axis labels
+    plt.xticks(rotation=45, ha='right')
+    
+    # Adjust the position of the x-axis labels to be centered below the data
+    ax = plt.gca()
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='center')
+    
+    # Save the plot to a file or display it
+    if output_path:
+        plt.savefig(output_path, bbox_inches='tight')
+        print(f"Jitter plot saved to {output_path}")
+    else:
+        plt.show()
+
+    return balanced_df

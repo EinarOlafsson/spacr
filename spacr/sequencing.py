@@ -1,14 +1,7 @@
-import os, gzip, re, time, math, subprocess, gzip
+import os, gzip, re, time, gzip
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from Bio import pairwise2
-from difflib import SequenceMatcher
 from multiprocessing import Pool, cpu_count, Queue, Process
 from Bio.Seq import Seq
-
-
 
 # Function to map sequences to names (same as your original)
 def map_sequences_to_names(csv_file, sequences, rc):
