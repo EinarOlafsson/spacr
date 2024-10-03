@@ -1,5 +1,5 @@
-import os, torch, time, gc, datetime
-
+import os, torch, time, gc, datetime, sqlite3, shutil, random
+from sklearn.model_selection import train_test_split
 torch.backends.cudnn.benchmark = True
 
 import numpy as np
@@ -8,15 +8,144 @@ from torch.optim import Adagrad, AdamW
 from torch.autograd import grad
 from torch.optim.lr_scheduler import StepLR
 import torch.nn.functional as F
-from IPython.display import display, clear_output
 import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.metrics import auc, precision_recall_curve
 from multiprocessing import set_start_method
+from multiprocessing import Pool, cpu_count, Value, Lock
+
+from torchvision import transforms
+from torch.utils.data import DataLoader, random_split
+
 #set_start_method('spawn', force=True)
 
 from .logger import log_function_call
-from .utils import close_multiprocessing_processes, reset_mp
+
+def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
+    
+    from .io import NoClassDataset
+    from .utils import print_progress
+    
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    
+    if normalize:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size))])
+    
+    model = torch.load(model_path)
+    print(model)
+    
+    print(f'Loading dataset in {src} with {len(src)} images')
+    dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=True, load_to_memory=False)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=n_jobs)
+    print(f'Loaded {len(src)} images')
+    
+    result_loc = os.path.splitext(model_path)[0]+datetime.date.today().strftime('%y%m%d')+'_'+os.path.splitext(model_path)[1]+'_test_result.csv'
+    print(f'Results wil be saved in: {result_loc}')
+    
+    model.eval()
+    model = model.to(device)
+    prediction_pos_probs = []
+    filenames_list = []
+    time_ls = []
+    with torch.no_grad():
+        for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
+            start = time.time()
+            images = batch_images.to(torch.float).to(device)
+            outputs = model(images)
+            batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
+            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
+            filenames_list.extend(filenames)
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = batch_idx*batch_size
+            files_to_process = len(data_loader)
+            print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=batch_size, operation_type="Generating predictions")
+
+    data = {'path':filenames_list, 'pred':prediction_pos_probs}
+    df = pd.DataFrame(data, index=None)
+    df.to_csv(result_loc, index=True, header=True, mode='w')
+    torch.cuda.empty_cache()
+    torch.cuda.memory.empty_cache()
+    return df
+
+def apply_model_to_tar(settings={}):
+    
+    from .io import TarImageDataset
+    from .utils import process_vision_results, print_progress
+    
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if settings['normalize']:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size']))])
+    
+    if settings['verbose']:
+        print(f"Loading model from {settings['model_path']}")
+        print(f"Loading dataset from {settings['tar_path']}")
+        
+    model = torch.load(settings['model_path'])
+    
+    dataset = TarImageDataset(settings['tar_path'], transform=transform)
+    data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=True, num_workers=settings['n_jobs'], pin_memory=True)
+    
+    model_name = os.path.splitext(os.path.basename(settings['model_path']))[0] 
+    dataset_name = os.path.splitext(os.path.basename(settings['tar_path']))[0]  
+    date_name = datetime.date.today().strftime('%y%m%d')
+    dst = os.path.dirname(settings['tar_path'])
+    result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
+
+    model.eval()
+    model = model.to(device)
+    
+    if settings['verbose']:
+        print(model)
+        print(f'Generated dataset with {len(dataset)} images')
+        print(f'Generating loader from {len(data_loader)} batches')
+        print(f'Results wil be saved in: {result_loc}')
+        print(f'Model is in eval mode')
+        print(f'Model loaded to device')
+        
+    prediction_pos_probs = []
+    filenames_list = []
+    time_ls = []
+    gc.collect()
+    with torch.no_grad():
+        for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
+            start = time.time()
+            images = batch_images.to(torch.float).to(device)
+            outputs = model(images)
+            batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
+            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
+            filenames_list.extend(filenames)
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = batch_idx*settings['batch_size']
+            files_to_process = len(data_loader)*settings['batch_size']
+            print_progress(files_processed, files_to_process, n_jobs=settings['n_jobs'], time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Tar dataset")
+
+    data = {'path':filenames_list, 'pred':prediction_pos_probs}
+    df = pd.DataFrame(data, index=None)
+    df = process_vision_results(df, settings['score_threshold'])
+
+    df.to_csv(result_loc, index=True, header=True, mode='w')
+    print(f"Saved results to {result_loc}")
+    torch.cuda.empty_cache()
+    torch.cuda.memory.empty_cache()
+    return df
 
 def evaluate_model_performance(model, loader, epoch, loss_type):
     """
@@ -175,7 +304,7 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
         'class_1_probability':prediction_pos_probs})
 
     loss /= len(loader)
-    data_df = classification_metrics(all_labels, prediction_pos_probs, loader_name, loss, epoch)
+    data_df = classification_metrics(all_labels, prediction_pos_probs, loss, epoch)
     return data_df, prediction_pos_probs, all_labels, results_df
 
 def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
@@ -203,7 +332,7 @@ def train_test_model(settings):
     
     from .io import _save_settings, _copy_missclassified
     from .utils import pick_best_model
-    from .core import generate_loaders
+    from .io import generate_loaders
     from .settings import get_train_test_model_settings
 
     settings = get_train_test_model_settings(settings)
@@ -266,18 +395,19 @@ def train_test_model(settings):
                                         channels=settings['train_channels'])
         
     if settings['test']:
-        test, _, plate_names_test, train_fig = generate_loaders(src, 
-                                                                mode='test', 
-                                                                image_size=settings['image_size'],
-                                                                batch_size=settings['batch_size'], 
-                                                                classes=settings['classes'], 
-                                                                n_jobs=settings['n_jobs'],
-                                                                validation_split=0.0,
-                                                                pin_memory=settings['pin_memory'],
-                                                                normalize=settings['normalize'],
-                                                                channels=settings['train_channels'],
-                                                                augment=False,
-                                                                verbose=settings['verbose'])
+        test, _, train_fig = generate_loaders(src, 
+                                              mode='test', 
+                                              image_size=settings['image_size'],
+                                              batch_size=settings['batch_size'], 
+                                              classes=settings['classes'], 
+                                              n_jobs=settings['n_jobs'],
+                                              validation_split=0.0,
+                                              pin_memory=settings['pin_memory'],
+                                              normalize=settings['normalize'],
+                                              channels=settings['train_channels'],
+                                              augment=False,
+                                              verbose=settings['verbose'])
+        
         if model == None:
             model_path = pick_best_model(src+'/model')
             print(f'Best model: {model_path}')
@@ -309,7 +439,10 @@ def train_test_model(settings):
     torch.cuda.memory.empty_cache()
     gc.collect()
 
-    return model_path
+    if settings['train']:
+        return model_path
+    if settings['test']:
+        return result_loc
     
 def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b'], verbose=False):
     """
@@ -728,7 +861,7 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
 
 def deep_spacr(settings={}):
     from .settings import deep_spacr_defaults
-    from .core import generate_training_dataset, generate_dataset, apply_model_to_tar
+    from .io import generate_training_dataset, generate_dataset
     from .utils import save_settings
     
     settings = deep_spacr_defaults(settings)

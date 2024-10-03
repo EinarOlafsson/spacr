@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -9,20 +9,19 @@ from matplotlib.animation import FuncAnimation
 from IPython.display import display
 from skimage.util import img_as_uint
 from skimage.exposure import rescale_intensity
-from skimage import filters
 import skimage.measure as measure
 from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
 from io import BytesIO
 from IPython.display import display
-from multiprocessing import Pool, cpu_count, Process, Queue
-from torch.utils.data import Dataset, DataLoader
+from multiprocessing import Pool, cpu_count, Process, Queue, Value, Lock
+from torch.utils.data import Dataset, DataLoader, random_split
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
-
+from torchvision import transforms
 from .logger import log_function_call
 
 def process_non_tif_non_2D_images(folder):
@@ -1085,9 +1084,7 @@ def _mip_all(src, include_first_chan=True):
     Returns:
         None
     """
-    
-    from .utils import normalize_to_dtype
-    
+
     #print('========== generating MIPs ==========')
     # Iterate over each file in the specified directory (src).
     for filename in os.listdir(src):
@@ -1461,7 +1458,6 @@ def _get_lists_for_normalization(settings):
     return backgrounds, signal_to_noise, signal_thresholds, remove_background
 
 def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
-    from .utils import print_progress
     """
     Normalize the stack of images.
 
@@ -1554,7 +1550,6 @@ def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False
     return print(f'Saved stacks: {output_fldr}')
 
 def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
-    from .utils import print_progress
     """
     Normalize the timelapse data by rescaling the intensity values based on percentiles.
 
@@ -1683,7 +1678,7 @@ def delete_empty_subdirectories(folder_path):
 #@log_function_call
 def preprocess_img_data(settings):
     
-    from .plot import plot_arrays, _plot_4D_arrays
+    from .plot import plot_arrays
     from .utils import _run_test_mode, _get_regex
     from .settings import set_default_settings_preprocess_img_data
     
@@ -2225,7 +2220,7 @@ def _read_db(db_loc, tables):
     conn.close()
     return dfs
     
-def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=False, include_multiinfected=False, include_noninfected=False):
+def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False, uninfected=False):
     """
     Read and merge data from SQLite databases and perform data preprocessing.
 
@@ -2233,9 +2228,9 @@ def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=Fal
     - locs (list): A list of file paths to the SQLite database files.
     - tables (list): A list of table names to read from the databases.
     - verbose (bool): Whether to print verbose output. Default is False.
-    - include_multinucleated (bool): Whether to include multinucleated cells. Default is False.
-    - include_multiinfected (bool): Whether to include cells with multiple infections. Default is False.
-    - include_noninfected (bool): Whether to include non-infected cells. Default is False.
+    - nuclei_limit (bool): Whether to include multinucleated cells. Default is False.
+    - pathogen_limit (bool): Whether to include cells with multiple infections. Default is False.
+    - uninfected (bool): Whether to include non-infected cells. Default is False.
 
     Returns:
     - merged_df (pandas.DataFrame): The merged and preprocessed dataframe.
@@ -2310,7 +2305,7 @@ def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=Fal
         nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
         nucleus = nucleus.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
         nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
-        if include_multinucleated == False:
+        if nuclei_limit == False:
             #nucleus = nucleus[~nucleus['prcfo'].duplicated()]
             nucleus = nucleus[nucleus['nucleus_prcfo_count']==1]
         nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
@@ -2326,9 +2321,9 @@ def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=Fal
         pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
         pathogens = pathogens.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
         pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
-        if include_noninfected == False:
+        if uninfected == False:
             pathogens = pathogens[pathogens['pathogen_prcfo_count']>=1]
-        if include_multiinfected == False:
+        if pathogen_limit == False:
             pathogens = pathogens[pathogens['pathogen_prcfo_count']<=1]
         pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
         print(f'pathogens: {len(pathogens)}')
@@ -2571,7 +2566,7 @@ def _read_db(db_loc, tables):
     conn.close() # Close the connection
     return dfs
     
-def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=False, include_multiinfected=False, include_noninfected=False):
+def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False, uninfected=False):
     
     from .utils import _split_data
     
@@ -2656,7 +2651,7 @@ def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=Fal
         nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
         nucleus = nucleus.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
         nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
-        if include_multinucleated == False:
+        if nuclei_limit == False:
             nucleus = nucleus[nucleus['nucleus_prcfo_count']==1]
         nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
         if verbose:
@@ -2684,18 +2679,18 @@ def _read_and_merge_data(locs, tables, verbose=False, include_multinucleated=Fal
         pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
         
         print(f"before noninfected: {len(pathogens)}")
-        if include_noninfected == False:
+        if uninfected == False:
             pathogens = pathogens[pathogens['pathogen_prcfo_count']>=1]
             print(f"after noninfected: {len(pathogens)}")
 
-        if isinstance(include_multiinfected, bool):
-            if include_multiinfected == False:
+        if isinstance(pathogen_limit, bool):
+            if pathogen_limit == False:
                 pathogens = pathogens[pathogens['pathogen_prcfo_count']<=1]
                 print(f"after multiinfected Bool: {len(pathogens)}")
-        if isinstance(include_multiinfected, float):
-            include_multiinfected = int(include_multiinfected)
-        if isinstance(include_multiinfected, int):
-            pathogens = pathogens[pathogens['pathogen_prcfo_count']<=include_multiinfected]
+        if isinstance(pathogen_limit, float):
+            pathogen_limit = int(pathogen_limit)
+        if isinstance(pathogen_limit, int):
+            pathogens = pathogens[pathogens['pathogen_prcfo_count']<=pathogen_limit]
             print(f"afer multiinfected Float: {len(pathogens)}")
         if not 'cell' in tables:
             pathogens_g_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
@@ -2860,4 +2855,427 @@ def parse_gz_files(folder_path):
         elif read_direction == "R2":
             samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
     return samples_dict
+
+def generate_dataset(settings={}):
+    
+    from .utils import initiate_counter, add_images_to_tar, save_settings, generate_path_list_from_db, correct_paths
+    from .settings import set_generate_dataset_defaults
+
+    settings = set_generate_dataset_defaults(settings)
+    save_settings(settings, 'generate_dataset', show=True)
+
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
+    if isinstance(settings['src'], list):
+        all_paths = []
+        for i, src in enumerate(settings['src']):
+            db_path = os.path.join(src, 'measurements', 'measurements.db')
+            dst = os.path.join(src, 'datasets')
+            paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
+            correct_paths(paths, src)
+            all_paths.extend(paths)
+        if isinstance(settings['sample'], int):
+            selected_paths = random.sample(all_paths, settings['sample'])
+            print(f"Random selection of {len(selected_paths)} paths")
+        elif isinstance(settings['sample'], list):
+            sample = settings['sample'][i]
+            selected_paths = random.sample(all_paths, settings['sample'])
+            print(f"Random selection of {len(selected_paths)} paths")
+        else:
+            selected_paths = all_paths
+            random.shuffle(selected_paths)
+            print(f"All paths: {len(selected_paths)} paths")
+
+    total_images = len(selected_paths)
+    print(f"Found {total_images} images")
+
+    # Create a temp folder in dst
+    temp_dir = os.path.join(dst, "temp_tars")
+    os.makedirs(temp_dir, exist_ok=True)
+
+    # Chunking the data
+    num_procs = max(2, cpu_count() - 2)
+    chunk_size = len(selected_paths) // num_procs
+    remainder = len(selected_paths) % num_procs
+
+    paths_chunks = []
+    start = 0
+    for i in range(num_procs):
+        end = start + chunk_size + (1 if i < remainder else 0)
+        paths_chunks.append(selected_paths[start:end])
+        start = end
+
+    temp_tar_files = [os.path.join(temp_dir, f"temp_{i}.tar") for i in range(num_procs)]
+
+    print(f"Generating temporary tar files in {dst}")
+
+    # Initialize shared counter and lock
+    counter = Value('i', 0)
+    lock = Lock()
+
+    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
+        pool.starmap(add_images_to_tar, [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)])
+
+    # Combine the temporary tar files into a final tar
+    date_name = datetime.date.today().strftime('%y%m%d')
+    if not settings['file_metadata'] is None:
+        tar_name = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}.tar"
+    else:
+        tar_name = f"{date_name}_{settings['experiment']}.tar"
+    tar_name = os.path.join(dst, tar_name)
+    if os.path.exists(tar_name):
+        number = random.randint(1, 100)
+        tar_name_2 = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}_{number}.tar"
+        print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
+        tar_name = os.path.join(dst, tar_name_2)
+
+    print(f"Merging temporary files")
+
+    with tarfile.open(tar_name, 'w') as final_tar:
+        for temp_tar_path in temp_tar_files:
+            with tarfile.open(temp_tar_path, 'r') as temp_tar:
+                for member in temp_tar.getmembers():
+                    file_obj = temp_tar.extractfile(member)
+                    final_tar.addfile(member, file_obj)
+            os.remove(temp_tar_path)
+
+    # Delete the temp folder
+    shutil.rmtree(temp_dir)
+    print(f"\nSaved {total_images} images to {tar_name}")
+
+    return tar_name
+
+def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
+    
+    """
+    Generate data loaders for training and validation/test datasets.
+
+    Parameters:
+    - src (str): The source directory containing the data.
+    - mode (str): The mode of operation. Options are 'train' or 'test'.
+    - image_size (int): The size of the input images.
+    - batch_size (int): The batch size for the data loaders.
+    - classes (list): The list of classes to consider.
+    - n_jobs (int): The number of worker threads for data loading.
+    - validation_split (float): The fraction of data to use for validation.
+    - pin_memory (bool): Whether to pin memory for faster data transfer.
+    - normalize (bool): Whether to normalize the input images.
+    - verbose (bool): Whether to print additional information and show images.
+    - channels (list): The list of channels to retain. Options are [1, 2, 3] for all channels, [1, 2] for blue and green, etc.
+
+    Returns:
+    - train_loaders (list): List of data loaders for training datasets.
+    - val_loaders (list): List of data loaders for validation datasets.
+    """
+
+    from .io import spacrDataset
+    from .utils import SelectChannels, augment_dataset
+
+    chans = []
+
+    if 'r' in channels:
+        chans.append(1)
+    if 'g' in channels:
+        chans.append(2)
+    if 'b' in channels:
+        chans.append(3)
+
+    channels = chans
+
+    if verbose:
+        print(f'Training a network on channels: {channels}')
+        print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
+        
+    train_loaders = []
+    val_loaders = []
+
+    if normalize:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(image_size, image_size)),
+            SelectChannels(channels)])
+
+    if mode == 'train':
+        data_dir = os.path.join(src, 'train')
+        shuffle = True
+        print('Loading Train and validation datasets')
+    elif mode == 'test':
+        data_dir = os.path.join(src, 'test')
+        val_loaders = []
+        validation_split = 0.0
+        shuffle = True
+        print('Loading test dataset')
+    else:
+        print(f'mode:{mode} is not valid, use mode = train or test')
+        return
+
+    data = spacrDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
+    num_workers = n_jobs if n_jobs is not None else 0
+    
+    if validation_split > 0:
+        train_size = int((1 - validation_split) * len(data))
+        val_size = len(data) - train_size
+        if not augment:
+            print(f'Train data:{train_size}, Validation data:{val_size}')
+        train_dataset, val_dataset = random_split(data, [train_size, val_size])
+
+        if augment:
+
+            print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
+            train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
+            print(f'Data after augmentation: Train: {len(train_dataset)}')
             
+        print(f'Generating Dataloader with {n_jobs} workers')
+        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+        val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+    else:
+        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+
+    #dataset (Dataset) – dataset from which to load the data.
+    #batch_size (int, optional) – how many samples per batch to load (default: 1).
+    #shuffle (bool, optional) – set to True to have the data reshuffled at every epoch (default: False).
+    #sampler (Sampler or Iterable, optional) – defines the strategy to draw samples from the dataset. Can be any Iterable with __len__ implemented. If specified, shuffle must not be specified.
+    #batch_sampler (Sampler or Iterable, optional) – like sampler, but returns a batch of indices at a time. Mutually exclusive with batch_size, shuffle, sampler, and drop_last.
+    #num_workers (int, optional) – how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)
+    #collate_fn (Callable, optional) – merges a list of samples to form a mini-batch of Tensor(s). Used when using batched loading from a map-style dataset.
+    #pin_memory (bool, optional) – If True, the data loader will copy Tensors into device/CUDA pinned memory before returning them. If your data elements are a custom type, or your collate_fn returns a batch that is a custom type, see the example below.
+    #drop_last (bool, optional) – set to True to drop the last incomplete batch, if the dataset size is not divisible by the batch size. If False and the size of dataset is not divisible by the batch size, then the last batch will be smaller. (default: False)
+    #timeout (numeric, optional) – if positive, the timeout value for collecting a batch from workers. Should always be non-negative. (default: 0)
+    #worker_init_fn (Callable, optional) – If not None, this will be called on each worker subprocess with the worker id (an int in [0, num_workers - 1]) as input, after seeding and before data loading. (default: None)
+    #multiprocessing_context (str or multiprocessing.context.BaseContext, optional) – If None, the default multiprocessing context of your operating system will be used. (default: None)
+    #generator (torch.Generator, optional) – If not None, this RNG will be used by RandomSampler to generate random indexes and multiprocessing to generate base_seed for workers. (default: None)
+    #prefetch_factor (int, optional, keyword-only arg) – Number of batches loaded in advance by each worker. 2 means there will be a total of 2 * num_workers batches prefetched across all workers. (default value depends on the set value for num_workers. If value of num_workers=0 default is None. Otherwise, if value of num_workers > 0 default is 2).
+    #persistent_workers (bool, optional) – If True, the data loader will not shut down the worker processes after a dataset has been consumed once. This allows to maintain the workers Dataset instances alive. (default: False)
+    #pin_memory_device (str, optional) – the device to pin_memory to if pin_memory is True.
+
+    #images, labels, filenames = next(iter(train_loaders))
+    #images = images.cpu()
+    #label_strings = [str(label.item()) for label in labels]
+    #train_fig = _imshow_gpu(images, label_strings, nrow=20, fontsize=12)
+    #if verbose:
+    #    plt.show()
+    
+    train_fig = None
+
+    return train_loaders, val_loaders, train_fig
+
+def generate_training_dataset(settings):
+    
+    from .io import _read_and_merge_data, _read_db
+    from .utils import get_paths_from_db, annotate_conditions, save_settings
+    from .settings import set_generate_training_dataset_defaults
+    
+    # Function to filter png_list_df by prcfo present in df without merging
+    def filter_png_list(db_path, settings):
+        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                     tables=tables,
+                                     verbose=False,
+                                     nuclei_limit=settings['nuclei_limit'],
+                                     pathogen_limit=settings['pathogen_limit'],
+                                     uninfected=settings['uninfected'])
+        [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
+        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df.index)]
+        return filtered_png_list_df
+
+    # Function to get the smallest class size based on the dataset mode
+    def get_smallest_class_size(df, settings, dataset_mode):
+        if dataset_mode == 'metadata':
+            sizes = [len(df[df['metadata_based_class'] == c]) for c in settings['classes']]
+        elif dataset_mode == 'annotation':
+            sizes = [len(class_paths) for class_paths in df]
+        size = min(sizes)
+        print(f'Using the smallest class size: {size}')
+        return size
+    
+    # Measurement-based selection logic
+    def measurement_based_selection(settings, db_path):
+        class_paths_ls = []
+        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+        df, _ = _read_and_merge_data(locs=[db_path],
+                                     tables=tables,
+                                     verbose=False,
+                                     nuclei_limit=settings['nuclei_limit'],
+                                     pathogen_limit=settings['pathogen_limit'],
+                                     uninfected=settings['uninfected'])
+
+        print('length df 1', len(df))
+        df = annotate_conditions(df, cells=['HeLa'], pathogens=['pathogen'], treatments=settings['classes'],
+                                 treatment_loc=settings['class_metadata'], types=settings['metadata_type_by'])
+        print('length df 2', len(df))
+        
+        png_list_df = filter_png_list(db_path, settings)
+
+        if settings['custom_measurement']:
+            if isinstance(settings['custom_measurement'], list):
+                if len(settings['custom_measurement']) == 2:
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"] / df[f"{settings['custom_measurement'][1]}"]
+                else:
+                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"]
+            else:
+                print("custom_measurement should be a list.")
+                return
+
+        else:
+            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"] / df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+
+        q25 = df['recruitment'].quantile(0.25)
+        q75 = df['recruitment'].quantile(0.75)
+        df_lower = df[df['recruitment'] <= q25]
+        df_upper = df[df['recruitment'] >= q75]
+
+        class_paths_lower = get_paths_from_db(df=df_lower, png_df=png_list_df, image_type=settings['png_type'])
+        class_paths_lower = random.sample(class_paths_lower['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_lower)
+
+        class_paths_upper = get_paths_from_db(df=df_upper, png_df=png_list_df, image_type=settings['png_type'])
+        class_paths_upper = random.sample(class_paths_upper['png_path'].tolist(), settings['size'])
+        class_paths_ls.append(class_paths_upper)
+
+        return class_paths_ls
+
+    # Metadata-based selection logic
+    def metadata_based_selection(db_path, settings):
+        class_paths_ls = []
+        df = filter_png_list(db_path, settings)
+
+        df['metadata_based_class'] = pd.NA
+        for i, class_ in enumerate(settings['classes']):
+            ls = settings['class_metadata'][i]
+            df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
+
+        size = get_smallest_class_size(df, settings, 'metadata')
+        for class_ in settings['classes']:
+            class_temp_df = df[df['metadata_based_class'] == class_]
+            print(f'Found {len(class_temp_df)} images for class {class_}')
+            class_paths_temp = class_temp_df['png_path'].tolist()
+
+            # Ensure to sample `size` number of images (smallest class size)
+            if len(class_paths_temp) > size:
+                class_paths_temp = random.sample(class_paths_temp, size)
+
+            class_paths_ls.append(class_paths_temp)
+
+        return class_paths_ls
+
+    # Annotation-based selection logic
+    def annotation_based_selection(db_path, dst, settings):
+        class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
+
+        size = get_smallest_class_size(class_paths_ls, settings, 'annotation')
+        for i, class_paths in enumerate(class_paths_ls):
+            if len(class_paths) > size:
+                class_paths_ls[i] = random.sample(class_paths, size)
+
+        return class_paths_ls
+
+    # Set default settings and save
+    settings = set_generate_training_dataset_defaults(settings)
+    save_settings(settings, 'cv_dataset', show=True)
+
+    db_path = os.path.join(settings['src'], 'measurements', 'measurements.db')
+    dst = os.path.join(settings['src'], 'datasets', 'training')
+
+    # Create a new directory for training data if necessary
+    if os.path.exists(dst):
+        for i in range(1, 100000):
+            dst = os.path.join(settings['src'], 'datasets', f'training_{i}')
+            if not os.path.exists(dst):
+                print(f'Creating new directory for training: {dst}')
+                break
+
+    # Select dataset based on dataset mode
+    if settings['dataset_mode'] == 'annotation':
+        class_paths_ls = annotation_based_selection(db_path, dst, settings)
+
+    elif settings['dataset_mode'] == 'metadata':
+        class_paths_ls = metadata_based_selection(db_path, settings)
+
+    elif settings['dataset_mode'] == 'measurement':
+        class_paths_ls = measurement_based_selection(settings, db_path)
+
+    # Generate and return training and testing directories
+    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=settings['classes'], test_split=settings['test_split'])
+
+    return train_class_dir, test_class_dir
+
+def training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
+    all_paths = []
+    
+    # Connect to the database and retrieve the image paths and annotations
+    print(f'Reading DataBase: {db_path}')
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        # Prepare the query with parameterized placeholders for annotated_classes
+        placeholders = ','.join('?' * len(annotated_classes))
+        query = f"SELECT png_path, {annotation_column} FROM png_list WHERE {annotation_column} IN ({placeholders})"
+        cursor.execute(query, annotated_classes)
+
+        while True:
+            rows = cursor.fetchmany(1000)
+            if not rows:
+                break
+            for row in rows:
+                all_paths.append(row)
+
+    # Filter paths based on annotation
+    class_paths = []
+    for class_ in annotated_classes:
+        class_paths_temp = [path for path, annotation in all_paths if annotation == class_]
+        class_paths.append(class_paths_temp)
+
+    print(f'Generated a list of lists from annotation of {len(class_paths)} classes')
+    return class_paths
+
+def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
+    from .utils import print_progress
+    from .deep_spacr import train_test_split
+    # Make sure that the length of class_data matches the length of classes
+    if len(class_data) != len(classes):
+        raise ValueError("class_data and classes must have the same length.")
+
+    total_files = sum(len(data) for data in class_data)
+    processed_files = 0
+    time_ls = []
+    
+    for cls, data in zip(classes, class_data):
+        # Create directories
+        train_class_dir = os.path.join(dst, f'train/{cls}')
+        test_class_dir = os.path.join(dst, f'test/{cls}')
+        os.makedirs(train_class_dir, exist_ok=True)
+        os.makedirs(test_class_dir, exist_ok=True)
+        
+        # Split the data
+        train_data, test_data = train_test_split(data, test_size=test_split, shuffle=True, random_state=42)
+        
+        # Copy train files
+        for path in train_data:
+            start = time.time()
+            shutil.copy(path, os.path.join(train_class_dir, os.path.basename(path)))
+            duration = time.time() - start
+            time_ls.append(duration)
+            print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Train dataset")
+            processed_files += 1
+
+        # Copy test files
+        for path in test_data:
+            start = time.time()
+            shutil.copy(path, os.path.join(test_class_dir, os.path.basename(path)))
+            duration = time.time() - start
+            time_ls.append(duration)
+            print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Test dataset")
+            processed_files += 1
+
+    # Print summary
+    for cls in classes:
+        train_class_dir = os.path.join(dst, f'train/{cls}')
+        test_class_dir = os.path.join(dst, f'test/{cls}')
+        print(f'Train class {cls}: {len(os.listdir(train_class_dir))}, Test class {cls}: {len(os.listdir(test_class_dir))}')
+
+    return os.path.join(dst, 'train'), os.path.join(dst, 'test')

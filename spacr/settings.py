@@ -2,9 +2,9 @@ import os, ast
 
 def set_default_plot_merge_settings():
     settings = {}
-    settings.setdefault('include_noninfected', True)
-    settings.setdefault('include_multiinfected', 10)
-    settings.setdefault('include_multinucleated', 1)
+    settings.setdefault('uninfected', True)
+    settings.setdefault('pathogen_limit', 10)
+    settings.setdefault('nuclei_limit', 1)
     settings.setdefault('remove_background', False)
     settings.setdefault('filter_min_max', None)
     settings.setdefault('channel_dims', [0,1,2,3])
@@ -291,9 +291,9 @@ def set_default_analyze_screen(settings):
     settings.setdefault('positive_control','c2')
     settings.setdefault('negative_control','c1')
     settings.setdefault('exclude',None)
-    settings.setdefault('include_multinucleated',True)
-    settings.setdefault('include_multiinfected',3)
-    settings.setdefault('include_noninfected',True)
+    settings.setdefault('nuclei_limit',True)
+    settings.setdefault('pathogen_limit',3)
+    settings.setdefault('uninfected',True)
     settings.setdefault('n_repeats',10)
     settings.setdefault('top_features',30)
     settings.setdefault('remove_low_variance_features',True)
@@ -348,9 +348,9 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
-    settings.setdefault('include_multinucleated',True)
-    settings.setdefault('include_multiinfected',True)
-    settings.setdefault('include_noninfected',True)
+    settings.setdefault('nuclei_limit',True)
+    settings.setdefault('pathogen_limit',True)
+    settings.setdefault('uninfected',True)
     settings.setdefault('png_type','cell_png')
     
     return settings
@@ -464,9 +464,9 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('plot_nr',10)
     settings.setdefault('plot_control',True)
     settings.setdefault('figuresize',10)
-    settings.setdefault('include_noninfected',True)
-    settings.setdefault('include_multiinfected',10)
-    settings.setdefault('include_multinucleated',1)
+    settings.setdefault('uninfected',True)
+    settings.setdefault('pathogen_limit',10)
+    settings.setdefault('nuclei_limit',1)
     settings.setdefault('cells_per_well',0)
     settings.setdefault('pathogen_size_range',[0,100000])
     settings.setdefault('nucleus_size_range',[0,100000])
@@ -517,6 +517,13 @@ def get_train_cellpose_default_settings(settings):
     settings.setdefault('verbose',True)
     return settings
 
+def set_generate_dataset_defaults(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('file_metadata',None)
+    settings.setdefault('experiment','experiment_1')
+    settings.setdefault('sample',None)
+    return settings
+
 def get_perform_regression_default_settings(settings):
     settings.setdefault('highlight','239740')
     settings.setdefault('dependent_variable','predictions')
@@ -524,7 +531,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('agg_type','mean')
     settings.setdefault('min_cell_count',25)
     settings.setdefault('regression_type','ols')
-    settings.setdefault('remove_row_column_effect',False)
+    settings.setdefault('random_row_column_effects',False)
     settings.setdefault('alpha',1)
     settings.setdefault('fraction_threshold',0.1)
     settings.setdefault('nc','c1')
@@ -532,6 +539,10 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('other','c3')
     settings.setdefault('plate','plate1')
     settings.setdefault('class_1_threshold',None)
+    settings.setdefault('cov_type',None)
+    settings.setdefault('metadata_files',['/home/carruthers/Documents/TGME49_Summary.csv','/home/carruthers/Documents/TGGT1_Summary.csv'])
+    settings.setdefault('toxo', True)
+
     
     if settings['regression_type'] == 'quantile':
         print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
@@ -591,6 +602,7 @@ expected_types = {
     "src": (str, list),
     "metadata_type": str,
     "custom_regex": (str, type(None)),
+    "cov_type": (str, type(None)),
     "experiment": str,
     "channels": list,
     "magnification": int,
@@ -664,9 +676,9 @@ expected_types = {
     "measurement": str,
     "nr_imgs": int,
     "um_per_pixel": (int, float),
-    "include_noninfected": bool,
-    "include_multiinfected": int,
-    "include_multinucleated": int,
+    "uninfected": bool,
+    "pathogen_limit": int,
+    "nuclei_limit": int,
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
@@ -803,7 +815,7 @@ expected_types = {
     "agg_type": str,
     "min_cell_count": int,
     "regression_type": str,
-    "remove_row_column_effect": bool,
+    "random_row_column_effects": bool,
     "alpha": float,
     "fraction_threshold": float,
     "class_1_threshold": (float, type(None)),
@@ -882,12 +894,12 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "tar_pat
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
              "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
+             "Hyperparamiters (Regression)":["cov_type", "class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
              "Annotation": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
-             "Regression":["class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "remove_row_column_effect", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable", "gene_weights_csv"],
              "Plot": ["plot", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["target_intensity_min", "cells_per_well", "include_multinucleated", "include_multiinfected", "include_noninfected", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Advanced": ["target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "uninfected", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
              }
 
@@ -970,7 +982,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
 def generate_fields(variables, scrollable_frame):
     from .gui_utils import create_input_field
-    from .gui_elements import set_dark_style, spacrToolTip
+    from .gui_elements import spacrToolTip
     row = 1
     vars_dict = {}
     tooltips = {
@@ -1050,9 +1062,9 @@ def generate_fields(variables, scrollable_frame):
         "image_nr": "(int) - Number of images to process.",
         "image_size": "(int) - Size of the images for training.",
         "img_zoom": "(float) - Zoom factor for the images in plots.",
-        "include_multinucleated": "(int) - Whether to include multinucleated cells in the analysis.",
-        "include_multiinfected": "(int) - Whether to include multi-infected cells in the analysis.",
-        "include_noninfected": "(bool) - Whether to include non-infected cells in the analysis.",
+        "nuclei_limit": "(int) - Whether to include multinucleated cells in the analysis.",
+        "pathogen_limit": "(int) - Whether to include multi-infected cells in the analysis.",
+        "uninfected": "(bool) - Whether to include non-infected cells in the analysis.",
         "include_uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
         "init_weights": "(bool) - Whether to initialize weights for the model.",
         "src": "(str) - Path to the folder containing the images.",
@@ -1144,7 +1156,7 @@ def generate_fields(variables, scrollable_frame):
         "remove_highly_correlated_features": "(bool) - Whether to remove highly correlated features from the analysis.",
         "remove_image_canvas": "(bool) - Whether to remove the image canvas after plotting.",
         "remove_low_variance_features": "(bool) - Whether to remove low variance features from the analysis.",
-        "remove_row_column_effect": "(bool) - Whether to remove row and column effects from the data.",
+        "random_row_column_effects": "(bool) - Whether to remove row and column effects from the data.",
         "resize": "(bool) - Resize factor for the images.",
         "resample": "(bool) - Whether to resample the images during processing.",
         "rescale": "(float) - Rescaling factor for the images.",

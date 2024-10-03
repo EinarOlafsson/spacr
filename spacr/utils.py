@@ -2004,9 +2004,10 @@ def add_images_to_tar(paths_chunk, tar_path, total_images):
                 tar.add(img_path, arcname=arcname)
                 with lock:
                     counter.value += 1
-                    if counter.value % 100 == 0:  # Print every 100 updates
-                        progress = (counter.value / total_images) * 100
-                        print(f"Progress: {counter.value}/{total_images} ({progress:.2f}%)", end='\r', file=sys.stdout, flush=True)
+                    if counter.value % 10 == 0:  # Print every 100 updates
+                        #progress = (counter.value / total_images) * 100
+                        #print(f"Progress: {counter.value}/{total_images} ({progress:.2f}%)", end='\r', file=sys.stdout, flush=True)
+                        print_progress(counter.value, total_images, n_jobs=1, time_ls=None, batch_size=None, operation_type="generating .tar dataset")
             except FileNotFoundError:
                 print(f"File not found: {img_path}")
 
@@ -2122,52 +2123,6 @@ def check_multicollinearity(x):
     vif_data["Variable"] = x.columns
     vif_data["VIF"] = [variance_inflation_factor(x.values, i) for i in range(x.shape[1])]
     return vif_data
-
-def generate_dependent_variable(df, dv_loc, pc_min=0.95, nc_max=0.05, agg_type='mean'):
-    
-    from .plot import _plot_histograms_and_stats, _plot_plates
-    
-    def qstring_to_float(qstr):
-        number = int(qstr[1:])  # Remove the "q" and convert the rest to an integer
-        return number / 100.0
-    
-    print("Unique values in plate:", df['plate'].unique())
-    dv_cell_loc = f'{dv_loc}/dv_cell.csv'
-    dv_well_loc = f'{dv_loc}/dv_well.csv'
-    
-    df['pred'] = 1-df['pred'] #if you swiched pc and nc
-    df = df[(df['pred'] <= nc_max) | (df['pred'] >= pc_min)]
-    
-    if 'prc' not in df.columns:
-        df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
-    
-    if agg_type.startswith('q'):
-        val = qstring_to_float(agg_type)
-        agg_type = lambda x: x.quantile(val)
-    
-    # Aggregating for mean prediction and total count
-    df_grouped = df.groupby('prc').agg(
-        pred=('pred', agg_type),
-        recruitment=('recruitment', agg_type),
-        count_prc=('prc', 'size'),
-        #count_above_95=('pred', lambda x: (x > 0.95).sum()),
-        mean_pathogen_area=('pathogen_area', 'mean')
-    )
-    
-    df_cell = df[['prc', 'pred', 'pathogen_area', 'recruitment']]
-    
-    df_cell.to_csv(dv_cell_loc, index=True, header=True, mode='w')
-    df_grouped.to_csv(dv_well_loc, index=True, header=True, mode='w')  # Changed from loc to dv_loc
-    display(df)
-    _plot_histograms_and_stats(df)
-    df_grouped = df_grouped.sort_values(by='count_prc', ascending=True)
-    display(df_grouped)
-    print('pred')
-    _plot_plates(df=df_cell, variable='pred', grouping='mean', min_max='allq', cmap='viridis')
-    print('recruitment')
-    _plot_plates(df=df_cell, variable='recruitment', grouping='mean', min_max='allq', cmap='viridis')
-    
-    return df_grouped
 
 def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     # Separate predictors and response
@@ -3647,13 +3602,48 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
     plt.show()
     return grid_fig
 
+def generate_path_list_from_db(db_path, file_metadata):
+
+    all_paths = []
+
+    # Connect to the database and retrieve the image paths
+    print(f"Reading DataBase: {db_path}")
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            if file_metadata:
+                if isinstance(file_metadata, str):
+                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
+            else:
+                cursor.execute("SELECT png_path FROM png_list")
+
+            while True:
+                rows = cursor.fetchmany(1000)
+                if not rows:
+                    break
+                all_paths.extend([row[0] for row in rows])
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+    
+    return all_paths
+
 def correct_paths(df, base_path):
 
-    if 'png_path' not in df.columns:
-        print("No 'png_path' column found in the dataframe.")
-        return df, None
-    
-    image_paths = df['png_path'].to_list()
+    if isinstance(df, pd.DataFrame):
+
+        if 'png_path' not in df.columns:
+            print("No 'png_path' column found in the dataframe.")
+            return df, None
+        else:
+            image_paths = df['png_path'].to_list()
+
+    elif isinstance(df, list):
+        image_paths = df
     
     adjusted_image_paths = []
     for path in image_paths:
@@ -3667,9 +3657,11 @@ def correct_paths(df, base_path):
         else:
             adjusted_image_paths.append(path)
 
-    df['png_path'] = adjusted_image_paths
-    image_paths = df['png_path'].to_list()
-    return df, image_paths
+    if isinstance(df, pd.DataFrame):
+        df['png_path'] = adjusted_image_paths
+        return df, adjusted_image_paths
+    else:
+        return adjusted_image_paths
 
 def delete_folder(folder_path):
     if os.path.exists(folder_path) and os.path.isdir(folder_path):
@@ -4477,7 +4469,7 @@ def convert_and_relabel_masks(folder_path):
 
 def correct_masks(src):
 
-    from .utils import _load_and_concatenate_arrays
+    from .io import _load_and_concatenate_arrays
 
     cell_path = os.path.join(src,'norm_channel_stack', 'cell_mask_stack')
     convert_and_relabel_masks(cell_path)
@@ -4500,4 +4492,41 @@ def get_cuda_version():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
 
+def all_elements_match(list1, list2):
+    # Check if all elements in list1 are in list2
+    return all(element in list2 for element in list1)
 
+def prepare_batch_for_segmentation(batch):
+    # Ensure the batch is of dtype float32
+    if batch.dtype != np.float32:
+        batch = batch.astype(np.float32)
+    
+    # Normalize each image in the batch
+    for i in range(batch.shape[0]):
+        if batch[i].max() > 1:
+            batch[i] = batch[i] / batch[i].max()
+    
+    return batch
+
+def check_index(df, elements=5, split_char='_'):
+    problematic_indices = []
+    for idx in df.index:
+        parts = str(idx).split(split_char)
+        if len(parts) != elements:
+            problematic_indices.append(idx)
+    if problematic_indices:
+        print("Indices that cannot be separated into 5 parts:")
+        for idx in problematic_indices:
+            print(idx)
+        raise ValueError(f"Found {len(problematic_indices)} problematic indices that do not split into {elements} parts.")
+    
+# Define the mapping function
+def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
+    if col_value == neg:
+        return 'neg'
+    elif col_value == pos:
+        return 'pos'
+    elif col_value == mix:
+        return 'mix'
+    else:
+        return 'screen'

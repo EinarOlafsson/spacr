@@ -27,6 +27,8 @@ from . import mediar
 from . import submodules
 from . import openai
 from . import ml
+from . import toxo
+from . import cellpose
 from . import logger
 
 __all__ = [
@@ -54,7 +56,9 @@ __all__ = [
     "mediar",
     "submodules",
     "openai",
-    "ml"
+    "ml",
+    "toxo",
+    "cellpose",
     "logger"
 ]
 
