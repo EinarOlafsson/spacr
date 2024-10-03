@@ -437,7 +437,8 @@ def import_settings(settings_type='mask'):
 
 def setup_settings_panel(vertical_container, settings_type='mask'):
     global vars_dict, scrollable_frame
-    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
+    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
+    from .settings import get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings
     from .gui_utils import convert_settings_dict_for_gui
     from .gui_elements import set_element_size
 

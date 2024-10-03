@@ -48,9 +48,9 @@ def analyze_recruitment(settings={}):
     df, _ = _read_and_merge_data(db_loc=[settings['src']+'/measurements/measurements.db'], 
                                  tables=['cell', 'nucleus', 'pathogen','cytoplasm'], 
                                  verbose=True, 
-                                 include_multinucleated=settings['include_multinucleated'], 
-                                 include_multiinfected=settings['include_multiinfected'], 
-                                 include_noninfected=settings['include_noninfected'])
+                                 nuclei_limit=settings['nuclei_limit'], 
+                                 pathogen_limit=settings['pathogen_limit'], 
+                                 uninfected=settings['uninfected'])
     
     df = annotate_conditions(df, 
                              cells=settings['cell_types'], 

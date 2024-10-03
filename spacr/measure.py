@@ -984,7 +984,7 @@ def measure_crop(settings):
         None
     """
 
-    from .io import _save_settings_to_db, _create_database
+    from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif
     from .utils import measure_test_mode, print_progress
     from .settings import get_measure_crop_settings

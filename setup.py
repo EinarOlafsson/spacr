@@ -58,6 +58,7 @@ dependencies = [
     'openai>=1.50.2, <2.0',
     'nd2reader>=3.3.0, <4.0',
     'czifile',
+    'adjustText>=1.2.0,<2.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
@@ -71,7 +72,7 @@ setup(
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*', 'resources/images/*'],},
+    package_data={'spacr': ['resources/data/*', 'resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*', 'resources/images/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [

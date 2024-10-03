@@ -77,7 +77,7 @@ def perform_mixed_model(y, X, groups, alpha=1.0):
     result = model.fit()
     return result
 
-def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0):
+def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
 
     def plot_regression_line(X, y, model):
         """Helper to plot regression line for lasso and ridge models."""
@@ -91,7 +91,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0):
 
     # Define the dictionary with callables (lambdas) to delay evaluation
     model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(),
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
         'gls': lambda: sm.GLS(y, X).fit(),
         'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
         'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
@@ -125,36 +125,6 @@ def create_volcano_filename(csv_path, regression_type, alpha, dst):
     if dst:
         return os.path.join(dst, volcano_filename)
     return os.path.join(os.path.dirname(csv_path), volcano_filename)
-
-def prepare_formula(dependent_variable, remove_row_column_effect=False):
-    """Return the regression formula based on whether row/column effects are removed."""
-    if remove_row_column_effect:
-        return f'{dependent_variable} ~ fraction:gene + fraction:grna'
-    return f'{dependent_variable} ~ fraction:gene + fraction:grna + row + column'
-
-def fit_mixed_model(df, formula, dependent_variable, dst):
-
-    from .plot import plot_histogram
-
-    """Fit the mixed model with row and column as random effects and return results."""
-    model = smf.mixedlm(f"{formula} + (1|row) + (1|column)", data=df, groups=df['prc'])
-    mixed_model = model.fit()
-
-    # Plot residuals
-    df['residuals'] = mixed_model.resid
-    plot_histogram(df, 'residuals', dst=dst)
-
-    # Return coefficients and p-values
-    coefs = mixed_model.params
-    p_values = mixed_model.pvalues
-
-    coef_df = pd.DataFrame({
-        'feature': coefs.index,
-        'coefficient': coefs.values,
-        'p_value': p_values.values
-    })
-    
-    return mixed_model, coef_df
 
 def scale_variables(X, y):
     """Scale independent (X) and dependent (y) variables using MinMaxScaler."""
@@ -205,7 +175,126 @@ def process_model_coefficients(model, regression_type, X, y, highlight):
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
-def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, remove_row_column_effect=False, highlight='220950', dst=None):
+def prepare_formula(dependent_variable, random_row_column_effects=False):
+    """Return the regression formula using random effects for plate, row, and column."""
+    if random_row_column_effects:
+        # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
+        return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
+    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + row + column'
+
+def fit_mixed_model(df, formula, dst):
+    from .plot import plot_histogram
+
+    """Fit the mixed model with plate, row, and column as random effects and return results."""
+    # Specify random effects for plate, row, and column
+    model = smf.mixedlm(formula, 
+                        data=df, 
+                        groups=df['plate'], 
+                        re_formula="1 + row + column", 
+                        vc_formula={"row": "0 + row", "column": "0 + column"})
+    
+    mixed_model = model.fit()
+
+    # Plot residuals
+    df['residuals'] = mixed_model.resid
+    plot_histogram(df, 'residuals', dst=dst)
+
+    # Return coefficients and p-values
+    coefs = mixed_model.params
+    p_values = mixed_model.pvalues
+
+    coef_df = pd.DataFrame({
+        'feature': coefs.index,
+        'coefficient': coefs.values,
+        'p_value': p_values.values
+    })
+    
+    return mixed_model, coef_df
+
+def check_and_clean_data(df, dependent_variable):
+    """Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly."""
+    
+    def handle_missing_values(df, columns):
+        """Handle missing values in specified columns."""
+        missing_summary = df[columns].isnull().sum()
+        print("Missing values summary:")
+        print(missing_summary)
+        
+        # Drop rows with missing values in these fields
+        df_cleaned = df.dropna(subset=columns)
+        if df_cleaned.shape[0] < df.shape[0]:
+            print(f"Dropped {df.shape[0] - df_cleaned.shape[0]} rows with missing values in {columns}.")
+        return df_cleaned
+    
+    def ensure_valid_types(df, columns):
+        """Ensure that specified columns are categorical."""
+        for col in columns:
+            if not pd.api.types.is_categorical_dtype(df[col]):
+                df[col] = pd.Categorical(df[col])
+                print(f"Converted {col} to categorical type.")
+        return df
+
+    def check_collinearity(df, columns):
+        """Check for collinearity using VIF (Variance Inflation Factor)."""
+        print("Checking for collinearity...")
+        
+        # Only include fraction and the dependent variable for collinearity check
+        df_encoded = df[columns]
+        
+        # Ensure all data in df_encoded is numeric
+        df_encoded = df_encoded.apply(pd.to_numeric, errors='coerce')
+        
+        # Check for perfect multicollinearity (i.e., rank deficiency)
+        if np.linalg.matrix_rank(df_encoded.values) < df_encoded.shape[1]:
+            print("Warning: Perfect multicollinearity detected! Dropping correlated columns.")
+            df_encoded = df_encoded.loc[:, ~df_encoded.columns.duplicated()]
+
+        # Calculate VIF for each feature
+        vif_data = pd.DataFrame()
+        vif_data["Feature"] = df_encoded.columns
+        try:
+            vif_data["VIF"] = [variance_inflation_factor(df_encoded.values, i) for i in range(df_encoded.shape[1])]
+        except np.linalg.LinAlgError:
+            print("LinAlgError: Unable to compute VIF due to matrix singularity.")
+            return df_encoded
+
+        print("Variance Inflation Factor (VIF) for each feature:")
+        print(vif_data)
+        
+        # Drop columns with VIF > 10 (a common threshold to identify multicollinearity)
+        high_vif_columns = vif_data[vif_data["VIF"] > 10]["Feature"].tolist()
+        if high_vif_columns:
+            print(f"Dropping columns with high VIF: {high_vif_columns}")
+            df_encoded.drop(columns=high_vif_columns, inplace=True)
+        
+        return df_encoded
+    
+    # Step 1: Handle missing values in relevant fields
+    df = handle_missing_values(df, ['fraction', dependent_variable])
+    
+    # Step 2: Ensure grna, gene, plate, row, column, and prc are categorical types
+    df = ensure_valid_types(df, ['grna', 'gene', 'plate', 'row', 'column', 'prc'])
+    
+    # Step 3: Check for multicollinearity in fraction and the dependent variable
+    df_cleaned = check_collinearity(df, ['fraction', dependent_variable])
+    
+    # Ensure that the prc, plate, row, and column columns are still included for random effects
+    df_cleaned['gene'] = df['gene']
+    df_cleaned['grna'] = df['grna']
+    df_cleaned['prc'] = df['prc']
+    df_cleaned['plate'] = df['plate']
+    df_cleaned['row'] = df['row']
+    df_cleaned['column'] = df['column']
+
+    #display(df_cleaned)
+
+    # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
+    df_cleaned['gene_fraction'] = df_cleaned.groupby(['prc', 'gene'])['fraction'].transform('sum')
+
+    print("Data is ready for model fitting.")
+    return df_cleaned
+
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, highlight='220950', dst=None, cov_type=None):
     from .plot import volcano_plot, plot_histogram
 
     # Generate the volcano filename
@@ -214,19 +303,30 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # Check if the data is normally distributed
     is_normal = check_normality(df[dependent_variable], dependent_variable)
 
+    if is_normal:
+        print(f"To avoid violating assumptions, it is recommended to use a regression model that assumes normality.")
+        print(f"Recommended regression type: ols (Ordinary Least Squares)")
+    else:
+        print(f"To avoid violating assumptions, it is recommended to use a regression model that does not assume normality.")
+        print(f"Recommended regression type: glm (Generalized Linear Model)")
+
     # Determine regression type if not specified
     if regression_type is None:
         regression_type = 'ols' if is_normal else 'glm'
 
-    # Handle mixed effects if row/column effect is to be removed
-    if remove_row_column_effect:
+    #display('before check_and_clean_data:',df)
+    df = check_and_clean_data(df, dependent_variable)
+    #display('after check_and_clean_data:',df)
+
+    # Handle mixed effects if row/column effect is treated as random
+    if random_row_column_effects:
         regression_type = 'mixed'
-        formula = prepare_formula(dependent_variable, remove_row_column_effect=True)
-        mixed_model, coef_df = fit_mixed_model(df, formula, dependent_variable, dst)
+        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
+        mixed_model, coef_df = fit_mixed_model(df, formula, dst)
         model = mixed_model
     else:
         # Regular regression models
-        formula = prepare_formula(dependent_variable, remove_row_column_effect=False)
+        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
 
         # Plot histogram of the dependent variable
@@ -239,7 +339,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         groups = df['prc'] if regression_type == 'mixed' else None
         print(f'performing {regression_type} regression')
 
-        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha)
+        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
 
         # Process the model coefficients
         coef_df = process_model_coefficients(model, regression_type, X, y, highlight)
@@ -254,24 +354,28 @@ def perform_regression(settings):
     from .plot import plot_plates
     from .utils import merge_regression_res_with_metadata, save_settings
     from .settings import get_perform_regression_default_settings
+    from .toxo import go_term_enrichment_by_column, custom_volcano_plot
 
     if isinstance(settings['score_data'], list) and isinstance(settings['count_data'], list):
-        count_data_df = pd.DataFrame()
-        for i, count_data in enumerate(settings['count_data']):
-            df = pd.read_csv(count_data)
-            df['plate_name'] = f'plate{i}'
-            count_data_df = pd.concat([count_data_df, df])
-            print('Count data:', len(count_data_df))
+        settings['plate'] = None
+        if len(settings['score_data']) == 1:
+            settings['score_data'] = settings['score_data'][0]
+        if len(settings['count_data']) == 1:
+            settings['count_data'] = settings['count_data'][0]
+        else:
+            count_data_df = pd.DataFrame()
+            for i, count_data in enumerate(settings['count_data']):
+                df = pd.read_csv(count_data)
+                df['plate_name'] = f'plate{i+1}'
+                count_data_df = pd.concat([count_data_df, df])
+                print('Count data:', len(count_data_df))
 
-        score_data_df = pd.DataFrame()
-        for i, score_data in enumerate(settings['score_data']):
-            df = pd.read_csv(score_data)
-            df['plate_name'] = f'plate{i}'
-            score_data_df = pd.concat([score_data_df, df])
-            print('Score data:', len(score_data_df))
-        
-        #count_data_df.reset_index(drop=True, inplace=True)
-        #score_data_df.reset_index(drop=True, inplace=True)
+            score_data_df = pd.DataFrame()
+            for i, score_data in enumerate(settings['score_data']):
+                df = pd.read_csv(score_data)
+                df['plate_name'] = f'plate{i+1}'
+                score_data_df = pd.concat([score_data_df, df])
+                print('Score data:', len(score_data_df))
     else:
         count_data_df = pd.read_csv(settings['count_data'])
         score_data_df = pd.read_csv(settings['score_data'])
@@ -314,17 +418,13 @@ def perform_regression(settings):
     
     score_data_df = clean_controls(score_data_df, settings['pc'], settings['nc'], settings['other'])
 
-    if 'prediction_probability_class_1' in df.columns:
+    if 'prediction_probability_class_1' in score_data_df.columns:
         if not settings['class_1_threshold'] is None:
-            df['predictions'] = (df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
+            score_data_df['predictions'] = (score_data_df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
-    
-    display(dependent_df)
-    
+        
     independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'])
-
-    display(independent_df)
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
 
@@ -336,7 +436,7 @@ def perform_regression(settings):
     if settings['transform'] is None:
         _ = plot_plates(score_data_df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'], dst = res_folder)                
 
-    model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['remove_row_column_effect'], highlight=settings['highlight'], dst=res_folder)
+    model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], highlight=settings['highlight'], dst=res_folder, cov_type=settings['cov_type'])
     
     coef_df.to_csv(results_path, index=False)
     
@@ -354,17 +454,34 @@ def perform_regression(settings):
     
     significant.to_csv(hits_path, index=False)
 
-    me49 = '/home/carruthers/Documents/TGME49_Summary.csv'
-    gt1 = '/home/carruthers/Documents/TGGT1_Summary.csv'
+    if isinstance(settings['metadata_files'], str):
+        settings['metadata_files'] = [settings['metadata_files']]
 
-    _ = merge_regression_res_with_metadata(hits_path, me49, name='_me49_metadata')
-    _ = merge_regression_res_with_metadata(hits_path, gt1, name='_gt1_metadata')
-    _ = merge_regression_res_with_metadata(results_path, me49, name='_me49_metadata')
-    _ = merge_regression_res_with_metadata(results_path, gt1, name='_gt1_metadata')
+    for metadata_file in settings['metadata_files']:
+        file = os.path.basename(metadata_file)
+        filename, _ = os.path.splitext(file)
+        _ = merge_regression_res_with_metadata(hits_path, metadata_file, name=filename)
+        merged_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
 
+    if settings['toxo']:
+        
+        data_path = merged_df
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
+
+        custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
+
+        metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
+
+        go_term_enrichment_by_column(significant, metadata_path)
+    
     print('Significant Genes')
     display(significant)
-    return coef_df
+
+    output = {'results':coef_df,
+              'significant':significant}
+
+    return output
 
 def process_reads(csv_path, fraction_threshold, plate):
 
@@ -441,11 +558,11 @@ def check_normality(data, variable_name, verbose=False):
         print(f"Shapiro-Wilk Test for {variable_name}:\nStatistic: {stat}, P-value: {p_value}")
     if p_value > 0.05:
         if verbose:
-            print(f"The data for {variable_name} is normally distributed.")
+            print(f"Normal distribution: The data for {variable_name} is normally distributed.")
         return True
     else:
         if verbose:
-            print(f"The data for {variable_name} is not normally distributed.")
+            print(f"Normal distribution: The data for {variable_name} is not normally distributed.")
         return False
 
 def clean_controls(df,pc,nc,other):
@@ -526,7 +643,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
     return dependent_df, dependent_variable
 
-def generate_ml_scores(src, settings):
+def generate_ml_scores(settings):
     
     from .io import _read_and_merge_data
     from .plot import plot_plates
@@ -535,20 +652,22 @@ def generate_ml_scores(src, settings):
 
     settings = set_default_analyze_screen(settings)
 
+    src = settings['src']
+
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     display(settings_df)
 
     db_loc = [src+'/measurements/measurements.db']
     tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
 
-    include_multinucleated, include_multiinfected, include_noninfected = settings['include_multinucleated'], settings['include_multiinfected'], settings['include_noninfected']
+    nuclei_limit, pathogen_limit, uninfected = settings['nuclei_limit'], settings['pathogen_limit'], settings['uninfected']
     
     df, _ = _read_and_merge_data(db_loc, 
                                  tables,
                                  settings['verbose'],
-                                 include_multinucleated,
-                                 include_multiinfected,
-                                 include_noninfected)
+                                 nuclei_limit,
+                                 pathogen_limit,
+                                 uninfected)
     
     if settings['channel_of_interest'] in [0,1,2,3]:
 
