@@ -16,8 +16,9 @@ from skimage.measure import find_contours, label, regionprops
 
 from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from scipy.stats import ttest_ind, mannwhitneyu, levene, wilcoxon, kruskal
 import itertools
-
+import pingouin as pg
 
 from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
@@ -1002,8 +1003,107 @@ def _display_gif(path):
     """
     with open(path, 'rb') as file:
         display(ipyimage(file.read()))
+
+def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=10):
+    """
+    Plot recruitment data for different conditions and pathogens.
+
+    Args:
+        df (DataFrame): The input DataFrame containing the recruitment data.
+        df_type (str): The type of DataFrame (e.g., 'train', 'test').
+        channel_of_interest (str): The channel of interest for plotting.
+        target (str): The target variable for plotting.
+        columns (list, optional): Additional columns to plot. Defaults to an empty list.
+        figuresize (int, optional): The size of the figure. Defaults to 50.
+
+    Returns:
+        None
+    """
+
+    from .plot import spacrGraph
+
+    color_list = [(55/255, 155/255, 155/255), 
+                  (155/255, 55/255, 155/255), 
+                  (55/255, 155/255, 255/255), 
+                  (255/255, 55/255, 155/255)]
+
+    sns.set_palette(sns.color_palette(color_list))
+    font = figuresize/2
+    width=figuresize
+    height=figuresize/4
+
+    # Create the subplots
+    fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
+
+    # Plot for 'cell_channel' on axes[0]
+    plotter_cell = spacrGraph(df,grouping_column='condition', data_column=f'cell_channel_{channel_of_interest}_mean_intensity')
+    plotter_cell.create_plot(ax=axes[0])
+    axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
+    axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+
+    # Plot for 'nucleus_channel' on axes[1]
+    plotter_nucleus = spacrGraph(df,grouping_column='condition', data_column=f'nucleus_channel_{channel_of_interest}_mean_intensity')
+    plotter_nucleus.create_plot(ax=axes[1])
+    axes[1].set_xlabel(f'pathogen {df_type}', fontsize=font)
+    axes[1].set_ylabel(f'nucleus_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+
+    # Plot for 'cytoplasm_channel' on axes[2]
+    plotter_cytoplasm = spacrGraph(df, grouping_column='condition', data_column=f'cytoplasm_channel_{channel_of_interest}_mean_intensity')
+    plotter_cytoplasm.create_plot(ax=axes[2])
+    axes[2].set_xlabel(f'pathogen {df_type}', fontsize=font)
+    axes[2].set_ylabel(f'cytoplasm_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+
+    # Plot for 'pathogen_channel' on axes[3]
+    plotter_pathogen = spacrGraph(df, grouping_column='condition', data_column=f'pathogen_channel_{channel_of_interest}_mean_intensity')
+    plotter_pathogen.create_plot(ax=axes[3])
+    axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
+    axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+
+    axes[0].legend_.remove()
+    axes[1].legend_.remove()
+    axes[2].legend_.remove()
+    axes[3].legend_.remove()
+
+    handles, labels = axes[3].get_legend_handles_labels()
+    axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
+    for i in [0,1,2,3]:
+        axes[i].tick_params(axis='both', which='major', labelsize=font)
+        axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation=45)
+
+    plt.tight_layout()
+    plt.show()
+
+    columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
+    #columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
+
+    width = figuresize*2
+    columns_per_row = math.ceil(len(columns) / 2)
+    height = (figuresize*2)/columns_per_row
+
+    fig, axes = plt.subplots(nrows=2, ncols=columns_per_row, figsize=(width, height * 2))
+    axes = axes.flatten()
+
+    print(f'{columns}')
+    for i, col in enumerate(columns):
+        ax = axes[i]
+        plotter_col = spacrGraph(df, grouping_column='condition', data_column=col)
+        plotter_col.create_plot(ax=ax)
+        ax.set_xlabel(f'pathogen {df_type}', fontsize=font)
+        ax.set_ylabel(f'{col}', fontsize=int(font * 2))
+        ax.legend_.remove()
+        ax.tick_params(axis='both', which='major', labelsize=font)
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+        if i <= 5:
+            ax.set_ylim(1, None)
+
+    # Turn off any unused axes
+    for i in range(len(columns), len(axes)):
+        axes[i].axis('off')
+
+    plt.tight_layout()
+    plt.show()
         
-def _plot_recruitment(df, df_type, channel_of_interest, target, columns=[], figuresize=10):
+def _plot_recruitment_v1(df, df_type, channel_of_interest, target, columns=[], figuresize=10):
     """
     Plot recruitment data for different conditions and pathogens.
 
@@ -1090,7 +1190,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, target, columns=[], figu
     plt.tight_layout()
     plt.show()
     
-def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
+def _plot_controls_v1(df, mask_chans, channel_of_interest, figuresize=5):
     """
     Plot controls for different channels and conditions.
 
@@ -1156,9 +1256,83 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     plt.tight_layout()
     plt.show()
 
-###################################################
-#  Classify
-###################################################
+def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
+    """
+    Plot controls for different channels and conditions using spacrGraph.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame containing the data.
+        mask_chans (list): The list of channels to include in the plot.
+        channel_of_interest (int): The channel of interest.
+        figuresize (int, optional): The size of the figure. Defaults to 5.
+
+    Returns:
+        None
+    """
+
+    from .plot import spacrGraph  # Ensure spacrGraph is imported
+    
+    mask_chans.append(channel_of_interest)
+    
+    # Adjust number of mask channels based on length
+    if len(mask_chans) == 4:
+        mask_chans = [0, 1, 2, 3]
+    elif len(mask_chans) == 3:
+        mask_chans = [0, 1, 2]
+    elif len(mask_chans) == 2:
+        mask_chans = [0, 1]
+    elif len(mask_chans) == 1:
+        mask_chans = [0]
+
+    controls_cols = []
+    for chan in mask_chans:
+        controls_cols_c = [
+            f'cell_channel_{chan}_mean_intensity',
+            f'nucleus_channel_{chan}_mean_intensity',
+            f'pathogen_channel_{chan}_mean_intensity',
+            f'cytoplasm_channel_{chan}_mean_intensity'
+        ]
+        controls_cols.append(controls_cols_c)
+
+    unique_conditions = df['condition'].unique().tolist()
+
+    # Ensure we have at least 2 conditions for plotting
+    if len(unique_conditions) == 1:
+        unique_conditions = unique_conditions + unique_conditions
+
+    # Create subplots
+    fig, axes = plt.subplots(len(unique_conditions), len(mask_chans), figsize=(figuresize * len(mask_chans), figuresize * len(unique_conditions)))
+
+    # Define RGB color tuples (scaled to 0-1 range)
+    color_list = [(55 / 255, 155 / 255, 155 / 255), 
+                  (155 / 255, 55 / 255, 155 / 255), 
+                  (55 / 255, 155 / 255, 255 / 255), 
+                  (255 / 255, 55 / 255, 155 / 255)]
+    sns.set_palette(sns.color_palette(color_list))
+
+    # Loop over conditions and channels
+    for idx_condition, condition in enumerate(unique_conditions):
+        df_temp = df[df['condition'] == condition]
+        for idx_channel, control_cols_c in enumerate(controls_cols):
+            data = []
+            std_dev = []
+            for control_col in control_cols_c:
+                if control_col in df_temp.columns:
+                    mean_intensity = df_temp[control_col].mean()
+                    mean_intensity = 0 if np.isnan(mean_intensity) else mean_intensity
+                    data.append(mean_intensity)
+                    std_dev.append(df_temp[control_col].std())
+
+            current_axis = axes[idx_condition][idx_channel]
+            # Use spacrGraph to create the plot
+            plotter = spacrGraph(df_temp, grouping_column='Component', data_column=control_cols_c, graph_type='bar')
+            plotter.create_plot(ax=current_axis)
+            current_axis.set_xlabel('Component')
+            current_axis.set_ylabel('Mean Intensity')
+            current_axis.set_title(f'Condition: {condition} - Channel {idx_channel}')
+    
+    plt.tight_layout()
+    plt.show()
 
 def _imshow(img, labels, nrow=20, color='white', fontsize=12):
     """
@@ -1998,3 +2172,606 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     plt.show()
 
     return plt.gcf(), results_df
+
+class spacrGraph_v1:
+    def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
+                 order=None, colors=None, output_dir='./output', save=False, y_axis_start=None, 
+                 error_bar_type='std', remove_outliers=False, theme='pastel', representation='object'):
+        """
+        Class for creating grouped plots with optional statistical tests and data preprocessing.
+        """
+        self.df = df
+        self.grouping_column = grouping_column
+        self.data_column = data_column
+        self.graph_type = graph_type
+        self.summary_func = summary_func
+        self.order = order
+        self.colors = colors
+        self.output_dir = output_dir
+        self.save = save
+        self.y_axis_start = y_axis_start
+        self.error_bar_type = error_bar_type
+        self.remove_outliers = remove_outliers
+        self.theme = theme
+        self.representation = representation
+        self.results_df = pd.DataFrame()
+        self.sns_palette = None
+        self.fig = None  # To store the generated figure
+        
+        # Preprocess and set palette
+        self._set_theme()
+        self.raw_df = self.df.copy()  # Preserve the raw data for n_object count
+        self.df = self.preprocess_data()
+        
+    def _set_theme(self):
+        """Set the Seaborn theme and reorder colors if necessary."""
+        integer_list = list(range(1, 81))
+        color_order = [0, 3, 9, 4, 6, 7, 9, 2] + integer_list
+        self.sns_palette = self._set_reordered_theme(self.theme, color_order, 100)
+
+    def _set_reordered_theme(self, theme='muted', order=None, n_colors=100, show_theme=False):
+        """Set and reorder the Seaborn color palette."""
+        palette = sns.color_palette(theme, n_colors)
+        if order:
+            reordered_palette = [palette[i] for i in order]
+        else:
+            reordered_palette = palette
+        if show_theme:
+            sns.palplot(reordered_palette)
+            plt.show()
+        return reordered_palette
+
+    def preprocess_data(self):
+        """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
+        df = self.df.dropna(subset=[self.grouping_column, self.data_column])
+
+        # Group by 'prc' column if representation is 'well'
+        if self.representation == 'well':
+            df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
+
+        if self.order:
+            df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
+        else:
+            df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
+        
+        return df
+
+    def remove_outliers_from_plot(self):
+        """Remove outliers from the plot but keep them in the data."""
+        filtered_df = self.df.copy()
+        unique_groups = filtered_df[self.grouping_column].unique()
+        for group in unique_groups:
+            group_data = filtered_df[filtered_df[self.grouping_column] == group][self.data_column]
+            q1 = group_data.quantile(0.25)
+            q3 = group_data.quantile(0.75)
+            iqr = q3 - q1
+            lower_bound = q1 - 1.5 * iqr
+            upper_bound = q3 + 1.5 * iqr
+            filtered_df = filtered_df.drop(filtered_df[(filtered_df[self.grouping_column] == group) & ((filtered_df[self.data_column] < lower_bound) | (filtered_df[self.data_column] > upper_bound))].index)
+        return filtered_df
+
+    def perform_normality_tests(self):
+        """Perform normality tests for each group."""
+        unique_groups = self.df[self.grouping_column].unique()
+        grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
+        raw_grouped_data = [self.raw_df.loc[self.raw_df[self.grouping_column] == group, self.data_column] for group in unique_groups]
+        
+        normal_p_values = [normaltest(data).pvalue for data in grouped_data]
+        normal_stats = [normaltest(data).statistic for data in grouped_data]
+        is_normal = all(p > 0.05 for p in normal_p_values)
+
+        test_results = []
+        for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
+            test_results.append({
+                'Comparison': f'Normality test for {group}',
+                'Test Statistic': stat,
+                'p-value': p_value,
+                'Test Name': 'Normality test',
+                'n_object': len(raw_grouped_data[unique_groups.tolist().index(group)]),  # Raw sample size (objects/cells)
+                'n_well': len(grouped_data[unique_groups.tolist().index(group)]) if self.representation == 'well' else np.nan  # Summarized size (wells)
+            })
+        return is_normal, test_results
+
+    def perform_statistical_tests(self, unique_groups, is_normal):
+        """Perform statistical tests based on the number of groups and normality."""
+        if len(unique_groups) == 2:
+            if is_normal:
+                stat_test = ttest_ind
+                test_name = 'T-test'
+            else:
+                stat_test = mannwhitneyu
+                test_name = 'Mann-Whitney U test'
+        else:
+            if is_normal:
+                stat_test = f_oneway
+                test_name = 'One-way ANOVA'
+            else:
+                stat_test = kruskal
+                test_name = 'Kruskal-Wallis test'
+
+        comparisons = list(itertools.combinations(unique_groups, 2))
+        test_results = []
+        for (group1, group2) in comparisons:
+            data1 = self.df[self.df[self.grouping_column] == group1][self.data_column]
+            data2 = self.df[self.df[self.grouping_column] == group2][self.data_column]
+            raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == group1][self.data_column]
+            raw_data2 = self.raw_df[self.raw_df[self.grouping_column] == group2][self.data_column]
+            
+            stat, p = stat_test(data1, data2)
+            test_results.append({
+                'Comparison': f'{group1} vs {group2}',
+                'Test Statistic': stat,
+                'p-value': p,
+                'Test Name': test_name,
+                'n_object': len(raw_data1) + len(raw_data2),  # Raw sample size (objects/cells)
+                'n_well': len(data1) + len(data2) if self.representation == 'well' else np.nan  # Summarized size (wells)
+            })
+        return test_results
+
+    def perform_posthoc_tests(self, is_normal, unique_groups):
+        """Perform post-hoc tests for multiple groups when data is normally distributed."""
+        if is_normal and len(unique_groups) > 2:
+            tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
+            posthoc_results = []
+            for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
+                raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == comparison[0]][self.data_column]
+                raw_data2 = self.raw_df[self.raw_df[self.grouping_column] == comparison[1]][self.data_column]
+                
+                posthoc_results.append({
+                    'Comparison': f'{comparison[0]} vs {comparison[1]}',
+                    'Test Statistic': None,  # Tukey does not provide a test statistic
+                    'p-value': p_value,
+                    'Test Name': 'Tukey HSD Post-hoc',
+                    'n_object': len(raw_data1) + len(raw_data2),
+                    'n_well': len(self.df[self.df[self.grouping_column] == comparison[0]]) + len(self.df[self.df[self.grouping_column] == comparison[1]])
+                })
+            return posthoc_results
+        return []
+
+    def create_plot(self, ax=None):
+        """Create and display the plot based on the chosen graph type."""
+        # Optional: Remove outliers for plotting
+        if self.remove_outliers:
+            self.df = self.remove_outliers_from_plot()
+
+        # Perform normality tests
+        is_normal, normality_results = self.perform_normality_tests()
+
+        # Perform statistical tests
+        unique_groups = self.df[self.grouping_column].unique()
+        stat_results = self.perform_statistical_tests(unique_groups, is_normal)
+
+        # Perform post-hoc tests if applicable
+        posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
+
+        # Combine all test results
+        self.results_df = pd.DataFrame(normality_results + stat_results + posthoc_results)
+
+        # Add sample size column
+        sample_sizes = self.df.groupby(self.grouping_column)[self.data_column].count().reset_index(name='n')
+        self.results_df['n'] = self.results_df['Comparison'].apply(
+            lambda x: next((sample_sizes[sample_sizes[self.grouping_column] == g]['n'].values[0] for g in sample_sizes[self.grouping_column] if g in x), np.nan)
+        )
+
+        # Dynamically set figure dimensions based on the number of unique groups
+        num_groups = len(unique_groups)
+        bar_width = 0.6  # Set the desired thickness of each bar
+        spacing_between_groups = 0.3  # Set the desired spacing between bars and axis
+
+        fig_width = num_groups * (bar_width + spacing_between_groups)  # Dynamically calculate the figure width
+        fig_height = 6  # Fixed height for the plot
+
+        if ax is None:
+            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))  # Store the figure in self.fig
+        else:
+            self.fig = ax.figure  # Store the figure if ax is provided
+
+        sns.set(style="ticks")
+        color_palette = self.sns_palette if not self.colors else self.colors
+
+        # Calculate x-axis limits to ensure equal space between the bars and the y-axis
+        xlim_lower = -0.5  # Ensures space between the y-axis and the first category
+        xlim_upper = num_groups - 0.5  # Ensures space after the last category
+        ax.set_xlim(xlim_lower, xlim_upper)
+
+        if self.summary_func is None:
+            sns.stripplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=color_palette, jitter=True, alpha=0.6, ax=ax)
+        elif self.graph_type == 'bar':
+            self._create_bar_plot(bar_width, ax)
+        elif self.graph_type == 'box':
+            self._create_box_plot(ax)
+        elif self.graph_type == 'violin':
+            self._create_violin_plot(ax)
+        elif self.graph_type == 'jitter':
+            self._create_jitter_plot(ax)
+        else:
+            raise ValueError(f"Invalid graph_type: {self.graph_type}. Choose from 'bar', 'box', 'violin', or 'jitter'.")
+
+        # Set y-axis start
+        if self.y_axis_start is not None:
+            ax.set_ylim(bottom=self.y_axis_start)
+
+        # Add ticks, remove grid, and save plot
+        ax.minorticks_on()
+        ax.tick_params(axis='x', which='minor', bottom=False)  # Disable minor ticks on x-axis
+        ax.tick_params(axis='x', which='major', length=6, width=2, direction='out')
+        ax.tick_params(axis='y', which='major', length=6, width=2, direction='out')
+        ax.tick_params(axis='y', which='minor', length=4, width=1, direction='out')
+        sns.despine(ax=ax, top=True, right=True)
+
+        if self.save:
+            self._save_results()
+
+        plt.show()  # Ensure the plot is shown, but plt.show() doesn't clear the figure context
+
+    def get_figure(self):
+        """Return the generated figure."""
+        return self.fig
+
+    def _create_bar_plot(self, bar_width, ax):
+        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        summary_df = self.df.groupby(self.grouping_column)[self.data_column].agg([self.summary_func, 'std', 'sem'])
+
+        if self.error_bar_type == 'std':
+            error_bars = summary_df['std']
+        elif self.error_bar_type == 'sem':
+            error_bars = summary_df['sem']
+        else:
+            raise ValueError(f"Invalid error_bar_type: {self.error_bar_type}. Choose either 'std' or 'sem'.")
+
+        sns.barplot(x=self.grouping_column, y=self.summary_func, data=summary_df.reset_index(), ci=None, palette=self.sns_palette,width=bar_width,ax=ax)
+
+        # Plot the error bars
+        ax.errorbar(x=np.arange(len(summary_df)), y=summary_df[self.summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+
+    def _create_jitter_plot(self, ax):
+        """Helper method to create a jitter plot (strip plot)."""
+        sns.stripplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, jitter=True, alpha=0.6, ax=ax)
+
+    def _create_box_plot(self, ax):
+        """Helper method to create a box plot."""
+        sns.boxplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, ax=ax)
+
+    def _create_violin_plot(self, ax):
+        """Helper method to create a violin plot."""
+        sns.violinplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, ax=ax)
+
+    def _save_results(self):
+        """Helper method to save the plot and results."""
+        os.makedirs(self.output_dir, exist_ok=True)
+        plot_path = os.path.join(self.output_dir, 'grouped_plot.png')
+        self.fig.savefig(plot_path)
+        results_path = os.path.join(self.output_dir, 'test_results.csv')
+        self.results_df.to_csv(results_path, index=False)
+        print(f"Plot saved to {plot_path}")
+        print(f"Test results saved to {results_path}")
+
+    def get_results(self):
+        """Return the results dataframe."""
+        return self.results_df
+    
+class spacrGraph:
+    def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
+                 order=None, colors=None, output_dir='./output', save=False, y_axis_start=None, 
+                 error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
+                 paired=False, all_to_all=True, compare_group=None):
+        """
+        Class for creating grouped plots with optional statistical tests and data preprocessing.
+        """
+        self.df = df
+        self.grouping_column = grouping_column
+        self.data_column = data_column
+        self.graph_type = graph_type
+        self.summary_func = summary_func
+        self.order = order
+        self.colors = colors
+        self.output_dir = output_dir
+        self.save = save
+        self.y_axis_start = y_axis_start
+        self.error_bar_type = error_bar_type
+        self.remove_outliers = remove_outliers
+        self.theme = theme
+        self.representation = representation
+        self.paired = paired
+        self.all_to_all = all_to_all
+        self.compare_group = compare_group
+
+        self.results_df = pd.DataFrame()
+        self.sns_palette = None
+        self.fig = None  # To store the generated figure
+        
+        # Preprocess and set palette
+        self._set_theme()
+        self.raw_df = self.df.copy()  # Preserve the raw data for n_object count
+        self.df = self.preprocess_data()
+        
+    def _set_theme(self):
+        """Set the Seaborn theme and reorder colors if necessary."""
+        integer_list = list(range(1, 81))
+        color_order = [0, 3, 9, 4, 6, 7, 9, 2] + integer_list
+        self.sns_palette = self._set_reordered_theme(self.theme, color_order, 100)
+
+    def _set_reordered_theme(self, theme='muted', order=None, n_colors=100, show_theme=False):
+        """Set and reorder the Seaborn color palette."""
+        palette = sns.color_palette(theme, n_colors)
+        if order:
+            reordered_palette = [palette[i] for i in order]
+        else:
+            reordered_palette = palette
+        if show_theme:
+            sns.palplot(reordered_palette)
+            plt.show()
+        return reordered_palette
+
+    def preprocess_data(self):
+        """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
+        df = self.df.dropna(subset=[self.grouping_column, self.data_column])
+
+        # Group by 'prc' column if representation is 'well'
+        if self.representation == 'well':
+            df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
+
+        if self.order:
+            df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
+        else:
+            df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
+        
+        return df
+
+    def remove_outliers_from_plot(self):
+        """Remove outliers from the plot but keep them in the data."""
+        filtered_df = self.df.copy()
+        unique_groups = filtered_df[self.grouping_column].unique()
+        for group in unique_groups:
+            group_data = filtered_df[filtered_df[self.grouping_column] == group][self.data_column]
+            q1 = group_data.quantile(0.25)
+            q3 = group_data.quantile(0.75)
+            iqr = q3 - q1
+            lower_bound = q1 - 1.5 * iqr
+            upper_bound = q3 + 1.5 * iqr
+            filtered_df = filtered_df.drop(filtered_df[(filtered_df[self.grouping_column] == group) & ((filtered_df[self.data_column] < lower_bound) | (filtered_df[self.data_column] > upper_bound))].index)
+        return filtered_df
+
+    def perform_normality_tests(self):
+        """Perform normality tests for each group."""
+        unique_groups = self.df[self.grouping_column].unique()
+        grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
+        raw_grouped_data = [self.raw_df.loc[self.raw_df[self.grouping_column] == group, self.data_column] for group in unique_groups]
+        
+        normal_p_values = [normaltest(data).pvalue for data in grouped_data]
+        normal_stats = [normaltest(data).statistic for data in grouped_data]
+        is_normal = all(p > 0.05 for p in normal_p_values)
+
+        test_results = []
+        for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
+            test_results.append({
+                'Comparison': f'Normality test for {group}',
+                'Test Statistic': stat,
+                'p-value': p_value,
+                'Test Name': 'Normality test',
+                'n_object': len(raw_grouped_data[unique_groups.tolist().index(group)]),  # Raw sample size (objects/cells)
+                'n_well': len(grouped_data[unique_groups.tolist().index(group)]) if self.representation == 'well' else np.nan  # Summarized size (wells)
+            })
+        return is_normal, test_results
+
+    def perform_levene_test(self, unique_groups):
+        """Perform Levene's test for equal variance."""
+        grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
+        stat, p_value = levene(*grouped_data)
+        return stat, p_value
+
+    def perform_statistical_tests(self, unique_groups, is_normal):
+        """Perform statistical tests based on the number of groups, normality, and paired flag."""
+        if len(unique_groups) == 2:
+            if is_normal:
+                if self.paired:
+                    stat_test = pg.ttest  # Paired T-test
+                    test_name = 'Paired T-test'
+                else:
+                    stat_test = ttest_ind
+                    test_name = 'T-test'
+            else:
+                if self.paired:
+                    stat_test = pg.wilcoxon  # Paired Wilcoxon test
+                    test_name = 'Paired Wilcoxon test'
+                else:
+                    stat_test = mannwhitneyu
+                    test_name = 'Mann-Whitney U test'
+        else:
+            if is_normal:
+                stat_test = f_oneway
+                test_name = 'One-way ANOVA'
+            else:
+                stat_test = kruskal
+                test_name = 'Kruskal-Wallis test'
+
+        comparisons = list(itertools.combinations(unique_groups, 2))
+        test_results = []
+        for (group1, group2) in comparisons:
+            data1 = self.df[self.df[self.grouping_column] == group1][self.data_column]
+            data2 = self.df[self.df[self.grouping_column] == group2][self.data_column]
+            raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == group1][self.data_column]
+            raw_data2 = self.raw_df[self.raw_df[self.grouping_column] == group2][self.data_column]
+            
+            if self.paired:
+                stat, p = stat_test(data1, data2, paired=True)
+            else:
+                stat, p = stat_test(data1, data2)
+
+            test_results.append({
+                'Comparison': f'{group1} vs {group2}',
+                'Test Statistic': stat,
+                'p-value': p,
+                'Test Name': test_name,
+                'n_object': len(raw_data1) + len(raw_data2),  # Raw sample size (objects/cells)
+                'n_well': len(data1) + len(data2) if self.representation == 'well' else np.nan  # Summarized size (wells)
+            })
+        return test_results
+
+    def perform_posthoc_tests(self, is_normal, unique_groups):
+        """Perform post-hoc tests for multiple groups based on all_to_all flag."""
+        if is_normal and len(unique_groups) > 2 and self.all_to_all:
+            # Tukey HSD Post-hoc when comparing all to all
+            tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
+            posthoc_results = []
+            for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
+                raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == comparison[0]][self.data_column]
+                raw_data2 = self.raw_df[self.raw_df[self.grouping_column] == comparison[1]][self.data_column]
+
+                posthoc_results.append({
+                    'Comparison': f'{comparison[0]} vs {comparison[1]}',
+                    'Test Statistic': None,  # Tukey does not provide a test statistic
+                    'p-value': p_value,
+                    'Test Name': 'Tukey HSD Post-hoc',
+                    'n_object': len(raw_data1) + len(raw_data2),
+                    'n_well': len(self.df[self.df[self.grouping_column] == comparison[0]]) + len(self.df[self.df[self.grouping_column] == comparison[1]])
+                })
+            return posthoc_results
+       
+        elif len(unique_groups) > 2 and not self.all_to_all and self.compare_group:
+            # Dunn's post-hoc test using Pingouin
+            dunn_result = pg.pairwise_tests(data=self.df, dv=self.data_column, between=self.grouping_column, padjust='bonf', test='dunn')
+            posthoc_results = []
+            for idx, row in dunn_result.iterrows():
+                if row['A'] == self.compare_group or row['B'] == self.compare_group:
+                    posthoc_results.append({
+                        'Comparison': f"{row['A']} vs {row['B']}",
+                        'Test Statistic': row['T'],  # Test statistic from Dunn's test
+                        'p-value': row['p-val'],
+                        'Test Name': 'Dunn’s Post-hoc',
+                        'n_object': None,
+                        'n_well': None
+                    })
+            return posthoc_results
+        return []
+
+    def create_plot(self, ax=None):
+        """Create and display the plot based on the chosen graph type."""
+        # Optional: Remove outliers for plotting
+        if self.remove_outliers:
+            self.df = self.remove_outliers_from_plot()
+
+        # Perform normality tests
+        is_normal, normality_results = self.perform_normality_tests()
+
+        # Perform Levene's test for equal variance
+        unique_groups = self.df[self.grouping_column].unique()
+        levene_stat, levene_p = self.perform_levene_test(unique_groups)
+        levene_result = {
+            'Comparison': 'Levene’s test for equal variance',
+            'Test Statistic': levene_stat,
+            'p-value': levene_p,
+            'Test Name': 'Levene’s Test'
+        }
+
+        # Perform statistical tests
+        stat_results = self.perform_statistical_tests(unique_groups, is_normal)
+
+        # Perform post-hoc tests if applicable
+        posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
+
+        # Combine all test results
+        self.results_df = pd.DataFrame(normality_results + [levene_result] + stat_results + posthoc_results)
+
+        # Add sample size column
+        sample_sizes = self.df.groupby(self.grouping_column)[self.data_column].count().reset_index(name='n')
+        self.results_df['n'] = self.results_df['Comparison'].apply(
+            lambda x: next((sample_sizes[sample_sizes[self.grouping_column] == g]['n'].values[0] for g in sample_sizes[self.grouping_column] if g in x), np.nan)
+        )
+
+        # Dynamically set figure dimensions based on the number of unique groups
+        num_groups = len(unique_groups)
+        bar_width = 0.6  # Set the desired thickness of each bar
+        spacing_between_groups = 0.3  # Set the desired spacing between bars and axis
+
+        fig_width = num_groups * (bar_width + spacing_between_groups)  # Dynamically calculate the figure width
+        fig_height = 6  # Fixed height for the plot
+
+        if ax is None:
+            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))  # Store the figure in self.fig
+        else:
+            self.fig = ax.figure  # Store the figure if ax is provided
+
+        sns.set(style="ticks")
+        color_palette = self.sns_palette if not self.colors else self.colors
+
+        # Calculate x-axis limits to ensure equal space between the bars and the y-axis
+        xlim_lower = -0.5  # Ensures space between the y-axis and the first category
+        xlim_upper = num_groups - 0.5  # Ensures space after the last category
+        ax.set_xlim(xlim_lower, xlim_upper)
+
+        if self.summary_func is None:
+            sns.stripplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=color_palette, jitter=True, alpha=0.6, ax=ax)
+        elif self.graph_type == 'bar':
+            self._create_bar_plot(bar_width, ax)
+        elif self.graph_type == 'box':
+            self._create_box_plot(ax)
+        elif self.graph_type == 'violin':
+            self._create_violin_plot(ax)
+        elif self.graph_type == 'jitter':
+            self._create_jitter_plot(ax)
+        else:
+            raise ValueError(f"Invalid graph_type: {self.graph_type}. Choose from 'bar', 'box', 'violin', or 'jitter'.")
+
+        # Set y-axis start
+        if self.y_axis_start is not None:
+            ax.set_ylim(bottom=self.y_axis_start)
+
+        # Add ticks, remove grid, and save plot
+        ax.minorticks_on()
+        ax.tick_params(axis='x', which='minor', bottom=False)  # Disable minor ticks on x-axis
+        ax.tick_params(axis='x', which='major', length=6, width=2, direction='out')
+        ax.tick_params(axis='y', which='major', length=6, width=2, direction='out')
+        ax.tick_params(axis='y', which='minor', length=4, width=1, direction='out')
+        sns.despine(ax=ax, top=True, right=True)
+
+        if self.save:
+            self._save_results()
+
+        plt.show()  # Ensure the plot is shown, but plt.show() doesn't clear the figure context
+
+    def get_figure(self):
+        """Return the generated figure."""
+        return self.fig
+
+    def _create_bar_plot(self, bar_width, ax):
+        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        summary_df = self.df.groupby(self.grouping_column)[self.data_column].agg([self.summary_func, 'std', 'sem'])
+
+        if self.error_bar_type == 'std':
+            error_bars = summary_df['std']
+        elif self.error_bar_type == 'sem':
+            error_bars = summary_df['sem']
+        else:
+            raise ValueError(f"Invalid error_bar_type: {self.error_bar_type}. Choose either 'std' or 'sem'.")
+
+        sns.barplot(x=self.grouping_column, y=self.summary_func, data=summary_df.reset_index(), ci=None, palette=self.sns_palette, width=bar_width, ax=ax)
+
+        # Plot the error bars
+        ax.errorbar(x=np.arange(len(summary_df)), y=summary_df[self.summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+
+    def _create_jitter_plot(self, ax):
+        """Helper method to create a jitter plot (strip plot)."""
+        sns.stripplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, jitter=True, alpha=0.6, ax=ax)
+
+    def _create_box_plot(self, ax):
+        """Helper method to create a box plot."""
+        sns.boxplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, ax=ax)
+
+    def _create_violin_plot(self, ax):
+        """Helper method to create a violin plot."""
+        sns.violinplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, ax=ax)
+
+    def _save_results(self):
+        """Helper method to save the plot and results."""
+        os.makedirs(self.output_dir, exist_ok=True)
+        plot_path = os.path.join(self.output_dir, 'grouped_plot.png')
+        self.fig.savefig(plot_path)
+        results_path = os.path.join(self.output_dir, 'test_results.csv')
+        self.results_df.to_csv(results_path, index=False)
+        print(f"Plot saved to {plot_path}")
+        print(f"Test results saved to {results_path}")
+
+    def get_results(self):
+        """Return the results dataframe."""
+        return self.results_df
