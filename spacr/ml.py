@@ -32,8 +32,6 @@ from xgboost import XGBClassifier
 import matplotlib
 matplotlib.use('Agg')
 
-from .logger import log_function_call
-
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 

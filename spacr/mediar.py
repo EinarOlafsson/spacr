@@ -1,7 +1,6 @@
 import os, sys, gdown, cv2, torch
 import numpy as np
 import matplotlib.pyplot as plt
-from monai.inferers import sliding_window_inference
 import skimage.io as io
 
 # Path to the MEDIAR directory

@@ -15,8 +15,6 @@ import statsmodels.api as sm
 from multiprocessing import cpu_count, Pool, Manager
 from copy import deepcopy
 
-from .logger import log_function_call
-
 warnings.filterwarnings("ignore")
 warnings.filterwarnings("ignore", category=RuntimeWarning) # Ignore RuntimeWarning
 

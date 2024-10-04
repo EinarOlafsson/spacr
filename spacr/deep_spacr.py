@@ -1,5 +1,4 @@
-import os, torch, time, gc, datetime, sqlite3, shutil, random
-from sklearn.model_selection import train_test_split
+import os, torch, time, gc, datetime
 torch.backends.cudnn.benchmark = True
 
 import numpy as np
@@ -11,15 +10,9 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.metrics import auc, precision_recall_curve
-from multiprocessing import set_start_method
-from multiprocessing import Pool, cpu_count, Value, Lock
 
 from torchvision import transforms
-from torch.utils.data import DataLoader, random_split
-
-#set_start_method('spawn', force=True)
-
-from .logger import log_function_call
+from torch.utils.data import DataLoader
 
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
     
