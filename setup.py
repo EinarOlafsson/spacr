@@ -16,6 +16,7 @@ dependencies = [
     'statsmodels>=0.14.1,<1.0',
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
+    'pingouin>=0.5.5,<1.0',
     'seaborn>=0.13.2,<1.0',
     'matplotlib>=3.8.3,<4.0',
     'shap>=0.45.0,<1.0',
@@ -64,11 +65,12 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.3.2",
+    version="0.3.21",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
     long_description=long_description,
+    long_description_content_type='text/x-rst', 
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
@@ -113,4 +115,3 @@ for dep in deps:
         subprocess.run(['pip', 'install', dep], check=True)
     except subprocess.CalledProcessError:
         pass
-

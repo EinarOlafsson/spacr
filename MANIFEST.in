@@ -3,3 +3,32 @@ recursive-include spacr/resources/icons *
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/MEDIAR *
 recursive-include spacr/resources/MEDIAR_weights *
+
+# Include essential files
+include *.py
+include *.sh
+include *.txt
+include *.yaml
+include requirements.txt
+
+# Recursively include specific folders and file types
+recursive-include docs *.rst *.py *.html *.css *.js *.inv *.pickle *.png *.svg *.ttf *.woff *.woff2 *.eot *.txt *.bat Makefile
+recursive-include notebooks *.ipynb
+recursive-include path *.csv *.db
+recursive-include settings *.csv
+recursive-include source *.py *.rst
+
+# Recursively include fonts
+recursive-include fonts *.ttf
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__/
+global-exclude .DS_Store
+global-exclude .git
+global-exclude .gitmodules
+global-exclude docs-env/
+
+# Exclude model files from distribution
+exclude spacr/resources/models/cp/*

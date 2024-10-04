@@ -114,9 +114,9 @@ def analyze_recruitment(settings={}):
         _plot_controls(df, mask_chans, settings['channel_of_interest'], figuresize=5)
 
     print(f'PV level: {len(df)} rows')
-    _plot_recruitment(df, 'by PV', settings['channel_of_interest'], settings['target'], settings['figuresize'])
+    _plot_recruitment(df, 'by PV', settings['channel_of_interest'], settings['figuresize'])
     print(f'well level: {len(df_well)} rows')
-    _plot_recruitment(df_well, 'by well', settings['channel_of_interest'], settings['target'], settings['figuresize'])
+    _plot_recruitment(df_well, 'by well', settings['channel_of_interest'], settings['figuresize'])
     cells,wells = _results_to_csv(settings['src'], df, df_well)
 
     return [cells,wells]
