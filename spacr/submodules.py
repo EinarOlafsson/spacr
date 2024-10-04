@@ -32,15 +32,6 @@ def analyze_recruitment(settings={}):
     print(f"Treatment(s): {settings['treatments']}, in {settings['treatment_plate_metadata']}")
     
     mask_chans=[settings['nucleus_chann_dim'], settings['pathogen_chann_dim'], settings['cell_chann_dim']]
-
-    if isinstance(settings['metadata_types'], str):
-        metadata_types = [settings['metadata_types'], settings['metadata_types'], settings['metadata_types']]
-    elif isinstance(settings['metadata_types'], list):
-        if len(settings['metadata_types']) < 3:
-            metadata_types = [settings['metadata_types'][0], settings['metadata_types'][0], settings['metadata_types'][0]]
-            print(f"WARNING: setting metadata types to first element times 3: {metadata_types}. To avoid this behaviour, set metadata_types to a list with 3 elements. Elements should be col row or plate.")
-        else:
-            metadata_types = settings['metadata_types']
     
     sns.color_palette("mako", as_cmap=True)
     print(f"channel:{settings['channel_of_interest']} = {settings['target']}")
@@ -58,9 +49,8 @@ def analyze_recruitment(settings={}):
                              pathogens=settings['pathogen_types'],
                              pathogen_loc=settings['pathogen_plate_metadata'],
                              treatments=settings['treatments'], 
-                             treatment_loc=settings['treatment_plate_metadata'],
-                             types=settings['metadata_types'])
-    
+                             treatment_loc=settings['treatment_plate_metadata'])
+      
     df = df.dropna(subset=['condition'])
     print(f'After dropping non-annotated wells: {len(df)} rows')
 

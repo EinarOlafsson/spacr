@@ -1,13 +1,8 @@
 import os, gc, torch, time, random
-import matplotlib.pyplot as plt
-
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from IPython.display import display
-from multiprocessing import Pool
-
-
-from .logger import log_function_call
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")

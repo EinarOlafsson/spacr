@@ -47,6 +47,7 @@ If using Windows, switch to Linux—it's free, open-source, and better.
 Before installing SpaCr on OSX ensure OpenMP is installed::
 
    brew install libomp
+   brew install hdf5
 
 SpaCr GUI requires Tkinter. On Linux, ensure Tkinter is installed. (Tkinter is included with the standard Python installation on macOS and Windows)::
 

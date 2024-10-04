@@ -11,7 +11,6 @@ import psutil
 import GPUtil
 from collections import deque
 import tracemalloc
-from PIL import Image, ImageTk
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)

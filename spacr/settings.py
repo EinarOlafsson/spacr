@@ -1292,8 +1292,8 @@ def set_annotate_default_settings(settings):
     settings.setdefault('annotation_column', 'test')
     settings.setdefault('normalize', 'False')
     settings.setdefault('percentiles', [2, 98])
-    settings.setdefault('measurement', 'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
-    settings.setdefault('threshold', '2')
+    settings.setdefault('measurement', '')#'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
+    settings.setdefault('threshold', '')#'2')
     return settings
 
 def set_default_generate_barecode_mapping(settings={}):

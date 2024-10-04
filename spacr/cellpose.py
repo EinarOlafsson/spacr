@@ -4,9 +4,7 @@ import pandas as pd
 from cellpose import models as cp_models
 from IPython.display import display
 from multiprocessing import Pool
-import seaborn as sns
 from skimage.transform import resize as resizescikit
-from .logger import log_function_call
 
 def identify_masks_finetune(settings):
     
