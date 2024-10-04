@@ -16,8 +16,6 @@ from skimage.util import img_as_bool
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
-from .logger import log_function_call
-
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """
     Get the components (nucleus and pathogens) for each cell in the given masks.

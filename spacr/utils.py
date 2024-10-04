@@ -1,6 +1,7 @@
-import sys, os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess
+import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests
 
 import numpy as np
+import pandas as pd
 from cellpose import models as cp_models
 from cellpose import denoise
 
@@ -14,7 +15,6 @@ from skimage.segmentation import clear_border
 
 from collections import defaultdict, OrderedDict
 from PIL import Image
-import pandas as pd
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.stattools import durbin_watson
 import statsmodels.formula.api as smf
@@ -24,7 +24,7 @@ from itertools import combinations
 from functools import reduce
 from IPython.display import display
 
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
 from concurrent.futures import ThreadPoolExecutor
 
 import torch.nn as nn
@@ -33,59 +33,38 @@ from torch.utils.checkpoint import checkpoint
 from torch.utils.data import Subset
 from torch.autograd import grad
 
+from torchvision import models
+from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
+import torchvision.transforms as transforms
+from torchvision.models import resnet50
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
+from scipy import stats
 import scipy.ndimage as ndi
 from scipy.spatial import distance
-from scipy.stats import fisher_exact
+from scipy.stats import fisher_exact, f_oneway, kruskal
 from scipy.ndimage.filters import gaussian_filter
 from scipy.spatial import ConvexHull
 from scipy.interpolate import splprep, splev
 from scipy.ndimage import binary_dilation
 
-from sklearn.preprocessing import StandardScaler
 from skimage.exposure import rescale_intensity
 from sklearn.metrics import auc, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import DBSCAN
-from sklearn.cluster import KMeans
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.cluster import KMeans, DBSCAN
 from sklearn.manifold import TSNE
-from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier
+
+from huggingface_hub import list_repo_files
 
 import umap.umap_ as umap
-
-from torchvision import models
-from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
-import torchvision.transforms as transforms
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
-from scipy.stats import f_oneway, kruskal
-from sklearn.cluster import KMeans
-from scipy import stats
-
-from .logger import log_function_call
-from multiprocessing import set_start_method, get_start_method
-from IPython.display import display
-import torch
-import torchvision.transforms as transforms
-from torchvision.models import resnet50
-from PIL import Image
-import numpy as np
-import umap
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
-from scipy.stats import f_oneway, kruskal
-from sklearn.cluster import KMeans
-from scipy import stats
+#import umap
 
 def save_settings(settings, name='settings', show=False):
     
@@ -496,7 +475,7 @@ def _generate_representative_images(db_path, cells=['HeLa'], cell_loc=None, path
     from .plot import _plot_images_on_grid
     
     df = _read_and_join_tables(db_path)
-    df = _annotate_conditions(df, cells, cell_loc, pathogens, pathogen_loc, treatments,treatment_loc)
+    df = annotate_conditions(df, cells, cell_loc, pathogens, pathogen_loc, treatments, treatment_loc)
     
     if update_db:
         _update_database_with_merged_info(db_path, df, table='png_list', columns=['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo'])
@@ -541,34 +520,6 @@ def _map_values(row, values, locs):
         type_ = 'row' if locs[0][0][0] == 'r' else 'col'
         return value_dict.get(row[type_], None)
     return values[0] if values else None
-
-def _annotate_conditions(df, cells=['HeLa'], cell_loc=None, pathogens=['rh'], pathogen_loc=None, treatments=['cm'], treatment_loc=None):
-    """
-    Annotates conditions in the given DataFrame based on the provided parameters.
-
-    Args:
-        df (pandas.DataFrame): The DataFrame to annotate.
-        cells (list, optional): The list of host cell types. Defaults to ['HeLa'].
-        cell_loc (list, optional): The list of location identifiers for host cells. Defaults to None.
-        pathogens (list, optional): The list of pathogens. Defaults to ['rh'].
-        pathogen_loc (list, optional): The list of location identifiers for pathogens. Defaults to None.
-        treatments (list, optional): The list of treatments. Defaults to ['cm'].
-        treatment_loc (list, optional): The list of location identifiers for treatments. Defaults to None.
-
-    Returns:
-        pandas.DataFrame: The annotated DataFrame with the 'host_cells', 'pathogen', 'treatment', and 'condition' columns.
-    """
-
-
-    # Apply mappings or defaults
-    df['host_cells'] = [cells[0]] * len(df) if cell_loc is None else df.apply(_map_values, args=(cells, cell_loc), axis=1)
-    df['pathogen'] = [pathogens[0]] * len(df) if pathogen_loc is None else df.apply(_map_values, args=(pathogens, pathogen_loc), axis=1)
-    df['treatment'] = [treatments[0]] * len(df) if treatment_loc is None else df.apply(_map_values, args=(treatments, treatment_loc), axis=1)
-
-    # Construct condition column
-    df['condition'] = df.apply(lambda row: '_'.join(filter(None, [row.get('pathogen'), row.get('treatment')])), axis=1)
-    df['condition'] = df['condition'].apply(lambda x: x if x else 'none')
-    return df
 
 def is_list_of_lists(var):
     if isinstance(var, list) and all(isinstance(i, list) for i in var):
@@ -1138,67 +1089,74 @@ def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel)
         else:
             cellpose_channels['cell'] = [0,0]
     return cellpose_channels
-    
-def annotate_conditions(df, cells=['HeLa'], cell_loc=None, pathogens=['rh'], pathogen_loc=None, treatments=['cm'], treatment_loc=None, types = ['col','col','col']):
+
+def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None):
     """
-    Annotates conditions in a DataFrame based on specified criteria.
+    Annotates conditions in a DataFrame based on specified criteria and combines them into a 'condition' column.
+    NaN is used for missing values, and they are excluded from the 'condition' column.
 
     Args:
         df (pandas.DataFrame): The DataFrame to annotate.
-        cells (list, optional): List of host cell types. Defaults to ['HeLa'].
-        cell_loc (list, optional): List of corresponding values for each host cell type. Defaults to None.
-        pathogens (list, optional): List of pathogens. Defaults to ['rh'].
-        pathogen_loc (list, optional): List of corresponding values for each pathogen. Defaults to None.
-        treatments (list, optional): List of treatments. Defaults to ['cm'].
-        treatment_loc (list, optional): List of corresponding values for each treatment. Defaults to None.
-        types (list, optional): List of column types for host cells, pathogens, and treatments. Defaults to ['col','col','col'].
+        cells (list/str, optional): Host cell types. Defaults to None.
+        cell_loc (list of lists, optional): Values for each host cell type. Defaults to None.
+        pathogens (list/str, optional): Pathogens. Defaults to None.
+        pathogen_loc (list of lists, optional): Values for each pathogen. Defaults to None.
+        treatments (list/str, optional): Treatments. Defaults to None.
+        treatment_loc (list of lists, optional): Values for each treatment. Defaults to None.
 
     Returns:
-        pandas.DataFrame: The annotated DataFrame.
+        pandas.DataFrame: Annotated DataFrame with a combined 'condition' column.
     """
-
-    # Function to apply to each row
-    def _map_values(row, dict_, type_='col'):
-        """
-        Maps the values in a row to corresponding keys in a dictionary.
-
-        Args:
-            row (dict): The row containing the values to be mapped.
-            dict_ (dict): The dictionary containing the mapping values.
-            type_ (str, optional): The type of mapping to perform. Defaults to 'col'.
-
-        Returns:
-            str: The mapped value if found, otherwise None.
-        """
-        for values, cols in dict_.items():
-            if row[type_] in cols:
-                return values
+    
+    def _get_type(val):
+        """Determine if a value maps to 'row' or 'col'."""
+        if isinstance(val, str) and val.startswith('c'):
+            return 'col'
+        elif isinstance(val, str) and val.startswith('r'):
+            return 'row'
         return None
 
-    if cell_loc is None:
-        df['host_cells'] = cells[0]
-    else:
-        cells_dict = dict(zip(cells, cell_loc))
-        df['host_cells'] = df.apply(lambda row: _map_values(row, cells_dict, type_=types[0]), axis=1)
-    if pathogen_loc is None:
-        if pathogens != None:
-            df['pathogen'] = 'none'
-    else:
-        pathogens_dict = dict(zip(pathogens, pathogen_loc))
-        df['pathogen'] = df.apply(lambda row: _map_values(row, pathogens_dict, type_=types[1]), axis=1)
-    if treatment_loc is None:
-        df['treatment'] = 'cm'
-    else:
-        treatments_dict = dict(zip(treatments, treatment_loc))
-        df['treatment'] = df.apply(lambda row: _map_values(row, treatments_dict, type_=types[2]), axis=1)
-    if pathogens != None:
-        df['condition'] = df['pathogen']+'_'+df['treatment']
-    else:
-        df['condition'] = df['treatment']
-    return df
-    
+    def _map_or_default(column_name, values, loc, df):
+        """
+        Consolidates the logic for mapping values or assigning defaults when loc is None.
 
-    
+        Args:
+            column_name (str): The column in the DataFrame to annotate.
+            values (list/str): The list of values or a single string to annotate.
+            loc (list of lists): Location mapping for the values, or None if not used.
+            df (pandas.DataFrame): The DataFrame to modify.
+        """
+        if isinstance(values, str) or (isinstance(values, list) and loc is None):
+            # Assign all rows the first value in the list or the single string
+            df[column_name] = values if isinstance(values, str) else values[0]
+        elif values is not None and loc is not None:
+            # Perform the location-based mapping
+            value_dict = {val: key for key, loc_list in zip(values, loc) for val in loc_list}
+            df[column_name] = np.nan
+            for val, key in value_dict.items():
+                loc_type = _get_type(val)
+                if loc_type:
+                    df.loc[df[loc_type] == val, column_name] = key
+
+    # Handle cells, pathogens, and treatments using the consolidated logic
+    _map_or_default('host_cells', cells, cell_loc, df)
+    _map_or_default('pathogen', pathogens, pathogen_loc, df)
+    _map_or_default('treatment', treatments, treatment_loc, df)
+
+    # Conditionally fill NaN for pathogen and treatment columns if applicable
+    if pathogens is not None:
+        df['pathogen'].fillna(np.nan, inplace=True)
+    if treatments is not None:
+        df['treatment'].fillna(np.nan, inplace=True)
+
+    # Create the 'condition' column by excluding any NaN values, safely checking if 'host_cells', 'pathogen', and 'treatment' exist
+    df['condition'] = df.apply(
+        lambda x: '_'.join([str(v) for v in [x.get('host_cells'), x.get('pathogen'), x.get('treatment')] if pd.notna(v)]), 
+        axis=1
+    )
+
+    return df
+
 def _split_data(df, group_by, object_type):
     """
     Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
@@ -4530,3 +4488,63 @@ def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
         return 'mix'
     else:
         return 'screen'
+    
+def download_models(repo_id="einarolafsson/models", local_dir=None, retries=5, delay=5):
+    """
+    Downloads all model files from Hugging Face and stores them in the specified local directory.
+
+    Args:
+        repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').
+        local_dir (str): The local directory where models will be saved. Defaults to '/home/carruthers/Desktop/test'.
+        retries (int): Number of retry attempts in case of failure.
+        delay (int): Delay in seconds between retries.
+
+    Returns:
+        str: The local path to the downloaded models.
+    """
+    # Create the local directory if it doesn't exist
+    if not os.path.exists(local_dir):
+        os.makedirs(local_dir)
+    elif len(os.listdir(local_dir)) > 0:
+        print(f"Models already downloaded to: {local_dir}")
+        return local_dir
+
+    attempt = 0
+    while attempt < retries:
+        try:
+            # List all files in the repo
+            files = list_repo_files(repo_id, repo_type="dataset")
+            print(f"Files in repository: {files}")  # Debugging print to check file list
+
+            # Download each file
+            for file_name in files:
+                for download_attempt in range(retries):
+                    try:
+                        url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
+                        print(f"Downloading file from: {url}")  # Debugging
+
+                        response = requests.get(url, stream=True)
+                        print(f"HTTP response status: {response.status_code}")  # Debugging
+                        response.raise_for_status()
+
+                        # Save the file locally
+                        local_file_path = os.path.join(local_dir, os.path.basename(file_name))
+                        with open(local_file_path, 'wb') as file:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                file.write(chunk)
+                        print(f"Downloaded model file: {file_name} to {local_file_path}")
+                        break  # Exit the retry loop if successful
+                    except (requests.HTTPError, requests.Timeout) as e:
+                        print(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
+                        time.sleep(delay)
+                else:
+                    raise Exception(f"Failed to download {file_name} after multiple attempts.")
+
+            return local_dir  # Return the directory where models are saved
+
+        except (requests.HTTPError, requests.Timeout) as e:
+            print(f"Error downloading files: {e}. Retrying in {delay} seconds...")
+            attempt += 1
+            time.sleep(delay)
+
+    raise Exception("Failed to download model files after multiple attempts.")

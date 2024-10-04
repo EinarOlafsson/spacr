@@ -1,5 +1,5 @@
-from setuptools import setup, find_packages
 import subprocess
+from setuptools import setup, find_packages
 
 # Ensure you have read the README.rst content into a variable, e.g., `long_description`
 with open("README.rst", "r", encoding="utf-8") as fh:
@@ -72,7 +72,7 @@ setup(
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/data/*', 'resources/models/cp/*', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*', 'resources/images/*'],},
+    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*', 'resources/images/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [

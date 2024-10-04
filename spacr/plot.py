@@ -1,4 +1,4 @@
-import os,re, random, cv2, glob, time, math, torch
+import os, random, cv2, glob, math, torch
 
 import numpy as np
 import pandas as pd
@@ -14,10 +14,13 @@ from skimage.segmentation import find_boundaries
 from skimage import measure
 from skimage.measure import find_contours, label, regionprops
 
+from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import itertools
+
+
 from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
-
-from .logger import log_function_call
 
 def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, normalize=True, thickness=3, save_pdf=True):
     """Plot image and mask overlays."""
@@ -1832,3 +1835,166 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
         plt.show()
 
     return balanced_df
+
+def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_axis_start=None, error_bar_type='std'):
+    """
+    Create a grouped plot, perform statistical tests, and optionally export the results along with the plot.
+
+    Parameters:
+    - df: DataFrame containing the data.
+    - grouping_column: Column name for the categorical grouping.
+    - data_column: Column name for the data to be grouped and plotted.
+    - graph_type: Type of plot ('bar', 'violin', 'jitter', 'box', 'jitter_box').
+    - summary_func: Summary function to apply to each group ('mean', 'median', etc.).
+    - order: List specifying the order of the groups. If None, groups will be ordered alphabetically.
+    - colors: List of colors for each group.
+    - output_dir: Directory where the figure and test results will be saved if `save=True`.
+    - save: Boolean flag indicating whether to save the plot and results to files.
+    - y_axis_start: Optional starting value for the y-axis.
+    - error_bar_type: Type of error bars to plot, either 'std' for standard deviation or 'sem' for standard error of the mean.
+
+    Outputs:
+    - Figure of the plot.
+    - DataFrame with full statistical test results, including normality tests.
+    """
+    
+    # Remove NaN rows in grouping_column
+    df = df.dropna(subset=[grouping_column])
+    
+    # Ensure the output directory exists if save is True
+    if save:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Sorting and ordering
+    if order:
+        df[grouping_column] = pd.Categorical(df[grouping_column], categories=order, ordered=True)
+    else:
+        df[grouping_column] = pd.Categorical(df[grouping_column], categories=sorted(df[grouping_column].unique()), ordered=True)
+    
+    # Get unique groups
+    unique_groups = df[grouping_column].unique()
+    
+    # Initialize test results
+    test_results = []
+
+    # Test normality for each group
+    grouped_data = [df.loc[df[grouping_column] == group, data_column] for group in unique_groups]
+    normal_p_values = [normaltest(data).pvalue for data in grouped_data]
+    normal_stats = [normaltest(data).statistic for data in grouped_data]
+    is_normal = all(p > 0.05 for p in normal_p_values)
+
+    # Add normality test results to the results_df
+    for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
+        test_results.append({
+            'Comparison': f'Normality test for {group}',
+            'Test Statistic': stat,
+            'p-value': p_value,
+            'Test Name': 'Normality test'
+        })
+
+    # Determine statistical test
+    if len(unique_groups) == 2:
+        if is_normal:
+            stat_test = ttest_ind
+            test_name = 'T-test'
+        else:
+            stat_test = mannwhitneyu
+            test_name = 'Mann-Whitney U test'
+    else:
+        if is_normal:
+            stat_test = f_oneway
+            test_name = 'One-way ANOVA'
+        else:
+            stat_test = kruskal
+            test_name = 'Kruskal-Wallis test'
+
+    # Perform pairwise statistical tests
+    comparisons = list(itertools.combinations(unique_groups, 2))
+    p_values = []
+    test_statistics = []
+
+    for (group1, group2) in comparisons:
+        data1 = df[df[grouping_column] == group1][data_column]
+        data2 = df[df[grouping_column] == group2][data_column]
+        stat, p = stat_test(data1, data2)
+        p_values.append(p)
+        test_statistics.append(stat)
+        test_results.append({'Comparison': f'{group1} vs {group2}', 'Test Statistic': stat, 'p-value': p, 'Test Name': test_name})
+    
+    # Post-hoc test (Tukey HSD for ANOVA)
+    posthoc_p_values = None
+    if is_normal and len(unique_groups) > 2:
+        tukey_result = pairwise_tukeyhsd(df[data_column], df[grouping_column], alpha=0.05)
+        posthoc_p_values = tukey_result.pvalues
+        for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
+            test_results.append({
+                'Comparison': f'{comparison[0]} vs {comparison[1]}',
+                'Test Statistic': None,  # Tukey does not provide a test statistic in the same way
+                'p-value': p_value,
+                'Test Name': 'Tukey HSD Post-hoc'
+            })
+
+    # Create plot
+    plt.figure(figsize=(10, 6))
+    sns.set(style="whitegrid")
+
+    if colors:
+        color_palette = colors
+    else:
+        color_palette = sns.color_palette("husl", len(unique_groups))
+    
+    # Choose graph type
+    if graph_type == 'bar':
+        summary_df = df.groupby(grouping_column)[data_column].agg([summary_func, 'std', 'sem'])
+        
+        # Set error bars based on error_bar_type
+        if error_bar_type == 'std':
+            error_bars = summary_df['std']
+        elif error_bar_type == 'sem':
+            error_bars = summary_df['sem']
+        else:
+            raise ValueError(f"Invalid error_bar_type: {error_bar_type}. Choose either 'std' or 'sem'.")
+
+        sns.barplot(x=grouping_column, y=summary_func, data=summary_df.reset_index(), ci=None, order=order, palette=color_palette)
+
+        # Add error bars (standard deviation or standard error of the mean)
+        plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+    
+    elif graph_type == 'violin':
+        sns.violinplot(x=grouping_column, y=data_column, data=df, order=order, palette=color_palette)
+    elif graph_type == 'jitter':
+        sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, order=order, palette=color_palette)
+    elif graph_type == 'box':
+        sns.boxplot(x=grouping_column, y=data_column, data=df, order=order, palette=color_palette)
+    elif graph_type == 'jitter_box':
+        sns.boxplot(x=grouping_column, y=data_column, data=df, order=order, palette=color_palette)
+        sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color='black', alpha=0.5, order=order)
+
+    # Create a DataFrame to summarize the test results
+    results_df = pd.DataFrame(test_results)
+
+    # Set y-axis start if provided
+    if y_axis_start is not None:
+        plt.ylim(bottom=y_axis_start)
+    else:
+        plt.ylim(0, None)  # Default to starting at 0 if no custom start value is provided
+
+    # If save is True, save the plot and results as PNG and CSV
+    if save:
+        # Save the plot as PNG
+        plot_path = os.path.join(output_dir, 'grouped_plot.png')
+        plt.title(f'{test_name} results for {graph_type} plot')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig(plot_path)
+        print(f"Plot saved to {plot_path}")
+
+        # Save the test results as a CSV file
+        results_path = os.path.join(output_dir, 'test_results.csv')
+        results_df.to_csv(results_path, index=False)
+        print(f"Test results saved to {results_path}")
+
+    # Show the plot
+    plt.show()
+
+    return plt.gcf(), results_df

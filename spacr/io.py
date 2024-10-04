@@ -22,7 +22,6 @@ from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
 from torchvision import transforms
-from .logger import log_function_call
 
 def process_non_tif_non_2D_images(folder):
     """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
@@ -3107,7 +3106,7 @@ def generate_training_dataset(settings):
 
         print('length df 1', len(df))
         df = annotate_conditions(df, cells=['HeLa'], pathogens=['pathogen'], treatments=settings['classes'],
-                                 treatment_loc=settings['class_metadata'], types=settings['metadata_type_by'])
+                                 treatment_loc=settings['class_metadata'])#, types=settings['metadata_type_by'])
         print('length df 2', len(df))
         
         png_list_df = filter_png_list(db_path, settings)

@@ -1,4 +1,4 @@
-import os, threading, time, sqlite3, webbrowser, pyautogui, random, io, cv2
+import os, threading, time, sqlite3, webbrowser, pyautogui, random, cv2
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -17,7 +17,6 @@ from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext 
-import matplotlib.pyplot as plt
 
 fig = None
 
