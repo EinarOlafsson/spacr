@@ -845,3 +845,107 @@ def generate_mediar_masks(src, settings, object_type):
         torch.cuda.empty_cache()
 
     print("Mask generation completed.")
+
+def generate_screen_graphs(settings):
+    """
+    Generate screen graphs for different measurements in a given source directory.
+
+    Args:
+        src (str or list): Path(s) to the source directory or directories.
+        tables (list): List of tables to include in the analysis (default: ['cell', 'nucleus', 'pathogen', 'cytoplasm']).
+        graph_type (str): Type of graph to generate (default: 'bar').
+        summary_func (str or function): Function to summarize data (default: 'mean').
+        y_axis_start (float): Starting value for the y-axis (default: 0).
+        error_bar_type (str): Type of error bar to use ('std' or 'sem') (default: 'std').
+        theme (str): Theme for the graph (default: 'pastel').
+        representation (str): Representation for grouping (default: 'well').
+        
+    Returns:
+        figs (list): List of generated figures.
+        results (list): List of corresponding result DataFrames.
+    """
+    
+    from .plot import spacrGraph
+    from .io import _read_and_merge_data
+    from.utils import annotate_conditions
+
+    if isinstance(settings['src'], str):
+        srcs = [settings['src']]
+    else:
+        srcs = settings['src']
+
+    all_df = pd.DataFrame()
+    figs = []
+    results = []
+
+    for src in srcs:
+        db_loc = [os.path.join(src, 'measurements', 'measurements.db')]
+        
+        # Read and merge data from the database
+        df, _ = _read_and_merge_data(db_loc, settings['tables'], verbose=True, nuclei_limit=settings['nuclei_limit'], pathogen_limit=settings['pathogen_limit'], uninfected=settings['uninfected'])
+        
+        # Annotate the data
+        df = annotate_conditions(df, cells=settings['cells'], cell_loc=None, pathogens=settings['controls'], pathogen_loc=settings['controls_loc'], treatments=None, treatment_loc=None)
+        
+        # Calculate recruitment metric
+        df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+                
+        # Combine with the overall DataFrame
+        all_df = pd.concat([all_df, df], ignore_index=True)
+    
+        # Generate individual plot
+        plotter = spacrGraph(df,
+                             grouping_column='pathogen',
+                             data_column='recruitment',
+                             graph_type=settings['graph_type'],
+                             summary_func=settings['summary_func'],
+                             y_axis_start=settings['y_axis_start'],
+                             error_bar_type=settings['error_bar_type'],
+                             theme=settings['theme'],
+                             representation=settings['representation'])
+
+        plotter.create_plot()
+        fig = plotter.get_figure()
+        results_df = plotter.get_results()
+        
+        # Append to the lists
+        figs.append(fig)
+        results.append(results_df)
+    
+    # Generate plot for the combined data (all_df)
+    plotter = spacrGraph(all_df,
+                         grouping_column='pathogen',
+                         data_column='recruitment',
+                         graph_type=settings['graph_type'],
+                         summary_func=settings['summary_func'],
+                         y_axis_start=settings['y_axis_start'],
+                         error_bar_type=settings['error_bar_type'],
+                         theme=settings['theme'],
+                         representation=settings['representation'])
+
+    plotter.create_plot()
+    fig = plotter.get_figure()
+    results_df = plotter.get_results()
+    
+    figs.append(fig)
+    results.append(results_df)
+    
+    # Save figures and results
+    for i, fig in enumerate(figs):
+        res = results[i]
+        
+        if i < len(srcs):
+            source = srcs[i]
+        else:
+            source = srcs[0]
+
+        # Ensure the destination folder exists
+        dst = os.path.join(source, 'results')
+        print(f"Savings results to {dst}")
+        os.makedirs(dst, exist_ok=True)
+        
+        # Save the figure and results DataFrame
+        fig.savefig(os.path.join(dst, f"figure_controls_{i}_{settings['representation']}_{settings['summary_func']}_{settings['graph_type']}.pdf"), format='pdf')
+        res.to_csv(os.path.join(dst, f"results_controls_{i}_{settings['representation']}_{settings['summary_func']}_{settings['graph_type']}.csv"), index=False)
+
+    return
