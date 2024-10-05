@@ -10,6 +10,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.metrics import auc, precision_recall_curve
+from IPython.display import display
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -240,7 +241,7 @@ def evaluate_model_performance(model, loader, epoch, loss_type):
     
     loss /= len(loader)
     data_dict = classification_metrics(all_labels, prediction_pos_probs)
-    data_dict['loss'] = loss
+    data_dict['loss'] = loss.item()
     data_dict['epoch'] = epoch
     data_dict['Accuracy'] = acc
     
@@ -574,19 +575,21 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
             if schedule == 'step_lr':
                 scheduler.step()
 
-        if epoch % 10 == 0 or epoch == epochs:
-            if accumulated_train_dicts:
-                train_df = pd.DataFrame(accumulated_train_dicts)
-                _save_progress(dst, train_df, result_type='train')
-                
-            if accumulated_val_dicts:
-                val_df = pd.DataFrame(accumulated_val_dicts)
-                _save_progress(dst, val_df,result_type='validation')
-                
-            if accumulated_test_dicts:
-                val_df = pd.DataFrame(accumulated_test_dicts)
-                _save_progress(dst, val_df, result_type='test')
-                
+        if accumulated_train_dicts and accumulated_val_dicts:
+            train_df = pd.DataFrame(accumulated_train_dicts)
+            validation_df = pd.DataFrame(accumulated_val_dicts)
+            _save_progress(dst, train_df, validation_df)
+            accumulated_train_dicts, accumulated_val_dicts = [], []
+
+        elif accumulated_train_dicts:
+            train_df = pd.DataFrame(accumulated_train_dicts)
+            _save_progress(dst, train_df, None)
+            accumulated_train_dicts = []
+        elif accumulated_test_dicts:
+            test_df = pd.DataFrame(accumulated_test_dicts)
+            _save_progress(dst, test_df, None)
+            accumulated_test_dicts = []
+            
         batch_size = len(train_loaders)
         duration = time.time() - start_time
         time_ls.append(duration)
