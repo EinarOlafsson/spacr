@@ -2384,12 +2384,8 @@ def _results_to_csv(src, df, df_well):
     wells.to_csv(wells_loc, index=True, header=True)
     cells.to_csv(cells_loc, index=True, header=True)
     return cells, wells
-    
-###################################################
-#  Classify
-###################################################
 
-def read_plot_model_stats(file_path ,save=False):
+def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=600):
         
@@ -2418,37 +2414,19 @@ def read_plot_model_stats(file_path ,save=False):
             plt.savefig(pdf_path, format='pdf', dpi=dpi)
         else:
             plt.show()
-    # Read the CSV into a dataframe
-    df = pd.read_csv(file_path, index_col=0)
-    
-    # Split the dataframe into train and validation based on the index
-    train_df = df.filter(like='_train', axis=0).copy()
-    val_df = df.filter(like='_val', axis=0).copy()
-    
-    fldr_1 = os.path.dirname(file_path)
-    
-    train_csv_path = os.path.join(fldr_1, 'train.csv')
-    val_csv_path = os.path.join(fldr_1, 'validation.csv')
 
-    fldr_2 = os.path.dirname(fldr_1)
-    fldr_3 = os.path.dirname(fldr_2)
-    bn_1 = os.path.basename(fldr_1)
-    bn_2 = os.path.basename(fldr_2)
-    bn_3 = os.path.basename(fldr_3)
-    model_name = str(f'{bn_1}_{bn_2}_{bn_3}')
+    # Read the CSVs into DataFrames
+    train_df = pd.read_csv(train_file_path, index_col=0)
+    val_df = pd.read_csv(val_file_path, index_col=0)
 
-    # Extract epochs from index
-    train_df['epoch'] = [int(idx.split('_')[0]) for idx in train_df.index]
-    val_df['epoch'] = [int(idx.split('_')[0]) for idx in val_df.index]
-    
-    # Save dataframes to a CSV file
-    train_df.to_csv(train_csv_path)
-    val_df.to_csv(val_csv_path)
+    # Get the folder path for saving plots
+    fldr_1 = os.path.dirname(train_file_path)
     
     if save:
         # Setting the style
         sns.set(style="whitegrid")
     
+    # Plot and save the results
     _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
     _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
     _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
@@ -2496,28 +2474,51 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
     
     return model_path
 
-def _save_progress(dst, results_df, result_type='train'):
+def _save_progress(dst, train_df, validation_df):
     """
     Save the progress of the classification model.
 
     Parameters:
     dst (str): The destination directory to save the progress.
-    results_df (pandas.DataFrame): The DataFrame containing accuracy, loss, and PRAUC.
-    train_metrics_df (pandas.DataFrame): The DataFrame containing training metrics.
+    train_df (pandas.DataFrame): The DataFrame containing training stats.
+    validation_df (pandas.DataFrame): The DataFrame containing validation stats (if available).
 
     Returns:
     None
     """
+
+    def _save_df_to_csv(file_path, df):
+        """
+        Save the given DataFrame to the specified CSV file, either creating a new file or appending to an existing one.
+
+        Parameters:
+        file_path (str): The file path where the CSV will be saved.
+        df (pandas.DataFrame): The DataFrame to save.
+        """
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f:
+                df.to_csv(f, index=True, header=True)
+                f.flush()  # Ensure data is written to the file system
+        else:
+            with open(file_path, 'a') as f:
+                df.to_csv(f, index=True, header=False)
+                f.flush()
+                
     # Save accuracy, loss, PRAUC
     os.makedirs(dst, exist_ok=True)
-    results_path = os.path.join(dst, f'{result_type}.csv')
-    if not os.path.exists(results_path):
-        results_df.to_csv(results_path, index=True, header=True, mode='w')
-    else:
-        results_df.to_csv(results_path, index=True, header=False, mode='a')
+    results_path_train = os.path.join(dst, 'train.csv')
+    results_path_validation = os.path.join(dst, 'validation.csv')
 
-    if result_type == 'train':
-        read_plot_model_stats(results_path, save=True)
+    # Save training data
+    _save_df_to_csv(results_path_train, train_df)
+
+    # Save validation data if available
+    if validation_df is not None:
+        _save_df_to_csv(results_path_validation, validation_df)
+
+        # Call read_plot_model_stats after ensuring the files are saved
+        read_plot_model_stats(results_path_train, results_path_validation, save=True)
+
     return
 
 def _save_settings(settings, src):
