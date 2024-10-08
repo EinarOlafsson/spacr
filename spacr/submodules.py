@@ -36,7 +36,7 @@ def analyze_recruitment(settings={}):
     sns.color_palette("mako", as_cmap=True)
     print(f"channel:{settings['channel_of_interest']} = {settings['target']}")
     
-    df, _ = _read_and_merge_data(db_loc=[settings['src']+'/measurements/measurements.db'], 
+    df, _ = _read_and_merge_data(locs=[settings['src']+'/measurements/measurements.db'], 
                                  tables=['cell', 'nucleus', 'pathogen','cytoplasm'], 
                                  verbose=True, 
                                  nuclei_limit=settings['nuclei_limit'], 
@@ -89,15 +89,16 @@ def analyze_recruitment(settings={}):
         
     if not settings['cell_chann_dim'] is None:
         df = _object_filter(df, 'cell', settings['cell_size_range'], settings['cell_intensity_range'], mask_chans, 0)
-        if not settings['target_intensity_min'] is None:
-            df = df[df[f"cell_channel_{settings['channel_of_interest']}_percentile_95'] > settings['target_intensity_min"]]
+        if not settings['target_intensity_min'] is None or not settings['target_intensity_min'] is 0:
+            df = df[df[f"cell_channel_{settings['channel_of_interest']}_percentile_95"] > settings['target_intensity_min']]
             print(f"After channel {settings['channel_of_interest']} filtration", len(df))
     if not settings['nucleus_chann_dim'] is None:
         df = _object_filter(df, 'nucleus', settings['nucleus_size_range'], settings['nucleus_intensity_range'], mask_chans, 1)
     if not settings['pathogen_chann_dim'] is None:
         df = _object_filter(df, 'pathogen', settings['pathogen_size_range'], settings['pathogen_intensity_range'], mask_chans, 2)
        
-    df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity']/df[f'cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+    df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+    
     for chan in settings['channel_dims']:
         df = _calculate_recruitment(df, channel=chan)
     print(f'calculated recruitment for: {len(df)} rows')
@@ -114,9 +115,9 @@ def analyze_recruitment(settings={}):
         _plot_controls(df, mask_chans, settings['channel_of_interest'], figuresize=5)
 
     print(f'PV level: {len(df)} rows')
-    _plot_recruitment(df, 'by PV', settings['channel_of_interest'], settings['figuresize'])
+    _plot_recruitment(df, 'by PV', settings['channel_of_interest'], columns=[], figuresize=settings['figuresize'])
     print(f'well level: {len(df_well)} rows')
-    _plot_recruitment(df_well, 'by well', settings['channel_of_interest'], settings['figuresize'])
+    _plot_recruitment(df_well, 'by well', settings['channel_of_interest'], columns=[], figuresize=settings['figuresize'])
     cells,wells = _results_to_csv(settings['src'], df, df_well)
 
     return [cells,wells]

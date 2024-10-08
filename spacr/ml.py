@@ -1,4 +1,4 @@
-import os, shap
+import os, shap, re
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -354,75 +354,128 @@ def perform_regression(settings):
     from .settings import get_perform_regression_default_settings
     from .toxo import go_term_enrichment_by_column, custom_volcano_plot
 
-    if isinstance(settings['score_data'], list) and isinstance(settings['count_data'], list):
-        settings['plate'] = None
-        if len(settings['score_data']) == 1:
-            settings['score_data'] = settings['score_data'][0]
-        if len(settings['count_data']) == 1:
-            settings['count_data'] = settings['count_data'][0]
+    def _perform_regression_read_data(settings):
+
+        if isinstance(settings['score_data'], list) and isinstance(settings['count_data'], list):
+            settings['plate'] = None
+            if len(settings['score_data']) == 1:
+                settings['score_data'] = settings['score_data'][0]
+            if len(settings['count_data']) == 1:
+                settings['count_data'] = settings['count_data'][0]
+            else:
+                count_data_df = pd.DataFrame()
+                for i, count_data in enumerate(settings['count_data']):
+                    df = pd.read_csv(count_data)
+                    df['plate_name'] = f'plate{i+1}'
+                    if 'column' in df.columns:
+                        df['col'] = df['column']
+                    count_data_df = pd.concat([count_data_df, df])
+                    print('Count data:', len(count_data_df))
+
+                score_data_df = pd.DataFrame()
+                for i, score_data in enumerate(settings['score_data']):
+                    df = pd.read_csv(score_data)
+                    df['plate_name'] = f'plate{i+1}'
+                    if 'column' in df.columns:
+                        df['col'] = df['column']
+                    score_data_df = pd.concat([score_data_df, df])
+                    print('Score data:', len(score_data_df))
         else:
-            count_data_df = pd.DataFrame()
-            for i, count_data in enumerate(settings['count_data']):
-                df = pd.read_csv(count_data)
-                df['plate_name'] = f'plate{i+1}'
-                count_data_df = pd.concat([count_data_df, df])
-                print('Count data:', len(count_data_df))
+            count_data_df = pd.read_csv(settings['count_data'])
+            score_data_df = pd.read_csv(settings['score_data'])
 
-            score_data_df = pd.DataFrame()
-            for i, score_data in enumerate(settings['score_data']):
-                df = pd.read_csv(score_data)
-                df['plate_name'] = f'plate{i+1}'
-                score_data_df = pd.concat([score_data_df, df])
-                print('Score data:', len(score_data_df))
-    else:
-        count_data_df = pd.read_csv(settings['count_data'])
-        score_data_df = pd.read_csv(settings['score_data'])
+            print(f"Dependent variable: {len(score_data_df)}")
+            print(f"Independent variable: {len(count_data_df)}")
 
-    reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
-    if settings['regression_type'] not in reg_types:
-        print(f'Possible regression types: {reg_types}')
-        raise ValueError(f"Unsupported regression type {settings['regression_type']}")
+        if settings['dependent_variable'] not in score_data_df.columns:
+            print(f'Columns in DataFrame:')
+            for col in score_data_df.columns:
+                print(col)
+            raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
+        
+        if 'prediction_probability_class_1' in score_data_df.columns:
+            if not settings['class_1_threshold'] is None:
+                score_data_df['predictions'] = (score_data_df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
+        
+        reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
+        if settings['regression_type'] not in reg_types:
+            print(f'Possible regression types: {reg_types}')
+            raise ValueError(f"Unsupported regression type {settings['regression_type']}")
+
+        return count_data_df, score_data_df
     
-    if settings['dependent_variable'] not in score_data_df.columns:
-        print(f'Columns in DataFrame:')
-        for col in score_data_df.columns:
-            print(col)
-        raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
+    def _perform_regression_set_paths(settings):
+        
+        if isinstance(settings['score_data'], list):
+            score_data = settings['score_data'][0]
+        else:
+            score_data = settings['score_data']
+        
+        score_source = os.path.splitext(os.path.basename(score_data))[0]
+        
+        if isinstance(settings['count_data'], list):
+            src = os.path.dirname(settings['count_data'][0])
+            csv_path = settings['count_data'][0]
+        else:
+            src = os.path.dirname(settings['count_data'])
+            csv_path = settings['count_data']
 
-    if isinstance(settings['count_data'], list):
-        src = os.path.dirname(settings['count_data'][0])
-        csv_path = settings['count_data'][0]
-    else:
-        src = os.path.dirname(settings['count_data'])
-        csv_path = settings['count_data']
+        settings['src'] = src
+        res_folder = os.path.join(src, 'results', score_source, settings['regression_type'])
+        
+        if isinstance(settings['count_data'], list):
+            res_folder = os.path.join(res_folder, 'list')
 
-    settings['src'] = src
-    fldr = 'results_' + settings['regression_type']
-    if isinstance(settings['count_data'], list):
-        fldr = fldr + '_list'
+        os.makedirs(res_folder, exist_ok=True)
+        results_filename = 'results.csv'
+        results_filename_gene = 'results_gene.csv'
+        results_filename_grna = 'results_grna.csv'
+        hits_filename = 'results_significant.csv'
+        results_path=os.path.join(res_folder, results_filename)
+        results_path_gene=os.path.join(res_folder, results_filename_gene)
+        results_path_grna=os.path.join(res_folder, results_filename_grna)
+        hits_path=os.path.join(res_folder, hits_filename)
 
-    if settings['regression_type'] == 'quantile':
-        fldr = fldr + '_' + str(settings['alpha'])
-
-    res_folder = os.path.join(src, fldr)
-    os.makedirs(res_folder, exist_ok=True)
-    results_filename = 'results.csv'
-    hits_filename = 'results_significant.csv'
-    results_path=os.path.join(res_folder, results_filename)
-    hits_path=os.path.join(res_folder, hits_filename)
+        return results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path
+    
+    def _count_variable_instances(df, column_1, column_2):
+        if column_1 is not None:
+            n_grna = df[column_1].value_counts().reset_index()
+            n_grna.columns = [column_1, f'n_{column_1}']
+        if column_2 is not None:
+            n_gene = df[column_2].value_counts().reset_index()
+            n_gene.columns = [column_2, f'n_{column_2}']
+        if column_1 is not None and column_2 is not None:
+            return df, n_grna, n_gene
+        elif column_1 is not None:
+            return df, n_grna
+        elif column_2 is not None:
+            return df, n_gene
+        else:
+            return df
     
     settings = get_perform_regression_default_settings(settings)
+    count_data_df, score_data_df = _perform_regression_read_data(settings)
+    results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
     save_settings(settings, name='regression', show=True)
     
     score_data_df = clean_controls(score_data_df, settings['pc'], settings['nc'], settings['other'])
-
-    if 'prediction_probability_class_1' in score_data_df.columns:
-        if not settings['class_1_threshold'] is None:
-            score_data_df['predictions'] = (score_data_df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
+    print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
-        
-    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'])
+    print(f"Dependent variable after process_scores: {len(dependent_df)}")
+
+    filter_value = [settings['nc'], settings['pc']]
+
+    if settings['other'] is not None:
+        if isinstance(settings['other'], str):
+            settings['other'] = [settings['other']]
+        filter_value.extend(settings['other'])
+
+    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'], filter_column=settings['location_column'], filter_value=filter_value)
+    independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
+
+    print(f"Independent variable after process_reads: {len(independent_df)}")
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
 
@@ -436,7 +489,20 @@ def perform_regression(settings):
 
     model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], highlight=settings['highlight'], dst=res_folder, cov_type=settings['cov_type'])
     
+    coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
+    coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
+    coef_df = coef_df.merge(n_grna, how='left', on='grna')
+    coef_df = coef_df.merge(n_gene, how='left', on='gene')
+    display(coef_df)
+
+    gene_coef_df = coef_df[coef_df['n_gene'] != None]
+    grna_coef_df = coef_df[coef_df['n_grna'] != None]
+    gene_coef_df = gene_coef_df.dropna(subset=['n_gene'])
+    grna_coef_df = grna_coef_df.dropna(subset=['n_grna'])
+    
     coef_df.to_csv(results_path, index=False)
+    gene_coef_df.to_csv(results_path_gene, index=False)
+    grna_coef_df.to_csv(results_path_grna, index=False)
     
     if settings['regression_type'] == 'lasso':
         significant = coef_df[coef_df['coefficient'] > 0]
@@ -460,18 +526,24 @@ def perform_regression(settings):
         filename, _ = os.path.splitext(file)
         _ = merge_regression_res_with_metadata(hits_path, metadata_file, name=filename)
         merged_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
+        gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
+        grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
 
     if settings['toxo']:
         
         data_path = merged_df
+        data_path_gene = gene_merged_df
+        data_path_grna = grna_merged_df
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
 
         custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
-
-        metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
-
-        go_term_enrichment_by_column(significant, metadata_path)
+        custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
+        custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
+        
+        if len(significant) > 2:
+            metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
+            go_term_enrichment_by_column(significant, metadata_path)
     
     print('Significant Genes')
     display(significant)
@@ -481,29 +553,43 @@ def perform_regression(settings):
 
     return output
 
-def process_reads(csv_path, fraction_threshold, plate):
+def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
 
     if isinstance(csv_path, pd.DataFrame):
         csv_df = csv_path
     else:
         # Read the CSV file into a DataFrame
         csv_df = pd.read_csv(csv_path)
-    
+
     if 'plate_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'plate_name': 'plate'})
     if 'column_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'column_name': 'column'})
+    if 'col' in csv_df.columns:
+        csv_df = csv_df.rename(columns={'col': 'column'})
     if 'row_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'row_name': 'row'})
     if 'grna_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in csv_df.columns:
         csv_df[['plate', 'row']] = csv_df['plate_row'].str.split('_', expand=True)
+
     if not 'plate' in csv_df.columns:
         if not plate is None:
             csv_df['plate'] = plate
         else:
             csv_df['plate'] = 'plate1'
+
+    if isinstance(filter_column, str):
+        filter_column = [filter_column]
+
+    if isinstance(filter_value, str):
+        filter_value = [filter_value]
+
+    if isinstance(filter_column, list):
+        for filter_col in filter_column:
+            for value in filter_value:
+                csv_df = csv_df[csv_df[filter_col] != value]
     
     # Ensure the necessary columns are present
     if not all(col in csv_df.columns for col in ['row','column','grna','count']):
@@ -587,7 +673,8 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     if 'col' not in df.columns:
         df['col'] = df['column']
 
-    df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
+    df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
+
     df = df[['prc', dependent_variable]]
 
     # Group by prc and calculate the mean and count of the dependent_variable

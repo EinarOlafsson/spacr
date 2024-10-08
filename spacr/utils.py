@@ -1,4 +1,4 @@
-import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests
+import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast
 
 import numpy as np
 import pandas as pd
@@ -66,13 +66,84 @@ from huggingface_hub import list_repo_files
 import umap.umap_ as umap
 #import umap
 
+def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_value='setting_value'):
+    """
+    Convert a CSV file with 'settings_key' and 'settings_value' columns into a dictionary.
+    Handles special cases where values are lists, tuples, booleans, None, integers, floats, and nested dictionaries.
+
+    Args:
+        csv_file_path (str): The path to the CSV file.
+        show (bool): Whether to display the dataframe (for debugging).
+        setting_key (str): The name of the column that contains the setting keys.
+        setting_value (str): The name of the column that contains the setting values.
+
+    Returns:
+        dict: A dictionary where 'settings_key' are the keys and 'settings_value' are the values.
+    """
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(csv_file_path)
+
+    if show:
+        display(df)
+
+    # Ensure the columns 'setting_key' and 'setting_value' exist
+    if setting_key not in df.columns or setting_value not in df.columns:
+        raise ValueError(f"CSV file must contain {setting_key} and {setting_value} columns.")
+
+    def parse_value(value):
+        """Parse the string value into the appropriate Python data type."""
+        # Handle empty values
+        if pd.isna(value) or value == '':
+            return None
+
+        # Handle boolean values
+        if value == 'True':
+            return True
+        if value == 'False':
+            return False
+
+        # Handle lists, tuples, dictionaries, and other literals
+        if value.startswith(('(', '[', '{')):  # If it starts with (, [ or {, use ast.literal_eval
+            try:
+                parsed_value = ast.literal_eval(value)
+                # If parsed_value is a dict, recursively parse its values
+                if isinstance(parsed_value, dict):
+                    parsed_value = {k: parse_value(v) for k, v in parsed_value.items()}
+                return parsed_value
+            except (ValueError, SyntaxError):
+                pass  # If there's an error, return the value as-is
+        
+        # Handle numeric values (integers and floats)
+        try:
+            if '.' in value:
+                return float(value)  # If it contains a dot, convert to float
+            return int(value)  # Otherwise, convert to integer
+        except ValueError:
+            pass  # If it's not a valid number, return the value as-is
+
+        # Return the original value if no other type matched
+        return value
+
+    # Convert the DataFrame to a dictionary, with parsing of each value
+    result_dict = {key: parse_value(value) for key, value in zip(df[setting_key], df[setting_value])}
+
+    return result_dict
+
+
 def save_settings(settings, name='settings', show=False):
     
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     if show:
         display(settings_df)
-    settings_csv = os.path.join(settings['src'],'settings',f'{name}.csv')
-    os.makedirs(os.path.join(settings['src'],'settings'), exist_ok=True)
+    
+    if isinstance(settings['src'], list):
+        src = settings['src'][0]
+        name = f"{name}_list"
+    else:
+        src = settings['src']
+
+    settings_csv = os.path.join(src,'settings',f'{name}.csv')
+    os.makedirs(os.path.join(src,'settings'), exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):

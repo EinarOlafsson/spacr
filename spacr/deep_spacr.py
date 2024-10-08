@@ -74,6 +74,12 @@ def apply_model_to_tar(settings={}):
     
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
+
+    if os.path.exists(settings['dataset']):
+        tar_path = settings['dataset']
+    else:
+        tar_path = os.path.join(settings['src'], 'datasets', settings['dataset'])
+    model_path = settings['model_path']
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if settings['normalize']:
@@ -87,18 +93,18 @@ def apply_model_to_tar(settings={}):
             transforms.CenterCrop(size=(settings['image_size'], settings['image_size']))])
     
     if settings['verbose']:
-        print(f"Loading model from {settings['model_path']}")
-        print(f"Loading dataset from {settings['tar_path']}")
+        print(f"Loading model from {model_path}")
+        print(f"Loading dataset from {tar_path}")
         
     model = torch.load(settings['model_path'])
     
-    dataset = TarImageDataset(settings['tar_path'], transform=transform)
+    dataset = TarImageDataset(tar_path, transform=transform)
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=True, num_workers=settings['n_jobs'], pin_memory=True)
     
-    model_name = os.path.splitext(os.path.basename(settings['model_path']))[0] 
-    dataset_name = os.path.splitext(os.path.basename(settings['tar_path']))[0]  
+    model_name = os.path.splitext(os.path.basename(model_path))[0]
+    dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]  
     date_name = datetime.date.today().strftime('%y%m%d')
-    dst = os.path.dirname(settings['tar_path'])
+    dst = os.path.dirname(tar_path)
     result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
 
     model.eval()
@@ -324,8 +330,8 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
 
 def train_test_model(settings):
     
-    from .io import _save_settings, _copy_missclassified
-    from .utils import pick_best_model
+    from .io import _copy_missclassified
+    from .utils import pick_best_model, save_settings
     from .io import generate_loaders
     from .settings import get_train_test_model_settings
 
@@ -347,7 +353,12 @@ def train_test_model(settings):
         model = torch.load(settings['custom_model_path'])
     
     if settings['train']:
-        _save_settings(settings, src)
+        if settings['train'] and settings['test']:
+            save_settings(settings, name=f"train_test_{settings['model_type']}_{settings['epochs']}", show=True)
+        elif settings['train'] is True:
+            save_settings(settings, name=f"train_{settings['model_type']}_{settings['epochs']}", show=True)
+        elif settings['test'] is True:
+            save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
 
     if settings['train']:
         train, val, train_fig  = generate_loaders(src, 
