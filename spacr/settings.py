@@ -404,7 +404,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('sample',None)
     settings.setdefault('experiment','exp.')
     settings.setdefault('score_threshold',0.5)
-    settings.setdefault('tar_path','path')
+    settings.setdefault('dataset','path')
     settings.setdefault('model_path','path')
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
@@ -461,7 +461,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('pathogen_mask_dim',6)
     settings.setdefault('channel_of_interest',2)
     settings.setdefault('plot',True)
-    settings.setdefault('plot_nr',10)
+    settings.setdefault('plot_nr',3)
     settings.setdefault('plot_control',True)
     settings.setdefault('figuresize',10)
     settings.setdefault('uninfected',True)
@@ -534,6 +534,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('alpha',1)
     settings.setdefault('fraction_threshold',0.1)
+    settings.setdefault('location_column','column')
     settings.setdefault('nc','c1')
     settings.setdefault('pc','c2')
     settings.setdefault('other','c3')
@@ -855,7 +856,7 @@ expected_types = {
     'reverse_complement':bool,
     'file_type':str,
     'model_path':str,
-    'tar_path':str,
+    'dataset':str,
     'score_threshold':float,
     'sample':None,
     'file_metadata':None,
@@ -881,7 +882,7 @@ expected_types = {
     "train_DL_model":bool,
 }
 
-categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "tar_path","model_path","grna_csv","row_csv","column_csv"],
+categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv"],
              "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
              "Cellpose":["from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "circular", "invert", "diameter", "grayscale", "background", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
@@ -1202,7 +1203,7 @@ def generate_fields(variables, scrollable_frame):
         "complevel": "int - level of compression (0-9). Higher is slower and yealds smaller files",
         "file_type": "str - type of file to process",
         "model_path": "str - path to the model",
-        "tar_path": "str - path to the tar file with image dataset",
+        "dataset": "str - file name of the tar file with image dataset",
         "score_threshold": "float - threshold for classification",
         "sample": "str - number of images to sample for tar dataset (including both classes). Default: None",
         "file_metadata": "str - string that must be present in image path to be included in the dataset",
