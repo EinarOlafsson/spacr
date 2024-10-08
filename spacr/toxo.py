@@ -112,10 +112,15 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     - Plot the enrichment score vs -log10(p-value).
     """
     
-    significant_df['variable'].fillna(significant_df['feature'], inplace=True)
-    split_columns = significant_df['variable'].str.split('_', expand=True)
-    significant_df['gene_nr'] = split_columns[0]
-    gene_list = significant_df['gene_nr'].to_list()
+    #significant_df['variable'].fillna(significant_df['feature'], inplace=True)
+    #split_columns = significant_df['variable'].str.split('_', expand=True)
+    #significant_df['gene_nr'] = split_columns[0]
+    #gene_list = significant_df['gene_nr'].to_list()
+
+    significant_df = significant_df.dropna(subset=['n_gene'])
+    significant_df = significant_df[significant_df['n_gene'] != None]
+
+    gene_list = significant_df['n_gene'].to_list()
 
     # Load metadata
     metadata = pd.read_csv(metadata_path)

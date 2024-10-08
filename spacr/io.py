@@ -22,6 +22,7 @@ from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
 from torchvision import transforms
+from sklearn.model_selection import train_test_split
 
 def process_non_tif_non_2D_images(folder):
     """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
@@ -2520,26 +2521,6 @@ def _save_progress(dst, train_df, validation_df):
         read_plot_model_stats(results_path_train, results_path_validation, save=True)
 
     return
-
-def _save_settings(settings, src):
-    """
-    Save the settings dictionary to a CSV file.
-
-    Parameters:
-    - settings (dict): A dictionary containing the settings.
-    - src (str): The source directory where the settings file will be saved.
-
-    Returns:
-    None
-    """
-    dst = os.path.join(src,'model')
-    settings_loc =  os.path.join(dst,'settings.csv')
-    os.makedirs(dst, exist_ok=True)
-    settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
-    display(settings_df)
-    settings_df.to_csv(settings_loc, index=False)
-    return
-    
     
 def _copy_missclassified(df):
     misclassified = df[df['true_label'] != df['predicted_label']]
@@ -2870,7 +2851,8 @@ def generate_dataset(settings={}):
         all_paths = []
         for i, src in enumerate(settings['src']):
             db_path = os.path.join(src, 'measurements', 'measurements.db')
-            dst = os.path.join(src, 'datasets')
+            if i == 0:
+                dst = os.path.join(src, 'datasets')
             paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
             correct_paths(paths, src)
             all_paths.extend(paths)
@@ -2918,6 +2900,8 @@ def generate_dataset(settings={}):
 
     # Combine the temporary tar files into a final tar
     date_name = datetime.date.today().strftime('%y%m%d')
+    if len(settings['src']) > 1:
+        date_name = f"{date_name}_combined"
     if not settings['file_metadata'] is None:
         tar_name = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}.tar"
     else:
@@ -2968,7 +2952,6 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
     - val_loaders (list): List of data loaders for validation datasets.
     """
 
-    from .io import spacrDataset
     from .utils import SelectChannels, augment_dataset
 
     chans = []
@@ -3066,10 +3049,6 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
     return train_loaders, val_loaders, train_fig
 
 def generate_training_dataset(settings):
-    
-    from .io import _read_and_merge_data, _read_db
-    from .utils import get_paths_from_db, annotate_conditions, save_settings
-    from .settings import set_generate_training_dataset_defaults
     
     # Function to filter png_list_df by prcfo present in df without merging
     def filter_png_list(db_path, settings):
@@ -3174,34 +3153,55 @@ def generate_training_dataset(settings):
                 class_paths_ls[i] = random.sample(class_paths, size)
 
         return class_paths_ls
+    
+    from .io import _read_and_merge_data, _read_db
+    from .utils import get_paths_from_db, annotate_conditions, save_settings
+    from .settings import set_generate_training_dataset_defaults
 
     # Set default settings and save
     settings = set_generate_training_dataset_defaults(settings)
     save_settings(settings, 'cv_dataset', show=True)
 
-    db_path = os.path.join(settings['src'], 'measurements', 'measurements.db')
-    dst = os.path.join(settings['src'], 'datasets', 'training')
+    class_path_list = None
 
-    # Create a new directory for training data if necessary
-    if os.path.exists(dst):
-        for i in range(1, 100000):
-            dst = os.path.join(settings['src'], 'datasets', f'training_{i}')
-            if not os.path.exists(dst):
-                print(f'Creating new directory for training: {dst}')
-                break
+    if isinstance(settings['src'], str):
+        src = [settings['src']]
 
-    # Select dataset based on dataset mode
-    if settings['dataset_mode'] == 'annotation':
-        class_paths_ls = annotation_based_selection(db_path, dst, settings)
+    for i, src in enumerate(settings['src']):
+        db_path = os.path.join(src, 'measurements', 'measurements.db')
+        
+        if len(settings['src']) > 1 and i == 0:
+            dst = os.path.join(src, 'datasets', 'training_all')
+        elif len(settings['src']) == 1:
+            dst = os.path.join(src, 'datasets', 'training')
 
-    elif settings['dataset_mode'] == 'metadata':
-        class_paths_ls = metadata_based_selection(db_path, settings)
+        # Create a new directory for training data if necessary
+        if os.path.exists(dst):
+            for i in range(1, 100000):
+                dst = dst + f'_{i}'
+                if not os.path.exists(dst):
+                    print(f'Creating new directory for training: {dst}')
+                    break
 
-    elif settings['dataset_mode'] == 'measurement':
-        class_paths_ls = measurement_based_selection(settings, db_path)
+        # Select dataset based on dataset mode
+        if settings['dataset_mode'] == 'annotation':
+            class_paths_ls = annotation_based_selection(db_path, dst, settings)
+
+        elif settings['dataset_mode'] == 'metadata':
+            class_paths_ls = metadata_based_selection(db_path, settings)
+
+        elif settings['dataset_mode'] == 'measurement':
+            class_paths_ls = measurement_based_selection(settings, db_path)
+        
+        if class_path_list is None:
+            class_path_list = [[] for _ in range(len(class_paths_ls))]
+
+        # Extend each list in class_path_list with the corresponding list from class_paths_ls
+        for idx in range(len(class_paths_ls)):
+            class_path_list[idx].extend(class_paths_ls[idx])
 
     # Generate and return training and testing directories
-    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_paths_ls, classes=settings['classes'], test_split=settings['test_split'])
+    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_path_list, classes=settings['classes'], test_split=settings['test_split'])
 
     return train_class_dir, test_class_dir
 
@@ -3235,7 +3235,6 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
     from .utils import print_progress
-    from .deep_spacr import train_test_split
     # Make sure that the length of class_data matches the length of classes
     if len(class_data) != len(classes):
         raise ValueError("class_data and classes must have the same length.")
