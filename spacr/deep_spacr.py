@@ -1,4 +1,4 @@
-import os, torch, time, gc, datetime
+import os, torch, time, gc, datetime, cv2
 torch.backends.cudnn.benchmark = True
 
 import numpy as np
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.metrics import auc, precision_recall_curve
 from IPython.display import display
+from multiprocessing import cpu_count
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -609,7 +610,138 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
             
     return model, model_path
 
-def visualize_saliency_map(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
+def visualize_saliency_map(settings):
+    from spacr.utils import SaliencyMapGenerator, print_progress
+    from spacr.io import TarImageDataset  # Assuming you have a dataset class
+    from torchvision.utils import make_grid
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+
+    # Set number of jobs for loading
+    if settings['n_jobs'] is None:
+        n_jobs = max(1, cpu_count() - 4)
+    else:
+        n_jobs = settings['n_jobs']
+
+    # Set transforms for images
+    if settings['normalize']:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size']))])
+
+    # Handle dataset path
+    if os.path.exists(settings['dataset']):
+        tar_path = settings['dataset']
+    else:
+        print(f"Dataset not found at {settings['dataset']}")
+        return
+    
+    if settings.get('save', False):
+        if settings['dtype'] not in ['uint8', 'uint16']:
+            print("Invalid dtype in settings. Please use 'uint8' or 'uint16'.")
+            return
+
+    # Load the model
+    model = torch.load(settings['model_path'])
+    model.to(device)
+    model.eval()  # Ensure the model is in evaluation mode
+
+    # Create directory for saving saliency maps if it does not exist
+    if settings.get('save', False):
+        dataset_dir = os.path.dirname(tar_path)
+        dataset_name = os.path.splitext(os.path.basename(tar_path))[0]
+        save_dir = os.path.join(dataset_dir, dataset_name, 'saliency_maps')
+        os.makedirs(save_dir, exist_ok=True)
+        print(f"Saliency maps will be saved in: {save_dir}")
+
+    # Load dataset
+    dataset = TarImageDataset(tar_path, transform=transform)
+    data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=True, num_workers=n_jobs, pin_memory=True)
+
+    # Initialize SaliencyMapGenerator
+    cam_generator = SaliencyMapGenerator(model)
+    time_ls = []
+
+    for batch_idx, (inputs, filenames) in enumerate(data_loader):
+        start = time.time()
+        inputs = inputs.to(device)
+        
+        saliency_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
+
+        if settings['saliency_mode'] not in ['mean', 'sum']:
+            print("To generate channel average or sum saliency maps set saliency_mode to 'mean' or 'sum', respectively.")
+
+        if settings['saliency_mode'] == 'mean':
+            saliency_maps = saliency_maps.mean(dim=1, keepdim=True)
+
+        elif settings['saliency_mode'] == 'sum':
+            saliency_maps = saliency_maps.sum(dim=1, keepdim=True)
+
+        # Example usage with the class
+        if settings.get('plot', False):
+            if settings['plot_mode'] not in ['mean', 'channel', '3-channel']:
+                print("Invalid plot_mode in settings. Please use 'mean', 'channel', or '3-channel'.")
+                return
+            else:
+                cam_generator.plot_saliency_grid(inputs, saliency_maps, predicted_classes, mode=settings['plot_mode'])
+
+        if settings.get('save', False):
+            for i in range(inputs.size(0)):
+                saliency_map = saliency_maps[i].detach().cpu().numpy()
+
+                # Check dtype in settings and normalize accordingly
+                if settings['dtype'] == 'uint16':
+                    saliency_map = np.clip(saliency_map, 0, 1) * 65535
+                    saliency_map = saliency_map.astype(np.uint16)
+                    mode = 'I;16'
+                elif settings['dtype'] == 'uint8':
+                    saliency_map = np.clip(saliency_map, 0, 1) * 255
+                    saliency_map = saliency_map.astype(np.uint8)
+                    mode = 'L'  # Grayscale mode for uint8
+
+                # Get the class prediction (0 or 1)
+                class_pred = predicted_classes[i].item()
+
+                save_class_dir = os.path.join(save_dir, f'class_{class_pred}')
+                os.makedirs(save_class_dir, exist_ok=True)
+                save_path = os.path.join(save_class_dir, filenames[i])
+
+                # Handle different cases based on saliency_map dimensions
+                if saliency_map.ndim == 3:  # Multi-channel case (C, H, W)
+                    if saliency_map.shape[0] == 3:  # RGB-like saliency map
+                        saliency_image = Image.fromarray(np.moveaxis(saliency_map, 0, -1), mode="RGB")  # Convert (C, H, W) to (H, W, C)
+                    elif saliency_map.shape[0] == 1:  # Single-channel case (1, H, W)
+                        saliency_map = np.squeeze(saliency_map)  # Remove the extra channel dimension
+                        saliency_image = Image.fromarray(saliency_map, mode=mode)  # Use grayscale mode for single-channel
+                    else:
+                        raise ValueError(f"Unexpected number of channels: {saliency_map.shape[0]}")
+
+                elif saliency_map.ndim == 2:  # Single-channel case (H, W)
+                    saliency_image = Image.fromarray(saliency_map, mode=mode)  # Keep single channel (H, W)
+
+                else:
+                    raise ValueError(f"Unexpected number of dimensions: {saliency_map.ndim}")
+
+                # Save the image
+                saliency_image.save(save_path)
+
+
+        stop = time.time()
+        duration = stop - start
+        time_ls.append(duration)
+        files_processed = batch_idx * settings['batch_size']
+        files_to_process = len(data_loader)
+        print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Generating Saliency Maps")
+
+    print("Saliency map generation complete.")
+
+def visualize_saliency_map_v1(src, model_type='maxvit', model_path='', image_size=224, channels=[1,2,3], normalize=True, class_names=None, save_saliency=False, save_dir='saliency_maps'):
 
     from spacr.utils import SaliencyMapGenerator, preprocess_image
 

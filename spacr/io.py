@@ -985,47 +985,6 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                     shutil.move(os.path.join(src, filename), move)
     return
 
-def _merge_channels_v2(src, plot=False):
-    from .plot import plot_arrays
-    """
-    Merge the channels in the given source directory and save the merged files in a 'stack' directory.
-
-    Args:
-        src (str): The path to the source directory containing the channel folders.
-        plot (bool, optional): Whether to plot the merged arrays. Defaults to False.
-
-    Returns:
-        None
-    """
-    src = Path(src)
-    stack_dir = src / 'stack'
-    chan_dirs = [d for d in src.iterdir() if d.is_dir() and d.name in ['01', '02', '03', '04', '00', '1', '2', '3', '4','0']]
-
-    chan_dirs.sort(key=lambda x: x.name)
-    print(f'List of folders in src: {[d.name for d in chan_dirs]}. Single channel folders.')
-    start_time = time.time()
-
-    # First directory and its files
-    dir_files = list(chan_dirs[0].iterdir())
-
-    # Create the 'stack' directory if it doesn't exist
-    stack_dir.mkdir(exist_ok=True)
-    print(f'generated folder with merged arrays: {stack_dir}')
-
-    if _is_dir_empty(stack_dir):
-        with Pool(max(cpu_count() // 2, 1)) as pool:
-        #with Pool(cpu_count()) as pool:
-            merge_func = partial(_merge_file, chan_dirs, stack_dir)
-            pool.map(merge_func, dir_files)
-
-    avg_time = (time.time() - start_time) / len(dir_files)
-    print(f'Average Time: {avg_time:.3f} sec')
-
-    if plot:
-        plot_arrays(src+'/stack')
-
-    return
-
 def _merge_channels(src, plot=False):
     """
     Merge the channels in the given source directory and save the merged files in a 'stack' directory without using multiprocessing.
