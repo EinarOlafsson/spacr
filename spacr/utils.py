@@ -37,6 +37,7 @@ from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 import torchvision.transforms as transforms
 from torchvision.models import resnet50
+from torchvision.utils import make_grid
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -3058,7 +3059,6 @@ def preprocess_image(image_path, image_size=224, channels=[1,2,3], normalize=Tru
     input_tensor = transform(image).unsqueeze(0)
     return image, input_tensor
 
-
 class SaliencyMapGenerator:
     def __init__(self, model):
         self.model = model
@@ -3079,17 +3079,63 @@ class SaliencyMapGenerator:
         saliency = X.grad.abs()
         return saliency
 
-    def plot_saliency_maps(self, X, y, saliency, class_names):
+    def compute_saliency_and_predictions(self, X):
+        self.model.eval()
+        X.requires_grad_()
+
+        # Forward pass to get predictions (logits)
+        scores = self.model(X).squeeze()
+
+        # Get predicted class (0 or 1 for binary classification)
+        predictions = (scores > 0).long()
+
+        # Compute saliency maps
+        self.model.zero_grad()
+        target_scores = scores * (2 * predictions - 1)
+        target_scores.backward(torch.ones_like(target_scores))
+
+        saliency = X.grad.abs()
+
+        return saliency, predictions
+    
+    def plot_saliency_grid(self, X, saliency, predictions, mode='mean'):
         N = X.shape[0]
+        rows = (N + 7) // 8  # Ensure we can handle batches of different sizes
+        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
+
         for i in range(N):
-            plt.subplot(2, N, i + 1)
-            plt.imshow(X[i].permute(1, 2, 0).cpu().numpy())
-            plt.axis('off')
-            plt.title(class_names[y[i]])
-            plt.subplot(2, N, N + i + 1)
-            plt.imshow(saliency[i].cpu().numpy(), cmap=plt.cm.hot)
-            plt.axis('off')
-        plt.gcf().set_size_inches(12, 5)
+            ax = axs[i // 8, i % 8]
+
+            if mode == 'mean':
+                saliency_map = saliency[i].mean(dim=0).cpu().numpy()  # Mean saliency over channels
+                ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Added .detach() here
+                ax.imshow(saliency_map, cmap='jet', alpha=0.5)
+
+            elif mode == 'channel':
+                # Plot individual channels in a loop if the image has multiple channels
+                for j in range(X.shape[1]):
+                    saliency_map = saliency[i, j].cpu().numpy()
+                    ax.imshow(saliency_map, cmap='jet')
+                    ax.axis('off')
+
+            elif mode == '3-channel' and X.shape[1] == 3:
+                saliency_map = saliency[i].cpu().numpy().transpose(1, 2, 0)
+                ax.imshow(saliency_map)
+                    
+            elif mode == '2-channel' and X.shape[1] == 2:
+                saliency_map = saliency[i].cpu().numpy().transpose(1, 2, 0)
+                ax.imshow(saliency_map)
+
+            # Add class label in top-left corner
+            ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
+                    bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+            ax.axis('off')
+
+        # Turn off unused axes
+        for j in range(N, rows * 8):
+            fig.delaxes(axs[j // 8, j % 8])
+
+        plt.tight_layout(pad=0)
         plt.show()
 
 def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3]):
@@ -4619,3 +4665,25 @@ def download_models(repo_id="einarolafsson/models", local_dir=None, retries=5, d
             time.sleep(delay)
 
     raise Exception("Failed to download model files after multiple attempts.")
+
+def generate_cytoplasm_mask(nucleus_mask, cell_mask):
+        
+    """
+    Generates a cytoplasm mask from nucleus and cell masks.
+    
+    Parameters:
+    - nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).
+    - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).
+    
+    Returns:
+    - cytoplasm_mask (np.array): Mask for the cytoplasm (1 for cytoplasm, 0 for nucleus and pathogens).
+    """
+    
+    # Make sure the nucleus and cell masks are numpy arrays
+    nucleus_mask = np.array(nucleus_mask)
+    cell_mask = np.array(cell_mask)
+    
+    # Generate cytoplasm mask
+    cytoplasm_mask = np.where(np.logical_or(nucleus_mask != 0), 0, cell_mask)
+    
+    return cytoplasm_mask
