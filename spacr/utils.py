@@ -3097,43 +3097,117 @@ class SaliencyMapGenerator:
         saliency = X.grad.abs()
 
         return saliency, predictions
-    
-    def plot_saliency_grid(self, X, saliency, predictions, mode='mean'):
+
+    def plot_saliency_grid(self, X, saliency, predictions):
         N = X.shape[0]
-        rows = (N + 7) // 8  # Ensure we can handle batches of different sizes
+        rows = (N + 7) // 8 
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
+            saliency_map = saliency[i].cpu().numpy()  # Move to CPU and convert to numpy
+            # Now, plot the image
+            ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
+            ax.imshow(saliency_map, cmap='jet', alpha=0.5)  # Overlay the saliency map
 
-            if mode == 'mean':
-                saliency_map = saliency[i].mean(dim=0).cpu().numpy()  # Mean saliency over channels
-                ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Added .detach() here
-                ax.imshow(saliency_map, cmap='jet', alpha=0.5)
-
-            elif mode == 'channel':
-                # Plot individual channels in a loop if the image has multiple channels
-                for j in range(X.shape[1]):
-                    saliency_map = saliency[i, j].cpu().numpy()
-                    ax.imshow(saliency_map, cmap='jet')
-                    ax.axis('off')
-
-            elif mode == '3-channel' and X.shape[1] == 3:
-                saliency_map = saliency[i].cpu().numpy().transpose(1, 2, 0)
-                ax.imshow(saliency_map)
-                    
-            elif mode == '2-channel' and X.shape[1] == 2:
-                saliency_map = saliency[i].cpu().numpy().transpose(1, 2, 0)
-                ax.imshow(saliency_map)
-
-            # Add class label in top-left corner
+            # Add class label in the top-left corner
             ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
                     bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
             ax.axis('off')
 
-        # Turn off unused axes
-        for j in range(N, rows * 8):
-            fig.delaxes(axs[j // 8, j % 8])
+        plt.tight_layout(pad=0)
+        plt.show()
+
+class GradCAMGenerator:
+    def __init__(self, model, target_layer, cam_type='gradcam'):
+        self.model = model
+        self.model.eval()
+        self.target_layer = target_layer
+        self.cam_type = cam_type
+        self.gradients = None
+        self.activations = None
+
+        # Hook the target layer
+        self.target_layer_module = self.get_layer(self.model, self.target_layer)
+        self.hook_layers()
+
+    def hook_layers(self):
+        # Forward hook to get activations
+        def forward_hook(module, input, output):
+            self.activations = output
+
+        # Backward hook to get gradients
+        def backward_hook(module, grad_input, grad_output):
+            self.gradients = grad_output[0]
+
+        self.target_layer_module.register_forward_hook(forward_hook)
+        self.target_layer_module.register_backward_hook(backward_hook)
+
+    def get_layer(self, model, target_layer):
+        # Recursively find the layer specified in target_layer
+        modules = target_layer.split('.')
+        layer = model
+        for module in modules:
+            layer = getattr(layer, module)
+        return layer
+
+    def compute_gradcam_maps(self, X, y):
+        X.requires_grad_()
+
+        # Forward pass
+        scores = self.model(X).squeeze()
+
+        # Perform backward pass
+        target_scores = scores * (2 * y - 1)
+        self.model.zero_grad()
+        target_scores.backward(torch.ones_like(target_scores))
+
+        # Compute GradCAM
+        pooled_gradients = torch.mean(self.gradients, dim=[0, 2, 3])
+        for i in range(self.activations.size(1)):
+            self.activations[:, i, :, :] *= pooled_gradients[i]
+
+        gradcam = torch.mean(self.activations, dim=1).squeeze()
+        gradcam = F.relu(gradcam)
+        gradcam = F.interpolate(gradcam.unsqueeze(0).unsqueeze(0), size=X.shape[2:], mode='bilinear')
+        gradcam = gradcam.squeeze().cpu().detach().numpy()
+        gradcam = (gradcam - gradcam.min()) / (gradcam.max() - gradcam.min())
+
+        return gradcam
+
+    def compute_gradcam_and_predictions(self, X):
+        self.model.eval()
+        X.requires_grad_()
+
+        # Forward pass to get predictions (logits)
+        scores = self.model(X).squeeze()
+
+        # Get predicted class (0 or 1 for binary classification)
+        predictions = (scores > 0).long()
+
+        # Compute gradcam maps
+        gradcam_maps = []
+        for i in range(X.size(0)):
+            gradcam_map = self.compute_gradcam_maps(X[i].unsqueeze(0), predictions[i])
+            gradcam_maps.append(gradcam_map)
+
+        return torch.tensor(gradcam_maps), predictions
+
+    def plot_gradcam_grid(self, X, gradcam, predictions):
+        N = X.shape[0]
+        rows = (N + 7) // 8
+        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
+
+        for i in range(N):
+            ax = axs[i // 8, i % 8]
+            gradcam_map = gradcam[i].cpu().numpy()
+            ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
+            ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
+
+            # Add class label in the top-left corner
+            ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
+                    bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+            ax.axis('off')
 
         plt.tight_layout(pad=0)
         plt.show()
