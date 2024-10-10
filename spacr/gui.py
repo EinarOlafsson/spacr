@@ -57,6 +57,7 @@ class MainApp(tk.Tk):
             "Map Barcodes": (lambda frame: initiate_root(self, 'map_barcodes'), "Map barcodes to data."),
             "Regression": (lambda frame: initiate_root(self, 'regression'), "Perform regression analysis."),
             "Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data."),
+            "Activation": (lambda frame: initiate_root(self, 'activation'), "Generate activation maps of computer vision models and measure channel-activation correlation."),
             "Plaque": (lambda frame: initiate_root(self, 'analyze_plaques'), "Analyze plaque data.")
         }
 

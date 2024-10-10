@@ -77,7 +77,7 @@ def load_app(root, app_name, app_func):
     else:
         proceed_with_app(root, app_name, app_func)
     
-def parse_list(value):
+def parse_list_v1(value):
     """
     Parses a string representation of a list and returns the parsed list.
 
@@ -97,6 +97,34 @@ def parse_list(value):
             if all(isinstance(item, int) for item in parsed_value):
                 return parsed_value
             elif all(isinstance(item, str) for item in parsed_value):
+                return parsed_value
+            elif all(isinstance(item, float) for item in parsed_value):
+                return parsed_value
+            else:
+                raise ValueError("List contains mixed types or unsupported types")
+        else:
+            raise ValueError(f"Expected a list but got {type(parsed_value).__name__}")
+    except (ValueError, SyntaxError) as e:
+        raise ValueError(f"Invalid format for list: {value}. Error: {e}")
+    
+def parse_list(value):
+    """
+    Parses a string representation of a list and returns the parsed list.
+
+    Args:
+        value (str): The string representation of the list.
+
+    Returns:
+        list: The parsed list, which can contain integers, floats, or strings.
+
+    Raises:
+        ValueError: If the input value is not a valid list format or contains mixed types or unsupported types.
+    """
+    try:
+        parsed_value = ast.literal_eval(value)
+        if isinstance(parsed_value, list):
+            # Check if all elements are homogeneous (either all int, float, or str)
+            if all(isinstance(item, (int, float, str)) for item in parsed_value):
                 return parsed_value
             else:
                 raise ValueError("List contains mixed types or unsupported types")

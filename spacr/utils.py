@@ -1,4 +1,4 @@
-import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast
+import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback
 
 import numpy as np
 import pandas as pd
@@ -12,6 +12,7 @@ from skimage.transform import resize as resizescikit
 from skimage.morphology import dilation, square
 from skimage.measure import find_contours
 from skimage.segmentation import clear_border
+from scipy.stats import pearsonr
 
 from collections import defaultdict, OrderedDict
 from PIL import Image
@@ -66,6 +67,192 @@ from huggingface_hub import list_repo_files
 
 import umap.umap_ as umap
 #import umap
+
+def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
+
+    png_df = pd.DataFrame(img_paths, columns=['png_path'])
+
+    png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
+
+    parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=settings['timelapse'])))
+
+    columns = ['plate', 'row', 'col', 'field']
+
+    if settings['timelapse']:
+        columns = columns + ['time_id']
+
+    columns = columns + ['prcfo']
+
+    if crop_mode == 'cell':
+        columns = columns + ['cell_id']
+
+    if crop_mode == 'nucleus':
+        columns = columns + ['nucleus_id']
+
+    if crop_mode == 'pathogen':
+        columns = columns + ['pathogen_id']
+
+    if crop_mode == 'cytoplasm':
+        columns = columns + ['cytoplasm_id']
+
+    png_df[columns] = parts
+
+    try:
+        conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
+        png_df.to_sql('png_list', conn, if_exists='append', index=False)
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        print(f"SQLite error: {e}", flush=True)
+        traceback.print_exc()
+
+def activation_maps_to_database(img_paths, source_folder, settings):
+    from .io import _create_database
+
+    png_df = pd.DataFrame(img_paths, columns=['png_path'])
+    png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
+    parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=False)))
+    columns = ['plate', 'row', 'col', 'field', 'prcfo', 'object']
+    png_df[columns] = parts
+
+    dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]
+    database_name = f"{source_folder}/measurements/{dataset_name}.db"
+
+    if not os.path.exists(database_name):
+        _create_database(database_name)
+
+    try:
+        conn = sqlite3.connect(database_name, timeout=5)
+        png_df.to_sql(f"{settings['cam_type']}_list", conn, if_exists='append', index=False)
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        print(f"SQLite error: {e}", flush=True)
+        traceback.print_exc()
+
+def activation_correlations_to_database(df, img_paths, source_folder, settings):
+    from .io import _create_database
+
+    png_df = pd.DataFrame(img_paths, columns=['png_path'])
+    png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
+    parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=False)))
+    columns = ['plate', 'row', 'col', 'field', 'prcfo', 'object']
+    png_df[columns] = parts
+
+    # Align both DataFrames by file_name
+    png_df.set_index('file_name', inplace=True)
+    df.set_index('file_name', inplace=True)
+
+    merged_df = pd.concat([png_df, df], axis=1)
+    merged_df.reset_index(inplace=True)
+
+    dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]
+    database_name = f"{source_folder}/measurements/{dataset_name}.db"
+
+    if not os.path.exists(database_name):
+        _create_database(database_name)
+
+    try:
+        conn = sqlite3.connect(database_name, timeout=5)
+        merged_df.to_sql(f"{settings['cam_type']}_correlations", conn, if_exists='append', index=False)
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        print(f"SQLite error: {e}", flush=True)
+        traceback.print_exc()
+
+def calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=[15, 50, 75]):
+    """
+    Calculates Pearson and Manders correlations between input image channels and activation map channels.
+    
+    Args:
+        inputs: A batch of input images, Tensor of shape (batch_size, channels, height, width)
+        activation_maps: A batch of activation maps, Tensor of shape (batch_size, channels, height, width)
+        file_names: List of file names corresponding to each image in the batch.
+        manders_thresholds: List of intensity percentiles to calculate Manders correlation.
+        
+    Returns:
+        df_correlations: A DataFrame with columns for pairwise correlations (Pearson and Manders) 
+                         between input channels and activation map channels.
+    """
+    
+    # Ensure tensors are detached and moved to CPU before converting to numpy
+    inputs = inputs.detach().cpu()
+    activation_maps = activation_maps.detach().cpu()
+
+    batch_size, in_channels, height, width = inputs.shape
+    
+    if activation_maps.dim() == 3:
+        # If activation maps have no channels, add a dummy channel dimension
+        activation_maps = activation_maps.unsqueeze(1)  # Now shape is (batch_size, 1, height, width)
+    
+    _, act_channels, act_height, act_width = activation_maps.shape
+
+    # Ensure that the inputs and activation maps are the same size
+    if (height != act_height) or (width != act_width):
+        activation_maps = torch.nn.functional.interpolate(activation_maps, size=(height, width), mode='bilinear')
+
+    # Dictionary to collect correlation results
+    correlations_dict = {'file_name': []}
+
+    # Initialize correlation columns based on input channels and activation map channels
+    for in_c in range(in_channels):
+        for act_c in range(act_channels):
+            correlations_dict[f'channel_{in_c}_activation_{act_c}_pearsons'] = []
+            for threshold in manders_thresholds:
+                correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M1'] = []
+                correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M2'] = []
+
+    # Loop over the batch
+    for b in range(batch_size):
+        input_img = inputs[b]  # Input image channels (C, H, W)
+        activation_map = activation_maps[b]  # Activation map channels (C, H, W)
+
+        # Add the file name to the current row
+        correlations_dict['file_name'].append(file_names[b])
+
+        # Calculate correlations for each channel pair
+        for in_c in range(in_channels):
+            input_channel = input_img[in_c].flatten().numpy()  # Flatten the input image channel
+            input_channel = input_channel[np.isfinite(input_channel)]  # Remove NaN or inf values
+
+            for act_c in range(act_channels):
+                activation_channel = activation_map[act_c].flatten().numpy()  # Flatten the activation map channel
+                activation_channel = activation_channel[np.isfinite(activation_channel)]  # Remove NaN or inf values
+
+                # Check if there are valid (non-empty) arrays left to calculate the Pearson correlation
+                if input_channel.size > 0 and activation_channel.size > 0:
+                    pearson_corr, _ = pearsonr(input_channel, activation_channel)
+                else:
+                    pearson_corr = np.nan  # Assign NaN if there are no valid data points
+                correlations_dict[f'channel_{in_c}_activation_{act_c}_pearsons'].append(pearson_corr)
+
+                # Compute Manders correlations for each threshold
+                for threshold in manders_thresholds:
+                    # Get the top percentile pixels based on intensity in both channels
+                    if input_channel.size > 0 and activation_channel.size > 0:
+                        input_threshold = np.percentile(input_channel, threshold)
+                        activation_threshold = np.percentile(activation_channel, threshold)
+
+                        # Mask the pixels above the threshold
+                        mask = (input_channel >= input_threshold) & (activation_channel >= activation_threshold)
+
+                        # If we have enough pixels, calculate Manders correlation
+                        if np.sum(mask) > 0:
+                            manders_corr_M1 = np.sum(input_channel[mask] * activation_channel[mask]) / np.sum(input_channel[mask] ** 2)
+                            manders_corr_M2 = np.sum(activation_channel[mask] * input_channel[mask]) / np.sum(activation_channel[mask] ** 2)
+                        else:
+                            manders_corr_M1 = np.nan
+                            manders_corr_M2 = np.nan
+                    else:
+                        manders_corr_M1 = np.nan
+                        manders_corr_M2 = np.nan
+
+                    # Store the Manders correlation for this threshold
+                    correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M1'].append(manders_corr_M1)
+                    correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M2'].append(manders_corr_M2)
+
+    # Convert the dictionary to a DataFrame
+    df_correlations = pd.DataFrame(correlations_dict)
+
+    return df_correlations
 
 def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_value='setting_value'):
     """
@@ -892,7 +1079,7 @@ def _map_wells_png(file_name, timelapse=False):
         print(f"Error: {e}")
         plate, row, column, field, object_id, prcfo = 'error', 'error', 'error', 'error', 'error', 'error'
     if timelapse:
-        return plate, row, column, field, timeid, prcfo, object_id,
+        return plate, row, column, field, timeid, prcfo, object_id
     else:
         return plate, row, column, field, prcfo, object_id
         
@@ -3098,7 +3285,7 @@ class SaliencyMapGenerator:
 
         return saliency, predictions
 
-    def plot_saliency_grid(self, X, saliency, predictions):
+    def plot_activation_grid(self, X, saliency, predictions, overlay=True, normalize=False):
         N = X.shape[0]
         rows = (N + 7) // 8 
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
@@ -3106,9 +3293,17 @@ class SaliencyMapGenerator:
         for i in range(N):
             ax = axs[i // 8, i % 8]
             saliency_map = saliency[i].cpu().numpy()  # Move to CPU and convert to numpy
-            # Now, plot the image
-            ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
-            ax.imshow(saliency_map, cmap='jet', alpha=0.5)  # Overlay the saliency map
+
+            if saliency_map.shape[0] == 3:  # Channels first, reshape to (H, W, 3)
+                saliency_map = np.transpose(saliency_map, (1, 2, 0))
+
+            # Normalize image channels to 2nd and 98th percentiles
+            if overlay:
+                img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
+                if normalize:
+                    img_np = self.percentile_normalize(img_np)
+                ax.imshow(img_np)
+                ax.imshow(saliency_map, cmap='jet', alpha=0.5)
 
             # Add class label in the top-left corner
             ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
@@ -3116,7 +3311,27 @@ class SaliencyMapGenerator:
             ax.axis('off')
 
         plt.tight_layout(pad=0)
-        plt.show()
+        return fig
+    
+    def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
+        """
+        Normalize each channel of the image to the given percentiles.
+        Args:
+            img: Input image as numpy array with shape (H, W, C)
+            lower_percentile: Lower percentile for normalization (default 2)
+            upper_percentile: Upper percentile for normalization (default 98)
+        Returns:
+            img: Normalized image
+        """
+        img_normalized = np.zeros_like(img)
+
+        for c in range(img.shape[2]):  # Iterate over each channel
+            low = np.percentile(img[:, :, c], lower_percentile)
+            high = np.percentile(img[:, :, c], upper_percentile)
+            img_normalized[:, :, c] = np.clip((img[:, :, c] - low) / (high - low), 0, 1)
+
+        return img_normalized
+
 
 class GradCAMGenerator:
     def __init__(self, model, target_layer, cam_type='gradcam'):
@@ -3193,7 +3408,7 @@ class GradCAMGenerator:
 
         return torch.tensor(gradcam_maps), predictions
 
-    def plot_gradcam_grid(self, X, gradcam, predictions):
+    def plot_activation_grid(self, X, gradcam, predictions, overlay=True, normalize=False):
         N = X.shape[0]
         rows = (N + 7) // 8
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
@@ -3201,8 +3416,17 @@ class GradCAMGenerator:
         for i in range(N):
             ax = axs[i // 8, i % 8]
             gradcam_map = gradcam[i].cpu().numpy()
-            ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
-            ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
+
+            # Normalize image channels to 2nd and 98th percentiles
+            if overlay:
+                img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
+                if normalize:
+                    img_np = self.percentile_normalize(img_np)
+                ax.imshow(img_np)
+                ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
+
+            #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
+            #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
 
             # Add class label in the top-left corner
             ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
@@ -3210,7 +3434,26 @@ class GradCAMGenerator:
             ax.axis('off')
 
         plt.tight_layout(pad=0)
-        plt.show()
+        return fig
+    
+    def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
+        """
+        Normalize each channel of the image to the given percentiles.
+        Args:
+            img: Input image as numpy array with shape (H, W, C)
+            lower_percentile: Lower percentile for normalization (default 2)
+            upper_percentile: Upper percentile for normalization (default 98)
+        Returns:
+            img: Normalized image
+        """
+        img_normalized = np.zeros_like(img)
+
+        for c in range(img.shape[2]):  # Iterate over each channel
+            low = np.percentile(img[:, :, c], lower_percentile)
+            high = np.percentile(img[:, :, c], upper_percentile)
+            img_normalized[:, :, c] = np.clip((img[:, :, c] - low) / (high - low), 0, 1)
+
+        return img_normalized
 
 def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3]):
     preprocess = transforms.Compose([
@@ -3751,7 +3994,7 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
     plt.show()
     return grid_fig
 
-def generate_path_list_from_db(db_path, file_metadata):
+def generate_path_list_from_db_v1(db_path, file_metadata):
 
     all_paths = []
 
@@ -3764,6 +4007,44 @@ def generate_path_list_from_db(db_path, file_metadata):
                 if isinstance(file_metadata, str):
                     cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
             else:
+                cursor.execute("SELECT png_path FROM png_list")
+
+            while True:
+                rows = cursor.fetchmany(1000)
+                if not rows:
+                    break
+                all_paths.extend([row[0] for row in rows])
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+    
+    return all_paths
+
+def generate_path_list_from_db(db_path, file_metadata):
+    all_paths = []
+
+    # Connect to the database and retrieve the image paths
+    print(f"Reading DataBase: {db_path}")
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            if file_metadata:
+                if isinstance(file_metadata, str):
+                    # If file_metadata is a single string
+                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
+                elif isinstance(file_metadata, list):
+                    # If file_metadata is a list of strings
+                    query = "SELECT png_path FROM png_list WHERE " + " OR ".join(
+                        ["png_path LIKE ?" for _ in file_metadata])
+                    params = [f"%{meta}%" for meta in file_metadata]
+                    cursor.execute(query, params)
+            else:
+                # If file_metadata is None or empty
                 cursor.execute("SELECT png_path FROM png_list")
 
             while True:

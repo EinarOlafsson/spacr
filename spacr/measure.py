@@ -652,43 +652,6 @@ def img_list_to_grid(grid, titles=None):
     plt.tight_layout(pad=0.1)
     return fig
 
-def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
-    from. utils import _map_wells_png
-    png_df = pd.DataFrame(img_paths, columns=['png_path'])
-
-    png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
-
-    parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=settings['timelapse'])))
-
-    columns = ['plate', 'row', 'col', 'field']
-
-    if settings['timelapse']:
-        columns = columns + ['time_id']
-
-    columns = columns + ['prcfo']
-
-    if crop_mode == 'cell':
-        columns = columns + ['cell_id']
-
-    if crop_mode == 'nucleus':
-        columns = columns + ['nucleus_id']
-
-    if crop_mode == 'pathogen':
-        columns = columns + ['pathogen_id']
-
-    if crop_mode == 'cytoplasm':
-        columns = columns + ['cytoplasm_id']
-
-    png_df[columns] = parts
-
-    try:
-        conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
-        png_df.to_sql('png_list', conn, if_exists='append', index=False)
-        conn.commit()
-    except sqlite3.OperationalError as e:
-        print(f"SQLite error: {e}", flush=True)
-        traceback.print_exc()
-
 #@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
 
@@ -711,7 +674,7 @@ def _measure_crop_core(index, time_ls, file, settings):
     """
     
     from .plot import _plot_cropped_arrays
-    from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype
+    from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype, filepaths_to_database
     from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
 
     figs = {}
