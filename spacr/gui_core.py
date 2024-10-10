@@ -379,10 +379,13 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     index_control = index_control_var
 
 def import_settings(settings_type='mask'):
-    from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
     global vars_dict, scrollable_frame, button_scrollable_frame
-    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model, set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
 
+    from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
+    from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
+    from .settings import set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
+    from .settings import get_default_generate_activation_map_settings
+    #activation
     def read_settings_from_csv(csv_file_path):
         settings = {}
         with open(csv_file_path, newline='') as csvfile:
@@ -422,6 +425,8 @@ def import_settings(settings_type='mask'):
         settings = set_default_umap_image_settings(settings={})
     elif settings_type == 'recruitment':
         settings = get_analyze_recruitment_default_settings(settings={})
+    elif settings_type == 'activation':
+        settings = get_default_generate_activation_map_settings(settings={})
     elif settings_type == 'analyze_plaques':
         settings = {}
     elif settings_type == 'convert':
@@ -436,8 +441,10 @@ def import_settings(settings_type='mask'):
 
 def setup_settings_panel(vertical_container, settings_type='mask'):
     global vars_dict, scrollable_frame
-    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
-    from .settings import get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings, generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings
+    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks
+    from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
+    from .settings import get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings
+    from .settings import generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_default_generate_activation_map_settings
     from .gui_utils import convert_settings_dict_for_gui
     from .gui_elements import set_element_size
 
@@ -480,6 +487,8 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
         settings = get_perform_regression_default_settings(settings={})
     elif settings_type == 'recruitment':
         settings = get_analyze_recruitment_default_settings(settings={})
+    elif settings_type == 'activation':
+        settings = get_default_generate_activation_map_settings(settings={})
     elif settings_type == 'analyze_plaques':
         settings = {'src':'path to images'}
     elif settings_type == 'convert':

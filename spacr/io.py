@@ -2861,10 +2861,10 @@ def generate_dataset(settings={}):
     date_name = datetime.date.today().strftime('%y%m%d')
     if len(settings['src']) > 1:
         date_name = f"{date_name}_combined"
-    if not settings['file_metadata'] is None:
-        tar_name = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}.tar"
-    else:
-        tar_name = f"{date_name}_{settings['experiment']}.tar"
+    #if not settings['file_metadata'] is None:
+    #    tar_name = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}.tar"
+    #else:
+    tar_name = f"{date_name}_{settings['experiment']}.tar"
     tar_name = os.path.join(dst, tar_name)
     if os.path.exists(tar_name):
         number = random.randint(1, 100)

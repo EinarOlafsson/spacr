@@ -246,7 +246,7 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('normalize_by','png')
     settings.setdefault('crop_mode',['cell'])
     settings.setdefault('dialate_pngs', False)
-    settings.setdefault('dialate_png_ratios', [0.2, 0,2])
+    settings.setdefault('dialate_png_ratios', [0.2,0.2])
 
     # Timelapsed settings
     settings.setdefault('timelapse', False)
@@ -859,7 +859,7 @@ expected_types = {
     'dataset':str,
     'score_threshold':float,
     'sample':None,
-    'file_metadata':None,
+    'file_metadata':(str, type(None), list),
     'apply_model_to_dataset':False,
     "train":bool,
     "test":bool,
@@ -880,6 +880,11 @@ expected_types = {
     "generate_training_dataset":bool,
     "segmentation_mode":str,
     "train_DL_model":bool,
+    "normalize":bool,
+    "overlay":bool,
+    "correlate":bool,
+    "target_layer":str,
+    "normalize_input":bool,
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv"],
@@ -889,18 +894,19 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "dialate_png_ratios", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
+             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
              "Sequencing": ["signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
              "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
              "Hyperparamiters (Regression)":["cov_type", "class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
+             "Hyperparamiters (Activation)":["cam_type", "normalize", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["plot", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "uninfected", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Advanced": ["shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "uninfected", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
              }
 
@@ -949,6 +955,14 @@ def check_settings(vars_dict, expected_types, q=None):
                 settings[key] = float(value) if '.' in value else int(value)
             elif expected_type == (str, type(None)):
                 settings[key] = str(value) if value else None
+            elif expected_type == (str, type(None), list):
+                if isinstance(value, list):
+                    settings[key] = parse_list(value) if value else None
+                elif isinstance(value, str):
+                    settings[key] = str(value) 
+                else:
+                    settings[key] = None
+            
             elif expected_type == dict:
                 try:
                     # Ensure that the value is a string that can be converted to a dictionary
@@ -1206,7 +1220,7 @@ def generate_fields(variables, scrollable_frame):
         "dataset": "str - file name of the tar file with image dataset",
         "score_threshold": "float - threshold for classification",
         "sample": "str - number of images to sample for tar dataset (including both classes). Default: None",
-        "file_metadata": "str - string that must be present in image path to be included in the dataset",
+        "file_metadata": "str or list of strings - string(s) that must be present in image path to be included in the dataset",
         "apply_model_to_dataset": "bool - whether to apply model to the dataset",
         "train_channels": "list - channels to use for training",
         "dataset_mode": "str - How to generate train/test dataset.",
@@ -1247,6 +1261,13 @@ def generate_fields(variables, scrollable_frame):
         "mode": "(str) - Mode to use for sequence analysis (either single for R1 or R2 fastq files or paired for the combination of R1 and R2).",
         "signal_direction": "(str) - Direction of fastq file (R1 or R2). only relevent when mode is single.",
         "custom_model_path": "(str) - Path to the custom model to finetune.",
+        "cam_type": "(str) - Choose between: gradcam, gradcam_pp, saliency_image, saliency_channel to generate activateion maps of DL models",
+        "target_layer": "(str) - Only used for gradcam and gradcam_pp. The layer to use for the activation map.",
+        "normalize": "(bool) - Normalize images before overlayng the activation maps.",
+        "overlay": "(bool) - Overlay activation maps on the images.",
+        "shuffle": "(bool) - Shuffle the dataset bufore generating the activation maps",
+        "correlation": "(bool) - Calculate correlation between image channels and activation maps. Data is saved to .db.",
+        "normalize_input": "(bool) - Normalize the input images before passing them to the model.",
     }
     
     for key, (var_type, options, default_value) in variables.items():
@@ -1282,6 +1303,8 @@ descriptions = {
 
     'regression': "Perform regression analysis on your data. Function: regression_tools from spacr.analysis.\n\nKey Features:\n- Statistical Analysis: Conduct various types of regression analysis to identify relationships within your data.\n- Flexible Options: Supports multiple regression models and configurations.\n- Data Insight: Gain deeper insights into your dataset through advanced regression techniques.",
     
+    'activation': "",
+
     'recruitment': "Analyze recruitment data to understand sample recruitment dynamics. Function: recruitment_analysis_tools from spacr.analysis.\n\nKey Features:\n- Recruitment Analysis: Investigate and analyze the recruitment of samples over time or conditions.\n- Visualization: Generate visualizations to represent recruitment trends and patterns.\n- Integration: Utilize data from various sources for a comprehensive recruitment analysis."
 }
 
@@ -1314,4 +1337,25 @@ def set_default_generate_barecode_mapping(settings={}):
     settings.setdefault('mode', 'paired')
     settings.setdefault('single_direction', 'R1')
     settings.setdefault('test', False)
+    return settings
+
+def get_default_generate_activation_map_settings(settings):
+    settings.setdefault('dataset', 'path')
+    settings.setdefault('model_type', 'maxvit')
+    settings.setdefault('model_path', 'path')
+    settings.setdefault('image_size', 224)
+    settings.setdefault('batch_size', 64)
+    settings.setdefault('normalize', True)
+    settings.setdefault('cam_type', 'gradcam')
+    settings.setdefault('target_layer', None)
+    settings.setdefault('plot', False)
+    settings.setdefault('save', True)
+    settings.setdefault('normalize_input', True)
+    settings.setdefault('channels', [1,2,3])
+    settings.setdefault('overlay', True)
+    settings.setdefault('shuffle', True)
+    settings.setdefault('correlation', True)
+    settings.setdefault('manders_thresholds', [15,50, 75])
+    settings.setdefault('n_jobs', None)
+    
     return settings
