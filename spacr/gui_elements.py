@@ -20,6 +20,47 @@ from tkinter import ttk, scrolledtext
 
 fig = None
 
+def create_menu_bar(root):
+    from .gui import initiate_root
+    gui_apps = {
+        "Mask": lambda: initiate_root(root, settings_type='mask'),
+        "Measure": lambda: initiate_root(root, settings_type='measure'),
+        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
+        "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
+        "Classify": lambda: initiate_root(root, settings_type='classify'),
+        "Umap": lambda: initiate_root(root, settings_type='umap'),
+        "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
+        "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
+        "Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
+        "Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
+        "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
+        "Regression": lambda: initiate_root(root, settings_type='regression'),
+        "Activation": lambda: initiate_root(root, settings_type='activation'),
+        "Recruitment": lambda: initiate_root(root, settings_type='recruitment')
+    }
+
+    # Create the menu bar
+    menu_bar = tk.Menu(root, bg="#008080", fg="white")
+
+    # Create a "SpaCr Applications" menu
+    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
+    menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
+
+    # Add options to the "SpaCr Applications" menu
+    for app_name, app_func in gui_apps.items():
+        app_menu.add_command(
+            label=app_name,
+            command=app_func
+        )
+
+    # Add a separator and an exit option
+    app_menu.add_separator()
+    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://spacr.readthedocs.io/en/latest/?badge=latest"))
+    app_menu.add_command(label="Exit", command=root.quit)
+
+    # Configure the menu for the root window
+    root.config(menu=menu_bar)
+
 def set_element_size():
 
     screen_width, screen_height = pyautogui.size()
@@ -2122,7 +2163,7 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None):
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -2148,7 +2189,8 @@ class AnnotateApp:
         self.update_queue = Queue()
         self.measurement = measurement
         self.threshold = threshold
-
+        self.normalize_channels = normalize_channels
+        print('self.normalize_channels',self.normalize_channels)
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
         self.font_size = style_out['font_size']
@@ -2156,7 +2198,6 @@ class AnnotateApp:
         self.fg_color = style_out['fg_color']
         self.active_color = style_out['active_color']
         self.inactive_color = style_out['inactive_color']
-
 
         if self.font_loader:
             self.font_style = self.font_loader.get_font(size=self.font_size)
@@ -2356,14 +2397,26 @@ class AnnotateApp:
     def load_single_image(self, path_annotation_tuple):
         path, annotation = path_annotation_tuple
         img = Image.open(path)
-        img = self.normalize_image(img, self.normalize, self.percentiles)
+        img = self.normalize_image(img, self.normalize, self.percentiles, self.normalize_channels)
         img = img.convert('RGB')
         img = self.filter_channels(img)
         img = img.resize(self.image_size)
         return img, annotation
-
+    
     @staticmethod
-    def normalize_image(img, normalize=False, percentiles=(1, 99)):
+    def normalize_image(img, normalize=False, percentiles=(1, 99), normalize_channels=None):
+        """
+        Normalize an image based on specific channels (R, G, B).
+
+        Args:
+            img (PIL.Image or np.array): Input image.
+            normalize (bool): Whether to normalize the image or not.
+            percentiles (tuple): Percentiles to use for intensity rescaling.
+            normalize_channels (list): List of channels to normalize. E.g., ['r', 'g', 'b'], ['r'], ['g'], etc.
+
+        Returns:
+            PIL.Image: Normalized image.
+        """
         img_array = np.array(img)
 
         if normalize:
@@ -2371,13 +2424,23 @@ class AnnotateApp:
                 p2, p98 = np.percentile(img_array, percentiles)
                 img_array = rescale_intensity(img_array, in_range=(p2, p98), out_range=(0, 255))
             else:  # Color image or multi-channel image
-                for channel in range(img_array.shape[2]):
-                    p2, p98 = np.percentile(img_array[:, :, channel], percentiles)
-                    img_array[:, :, channel] = rescale_intensity(img_array[:, :, channel], in_range=(p2, p98), out_range=(0, 255))
+                # Create a map for the color channels
+                channel_map = {'r': 0, 'g': 1, 'b': 2}
+                
+                # If normalize_channels is not specified, normalize all channels
+                if normalize_channels is None:
+                    normalize_channels = ['r', 'g', 'b']
+                
+                for channel_name in normalize_channels:
+                    if channel_name in channel_map:
+                        channel_idx = channel_map[channel_name]
+                        p2, p98 = np.percentile(img_array[:, :, channel_idx], percentiles)
+                        img_array[:, :, channel_idx] = rescale_intensity(img_array[:, :, channel_idx], in_range=(p2, p98), out_range=(0, 255))
 
         img_array = np.clip(img_array, 0, 255).astype('uint8')
 
         return Image.fromarray(img_array)
+
     
     def add_colored_border(self, img, border_width, border_color):
         top_border = Image.new('RGB', (img.width, border_width), color=border_color)
@@ -2504,46 +2567,6 @@ class AnnotateApp:
             print(f'Quit application')
         else:
             print('Waiting for pending updates to finish before quitting')
-
-def create_menu_bar(root):
-    from .gui import initiate_root
-    gui_apps = {
-        "Mask": lambda: initiate_root(root, settings_type='mask'),
-        "Measure": lambda: initiate_root(root, settings_type='measure'),
-        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
-        "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
-        "Classify": lambda: initiate_root(root, settings_type='classify'),
-        "Umap": lambda: initiate_root(root, settings_type='umap'),
-        "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
-        "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
-        "Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
-        "Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
-        "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
-        "Regression": lambda: initiate_root(root, settings_type='regression'),
-        "Recruitment": lambda: initiate_root(root, settings_type='recruitment')
-    }
-
-    # Create the menu bar
-    menu_bar = tk.Menu(root, bg="#008080", fg="white")
-
-    # Create a "SpaCr Applications" menu
-    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
-    menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
-
-    # Add options to the "SpaCr Applications" menu
-    for app_name, app_func in gui_apps.items():
-        app_menu.add_command(
-            label=app_name,
-            command=app_func
-        )
-
-    # Add a separator and an exit option
-    app_menu.add_separator()
-    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://spacr.readthedocs.io/en/latest/?badge=latest"))
-    app_menu.add_command(label="Exit", command=root.quit)
-
-    # Configure the menu for the root window
-    root.config(menu=menu_bar)
 
 def standardize_figure(fig):
     from .gui_elements import set_dark_style

@@ -253,7 +253,7 @@ def annotate(settings):
 
     root = tk.Tk()
     root.geometry(settings['geom'])
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'])
     next_button = tk.Button(root, text="Next", command=app.next_page)
     next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
     back_button = tk.Button(root, text="Back", command=app.previous_page)
@@ -284,7 +284,6 @@ def generate_annotate_fields(frame):
     # Arrange input fields and labels
     for row, (name, data) in enumerate(vars_dict.items()):
         tk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:", bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size)).grid(row=row, column=0)
-        #ttk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:", background="black", foreground="white").grid(row=row, column=0)
         if isinstance(data['value'], list):
             # Convert lists to comma-separated strings
             data['entry'].insert(0, ','.join(map(str, data['value'])))
@@ -300,6 +299,7 @@ def run_annotate_app(vars_dict, parent_frame):
     settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
     settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
     settings['normalize'] = settings['normalize'].lower() == 'true'
+    settings['normalize_channels'] = settings['channels'].split(',')
     settings['rows'] = int(settings['rows'])
     settings['columns'] = int(settings['columns'])
     settings['measurement'] = settings['measurement'].split(',')
@@ -342,46 +342,6 @@ def load_next_app(root):
             next_app_func(new_root, *next_app_args)
 
 def annotate_with_image_refs(settings, root, shutdown_callback):
-    #from .gui_utils import proceed_with_app
-    from .gui import gui_app
-    from .settings import set_annotate_default_settings
-
-    settings = set_annotate_default_settings(settings)
-    src = settings['src']
-
-    db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    c.execute('PRAGMA table_info(png_list)')
-    cols = c.fetchall()
-    if settings['annotation_column'] not in [col[1] for col in cols]:
-        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
-    conn.commit()
-    conn.close()
-
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
-
-    # Set the canvas background to black
-    root.configure(bg='black')
-
-    next_button = tk.Button(root, text="Next", command=app.next_page, background='black', foreground='white')
-    next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
-    back_button = tk.Button(root, text="Back", command=app.previous_page, background='black', foreground='white')
-    back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)
-    exit_button = tk.Button(root, text="Exit", command=lambda: [app.shutdown(), shutdown_callback()], background='black', foreground='white')
-    exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
-
-    #app.load_images()
-
-    # Store the shutdown function and next app details in the root
-    root.current_app_exit_func = lambda: [app.shutdown(), shutdown_callback()]
-    root.next_app_func = proceed_with_app
-    root.next_app_args = ("Main App", gui_app)
-
-    # Call load_images after setting up the root window
-    app.load_images()
-
-def annotate_with_image_refs(settings, root, shutdown_callback):
     from .settings import set_annotate_default_settings
 
     settings = set_annotate_default_settings(settings)
@@ -401,7 +361,7 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}")
 
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'])
 
     # Set the canvas background to black
     root.configure(bg='black')
@@ -1066,3 +1026,20 @@ def get_screen_dimensions():
     screen_width = monitor.width
     screen_height = monitor.height
     return screen_width, screen_height
+
+def convert_to_number(value):
+    
+    """
+    Converts a string value to an integer if possible, otherwise converts to a float.
+    Args:
+        value (str): The string representation of the number.
+    Returns:
+        int or float: The converted number.
+    """
+    try:
+        return int(value)
+    except ValueError:
+        try:
+            return float(value)
+        except ValueError:
+            raise ValueError(f"Unable to convert '{value}' to an integer or float.")
