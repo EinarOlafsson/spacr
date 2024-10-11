@@ -1020,8 +1020,6 @@ def _plot_recruitment_v2(df, df_type, channel_of_interest, columns=[], figuresiz
         None
     """
 
-    from .plot import spacrGraph
-
     color_list = [(55/255, 155/255, 155/255), 
                   (155/255, 55/255, 155/255), 
                   (55/255, 155/255, 255/255), 
@@ -2105,7 +2103,7 @@ class spacrGraph:
         """
         self.df = df
         self.grouping_column = grouping_column
-        self.data_column = data_column
+        self.data_column = data_column if isinstance(data_column, list) else [data_column]
         self.graph_type = graph_type
         self.summary_func = summary_func
         self.order = order
@@ -2150,7 +2148,8 @@ class spacrGraph:
 
     def preprocess_data(self):
         """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
-        df = self.df.dropna(subset=[self.grouping_column, self.data_column])
+        # Remove NaNs in both the grouping column and each data column
+        df = self.df.dropna(subset=[self.grouping_column] + self.data_column)  # Handle multiple data columns
 
         # Group by 'prc' column if representation is 'well'
         if self.representation == 'well':
@@ -2160,8 +2159,9 @@ class spacrGraph:
             df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
         else:
             df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
-        
+
         return df
+
 
     def remove_outliers_from_plot(self):
         """Remove outliers from the plot but keep them in the data."""
@@ -2178,26 +2178,28 @@ class spacrGraph:
         return filtered_df
 
     def perform_normality_tests(self):
-        """Perform normality tests for each group."""
+        """Perform normality tests for each group and each data column."""
         unique_groups = self.df[self.grouping_column].unique()
-        grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
-        raw_grouped_data = [self.raw_df.loc[self.raw_df[self.grouping_column] == group, self.data_column] for group in unique_groups]
-        
-        normal_p_values = [normaltest(data).pvalue for data in grouped_data]
-        normal_stats = [normaltest(data).statistic for data in grouped_data]
-        is_normal = all(p > 0.05 for p in normal_p_values)
+        normality_results = []
 
-        test_results = []
-        for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
-            test_results.append({
-                'Comparison': f'Normality test for {group}',
-                'Test Statistic': stat,
-                'p-value': p_value,
-                'Test Name': 'Normality test',
-                'n_object': len(raw_grouped_data[unique_groups.tolist().index(group)]),  # Raw sample size (objects/cells)
-                'n_well': len(grouped_data[unique_groups.tolist().index(group)]) if self.representation == 'well' else np.nan  # Summarized size (wells)
-            })
-        return is_normal, test_results
+        for column in self.data_column:
+            grouped_data = [self.df.loc[self.df[self.grouping_column] == group, column] for group in unique_groups]
+            normal_p_values = [normaltest(data).pvalue for data in grouped_data]
+            normal_stats = [normaltest(data).statistic for data in grouped_data]
+            is_normal = all(p > 0.05 for p in normal_p_values)  # Test if all groups are normal
+
+            for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
+                normality_results.append({
+                    'Comparison': f'Normality test for {group} on {column}',
+                    'Test Statistic': stat,
+                    'p-value': p_value,
+                    'Test Name': 'Normality test',
+                    'Column': column,
+                    'n': len(self.df[self.df[self.grouping_column] == group])  # Sample size
+                })
+
+        return is_normal, normality_results
+
 
     def perform_levene_test(self, unique_groups):
         """Perform Levene's test for equal variance."""
@@ -2296,83 +2298,117 @@ class spacrGraph:
         if self.remove_outliers:
             self.df = self.remove_outliers_from_plot()
 
-        # Perform normality tests
-        is_normal, normality_results = self.perform_normality_tests()
-
-        # Perform Levene's test for equal variance
+        # Get the unique groups from the grouping column
         unique_groups = self.df[self.grouping_column].unique()
-        levene_stat, levene_p = self.perform_levene_test(unique_groups)
-        levene_result = {
-            'Comparison': 'Levene’s test for equal variance',
-            'Test Statistic': levene_stat,
-            'p-value': levene_p,
-            'Test Name': 'Levene’s Test'
-        }
 
-        # Perform statistical tests
-        stat_results = self.perform_statistical_tests(unique_groups, is_normal)
+        # Flatten the DataFrame to handle multiple `data_column` values in a single plot
+        self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,
+                            var_name='Data Column', value_name='Value')
 
-        # Perform post-hoc tests if applicable
-        posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
+        # Dynamically set figure dimensions based on the number of unique groups and data columns
+        num_groups = len(self.df_melted[self.grouping_column].unique())
+        num_data_columns = len(self.data_column)
+        bar_width = 2.0 / num_data_columns
+        spacing_between_groups = 0.1
 
-        # Combine all test results
-        self.results_df = pd.DataFrame(normality_results + [levene_result] + stat_results + posthoc_results)
-
-        # Add sample size column
-        sample_sizes = self.df.groupby(self.grouping_column)[self.data_column].count().reset_index(name='n')
-        self.results_df['n'] = self.results_df['Comparison'].apply(
-            lambda x: next((sample_sizes[sample_sizes[self.grouping_column] == g]['n'].values[0] for g in sample_sizes[self.grouping_column] if g in x), np.nan)
-        )
-
-        # Dynamically set figure dimensions based on the number of unique groups
-        num_groups = len(unique_groups)
-        bar_width = 0.6  # Set the desired thickness of each bar
-        spacing_between_groups = 0.3  # Set the desired spacing between bars and axis
-
-        fig_width = num_groups * (bar_width + spacing_between_groups)  # Dynamically calculate the figure width
-        fig_height = 6  # Fixed height for the plot
+        fig_width = (num_groups * num_data_columns * bar_width) + (spacing_between_groups * num_groups)
+        fig_height = 10
 
         if ax is None:
-            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))  # Store the figure in self.fig
+            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))
         else:
-            self.fig = ax.figure  # Store the figure if ax is provided
-
-        sns.set(style="ticks")
-        color_palette = self.sns_palette if not self.colors else self.colors
-
-        # Calculate x-axis limits to ensure equal space between the bars and the y-axis
-        xlim_lower = -0.5  # Ensures space between the y-axis and the first category
-        xlim_upper = num_groups - 0.5  # Ensures space after the last category
-        ax.set_xlim(xlim_lower, xlim_upper)
-
-        if self.summary_func is None:
-            sns.stripplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=color_palette, jitter=True, alpha=0.6, ax=ax)
-        elif self.graph_type == 'bar':
+            self.fig = ax.figure
+            
+        if len(self.data_column) == 1:
+            self.hue=self.grouping_column
+            self.jitter_bar_dodge = False
+        else:
+            self.hue='Data Column'
+            self.jitter_bar_dodge = True
+        
+        # Handle the different plot types based on `graph_type`
+        if self.graph_type == 'bar':
             self._create_bar_plot(bar_width, ax)
+        elif self.graph_type == 'jitter':
+            #transparent_palette = [(r, g, b, 0.6) for (r, g, b) in sns.color_palette(self.sns_palette, n_colors=len(df_melted[hue].unique()))]
+            self._create_jitter_plot(ax)
         elif self.graph_type == 'box':
             self._create_box_plot(ax)
         elif self.graph_type == 'violin':
             self._create_violin_plot(ax)
-        elif self.graph_type == 'jitter':
-            self._create_jitter_plot(ax)
         else:
-            raise ValueError(f"Invalid graph_type: {self.graph_type}. Choose from 'bar', 'box', 'violin', or 'jitter'.")
+            raise ValueError(f"Unknown graph type: {self.graph_type}") 
+        
+        if ax is None:
+            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        else:
+            self.fig = ax.figure
+
 
         # Set y-axis start
         if self.y_axis_start is not None:
             ax.set_ylim(bottom=self.y_axis_start)
 
-        # Add ticks, remove grid, and save plot
-        ax.minorticks_on()
-        ax.tick_params(axis='x', which='minor', bottom=False)  # Disable minor ticks on x-axis
-        ax.tick_params(axis='x', which='major', length=6, width=2, direction='out')
-        ax.tick_params(axis='y', which='major', length=6, width=2, direction='out')
-        ax.tick_params(axis='y', which='minor', length=4, width=1, direction='out')
+        # Remove top and right spines
         sns.despine(ax=ax, top=True, right=True)
+
+        # Adjust the position of the plot to move it closer to the table
+        ax.set_position([0.1, 0.25, 0.8, 0.45])  # Adjust the height of the plot, leaving more space for the table
+
+        # Move the legend outside the plot
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Data Column')
+        
+        ax.set_xlabel('')
+        
+        if len(self.data_column) == 1:
+            ax.legend().remove()
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+
+        # Create the grid with '+' and '-' symbols
+        if len(self.data_column) > 1:
+            ax.set_xticks([])
+            ax.tick_params(bottom=False)
+            ax.set_xticklabels([])
+            
+            legend_ax = self.fig.add_axes([0.1, 0.02, 0.8, 0.2])  # Position the table closer to the graph
+            legend_ax.set_axis_off()
+
+            # Prepare the rows and symbols
+            row_labels = self.data_column
+            table_data = []
+
+            # Ensure the rows for each data column match the number of unique bars
+            for column in self.data_column:
+                column_bars = []
+                for group in unique_groups:
+                    # For each group and data column, assign a '+' or '-'
+                    for bar_position in range(num_data_columns):  # Loop through each data_column position
+                        if bar_position == self.data_column.index(column):
+                            column_bars.append('+')
+                        else:
+                            column_bars.append('-')
+                table_data.append(column_bars)
+
+            # Display the table directly below the graph with white background and thicker row height
+            legend_table = legend_ax.table(cellText=table_data,
+                                           rowLabels=row_labels,
+                                           loc='center',
+                                           cellLoc='center',
+                                           rowColours=['white'] * len(row_labels),  # Set background to white
+                                           cellColours=[['white'] * len(column_bars) for _ in table_data],  # White cell background
+                                           edges='closed',  # Show edges around cells
+                                           bbox=[0, 0, 1, 1])
+
+            # Adjust the row height for readability
+            for key, cell in legend_table.get_celld().items():
+                cell.set_height(0.5)  # Increase row height
+                cell.set_edgecolor('white')  # Set grid color to white
+                cell.set_linewidth(2)  # Set line thickness
 
         if self.save:
             self._save_results()
 
+        plt.tight_layout()  # Ensure the layout is tight
         plt.show()  # Ensure the plot is shown, but plt.show() doesn't clear the figure context
 
     def get_figure(self):
@@ -2381,31 +2417,74 @@ class spacrGraph:
 
     def _create_bar_plot(self, bar_width, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
-        summary_df = self.df.groupby(self.grouping_column)[self.data_column].agg([self.summary_func, 'std', 'sem'])
 
+        # Melt the dataframe for easier use with seaborn's hue functionality
+        df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,
+                            var_name='Data Column', value_name=self.summary_func)
+
+        # Group the melted DataFrame by grouping column and data column for error bars calculation
+        summary_df = df_melted.groupby([self.grouping_column, 'Data Column']).agg({self.summary_func: ['mean', 'std', 'sem']}).reset_index()
+        summary_df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in summary_df.columns]
+
+        # Determine which type of error bars to show (std or sem)
         if self.error_bar_type == 'std':
-            error_bars = summary_df['std']
+            error_bars = summary_df[f'{self.summary_func}_std']
         elif self.error_bar_type == 'sem':
-            error_bars = summary_df['sem']
+            error_bars = summary_df[f'{self.summary_func}_sem']
         else:
             raise ValueError(f"Invalid error_bar_type: {self.error_bar_type}. Choose either 'std' or 'sem'.")
 
-        sns.barplot(x=self.grouping_column, y=self.summary_func, data=summary_df.reset_index(), ci=None, palette=self.sns_palette, width=bar_width, ax=ax)
+        # Set the hue to 'Data Column' if there are multiple data columns
+        hue = 'Data Column' if len(self.data_column) > 1 else None
 
-        # Plot the error bars
-        ax.errorbar(x=np.arange(len(summary_df)), y=summary_df[self.summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+        # Create the bar plot with dodge=True to ensure bars for different data columns are side by side
+        barplot = sns.barplot(
+            data=df_melted, 
+            x=self.grouping_column, 
+            y=self.summary_func, 
+            hue=hue, 
+            palette=self.sns_palette, 
+            dodge=self.jitter_bar_dodge,  # Ensure bars are separated
+            ax=ax,
+            ci=None  # Disable Seaborn's internal error bars
+        )
+
+        # Sort summary_df to match the order of bars in the plot
+        summary_df_sorted = summary_df.sort_values([f'{self.grouping_column}_', 'Data Column_'])
+
+        # Get the positions of the bars
+        bars = [patch for patch in ax.patches if isinstance(patch, plt.Rectangle)]
+
+        # Ensure error bars are aligned with correct bars
+        for bar, (_, row) in zip(bars, summary_df_sorted.iterrows()):
+            x_bar = bar.get_x() + bar.get_width() / 2  # Center of the bar
+            err = row[f'{self.summary_func}_{self.error_bar_type}']  # Get the correct error value for this bar
+
+            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
+
+        # Set the legend outside the plot
+        if hue:
+            ax.legend(title="Data Column", loc='center left', bbox_to_anchor=(1, 0.5))
+        else:
+            if len(self.data_column) > 1:
+                ax.legend_.remove()
+
+        # Set labels
+        ax.set_xlabel(self.grouping_column)
+        ax.set_ylabel(self.summary_func)
+
 
     def _create_jitter_plot(self, ax):
-        """Helper method to create a jitter plot (strip plot)."""
-        sns.stripplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, jitter=True, alpha=0.6, ax=ax)
+        """Helper method to create a jitter plot (strip plot) for a specified column."""
+        sns.stripplot(data=self.df_melted, x=self.grouping_column, y='Value', hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=True, ax=ax, alpha=0.6)
 
     def _create_box_plot(self, ax):
-        """Helper method to create a box plot."""
-        sns.boxplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, ax=ax)
+        """Helper method to create a box plot for a specified column."""
+        sns.boxplot(data=self.df_melted, x=self.grouping_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax)
 
     def _create_violin_plot(self, ax):
-        """Helper method to create a violin plot."""
-        sns.violinplot(x=self.grouping_column, y=self.data_column, data=self.df, palette=self.sns_palette, ax=ax)
+        """Helper method to create a violin plot for a specified column."""
+        sns.violinplot(data=self.df_melted, x=self.grouping_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax)
 
     def _save_results(self):
         """Helper method to save the plot and results."""
@@ -2420,3 +2499,61 @@ class spacrGraph:
     def get_results(self):
         """Return the results dataframe."""
         return self.results_df
+    
+def plot_data_from_db(settings):
+    from .io import _read_db
+    from spacr.utils import annotate_conditions
+    """
+    Extracts the specified table from the SQLite database and plots a specified column.
+
+    Args:
+        db_path (str): The path to the SQLite database.
+        table_name (str): The name of the table to extract.
+        column_name (str): The column to plot from the table.
+
+    Returns:
+        df (pd.DataFrame): The extracted table as a DataFrame.
+    """
+    
+    db_loc = os.path.join(settings['src'], 'measurements',settings['database'])
+    
+    [df] = _read_db(db_loc, tables=[settings['table_name']])
+        
+    df = annotate_conditions(df, 
+                             cells=settings['cell_types'], 
+                             cell_loc=settings['cell_plate_metadata'], 
+                             pathogens=settings['pathogen_types'],
+                             pathogen_loc=settings['pathogen_plate_metadata'],
+                             treatments=settings['treatments'], 
+                             treatment_loc=settings['treatment_plate_metadata'])
+    
+    df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
+    df = df.dropna(subset=settings['column_name'])
+    df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
+    #display(df)
+    # Initialize the spacrGraph class with your DataFrame and desired parameters
+    spacr_graph = spacrGraph(
+        df=df,                           # Your DataFrame
+        grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
+        data_column=settings['column_name'],         # Column for the data (y-axis)
+        graph_type=settings['graph_type'],           # Type of plot ('bar', 'box', 'violin', 'jitter')
+        summary_func='mean',                         # Function to summarize data (e.g., 'mean', 'median')
+        colors=None,                                 # Custom colors for the plot (optional)
+        output_dir=settings['dst'],                       # Directory to save the plot and results
+        save=settings['save'],                                  # Whether to save the plot and results
+        y_axis_start=0,                              # Starting point for y-axis (optional)
+        error_bar_type='std',                        # Type of error bar ('std' or 'sem')
+        representation='well',
+        theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
+    )
+
+    # Create the plot
+    spacr_graph.create_plot()
+
+    # Get the figure object if needed
+    fig = spacr_graph.get_figure()
+
+    # Optional: Get the results DataFrame containing statistical test results
+    results_df = spacr_graph.get_results()
+    display(results_df)
+    return fig

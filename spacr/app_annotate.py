@@ -3,8 +3,25 @@ from tkinter import ttk
 from .gui import MainApp
 from .gui_elements import set_dark_style, spacrButton
 
+def convert_to_number(value):
+    
+    """
+    Converts a string value to an integer if possible, otherwise converts to a float.
+    Args:
+        value (str): The string representation of the number.
+    Returns:
+        int or float: The converted number.
+    """
+    try:
+        return int(value)
+    except ValueError:
+        try:
+            return float(value)
+        except ValueError:
+            raise ValueError(f"Unable to convert '{value}' to an integer or float.")
+
 def initiate_annotation_app(parent_frame):
-    from .gui_utils import generate_annotate_fields, annotate_app
+    from .gui_utils import generate_annotate_fields, annotate_app, convert_to_number
     # Set up the settings window
     settings_window = tk.Toplevel(parent_frame)
     settings_window.title("Annotation Settings")
@@ -18,9 +35,9 @@ def initiate_annotation_app(parent_frame):
         settings = {key: data['entry'].get() for key, data in vars_dict.items()}
         settings['channels'] = settings['channels'].split(',')
         settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
-        settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
+        settings['percentiles'] = list(map(convert_to_number, settings['percentiles'].split(','))) if settings['percentiles'] else [2, 98]
         settings['normalize'] = settings['normalize'].lower() == 'true'
-
+        settings['normalize_channels'] = settings['normalize_channels'].split(',')
         try:
             settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
             settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
@@ -38,7 +55,6 @@ def initiate_annotation_app(parent_frame):
                 settings[key] = None
 
         settings_window.destroy()
-
         annotate_app(parent_frame, settings)
     
     start_button = spacrButton(settings_window, text="annotate", command=start_annotation_app, show_text=False)
