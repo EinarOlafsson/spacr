@@ -1315,6 +1315,7 @@ def set_annotate_default_settings(settings):
     settings.setdefault('img_size', 200)
     settings.setdefault('annotation_column', 'test')
     settings.setdefault('normalize', 'False')
+    settings.setdefault('normalize_channels', "r,g,b")
     settings.setdefault('percentiles', [2, 98])
     settings.setdefault('measurement', '')#'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
     settings.setdefault('threshold', '')#'2')
