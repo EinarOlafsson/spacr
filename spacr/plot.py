@@ -1930,7 +1930,7 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
 
     return balanced_df
 
-def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_axis_start=None, error_bar_type='std'):
+def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
     """
     Create a grouped plot, perform statistical tests, and optionally export the results along with the plot.
 
@@ -1944,7 +1944,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     - colors: List of colors for each group.
     - output_dir: Directory where the figure and test results will be saved if `save=True`.
     - save: Boolean flag indicating whether to save the plot and results to files.
-    - y_axis_start: Optional starting value for the y-axis.
+    - y_lim: Optional y-axis min and max.
     - error_bar_type: Type of error bars to plot, either 'std' for standard deviation or 'sem' for standard error of the mean.
 
     Outputs:
@@ -2068,10 +2068,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     results_df = pd.DataFrame(test_results)
 
     # Set y-axis start if provided
-    if y_axis_start is not None:
-        plt.ylim(bottom=y_axis_start)
-    else:
-        plt.ylim(0, None)  # Default to starting at 0 if no custom start value is provided
+    if isinstance(y_lim, list) and len(y_lim) == 2:
+        plt.ylim(y_lim)
 
     # If save is True, save the plot and results as PNG and CSV
     if save:
@@ -2095,7 +2093,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     
 class spacrGraph:
     def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
-                 order=None, colors=None, output_dir='./output', save=False, y_axis_start=None, 
+                 order=None, colors=None, output_dir='./output', save=False, y_lim=None, 
                  error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
                  paired=False, all_to_all=True, compare_group=None):
         """
@@ -2110,7 +2108,6 @@ class spacrGraph:
         self.colors = colors
         self.output_dir = output_dir
         self.save = save
-        self.y_axis_start = y_axis_start
         self.error_bar_type = error_bar_type
         self.remove_outliers = remove_outliers
         self.theme = theme
@@ -2118,6 +2115,7 @@ class spacrGraph:
         self.paired = paired
         self.all_to_all = all_to_all
         self.compare_group = compare_group
+        self.y_lim = y_lim
 
         self.results_df = pd.DataFrame()
         self.sns_palette = None
@@ -2162,7 +2160,6 @@ class spacrGraph:
 
         return df
 
-
     def remove_outliers_from_plot(self):
         """Remove outliers from the plot but keep them in the data."""
         filtered_df = self.df.copy()
@@ -2199,7 +2196,6 @@ class spacrGraph:
                 })
 
         return is_normal, normality_results
-
 
     def perform_levene_test(self, unique_groups):
         """Perform Levene's test for equal variance."""
@@ -2309,7 +2305,7 @@ class spacrGraph:
         num_groups = len(self.df_melted[self.grouping_column].unique())
         num_data_columns = len(self.data_column)
         bar_width = 2.0 / num_data_columns
-        spacing_between_groups = 0.1
+        spacing_between_groups = 4.0
 
         fig_width = (num_groups * num_data_columns * bar_width) + (spacing_between_groups * num_groups)
         fig_height = 10
@@ -2323,6 +2319,7 @@ class spacrGraph:
             self.hue=self.grouping_column
             self.jitter_bar_dodge = False
         else:
+            #self.hue=self.grouping_column
             self.hue='Data Column'
             self.jitter_bar_dodge = True
         
@@ -2344,10 +2341,12 @@ class spacrGraph:
         else:
             self.fig = ax.figure
 
-
         # Set y-axis start
-        if self.y_axis_start is not None:
-            ax.set_ylim(bottom=self.y_axis_start)
+        if isinstance(self.y_lim, list):
+            if len(self.y_lim) == 2:
+                ax.set_ylim(self.y_lim[0], self.y_lim[1])
+            elif len(self.y_lim) == 1:
+                ax.set_ylim(self.y_lim[0], None)
 
         # Remove top and right spines
         sns.despine(ax=ax, top=True, right=True)
@@ -2370,7 +2369,24 @@ class spacrGraph:
             ax.tick_params(bottom=False)
             ax.set_xticklabels([])
             
-            legend_ax = self.fig.add_axes([0.1, 0.02, 0.8, 0.2])  # Position the table closer to the graph
+            #this code is to eventually create one table per graph element with + and - and center it on the graph element
+            #if self.graph_type == 'bar': # this seems to work
+            #    x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
+            #    print("Bar X positions:", x_positions)
+           # 
+            #elif self.graph_type == 'violin': # this seems to work
+            #    x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
+            #    print("Violin plot X positions:", x_positions)
+            
+            #elif self.graph_type == 'box': #empty list
+            #    x_positions = [box.get_xdata().mean() for box in ax.artists]
+            #    print("Box X positions:", x_positions)
+        
+            #elif self.graph_type == 'jitter': # list is to long
+            #    x_positions = sorted(set(point[0] for collection in ax.collections for point in collection.get_offsets()))
+            #    print("Jitter plot X positions:", x_positions)
+
+            legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])  # Position the table closer to the graph
             legend_ax.set_axis_off()
 
             # Prepare the rows and symbols
@@ -2444,9 +2460,9 @@ class spacrGraph:
             y=self.summary_func, 
             hue=hue, 
             palette=self.sns_palette, 
-            dodge=self.jitter_bar_dodge,  # Ensure bars are separated
+            dodge=self.jitter_bar_dodge,
             ax=ax,
-            ci=None  # Disable Seaborn's internal error bars
+            ci=None
         )
 
         # Sort summary_df to match the order of bars in the plot
@@ -2472,7 +2488,6 @@ class spacrGraph:
         # Set labels
         ax.set_xlabel(self.grouping_column)
         ax.set_ylabel(self.summary_func)
-
 
     def _create_jitter_plot(self, ax):
         """Helper method to create a jitter plot (strip plot) for a specified column."""
@@ -2502,7 +2517,7 @@ class spacrGraph:
     
 def plot_data_from_db(settings):
     from .io import _read_db
-    from spacr.utils import annotate_conditions
+    from .utils import annotate_conditions
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -2541,7 +2556,7 @@ def plot_data_from_db(settings):
         colors=None,                                 # Custom colors for the plot (optional)
         output_dir=settings['dst'],                       # Directory to save the plot and results
         save=settings['save'],                                  # Whether to save the plot and results
-        y_axis_start=0,                              # Starting point for y-axis (optional)
+        y_lim=settings['y_lim'],                              # Starting point for y-axis (optional)
         error_bar_type='std',                        # Type of error bar ('std' or 'sem')
         representation='well',
         theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
