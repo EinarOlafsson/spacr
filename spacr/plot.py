@@ -2099,9 +2099,11 @@ class spacrGraph:
                  order=None, colors=None, output_dir='./output', save=False, y_lim=None, 
                  error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
                  paired=False, all_to_all=True, compare_group=None):
+        
         """
         Class for creating grouped plots with optional statistical tests and data preprocessing.
         """
+
         self.df = df
         self.grouping_column = grouping_column
         self.data_column = data_column if isinstance(data_column, list) else [data_column]
@@ -2119,14 +2121,14 @@ class spacrGraph:
         self.all_to_all = all_to_all
         self.compare_group = compare_group
         self.y_lim = y_lim
-
         self.results_df = pd.DataFrame()
         self.sns_palette = None
-        self.fig = None  # To store the generated figure
+        self.fig = None
+
+        self.results_name = str(self.data_column[0])+'_'+str(self.grouping_column)+'_'+str(self.graph_type)
         
-        # Preprocess and set palette
         self._set_theme()
-        self.raw_df = self.df.copy()  # Preserve the raw data for n_object count
+        self.raw_df = self.df.copy()
         self.df = self.preprocess_data()
         
     def _set_theme(self):
@@ -2151,16 +2153,13 @@ class spacrGraph:
         """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
         # Remove NaNs in both the grouping column and each data column
         df = self.df.dropna(subset=[self.grouping_column] + self.data_column)  # Handle multiple data columns
-
         # Group by 'prc' column if representation is 'well'
         if self.representation == 'well':
             df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-
         if self.order:
             df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
         else:
             df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
-
         return df
 
     def remove_outliers_from_plot(self):
@@ -2181,13 +2180,11 @@ class spacrGraph:
         """Perform normality tests for each group and each data column."""
         unique_groups = self.df[self.grouping_column].unique()
         normality_results = []
-
         for column in self.data_column:
             grouped_data = [self.df.loc[self.df[self.grouping_column] == group, column] for group in unique_groups]
             normal_p_values = [normaltest(data).pvalue for data in grouped_data]
             normal_stats = [normaltest(data).statistic for data in grouped_data]
             is_normal = all(p > 0.05 for p in normal_p_values)  # Test if all groups are normal
-
             for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
                 normality_results.append({
                     'Comparison': f'Normality test for {group} on {column}',
@@ -2197,7 +2194,6 @@ class spacrGraph:
                     'Column': column,
                     'n': len(self.df[self.df[self.grouping_column] == group])  # Sample size
                 })
-
         return is_normal, normality_results
 
     def perform_levene_test(self, unique_groups):
@@ -2207,57 +2203,48 @@ class spacrGraph:
         return stat, p_value
 
     def perform_statistical_tests(self, unique_groups, is_normal):
-        """Perform statistical tests based on the number of groups, normality, and paired flag."""
-        if len(unique_groups) == 2:
-            if is_normal:
-                if self.paired:
-                    stat_test = pg.ttest  # Paired T-test
-                    test_name = 'Paired T-test'
-                else:
-                    stat_test = ttest_ind
-                    test_name = 'T-test'
-            else:
-                if self.paired:
-                    stat_test = pg.wilcoxon  # Paired Wilcoxon test
-                    test_name = 'Paired Wilcoxon test'
-                else:
-                    stat_test = mannwhitneyu
-                    test_name = 'Mann-Whitney U test'
-        else:
-            if is_normal:
-                stat_test = f_oneway
-                test_name = 'One-way ANOVA'
-            else:
-                stat_test = kruskal
-                test_name = 'Kruskal-Wallis test'
-
-        comparisons = list(itertools.combinations(unique_groups, 2))
+        """Perform statistical tests separately for each data column."""
         test_results = []
-        for (group1, group2) in comparisons:
-            data1 = self.df[self.df[self.grouping_column] == group1][self.data_column]
-            data2 = self.df[self.df[self.grouping_column] == group2][self.data_column]
-            raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == group1][self.data_column]
-            raw_data2 = self.raw_df[self.raw_df[self.grouping_column] == group2][self.data_column]
-            
-            if self.paired:
-                stat, p = stat_test(data1, data2, paired=True)
+        for column in self.data_column:  # Iterate over each data column
+            grouped_data = [self.df.loc[self.df[self.grouping_column] == group, column] for group in unique_groups]
+            if len(unique_groups) == 2:  # For two groups: class_0 vs class_1
+                if is_normal:
+                    if self.paired:
+                        stat, p = pg.ttest(grouped_data[0], grouped_data[1], paired=True).iloc[0][['T', 'p-val']]
+                        test_name = 'Paired T-test'
+                    else:
+                        stat, p = ttest_ind(grouped_data[0], grouped_data[1])
+                        test_name = 'T-test'
+                else:
+                    if self.paired:
+                        stat, p = pg.wilcoxon(grouped_data[0], grouped_data[1]).iloc[0][['T', 'p-val']]
+                        test_name = 'Paired Wilcoxon test'
+                    else:
+                        stat, p = mannwhitneyu(grouped_data[0], grouped_data[1])
+                        test_name = 'Mann-Whitney U test'
             else:
-                stat, p = stat_test(data1, data2)
+                if is_normal:
+                    stat, p = f_oneway(*grouped_data)
+                    test_name = 'One-way ANOVA'
+                else:
+                    stat, p = kruskal(*grouped_data)
+                    test_name = 'Kruskal-Wallis test'
 
             test_results.append({
-                'Comparison': f'{group1} vs {group2}',
+                'Comparison': f'{unique_groups[0]} vs {unique_groups[1]} ({column})',
                 'Test Statistic': stat,
                 'p-value': p,
                 'Test Name': test_name,
-                'n_object': len(raw_data1) + len(raw_data2),  # Raw sample size (objects/cells)
-                'n_well': len(data1) + len(data2) if self.representation == 'well' else np.nan  # Summarized size (wells)
-            })
+                'Column': column,
+                'n_object': len(grouped_data[0]) + len(grouped_data[1]),
+                'n_well': len(self.df[self.df[self.grouping_column] == unique_groups[0]]) + 
+                          len(self.df[self.df[self.grouping_column] == unique_groups[1]])})
+
         return test_results
 
     def perform_posthoc_tests(self, is_normal, unique_groups):
         """Perform post-hoc tests for multiple groups based on all_to_all flag."""
         if is_normal and len(unique_groups) > 2 and self.all_to_all:
-            # Tukey HSD Post-hoc when comparing all to all
             tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
             posthoc_results = []
             for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
@@ -2270,12 +2257,10 @@ class spacrGraph:
                     'p-value': p_value,
                     'Test Name': 'Tukey HSD Post-hoc',
                     'n_object': len(raw_data1) + len(raw_data2),
-                    'n_well': len(self.df[self.df[self.grouping_column] == comparison[0]]) + len(self.df[self.df[self.grouping_column] == comparison[1]])
-                })
+                    'n_well': len(self.df[self.df[self.grouping_column] == comparison[0]]) + len(self.df[self.df[self.grouping_column] == comparison[1]])})
             return posthoc_results
        
         elif len(unique_groups) > 2 and not self.all_to_all and self.compare_group:
-            # Dunn's post-hoc test using Pingouin
             dunn_result = pg.pairwise_tests(data=self.df, dv=self.data_column, between=self.grouping_column, padjust='bonf', test='dunn')
             posthoc_results = []
             for idx, row in dunn_result.iterrows():
@@ -2286,59 +2271,56 @@ class spacrGraph:
                         'p-value': row['p-val'],
                         'Test Name': 'Dunn’s Post-hoc',
                         'n_object': None,
-                        'n_well': None
-                    })
+                        'n_well': None})
+                    
             return posthoc_results
         return []
-
+    
     def create_plot(self, ax=None):
         """Create and display the plot based on the chosen graph type."""
 
         def _generate_tabels(unique_groups):
+            """Generate row labels and a symbol table for multi-level grouping."""
             # Create row labels: Include the grouping column and data columns
             row_labels = [self.grouping_column] + self.data_column
-            
-            # Calculate the number of bars (equal to the number of unique groups * data columns)
-            num_bars = len(unique_groups) * len(self.data_column)
-            
+
             # Initialize table data
             table_data = []
-            
-            # Generate the first row for the grouping column symbols (one symbol per bar)
+
+            # Create the grouping row: Alternate each group for every data column
             grouping_row = []
-            for group in unique_groups:
-                for _ in range(len(self.data_column)):
-                    #grouping_row.append('+' if group == unique_groups[0] else '-')
-                    grouping_row.append(group)
-            
-            table_data.append(grouping_row)
-            
-            # Generate rows for each data column (symbols for each bar)
-            for column in self.data_column:
-                column_row = []
+            for _ in self.data_column:
                 for group in unique_groups:
-                    for _ in range(len(self.data_column)):
-                        if self.data_column.index(column) == unique_groups.tolist().index(group):
+                    grouping_row.append(group)
+            table_data.append(grouping_row)  # Add the grouping row to the table
+
+            # Create symbol rows for each data column
+            for column in self.data_column:
+                column_row = []  # Initialize a row for this column
+                for data_col in self.data_column:  # Iterate over data columns to align with the structure
+                    for group in unique_groups:
+                        # Assign '+' if the column matches, otherwise assign '-'
+                        if column == data_col:
                             column_row.append('+')
                         else:
                             column_row.append('-')
-            
-                table_data.append(column_row)
-    
+                table_data.append(column_row)  # Add this row to the table
+
+            # Transpose the table to align with the plot layout
             transposed_table = list(map(list, zip(*table_data)))
             return row_labels, transposed_table
-    
+
         def _place_symbols(row_labels, transposed_table, x_positions, ax):            
             
             # Get the bottom of the y-axis (y=0) in data coordinates and convert to display coordinates
             y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
-            symbol_start_y = ax.transData.transform((0, y_axis_min))[1] - 10  # Slightly below the x-axis line
+            symbol_start_y = ax.transData.transform((0, y_axis_min))[1] - 30  # Slightly below the x-axis line
         
             # Convert to figure coordinates
             symbol_start_y_fig = ax.transAxes.inverted().transform((0, symbol_start_y))[1]
         
             # Calculate y-spacing for the table rows (adjust as needed)
-            y_spacing = 0.05  # Control vertical spacing between elements
+            y_spacing = 0.02 # Control vertical spacing between elements
         
             # X-coordinate for the row labels at the y-axis and x-axis intersection
             label_x_pos = ax.get_xlim()[0] - 0.5  # Slightly offset from the y-axis
@@ -2346,48 +2328,83 @@ class spacrGraph:
             # Place the row titles at the y-axis intersection
             for row_idx, title in enumerate(row_labels):
                 y_pos = symbol_start_y_fig - (row_idx * y_spacing)  # Align with row index
-                ax.text(
-                    label_x_pos,  # X-coordinate where y-axis meets x-axis
-                    y_pos,        # Y-coordinate (aligned with corresponding row)
-                    title,        # Row label text
-                    ha='right',   # Align text to the right
-                    va='center',  # Center-align text vertically
-                    fontsize=10,  # Adjust font size as needed
-                    fontweight='bold'  # Optional: Make titles bold
-                )
+                ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=12, fontweight='regular')
         
             # Place the symbols under each bar
             for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
                 for row_idx, text in enumerate(column_data):
-                    y_pos = symbol_start_y_fig - (row_idx * y_spacing)  # Align with row index
-                    ax.text(
-                        x_pos,  # X-coordinate (centered on the bar)
-                        y_pos,  # Y-coordinate (spaced vertically)
-                        text,   # Symbol to display
-                        ha='center',  # Center-align horizontally
-                        va='center',  # Center-align vertically
-                        fontsize=12   # Adjust font size if needed
-                    )
-            print(transposed_table)
+                    y_pos = symbol_start_y_fig - (row_idx * y_spacing)
+                    ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=12)
+                    
+        def _get_positions(self, ax):
+            if self.graph_type == 'bar': 
+                x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
+
+            elif self.graph_type == 'violin':
+                x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
+
+            elif self.graph_type == 'box':
+                x_positions = list(set(line.get_xdata().mean() for line in ax.lines if line.get_linestyle() == '-'))                
+
+            elif self.graph_type == 'jitter': 
+                x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
+            return x_positions
+        
+        def _draw_comparison_lines(ax, x_positions):
+            """Draw comparison lines and annotate significance based on results_df."""
+            if self.results_df.empty:
+                print("No comparisons available to annotate.")
+                return
+
+            y_max = max([bar.get_height() for bar in ax.patches])
+            ax.set_ylim(0, y_max * 1.3)
+
+            for idx, row in self.results_df.iterrows():
+                group1, group2 = row['Comparison'].split(' vs ')
+                p_value = row['p-value']
+
+                # Determine significance marker
+                if p_value <= 0.001:
+                    significance = '***'
+                elif p_value <= 0.01:
+                    significance = '**'
+                elif p_value <= 0.05:
+                    significance = '*'
+                else:
+                    significance = 'ns'
+
+                # Find the x positions of the compared groups
+                x1 = x_positions[unique_groups.tolist().index(group1)]
+                x2 = x_positions[unique_groups.tolist().index(group2)]
+
+                # Stagger lines to avoid overlap
+                line_y = y_max + (0.1 * y_max) * (idx + 1)
+
+                # Draw the comparison line
+                ax.plot([x1, x1, x2, x2], [line_y - 0.02, line_y, line_y, line_y - 0.02], lw=1.5, c='black')
+
+                # Add the significance marker
+                ax.text((x1 + x2) / 2, line_y, significance, ha='center', va='bottom', fontsize=12)
 
         # Optional: Remove outliers for plotting
         if self.remove_outliers:
             self.df = self.remove_outliers_from_plot()
 
-        # Flatten the DataFrame to handle multiple `data_column` values in a single plot
-        self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,
-                            var_name='Data Column', value_name='Value')
-
-        # Dynamically set figure dimensions based on the number of unique groups and data columns
+        self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = self.df[self.grouping_column].unique()
+        is_normal, normality_results = self.perform_normality_tests()
+        levene_stat, levene_p = self.perform_levene_test(unique_groups)
+        test_results = self.perform_statistical_tests(unique_groups, is_normal)
+        posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
+        self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
+
         num_groups = len(self.data_column)*len(self.grouping_column)
         num_data_columns = len(self.data_column)
         self.bar_width = 0.4
         spacing_between_groups = self.bar_width/0.5
 
-        self.fig_width = (num_groups * self.bar_width) + (spacing_between_groups * num_groups) + spacing_between_groups
+        self.fig_width = (num_groups * self.bar_width) + (spacing_between_groups * num_groups)
         self.fig_height = self.fig_width/2
-        print(num_groups, self.fig_height, self.fig_width)
         
         if ax is None:
             self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
@@ -2420,58 +2437,31 @@ class spacrGraph:
             elif len(self.y_lim) == 1:
                 ax.set_ylim(self.y_lim[0], None)
 
-        # Remove top and right spines
         sns.despine(ax=ax, top=True, right=True)
-
-        # Adjust the position of the plot to move it closer to the table
-        #ax.set_position([0.1, 0.25, 0.8, 0.45])  # Adjust the height of the plot, leaving more space for the table
-
-        # Move the legend outside the plot
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Data Column')
-        
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Data Column') # Move the legend outside the plot
         ax.set_xlabel('')
+        x_positions = _get_positions(self, ax)
         
         if len(self.data_column) == 1:
             ax.legend().remove()
             ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
 
-        # Create the grid with '+' and '-' symbols
-        if len(self.data_column) > 1:
+        elif len(self.data_column) > 1:
             ax.set_xticks([])
             ax.tick_params(bottom=False)
             ax.set_xticklabels([])
-            
-            #this code is to eventually create one table per graph element with + and - and center it on the graph element
-            if self.graph_type == 'bar': 
-                x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
-            
-            elif self.graph_type == 'violin':
-                x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
-            
-            elif self.graph_type == 'box':
-                x_positions = list(set(line.get_xdata().mean() for line in ax.lines if line.get_linestyle() == '-'))                
-        
-            elif self.graph_type == 'jitter': 
-                x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
-
             legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])  # Position the table closer to the graph
             legend_ax.set_axis_off()
 
             row_labels, table_data = _generate_tabels(unique_groups)
             _place_symbols(row_labels, table_data, x_positions, ax)
             
+        #_draw_comparison_lines(ax, x_positions)    
+        
         if self.save:
             self._save_results()
 
-        #ax.set_xlim(-spacing_between_groups, num_groups - spacing_between_groups)
         ax.margins(x=0.12) 
-        #plt.tight_layout(pad=0.5)
-        #plt.tight_layout()  # Ensure the layout is tight
-        plt.show()  # Ensure the plot is shown, but plt.show() doesn't clear the figure context
-
-    def get_figure(self):
-        """Return the generated figure."""
-        return self.fig
 
     def _create_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
@@ -2480,27 +2470,25 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
+            ax.set_ylabel(self.data_column[0])
             hue = None
     
-        # Group the melted DataFrame for error bars calculation
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
-    
-        # Select the appropriate error bar type
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
-    
-        # Create the bar plot without hue to avoid two-level grouping 
         sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None)
         
         # Adjust the bar width manually
-        bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
-        target_width = self.bar_width * 2
-        for bar in bars:
-            bar.set_width(target_width)  # Set new width
-            # Center the bar on its x-coordinate
-            bar.set_x(bar.get_x() - target_width / 2)
-
+        if len(self.data_column) > 1:
+            bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+            target_width = self.bar_width * 2
+            for bar in bars:
+                bar.set_width(target_width)  # Set new width
+                # Center the bar on its x-coordinate
+                bar.set_x(bar.get_x() - target_width / 2)
+            
         # Adjust error bars alignment with bars
         bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
         for bar, (_, row) in zip(bars, summary_df.iterrows()):
@@ -2510,7 +2498,6 @@ class spacrGraph:
     
         # Set legend and labels
         ax.set_xlabel(self.grouping_column)
-        ax.set_ylabel('mean')
 
     def _create_jitter_plot(self, ax):
         """Helper method to create a jitter plot (strip plot) with consistent spacing."""
@@ -2519,8 +2506,10 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str)  + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None  # Disable hue to avoid two-level grouping
+            ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
+            ax.set_ylabel(self.data_column[0])
             hue = None
     
         # Create the jitter plot
@@ -2528,8 +2517,7 @@ class spacrGraph:
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
-        ax.set_ylabel('Value')
-    
+       
         # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
@@ -2542,8 +2530,10 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
+            ax.set_ylabel(self.data_column[0])
             hue = None
     
         # Create the box plot
@@ -2551,8 +2541,7 @@ class spacrGraph:
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
-        ax.set_ylabel('Value')
-    
+
         # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
@@ -2565,8 +2554,10 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
+            ax.set_ylabel(self.data_column[0])
             hue = None
     
         # Create the violin plot
@@ -2584,9 +2575,9 @@ class spacrGraph:
     def _save_results(self):
         """Helper method to save the plot and results."""
         os.makedirs(self.output_dir, exist_ok=True)
-        plot_path = os.path.join(self.output_dir, 'grouped_plot.png')
-        self.fig.savefig(plot_path)
-        results_path = os.path.join(self.output_dir, 'test_results.csv')
+        plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
+        self.fig.savefig(plot_path, bbox_inches='tight', dpi=600, transparent=True, format='pdf')
+        results_path = os.path.join(self.output_dir, f"{self.results_name}.csv")
         self.results_df.to_csv(results_path, index=False)
         print(f"Plot saved to {plot_path}")
         print(f"Test results saved to {results_path}")
@@ -2595,9 +2586,13 @@ class spacrGraph:
         """Return the results dataframe."""
         return self.results_df
     
+    def get_figure(self):
+        """Return the generated figure."""
+        return self.fig
+
 def plot_data_from_db(settings):
-    from spacr.io import _read_db
-    from spacr.utils import annotate_conditions
+    from .io import _read_db
+    from .utils import annotate_conditions
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -2625,16 +2620,17 @@ def plot_data_from_db(settings):
     df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
     df = df.dropna(subset=settings['column_name'])
     df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
+    
     spacr_graph = spacrGraph(
-        df=df,                           # Your DataFrame
+        df=df,                                       # Your DataFrame
         grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
         data_column=settings['column_name'],         # Column for the data (y-axis)
         graph_type=settings['graph_type'],           # Type of plot ('bar', 'box', 'violin', 'jitter')
         summary_func='mean',                         # Function to summarize data (e.g., 'mean', 'median')
         colors=None,                                 # Custom colors for the plot (optional)
-        output_dir=settings['dst'],                       # Directory to save the plot and results
-        save=settings['save'],                                  # Whether to save the plot and results
-        y_lim=settings['y_lim'],                              # Starting point for y-axis (optional)
+        output_dir=settings['dst'],                  # Directory to save the plot and results
+        save=settings['save'],                       # Whether to save the plot and results
+        y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
         error_bar_type='std',                        # Type of error bar ('std' or 'sem')
         representation='well',
         theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
@@ -2645,8 +2641,9 @@ def plot_data_from_db(settings):
 
     # Get the figure object if needed
     fig = spacr_graph.get_figure()
+    plt.show()
 
     # Optional: Get the results DataFrame containing statistical test results
     results_df = spacr_graph.get_results()
-    display(results_df)
-    return fig
+    
+    return fig, results_df
