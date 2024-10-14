@@ -23,6 +23,9 @@ import pingouin as pg
 from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
 
+import matplotlib.patches as patches
+from collections import defaultdict
+
 def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, normalize=True, thickness=3, save_pdf=True):
     """Plot image and mask overlays."""
 
@@ -2290,44 +2293,118 @@ class spacrGraph:
 
     def create_plot(self, ax=None):
         """Create and display the plot based on the chosen graph type."""
+
+        def _generate_tabels(unique_groups):
+            # Create row labels: Include the grouping column and data columns
+            row_labels = [self.grouping_column] + self.data_column
+            
+            # Calculate the number of bars (equal to the number of unique groups * data columns)
+            num_bars = len(unique_groups) * len(self.data_column)
+            
+            # Initialize table data
+            table_data = []
+            
+            # Generate the first row for the grouping column symbols (one symbol per bar)
+            grouping_row = []
+            for group in unique_groups:
+                for _ in range(len(self.data_column)):
+                    #grouping_row.append('+' if group == unique_groups[0] else '-')
+                    grouping_row.append(group)
+            
+            table_data.append(grouping_row)
+            
+            # Generate rows for each data column (symbols for each bar)
+            for column in self.data_column:
+                column_row = []
+                for group in unique_groups:
+                    for _ in range(len(self.data_column)):
+                        if self.data_column.index(column) == unique_groups.tolist().index(group):
+                            column_row.append('+')
+                        else:
+                            column_row.append('-')
+            
+                table_data.append(column_row)
+    
+            transposed_table = list(map(list, zip(*table_data)))
+            return row_labels, transposed_table
+    
+        def _place_symbols(row_labels, transposed_table, x_positions, ax):            
+            
+            # Get the bottom of the y-axis (y=0) in data coordinates and convert to display coordinates
+            y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
+            symbol_start_y = ax.transData.transform((0, y_axis_min))[1] - 10  # Slightly below the x-axis line
+        
+            # Convert to figure coordinates
+            symbol_start_y_fig = ax.transAxes.inverted().transform((0, symbol_start_y))[1]
+        
+            # Calculate y-spacing for the table rows (adjust as needed)
+            y_spacing = 0.05  # Control vertical spacing between elements
+        
+            # X-coordinate for the row labels at the y-axis and x-axis intersection
+            label_x_pos = ax.get_xlim()[0] - 0.5  # Slightly offset from the y-axis
+        
+            # Place the row titles at the y-axis intersection
+            for row_idx, title in enumerate(row_labels):
+                y_pos = symbol_start_y_fig - (row_idx * y_spacing)  # Align with row index
+                ax.text(
+                    label_x_pos,  # X-coordinate where y-axis meets x-axis
+                    y_pos,        # Y-coordinate (aligned with corresponding row)
+                    title,        # Row label text
+                    ha='right',   # Align text to the right
+                    va='center',  # Center-align text vertically
+                    fontsize=10,  # Adjust font size as needed
+                    fontweight='bold'  # Optional: Make titles bold
+                )
+        
+            # Place the symbols under each bar
+            for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
+                for row_idx, text in enumerate(column_data):
+                    y_pos = symbol_start_y_fig - (row_idx * y_spacing)  # Align with row index
+                    ax.text(
+                        x_pos,  # X-coordinate (centered on the bar)
+                        y_pos,  # Y-coordinate (spaced vertically)
+                        text,   # Symbol to display
+                        ha='center',  # Center-align horizontally
+                        va='center',  # Center-align vertically
+                        fontsize=12   # Adjust font size if needed
+                    )
+            print(transposed_table)
+
         # Optional: Remove outliers for plotting
         if self.remove_outliers:
             self.df = self.remove_outliers_from_plot()
-
-        # Get the unique groups from the grouping column
-        unique_groups = self.df[self.grouping_column].unique()
 
         # Flatten the DataFrame to handle multiple `data_column` values in a single plot
         self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,
                             var_name='Data Column', value_name='Value')
 
         # Dynamically set figure dimensions based on the number of unique groups and data columns
-        num_groups = len(self.df_melted[self.grouping_column].unique())
+        unique_groups = self.df[self.grouping_column].unique()
+        num_groups = len(self.data_column)*len(self.grouping_column)
         num_data_columns = len(self.data_column)
-        bar_width = 2.0 / num_data_columns
-        spacing_between_groups = 4.0
+        self.bar_width = 0.4
+        spacing_between_groups = self.bar_width/0.5
 
-        fig_width = (num_groups * num_data_columns * bar_width) + (spacing_between_groups * num_groups)
-        fig_height = 10
-
+        self.fig_width = (num_groups * self.bar_width) + (spacing_between_groups * num_groups) + spacing_between_groups
+        self.fig_height = self.fig_width/2
+        print(num_groups, self.fig_height, self.fig_width)
+        
         if ax is None:
-            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+            self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
         else:
             self.fig = ax.figure
-            
+
         if len(self.data_column) == 1:
             self.hue=self.grouping_column
             self.jitter_bar_dodge = False
         else:
-            #self.hue=self.grouping_column
             self.hue='Data Column'
             self.jitter_bar_dodge = True
         
         # Handle the different plot types based on `graph_type`
         if self.graph_type == 'bar':
-            self._create_bar_plot(bar_width, ax)
+            self._create_bar_plot(ax)
         elif self.graph_type == 'jitter':
-            #transparent_palette = [(r, g, b, 0.6) for (r, g, b) in sns.color_palette(self.sns_palette, n_colors=len(df_melted[hue].unique()))]
             self._create_jitter_plot(ax)
         elif self.graph_type == 'box':
             self._create_box_plot(ax)
@@ -2336,11 +2413,6 @@ class spacrGraph:
         else:
             raise ValueError(f"Unknown graph type: {self.graph_type}") 
         
-        if ax is None:
-            self.fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-        else:
-            self.fig = ax.figure
-
         # Set y-axis start
         if isinstance(self.y_lim, list):
             if len(self.y_lim) == 2:
@@ -2352,7 +2424,7 @@ class spacrGraph:
         sns.despine(ax=ax, top=True, right=True)
 
         # Adjust the position of the plot to move it closer to the table
-        ax.set_position([0.1, 0.25, 0.8, 0.45])  # Adjust the height of the plot, leaving more space for the table
+        #ax.set_position([0.1, 0.25, 0.8, 0.45])  # Adjust the height of the plot, leaving more space for the table
 
         # Move the legend outside the plot
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Data Column')
@@ -2370,136 +2442,144 @@ class spacrGraph:
             ax.set_xticklabels([])
             
             #this code is to eventually create one table per graph element with + and - and center it on the graph element
-            #if self.graph_type == 'bar': # this seems to work
-            #    x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
-            #    print("Bar X positions:", x_positions)
-           # 
-            #elif self.graph_type == 'violin': # this seems to work
-            #    x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
-            #    print("Violin plot X positions:", x_positions)
+            if self.graph_type == 'bar': 
+                x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
             
-            #elif self.graph_type == 'box': #empty list
-            #    x_positions = [box.get_xdata().mean() for box in ax.artists]
-            #    print("Box X positions:", x_positions)
+            elif self.graph_type == 'violin':
+                x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
+            
+            elif self.graph_type == 'box':
+                x_positions = list(set(line.get_xdata().mean() for line in ax.lines if line.get_linestyle() == '-'))                
         
-            #elif self.graph_type == 'jitter': # list is to long
-            #    x_positions = sorted(set(point[0] for collection in ax.collections for point in collection.get_offsets()))
-            #    print("Jitter plot X positions:", x_positions)
+            elif self.graph_type == 'jitter': 
+                x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
 
             legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])  # Position the table closer to the graph
             legend_ax.set_axis_off()
 
-            # Prepare the rows and symbols
-            row_labels = self.data_column
-            table_data = []
-
-            # Ensure the rows for each data column match the number of unique bars
-            for column in self.data_column:
-                column_bars = []
-                for group in unique_groups:
-                    # For each group and data column, assign a '+' or '-'
-                    for bar_position in range(num_data_columns):  # Loop through each data_column position
-                        if bar_position == self.data_column.index(column):
-                            column_bars.append('+')
-                        else:
-                            column_bars.append('-')
-                table_data.append(column_bars)
-
-            # Display the table directly below the graph with white background and thicker row height
-            legend_table = legend_ax.table(cellText=table_data,
-                                           rowLabels=row_labels,
-                                           loc='center',
-                                           cellLoc='center',
-                                           rowColours=['white'] * len(row_labels),  # Set background to white
-                                           cellColours=[['white'] * len(column_bars) for _ in table_data],  # White cell background
-                                           edges='closed',  # Show edges around cells
-                                           bbox=[0, 0, 1, 1])
-
-            # Adjust the row height for readability
-            for key, cell in legend_table.get_celld().items():
-                cell.set_height(0.5)  # Increase row height
-                cell.set_edgecolor('white')  # Set grid color to white
-                cell.set_linewidth(2)  # Set line thickness
-
+            row_labels, table_data = _generate_tabels(unique_groups)
+            _place_symbols(row_labels, table_data, x_positions, ax)
+            
         if self.save:
             self._save_results()
 
-        plt.tight_layout()  # Ensure the layout is tight
+        #ax.set_xlim(-spacing_between_groups, num_groups - spacing_between_groups)
+        ax.margins(x=0.12) 
+        #plt.tight_layout(pad=0.5)
+        #plt.tight_layout()  # Ensure the layout is tight
         plt.show()  # Ensure the plot is shown, but plt.show() doesn't clear the figure context
 
     def get_figure(self):
         """Return the generated figure."""
         return self.fig
 
-    def _create_bar_plot(self, bar_width, ax):
+    def _create_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
-
-        # Melt the dataframe for easier use with seaborn's hue functionality
-        df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,
-                            var_name='Data Column', value_name=self.summary_func)
-
-        # Group the melted DataFrame by grouping column and data column for error bars calculation
-        summary_df = df_melted.groupby([self.grouping_column, 'Data Column']).agg({self.summary_func: ['mean', 'std', 'sem']}).reset_index()
-        summary_df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in summary_df.columns]
-
-        # Determine which type of error bars to show (std or sem)
-        if self.error_bar_type == 'std':
-            error_bars = summary_df[f'{self.summary_func}_std']
-        elif self.error_bar_type == 'sem':
-            error_bars = summary_df[f'{self.summary_func}_sem']
+        # Flatten DataFrame: Combine grouping column and data column into one group if needed
+        if len(self.data_column) > 1:
+            self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
+            x_axis_column = 'Combined Group'
+            hue = None
         else:
-            raise ValueError(f"Invalid error_bar_type: {self.error_bar_type}. Choose either 'std' or 'sem'.")
+            x_axis_column = self.grouping_column
+            hue = None
+    
+        # Group the melted DataFrame for error bars calculation
+        summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
+    
+        # Select the appropriate error bar type
+        error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
+    
+        # Create the bar plot without hue to avoid two-level grouping 
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None)
+        
+        # Adjust the bar width manually
+        bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+        target_width = self.bar_width * 2
+        for bar in bars:
+            bar.set_width(target_width)  # Set new width
+            # Center the bar on its x-coordinate
+            bar.set_x(bar.get_x() - target_width / 2)
 
-        # Set the hue to 'Data Column' if there are multiple data columns
-        hue = 'Data Column' if len(self.data_column) > 1 else None
-
-        # Create the bar plot with dodge=True to ensure bars for different data columns are side by side
-        barplot = sns.barplot(
-            data=df_melted, 
-            x=self.grouping_column, 
-            y=self.summary_func, 
-            hue=hue, 
-            palette=self.sns_palette, 
-            dodge=self.jitter_bar_dodge,
-            ax=ax,
-            ci=None
-        )
-
-        # Sort summary_df to match the order of bars in the plot
-        summary_df_sorted = summary_df.sort_values([f'{self.grouping_column}_', 'Data Column_'])
-
-        # Get the positions of the bars
-        bars = [patch for patch in ax.patches if isinstance(patch, plt.Rectangle)]
-
-        # Ensure error bars are aligned with correct bars
-        for bar, (_, row) in zip(bars, summary_df_sorted.iterrows()):
-            x_bar = bar.get_x() + bar.get_width() / 2  # Center of the bar
-            err = row[f'{self.summary_func}_{self.error_bar_type}']  # Get the correct error value for this bar
-
+        # Adjust error bars alignment with bars
+        bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+        for bar, (_, row) in zip(bars, summary_df.iterrows()):
+            x_bar = bar.get_x() + bar.get_width() / 2
+            err = row[self.error_bar_type]
             ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
-
-        # Set the legend outside the plot
-        if hue:
-            ax.legend(title="Data Column", loc='center left', bbox_to_anchor=(1, 0.5))
-        else:
-            if len(self.data_column) > 1:
-                ax.legend_.remove()
-
-        # Set labels
+    
+        # Set legend and labels
         ax.set_xlabel(self.grouping_column)
-        ax.set_ylabel(self.summary_func)
+        ax.set_ylabel('mean')
 
     def _create_jitter_plot(self, ax):
-        """Helper method to create a jitter plot (strip plot) for a specified column."""
-        sns.stripplot(data=self.df_melted, x=self.grouping_column, y='Value', hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=True, ax=ax, alpha=0.6)
-
+        """Helper method to create a jitter plot (strip plot) with consistent spacing."""
+        # Combine grouping column and data column if needed
+        if len(self.data_column) > 1:
+            self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str)  + " - " + self.df_melted['Data Column'].astype(str))
+            x_axis_column = 'Combined Group'
+            hue = None  # Disable hue to avoid two-level grouping
+        else:
+            x_axis_column = self.grouping_column
+            hue = None
+    
+        # Create the jitter plot
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6)
+    
+        # Adjust legend and labels
+        ax.set_xlabel(self.grouping_column)
+        ax.set_ylabel('Value')
+    
+        # Manage the legend
+        handles, labels = ax.get_legend_handles_labels()
+        unique_labels = dict(zip(labels, handles))
+        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+    
     def _create_box_plot(self, ax):
-        """Helper method to create a box plot for a specified column."""
-        sns.boxplot(data=self.df_melted, x=self.grouping_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax)
-
+        """Helper method to create a box plot with consistent spacing."""
+        # Combine grouping column and data column if needed
+        if len(self.data_column) > 1:
+            self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
+            x_axis_column = 'Combined Group'
+            hue = None
+        else:
+            x_axis_column = self.grouping_column
+            hue = None
+    
+        # Create the box plot
+        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax)
+    
+        # Adjust legend and labels
+        ax.set_xlabel(self.grouping_column)
+        ax.set_ylabel('Value')
+    
+        # Manage the legend
+        handles, labels = ax.get_legend_handles_labels()
+        unique_labels = dict(zip(labels, handles))
+        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+    
     def _create_violin_plot(self, ax):
-        """Helper method to create a violin plot for a specified column."""
-        sns.violinplot(data=self.df_melted, x=self.grouping_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax)
+        """Helper method to create a violin plot with consistent spacing."""
+        # Combine grouping column and data column if needed
+        if len(self.data_column) > 1:
+            self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
+            x_axis_column = 'Combined Group'
+            hue = None
+        else:
+            x_axis_column = self.grouping_column
+            hue = None
+    
+        # Create the violin plot
+        sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=self.hue,palette=self.sns_palette,ax=ax)
+    
+        # Adjust legend and labels
+        ax.set_xlabel(self.grouping_column)
+        ax.set_ylabel('Value')
+    
+        # Manage the legend
+        handles, labels = ax.get_legend_handles_labels()
+        unique_labels = dict(zip(labels, handles))
+        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
     def _save_results(self):
         """Helper method to save the plot and results."""
@@ -2516,8 +2596,8 @@ class spacrGraph:
         return self.results_df
     
 def plot_data_from_db(settings):
-    from .io import _read_db
-    from .utils import annotate_conditions
+    from spacr.io import _read_db
+    from spacr.utils import annotate_conditions
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -2545,8 +2625,6 @@ def plot_data_from_db(settings):
     df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
     df = df.dropna(subset=settings['column_name'])
     df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
-    #display(df)
-    # Initialize the spacrGraph class with your DataFrame and desired parameters
     spacr_graph = spacrGraph(
         df=df,                           # Your DataFrame
         grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
