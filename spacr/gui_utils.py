@@ -508,7 +508,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 1
     elif settings_type == 'ml_analyze':
         function = generate_ml_scores
-        imports = 2
+        imports = 1
     elif settings_type == 'cellpose_masks':
         function = identify_masks_finetune
         imports = 1
