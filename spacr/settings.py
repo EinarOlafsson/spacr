@@ -278,6 +278,8 @@ def get_measure_crop_settings(settings={}):
 
 def set_default_analyze_screen(settings):
     settings.setdefault('src', 'path')
+    settings.setdefault('annotation_column', None)
+    settings.setdefault('save_to_db', False)
     settings.setdefault('model_type_ml','xgboost')
     settings.setdefault('heatmap_feature','predictions')
     settings.setdefault('grouping','mean')
@@ -884,6 +886,7 @@ expected_types = {
     "overlay":bool,
     "correlate":bool,
     "target_layer":str,
+    "save_to_db":bool,
     "normalize_input":bool,
 }
 
@@ -896,7 +899,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
              "Sequencing": ["signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
-             "Generate Dataset":["file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
+             "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
              "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],

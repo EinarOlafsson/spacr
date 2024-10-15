@@ -2591,35 +2591,71 @@ class spacrGraph:
         return self.fig
 
 def plot_data_from_db(settings):
-    from .io import _read_db
+    from .io import _read_db, _read_and_merge_data
     from .utils import annotate_conditions
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
     Args:
         db_path (str): The path to the SQLite database.
-        table_name (str): The name of the table to extract.
+        table_names (str): The name of the table to extract.
         column_name (str): The column to plot from the table.
 
     Returns:
         df (pd.DataFrame): The extracted table as a DataFrame.
     """
+
+    if isinstance(settings['src'], str):
+        srcs = [settings['src']]
+    elif isinstance(settings['src'], list):
+        srcs = settings['src']
+        if isinstance(settings['database'], str):
+            settings['database'] = [settings['database'] for _ in range(len(srcs))]
+    else:
+        raise ValueError("src must be a string or a list of strings.")
     
-    db_loc = os.path.join(settings['src'], 'measurements',settings['database'])
-    
-    [df] = _read_db(db_loc, tables=[settings['table_name']])
+    dfs = []
+    for i, src in enumerate(srcs):
+
+        db_loc = os.path.join(src, 'measurements', settings['database'][i])
         
-    df = annotate_conditions(df, 
-                             cells=settings['cell_types'], 
-                             cell_loc=settings['cell_plate_metadata'], 
-                             pathogens=settings['pathogen_types'],
-                             pathogen_loc=settings['pathogen_plate_metadata'],
-                             treatments=settings['treatments'], 
-                             treatment_loc=settings['treatment_plate_metadata'])
-    
+        if settings['table_names'] in ['saliency_image_correlations']:
+            [df1] = _read_db(db_loc, tables=[settings['table_names']])
+        else:
+            df1, _ = _read_and_merge_data(locs=[db_loc],
+                                    tables = ['cell', 'nucleus', 'pathogen','cytoplasm'],
+                                    verbose=settings['verbose'],
+                                    nuclei_limit=settings['nuclei_limit'],
+                                    pathogen_limit=settings['pathogen_limit'],
+                                    uninfected=settings['uninfected'])
+                                    
+        dft = annotate_conditions(df1, 
+                                cells=settings['cell_types'], 
+                                cell_loc=settings['cell_plate_metadata'], 
+                                pathogens=settings['pathogen_types'],
+                                pathogen_loc=settings['pathogen_plate_metadata'],
+                                treatments=settings['treatments'], 
+                                treatment_loc=settings['treatment_plate_metadata'])
+        dfs.append(dft)
+        
+    df = pd.concat(dfs, axis=0)
     df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
+    df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+
+    if settings['cell_plate_metadata'] !=  None:
+        df = df.dropna(subset='host_cell')
+
+    if settings['pathogen_plate_metadata'] !=  None:
+        df = df.dropna(subset='pathogen')
+
+    if settings['treatment_plate_metadata'] !=  None:
+        df = df.dropna(subset='treatment')
+
     df = df.dropna(subset=settings['column_name'])
-    df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
+    df = df.dropna(subset=settings['grouping_column'])
+    #display(df)
+
+    #df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
     
     spacr_graph = spacrGraph(
         df=df,                                       # Your DataFrame
@@ -2632,7 +2668,7 @@ def plot_data_from_db(settings):
         save=settings['save'],                       # Whether to save the plot and results
         y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
         error_bar_type='std',                        # Type of error bar ('std' or 'sem')
-        representation='well',
+        representation=settings['representation'],
         theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
     )
 

@@ -5042,3 +5042,67 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     cytoplasm_mask = np.where(np.logical_or(nucleus_mask != 0), 0, cell_mask)
     
     return cytoplasm_mask
+
+def add_column_to_database(settings):
+    """
+    Adds a new column to the database table by matching on a common column from the DataFrame.
+    If the column already exists in the database, it adds the column with a suffix.
+    
+    Parameters:
+    - settings: A dictionary containing the following keys:
+        - 'csv_path': Path to the CSV file with the data to be added.
+        - 'db_path': Path to the SQLite database (or connection string for other databases).
+        - 'table_name': The name of the table in the database.
+        - 'update_column': The name of the new column in the DataFrame to add to the database.
+        - 'match_column': The common column used to match rows.
+    """
+
+    # Read the DataFrame from the provided CSV path
+    df = pd.read_csv(settings['csv_path'])
+
+    # Connect to the SQLite database
+    conn = sqlite3.connect(settings['db_path'])
+    cursor = conn.cursor()
+
+    # Get the existing columns in the database table
+    cursor.execute(f"PRAGMA table_info({settings['table_name']})")
+    columns_in_db = [col[1] for col in cursor.fetchall()]
+
+    # Check if the update column already exists in the database
+    if settings['update_column'] in columns_in_db:
+        # Add a suffix to the column name (e.g., '_new', '_1', or similar)
+        suffix = 1
+        new_column_name = f"{settings['update_column']}_{suffix}"
+        # Ensure uniqueness by incrementing the suffix if needed
+        while new_column_name in columns_in_db:
+            suffix += 1
+            new_column_name = f"{settings['update_column']}_{suffix}"
+        print(f"Column '{settings['update_column']}' already exists. Using new column name: '{new_column_name}'")
+    else:
+        new_column_name = settings['update_column']
+
+    # Add the new column to the database table
+    cursor.execute(f"ALTER TABLE {settings['table_name']} ADD COLUMN {new_column_name} TEXT")
+    print(f"Added new column '{new_column_name}' to the table '{settings['table_name']}'.")
+
+    # Iterate over the DataFrame and update the new column in the database
+    for index, row in df.iterrows():
+        value_to_update = row[settings['update_column']]
+        match_value = row[settings['match_column']]
+
+        # Prepare and execute the SQL update query
+        query = f"""
+            UPDATE {settings['table_name']}
+            SET {new_column_name} = ?
+            WHERE {settings['match_column']} = ?
+        """
+        cursor.execute(query, (value_to_update, match_value))
+
+    # Commit the transaction and close the connection
+    conn.commit()
+    conn.close()
+
+    print(f"Updated '{new_column_name}' in '{settings['table_name']}' using '{settings['match_column']}'.")
+
+
+
