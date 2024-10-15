@@ -730,9 +730,9 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
 def generate_ml_scores(settings):
     
-    from .io import _read_and_merge_data
+    from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
-    from .utils import get_ml_results_paths
+    from .utils import get_ml_results_paths, add_column_to_database
     from .settings import set_default_analyze_screen
 
     settings = set_default_analyze_screen(settings)
@@ -753,6 +753,38 @@ def generate_ml_scores(settings):
                                  nuclei_limit,
                                  pathogen_limit,
                                  uninfected)
+
+    if settings['annotation_column'] is not None:
+
+        settings['location_column'] = settings['annotation_column']
+        
+        png_list_df = _read_db(db_loc[0], tables=['png_list'])[0]
+        if not {'prcfo', settings['annotation_column']}.issubset(png_list_df.columns):
+            raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
+        annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
+        df = annotated_df.merge(df, left_index=True, right_index=True)
+        display(df)
+        unique_values = df[settings['annotation_column']].dropna().unique()
+        if len(unique_values) == 1:
+            unannotated_rows = df[df[settings['annotation_column']].isna()].index
+            existing_value = unique_values[0]
+            next_value = existing_value + 1
+
+            settings['positive_control'] = str(existing_value)
+            settings['negative_control'] = str(next_value)
+
+            existing_count = df[df[settings['annotation_column']] == existing_value].shape[0]
+            num_to_select = min(existing_count, len(unannotated_rows))
+            selected_rows = np.random.choice(unannotated_rows, size=num_to_select, replace=False)
+            df.loc[selected_rows, settings['annotation_column']] = next_value
+
+            # Print the counts for existing_value and next_value
+            existing_count_final = df[df[settings['annotation_column']] == existing_value].shape[0]
+            next_count_final = df[df[settings['annotation_column']] == next_value].shape[0]
+
+            print(f"Number of rows with value {existing_value}: {existing_count_final}")
+            print(f"Number of rows with value {next_value}: {next_count_final}")
+            df[settings['annotation_column']] = df[settings['annotation_column']].apply(str)
     
     if settings['channel_of_interest'] in [0,1,2,3]:
 
@@ -803,6 +835,14 @@ def generate_ml_scores(settings):
     figs[1].savefig(feature_importance_fig_path, format='pdf')
     shap_fig.savefig(shap_fig_path, format='pdf')
 
+    if settings['save_to_db']:
+        settings['csv_path'] = data_path
+        settings['db_path'] = os.path.join(src, 'measurements', 'measurements.db')
+        settings['table_name'] = 'png_list'
+        settings['update_column'] = 'predictions'
+        settings['match_column'] = 'prcfo'
+        add_column_to_database(settings)
+
     return [output, plate_heatmap]
 
 def ml_analysis(df, channel_of_interest=3, location_column='col', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
@@ -847,6 +887,7 @@ def ml_analysis(df, channel_of_interest=3, location_column='col', positive_contr
     if verbose:
         print(f'Found {len(features)} numerical features in the dataframe')
         print(f'Features used in training: {features}')
+
     df = pd.concat([df, df_metadata[location_column]], axis=1)
 
     # Subset the dataframe based on specified column values
