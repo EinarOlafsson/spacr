@@ -143,7 +143,7 @@ def preprocess_generate_masks(src, settings={}):
                                 start = time.time()
                                 if i+1 <= settings['examples_to_plot']:
                                     file_path = os.path.join(merged_src, file)
-                                    plot_image_mask_overlay(file_path, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'], figuresize=10, normalize=True, thickness=3, save_pdf=True)
+                                    plot_image_mask_overlay(file_path, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'], figuresize=10, percentiles=(1,99), thickness=3, save_pdf=True)
                                     stop = time.time()
                                     duration = stop-start
                                     time_ls.append(duration)
