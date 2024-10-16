@@ -2267,13 +2267,23 @@ class AnnotateApp:
         self.grid_rows = max(1, self.grid_rows)
 
     def prefilter_paths_annotations(self):
-        from .io import _read_and_join_tables
+        from .io import _read_and_join_tables, _read_db
         from .utils import is_list_of_lists
 
         if self.measurement and self.threshold is not None:
             df = _read_and_join_tables(self.db_path)
+            png_list_df = _read_db(self.db_path, tables=['png_list'])[0]
+            png_list_df = png_list_df.set_index('prcfo')
+            df = df.merge(png_list_df, left_index=True, right_index=True)
             df[self.annotation_column] = None
             before = len(df)
+
+            if isinstance(self.threshold, int):
+                if isinstance(self.measurement, list):
+                    mes = self.measurement[0]
+                if isinstance(self.measurement, str):
+                    mes = self.measurement
+                df = df[df[f'{mes}'] == self.threshold]
 
             if is_list_of_lists(self.measurement):
                 if isinstance(self.threshold, list) or is_list_of_lists(self.threshold):

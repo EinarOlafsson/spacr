@@ -763,7 +763,7 @@ def generate_ml_scores(settings):
             raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         df = annotated_df.merge(df, left_index=True, right_index=True)
-        display(df)
+        #display(df)
         unique_values = df[settings['annotation_column']].dropna().unique()
         if len(unique_values) == 1:
             unannotated_rows = df[df[settings['annotation_column']].isna()].index
@@ -846,6 +846,7 @@ def generate_ml_scores(settings):
     return [output, plate_heatmap]
 
 def ml_analysis(df, channel_of_interest=3, location_column='col', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
+    
     """
     Calculates permutation importance for numerical features in the dataframe,
     comparing groups based on specified column values and uses the model to predict 
@@ -878,7 +879,6 @@ def ml_analysis(df, channel_of_interest=3, location_column='col', positive_contr
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
-    
     df_metadata = df[[location_column]].copy()
 
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)

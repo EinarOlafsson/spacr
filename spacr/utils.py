@@ -326,6 +326,8 @@ def save_settings(settings, name='settings', show=False):
     
     if isinstance(settings['src'], list):
         src = settings['src'][0]
+        #if os.path.exists(src):
+
         name = f"{name}_list"
     else:
         src = settings['src']
@@ -5047,6 +5049,7 @@ def add_column_to_database(settings):
     """
     Adds a new column to the database table by matching on a common column from the DataFrame.
     If the column already exists in the database, it adds the column with a suffix.
+    NaN values will remain as NULL in the database.
     
     Parameters:
     - settings: A dictionary containing the following keys:
@@ -5060,6 +5063,11 @@ def add_column_to_database(settings):
     # Read the DataFrame from the provided CSV path
     df = pd.read_csv(settings['csv_path'])
 
+    # Replace 0 values with 2 in the update column
+    if (df[settings['update_column']] == 0).any():
+        print("Replacing all 0 values with 2 in the update column.")
+        df[settings['update_column']].replace(0, 2, inplace=True)
+
     # Connect to the SQLite database
     conn = sqlite3.connect(settings['db_path'])
     cursor = conn.cursor()
@@ -5068,12 +5076,10 @@ def add_column_to_database(settings):
     cursor.execute(f"PRAGMA table_info({settings['table_name']})")
     columns_in_db = [col[1] for col in cursor.fetchall()]
 
-    # Check if the update column already exists in the database
+    # Add a suffix if the update column already exists in the database
     if settings['update_column'] in columns_in_db:
-        # Add a suffix to the column name (e.g., '_new', '_1', or similar)
         suffix = 1
         new_column_name = f"{settings['update_column']}_{suffix}"
-        # Ensure uniqueness by incrementing the suffix if needed
         while new_column_name in columns_in_db:
             suffix += 1
             new_column_name = f"{settings['update_column']}_{suffix}"
@@ -5081,14 +5087,18 @@ def add_column_to_database(settings):
     else:
         new_column_name = settings['update_column']
 
-    # Add the new column to the database table
-    cursor.execute(f"ALTER TABLE {settings['table_name']} ADD COLUMN {new_column_name} TEXT")
+    # Add the new column with INTEGER type to the database table
+    cursor.execute(f"ALTER TABLE {settings['table_name']} ADD COLUMN {new_column_name} INTEGER")
     print(f"Added new column '{new_column_name}' to the table '{settings['table_name']}'.")
 
     # Iterate over the DataFrame and update the new column in the database
     for index, row in df.iterrows():
         value_to_update = row[settings['update_column']]
         match_value = row[settings['match_column']]
+
+        # Handle NaN values by converting them to None (SQLite equivalent of NULL)
+        if pd.isna(value_to_update):
+            value_to_update = None
 
         # Prepare and execute the SQL update query
         query = f"""
@@ -5103,6 +5113,3 @@ def add_column_to_database(settings):
     conn.close()
 
     print(f"Updated '{new_column_name}' in '{settings['table_name']}' using '{settings['match_column']}'.")
-
-
-

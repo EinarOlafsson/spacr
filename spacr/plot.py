@@ -16,7 +16,7 @@ from skimage.measure import find_contours, label, regionprops
 
 from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-from scipy.stats import ttest_ind, mannwhitneyu, levene, wilcoxon, kruskal
+from scipy.stats import ttest_ind, mannwhitneyu, levene, wilcoxon, kruskal, normaltest, shapiro
 import itertools
 import pingouin as pg
 
@@ -25,13 +25,26 @@ from IPython.display import Image as ipyimage
 
 import matplotlib.patches as patches
 from collections import defaultdict
+from matplotlib.gridspec import GridSpec
 
-def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, normalize=True, thickness=3, save_pdf=True):
+def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, percentiles=(2,98), thickness=3, save_pdf=True, mode='outlines'):   
     """Plot image and mask overlays."""
 
-    def _plot_merged_plot(image, outlines, outline_colors, figuresize, thickness):
+    def _plot_merged_plot(image, outlines, outline_colors, figuresize, thickness, percentiles, mode='outlines'):
         """Plot the merged plot with overlay, image channels, and masks."""
 
+        def _generate_colored_mask(mask, alpha):
+            """ Generate a colored mask with transparency using the given colormap. """
+            cmap = generate_mask_random_cmap(mask)
+            rgba_mask = cmap(mask / mask.max())  # Normalize mask and map to colormap (RGBA)
+            rgba_mask[..., 3] = np.where(mask > 0, alpha, 0)  # Apply transparency only where mask is present
+            return rgba_mask
+        
+        def _overlay_mask(image, mask):
+            """Overlay the colored mask onto the original image."""
+            combined = np.clip(image + mask[..., :3] * mask[..., 3:4], 0, 1)  # Ensure pixel values stay in [0, 1]
+            return combined
+            
         def _normalize_image(image, percentiles=(2, 98)):
             """Normalize the image to the given percentiles."""
             v_min, v_max = np.percentile(image, percentiles)
@@ -61,11 +74,15 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
         # Plot each channel with its corresponding outlines
         for v in range(num_channels):
             channel_image = image[..., v]
-            channel_image_normalized = _normalize_image(channel_image)
+            channel_image_normalized = _normalize_image(channel_image, percentiles)
             channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
 
             for outline, color in zip(outlines, outline_colors):
-                channel_image_rgb = _apply_contours(channel_image_rgb, outline, color, thickness)
+                if mode == 'outlines':
+                    channel_image_rgb = _apply_contours(channel_image_rgb, outline, color, thickness)
+                else:
+                    mask = _generate_colored_mask(outline, alpha=0.5)
+                    channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
             ax[v].imshow(channel_image_rgb)
             ax[v].set_title(f'Image - Channel {v}')
@@ -75,11 +92,15 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
         rgb_channels = min(3, num_channels)
         for i in range(rgb_channels):
             channel_image = image[..., i]
-            channel_image_normalized = _normalize_image(channel_image)
+            channel_image_normalized = _normalize_image(channel_image, percentiles)
             rgb_image[..., i] = channel_image_normalized
 
         for outline, color in zip(outlines, outline_colors):
-            rgb_image = _apply_contours(rgb_image, outline, color, thickness)
+            if mode == 'outlines':
+                rgb_image = _apply_contours(rgb_image, outline, color, thickness)
+            else:
+                mask = _generate_colored_mask(outline, alpha=0.5)
+                rgb_image = _overlay_mask(rgb_image, mask)
 
         ax[-1].imshow(rgb_image)
         ax[-1].set_title('Combined RGB Image')
@@ -128,7 +149,7 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
         outlines.append(np.take(stack, cell_mask_dim, axis=2))
         outline_colors.append('red')
 
-    fig = _plot_merged_plot(image=image, outlines=outlines, outline_colors=outline_colors, figuresize=figuresize, thickness=thickness)
+    fig = _plot_merged_plot(image=image, outlines=outlines, outline_colors=outline_colors, figuresize=figuresize, thickness=thickness, percentiles=percentiles, mode=mode)
 
     return fig
 
@@ -2098,7 +2119,7 @@ class spacrGraph:
     def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
                  order=None, colors=None, output_dir='./output', save=False, y_lim=None, 
                  error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
-                 paired=False, all_to_all=True, compare_group=None):
+                 paired=False, all_to_all=True, compare_group=None, graph_name=None):
         
         """
         Class for creating grouped plots with optional statistical tests and data preprocessing.
@@ -2121,11 +2142,14 @@ class spacrGraph:
         self.all_to_all = all_to_all
         self.compare_group = compare_group
         self.y_lim = y_lim
+        self.graph_name = graph_name
+
+
         self.results_df = pd.DataFrame()
         self.sns_palette = None
         self.fig = None
 
-        self.results_name = str(self.data_column[0])+'_'+str(self.grouping_column)+'_'+str(self.graph_type)
+        self.results_name = str(self.graph_name)+'_'+str(self.data_column[0])+'_'+str(self.grouping_column)+'_'+str(self.graph_type)
         
         self._set_theme()
         self.raw_df = self.df.copy()
@@ -2134,7 +2158,7 @@ class spacrGraph:
     def _set_theme(self):
         """Set the Seaborn theme and reorder colors if necessary."""
         integer_list = list(range(1, 81))
-        color_order = [0, 3, 9, 4, 6, 7, 9, 2] + integer_list
+        color_order = [7, 0, 4, 3, 9, 6, 9, 2] + integer_list
         self.sns_palette = self._set_reordered_theme(self.theme, color_order, 100)
 
     def _set_reordered_theme(self, theme='muted', order=None, n_colors=100, show_theme=False):
@@ -2152,10 +2176,12 @@ class spacrGraph:
     def preprocess_data(self):
         """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
         # Remove NaNs in both the grouping column and each data column
-        df = self.df.dropna(subset=[self.grouping_column] + self.data_column)  # Handle multiple data columns
+        df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
         # Group by 'prc' column if representation is 'well'
         if self.representation == 'well':
             df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
+        if self.representation == 'plate':
+            df = df.groupby(['plate', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
         if self.order:
             df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
         else:
@@ -2180,20 +2206,36 @@ class spacrGraph:
         """Perform normality tests for each group and each data column."""
         unique_groups = self.df[self.grouping_column].unique()
         normality_results = []
+
         for column in self.data_column:
-            grouped_data = [self.df.loc[self.df[self.grouping_column] == group, column] for group in unique_groups]
-            normal_p_values = [normaltest(data).pvalue for data in grouped_data]
-            normal_stats = [normaltest(data).statistic for data in grouped_data]
-            is_normal = all(p > 0.05 for p in normal_p_values)  # Test if all groups are normal
-            for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
+            # Iterate over each group and its corresponding data
+            for group in unique_groups:
+                data = self.df.loc[self.df[self.grouping_column] == group, column]
+                n_samples = len(data)
+
+                if n_samples >= 8:
+                    # Use D'Agostino-Pearson test for larger samples
+                    stat, p_value = normaltest(data)
+                    test_name = "D'Agostino-Pearson test"
+                else:
+                    # Use Shapiro-Wilk test for smaller samples
+                    stat, p_value = shapiro(data)
+                    test_name = "Shapiro-Wilk test"
+
+                # Store the result for this group and column
                 normality_results.append({
                     'Comparison': f'Normality test for {group} on {column}',
                     'Test Statistic': stat,
                     'p-value': p_value,
-                    'Test Name': 'Normality test',
+                    'Test Name': test_name,
                     'Column': column,
-                    'n': len(self.df[self.df[self.grouping_column] == group])  # Sample size
+                    'n': n_samples  # Sample size
                 })
+
+            # Check if all groups are normally distributed (p > 0.05)
+            normal_p_values = [result['p-value'] for result in normality_results if result['Column'] == column]
+            is_normal = all(p > 0.05 for p in normal_p_values)
+
         return is_normal, normality_results
 
     def perform_levene_test(self, unique_groups):
@@ -2337,17 +2379,21 @@ class spacrGraph:
                     ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=12)
                     
         def _get_positions(self, ax):
-            if self.graph_type == 'bar': 
+            if self.graph_type in ['bar','jitter_bar']: 
                 x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
 
             elif self.graph_type == 'violin':
                 x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
 
-            elif self.graph_type == 'box':
+            elif self.graph_type in ['box', 'jitter_box']:
                 x_positions = list(set(line.get_xdata().mean() for line in ax.lines if line.get_linestyle() == '-'))                
 
             elif self.graph_type == 'jitter': 
                 x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
+            
+            elif self.graph_type in ['line', 'line_std']:
+                x_positions = []
+            
             return x_positions
         
         def _draw_comparison_lines(ax, x_positions):
@@ -2365,7 +2411,7 @@ class spacrGraph:
 
                 # Determine significance marker
                 if p_value <= 0.001:
-                    significance = '***'
+                    signiresults_namecance = '***'
                 elif p_value <= 0.01:
                     significance = '**'
                 elif p_value <= 0.05:
@@ -2406,6 +2452,9 @@ class spacrGraph:
         self.fig_width = (num_groups * self.bar_width) + (spacing_between_groups * num_groups)
         self.fig_height = self.fig_width/2
         
+        if  self.graph_type in ['line','line_std']:
+            self.fig_height, self.fig_width = 10, 10 
+
         if ax is None:
             self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
         else:
@@ -2427,6 +2476,14 @@ class spacrGraph:
             self._create_box_plot(ax)
         elif self.graph_type == 'violin':
             self._create_violin_plot(ax)
+        elif self.graph_type == 'jitter_box':
+            self._create_jitter_box_plot(ax)
+        elif self.graph_type == 'jitter_bar':
+            self._create_jitter_bar_plot(ax)
+        elif self.graph_type == 'line':
+            self._create_line_graph(ax)
+        elif self.graph_type == 'line_std':
+            self._create_line_with_std_area(ax)
         else:
             raise ValueError(f"Unknown graph type: {self.graph_type}") 
         
@@ -2439,14 +2496,17 @@ class spacrGraph:
 
         sns.despine(ax=ax, top=True, right=True)
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Data Column') # Move the legend outside the plot
-        ax.set_xlabel('')
+        
+        if not self.graph_type in ['line','line_std']:
+            ax.set_xlabel('')
+
         x_positions = _get_positions(self, ax)
         
-        if len(self.data_column) == 1:
+        if len(self.data_column) == 1 and not self.graph_type in ['line','line_std']:
             ax.legend().remove()
             ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
 
-        elif len(self.data_column) > 1:
+        elif len(self.data_column) > 1 and not self.graph_type in ['line','line_std']:
             ax.set_xticks([])
             ax.tick_params(bottom=False)
             ax.set_xticklabels([])
@@ -2522,7 +2582,54 @@ class spacrGraph:
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
-    
+
+    def _create_line_graph(self, ax):
+        """Helper method to create a line graph with one line per group based on epochs and accuracy."""
+        #display(self.df)
+        # Ensure epoch is used on the x-axis and accuracy on the y-axis
+        x_axis_column = self.data_column[0]
+        y_axis_column = self.data_column[1]
+        
+        # Set hue to the grouping column to get one line per group
+        hue = self.grouping_column
+
+        # Check if the required columns exist in the DataFrame
+        required_columns = [x_axis_column, y_axis_column, self.grouping_column]
+        for col in required_columns:
+            if col not in self.df.columns:
+                raise ValueError(f"Column '{col}' not found in DataFrame.")
+
+        # Create the line graph with one line per group
+        sns.lineplot(data=self.df,x=x_axis_column,y=y_axis_column,hue=hue,palette=self.sns_palette,ax=ax,marker='o',linewidth=1,markersize=6)
+
+        # Adjust axis labels
+        ax.set_xlabel(f"{x_axis_column}")
+        ax.set_ylabel(f"{y_axis_column}")
+
+    def _create_line_with_std_area(self, ax):
+        """Helper method to create a line graph with shaded area representing standard deviation."""
+
+        x_axis_column = self.data_column[0]
+        y_axis_column = self.data_column[1]
+        y_axis_column_mean = f"mean_{y_axis_column}"
+        y_axis_column_std = f"std_{y_axis_column_mean}"
+        
+        # Pivot the DataFrame to get mean and std for each epoch across plates
+        summary_df = self.df.pivot_table(index=x_axis_column,values=y_axis_column,aggfunc=['mean', 'std']).reset_index()
+        
+        # Flatten MultiIndex columns (result of pivoting)
+        summary_df.columns = [x_axis_column, y_axis_column_mean, y_axis_column_std]
+
+        # Plot the mean accuracy as a line
+        sns.lineplot(data=summary_df,x=x_axis_column,y=y_axis_column_mean,ax=ax,marker='o',linewidth=1,markersize=0,color='blue',label=y_axis_column_mean)
+
+        # Fill the area representing the standard deviation
+        ax.fill_between(summary_df[x_axis_column],summary_df[y_axis_column_mean] - summary_df[y_axis_column_std],summary_df[y_axis_column_mean] + summary_df[y_axis_column_std],color='blue',  alpha=0.1 )
+
+        # Adjust axis labels
+        ax.set_xlabel(f"{x_axis_column}")
+        ax.set_ylabel(f"{y_axis_column}")
+     
     def _create_box_plot(self, ax):
         """Helper method to create a box plot with consistent spacing."""
         # Combine grouping column and data column if needed
@@ -2572,6 +2679,68 @@ class spacrGraph:
         unique_labels = dict(zip(labels, handles))
         ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
+    def _create_jitter_bar_plot(self, ax):
+        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        # Flatten DataFrame: Combine grouping column and data column into one group if needed
+        if len(self.data_column) > 1:
+            self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
+            x_axis_column = 'Combined Group'
+            hue = None
+            ax.set_ylabel('Value')
+        else:
+            x_axis_column = self.grouping_column
+            ax.set_ylabel(self.data_column[0])
+            hue = None
+    
+        summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
+        error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16)
+        
+        # Adjust the bar width manually
+        if len(self.data_column) > 1:
+            bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+            target_width = self.bar_width * 2
+            for bar in bars:
+                bar.set_width(target_width)  # Set new width
+                # Center the bar on its x-coordinate
+                bar.set_x(bar.get_x() - target_width / 2)
+            
+        # Adjust error bars alignment with bars
+        bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+        for bar, (_, row) in zip(bars, summary_df.iterrows()):
+            x_bar = bar.get_x() + bar.get_width() / 2
+            err = row[self.error_bar_type]
+            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
+    
+        # Set legend and labels
+        ax.set_xlabel(self.grouping_column)
+
+    def _create_jitter_box_plot(self, ax):
+        """Helper method to create a box plot with consistent spacing."""
+        # Combine grouping column and data column if needed
+        if len(self.data_column) > 1:
+            self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
+            x_axis_column = 'Combined Group'
+            hue = None
+            ax.set_ylabel('Value')
+        else:
+            x_axis_column = self.grouping_column
+            ax.set_ylabel(self.data_column[0])
+            hue = None
+    
+        # Create the box plot
+        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12)
+    
+        # Adjust legend and labels
+        ax.set_xlabel(self.grouping_column)
+
+        # Manage the legend
+        handles, labels = ax.get_legend_handles_labels()
+        unique_labels = dict(zip(labels, handles))
+        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+
     def _save_results(self):
         """Helper method to save the plot and results."""
         os.makedirs(self.output_dir, exist_ok=True)
@@ -2592,14 +2761,14 @@ class spacrGraph:
 
 def plot_data_from_db(settings):
     from .io import _read_db, _read_and_merge_data
-    from .utils import annotate_conditions
+    from .utils import annotate_conditions, save_settings
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
     Args:
         db_path (str): The path to the SQLite database.
         table_names (str): The name of the table to extract.
-        column_name (str): The column to plot from the table.
+        data_column (str): The column to plot from the table.
 
     Returns:
         df (pd.DataFrame): The extracted table as a DataFrame.
@@ -2614,6 +2783,8 @@ def plot_data_from_db(settings):
     else:
         raise ValueError("src must be a string or a list of strings.")
     
+    save_settings(settings, name=f"{settings['graph_name']}_plot_settings_db", show=True)
+
     dfs = []
     for i, src in enumerate(srcs):
 
@@ -2641,6 +2812,7 @@ def plot_data_from_db(settings):
     df = pd.concat(dfs, axis=0)
     df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
     df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+    df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
 
     if settings['cell_plate_metadata'] !=  None:
         df = df.dropna(subset='host_cell')
@@ -2651,20 +2823,23 @@ def plot_data_from_db(settings):
     if settings['treatment_plate_metadata'] !=  None:
         df = df.dropna(subset='treatment')
 
-    df = df.dropna(subset=settings['column_name'])
+    df = df.dropna(subset=settings['data_column'])
     df = df.dropna(subset=settings['grouping_column'])
-    #display(df)
 
     #df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
+    src = srcs[0] 
+    dst = os.path.join(src, 'results', settings['graph_name'])
+    os.makedirs(dst, exist_ok=True)
     
     spacr_graph = spacrGraph(
         df=df,                                       # Your DataFrame
         grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
-        data_column=settings['column_name'],         # Column for the data (y-axis)
+        data_column=settings['data_column'],         # Column for the data (y-axis)
         graph_type=settings['graph_type'],           # Type of plot ('bar', 'box', 'violin', 'jitter')
+        graph_name=settings['graph_name'],           # Name of the plot
         summary_func='mean',                         # Function to summarize data (e.g., 'mean', 'median')
         colors=None,                                 # Custom colors for the plot (optional)
-        output_dir=settings['dst'],                  # Directory to save the plot and results
+        output_dir=dst,                              # Directory to save the plot and results
         save=settings['save'],                       # Whether to save the plot and results
         y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
         error_bar_type='std',                        # Type of error bar ('std' or 'sem')
@@ -2681,5 +2856,199 @@ def plot_data_from_db(settings):
 
     # Optional: Get the results DataFrame containing statistical test results
     results_df = spacr_graph.get_results()
-    
     return fig, results_df
+
+def plot_data_from_csv(settings):
+    from .io import _read_db, _read_and_merge_data
+    from .utils import annotate_conditions, save_settings
+    """
+    Extracts the specified table from the SQLite database and plots a specified column.
+
+    Args:
+        db_path (str): The path to the SQLite database.
+        table_names (str): The name of the table to extract.
+        data_column (str): The column to plot from the table.
+
+    Returns:
+        df (pd.DataFrame): The extracted table as a DataFrame.
+    """
+
+    if isinstance(settings['src'], str):
+        srcs = [settings['src']]
+    elif isinstance(settings['src'], list):
+        srcs = settings['src']
+    else:
+        raise ValueError("src must be a string or a list of strings.")
+    
+    #save_settings(settings, name=f"{settings['graph_name']}_plot_settings_csv", show=True)
+
+    dfs = []
+    for i, src in enumerate(srcs):
+
+        dft = pd.read_csv(src)
+        if 'plate' not in dft.columns:
+            dft['plate'] = f"plate{i+1}"
+        dfs.append(dft)
+        
+    df = pd.concat(dfs, axis=0)
+    #display(df)
+
+    df = df.dropna(subset=settings['data_column'])
+    df = df.dropna(subset=settings['grouping_column'])
+    src = srcs[0] 
+    dst = os.path.join(os.path.dirname(src), 'results', settings['graph_name'])
+    os.makedirs(dst, exist_ok=True)
+    
+    spacr_graph = spacrGraph(
+        df=df,                                       # Your DataFrame
+        grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
+        data_column=settings['data_column'],         # Column for the data (y-axis)
+        graph_type=settings['graph_type'],           # Type of plot ('bar', 'box', 'violin', 'jitter')
+        graph_name=settings['graph_name'],           # Name of the plot
+        summary_func='mean',                         # Function to summarize data (e.g., 'mean', 'median')
+        colors=None,                                 # Custom colors for the plot (optional)
+        output_dir=dst,                              # Directory to save the plot and results
+        save=settings['save'],                       # Whether to save the plot and results
+        y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
+        error_bar_type='std',                        # Type of error bar ('std' or 'sem')
+        representation=settings['representation'],
+        theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
+    )
+
+    # Create the plot
+    spacr_graph.create_plot()
+
+    # Get the figure object if needed
+    fig = spacr_graph.get_figure()
+    plt.show()
+
+    # Optional: Get the results DataFrame containing statistical test results
+    results_df = spacr_graph.get_results()
+    return fig, results_df
+
+def plot_region(settings):
+
+    def _sort_paths_by_basename(paths):
+        return sorted(paths, key=lambda path: os.path.basename(path))
+    
+    def save_figure_as_pdf(fig, path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)  # Create directory if it doesn't exist
+        fig.savefig(path, format='pdf', dpi=600, bbox_inches='tight')
+        print(f"Saved {path}")
+
+    from .io import _read_db
+    fov_path = os.path.join(settings['src'], 'merged', settings['name'])
+    name = os.path.splitext(settings['name'])[0]
+    
+    db_path = os.path.join(settings['src'], 'measurements', 'measurements.db')
+    paths_df = _read_db(db_path, tables=['png_list'])[0]
+    paths_df = paths_df[paths_df['png_path'].str.contains(name, na=False)]
+
+    activation_mode = f"{settings['activation_mode']}_list"
+    activation_db_path = os.path.join(settings['src'], 'measurements', settings['activation_db'])
+    activation_paths_df = _read_db(activation_db_path, tables=[activation_mode])[0]
+    activation_paths_df = activation_paths_df[activation_paths_df['png_path'].str.contains(name, na=False)]
+
+    png_paths = _sort_paths_by_basename(paths_df['png_path'].tolist())
+    activation_paths = _sort_paths_by_basename(activation_paths_df['png_path'].tolist())
+
+    fig_3 = plot_image_grid(image_paths=activation_paths, percentiles=settings['percentiles'])
+    fig_2 = plot_image_grid(image_paths=png_paths, percentiles=settings['percentiles'])
+    fig_1 = plot_image_mask_overlay(file=fov_path,
+                                  channels=settings['channels'],
+                                  cell_channel=settings['cell_channel'],
+                                  nucleus_channel=settings['nucleus_channel'],
+                                  pathogen_channel=settings['pathogen_channel'],
+                                  figuresize=10,
+                                  percentiles=settings['percentiles'],
+                                  thickness=3, 
+                                  save_pdf=False, 
+                                  mode=settings['mode'])
+    
+    dst = os.path.join(settings['src'], 'results', name)
+    save_figure_as_pdf(fig_1, os.path.join(dst, f"{name}_mask_overlay.pdf"))
+    save_figure_as_pdf(fig_2, os.path.join(dst, f"{name}_png_grid.pdf"))
+    save_figure_as_pdf(fig_3, os.path.join(dst, f"{name}_activation_grid.pdf"))
+    
+    return fig_1, fig_2, fig_3
+
+def plot_image_grid(image_paths, percentiles):
+    """
+    Plots a square grid of images from a list of image paths. 
+    Unused subplots are filled with black, and padding is minimized.
+
+    Parameters:
+    - image_paths: List of paths to images to be displayed.
+
+    Returns:
+    - fig: The generated matplotlib figure.
+    """
+
+    def _normalize_image(image, percentiles=(2, 98)):
+        """ Normalize the image to the given percentiles for each channel independently, preserving the input type (either PIL.Image or numpy.ndarray)."""
+        
+        # Check if the input is a PIL image and convert it to a NumPy array
+        is_pil_image = isinstance(image, Image.Image)
+        if is_pil_image:
+            image = np.array(image)
+
+        # If the image is single-channel, normalize directly
+        if image.ndim == 2:
+            v_min, v_max = np.percentile(image, percentiles)
+            normalized_image = np.clip((image - v_min) / (v_max - v_min), 0, 1)
+        else:
+            # If multi-channel, normalize each channel independently
+            normalized_image = np.zeros_like(image, dtype=np.float32)
+            for c in range(image.shape[-1]):
+                v_min, v_max = np.percentile(image[..., c], percentiles)
+                normalized_image[..., c] = np.clip((image[..., c] - v_min) / (v_max - v_min), 0, 1)
+
+        # If the input was a PIL image, convert the result back to PIL format
+        if is_pil_image:
+            # Ensure the image is converted back to 8-bit range (0-255) for PIL
+            normalized_image = (normalized_image * 255).astype(np.uint8)
+            return Image.fromarray(normalized_image)
+
+        return normalized_image
+
+    from PIL import Image
+    import matplotlib.pyplot as plt
+    import math
+
+    N = len(image_paths)
+    # Calculate the smallest square grid size to fit all images
+    grid_size = math.ceil(math.sqrt(N))  
+
+    # Create the square grid of subplots with a black background
+    fig, axs = plt.subplots(
+        grid_size, grid_size, 
+        figsize=(grid_size * 2, grid_size * 2),
+        facecolor='black'  # Set figure background to black
+    )
+
+    # Flatten axs in case of a 2D array
+    axs = axs.flatten()
+
+    for i, img_path in enumerate(image_paths):
+        ax = axs[i]
+
+        # Load the image
+        img = Image.open(img_path)
+        img = _normalize_image(img, percentiles)
+
+        # Display the image
+        ax.imshow(img)
+        ax.axis('off')  # Hide axes
+
+    # Fill any unused subplots with black
+    for j in range(i + 1, len(axs)):
+        axs[j].imshow([[0, 0, 0]], cmap='gray')  # Black square
+        axs[j].axis('off')  # Hide axes
+
+    # Adjust layout to minimize white space
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
+
+    return fig
+
+
+
