@@ -130,7 +130,7 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
     stack = np.load(file)
 
     if export_tiffs:
-        save_dir = os.path.join(os.path.dirname(os.path.dirname(file)), 'results', os.path.splitext(os.path.basename(file))[0], 'tiff')
+        save_dir = os.path.join(os.path.dirname(file), 'results', os.path.splitext(os.path.basename(file))[0], 'tiff')
         _save_channels_as_tiff(stack, save_dir, filename=file)
 
     # Convert to float for normalization and ensure correct handling of both 8-bit and 16-bit arrays
@@ -2977,7 +2977,8 @@ def plot_region(settings):
                                   percentiles=settings['percentiles'],
                                   thickness=3, 
                                   save_pdf=False, 
-                                  mode=settings['mode'])
+                                  mode=settings['mode'],
+                                  export_tiffs=settings['export_tiffs'])
     
     dst = os.path.join(settings['src'], 'results', name)
     save_figure_as_pdf(fig_1, os.path.join(dst, f"{name}_mask_overlay.pdf"))
