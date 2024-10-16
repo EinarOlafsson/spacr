@@ -13,6 +13,7 @@ from IPython.display import display
 from skimage.segmentation import find_boundaries
 from skimage import measure
 from skimage.measure import find_contours, label, regionprops
+import tifffile as tiff
 
 from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
@@ -27,7 +28,7 @@ import matplotlib.patches as patches
 from collections import defaultdict
 from matplotlib.gridspec import GridSpec
 
-def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, percentiles=(2,98), thickness=3, save_pdf=True, mode='outlines'):   
+def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, percentiles=(2,98), thickness=3, save_pdf=True, mode='outlines', export_tiffs=False):   
     """Plot image and mask overlays."""
 
     def _plot_merged_plot(image, outlines, outline_colors, figuresize, thickness, percentiles, mode='outlines'):
@@ -117,7 +118,20 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
         plt.show()
         return fig
     
+    def _save_channels_as_tiff(stack, save_dir, filename):
+        """Save each channel in the stack as a grayscale TIFF."""
+        os.makedirs(save_dir, exist_ok=True)
+        for i in range(stack.shape[-1]):
+            channel = stack[..., i]
+            tiff_path = os.path.join(save_dir, f"{filename}_channel_{i}.tiff")
+            tiff.imwrite(tiff_path, channel, photometric='minisblack')
+            print(f"Saved {tiff_path}")
+    
     stack = np.load(file)
+
+    if export_tiffs:
+        save_dir = os.path.join(os.path.dirname(os.path.dirname(file)), 'results', os.path.splitext(os.path.basename(file))[0], 'tiff')
+        _save_channels_as_tiff(stack, save_dir, filename=file)
 
     # Convert to float for normalization and ensure correct handling of both 8-bit and 16-bit arrays
     if stack.dtype == np.uint16:
@@ -2984,6 +2998,10 @@ def plot_image_grid(image_paths, percentiles):
     - fig: The generated matplotlib figure.
     """
 
+    from PIL import Image
+    import matplotlib.pyplot as plt
+    import math
+
     def _normalize_image(image, percentiles=(2, 98)):
         """ Normalize the image to the given percentiles for each channel independently, preserving the input type (either PIL.Image or numpy.ndarray)."""
         
@@ -3010,10 +3028,6 @@ def plot_image_grid(image_paths, percentiles):
             return Image.fromarray(normalized_image)
 
         return normalized_image
-
-    from PIL import Image
-    import matplotlib.pyplot as plt
-    import math
 
     N = len(image_paths)
     # Calculate the smallest square grid size to fit all images
@@ -3049,6 +3063,3 @@ def plot_image_grid(image_paths, percentiles):
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
 
     return fig
-
-
-
