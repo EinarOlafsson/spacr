@@ -130,8 +130,9 @@ def plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, patho
     stack = np.load(file)
 
     if export_tiffs:
-        save_dir = os.path.join(os.path.dirname(file), 'results', os.path.splitext(os.path.basename(file))[0], 'tiff')
-        _save_channels_as_tiff(stack, save_dir, filename=file)
+        save_dir = os.path.join(os.path.dirname(os.path.dirname(file)), 'results', os.path.splitext(os.path.basename(file))[0], 'tiff')
+        filename = os.path.splitext(os.path.basename(file))[0]
+        _save_channels_as_tiff(stack, save_dir, filename)
 
     # Convert to float for normalization and ensure correct handling of both 8-bit and 16-bit arrays
     if stack.dtype == np.uint16:
@@ -1726,17 +1727,25 @@ def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0
                                overlay=True,
                                max_nr=10,
                                randomize=True)
-        
+                
 def volcano_plot(coef_df, filename='volcano_plot.pdf'):
+    palette = {
+        'pc': 'red',
+        'nc': 'green',
+        'control': 'blue',
+        'other': 'gray'
+    }
+
     # Create the volcano plot
     plt.figure(figsize=(10, 6))
     sns.scatterplot(
         data=coef_df, 
         x='coefficient', 
         y='-log10(p_value)', 
-        hue='highlight', 
-        palette={True: 'red', False: 'blue'}
+        hue='condition', 
+        palette=palette
     )
+
     plt.title('Volcano Plot of Coefficients')
     plt.xlabel('Coefficient')
     plt.ylabel('-log10(p-value)')
@@ -1746,7 +1755,7 @@ def volcano_plot(coef_df, filename='volcano_plot.pdf'):
     print(f'Saved Volcano plot: {filename}')
     plt.show()
 
-def plot_histogram(df, dependent_variable, dst=None):
+def plot_histogram_v1(df, dependent_variable, dst=None):
     # Plot histogram of the dependent variable
     plt.figure(figsize=(10, 6))
     sns.histplot(df[dependent_variable], kde=True)
@@ -1759,6 +1768,48 @@ def plot_histogram(df, dependent_variable, dst=None):
         plt.savefig(filename, format='pdf')
         print(f'Saved histogram to {filename}')
 
+    plt.show()
+
+def plot_histogram(df, dependent_variable, dst=None):
+    """Plot a beautiful histogram with KDE and better aesthetics."""
+    
+    # Set plot style and palette
+    sns.set(style='whitegrid')  # Cleaner background with grids
+    plt.figure(figsize=(12, 8))  # Bigger figure for clarity
+    
+    # Create the histogram with KDE
+    ax = sns.histplot(
+        data=df, 
+        x=dependent_variable, 
+        kde=True, 
+        bins=30,  # Adjust bin size for better resolution
+        color='skyblue',  # Softer color
+        edgecolor='black',  # Add black borders to bars
+        alpha=0.7  # Slight transparency for visual appeal
+    )
+
+    # Add a vertical line at the mean value
+    mean_value = df[dependent_variable].mean()
+    plt.axvline(mean_value, color='red', linestyle='--', lw=2, label=f'Mean: {mean_value:.2f}')
+    
+    # Set title and axis labels with custom fonts
+    plt.title(f'Histogram of {dependent_variable}', fontsize=18, fontweight='bold')
+    plt.xlabel(dependent_variable, fontsize=14)
+    plt.ylabel('Frequency', fontsize=14)
+    
+    # Improve legend positioning
+    plt.legend(loc='upper right', fontsize=12, frameon=True, fancybox=True, shadow=True)
+
+    # Adjust layout for better spacing
+    plt.tight_layout()
+
+    # Save plot to a file if destination is provided
+    if dst is not None:
+        filename = os.path.join(dst, 'dependent_variable_histogram.pdf')
+        plt.savefig(filename, format='pdf', bbox_inches='tight')
+        print(f'Saved histogram to {filename}')
+
+    # Show the plot
     plt.show()
 
 def plot_lorenz_curves(csv_files, remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4']):
@@ -2172,10 +2223,10 @@ class spacrGraph:
     def _set_theme(self):
         """Set the Seaborn theme and reorder colors if necessary."""
         integer_list = list(range(1, 81))
-        color_order = [7, 0, 4, 3, 9, 6, 9, 2] + integer_list
+        color_order = [7,9,4,0,3,6,2] + integer_list
         self.sns_palette = self._set_reordered_theme(self.theme, color_order, 100)
 
-    def _set_reordered_theme(self, theme='muted', order=None, n_colors=100, show_theme=False):
+    def _set_reordered_theme(self, theme='deep', order=None, n_colors=100, show_theme=False):
         """Set and reorder the Seaborn color palette."""
         palette = sns.color_palette(theme, n_colors)
         if order:
