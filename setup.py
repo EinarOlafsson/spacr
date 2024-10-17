@@ -67,7 +67,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.3.40",
+    version="0.3.41",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
