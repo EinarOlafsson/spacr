@@ -134,7 +134,7 @@ def scale_variables(X, y):
     
     return X_scaled, y_scaled
 
-def process_model_coefficients(model, regression_type, X, y, highlight):
+def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     """Return DataFrame of model coefficients and p-values."""
     if regression_type in ['ols', 'gls', 'wls', 'rlm', 'glm', 'mixed', 'quantile', 'logit', 'probit', 'poisson']:
         coefs = model.params
@@ -169,8 +169,8 @@ def process_model_coefficients(model, regression_type, X, y, highlight):
         coef_df['p_value'] = np.nan  # Placeholder since sklearn doesn't provide p-values
 
     coef_df['-log10(p_value)'] = -np.log10(coef_df['p_value'])
-    coef_df['highlight'] = coef_df['feature'].apply(lambda x: highlight in x)
-
+    coef_df['grna'] = coef_df['feature'].str.extract(r'\[(.*?)\]')[0]
+    coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
 def prepare_formula(dependent_variable, random_row_column_effects=False):
@@ -284,15 +284,13 @@ def check_and_clean_data(df, dependent_variable):
     df_cleaned['row'] = df['row']
     df_cleaned['column'] = df['column']
 
-    #display(df_cleaned)
-
     # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
     df_cleaned['gene_fraction'] = df_cleaned.groupby(['prc', 'gene'])['fraction'].transform('sum')
 
     print("Data is ready for model fitting.")
     return df_cleaned
 
-def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, highlight='220950', dst=None, cov_type=None):
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False):
     from .plot import volcano_plot, plot_histogram
 
     # Generate the volcano filename
@@ -312,9 +310,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     if regression_type is None:
         regression_type = 'ols' if is_normal else 'glm'
 
-    #display('before check_and_clean_data:',df)
     df = check_and_clean_data(df, dependent_variable)
-    #display('after check_and_clean_data:',df)
 
     # Handle mixed effects if row/column effect is treated as random
     if random_row_column_effects:
@@ -340,10 +336,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
 
         # Process the model coefficients
-        coef_df = process_model_coefficients(model, regression_type, X, y, highlight)
-
-    # Plot the volcano plot
-    volcano_plot(coef_df, volcano_path)
+        coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
+    
+    if plot:
+        volcano_plot(coef_df, volcano_path)
 
     return model, coef_df
 
@@ -487,18 +483,25 @@ def perform_regression(settings):
     if settings['transform'] is None:
         _ = plot_plates(score_data_df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'], dst = res_folder)                
 
-    model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], highlight=settings['highlight'], dst=res_folder, cov_type=settings['cov_type'])
+    model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
     coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
     coef_df = coef_df.merge(n_grna, how='left', on='grna')
     coef_df = coef_df.merge(n_gene, how='left', on='gene')
-    display(coef_df)
 
     gene_coef_df = coef_df[coef_df['n_gene'] != None]
     grna_coef_df = coef_df[coef_df['n_grna'] != None]
     gene_coef_df = gene_coef_df.dropna(subset=['n_gene'])
     grna_coef_df = grna_coef_df.dropna(subset=['n_grna'])
+    
+    if settings['controls'] is not None:
+        control_coef_df = grna_coef_df[grna_coef_df['grna'].isin(settings['controls'])]
+        mean_coef = control_coef_df['coefficient'].mean()
+        variance_coef = control_coef_df['coefficient'].var()
+        reg_threshold = mean_coef + 3 * variance_coef
+    print('coef_df')
+    display(coef_df)
     
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)
@@ -509,7 +512,10 @@ def perform_regression(settings):
         
     else:
         significant = coef_df[coef_df['p_value']<= 0.05]
-        #significant = significant[significant['coefficient'] > 0.1]
+        if settings['controls'] is not None:
+            significant_high = significant[significant['coefficient'] >= reg_threshold]
+            significant_low = significant[significant['coefficient'] <= reg_threshold]
+            significant = pd.concat([significant_high, significant_low])
         significant.sort_values(by='coefficient', ascending=False, inplace=True)
         significant = significant[~significant['feature'].str.contains('row|column')]
         
@@ -529,23 +535,27 @@ def perform_regression(settings):
         gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
         grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
 
+        print(results_path)
+        print(metadata_file)
     if settings['toxo']:
-        
         data_path = merged_df
         data_path_gene = gene_merged_df
         data_path_grna = grna_merged_df
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
 
-        custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
-        custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
-        custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', string_list=[settings['highlight']], point_size=50, figsize=20)
+        custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=200, figsize=20, threshold=reg_threshold)
+        #custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=reg_threshold)
+        #custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=reg_threshold)
         
-        if len(significant) > 2:
-            metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
-            go_term_enrichment_by_column(significant, metadata_path)
+        #if len(significant) > 2:
+        #    metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
+        #    go_term_enrichment_by_column(significant, metadata_path)
     
     print('Significant Genes')
+    grnas = significant['grna'].unique().tolist()
+    genes = significant['gene'].unique().tolist()
+    print(f"Found p<0.05 coedfficients for {len(grnas)} gRNAs and {len(genes)} genes")
     display(significant)
 
     output = {'results':coef_df,
@@ -763,7 +773,6 @@ def generate_ml_scores(settings):
             raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         df = annotated_df.merge(df, left_index=True, right_index=True)
-        #display(df)
         unique_values = df[settings['annotation_column']].dropna().unique()
         if len(unique_values) == 1:
             unannotated_rows = df[df[settings['annotation_column']].isna()].index

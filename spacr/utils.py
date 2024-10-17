@@ -4714,10 +4714,10 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     df_metadata['gene'] = df_metadata['Gene ID'].apply(lambda x: x.split('_')[1] if '_' in x else None)
     
     # Drop rows where gene extraction failed
-    df_results = df_results.dropna(subset=['gene'])
+    #df_results = df_results.dropna(subset=['gene'])
     
     # Merge the two dataframes on the gene column
-    merged_df = pd.merge(df_results, df_metadata, on='gene')
+    merged_df = pd.merge(df_results, df_metadata, on='gene', how='left')
     
     # Generate the new file name
     base, ext = os.path.splitext(results_file)

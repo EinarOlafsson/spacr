@@ -4,8 +4,9 @@ import numpy as np
 from adjustText import adjust_text
 import pandas as pd
 from scipy.stats import fisher_exact
+from IPython.display import display
 
-def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', string_list=[], point_size=50, figsize=20):
+def custom_volcano_plot_v1(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0):
     """
     Create a volcano plot with the ability to control the shape of points based on a categorical column, 
     color points based on a string list, annotate specific points based on p-value and coefficient thresholds,
@@ -19,7 +20,8 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     - point_size: Fixed value to control the size of points.
     - figsize: Width of the plot (height is half the width).
     """
-    
+
+
     filename = 'volcano_plot.pdf'
     
     # Load the data
@@ -42,46 +44,65 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     metadata['gene_nr'] = metadata['gene_nr'].astype(str)
     data['gene_nr'] = data['gene_nr'].astype(str)
 
+
     # Merge data and metadata on 'gene_nr'
     merged_data = pd.merge(data, metadata[['gene_nr', 'tagm_location']], on='gene_nr', how='left')
-    
-    # Controls handling
-    controls = ['000000', '000001', '000002', '000003', '000004', '000005', '000006', '000007', '000008', '000009', '000010', '000011']
-    merged_data.loc[merged_data['gene_nr'].isin(controls), metadata_column] = 'control'
+
     merged_data.loc[merged_data['gene_nr'].str.startswith('4'), metadata_column] = 'GT1_gene'
     merged_data.loc[merged_data['gene_nr'] == 'Intercept', metadata_column] = 'Intercept'
-    
-    # Create a 'highlight_color' column based on the string_list
-    merged_data['highlight_color'] = merged_data['gene_nr'].apply(lambda x: 'red' if any(s in x for s in string_list) else 'blue')
     
     # Create the volcano plot
     figsize_2 = figsize / 2
     plt.figure(figsize=(figsize_2, figsize))
+
+    palette = {
+        'pc': 'red',
+        'nc': 'green',
+        'control': 'black',
+        'other': 'gray'
+    }
+
+    merged_data['condition'] = pd.Categorical(
+        merged_data['condition'], 
+        categories=['pc', 'nc', 'control', 'other'], 
+        ordered=True
+    )
     
+    display(merged_data)
+
     # Create the scatter plot with fixed point size
     sns.scatterplot(
         data=merged_data, 
         x='coefficient', 
         y='-log10(p_value)', 
-        hue='highlight_color',
-        style=metadata_column if metadata_column else None,  # Control point shape with metadata_column
+        hue='condition',  # Controls color
+        style=metadata_column if metadata_column else None,  # Controls point shape
         s=point_size,  # Fixed size for all points
-        palette={'red': 'red', 'blue': 'blue'}
+        palette=palette,  # Color palette
+        alpha=1.0  # Transparency
     )
     
     # Set the plot title and labels
     plt.title('Custom Volcano Plot of Coefficients')
     plt.xlabel('Coefficient')
     plt.ylabel('-log10(p-value)')
+
+    if threshold > 0:
+        plt.gca().axvline(x=-abs(threshold), linestyle='--', color='black')
+        plt.gca().axvline(x=abs(threshold), linestyle='--', color='black')
     
     # Horizontal line at p-value threshold (0.05)
-    plt.axhline(y=-np.log10(0.05), color='red', linestyle='--')
+    plt.axhline(y=-np.log10(0.05), color='black', linestyle='--')
     
-    # Annotate points where p_value <= 0.05 and coefficient >= 0.25
     texts = []
     for i, row in merged_data.iterrows():
-        if row['p_value'] <= 0.05 and row['coefficient'] >= 0.25:
-            texts.append(plt.text(row['coefficient'], -np.log10(row['p_value']), row['gene_nr'], fontsize=9))
+        if row['p_value'] <= 0.05 and abs(row['coefficient']) >= abs(threshold):
+            texts.append(plt.text(
+                row['coefficient'], 
+                -np.log10(row['p_value']), 
+                row['variable'], 
+                fontsize=8
+            ))
     
     # Adjust text positions to avoid overlap
     adjust_text(texts, arrowprops=dict(arrowstyle='-', color='black'))
@@ -93,6 +114,155 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     plt.savefig(filename, format='pdf', bbox_inches='tight')  # bbox_inches ensures the legend doesn't get cut off
     print(f'Saved Volcano plot: {filename}')
     
+    # Show the plot
+    plt.show()
+
+def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0):
+    """
+    Create a volcano plot with the ability to control the shape of points based on a categorical column,
+    color points based on a condition, annotate specific points based on p-value and coefficient thresholds,
+    and control the size of points.
+    """
+
+    filename = 'volcano_plot.pdf'
+
+    # Load the data
+    if isinstance(data_path, pd.DataFrame):
+        data = data_path
+    else:
+        data = pd.read_csv(data_path)
+        
+    data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
+    data['variable'].fillna(data['feature'], inplace=True)
+    split_columns = data['variable'].str.split('_', expand=True)
+    data['gene_nr'] = split_columns[0]
+
+    # Load metadata
+    if isinstance(metadata_path, pd.DataFrame):
+        metadata = metadata_path
+    else:
+        metadata = pd.read_csv(metadata_path)
+
+    metadata['gene_nr'] = metadata['gene_nr'].astype(str)
+    data['gene_nr'] = data['gene_nr'].astype(str)
+
+    # Merge data and metadata on 'gene_nr'
+    merged_data = pd.merge(data, metadata[['gene_nr', 'tagm_location']], on='gene_nr', how='left')
+
+    merged_data.loc[merged_data['gene_nr'].str.startswith('4'), metadata_column] = 'GT1_gene'
+    merged_data.loc[merged_data['gene_nr'] == 'Intercept', metadata_column] = 'Intercept'
+    merged_data.loc[merged_data['condition'] == 'control', metadata_column] = 'control'
+
+    # Categorize condition for coloring
+    merged_data['condition'] = pd.Categorical(
+        merged_data['condition'],
+        categories=['other','pc', 'nc', 'control'],
+        ordered=True
+    )
+
+    # Create subplots with a broken y-axis
+    figsize_2 = figsize / 2
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1, figsize=(figsize_2, figsize), 
+        sharex=True, gridspec_kw={'height_ratios': [1, 3]}
+    )
+
+    # Define color palette
+    palette = {
+        'pc': 'red',
+        'nc': 'green',
+        'control': 'white',
+        'other': 'gray'
+    }
+
+    # Scatter plot on both axes
+    sns.scatterplot(
+        data=merged_data,
+        x='coefficient',
+        y='-log10(p_value)',
+        hue='condition',
+        style=metadata_column if metadata_column else None,
+        s=point_size,
+        edgecolor='black', 
+        palette=palette,
+        alpha=0.8,
+        ax=ax2  # Lower plot
+    )
+
+    sns.scatterplot(
+        data=merged_data[merged_data['-log10(p_value)'] > 10],
+        x='coefficient',
+        y='-log10(p_value)',
+        hue='condition',
+        style=metadata_column if metadata_column else None,
+        s=point_size,
+        palette=palette,
+        edgecolor='black', 
+        alpha=0.8,
+        ax=ax1  # Upper plot
+    )
+
+    # Set axis limits and hide unnecessary parts
+    ax1.set_ylim(10, merged_data['-log10(p_value)'].max() + 5)
+    ax2.set_ylim(0, 4)
+    ax1.spines['bottom'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax1.tick_params(labelbottom=False)
+
+    ax1.legend_.remove()
+    if ax1.get_legend() is not None:
+        ax1.get_legend().remove()
+    ax1.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
+
+    # Add vertical threshold lines to both plots
+    if threshold > 0:
+        for ax in (ax1, ax2):
+            ax.axvline(x=-abs(threshold), linestyle='--', color='black')
+            ax.axvline(x=abs(threshold), linestyle='--', color='black')
+
+    # Add a horizontal line at p-value threshold (0.05)
+    ax2.axhline(y=-np.log10(0.05), color='black', linestyle='--')
+
+    # Annotate significant points on both axes
+    texts_ax1 = []
+    texts_ax2 = []
+
+    for i, row in merged_data.iterrows():
+        if row['p_value'] <= 0.05 and abs(row['coefficient']) >= abs(threshold):
+            # Select the appropriate axis for the annotation
+            ax = ax1 if row['-log10(p_value)'] > 10 else ax2
+
+            # Create the annotation on the selected axis
+            text = ax.text(
+                row['coefficient'],
+                -np.log10(row['p_value']),
+                row['variable'],
+                fontsize=8,
+                ha='center',
+                va='bottom',
+            )
+
+            # Store the text annotation in the correct list
+            if ax == ax1:
+                texts_ax1.append(text)
+            else:
+                texts_ax2.append(text)
+
+    # Adjust text positions to avoid overlap for both axes
+    adjust_text(texts_ax1, arrowprops=dict(arrowstyle='-', color='black'), ax=ax1)
+    adjust_text(texts_ax2, arrowprops=dict(arrowstyle='-', color='black'), ax=ax2)
+
+    # Move the legend outside the lower plot
+    ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+    # Adjust the spacing between subplots and move the title
+    plt.subplots_adjust(hspace=0.05)
+    fig.suptitle('Custom Volcano Plot of Coefficients', y=1.02, fontsize=16)  # Title above the top plot
+
+    # Save the plot as PDF
+    plt.savefig(filename, format='pdf', bbox_inches='tight')
+    print(f'Saved Volcano plot: {filename}')
+
     # Show the plot
     plt.show()
 
