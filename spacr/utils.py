@@ -64,6 +64,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 
 from huggingface_hub import list_repo_files
+from spacr import __file__ as spacr_path
 
 import umap.umap_ as umap
 #import umap
@@ -2912,7 +2913,7 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
 
     return parent_mask_new, child_mask
     
-def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, include_uninfected=True):
+def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=True):
     """
     Exclude objects from the masks based on certain criteria.
 
@@ -2921,7 +2922,7 @@ def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, inc
         nucleus_mask (ndarray): Mask representing nucleus.
         pathogen_mask (ndarray): Mask representing pathogens.
         cytoplasm_mask (ndarray): Mask representing cytoplasm.
-        include_uninfected (bool, optional): Whether to include uninfected cells. Defaults to True.
+        uninfected (bool, optional): Whether to include uninfected cells. Defaults to True.
 
     Returns:
         tuple: A tuple containing the filtered cell mask, nucleus mask, pathogen mask, and cytoplasm mask.
@@ -2936,7 +2937,7 @@ def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, inc
         has_nucleus = np.any(nucleus_mask[cell_region])
         has_cytoplasm = np.any(cytoplasm_mask[cell_region])
         has_pathogen = np.any(pathogen_mask[cell_region])
-        if include_uninfected:
+        if uninfected:
             if has_nucleus and has_cytoplasm:
                 filtered_cells[cell_region] = cell_label
         else:
@@ -4963,7 +4964,71 @@ def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
     else:
         return 'screen'
     
-def download_models(repo_id="einarolafsson/models", local_dir=None, retries=5, delay=5):
+def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
+    """
+    Downloads all model files from Hugging Face and stores them in the `resources/models` directory 
+    within the installed `spacr` package.
+
+    Args:
+        repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').
+        retries (int): Number of retry attempts in case of failure.
+        delay (int): Delay in seconds between retries.
+
+    Returns:
+        str: The local path to the downloaded models.
+    """
+    # Construct the path to the `resources/models` directory in the installed `spacr` package
+    package_dir = os.path.dirname(spacr_path)
+    local_dir = os.path.join(package_dir, 'resources', 'models')
+
+    # Create the local directory if it doesn't exist
+    if not os.path.exists(local_dir):
+        os.makedirs(local_dir)
+    elif len(os.listdir(local_dir)) > 0:
+        print(f"Models already downloaded to: {local_dir}")
+        return local_dir
+
+    attempt = 0
+    while attempt < retries:
+        try:
+            # List all files in the repo
+            files = list_repo_files(repo_id, repo_type="dataset")
+            print(f"Files in repository: {files}")  # Debugging print to check file list
+
+            # Download each file
+            for file_name in files:
+                for download_attempt in range(retries):
+                    try:
+                        url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
+                        print(f"Downloading file from: {url}")  # Debugging
+
+                        response = requests.get(url, stream=True)
+                        print(f"HTTP response status: {response.status_code}")  # Debugging
+                        response.raise_for_status()
+
+                        # Save the file locally
+                        local_file_path = os.path.join(local_dir, os.path.basename(file_name))
+                        with open(local_file_path, 'wb') as file:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                file.write(chunk)
+                        print(f"Downloaded model file: {file_name} to {local_file_path}")
+                        break  # Exit the retry loop if successful
+                    except (requests.HTTPError, requests.Timeout) as e:
+                        print(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
+                        time.sleep(delay)
+                else:
+                    raise Exception(f"Failed to download {file_name} after multiple attempts.")
+
+            return local_dir  # Return the directory where models are saved
+
+        except (requests.HTTPError, requests.Timeout) as e:
+            print(f"Error downloading files: {e}. Retrying in {delay} seconds...")
+            attempt += 1
+            time.sleep(delay)
+
+    raise Exception("Failed to download model files after multiple attempts.")
+
+def download_models_v1(repo_id="einarolafsson/models", local_dir=None, retries=5, delay=5):
     """
     Downloads all model files from Hugging Face and stores them in the specified local directory.
 

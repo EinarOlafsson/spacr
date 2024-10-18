@@ -117,7 +117,7 @@ def custom_volcano_plot_v1(data_path, metadata_path, metadata_column='tagm_locat
     # Show the plot
     plt.show()
 
-def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0):
+def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0, split_axis_lims = [10, None, None, 10]):
     """
     Create a volcano plot with the ability to control the shape of points based on a categorical column,
     color points based on a condition, annotate specific points based on p-value and coefficient thresholds,
@@ -136,6 +136,7 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     data['variable'].fillna(data['feature'], inplace=True)
     split_columns = data['variable'].str.split('_', expand=True)
     data['gene_nr'] = split_columns[0]
+    data = data[data['variable'] != 'Intercept']
 
     # Load metadata
     if isinstance(metadata_path, pd.DataFrame):
@@ -157,13 +158,15 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     merged_data['condition'] = pd.Categorical(
         merged_data['condition'],
         categories=['other','pc', 'nc', 'control'],
-        ordered=True
-    )
+        ordered=True)
+    
+
+    display(merged_data)
 
     # Create subplots with a broken y-axis
     figsize_2 = figsize / 2
     fig, (ax1, ax2) = plt.subplots(
-        2, 1, figsize=(figsize_2, figsize), 
+        2, 1, figsize=(figsize, figsize), 
         sharex=True, gridspec_kw={'height_ratios': [1, 3]}
     )
 
@@ -172,19 +175,19 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         'pc': 'red',
         'nc': 'green',
         'control': 'white',
-        'other': 'gray'
-    }
+        'other': 'gray'}
 
     # Scatter plot on both axes
     sns.scatterplot(
         data=merged_data,
         x='coefficient',
         y='-log10(p_value)',
-        hue='condition',
-        style=metadata_column if metadata_column else None,
+        hue='condition',  # Keep colors but prevent them from showing in the final legend
+        style=metadata_column if metadata_column else None,  # Shape-based legend
         s=point_size,
         edgecolor='black', 
         palette=palette,
+        legend='brief',  # Capture the full legend initially
         alpha=0.8,
         ax=ax2  # Lower plot
     )
@@ -198,20 +201,51 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         s=point_size,
         palette=palette,
         edgecolor='black', 
+        legend=False,  # Suppress legend for upper plot
         alpha=0.8,
         ax=ax1  # Upper plot
     )
 
+    if isinstance(split_axis_lims, list):
+        if len(split_axis_lims) == 4:
+            ylim_min_ax1 = split_axis_lims[0]
+            if split_axis_lims[1] is None:
+                ylim_max_ax1 = merged_data['-log10(p_value)'].max() + 5
+            else:
+                ylim_max_ax1 = split_axis_lims[1]
+            ylim_min_ax2 = split_axis_lims[2]
+            ylim_max_ax2 = split_axis_lims[3]
+        else:
+            ylim_min_ax1 = None
+            ylim_max_ax1 = merged_data['-log10(p_value)'].max() + 5
+            ylim_min_ax2 = 0
+            ylim_max_ax2 = None
+
     # Set axis limits and hide unnecessary parts
-    ax1.set_ylim(10, merged_data['-log10(p_value)'].max() + 5)
-    ax2.set_ylim(0, 4)
+    ax1.set_ylim(ylim_min_ax1, ylim_max_ax1)
+    ax2.set_ylim(0, ylim_max_ax2)
     ax1.spines['bottom'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax1.tick_params(labelbottom=False)
 
-    ax1.legend_.remove()
     if ax1.get_legend() is not None:
-        ax1.get_legend().remove()
+        ax1.legend_.remove()
+        ax1.get_legend().remove()    # Extract handles and labels from the legend
+    handles, labels = ax2.get_legend_handles_labels()
+
+    # Identify shape-based legend entries (skip color-based entries)
+    shape_handles = handles[len(set(merged_data['condition'])):]
+    shape_labels = labels[len(set(merged_data['condition'])):]
+
+    # Set the legend with only shape-based entries
+    ax2.legend(
+        shape_handles,
+        shape_labels,
+        bbox_to_anchor=(1.05, 1),
+        loc='upper left',
+        borderaxespad=0.
+    )
+
     ax1.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
     # Add vertical threshold lines to both plots
@@ -230,7 +264,10 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     for i, row in merged_data.iterrows():
         if row['p_value'] <= 0.05 and abs(row['coefficient']) >= abs(threshold):
             # Select the appropriate axis for the annotation
-            ax = ax1 if row['-log10(p_value)'] > 10 else ax2
+            #ax = ax1 if row['-log10(p_value)'] > 10 else ax2
+
+            ax = ax1 if row['-log10(p_value)'] >= ax1.get_ylim()[0] else ax2
+
 
             # Create the annotation on the selected axis
             text = ax.text(
