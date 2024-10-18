@@ -710,7 +710,7 @@ def _measure_crop_core(index, time_ls, file, settings):
         else:
             cell_mask = np.zeros_like(data[:, :, 0])
             settings['cytoplasm'] = False
-            settings['include_uninfected'] = True
+            settings['uninfected'] = True
 
         if settings['nucleus_mask_dim'] is not None:
             nucleus_mask = data[:, :, settings['nucleus_mask_dim']].astype(data_type)
@@ -762,7 +762,7 @@ def _measure_crop_core(index, time_ls, file, settings):
             cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
 
         if settings['cell_mask_dim'] is not None:
-            cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, include_uninfected=settings['include_uninfected'])
+            cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
 
         # Update data with the new masks
         if settings['cell_mask_dim'] is not None:
@@ -979,9 +979,9 @@ def measure_crop(settings):
                 #_create_database(source_folder+'/measurements/measurements.db')
             
             if settings['cell_mask_dim'] is None:
-                settings['include_uninfected'] = True
+                settings['uninfected'] = True
             if settings['pathogen_mask_dim'] is None:
-                settings['include_uninfected'] = True
+                settings['uninfected'] = True
             if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
                 settings['cytoplasm'] = True
             elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
