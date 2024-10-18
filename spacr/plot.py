@@ -1521,7 +1521,7 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
     return fig
 
 def print_mask_and_flows(stack, mask, flows, overlay=False):
-    fig, axs = plt.subplots(1, 3, figsize=(30, 10))  # Adjust subplot layout
+    fig, axs = plt.subplots(1, 3, figsize=(12, 4))  # Adjust subplot layout
     
     if stack.shape[-1] == 1:
         stack = np.squeeze(stack)
@@ -1755,7 +1755,7 @@ def volcano_plot(coef_df, filename='volcano_plot.pdf'):
     print(f'Saved Volcano plot: {filename}')
     plt.show()
 
-def plot_histogram_v1(df, dependent_variable, dst=None):
+def plot_histogram(df, dependent_variable, dst=None):
     # Plot histogram of the dependent variable
     plt.figure(figsize=(10, 6))
     sns.histplot(df[dependent_variable], kde=True)
@@ -1768,48 +1768,6 @@ def plot_histogram_v1(df, dependent_variable, dst=None):
         plt.savefig(filename, format='pdf')
         print(f'Saved histogram to {filename}')
 
-    plt.show()
-
-def plot_histogram(df, dependent_variable, dst=None):
-    """Plot a beautiful histogram with KDE and better aesthetics."""
-    
-    # Set plot style and palette
-    sns.set(style='whitegrid')  # Cleaner background with grids
-    plt.figure(figsize=(12, 8))  # Bigger figure for clarity
-    
-    # Create the histogram with KDE
-    ax = sns.histplot(
-        data=df, 
-        x=dependent_variable, 
-        kde=True, 
-        bins=30,  # Adjust bin size for better resolution
-        color='skyblue',  # Softer color
-        edgecolor='black',  # Add black borders to bars
-        alpha=0.7  # Slight transparency for visual appeal
-    )
-
-    # Add a vertical line at the mean value
-    mean_value = df[dependent_variable].mean()
-    plt.axvline(mean_value, color='red', linestyle='--', lw=2, label=f'Mean: {mean_value:.2f}')
-    
-    # Set title and axis labels with custom fonts
-    plt.title(f'Histogram of {dependent_variable}', fontsize=18, fontweight='bold')
-    plt.xlabel(dependent_variable, fontsize=14)
-    plt.ylabel('Frequency', fontsize=14)
-    
-    # Improve legend positioning
-    plt.legend(loc='upper right', fontsize=12, frameon=True, fancybox=True, shadow=True)
-
-    # Adjust layout for better spacing
-    plt.tight_layout()
-
-    # Save plot to a file if destination is provided
-    if dst is not None:
-        filename = os.path.join(dst, 'dependent_variable_histogram.pdf')
-        plt.savefig(filename, format='pdf', bbox_inches='tight')
-        print(f'Saved histogram to {filename}')
-
-    # Show the plot
     plt.show()
 
 def plot_lorenz_curves(csv_files, remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4']):

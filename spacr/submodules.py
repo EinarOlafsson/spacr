@@ -8,6 +8,9 @@ from cellpose import models as cp_models
 from cellpose import train as train_cp
 from IPython.display import display
 
+import matplotlib.pyplot as plt
+from natsort import natsorted
+
 def analyze_recruitment(settings={}):
     """
     Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.
@@ -122,7 +125,31 @@ def analyze_recruitment(settings={}):
 
     return [cells,wells]
 
-def analyze_plaques(folder):
+def analyze_plaques(settings):
+
+    from .cellpose import identify_masks_finetune
+    from .settings import get_analyze_plaque_settings
+    from .utils import save_settings, download_models
+    from spacr import __file__ as spacr_path
+
+    download_models()
+    package_dir = os.path.dirname(spacr_path)
+    models_dir = os.path.join(package_dir, 'resources', 'models', 'cp')
+    model_path = os.path.join(models_dir, 'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+    settings['custom_model'] = model_path
+    print('custom_model',settings['custom_model'])
+
+    settings = get_analyze_plaque_settings(settings)
+    save_settings(settings, name='analyze_plaques', show=True)
+
+    if settings['masks']:
+        settings['dst'] = os.path.join(settings['src'], 'masks')
+        display(settings)
+        identify_masks_finetune(settings)
+        folder = settings['dst']
+    else:
+        folder = settings['src']
+
     summary_data = []
     details_data = []
     stats_data = []
@@ -346,4 +373,136 @@ def count_phenotypes(settings):
 
     pivot_df.to_csv(output_path)
 
-    return 
+    return
+
+def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={}, column='column', value='c3', plate='plate1', fraction_threshold=0.05):
+
+    def calculate_well_score_fractions(df, class_columns='cv_predictions'):
+        if all(col in df.columns for col in ['plate', 'row', 'column']):
+            df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['column']
+        else:
+            raise ValueError("Cannot find 'plate', 'row', or 'column' in df.columns")
+        prc_summary = df.groupby(['plate', 'row', 'column', 'prc']).size().reset_index(name='total_rows')
+        well_counts = (df.groupby(['plate', 'row', 'column', 'prc', class_columns])
+                       .size()
+                       .unstack(fill_value=0)
+                       .reset_index()
+                       .rename(columns={0: 'class_0', 1: 'class_1'}))
+        summary_df = pd.merge(prc_summary, well_counts, on=['plate', 'row', 'column', 'prc'], how='left')
+        summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
+        summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
+        return summary_df
+    
+    def plot_line(df, x_column, y_columns, group_column=None, 
+                  xlabel=None, ylabel=None, title=None, figsize=(10, 6), 
+                  save_path=None):
+        """
+        Create a line plot that can handle multiple y-columns, each becoming a separate line.
+        """
+        df = df.loc[natsorted(df.index, key=lambda x: df.loc[x, x_column])]
+
+        plt.figure(figsize=figsize)
+
+        if isinstance(y_columns, list):
+            for y_col in y_columns:
+                sns.lineplot(data=df, x=x_column, y=y_col, label=y_col, marker='o')
+        else:
+            sns.lineplot(data=df, x=x_column, y=y_columns, hue=group_column, marker='o')
+        plt.xlabel(xlabel if xlabel else x_column)
+        plt.ylabel(ylabel if ylabel else 'Value')
+        plt.title(title if title else f'Line Plot')
+        if group_column or isinstance(y_columns, list):
+            plt.legend(title='Legend')
+
+        plt.tight_layout()
+
+        if save_path:
+            plt.savefig(save_path, format='png', dpi=300, bbox_inches='tight')
+            print(f"Plot saved to {save_path}")
+        plt.show()
+    
+    def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
+        # Filter relevant grna_names within each prc and group them
+        grouped = df[df['grna_name'].isin([grna1, grna2])] \
+            .groupby(['prc', 'grna_name']) \
+            .agg({'fraction': 'sum', 'count': 'sum'}) \
+            .unstack(fill_value=0)
+        grouped.columns = ['_'.join(col).strip() for col in grouped.columns.values]
+        grouped['fraction_ratio'] = grouped[f'fraction_{grna1}'] / grouped[f'fraction_{grna2}']
+        grouped = grouped.assign(
+            fraction_ratio=lambda x: x['fraction_ratio'].replace([float('inf'), -float('inf')], 0)
+        ).fillna({'fraction_ratio': 0})
+        grouped = grouped.rename(columns={
+            f'count_{grna1}': f'{grna1}_count',
+            f'count_{grna2}': f'{grna2}_count'
+        })
+        result = grouped.reset_index()[['prc', f'{grna1}_count', f'{grna2}_count', 'fraction_ratio']]
+        
+        result['total_reads'] = result[f'{grna1}_count'] + result[f'{grna2}_count']
+        
+        result[f'{grna1}_fraction'] = result[f'{grna1}_count'] / result['total_reads']
+        result[f'{grna2}_fraction'] = result[f'{grna2}_count'] / result['total_reads']
+
+        return result
+
+    def calculate_well_read_fraction(df, count_column='count'):
+        if all(col in df.columns for col in ['plate', 'row', 'column']):
+            df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['column']
+        else:
+            raise ValueError("Cannot find plate, row or column in df.columns")
+        grouped_df = df.groupby('prc')[count_column].sum().reset_index()
+        grouped_df = grouped_df.rename(columns={count_column: 'total_counts'})
+        df = pd.merge(df, grouped_df, on='prc')
+        df['fraction'] = df['count'] / df['total_counts']
+        return df
+    
+    reads_df = pd.read_csv(reads_csv)
+    scores_df = pd.read_csv(scores_csv)
+    
+    if plate != None:
+        reads_df['plate'] = plate
+        scores_df['plate'] = plate
+    
+    if 'col' in reads_df.columns:
+        reads_df = reads_df.rename(columns={'col': 'column'})
+    if 'column_name' in reads_df.columns:
+        reads_df = reads_df.rename(columns={'column_name': 'column'})
+    if 'col' in scores_df.columns:
+        scores_df = scores_df.rename(columns={'col': 'column'})
+    if 'column_name' in scores_df.columns:
+        scores_df = scores_df.rename(columns={'column_name': 'column'})
+    if 'row_name' in reads_df.columns:
+        reads_df = reads_df.rename(columns={'row_name': 'row'})
+    if 'row_name' in scores_df.columns:
+        scores_df = scores_df.rename(columns={'row_name': 'row'})
+    
+    reads_df = calculate_well_read_fraction(reads_df)
+    scores_df = calculate_well_score_fractions(scores_df)
+    reads_col_df = reads_df[reads_df[column]==value]
+    scores_col_df = scores_df[scores_df[column]==value]
+    
+    #reads_col_df = reads_col_df[reads_col_df['fraction'] >= fraction_threshold]
+    reads_col_df = calculate_grna_fraction_ratio(reads_col_df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4')
+    df = pd.merge(reads_col_df, scores_col_df, on='prc')
+    
+    
+    # Convert the dictionary to a DataFrame and calculate fractions
+    df_emp = pd.DataFrame(
+        [(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) 
+         for key, val in empirical_dict.items()],
+        columns=['key', 'value1', 'value2', 'fraction1', 'fraction2']
+    )
+
+    df = pd.merge(df, df_emp, left_on='row', right_on='key')
+    display(df)
+    y_columns = ['class_1_fraction', 'TGGT1_220950_1_fraction', 'fraction2']
+    
+    plot_line(df, x_column='row', y_columns=y_columns, group_column=None, 
+              xlabel=None, ylabel=None, title=None, figsize=(10, 6), 
+              save_path=None)
+    
+    y_columns = ['class_0_fraction', 'TGGT1_233460_4_fraction', 'fraction1']
+
+    plot_line(df, x_column='row', y_columns=y_columns, group_column=None, 
+          xlabel=None, ylabel=None, title=None, figsize=(10, 6), 
+          save_path=None)

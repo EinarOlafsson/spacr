@@ -191,107 +191,130 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
         print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {labels[0].shape}, image type: labels[0].shape')
     return images, labels, image_names, label_names
 
-def _load_normalized_images_and_labels_v1(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10):
-    
-    from .plot import normalize_and_visualize
-    from .utils import invert_image, apply_mask
-
-    signal_thresholds = background*Signal_to_noise
-    lower_percentile = 2
-
-    images = []
-    labels = []
-    
-    num_channels = 4
-    percentiles_1 = [[] for _ in range(num_channels)]
-    percentiles_99 = [[] for _ in range(num_channels)]
-
-    image_names = [os.path.basename(f) for f in image_files]
-    
-    if label_files is not None:
-        label_names = [os.path.basename(f) for f in label_files]
-        label_dir = os.path.dirname(label_files[0])
-
-    # Load images and check percentiles
-    for i,img_file in enumerate(image_files):
-        image = cellpose.io.imread(img_file)
-        if invert:
-            image = invert_image(image)
-        if circular:
-            image = apply_mask(image, output_value=0)
-
-        # If specific channels are specified, select them
-        if channels is not None and image.ndim == 3:
-            image = image[..., channels]
-
-        if remove_background:
-            image[image < background] = 0
-        
-        if image.ndim < 3:
-            image = np.expand_dims(image, axis=-1)
-        
-        images.append(image)
-        if percentiles is None:
-            for c in range(image.shape[-1]):
-                p1 = np.percentile(image[..., c], lower_percentile)
-                percentiles_1[c].append(p1)
-                for percentile in [98, 99, 99.9, 99.99, 99.999]:
-                    p = np.percentile(image[..., c], percentile)
-                    if p > signal_thresholds:
-                        percentiles_99[c].append(p)
-                        break
-                    
-    if not percentiles is None:
-        normalized_images = []
-        for image in images:
-            normalized_image = np.zeros_like(image, dtype=np.float32)
-            for c in range(image.shape[-1]):
-                low_p = np.percentile(image[..., c], percentiles[0])
-                high_p = np.percentile(image[..., c], percentiles[1])
-                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(low_p, high_p), out_range=(0, 1))
-            normalized_images.append(normalized_image)
-            if visualize:
-                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
-            
-    if percentiles is None:
-        # Calculate average percentiles for normalization
-        avg_p1 = [np.mean(p) for p in percentiles_1]
-        avg_p99 = [np.mean(p) if len(p) > 0 else np.mean(percentiles_1[i]) for i, p in enumerate(percentiles_99)]
-
-        print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
-
-        normalized_images = []
-        for image in images:
-            normalized_image = np.zeros_like(image, dtype=np.float32)
-            for c in range(image.shape[-1]):
-                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(avg_p1[c], avg_p99[c]), out_range=(0, 1))
-            normalized_images.append(normalized_image)
-            if visualize:
-                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
-            
-    if not image_files is None:
-        image_dir = os.path.dirname(image_files[0])
-
-    else:
-        image_dir = None
-            
-    if label_files is not None:
-        for lbl_file in label_files:
-            labels.append(cellpose.io.imread(lbl_file))
-    else:
-        label_names = []
-        label_dir = None
-
-    print(f'Loaded and normalized {len(normalized_images)} images and {len(labels)} labels from {image_dir} and {label_dir}')
-    
-    return normalized_images, labels, image_names, label_names
-
-def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10, target_height=None, target_width=None):
+def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
+                                       circular=False, invert=False, visualize=False, 
+                                       remove_background=False, background=0, Signal_to_noise=10, 
+                                       target_height=None, target_width=None):
     
     from .plot import normalize_and_visualize, plot_resize
     from .utils import invert_image, apply_mask
     from skimage.transform import resize as resizescikit
 
+    # Ensure percentiles are valid
+    if isinstance(percentiles, list) and len(percentiles) == 2:
+        try:
+            percentiles = [int(percentiles[0]), int(percentiles[1])]
+        except ValueError:
+            percentiles = None
+    else:
+        percentiles = None
+
+    signal_thresholds = float(background) * float(Signal_to_noise)
+    lower_percentile = 2
+
+    images, labels, orig_dims = [], [], []
+    num_channels = 4
+    percentiles_1 = [[] for _ in range(num_channels)]
+    percentiles_99 = [[] for _ in range(num_channels)]
+
+    image_names = [os.path.basename(f) for f in image_files]
+    image_dir = os.path.dirname(image_files[0])
+
+    if label_files is not None:
+        label_names = [os.path.basename(f) for f in label_files]
+        label_dir = os.path.dirname(label_files[0])
+    else:
+        label_names, label_dir = [], None
+
+    # Load, normalize, and resize images
+    for i, img_file in enumerate(image_files):
+        image = cellpose.io.imread(img_file)
+        orig_dims.append((image.shape[0], image.shape[1]))
+
+        if invert:
+            image = invert_image(image)
+        if circular:
+            image = apply_mask(image, output_value=0)
+
+        # Select specific channels if needed
+        if channels is not None and image.ndim == 3:
+            image = image[..., channels]
+
+        if remove_background:
+            image = np.where(image < background, 0, image)
+
+        if image.ndim < 3:
+            image = np.expand_dims(image, axis=-1)
+
+        # Calculate percentiles if not provided
+        if percentiles is None:
+            for c in range(image.shape[-1]):
+                p1 = np.percentile(image[..., c], lower_percentile)
+                percentiles_1[c].append(p1)
+
+                # Ensure `signal_thresholds` and `p` are floats for comparison
+                for percentile in [98, 99, 99.9, 99.99, 99.999]:
+                    p = np.percentile(image[..., c], percentile)
+                    if float(p) > signal_thresholds:
+                        percentiles_99[c].append(p)
+                        break
+
+        # Resize image if required
+        if target_height and target_width:
+            image_shape = (target_height, target_width) if image.ndim == 2 else (target_height, target_width, image.shape[-1])
+            image = resizescikit(image, image_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
+
+        images.append(image)
+
+    # Calculate average percentiles if needed
+    if percentiles is None:
+        avg_p1 = [np.mean(p) for p in percentiles_1]
+        avg_p99 = [np.mean(p) if p else avg_p1[i] for i, p in enumerate(percentiles_99)]
+
+        print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
+
+        normalized_images = [
+            np.stack([rescale_intensity(img[..., c], in_range=(avg_p1[c], avg_p99[c]), out_range=(0, 1))
+                      for c in range(img.shape[-1])], axis=-1) for img in images
+        ]
+
+    else:
+        normalized_images = [
+            np.stack([rescale_intensity(img[..., c], 
+                                        in_range=(np.percentile(img[..., c], percentiles[0]),
+                                                  np.percentile(img[..., c], percentiles[1])), 
+                                        out_range=(0, 1)) for c in range(img.shape[-1])], axis=-1) 
+            for img in images
+        ]
+
+    # Load and resize labels if provided
+    if label_files is not None:
+        labels = [resizescikit(cellpose.io.imread(lbl_file), 
+                               (target_height, target_width) if target_height and target_width else orig_dims[i], 
+                               order=0, preserve_range=True, anti_aliasing=False).astype(np.uint8)
+                  for i, lbl_file in enumerate(label_files)]
+
+    print(f'Loaded and normalized {len(normalized_images)} images and {len(labels)} labels from {image_dir} and {label_dir}')
+
+    if visualize and images and labels:
+        plot_resize(images, normalized_images, labels, labels)
+
+    return normalized_images, labels, image_names, label_names, orig_dims
+
+def _load_normalized_images_and_labels_v1(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10, target_height=None, target_width=None):
+    
+    from .plot import normalize_and_visualize, plot_resize
+    from .utils import invert_image, apply_mask
+    from skimage.transform import resize as resizescikit
+
+    if isinstance(percentiles, list):
+        if len(percentiles) !=2:
+            percentiles = None
+        if not percentiles[0] is int:
+            percentiles = None
+        if not percentiles[1] is int:
+            percentiles = None
+    
     signal_thresholds = background * Signal_to_noise
     lower_percentile = 2
 
@@ -1686,11 +1709,16 @@ def preprocess_img_data(settings):
         print(f'Found {extension_counts[most_common_extension]} {most_common_extension} files')
     else:
         print(f'Could not find any {valid_ext} files in {src} only found {extension_counts[0]}')
-        if os.path.exists(src+'/stack'):
+        
+        
+        
+        
+        
+        if os.path.exists(os.path.join(src,'stack')):
             print('Found existing stack folder.')
-        if os.path.exists(src+'/channel_stack'):
+        if os.path.exists(os.path.join(src,'channel_stack')):
             print('Found existing channel_stack folder.')
-        if os.path.exists(src+'/norm_channel_stack'):
+        if os.path.exists(os.path.join(src,'norm_channel_stack')):
             print('Found existing norm_channel_stack folder. Skipping preprocessing')
             return settings, src
         
@@ -1713,12 +1741,13 @@ def preprocess_img_data(settings):
 
         src = _run_test_mode(settings['src'], regex, timelapse, test_images, random_test)
         settings['src'] = src
-
-    if img_format == None:
-        if not os.path.exists(src+'/stack'):
-            _merge_channels(src, plot=False)   
     
-    if not os.path.exists(src+'/stack'):
+    stack_path = os.path.join(src, 'stack')
+    if img_format == None:
+        if not os.path.exists(stack_path):
+            _merge_channels(src, plot=False)   
+   
+    if not os.path.exists(stack_path):
         try:
             if not img_format == None:
                 if timelapse:
@@ -1727,7 +1756,7 @@ def preprocess_img_data(settings):
                     _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
                     
                     #Make sure no batches will be of only one image
-                    all_imgs = len(src+'/stack')
+                    all_imgs = len(stack_path)
                     full_batches = all_imgs // batch_size
                     last_batch_size = all_imgs % batch_size
                     
@@ -1738,26 +1767,27 @@ def preprocess_img_data(settings):
                             raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
                         # If the last batch is of size 1, merge it with the second last batch
                         elif full_batches > 0:
+                            print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
                             raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
         
                 _merge_channels(src, plot=False)
 
                 if timelapse:
-                    _create_movies_from_npy_per_channel(src+'/stack', fps=2)
+                    _create_movies_from_npy_per_channel(stack_path, fps=2)
 
                 if plot:
                     print(f'plotting {nr} images from {src}/stack')
-                    plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+                    plot_arrays(stack_path, figuresize, cmap, nr=nr, normalize=normalize)
 
                 if all_to_mip:
-                    _mip_all(src+'/stack')
+                    _mip_all(stack_path)
                     if plot:
                         print(f'plotting {nr} images from {src}/stack')
-                        plot_arrays(src+'/stack', figuresize, cmap, nr=nr, normalize=normalize)
+                        plot_arrays(stack_path, figuresize, cmap, nr=nr, normalize=normalize)
         except Exception as e:
             print(f"Error: {e}")
     
-    concatenate_and_normalize(src=src+'/stack',
+    concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
                               save_dtype=np.float32,
                               settings=settings)

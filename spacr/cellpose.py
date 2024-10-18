@@ -86,7 +86,6 @@ def identify_masks_finetune(settings):
         if normalize:
             images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files=image_files, label_files=None, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose, remove_background=remove_background, background=background, Signal_to_noise=Signal_to_noise, target_height=target_height, target_width=target_width)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-            #orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
             images, _, image_names, _ = _load_images_and_labels(image_files=image_files, label_files=None, circular=circular, invert=invert) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
@@ -125,7 +124,6 @@ def identify_masks_finetune(settings):
             files_to_process = file_index+1            
             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls)
             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="")
-            
             
             if verbose:
                 if resize:

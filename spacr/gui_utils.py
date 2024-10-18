@@ -380,7 +380,7 @@ def convert_settings_dict_for_gui(settings):
     variables = {}
     special_cases = {
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
-        'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]'], '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
         'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),

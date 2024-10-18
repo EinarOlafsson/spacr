@@ -449,26 +449,28 @@ def perform_regression(settings):
             return df, n_gene
         else:
             return df
+        
+
     
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
     save_settings(settings, name='regression', show=True)
+
+    if isinstance(settings['filter_value'], list):
+        filter_value = settings['filter_value']
+    else:
+        filter_value = []
+    if isinstance(settings['filter_column'], str):
+        filter_column = settings['filter_column']
     
-    score_data_df = clean_controls(score_data_df, settings['pc'], settings['nc'], settings['other'])
+    score_data_df = clean_controls(score_data_df, settings['filter_value'], settings['filter_column'])
     print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     print(f"Dependent variable after process_scores: {len(dependent_df)}")
 
-    filter_value = [settings['nc'], settings['pc']]
-
-    if settings['other'] is not None:
-        if isinstance(settings['other'], str):
-            settings['other'] = [settings['other']]
-        filter_value.extend(settings['other'])
-
-    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'], filter_column=settings['location_column'], filter_value=filter_value)
+    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'], filter_column=filter_column, filter_value=filter_value)
     independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
 
     print(f"Independent variable after process_reads: {len(independent_df)}")
@@ -498,10 +500,14 @@ def perform_regression(settings):
     if settings['controls'] is not None:
         control_coef_df = grna_coef_df[grna_coef_df['grna'].isin(settings['controls'])]
         mean_coef = control_coef_df['coefficient'].mean()
-        variance_coef = control_coef_df['coefficient'].var()
-        reg_threshold = mean_coef + 3 * variance_coef
-    print('coef_df')
-    display(coef_df)
+        
+        if settings['threshold_method'] in ['var','variance']:
+            coef_mes = control_coef_df['coefficient'].var()
+        elif settings['threshold_method'] in ['std', 'standard_deveation']:
+            coef_mes = control_coef_df['coefficient'].std()
+        else:
+            raise ValueError(f"Unsupported threshold method {settings['threshold_method']}. Supported methods: ['var','variance','std','standard_deveation']")
+        reg_threshold = mean_coef + (settings['threshold_multiplier'] * coef_mes)
     
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)
@@ -535,16 +541,14 @@ def perform_regression(settings):
         gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
         grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
 
-        print(results_path)
-        print(metadata_file)
     if settings['toxo']:
         data_path = merged_df
         data_path_gene = gene_merged_df
         data_path_grna = grna_merged_df
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
-
-        custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=200, figsize=20, threshold=reg_threshold)
+        
+        custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=200, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'])
         #custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=reg_threshold)
         #custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=reg_threshold)
         
@@ -596,7 +600,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     if isinstance(filter_value, str):
         filter_value = [filter_value]
 
-    if isinstance(filter_column, list):
+    if isinstance(filter_column, list):            
         for filter_col in filter_column:
             for value in filter_value:
                 csv_df = csv_df[csv_df[filter_col] != value]
@@ -659,16 +663,12 @@ def check_normality(data, variable_name, verbose=False):
             print(f"Normal distribution: The data for {variable_name} is not normally distributed.")
         return False
 
-def clean_controls(df,pc,nc,other):
-    if 'col' in df.columns:
-        df['column'] = df['col']
-    if nc != None:
-        df = df[~df['column'].isin([nc])]
-    if pc != None:
-        df = df[~df['column'].isin([pc])]
-    if other != None:
-        df = df[~df['column'].isin([other])]
-        print(f'Removed data from {nc, pc, other}')
+def clean_controls(df,values, column):
+    if column in df.columns:
+        if isinstance(values, list):
+            for value in values:
+                df = df[~df[column].isin([value])]
+                print(f'Removed data from {value}')
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):

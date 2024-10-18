@@ -261,7 +261,7 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('nucleus_mask_dim',None)
     settings.setdefault('pathogen_mask_dim',None)
     settings.setdefault('cytoplasm',False)
-    settings.setdefault('include_uninfected',True)
+    settings.setdefault('uninfected',True)
     settings.setdefault('cell_min_size',0)
     settings.setdefault('nucleus_min_size',0)
     settings.setdefault('pathogen_min_size',0)
@@ -527,26 +527,31 @@ def set_generate_dataset_defaults(settings):
     return settings
 
 def get_perform_regression_default_settings(settings):
-    settings.setdefault('highlight','239740')
-    settings.setdefault('dependent_variable','predictions')
+    settings.setdefault('count_data','list of paths')
+    settings.setdefault('score_data','list of paths')
+    settings.setdefault('positive_control','239740')
+    settings.setdefault('negative_control','233460')
+    settings.setdefault('controls',['000000_1','000000_10','000000_11','000000_12','000000_13','000000_14','000000_15','000000_16','000000_17','000000_18','000000_19','000000_20','000000_21','000000_22','000000_23','000000_24','000000_25','000000_26','000000_27','000000_28','000000_29','000000_3','000000_30','000000_31','000000_32','000000_4','000000_5','000000_6','000000_8','000000_9'])
+    settings.setdefault('fraction_threshold',0.12)
+    settings.setdefault('dependent_variable','pred')
+    settings.setdefault('threshold_method','std')
+    settings.setdefault('threshold_multiplier',3)
     settings.setdefault('transform',None)
     settings.setdefault('agg_type','mean')
     settings.setdefault('min_cell_count',25)
     settings.setdefault('regression_type','ols')
     settings.setdefault('random_row_column_effects',False)
+    settings.setdefault('split_axis_lims','')
+    settings.setdefault('plate','')
+    settings.setdefault('cov_type',None)
     settings.setdefault('alpha',1)
-    settings.setdefault('fraction_threshold',0.1)
-    settings.setdefault('location_column','column')
-    settings.setdefault('nc','c1')
-    settings.setdefault('pc','c2')
-    settings.setdefault('other','c3')
+    settings.setdefault('filter_value',['c1', 'c2', 'c3'])
+    settings.setdefault('filter_column','column')
     settings.setdefault('plate','plate1')
     settings.setdefault('class_1_threshold',None)
-    settings.setdefault('cov_type',None)
     settings.setdefault('metadata_files',['/home/carruthers/Documents/TGME49_Summary.csv','/home/carruthers/Documents/TGGT1_Summary.csv'])
     settings.setdefault('toxo', True)
 
-    
     if settings['regression_type'] == 'quantile':
         print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
         settings['agg_type'] = None
@@ -576,6 +581,7 @@ def get_check_cellpose_models_default_settings(settings):
     return settings
 
 def get_identify_masks_finetune_default_settings(settings):
+    settings.setdefault('src', 'path')
     settings.setdefault('model_name', 'cyto')
     settings.setdefault('custom_model', None)
     settings.setdefault('channels', [0,0])
@@ -664,7 +670,7 @@ expected_types = {
     "png_dims": list,
     "normalize_by": str,
     "save_measurements": bool,
-    "include_uninfected": bool,
+    "uninfected": bool,
     "dialate_pngs": bool,
     "dialate_png_ratios": list,
     "n_jobs": int,
@@ -685,6 +691,7 @@ expected_types = {
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
+    "background": str,
     "outline_thickness": int,
     "outline_color": str,
     "overlay_chans": list,
@@ -893,7 +900,7 @@ expected_types = {
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv"],
              "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
              "Cellpose":["from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "circular", "invert", "diameter", "grayscale", "background", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "include_uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
+             "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
@@ -904,12 +911,12 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
              "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
              "Hyperparamiters (Regression)":["cov_type", "class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
-             "Hyperparamiters (Activation)":["cam_type", "normalize", "overlay", "correlation", "target_layer", "normalize_input"],
+             "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["plot", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "uninfected", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Advanced": ["shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "uninfected", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
              }
 
@@ -1083,7 +1090,7 @@ def generate_fields(variables, scrollable_frame):
         "nuclei_limit": "(int) - Whether to include multinucleated cells in the analysis.",
         "pathogen_limit": "(int) - Whether to include multi-infected cells in the analysis.",
         "uninfected": "(bool) - Whether to include non-infected cells in the analysis.",
-        "include_uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
+        "uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
         "init_weights": "(bool) - Whether to initialize weights for the model.",
         "src": "(str) - Path to the folder containing the images.",
         "intermedeate_save": "(bool) - Whether to save intermediate results.",
@@ -1362,4 +1369,31 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('manders_thresholds', [15,50, 75])
     settings.setdefault('n_jobs', None)
     
+    return settings
+
+def get_analyze_plaque_settings(settings):
+    settings.setdefault('src', 'path')
+    settings.setdefault('masks', True)
+    settings.setdefault('model_name', 'plaque')
+    settings.setdefault('custom_model', None)
+    settings.setdefault('channels', [0,0])
+    settings.setdefault('background', 200)
+    settings.setdefault('remove_background', False)
+    settings.setdefault('Signal_to_noise', 10)
+    settings.setdefault('CP_prob', 0)
+    settings.setdefault('diameter', 30)
+    settings.setdefault('batch_size', 50)
+    settings.setdefault('flow_threshold', 0.4)
+    settings.setdefault('save', True)
+    settings.setdefault('verbose', True)
+    settings.setdefault('normalize', True)
+    settings.setdefault('percentiles', None)
+    settings.setdefault('circular', False)
+    settings.setdefault('invert', False)
+    settings.setdefault('resize', True)
+    settings.setdefault('target_height', 1120)
+    settings.setdefault('target_width', 1120)
+    settings.setdefault('rescale', False)
+    settings.setdefault('resample', False)
+    settings.setdefault('grayscale', True)
     return settings
