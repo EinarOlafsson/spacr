@@ -2,6 +2,11 @@ import os, gzip, re, time, gzip
 import pandas as pd
 from multiprocessing import Pool, cpu_count, Queue, Process
 from Bio.Seq import Seq
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from .plot import plot_plates
+from IPython.display import display
 
 # Function to map sequences to names (same as your original)
 def map_sequences_to_names(csv_file, sequences, rc):
@@ -481,3 +486,116 @@ def barecodes_reverse_complement(csv_file):
     df.to_csv(new_filename, index=False)
 
     print(f"Reverse complement file saved as {new_filename}")
+
+def graph_sequencing_stats(settings):
+
+    from .utils import correct_metadata_column_names
+
+    def _plot_density(df, dependent_variable, dst=None):
+        """Plot a density plot of the dependent variable."""
+        plt.figure(figsize=(10, 6))
+        sns.kdeplot(df[dependent_variable], fill=True, alpha=0.6)
+        plt.title(f'Density Plot of {dependent_variable}')
+        plt.xlabel(dependent_variable)
+        plt.ylabel('Density')
+        if dst is not None:
+            filename = os.path.join(dst, 'dependent_variable_density.pdf')
+            plt.savefig(filename, format='pdf')
+            print(f'Saved density plot to {filename}')
+        plt.show()
+
+    def find_and_visualize_fraction_threshold(df, target_unique_count=5, log_x=False, log_y=False, dst=None):
+        """
+        Find the fraction threshold where the recalculated unique count matches the target value,
+        and visualize the relationship between fraction thresholds and unique counts.
+        """
+
+        def _line_plot(df, x='fraction_threshold', y='unique_count', log_x=False, log_y=False):
+            if x not in df.columns or y not in df.columns:
+                raise ValueError(f"Columns '{x}' and/or '{y}' not found in the DataFrame.")
+            fig, ax = plt.subplots(figsize=(10, 10))
+            ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
+            ax.set_xlabel(x)
+            ax.set_ylabel(y)
+            ax.set_title(f'{y} vs {x}')
+            ax.legend()
+            if log_x:
+                ax.set_xscale('log')
+            if log_y:
+                ax.set_yscale('log')
+            fig.tight_layout()
+            return fig, ax
+
+        fraction_thresholds = np.linspace(0.001, 0.99, 1000)
+        results = []
+
+        # Iterate through the fraction thresholds
+        for threshold in fraction_thresholds:
+            filtered_df = df[df['fraction'] >= threshold]
+            unique_count = filtered_df.groupby(['plate', 'row', 'column'])['grna'].nunique().mean()
+            results.append((threshold, unique_count))
+
+        results_df = pd.DataFrame(results, columns=['fraction_threshold', 'unique_count'])
+        closest_index = (results_df['unique_count'] - target_unique_count).abs().argmin()
+        closest_threshold = results_df.iloc[closest_index]
+
+        print(f"Closest Fraction Threshold: {closest_threshold['fraction_threshold']}")
+        print(f"Unique Count at Threshold: {closest_threshold['unique_count']}")
+
+        fig, ax = _line_plot(df=results_df, x='fraction_threshold', y='unique_count', log_x=log_x, log_y=log_y)
+
+        plt.axvline(x=closest_threshold['fraction_threshold'], color='black', linestyle='--',
+                    label=f'Closest Threshold ({closest_threshold["fraction_threshold"]:.4f})')
+        plt.axhline(y=target_unique_count, color='black', linestyle='--',
+                    label=f'Target Unique Count ({target_unique_count})')
+
+        if dst is not None:
+            fig_path = os.path.join(dst, 'results')
+            os.makedirs(fig_path, exist_ok=True)
+            fig_file_path = os.path.join(fig_path, 'fraction_threshold.pdf')
+            fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+            print(f"Saved {fig_file_path}")
+        plt.show()
+
+        return closest_threshold['fraction_threshold']
+
+    if isinstance(settings['count_data'], str):
+        settings['count_data'] = [settings['count_data']]
+
+    dfs = []
+    for i, count_data in enumerate(settings['count_data']):
+        df = pd.read_csv(count_data)
+        df['plate'] = f'plate{i+1}'
+        df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+        df['total_count'] = df.groupby(['prc'])['count'].transform('sum')
+        df['fraction'] = df['count'] / df['total_count']
+        dfs.append(df)
+
+    df = pd.concat(dfs, axis=0)
+
+    df = correct_metadata_column_names(df)
+
+    for c in settings['control_wells']:
+        df = df[df[settings['filter_column']] != c]
+
+    dst = os.path.dirname(settings['count_data'][0])
+
+    closest_threshold = find_and_visualize_fraction_threshold(df, settings['target_unique_count'], log_x=settings['log_x'], log_y=settings['log_y'], dst=dst)
+
+    # Apply the closest threshold to the DataFrame
+    df = df[df['fraction'] >= closest_threshold]
+
+    # Group by 'plate', 'row', 'column' and compute unique counts of 'grna'
+    unique_counts = df.groupby(['plate', 'row', 'column'])['grna'].nunique().reset_index(name='unique_counts')
+    unique_count_mean = df.groupby(['plate', 'row', 'column'])['grna'].nunique().mean()
+    unique_count_std = df.groupby(['plate', 'row', 'column'])['grna'].nunique().std()
+
+    # Merge the unique counts back into the original DataFrame
+    df = pd.merge(df, unique_counts, on=['plate', 'row', 'column'], how='left')
+
+    print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
+
+    #_plot_density(df, dependent_variable='unique_counts')
+    plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
+    
+    return closest_threshold

@@ -550,6 +550,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('plate','plate1')
     settings.setdefault('class_1_threshold',None)
     settings.setdefault('metadata_files',['/home/carruthers/Documents/TGME49_Summary.csv','/home/carruthers/Documents/TGGT1_Summary.csv'])
+    settings.setdefault('volcano','gene')
     settings.setdefault('toxo', True)
 
     if settings['regression_type'] == 'quantile':
@@ -566,7 +567,6 @@ def get_check_cellpose_models_default_settings(settings):
     settings.setdefault('normalize', True)
     settings.setdefault('channels', [0,0])
     settings.setdefault('percentiles', None)
-    settings.setdefault('circular', False)
     settings.setdefault('invert', False)
     settings.setdefault('plot', True)
     settings.setdefault('diameter', 40)
@@ -596,7 +596,6 @@ def get_identify_masks_finetune_default_settings(settings):
     settings.setdefault('verbose', False)
     settings.setdefault('normalize', True)
     settings.setdefault('percentiles', None)
-    settings.setdefault('circular', False)
     settings.setdefault('invert', False)
     settings.setdefault('resize', False)
     settings.setdefault('target_height', None)
@@ -604,6 +603,7 @@ def get_identify_masks_finetune_default_settings(settings):
     settings.setdefault('rescale', False)
     settings.setdefault('resample', False)
     settings.setdefault('grayscale', True)
+    settings.setdefault('fill_in', True)
     return settings
 
 q = None
@@ -708,6 +708,7 @@ expected_types = {
     "remove_background_pathogen": bool,
     "pathogen_model": (str, type(None)),
     "filter": bool,
+    "fill_in":bool,
     "upscale": bool,
     "upscale_factor": float,
     "adjust_cells": bool,
@@ -833,7 +834,6 @@ expected_types = {
     "CP_prob": float,
     "flow_threshold": float,
     "percentiles": (list, type(None)),
-    "circular": bool,
     "invert": bool,
     "diameter": int,
     "grayscale": bool,
@@ -899,7 +899,7 @@ expected_types = {
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv"],
              "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
-             "Cellpose":["from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "circular", "invert", "diameter", "grayscale", "background", "Signal_to_noise", "resize", "target_height", "target_width"],
+             "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
@@ -1071,6 +1071,7 @@ def generate_fields(variables, scrollable_frame):
         "figuresize": "(tuple) - Size of the figures to plot.",
         "filter": "(dict) - Filter settings for the analysis.",
         "filter_by": "(str) - Feature to filter the data by.",
+        "fill_in": "(bool) - Whether to fill in the segmented objects.",
         "flow_threshold": "(float) - Flow threshold for segmentation.",
         "fps": "(int) - Frames per second of the automatically generated timelapse movies.",
         "fraction_threshold": "(float) - Threshold for the fraction of cells to consider in the analysis.",
@@ -1254,7 +1255,6 @@ def generate_fields(variables, scrollable_frame):
         "pos": "(str) - Positive control identifier.",
         "neg": "(str) - Negative control identifier.",
         "minimum_cell_count": "(int) - Minimum number of cells/well. if number of cells < minimum_cell_count, the well is excluded from the analysis.",
-        "circular": "(bool) - If a circle is to be drawn and corners excluded (e.g. square images of round wells).",
         "highlight": "(str) - highlight genes/grnas containing this string.",
         "pathogen_plate_metadata": "(str) - Metadata for the pathogen plate.",
         "treatment_plate_metadata": "(str) - Metadata for the treatment plate.",
@@ -1315,6 +1315,8 @@ descriptions = {
     
     'activation': "",
 
+    'analyze_plaques': "Analyze plaque images to quantify plaque properties. Function: analyze_plaques from spacr.analysis.\n\nKey Features:\n- Plaque Analysis: Quantify plaque properties such as size, intensity, and shape.\n- Batch Processing: Analyze multiple plaque images efficiently.\n- Visualization: Generate visualizations to represent plaque data and patterns.",
+
     'recruitment': "Analyze recruitment data to understand sample recruitment dynamics. Function: recruitment_analysis_tools from spacr.analysis.\n\nKey Features:\n- Recruitment Analysis: Investigate and analyze the recruitment of samples over time or conditions.\n- Visualization: Generate visualizations to represent recruitment trends and patterns.\n- Integration: Utilize data from various sources for a comprehensive recruitment analysis."
 }
 
@@ -1368,17 +1370,12 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('correlation', True)
     settings.setdefault('manders_thresholds', [15,50, 75])
     settings.setdefault('n_jobs', None)
-    
     return settings
 
 def get_analyze_plaque_settings(settings):
     settings.setdefault('src', 'path')
     settings.setdefault('masks', True)
-    settings.setdefault('model_name', 'plaque')
-    settings.setdefault('custom_model', None)
-    settings.setdefault('channels', [0,0])
     settings.setdefault('background', 200)
-    settings.setdefault('remove_background', False)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
     settings.setdefault('diameter', 30)
@@ -1386,14 +1383,10 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('flow_threshold', 0.4)
     settings.setdefault('save', True)
     settings.setdefault('verbose', True)
-    settings.setdefault('normalize', True)
-    settings.setdefault('percentiles', None)
-    settings.setdefault('circular', False)
-    settings.setdefault('invert', False)
     settings.setdefault('resize', True)
     settings.setdefault('target_height', 1120)
     settings.setdefault('target_width', 1120)
     settings.setdefault('rescale', False)
     settings.setdefault('resample', False)
-    settings.setdefault('grayscale', True)
+    settings.setdefault('fill_in', True)
     return settings

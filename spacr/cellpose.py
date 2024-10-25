@@ -5,50 +5,23 @@ from cellpose import models as cp_models
 from IPython.display import display
 from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
+from scipy.ndimage import binary_fill_holes
 
 def identify_masks_finetune(settings):
     
     from .plot import print_mask_and_flows
-    from .utils import resize_images_and_labels, print_progress
+    from .utils import resize_images_and_labels, print_progress, save_settings, fill_holes_in_mask
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
     from .settings import get_identify_masks_finetune_default_settings
 
     settings = get_identify_masks_finetune_default_settings(settings)
-    src=settings['src']
-    dst=settings['dst']
-    model_name=settings['model_name']
-    custom_model=settings['custom_model']
-    channels = settings['channels']
-    background = settings['background']
-    remove_background=settings['remove_background']
-    Signal_to_noise = settings['Signal_to_noise']
-    CP_prob = settings['CP_prob']
-    diameter=settings['diameter']
-    batch_size=settings['batch_size']
-    flow_threshold=settings['flow_threshold']
-    save=settings['save']
-    verbose=settings['verbose']
-
-    # static settings
-    normalize = settings['normalize']
-    percentiles = settings['percentiles']
-    circular = settings['circular']
-    invert = settings['invert']
-    resize = settings['resize']
-
-    if resize:
-        target_height = settings['target_height']
-        target_width = settings['target_width']
-
-    rescale = settings['rescale']
-    resample = settings['resample']
-    grayscale = settings['grayscale']
-
+    save_settings(settings, name='generate_cellpose_masks', show=True)
+    dst = os.path.join(settings['src'], 'masks')
     os.makedirs(dst, exist_ok=True)
 
-    if not custom_model is None:
-        if not os.path.exists(custom_model):
-            print(f'Custom model not found: {custom_model}')
+    if not settings['custom_model'] is None:
+        if not os.path.exists(settings['custom_model']):
+            print(f"Custom model not found: {settings['custom_model']}")
             return 
 
     if not torch.cuda.is_available():
@@ -56,42 +29,60 @@ def identify_masks_finetune(settings):
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
-    if custom_model == None:
-        model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
-        print(f'Loaded model: {model_name}')
+    if settings['custom_model'] == None:
+        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_name'], device=device)
+        print(f"Loaded model: {settings['model_name']}")
     else:
-        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=custom_model, diam_mean=diameter, device=device)
+        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=settings['custom_model'], diam_mean=settings['diameter'], device=device)
         print("Pretrained Model Loaded:", model.pretrained_model)
 
-    chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [1,0] if model_name == 'cyto' else [2, 0]
+    chans = [2, 1] if settings['model_name'] == 'cyto2' else [0,0] if settings['model_name'] == 'nucleus' else [1,0] if settings['model_name'] == 'cyto' else [2, 0]
     
-    if grayscale:
+    if settings['grayscale']:
         chans=[0, 0]
     
-    print(f'Using channels: {chans} for model of type {model_name}')
+    print(f"Using channels: {chans} for model of type {settings['model_name']}")
     
-    if verbose == True:
-        print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{CP_prob}')
+    if settings['verbose'] == True:
+        print(f"Cellpose settings: Model: {settings['model_name']}, channels: {settings['channels']}, cellpose_chans: {chans}, diameter:{settings['diameter']}, flow_threshold:{settings['flow_threshold']}, cellprob_threshold:{settings['CP_prob']}")
         
-    all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
-    mask_files = set(os.listdir(os.path.join(src, 'masks')))
-    all_image_files = [f for f in all_image_files if os.path.basename(f) not in mask_files]
+    image_files = [os.path.join(settings['src'], f) for f in os.listdir(settings['src']) if f.endswith('.tif')]
+    mask_files = set(os.listdir(os.path.join(settings['src'], 'masks')))
+    all_image_files = [f for f in image_files if os.path.basename(f) not in mask_files]
     random.shuffle(all_image_files)
+
+    print(f"Found {len(image_files)} Images with {len(mask_files)} masks. Generating masks for {len(all_image_files)} images")
+
+    if len(all_image_files) == 0:
+        print(f"Either no images were found in {settings['src']} or all images have masks in {settings['dst']}")
+        return
+
     
     time_ls = []
-    for i in range(0, len(all_image_files), batch_size):
+    for i in range(0, len(all_image_files), settings['batch_size']):
         gc.collect()
-        image_files = all_image_files[i:i+batch_size]
+        image_files = all_image_files[i:i+settings['batch_size']]
         
-        if normalize:
-            images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files=image_files, label_files=None, channels=channels, percentiles=percentiles,  circular=circular, invert=invert, visualize=verbose, remove_background=remove_background, background=background, Signal_to_noise=Signal_to_noise, target_height=target_height, target_width=target_width)
+        if settings['normalize']:
+            images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files=image_files,
+                                                                                      label_files=None,
+                                                                                      channels=settings['channels'],
+                                                                                      percentiles=settings['percentiles'],
+                                                                                      invert=settings['invert'],
+                                                                                      visualize=settings['verbose'],
+                                                                                      remove_background=settings['remove_background'],
+                                                                                      background=settings['background'],
+                                                                                      Signal_to_noise=settings['Signal_to_noise'],
+                                                                                      target_height=settings['target_height'],
+                                                                                      target_width=settings['target_width'])
+            
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
         else:
-            images, _, image_names, _ = _load_images_and_labels(image_files=image_files, label_files=None, circular=circular, invert=invert) 
+            images, _, image_names, _ = _load_images_and_labels(image_files=image_files, label_files=None, invert=settings['invert']) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
-            if resize:
-                images, _ = resize_images_and_labels(images, None, target_height, target_width, True)
+            if settings['resize']:
+                images, _ = resize_images_and_labels(images, None, settings['target_height'], settings['target_width'], True)
 
         for file_index, stack in enumerate(images):
             start = time.time()
@@ -99,11 +90,11 @@ def identify_masks_finetune(settings):
                          normalize=False,
                          channels=chans,
                          channel_axis=3,
-                         diameter=diameter,
-                         flow_threshold=flow_threshold,
-                         cellprob_threshold=CP_prob,
-                         rescale=rescale,
-                         resample=resample,
+                         diameter=settings['diameter'],
+                         flow_threshold=settings['flow_threshold'],
+                         cellprob_threshold=settings['CP_prob'],
+                         rescale=settings['rescale'],
+                         resample=settings['resample'],
                          progress=True)
 
             if len(output) == 4:
@@ -112,8 +103,11 @@ def identify_masks_finetune(settings):
                 mask, flows, _ = output
             else:
                 raise ValueError("Unexpected number of return values from model.eval()")
+            
+            if settings['fill_in']:
+                mask = fill_holes_in_mask(mask).astype(mask.dtype)
 
-            if resize:
+            if settings['resize']:
                 dims = orig_dims[file_index]
                 mask = resizescikit(mask, dims, order=0, preserve_range=True, anti_aliasing=False).astype(mask.dtype)
 
@@ -122,14 +116,13 @@ def identify_masks_finetune(settings):
             time_ls.append(duration)
             files_processed = len(images)
             files_to_process = file_index+1            
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="")
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="generate cellpose masks")
             
-            if verbose:
-                if resize:
+            if settings['verbose']:
+                if settings['resize']:
                     stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)
-                print_mask_and_flows(stack, mask, flows, overlay=True)
-            if save:
+                print_mask_and_flows(stack, mask, flows)
+            if settings['save']:
                 os.makedirs(dst, exist_ok=True)
                 output_filename = os.path.join(dst, image_names[file_index])
                 cv2.imwrite(output_filename, mask)
@@ -137,7 +130,7 @@ def identify_masks_finetune(settings):
         gc.collect()
     return
 
-def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, circular, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
+def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
     
     from .io import _load_images_and_labels, _load_normalized_images_and_labels
     from .utils import resize_images_and_labels, resizescikit, print_progress
@@ -162,11 +155,11 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
         image_files = all_image_files[i:i+batch_size]
 
         if normalize:
-            images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files, None, channels, percentiles,  circular, invert, plot, remove_background, background, Signal_to_noise, target_height, target_width)
+            images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files, None, channels, percentiles, invert, plot, remove_background, background, Signal_to_noise, target_height, target_width)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         else:
-            images, _, image_names, _ = _load_images_and_labels(image_files, None, circular, invert) 
+            images, _, image_names, _ = _load_images_and_labels(image_files, None, invert) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
             orig_dims = [(image.shape[0], image.shape[1]) for image in images]
         if resize:
@@ -207,11 +200,10 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
             if plot:
                 if resize:
                     stack = resizescikit(stack, dims, preserve_range=True, anti_aliasing=False).astype(stack.dtype)
-                print_mask_and_flows(stack, mask, flows, overlay=True)
+                print_mask_and_flows(stack, mask, flows)
             if save:
                 output_filename = os.path.join(dst, image_names[file_index])
                 cv2.imwrite(output_filename, mask)
-
 
 def check_cellpose_models(settings):
 
@@ -231,7 +223,7 @@ def check_cellpose_models(settings):
 
         model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
         print(f'Using {model_name}')
-        generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['circular'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
+        generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 
     return
 
