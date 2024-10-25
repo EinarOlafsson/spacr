@@ -129,7 +129,7 @@ def process_non_tif_non_2D_images(folder):
             except Exception as e:
                 print(f"Error processing {filename}: {str(e)}")
 
-def _load_images_and_labels(image_files, label_files, circular=False, invert=False):
+def _load_images_and_labels(image_files, label_files, invert=False):
     
     from .utils import invert_image, apply_mask
     
@@ -151,8 +151,6 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
             image = cellpose.io.imread(img_file)
             if invert:
                 image = invert_image(image)
-            if circular:
-                image = apply_mask(image, output_value=0)
             label = cellpose.io.imread(lbl_file)
             if image.max() > 1:
                 image = image / image.max()
@@ -163,16 +161,12 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
             image = cellpose.io.imread(img_file)
             if invert:
                 image = invert_image(image)
-            if circular:
-                image = apply_mask(image, output_value=0)
             if image.max() > 1:
                 image = image / image.max()
             images.append(image)
     elif not image_files is None:
             for lbl_file in label_files:
                 label = cellpose.io.imread(lbl_file)
-                if circular:
-                    label = apply_mask(label, output_value=0)
             labels.append(label)
             
     if not image_files is None:
@@ -192,9 +186,8 @@ def _load_images_and_labels(image_files, label_files, circular=False, invert=Fal
     return images, labels, image_names, label_names
 
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
-                                       circular=False, invert=False, visualize=False, 
-                                       remove_background=False, background=0, Signal_to_noise=10, 
-                                       target_height=None, target_width=None):
+                                       invert=False, visualize=False, remove_background=False, 
+                                       background=0, Signal_to_noise=10, target_height=None, target_width=None):
     
     from .plot import normalize_and_visualize, plot_resize
     from .utils import invert_image, apply_mask
@@ -233,8 +226,6 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
         if invert:
             image = invert_image(image)
-        if circular:
-            image = apply_mask(image, output_value=0)
 
         # Select specific channels if needed
         if channels is not None and image.ndim == 3:
@@ -301,7 +292,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
     return normalized_images, labels, image_names, label_names, orig_dims
 
-def _load_normalized_images_and_labels_v1(image_files, label_files, channels=None, percentiles=None,  circular=False, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10, target_height=None, target_width=None):
+def _load_normalized_images_and_labels_v1(image_files, label_files, channels=None, percentiles=None, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10, target_height=None, target_width=None):
     
     from .plot import normalize_and_visualize, plot_resize
     from .utils import invert_image, apply_mask
@@ -339,8 +330,6 @@ def _load_normalized_images_and_labels_v1(image_files, label_files, channels=Non
         orig_dims.append((image.shape[0], image.shape[1]))
         if invert:
             image = invert_image(image)
-        if circular:
-            image = apply_mask(image, output_value=0)
 
         # If specific channels are specified, select them
         if channels is not None and image.ndim == 3:
@@ -2146,7 +2135,8 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                 # For each of the other folders, load the array and add it to 'stack_ls'
                 for folder in folder_paths[1:]:
                     array_path = os.path.join(folder, filename)
-                    array = np.load(array_path)
+                    #array = np.load(array_path)
+                    array = np.load(array_path, allow_pickle=True)
                     if array.ndim == 2:
                         array = np.expand_dims(array, axis=-1)  # Add an extra dimension if the array is 2D
                     stack_ls.append(array)
