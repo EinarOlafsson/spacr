@@ -51,7 +51,8 @@ from scipy.stats import fisher_exact, f_oneway, kruskal
 from scipy.ndimage.filters import gaussian_filter
 from scipy.spatial import ConvexHull
 from scipy.interpolate import splprep, splev
-from scipy.ndimage import binary_dilation
+from scipy import ndimage
+from scipy.ndimage import binary_dilation, binary_fill_holes
 
 from skimage.exposure import rescale_intensity
 from sklearn.metrics import auc, precision_recall_curve
@@ -706,6 +707,7 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=['p
         conn.close()
 
 def _generate_representative_images(db_path, cells=['HeLa'], cell_loc=None, pathogens=['rh'], pathogen_loc=None, treatments=['cm'], treatment_loc=None, channel_of_interest=1, compartments = ['pathogen','cytoplasm'], measurement = 'mean_intensity', nr_imgs=16, channel_indices=[0,1,2], um_per_pixel=0.1, scale_bar_length_um=10, plot=False, fontsize=12, show_filename=True, channel_names=None, update_db=True):
+    
     """
     Generates representative images based on the provided parameters.
 
@@ -4480,6 +4482,7 @@ def cluster_feature_analysis(all_df, cluster_col='cluster'):
     return combined_df
 
 def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold=5, perimeter_threshold=30):
+    
     """
     Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
     and if cells share more than a specified perimeter percentage.
@@ -4607,9 +4610,9 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
         if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
             raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
         # Load the masks
-        parasite_mask = np.load(parasite_path)
-        cell_mask = np.load(cell_path)
-        nuclei_mask = np.load(nuclei_path)
+        parasite_mask = np.load(parasite_path, allow_pickle=True)
+        cell_mask = np.load(cell_path, allow_pickle=True)
+        nuclei_mask = np.load(nuclei_path, allow_pickle=True)
         # Merge and relabel cells
         merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
         
@@ -5178,3 +5181,47 @@ def add_column_to_database(settings):
     conn.close()
 
     print(f"Updated '{new_column_name}' in '{settings['table_name']}' using '{settings['match_column']}'.")
+
+def fill_holes_in_mask(mask):
+    """
+    Fill holes in each object in the mask while keeping objects separated.
+    
+    Args:
+        mask (np.ndarray): A labeled mask where each object has a unique integer value.
+    
+    Returns:
+        np.ndarray: A mask with holes filled and original labels preserved.
+    """
+    # Ensure the mask is integer-labeled
+    labeled_mask, num_features = ndimage.label(mask)
+
+    # Create an empty mask to store the result
+    filled_mask = np.zeros_like(labeled_mask)
+
+    # Fill holes for each labeled object independently
+    for i in range(1, num_features + 1):
+        # Create a binary mask for the current object
+        object_mask = (labeled_mask == i)
+
+        # Fill holes within this object
+        filled_object = binary_fill_holes(object_mask)
+
+        # Assign the original label back to the filled object
+        filled_mask[filled_object] = i
+
+    return filled_mask
+
+def correct_metadata_column_names(df):
+    if 'plate_name' in df.columns:
+        df = df.rename(columns={'plate_name': 'plate'})
+    if 'column_name' in df.columns:
+        df = df.rename(columns={'column_name': 'column'})
+    if 'col' in df.columns:
+        df = df.rename(columns={'col': 'column'})
+    if 'row_name' in df.columns:
+        df = df.rename(columns={'row_name': 'row'})
+    if 'grna_name' in df.columns:
+        df = df.rename(columns={'grna_name': 'grna'})
+    if 'plate_row' in df.columns:
+        df[['plate', 'row']] = df['plate_row'].str.split('_', expand=True)
+    return df

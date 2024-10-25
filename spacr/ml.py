@@ -343,12 +343,79 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     return model, coef_df
 
-def perform_regression(settings):
+def graph_cell_count_threshold(settings):
 
+    from .utils import correct_metadata_column_names
+
+    def _line_plot(df, x, y, log_x=False, log_y=False, title=""):
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(df[x], df[y], linestyle='-', color=(0, 0.6, 0.6), label=f"{y}")
+        ax.set_xlabel(x)
+        ax.set_ylabel(y)
+        ax.set_title(title)
+        ax.legend()
+        if log_x:
+            ax.set_xscale('log')
+        if log_y:
+            ax.set_yscale('log')
+        plt.show()
+
+    if isinstance(settings['score_data'], str):
+        settings['score_data'] = [settings['score_data']]
+
+    dfs = []
+    for i, score_data in enumerate(settings['score_data']):
+        df = pd.read_csv(score_data)
+        df = correct_metadata_column_names(df)
+        df['plate'] = f'plate{i+1}'
+        df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+        dfs.append(df)
+
+    df = pd.concat(dfs, axis=0)
+
+    # Compute the number of cells (or scores) per well
+    cell_counts = df.groupby('prc').size().reset_index(name='cell_count')
+
+    # Merge the cell counts back into the original DataFrame
+    df = df.merge(cell_counts, on='prc')
+
+    # Generate a range of thresholds
+    thresholds = np.arange(1, df['cell_count'].max() + 1)
+    results = []
+
+    # Iterate over thresholds and compute score mean and variance
+    for threshold in thresholds:
+        filtered_df = df[df['cell_count'] >= threshold]
+        score_mean = filtered_df.groupby('prc')[settings['score_column']].mean().mean()
+        score_variance = filtered_df.groupby('prc')[settings['score_column']].mean().var()
+        results.append((threshold, score_mean, score_variance))
+
+    results_df = pd.DataFrame(results, columns=['cell_count_threshold', 'score_mean', 'score_variance'])
+
+    if results_df.empty:
+        raise ValueError("No valid results were found. Check your data and thresholds.")
+
+    closest_threshold = results_df['score_variance'].diff().abs().argmin()
+    optimal_threshold = results_df.iloc[closest_threshold]
+
+    print(f"Optimal Threshold: {optimal_threshold['cell_count_threshold']}")
+    print(f"Score Mean at Optimal Threshold: {optimal_threshold['score_mean']}")
+    print(f"Score Variance at Optimal Threshold: {optimal_threshold['score_variance']}")
+
+    _line_plot(results_df, x='cell_count_threshold', y='score_mean', 
+               title='Mean Well Score vs. Cell Count Threshold')
+    _line_plot(results_df, x='cell_count_threshold', y='score_variance', 
+               title='Score Variance vs. Cell Count Threshold')
+
+    return optimal_threshold['cell_count_threshold']
+
+def perform_regression(settings):
+    
     from .plot import plot_plates
     from .utils import merge_regression_res_with_metadata, save_settings
     from .settings import get_perform_regression_default_settings
     from .toxo import go_term_enrichment_by_column, custom_volcano_plot
+    from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
 
@@ -450,12 +517,13 @@ def perform_regression(settings):
         else:
             return df
         
-
-    
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
     save_settings(settings, name='regression', show=True)
+
+    count_source = os.path.dirname(settings['count_data'][0])
+    volcano_path = os.path.join(count_source, 'volcano_plot.pdf')
 
     if isinstance(settings['filter_value'], list):
         filter_value = settings['filter_value']
@@ -467,8 +535,14 @@ def perform_regression(settings):
     score_data_df = clean_controls(score_data_df, settings['filter_value'], settings['filter_column'])
     print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
+    if settings['min_cell_count'] is None:
+        settings['min_cell_count'] = graph_cell_count_threshold(settings)
+
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     print(f"Dependent variable after process_scores: {len(dependent_df)}")
+
+    if settings['fraction_threshold'] is None:
+        settings['fraction_threshold'] = graph_sequencing_stats(settings)
 
     independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'], filter_column=filter_column, filter_value=filter_value)
     independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
@@ -498,8 +572,12 @@ def perform_regression(settings):
     grna_coef_df = grna_coef_df.dropna(subset=['n_grna'])
     
     if settings['controls'] is not None:
+
         control_coef_df = grna_coef_df[grna_coef_df['grna'].isin(settings['controls'])]
         mean_coef = control_coef_df['coefficient'].mean()
+        significant_c = control_coef_df[control_coef_df['p_value']<= 0.05]
+        mean_coef_c = significant_c['coefficient'].mean()
+        print(mean_coef, mean_coef_c)
         
         if settings['threshold_method'] in ['var','variance']:
             coef_mes = control_coef_df['coefficient'].var()
@@ -507,6 +585,7 @@ def perform_regression(settings):
             coef_mes = control_coef_df['coefficient'].std()
         else:
             raise ValueError(f"Unsupported threshold method {settings['threshold_method']}. Supported methods: ['var','variance','std','standard_deveation']")
+        
         reg_threshold = mean_coef + (settings['threshold_multiplier'] * coef_mes)
     
     coef_df.to_csv(results_path, index=False)
@@ -530,6 +609,12 @@ def perform_regression(settings):
     
     significant.to_csv(hits_path, index=False)
 
+    significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
+    significant_gene_filtered = significant[significant['n_gene'] > settings['min_n']]
+    significant_filtered = pd.concat([significant_grna_filtered, significant_gene_filtered])
+    filtered_hit_path = os.path.join(os.path.dirname(hits_path), 'results_significant_filtered.csv')
+    significant_filtered.to_csv(filtered_hit_path, index=False)
+
     if isinstance(settings['metadata_files'], str):
         settings['metadata_files'] = [settings['metadata_files']]
 
@@ -548,9 +633,15 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
-        custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=200, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'])
-        #custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=reg_threshold)
-        #custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=reg_threshold)
+        if settings['volcano'] == 'all':
+            print('all')
+            custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'], save_path=volcano_path, x_lim=settings['x_lim'])
+        elif settings['volcano'] == 'gene':
+            print('gene')
+            custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'], save_path=volcano_path, x_lim=settings['x_lim'])
+        elif settings['volcano'] == 'grna':
+            print('grna')
+            custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'], save_path=volcano_path, x_lim=settings['x_lim'])
         
         #if len(significant) > 2:
         #    metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')

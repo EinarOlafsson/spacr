@@ -141,14 +141,13 @@ def analyze_plaques(settings):
 
     settings = get_analyze_plaque_settings(settings)
     save_settings(settings, name='analyze_plaques', show=True)
+    settings['dst'] = os.path.join(settings['src'], 'masks')
 
     if settings['masks']:
-        settings['dst'] = os.path.join(settings['src'], 'masks')
-        display(settings)
         identify_masks_finetune(settings)
         folder = settings['dst']
     else:
-        folder = settings['src']
+        folder = settings['dst']
 
     summary_data = []
     details_data = []
@@ -156,9 +155,9 @@ def analyze_plaques(settings):
     
     for filename in os.listdir(folder):
         filepath = os.path.join(folder, filename)
-        if os.path.isfile(filepath):
-            # Assuming each file is a NumPy array file (.npy) containing a 16-bit labeled image
-            #image = np.load(filepath)
+
+        if filepath.endswith('.tif') and os.path.isfile(filepath):
+            print(f"Analyzing: {filepath}")
             image = cellpose.io.imread(filepath)
             labeled_image = label(image)
             regions = regionprops(labeled_image)
@@ -241,7 +240,6 @@ def train_cellpose(settings):
                                                                                                label_files, 
                                                                                                settings['channels'], 
                                                                                                settings['percentiles'],  
-                                                                                               settings['circular'], 
                                                                                                settings['invert'], 
                                                                                                settings['verbose'], 
                                                                                                settings['remove_background'], 
@@ -258,7 +256,6 @@ def train_cellpose(settings):
                                                                                                             test_label_files, 
                                                                                                             settings['channels'], 
                                                                                                             settings['percentiles'],  
-                                                                                                            settings['circular'], 
                                                                                                             settings['invert'], 
                                                                                                             settings['verbose'], 
                                                                                                             settings['remove_background'], 
@@ -269,13 +266,12 @@ def train_cellpose(settings):
             test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
             
     else:
-        images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, settings['circular'], settings['invert'])
+        images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, settings['invert'])
         images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
         
         if settings['test']:
             test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(test_img_src, 
                                                                                                  test_mask_src, 
-                                                                                                 settings['circular'], 
                                                                                                  settings['invert'])
             
             test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
@@ -320,7 +316,6 @@ def train_cellpose(settings):
                     SGD=False,
                     channels=cp_channels,
                     channel_axis=None,
-                    #rgb=False,
                     normalize=False, 
                     compute_flows=False,
                     save_path=model_save_path,
@@ -375,7 +370,10 @@ def count_phenotypes(settings):
 
     return
 
-def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={}, column='column', value='c3', plate='plate1', fraction_threshold=0.05):
+def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),'r2':(90,10),'r3':(80,20),'r4':(80,20),'r5':(70,30),'r6':(70,30),'r7':(60,40),'r8':(60,40),'r9':(50,50),'r10':(50,50),'r11':(40,60),'r12':(40,60),'r13':(30,70),'r14':(30,70),'r15':(20,80),'r16':(20,80)},
+                            pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4', 
+                            y_columns=['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction'], 
+                            column='column', value='c3', plate=None, save_paths=None):
 
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
         if all(col in df.columns for col in ['plate', 'row', 'column']):
@@ -392,34 +390,74 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={}, column='co
         summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
         return summary_df
-    
-    def plot_line(df, x_column, y_columns, group_column=None, 
-                  xlabel=None, ylabel=None, title=None, figsize=(10, 6), 
-                  save_path=None):
+        
+    def plot_line(df, x_column, y_columns, group_column=None, xlabel=None, ylabel=None, 
+                  title=None, figsize=(10, 6), save_path=None, theme='deep'):
         """
         Create a line plot that can handle multiple y-columns, each becoming a separate line.
         """
+
+        def _set_theme(theme):
+            """Set the Seaborn theme and reorder colors if necessary."""
+
+            def __set_reordered_theme(theme='deep', order=None, n_colors=100, show_theme=False):
+                """Set and reorder the Seaborn color palette."""
+                palette = sns.color_palette(theme, n_colors)
+                if order:
+                    reordered_palette = [palette[i] for i in order]
+                else:
+                    reordered_palette = palette
+                if show_theme:
+                    sns.palplot(reordered_palette)
+                    plt.show()
+                return reordered_palette
+
+            integer_list = list(range(1, 81))
+            color_order = [7, 9, 4, 0, 3, 6, 2] + integer_list
+            sns_palette = __set_reordered_theme(theme, color_order, 100)
+            return sns_palette
+
+        sns_palette = _set_theme(theme)
+
+        # Sort the DataFrame based on the x_column
         df = df.loc[natsorted(df.index, key=lambda x: df.loc[x, x_column])]
+        
+        fig, ax = plt.subplots(figsize=figsize)
 
-        plt.figure(figsize=figsize)
-
+        # Handle multiple y-columns, each as a separate line
         if isinstance(y_columns, list):
-            for y_col in y_columns:
-                sns.lineplot(data=df, x=x_column, y=y_col, label=y_col, marker='o')
+            for idx, y_col in enumerate(y_columns):
+                sns.lineplot(
+                    data=df, x=x_column, y=y_col, ax=ax, label=y_col, 
+                    color=sns_palette[idx % len(sns_palette)], linewidth=1
+                )
         else:
-            sns.lineplot(data=df, x=x_column, y=y_columns, hue=group_column, marker='o')
-        plt.xlabel(xlabel if xlabel else x_column)
-        plt.ylabel(ylabel if ylabel else 'Value')
-        plt.title(title if title else f'Line Plot')
+            sns.lineplot(
+                data=df, x=x_column, y=y_columns, hue=group_column, ax=ax, 
+                palette=sns_palette, linewidth=2
+            )
+
+        # Set axis labels and title
+        ax.set_xlabel(xlabel if xlabel else x_column)
+        ax.set_ylabel(ylabel if ylabel else 'Value')
+        ax.set_title(title if title else 'Line Plot')
+
+        # Remove top and right spines
+        sns.despine(ax=ax)
+
+        # Ensure legend only appears when needed and place it to the right
         if group_column or isinstance(y_columns, list):
-            plt.legend(title='Legend')
+            ax.legend(title='Legend', loc='center left', bbox_to_anchor=(1, 0.5))
 
         plt.tight_layout()
 
+        # Save the plot if a save path is provided
         if save_path:
-            plt.savefig(save_path, format='png', dpi=300, bbox_inches='tight')
+            plt.savefig(save_path, format='pdf', dpi=600, bbox_inches='tight')
             print(f"Plot saved to {save_path}")
+
         plt.show()
+        return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
         # Filter relevant grna_names within each prc and group them
@@ -437,12 +475,9 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={}, column='co
             f'count_{grna2}': f'{grna2}_count'
         })
         result = grouped.reset_index()[['prc', f'{grna1}_count', f'{grna2}_count', 'fraction_ratio']]
-        
         result['total_reads'] = result[f'{grna1}_count'] + result[f'{grna2}_count']
-        
         result[f'{grna1}_fraction'] = result[f'{grna1}_count'] / result['total_reads']
         result[f'{grna2}_fraction'] = result[f'{grna2}_count'] / result['total_reads']
-
         return result
 
     def calculate_well_read_fraction(df, count_column='count'):
@@ -456,53 +491,63 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={}, column='co
         df['fraction'] = df['count'] / df['total_counts']
         return df
     
-    reads_df = pd.read_csv(reads_csv)
-    scores_df = pd.read_csv(scores_csv)
-    
-    if plate != None:
-        reads_df['plate'] = plate
-        scores_df['plate'] = plate
-    
-    if 'col' in reads_df.columns:
-        reads_df = reads_df.rename(columns={'col': 'column'})
-    if 'column_name' in reads_df.columns:
-        reads_df = reads_df.rename(columns={'column_name': 'column'})
-    if 'col' in scores_df.columns:
-        scores_df = scores_df.rename(columns={'col': 'column'})
-    if 'column_name' in scores_df.columns:
-        scores_df = scores_df.rename(columns={'column_name': 'column'})
-    if 'row_name' in reads_df.columns:
-        reads_df = reads_df.rename(columns={'row_name': 'row'})
-    if 'row_name' in scores_df.columns:
-        scores_df = scores_df.rename(columns={'row_name': 'row'})
-    
+    if isinstance(reads_csv, list):
+        if len(reads_csv) == len(scores_csv):
+            reads_ls = []
+            scores_ls = []
+            for i, reads_csv_temp in enumerate(reads_csv):
+                reads_df_temp = pd.read_csv(reads_csv_temp)
+                scores_df_temp = pd.read_csv(scores_csv[i])
+                reads_df_temp['plate'] = f"plate{i+1}"
+                scores_df_temp['plate'] = f"plate{i+1}"
+                
+                if 'col' in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'col': 'column'})
+                if 'column_name' in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'column_name': 'column'})
+                if 'col' in scores_df_temp.columns:
+                    scores_df_temp = scores_df_temp.rename(columns={'col': 'column'})
+                if 'column_name' in scores_df_temp.columns:
+                    scores_df_temp = scores_df_temp.rename(columns={'column_name': 'column'})
+                if 'row_name' in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'row_name': 'row'})
+                if 'row_name' in scores_df_temp.columns:
+                    scores_df_temp = scores_df_temp.rename(columns={'row_name': 'row'})
+                    
+                reads_ls.append(reads_df_temp)
+                scores_ls.append(scores_df_temp)
+                    
+            reads_df = pd.concat(reads_ls, axis=0)
+            scores_df = pd.concat(scores_ls, axis=0)
+            print(f"Reads: {len(reads_df)} Scores: {len(scores_df)}")
+        else:
+            print(f"reads_csv and scores_csv must contain the same number of elements if reads_csv is a list")
+    else:
+        reads_df = pd.read_csv(reads_csv)
+        scores_df = pd.read_csv(scores_csv)
+        if plate != None:
+            reads_df['plate'] = plate
+            scores_df['plate'] = plate
+        
     reads_df = calculate_well_read_fraction(reads_df)
     scores_df = calculate_well_score_fractions(scores_df)
     reads_col_df = reads_df[reads_df[column]==value]
     scores_col_df = scores_df[scores_df[column]==value]
     
-    #reads_col_df = reads_col_df[reads_col_df['fraction'] >= fraction_threshold]
-    reads_col_df = calculate_grna_fraction_ratio(reads_col_df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4')
+    reads_col_df = calculate_grna_fraction_ratio(reads_col_df, grna1=pc_grna, grna2=nc_grna)
     df = pd.merge(reads_col_df, scores_col_df, on='prc')
     
+    df_emp = pd.DataFrame([(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) for key, val in empirical_dict.items()],columns=['key', 'value1', 'value2', 'pc_fraction', 'nc_fraction'])
     
-    # Convert the dictionary to a DataFrame and calculate fractions
-    df_emp = pd.DataFrame(
-        [(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) 
-         for key, val in empirical_dict.items()],
-        columns=['key', 'value1', 'value2', 'fraction1', 'fraction2']
-    )
-
     df = pd.merge(df, df_emp, left_on='row', right_on='key')
+    
+    if any in y_columns not in df.columns:
+        print(f"columns in dataframe:")
+        for col in df.columns:
+            print(col)
+        return
     display(df)
-    y_columns = ['class_1_fraction', 'TGGT1_220950_1_fraction', 'fraction2']
+    fig_1 = plot_line(df, x_column = 'pc_fraction', y_columns=y_columns, group_column=None, xlabel=None, ylabel='Fraction', title=None, figsize=(10, 6), save_path=save_paths[0])
+    fig_2 = plot_line(df, x_column = 'nc_fraction', y_columns=y_columns, group_column=None, xlabel=None, ylabel='Fraction', title=None, figsize=(10, 6), save_path=save_paths[1])
     
-    plot_line(df, x_column='row', y_columns=y_columns, group_column=None, 
-              xlabel=None, ylabel=None, title=None, figsize=(10, 6), 
-              save_path=None)
-    
-    y_columns = ['class_0_fraction', 'TGGT1_233460_4_fraction', 'fraction1']
-
-    plot_line(df, x_column='row', y_columns=y_columns, group_column=None, 
-          xlabel=None, ylabel=None, title=None, figsize=(10, 6), 
-          save_path=None)
+    return [fig_1, fig_2]

@@ -1,8 +1,9 @@
-import os, random, cv2, glob, math, torch
+import os, random, cv2, glob, math, torch, skimage
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 import matplotlib as mpl
 import scipy.ndimage as ndi
 import seaborn as sns
@@ -13,6 +14,9 @@ from IPython.display import display
 from skimage.segmentation import find_boundaries
 from skimage import measure
 from skimage.measure import find_contours, label, regionprops
+from skimage.segmentation import mark_boundaries
+from skimage.transform import resize as sk_resize
+
 import tifffile as tiff
 
 from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
@@ -1520,7 +1524,134 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
         plt.show()
     return fig
 
-def print_mask_and_flows(stack, mask, flows, overlay=False):
+def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickness=2):
+    """
+    Display the original image, mask with outlines, and flow images.
+    
+    Args:
+        stack (np.array): Original image or stack.
+        mask (np.array): Mask image.
+        flows (list): List of flow images.
+        overlay (bool): Whether to overlay the mask outlines on the original image.
+        max_size (int): Maximum allowed size for any dimension of the images.
+        thickness (int): Thickness of the contour outlines.
+    """
+
+    def resize_if_needed(image, max_size):
+        """Resize image if any dimension exceeds max_size while maintaining aspect ratio."""
+        if max(image.shape[:2]) > max_size:
+            scale = max_size / max(image.shape[:2])
+            new_shape = (int(image.shape[0] * scale), int(image.shape[1] * scale))
+            if image.ndim == 3:
+                new_shape += (image.shape[2],)
+            return sk_resize(image, new_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
+        return image
+
+    def generate_contours(mask):
+        """Generate contours for each object in the mask using OpenCV."""
+        contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        return contours
+
+    def apply_contours_on_image(image, mask, color=(255, 0, 0), thickness=2):
+        """Draw the contours on the original image."""
+        # Ensure the image is in RGB format
+        if image.ndim == 2:  # Grayscale to RGB
+            image = normalize_to_uint8(image)  # Convert to uint8 if needed
+            image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        else:
+            image_rgb = image.copy()
+
+        # Generate and draw contours
+        contours = generate_contours(mask)
+        cv2.drawContours(image_rgb, contours, -1, color, thickness)
+
+        return image_rgb
+
+    def normalize_to_uint8(image):
+        """Normalize and convert image to uint8."""
+        image = np.clip(image, 0, 1)  # Ensure values are between 0 and 1
+        return (image * 255).astype(np.uint8)  # Convert to uint8
+    
+    
+    # Resize if necessary
+    stack = resize_if_needed(stack, max_size)
+    mask = resize_if_needed(mask, max_size)
+    if flows != None:
+        flows = [resize_if_needed(flow, max_size) for flow in flows]
+
+        fig, axs = plt.subplots(1, 3, figsize=(12, 4))
+    else:
+        fig, axs = plt.subplots(1, 2, figsize=(12, 4))
+
+    if stack.shape[-1] == 1:
+        stack = np.squeeze(stack)
+
+    # Display original image
+    if stack.ndim == 2:
+        original_image = stack
+    elif stack.ndim == 3:
+        original_image = stack[..., 0]  # Use the first channel as the base
+    else:
+        raise ValueError("Unexpected stack dimensionality.")
+
+    axs[0].imshow(original_image, cmap='gray')
+    axs[0].set_title('Original Image')
+    axs[0].axis('off')
+
+    # Overlay mask outlines on original image if overlay is True
+    if overlay:
+        outlined_image = apply_contours_on_image(original_image, mask, color=(255, 0, 0), thickness=thickness)
+        axs[1].imshow(outlined_image)
+    else:
+        axs[1].imshow(mask, cmap='gray')
+
+    axs[1].set_title('Mask with Overlay' if overlay else 'Mask')
+    axs[1].axis('off')
+
+    if flows != None:
+
+        # Display flow image or its first channel
+        if flows and isinstance(flows, list) and flows[0].ndim in [2, 3]:
+            flow_image = flows[0]
+            if flow_image.ndim == 3:
+                flow_image = flow_image[:, :, 0]  # Use first channel for 3D
+            axs[2].imshow(flow_image, cmap='jet')
+        else:
+            raise ValueError("Unexpected flow dimensionality or structure.")
+
+        axs[2].set_title('Flows')
+        axs[2].axis('off')
+
+    fig.tight_layout()
+    plt.show()
+
+def print_mask_and_flows_v1(stack, mask, flows, overlay=False, max_size=1000):
+    """
+    Display the original image, mask, and flow with optional resizing for large images.
+    
+    Args:
+        stack (np.array): Original image or stack.
+        mask (np.array): Mask image.
+        flows (list): List of flow images.
+        overlay (bool): Whether to overlay the mask on the original image.
+        max_size (int): Maximum allowed size for any dimension of the images.
+    """
+
+    def resize_if_needed(image, max_size):
+        """Resize image if any dimension exceeds max_size while maintaining aspect ratio."""
+        if max(image.shape[:2]) > max_size:
+            scale = max_size / max(image.shape[:2])
+            new_shape = (int(image.shape[0] * scale), int(image.shape[1] * scale))
+            if image.ndim == 3:
+                new_shape += (image.shape[2],)
+            return skimage.transform.resize(image, new_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
+        return image
+
+    # Resize if necessary
+    stack = resize_if_needed(stack, max_size)
+    mask = resize_if_needed(mask, max_size)
+    flows = [resize_if_needed(flow, max_size) for flow in flows]
+
     fig, axs = plt.subplots(1, 3, figsize=(12, 4))  # Adjust subplot layout
     
     if stack.shape[-1] == 1:
@@ -2140,8 +2271,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     
 class spacrGraph:
     def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
-                 order=None, colors=None, output_dir='./output', save=False, y_lim=None, 
-                 error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
+                 order=None, colors=None, output_dir='./output', save=False, y_lim=None, log_y=False,
+                 log_x=False, error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
                  paired=False, all_to_all=True, compare_group=None, graph_name=None):
         
         """
@@ -2166,7 +2297,8 @@ class spacrGraph:
         self.compare_group = compare_group
         self.y_lim = y_lim
         self.graph_name = graph_name
-
+        self.log_x = log_x
+        self.log_y = log_y
 
         self.results_df = pd.DataFrame()
         self.sns_palette = None
@@ -2582,6 +2714,11 @@ class spacrGraph:
         # Set legend and labels
         ax.set_xlabel(self.grouping_column)
 
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
+
     def _create_jitter_plot(self, ax):
         """Helper method to create a jitter plot (strip plot) with consistent spacing."""
         # Combine grouping column and data column if needed
@@ -2596,7 +2733,7 @@ class spacrGraph:
             hue = None
     
         # Create the jitter plot
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -2606,12 +2743,23 @@ class spacrGraph:
         unique_labels = dict(zip(labels, handles))
         ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
+
     def _create_line_graph(self, ax):
         """Helper method to create a line graph with one line per group based on epochs and accuracy."""
         #display(self.df)
         # Ensure epoch is used on the x-axis and accuracy on the y-axis
         x_axis_column = self.data_column[0]
         y_axis_column = self.data_column[1]
+
+        if self.log_y:
+            self.df[y_axis_column] = np.log10(self.df[y_axis_column])
+        
+        if self.log_x:
+            self.df[x_axis_column] = np.log10(self.df[x_axis_column])
         
         # Set hue to the grouping column to get one line per group
         hue = self.grouping_column
@@ -2637,14 +2785,21 @@ class spacrGraph:
         y_axis_column_mean = f"mean_{y_axis_column}"
         y_axis_column_std = f"std_{y_axis_column_mean}"
         
+        if self.log_y:
+            self.df[y_axis_column] = np.log10(self.df[y_axis_column])
+        
+        if self.log_x:
+            self.df[x_axis_column] = np.log10(self.df[x_axis_column])
+
         # Pivot the DataFrame to get mean and std for each epoch across plates
         summary_df = self.df.pivot_table(index=x_axis_column,values=y_axis_column,aggfunc=['mean', 'std']).reset_index()
         
         # Flatten MultiIndex columns (result of pivoting)
         summary_df.columns = [x_axis_column, y_axis_column_mean, y_axis_column_std]
-
+            
         # Plot the mean accuracy as a line
         sns.lineplot(data=summary_df,x=x_axis_column,y=y_axis_column_mean,ax=ax,marker='o',linewidth=1,markersize=0,color='blue',label=y_axis_column_mean)
+
 
         # Fill the area representing the standard deviation
         ax.fill_between(summary_df[x_axis_column],summary_df[y_axis_column_mean] - summary_df[y_axis_column_std],summary_df[y_axis_column_mean] + summary_df[y_axis_column_std],color='blue',  alpha=0.1 )
@@ -2652,7 +2807,7 @@ class spacrGraph:
         # Adjust axis labels
         ax.set_xlabel(f"{x_axis_column}")
         ax.set_ylabel(f"{y_axis_column}")
-     
+        
     def _create_box_plot(self, ax):
         """Helper method to create a box plot with consistent spacing."""
         # Combine grouping column and data column if needed
@@ -2676,6 +2831,11 @@ class spacrGraph:
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
     
     def _create_violin_plot(self, ax):
         """Helper method to create a violin plot with consistent spacing."""
@@ -2701,6 +2861,11 @@ class spacrGraph:
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
 
     def _create_jitter_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
@@ -2739,6 +2904,11 @@ class spacrGraph:
         # Set legend and labels
         ax.set_xlabel(self.grouping_column)
 
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
+
     def _create_jitter_box_plot(self, ax):
         """Helper method to create a box plot with consistent spacing."""
         # Combine grouping column and data column if needed
@@ -2763,6 +2933,11 @@ class spacrGraph:
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
 
     def _save_results(self):
         """Helper method to save the plot and results."""
@@ -2797,14 +2972,19 @@ def plot_data_from_db(settings):
         df (pd.DataFrame): The extracted table as a DataFrame.
     """
 
+
+
     if isinstance(settings['src'], str):
         srcs = [settings['src']]
     elif isinstance(settings['src'], list):
         srcs = settings['src']
-        if isinstance(settings['database'], str):
-            settings['database'] = [settings['database'] for _ in range(len(srcs))]
     else:
         raise ValueError("src must be a string or a list of strings.")
+    
+    if isinstance(settings['database'], str):
+        settings['database'] = [settings['database'] for _ in range(len(srcs))]
+    
+    settings['dst'] = os.path.join(srcs[0], 'results')
     
     save_settings(settings, name=f"{settings['graph_name']}_plot_settings_db", show=True)
 
@@ -2812,8 +2992,9 @@ def plot_data_from_db(settings):
     for i, src in enumerate(srcs):
 
         db_loc = os.path.join(src, 'measurements', settings['database'][i])
-        
+        print(f"Database: {db_loc}")
         if settings['table_names'] in ['saliency_image_correlations']:
+            print(f"Database table: {settings['table_names']}")
             [df1] = _read_db(db_loc, tables=[settings['table_names']])
         else:
             df1, _ = _read_and_merge_data(locs=[db_loc],
@@ -2834,8 +3015,9 @@ def plot_data_from_db(settings):
         
     df = pd.concat(dfs, axis=0)
     df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
-    df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
-    df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+    #df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+    #df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+    df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
 
     if settings['cell_plate_metadata'] !=  None:
         df = df.dropna(subset='host_cell')
@@ -2849,7 +3031,7 @@ def plot_data_from_db(settings):
     df = df.dropna(subset=settings['data_column'])
     df = df.dropna(subset=settings['grouping_column'])
 
-    #df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
+    
     src = srcs[0] 
     dst = os.path.join(src, 'results', settings['graph_name'])
     os.makedirs(dst, exist_ok=True)
@@ -2907,15 +3089,12 @@ def plot_data_from_csv(settings):
 
     dfs = []
     for i, src in enumerate(srcs):
-
         dft = pd.read_csv(src)
         if 'plate' not in dft.columns:
             dft['plate'] = f"plate{i+1}"
         dfs.append(dft)
-        
-    df = pd.concat(dfs, axis=0)
-    #display(df)
 
+    df = pd.concat(dfs, axis=0)
     df = df.dropna(subset=settings['data_column'])
     df = df.dropna(subset=settings['grouping_column'])
     src = srcs[0] 
@@ -2933,6 +3112,8 @@ def plot_data_from_csv(settings):
         output_dir=dst,                              # Directory to save the plot and results
         save=settings['save'],                       # Whether to save the plot and results
         y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
+        log_y=settings['log_y'],                     # Log-transform the y-axis
+        log_x=settings['log_x'],                     # Log-transform the x-axis
         error_bar_type='std',                        # Type of error bar ('std' or 'sem')
         representation=settings['representation'],
         theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
@@ -2978,16 +3159,16 @@ def plot_region(settings):
     fig_3 = plot_image_grid(image_paths=activation_paths, percentiles=settings['percentiles'])
     fig_2 = plot_image_grid(image_paths=png_paths, percentiles=settings['percentiles'])
     fig_1 = plot_image_mask_overlay(file=fov_path,
-                                  channels=settings['channels'],
-                                  cell_channel=settings['cell_channel'],
-                                  nucleus_channel=settings['nucleus_channel'],
-                                  pathogen_channel=settings['pathogen_channel'],
-                                  figuresize=10,
-                                  percentiles=settings['percentiles'],
-                                  thickness=3, 
-                                  save_pdf=False, 
-                                  mode=settings['mode'],
-                                  export_tiffs=settings['export_tiffs'])
+                                    channels=settings['channels'],
+                                    cell_channel=settings['cell_channel'],
+                                    nucleus_channel=settings['nucleus_channel'],
+                                    pathogen_channel=settings['pathogen_channel'],
+                                    figuresize=10,
+                                    percentiles=settings['percentiles'],
+                                    thickness=3, 
+                                    save_pdf=False, 
+                                    mode=settings['mode'],
+                                    export_tiffs=settings['export_tiffs'])
     
     dst = os.path.join(settings['src'], 'results', name)
     save_figure_as_pdf(fig_1, os.path.join(dst, f"{name}_mask_overlay.pdf"))
@@ -3073,3 +3254,87 @@ def plot_image_grid(image_paths, percentiles):
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
 
     return fig
+
+def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False, plot=False, thickness=2):
+    """
+    Load images and masks from folders, overlay mask contours on images, and optionally normalize, resize, and save.
+
+    Args:
+        img_folder (str): Path to the folder containing images.
+        mask_folder (str): Path to the folder containing masks.
+        normalize (bool): If True, normalize images to the 1st and 99th percentiles.
+        resize (bool): If True, resize the final overlay to 500x500.
+        save (bool): If True, save the final overlay in an 'overlay' folder within the image folder.
+        thickness (int): Thickness of the contour lines.
+    """
+
+    def normalize_image(image):
+        """Normalize the image to the 1st and 99th percentiles."""
+        lower, upper = np.percentile(image, [1, 99])
+        image = np.clip((image - lower) / (upper - lower), 0, 1)
+        return (image * 255).astype(np.uint8)
+
+    
+    mask_folder = os.path.join(img_folder,'masks')    
+    overlay_folder = os.path.join(img_folder, "overlay")
+    if save and not os.path.exists(overlay_folder):
+        os.makedirs(overlay_folder)
+
+    # Get common filenames in both image and mask folders
+    image_filenames = set(os.listdir(img_folder))
+    mask_filenames = set(os.listdir(mask_folder))
+    common_filenames = image_filenames.intersection(mask_filenames)
+
+    if not common_filenames:
+        print("No matching filenames found in both folders.")
+        return
+
+    for filename in common_filenames:
+        # Load image and mask
+        img_path = os.path.join(img_folder, filename)
+        mask_path = os.path.join(mask_folder, filename)
+
+        image = tiff.imread(img_path)
+        mask = tiff.imread(mask_path)
+
+        # Normalize the image if requested
+        if normalize:
+            image = normalize_image(image)
+
+        # Ensure the mask is binary
+        mask = (mask > 0).astype(np.uint8)
+
+        # Resize the mask if it doesn't match the image size
+        if mask.shape != image.shape[:2]:
+            mask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
+
+        # Generate contours from the mask
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Convert to RGB if grayscale
+        if image.ndim == 2:
+            image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        else:
+            image_rgb = image.copy()
+            
+        # Draw contours with alpha blending
+        overlay = image_rgb.copy()
+        cv2.drawContours(overlay, contours, -1, (255, 0, 0), thickness)
+        blended = cv2.addWeighted(overlay, 0.7, image_rgb, 0.3, 0)
+        
+        # Resize the final overlay if requested
+        if resize:
+            blended = cv2.resize(blended, (1000, 1000), interpolation=cv2.INTER_AREA)
+
+        # Save the overlay if requested
+        if save:
+            save_path = os.path.join(overlay_folder, filename)
+            cv2.imwrite(save_path, cv2.cvtColor(blended, cv2.COLOR_RGB2BGR))
+        
+        if plot:
+            # Display the result
+            plt.figure(figsize=(10, 10))
+            plt.imshow(blended)
+            plt.title(f"Overlay: {filename}")
+            plt.axis('off')
+            plt.show()
