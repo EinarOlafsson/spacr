@@ -62,12 +62,13 @@ dependencies = [
     'IPython>=8.18.1,<9.0',
     'ipykernel',
     'ipywidgets>=8.1.2,<9.0',
+    'brokenaxes>=0.6.2,<1.0',
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
 setup(
     name="spacr",
-    version="0.3.47",
+    version="0.3.48",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

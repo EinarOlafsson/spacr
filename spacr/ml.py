@@ -343,23 +343,15 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     return model, coef_df
 
-def graph_cell_count_threshold(settings):
+def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.001, smoothing=5, increment=10):
+    """
+    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
+    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
+    """
 
-    from .utils import correct_metadata_column_names
+    from spacr.utils import correct_metadata_column_names
 
-    def _line_plot(df, x, y, log_x=False, log_y=False, title=""):
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(df[x], df[y], linestyle='-', color=(0, 0.6, 0.6), label=f"{y}")
-        ax.set_xlabel(x)
-        ax.set_ylabel(y)
-        ax.set_title(title)
-        ax.legend()
-        if log_x:
-            ax.set_xscale('log')
-        if log_y:
-            ax.set_yscale('log')
-        plt.show()
-
+    # Load and process data
     if isinstance(settings['score_data'], str):
         settings['score_data'] = [settings['score_data']]
 
@@ -367,47 +359,95 @@ def graph_cell_count_threshold(settings):
     for i, score_data in enumerate(settings['score_data']):
         df = pd.read_csv(score_data)
         df = correct_metadata_column_names(df)
-        df['plate'] = f'plate{i+1}'
+        df['plate'] = f'plate{i + 1}'
         df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
         dfs.append(df)
 
     df = pd.concat(dfs, axis=0)
 
-    # Compute the number of cells (or scores) per well
+    # Compute the number of cells per well and select the top 100 wells by cell count
     cell_counts = df.groupby('prc').size().reset_index(name='cell_count')
+    top_wells = cell_counts.nlargest(sample_size, 'cell_count')['prc']
 
-    # Merge the cell counts back into the original DataFrame
-    df = df.merge(cell_counts, on='prc')
+    # Filter the data to include only the top 100 wells
+    df = df[df['prc'].isin(top_wells)]
 
-    # Generate a range of thresholds
-    thresholds = np.arange(1, df['cell_count'].max() + 1)
-    results = []
+    # Initialize storage for absolute difference data
+    diff_data = []
 
-    # Iterate over thresholds and compute score mean and variance
-    for threshold in thresholds:
-        filtered_df = df[df['cell_count'] >= threshold]
-        score_mean = filtered_df.groupby('prc')[settings['score_column']].mean().mean()
-        score_variance = filtered_df.groupby('prc')[settings['score_column']].mean().var()
-        results.append((threshold, score_mean, score_variance))
+    # Group by wells and iterate over them
+    for i, (prc, group) in enumerate(df.groupby('prc')):
+        original_mean = group[settings['score_column']].mean()  # Original full-well mean
+        max_cells = len(group)
+        sample_sizes = np.arange(2, max_cells + 1, increment)  # Sample sizes from 2 to max cells
 
-    results_df = pd.DataFrame(results, columns=['cell_count_threshold', 'score_mean', 'score_variance'])
+        # Iterate over sample sizes and compute absolute difference
+        for sample_size in sample_sizes:
+            abs_diffs = []
 
-    if results_df.empty:
-        raise ValueError("No valid results were found. Check your data and thresholds.")
+            # Perform multiple random samples to reduce noise
+            for _ in range(num_repeats):
+                sample = group.sample(n=sample_size, replace=False)
+                sampled_mean = sample[settings['score_column']].mean()
+                abs_diff = abs(sampled_mean - original_mean)  # Absolute difference
+                abs_diffs.append(abs_diff)
 
-    closest_threshold = results_df['score_variance'].diff().abs().argmin()
-    optimal_threshold = results_df.iloc[closest_threshold]
+            # Compute the average absolute difference across all repeats
+            avg_abs_diff = np.mean(abs_diffs)
 
-    print(f"Optimal Threshold: {optimal_threshold['cell_count_threshold']}")
-    print(f"Score Mean at Optimal Threshold: {optimal_threshold['score_mean']}")
-    print(f"Score Variance at Optimal Threshold: {optimal_threshold['score_variance']}")
+            # Store the result for plotting
+            diff_data.append((sample_size, avg_abs_diff))
 
-    _line_plot(results_df, x='cell_count_threshold', y='score_mean', 
-               title='Mean Well Score vs. Cell Count Threshold')
-    _line_plot(results_df, x='cell_count_threshold', y='score_variance', 
-               title='Score Variance vs. Cell Count Threshold')
+    # Convert absolute difference data to DataFrame for plotting
+    diff_df = pd.DataFrame(diff_data, columns=['sample_size', 'avg_abs_diff'])
 
-    return optimal_threshold['cell_count_threshold']
+    # Group by sample size to calculate mean and standard deviation
+    summary_df = diff_df.groupby('sample_size').agg(
+        mean_abs_diff=('avg_abs_diff', 'mean'),
+        std_abs_diff=('avg_abs_diff', 'std')
+    ).reset_index()
+
+    # Apply smoothing using a rolling window
+    summary_df['smoothed_mean_abs_diff'] = summary_df['mean_abs_diff'].rolling(window=smoothing, min_periods=1).mean()
+
+    # Calculate the first derivative (slope)
+    summary_df['first_derivative'] = np.gradient(summary_df['smoothed_mean_abs_diff'])
+
+    # Detect the elbow point (where slope < tolerance)
+    elbow_index = summary_df[summary_df['first_derivative'].abs() < tolerance].index.min()
+    elbow_point = summary_df.iloc[elbow_index] if elbow_index is not None else summary_df.iloc[-1]
+
+    # Plot the mean absolute difference with standard deviation as shaded area
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.plot(
+        summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
+    )
+    ax.fill_between(
+        summary_df['sample_size'],
+        summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
+        summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
+        color='teal', alpha=0.3, label='±1 Std. Dev.'
+    )
+
+    # Mark the elbow point (inflection) on the plot
+    ax.axvline(elbow_point['sample_size'], color='black', linestyle='--')
+
+    # Formatting the plot
+    ax.set_xlabel('Sample Size')
+    ax.set_ylabel('Mean Absolute Difference')
+    ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
+    ax.legend().remove()
+    dst = os.path.dirname(settings['count_data'][0])
+    
+    if dst is not None:
+        fig_path = os.path.join(dst, 'results')
+        os.makedirs(fig_path, exist_ok=True)
+        fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
+        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+        print(f"Saved {fig_file_path}")
+    
+    plt.show()
+    return elbow_point['sample_size']
 
 def perform_regression(settings):
     
@@ -536,7 +576,7 @@ def perform_regression(settings):
     print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
     if settings['min_cell_count'] is None:
-        settings['min_cell_count'] = graph_cell_count_threshold(settings)
+        settings['min_cell_count'] = minimum_cell_simulation(settings)
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     print(f"Dependent variable after process_scores: {len(dependent_df)}")
@@ -551,8 +591,10 @@ def perform_regression(settings):
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
 
+    os.makedirs(res_folder, exist_ok=True)
     data_path = os.path.join(res_folder, 'regression_data.csv')
     merged_df.to_csv(data_path, index=False)
+    print(f"Saved regression data to {data_path}")
 
     merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
     
@@ -635,14 +677,14 @@ def perform_regression(settings):
         
         if settings['volcano'] == 'all':
             print('all')
-            custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'], save_path=volcano_path, x_lim=settings['x_lim'])
+            custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
         elif settings['volcano'] == 'gene':
             print('gene')
-            custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'], save_path=volcano_path, x_lim=settings['x_lim'])
+            custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
         elif settings['volcano'] == 'grna':
             print('grna')
-            custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, split_axis_lims=settings['split_axis_lims'], save_path=volcano_path, x_lim=settings['x_lim'])
-        
+            custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+
         #if len(significant) > 2:
         #    metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
         #    go_term_enrichment_by_column(significant, metadata_path)
