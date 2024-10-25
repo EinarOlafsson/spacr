@@ -493,7 +493,7 @@ def graph_sequencing_stats(settings):
 
     def _plot_density(df, dependent_variable, dst=None):
         """Plot a density plot of the dependent variable."""
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10, 10))
         sns.kdeplot(df[dependent_variable], fill=True, alpha=0.6)
         plt.title(f'Density Plot of {dependent_variable}')
         plt.xlabel(dependent_variable)

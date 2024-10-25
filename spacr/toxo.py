@@ -7,8 +7,160 @@ import pandas as pd
 from scipy.stats import fisher_exact
 from IPython.display import display
 from matplotlib.legend import Legend
+from matplotlib.transforms import Bbox
+from brokenaxes import brokenaxes
 
-def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0, split_axis_lims = [10, None, None, 10], save_path=None, x_lim=[-0.5, 0.5]):
+
+from matplotlib.gridspec import GridSpec
+
+
+def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location',
+                        point_size=50, figsize=20, threshold=0,
+                        save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 15]]):
+    
+    markers = [
+        'o',  # Circle
+        'X',  # X-shaped marker
+        '^',  # Upward triangle
+        's',  # Square
+        'v',  # Downward triangle
+        'P',  # Plus-filled pentagon
+        '*',  # Star
+        '+',  # Plus
+        'x',  # Cross
+        '.',  # Point
+        ',',  # Pixel
+        'd',  # Diamond
+        'D',  # Thin diamond
+        'h',  # Hexagon 1
+        'H',  # Hexagon 2
+        'p',  # Pentagon
+        '|',  # Vertical line
+        '_',  # Horizontal line
+    ]
+    
+    plt.rcParams.update({'font.size': 14})
+
+    # Load data
+    if isinstance(data_path, pd.DataFrame):
+        data = data_path
+    else:
+        data = pd.read_csv(data_path)
+
+    fontsize = 18
+
+    plt.rcParams.update({'font.size': fontsize})
+    data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
+    data['variable'].fillna(data['feature'], inplace=True)
+    data['gene_nr'] = data['variable'].str.split('_').str[0]
+    data = data[data['variable'] != 'Intercept']
+
+    # Load metadata
+    if isinstance(metadata_path, pd.DataFrame):
+        metadata = metadata_path
+    else:
+        metadata = pd.read_csv(metadata_path)
+    metadata['gene_nr'] = metadata['gene_nr'].astype(str)
+    data['gene_nr'] = data['gene_nr'].astype(str)
+
+    merged_data = pd.merge(data, metadata[['gene_nr', metadata_column]], on='gene_nr', how='left')
+    merged_data[metadata_column].fillna('unknown', inplace=True)
+
+    # Define palette and markers
+    palette = {'pc': 'red', 'nc': 'green', 'control': 'white', 'other': 'gray'}
+    marker_dict = {val: marker for val, marker in zip(
+        merged_data[metadata_column].unique(), markers)}
+
+    # Create the figure with custom spacing
+    fig = plt.figure(figsize=(figsize,figsize))
+    gs = GridSpec(2, 1, height_ratios=[1, 3], hspace=0.05)
+
+    ax_upper = fig.add_subplot(gs[0])
+    ax_lower = fig.add_subplot(gs[1], sharex=ax_upper)
+
+    # Hide x-axis labels on the upper plot
+    ax_upper.tick_params(axis='x', which='both', bottom=False, labelbottom=False)
+
+    # Scatter plot on both axes
+    for _, row in merged_data.iterrows():
+        y_val = -np.log10(row['p_value'])
+        ax = ax_upper if y_val > y_lims[1][0] else ax_lower
+
+        ax.scatter(
+            row['coefficient'], y_val,
+            color=palette.get(row['condition'], 'gray'),
+            marker=marker_dict.get(row[metadata_column], 'o'),
+            s=point_size, edgecolor='black', alpha=0.6
+        )
+
+    # Set axis limits
+    ax_upper.set_ylim(y_lims[1])
+    ax_lower.set_ylim(y_lims[0])
+    ax_lower.set_xlim(x_lim)
+
+    ax_lower.spines['top'].set_visible(False)
+    ax_upper.spines['top'].set_visible(False)
+    ax_upper.spines['bottom'].set_visible(False)
+
+    # Set x-axis and y-axis titles
+    ax_lower.set_xlabel('Coefficient')  # X-axis title on the lower graph
+    ax_lower.set_ylabel('-log10(p-value)')  # Y-axis title on the lower graph
+    ax_upper.set_ylabel('-log10(p-value)')  # Y-axis title on the upper graph
+    
+    for ax in [ax_upper, ax_lower]:
+        ax.spines['right'].set_visible(False)
+
+
+    # Add threshold lines to both axes
+    for ax in [ax_upper, ax_lower]:
+        ax.axvline(x=-abs(threshold), linestyle='--', color='black')
+        ax.axvline(x=abs(threshold), linestyle='--', color='black')
+
+    ax_lower.axhline(y=-np.log10(0.05), linestyle='--', color='black')
+
+    # Annotate significant points
+    texts_upper, texts_lower = [], []  # Collect text annotations separately
+
+    for _, row in merged_data.iterrows():
+        y_val = -np.log10(row['p_value'])
+        if row['p_value'] > 0.05 or abs(row['coefficient']) < abs(threshold):
+            continue
+
+        ax = ax_upper if y_val > y_lims[1][0] else ax_lower
+        text = ax.text(row['coefficient'], y_val, row['variable'], 
+                       fontsize=fontsize, ha='center', va='bottom')
+
+        if ax == ax_upper:
+            texts_upper.append(text)
+        else:
+            texts_lower.append(text)
+
+    # Adjust text positions to avoid overlap
+    adjust_text(texts_upper, ax=ax_upper, arrowprops=dict(arrowstyle='-', color='black'))
+    adjust_text(texts_lower, ax=ax_lower, arrowprops=dict(arrowstyle='-', color='black'))
+
+    # Add a single legend on the lower axis
+    handles = [plt.Line2D([0], [0], marker=m, color='w', markerfacecolor='gray', markersize=10)
+               for m in marker_dict.values()]
+    labels = marker_dict.keys()
+    ax_lower.legend(handles, 
+                    labels, 
+                    bbox_to_anchor=(1.05, 1), 
+                    loc='upper left',
+                    borderaxespad=0.25, 
+                    labelspacing=2, 
+                    handletextpad=0.25, 
+                    markerscale=2, 
+                    prop={'size': fontsize})
+
+
+    # Save and show the plot
+    if save_path:
+        plt.savefig(save_path, format='pdf', bbox_inches='tight')
+    plt.show()
+
+
+def custom_volcano_plot_v1(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0, split_axis_lims = [10, None, None, 10], save_path=None, x_lim=[-0.5, 0.5]):
     """
     Create a volcano plot with the ability to control the shape of points based on a categorical column,
     color points based on a condition, annotate specific points based on p-value and coefficient thresholds,
@@ -17,6 +169,7 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     volcano_path = save_path
     padd = 30
     fontsize = 18
+    plt.rcParams.update({'font.size': fontsize})
     # Load the data
     if isinstance(data_path, pd.DataFrame):
         data = data_path
@@ -40,11 +193,11 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
 
     # Merge data and metadata on 'gene_nr'
     merged_data = pd.merge(data, metadata[['gene_nr', 'tagm_location']], on='gene_nr', how='left')
-
     merged_data.loc[merged_data['gene_nr'].str.startswith('4'), metadata_column] = 'GT1_gene'
     merged_data.loc[merged_data['gene_nr'] == 'Intercept', metadata_column] = 'Intercept'
     merged_data.loc[merged_data['condition'] == 'control', metadata_column] = 'control'
     merged_data[metadata_column].fillna('unknown', inplace=True)
+    display(merged_data)
 
     # Categorize condition for coloring
     merged_data['condition'] = pd.Categorical(
@@ -66,7 +219,7 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         'control': 'white',
         'other': 'gray'}
     
-    # Scatter plot on both axes with legend completely disabled
+    # Scatter plot on both axes with legend disabled
     sns.scatterplot(
         data=merged_data,
         x='coefficient',
@@ -76,7 +229,7 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         s=point_size,
         edgecolor='black',
         palette=palette,
-        legend=False,  # Disable automatic legend
+        legend='brief',  
         alpha=0.6,
         ax=ax2  # Lower plot
     )
@@ -90,38 +243,19 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         s=point_size,
         edgecolor='black',
         palette=palette,
-        legend=False,  # No legend on the upper plot
+        legend=False,
         alpha=0.6,
         ax=ax1  # Upper plot
     )
 
-    # Ensure no previous legends on ax1 or ax2
-    if ax1.get_legend() is not None:
-        ax1.get_legend().remove()
-
-    if ax2.get_legend() is not None:
-        ax2.get_legend().remove()
-
-    # Manually gather handles and labels from ax2 after plotting
-    handles, labels = ax2.get_legend_handles_labels()
-
-    # Debug: Print the captured handles and labels for verification
-    print(f"Handles: {handles}")
-    print(f"Labels: {labels}")
-
-    # Identify shape-based legend entries (skip color-based entries)
-    n_color_entries = len(set(merged_data['condition']))
-    shape_handles = handles[n_color_entries:]
-    shape_labels = labels[n_color_entries:]
-
-    # Create and add the legend with shape-based entries
-    legend = Legend(
-        ax2, shape_handles, shape_labels,
-        bbox_to_anchor=(1.05, 1), loc='upper left',
-        handletextpad=2.0, labelspacing=1.5, borderaxespad=1.0,
-        markerscale=2.0, prop={'size': 14}
+    ax2.legend(
+        bbox_to_anchor=(1.05, 1), 
+        loc='upper left', 
+        borderaxespad=0.25,  # Padding between legend and plot border
+        labelspacing=2,  # Vertical space between entries
+        handletextpad=0.25,  # Horizontal space between handle and text
+        markerscale=1.2  # Scale the marker size in the legend if needed
     )
-    ax2.add_artist(legend)
 
     if isinstance(split_axis_lims, list):
         if len(split_axis_lims) == 4:
@@ -188,12 +322,9 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     adjust_text(texts_ax1, arrowprops=dict(arrowstyle='-', color='black'), ax=ax1, expand_points=(padd, padd), fontsize=fontsize)
     adjust_text(texts_ax2, arrowprops=dict(arrowstyle='-', color='black'), ax=ax2, expand_points=(padd, padd), fontsize=fontsize)
 
-    # Move the legend outside the lower plot
-    ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-
     # Adjust the spacing between subplots and move the title
-    plt.subplots_adjust(hspace=0.05)
-    fig.suptitle('Custom Volcano Plot of Coefficients', y=1.02, fontsize=16)  # Title above the top plot
+    plt.subplots_adjust(hspace=0.00)
+    fig.suptitle('Custom Volcano Plot of Coefficients', y=1.02, fontsize=fontsize)  # Title above the top plot
 
     # Save the plot as PDF
     plt.savefig(volcano_path, format='pdf', bbox_inches='tight')
