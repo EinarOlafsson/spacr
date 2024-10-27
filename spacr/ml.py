@@ -9,6 +9,7 @@ from IPython.display import display
 
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+from statsmodels.tools import add_constant
 from statsmodels.regression.mixed_linear_model import MixedLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -74,46 +75,6 @@ def perform_mixed_model(y, X, groups, alpha=1.0):
 
     result = model.fit()
     return result
-
-def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
-
-    def plot_regression_line(X, y, model):
-        """Helper to plot regression line for lasso and ridge models."""
-        y_pred = model.predict(X)
-        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
-        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
-        plt.xlabel('Features')
-        plt.ylabel('Dependent Variable')
-        plt.legend()
-        plt.show()
-
-    # Define the dictionary with callables (lambdas) to delay evaluation
-    model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'gls': lambda: sm.GLS(y, X).fit(),
-        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
-        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
-        'glm': lambda: sm.GLM(y, X, family=sm.families.Gaussian()).fit(),
-        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'poisson': lambda: sm.Poisson(y, X).fit(),
-        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
-    }
-
-    # Call the appropriate model only when needed
-    if regression_type in model_map:
-        model = model_map[regression_type]() 
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type {regression_type}")
-
-    if regression_type in ['lasso', 'ridge']:
-        plot_regression_line(X, y, model)
-
-    return model
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
     """Create and return the volcano plot filename based on regression type and alpha."""
@@ -208,6 +169,139 @@ def fit_mixed_model(df, formula, dst):
     })
     
     return mixed_model, coef_df
+
+def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
+
+    def plot_regression_line(X, y, model):
+        """Helper to plot regression line for lasso and ridge models."""
+        y_pred = model.predict(X)
+        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
+        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
+        plt.xlabel('Features')
+        plt.ylabel('Dependent Variable')
+        plt.legend()
+        plt.show()
+
+    # Define the dictionary with callables (lambdas) to delay evaluation
+    model_map = {
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'gls': lambda: sm.GLS(y, X).fit(),
+        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
+        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
+        'glm': lambda: sm.GLM(y, X, family=sm.families.Gaussian()).fit(),
+        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
+        'logit': lambda: sm.Logit(y, X).fit(),
+        'probit': lambda: sm.Probit(y, X).fit(),
+        'poisson': lambda: sm.Poisson(y, X).fit(),
+        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
+        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
+    }
+
+    # Call the appropriate model only when needed
+    if regression_type in model_map:
+        model = model_map[regression_type]() 
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+    else:
+        raise ValueError(f"Unsupported regression type {regression_type}")
+
+    if regression_type in ['lasso', 'ridge']:
+        plot_regression_line(X, y, model)
+
+    # Handle GLM-specific statistics
+    if regression_type == 'glm':
+        # Calculate McFadden’s pseudo-R²
+        llf_model = model.llf  # Log-likelihood of the fitted model
+        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
+        mcfadden_r2 = 1 - (llf_model / llf_null)
+
+        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+        print(model.summary())
+
+    return model
+
+def regression_model_v2(X, y, regression_type=None, groups=None, alpha=1.0, cov_type=None):
+    """Perform regression with automated model selection or user-specified type."""
+
+    print("Checking for NaN or inf in X and y:")
+    print(f"NaN in X: {X.isna().sum().sum()}")
+    print(f"NaN in y: {np.isnan(y).sum()}")
+    print(f"Inf in X: {np.isinf(X).values.sum()}")
+    print(f"Inf in y: {np.isinf(y).sum()}")
+
+    # Ensure y is a pandas Series and flatten if necessary
+    if isinstance(y, np.ndarray) and y.ndim > 1:
+        y = pd.Series(y.ravel())  # Flatten and convert to Series
+    elif not isinstance(y, pd.Series):
+        y = pd.Series(y)
+
+    # Add constant and align X and y
+    X = add_constant(X)
+    X, y = X.align(y, join='inner', axis=0)
+
+    if X.empty or y.empty:
+        raise ValueError("Insufficient data to fit the model after cleaning.")
+
+    # Auto-detect regression type if not specified
+    if regression_type is None:
+        regression_type = check_distribution(y)
+
+    print(f"Selected regression type: {regression_type}")
+
+    model_map = {
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'glm': lambda: sm.GLM(y, X, family=select_glm_family(y)).fit(),
+        'logit': lambda: sm.Logit(y, X).fit(),
+        'probit': lambda: sm.Probit(y, X).fit(),
+        'poisson': lambda: sm.Poisson(y, X).fit(),
+        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
+        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
+    }
+
+    # Call the appropriate model
+    if regression_type in model_map:
+        model = model_map[regression_type]()
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+    else:
+        raise ValueError(f"Unsupported regression type: {regression_type}")
+
+    # Handle GLM-specific stats
+    if regression_type == 'glm':
+        llf_model = model.llf
+        llf_null = model.null_deviance / -2
+        mcfadden_r2 = 1 - (llf_model / llf_null)
+        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+
+    print(model.summary())
+    return model
+
+def check_distribution(y):
+    """Check the type of distribution to recommend a model."""
+    if np.all((y == 0) | (y == 1)):
+        print("Detected binary data.")
+        return 'logit'
+    elif np.all(y.astype(int) == y):
+        print("Detected count data.")
+        return 'poisson'
+    elif np.issubdtype(y.dtype, np.floating):
+        print("Detected continuous data.")
+        return 'ols'
+    else:
+        print("Using GLM as a fallback.")
+        return 'glm'
+
+def select_glm_family(y):
+    """Select the appropriate GLM family based on the data."""
+    if (y >= 0).all() and (y <= 1).all():
+        print("Using Binomial family (for classification probabilities).")
+        return sm.families.Binomial()
+    elif np.all(y.astype(int) == y) and (y >= 0).all():
+        print("Using Poisson family (for count data).")
+        return sm.families.Poisson()
+    else:
+        print("Using Gaussian family (for continuous data).")
+        return sm.families.Gaussian()
 
 def check_and_clean_data(df, dependent_variable):
     """Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly."""
@@ -343,7 +437,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     return model, coef_df
 
-def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.001, smoothing=5, increment=10):
+def minimum_cell_simulation_v1(settings, num_repeats=10, sample_size=100, tolerance=0.01, smoothing=10, increment=10):
     """
     Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
     Detect and mark the elbow point (inflection) with smoothing and tolerance control.
@@ -414,11 +508,14 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     summary_df['first_derivative'] = np.gradient(summary_df['smoothed_mean_abs_diff'])
 
     # Detect the elbow point (where slope < tolerance)
-    elbow_index = summary_df[summary_df['first_derivative'].abs() < tolerance].index.min()
+    #elbow_index = summary_df[summary_df['first_derivative'].abs() < tolerance].index.min()
+    #elbow_point = summary_df.iloc[elbow_index] if elbow_index is not None else summary_df.iloc[-1]
+    elbow_index = summary_df[summary_df['smoothed_mean_abs_diff'] == tolerance].index
     elbow_point = summary_df.iloc[elbow_index] if elbow_index is not None else summary_df.iloc[-1]
 
+
     # Plot the mean absolute difference with standard deviation as shaded area
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(10, 10))
     ax.plot(
         summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
     )
@@ -449,12 +546,121 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     plt.show()
     return elbow_point['sample_size']
 
+def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
+    """
+    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
+    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
+    """
+
+    from spacr.utils import correct_metadata_column_names
+
+    # Load and process data
+    if isinstance(settings['score_data'], str):
+        settings['score_data'] = [settings['score_data']]
+
+    dfs = []
+    for i, score_data in enumerate(settings['score_data']):
+        df = pd.read_csv(score_data)
+        df = correct_metadata_column_names(df)
+        df['plate'] = f'plate{i + 1}'
+        df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+        dfs.append(df)
+
+    df = pd.concat(dfs, axis=0)
+
+    # Compute the number of cells per well and select the top 100 wells by cell count
+    cell_counts = df.groupby('prc').size().reset_index(name='cell_count')
+    top_wells = cell_counts.nlargest(sample_size, 'cell_count')['prc']
+
+    # Filter the data to include only the top 100 wells
+    df = df[df['prc'].isin(top_wells)]
+
+    # Initialize storage for absolute difference data
+    diff_data = []
+
+    # Group by wells and iterate over them
+    for i, (prc, group) in enumerate(df.groupby('prc')):
+        original_mean = group[settings['score_column']].mean()  # Original full-well mean
+        max_cells = len(group)
+        sample_sizes = np.arange(2, max_cells + 1, increment)  # Sample sizes from 2 to max cells
+
+        # Iterate over sample sizes and compute absolute difference
+        for sample_size in sample_sizes:
+            abs_diffs = []
+
+            # Perform multiple random samples to reduce noise
+            for _ in range(num_repeats):
+                sample = group.sample(n=sample_size, replace=False)
+                sampled_mean = sample[settings['score_column']].mean()
+                abs_diff = abs(sampled_mean - original_mean)  # Absolute difference
+                abs_diffs.append(abs_diff)
+
+            # Compute the average absolute difference across all repeats
+            avg_abs_diff = np.mean(abs_diffs)
+
+            # Store the result for plotting
+            diff_data.append((sample_size, avg_abs_diff))
+
+    # Convert absolute difference data to DataFrame for plotting
+    diff_df = pd.DataFrame(diff_data, columns=['sample_size', 'avg_abs_diff'])
+
+    # Group by sample size to calculate mean and standard deviation
+    summary_df = diff_df.groupby('sample_size').agg(
+        mean_abs_diff=('avg_abs_diff', 'mean'),
+        std_abs_diff=('avg_abs_diff', 'std')
+    ).reset_index()
+
+    # Apply smoothing using a rolling window
+    summary_df['smoothed_mean_abs_diff'] = summary_df['mean_abs_diff'].rolling(window=smoothing, min_periods=1).mean()
+
+    # Detect the elbow point (where mean_abs_diff < tolerance)
+    elbow_df = summary_df[summary_df['smoothed_mean_abs_diff'] <= tolerance]
+
+    # Select the first occurrence if it exists; otherwise, use the last point
+    if not elbow_df.empty:
+        elbow_point = elbow_df.iloc[0]  # First point where the condition is met
+    else:
+        elbow_point = summary_df.iloc[-1]  # Fallback to the last point
+
+    # Plot the mean absolute difference with standard deviation as shaded area
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.plot(
+        summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
+    )
+    ax.fill_between(
+        summary_df['sample_size'],
+        summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
+        summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
+        color='teal', alpha=0.3, label='±1 Std. Dev.'
+    )
+
+    # Mark the elbow point (inflection) on the plot
+    ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
+
+    # Formatting the plot
+    ax.set_xlabel('Sample Size')
+    ax.set_ylabel('Mean Absolute Difference')
+    ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
+    ax.legend().remove()
+
+    # Save the plot if a destination is provided
+    dst = os.path.dirname(settings['count_data'][0])
+    if dst is not None:
+        fig_path = os.path.join(dst, 'results')
+        os.makedirs(fig_path, exist_ok=True)
+        fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
+        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+        print(f"Saved {fig_file_path}")
+
+    plt.show()
+    return elbow_point['sample_size']
+
 def perform_regression(settings):
     
     from .plot import plot_plates
     from .utils import merge_regression_res_with_metadata, save_settings
     from .settings import get_perform_regression_default_settings
-    from .toxo import go_term_enrichment_by_column, custom_volcano_plot
+    from .toxo import go_term_enrichment_by_column, custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
     from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
@@ -576,7 +782,10 @@ def perform_regression(settings):
     print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
     if settings['min_cell_count'] is None:
-        settings['min_cell_count'] = minimum_cell_simulation(settings)
+        settings['min_cell_count'] = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
+    print(f"Minimum cell count: {settings['min_cell_count']}")
+
+    orig_dv = settings['dependent_variable']
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     print(f"Dependent variable after process_scores: {len(dependent_df)}")
@@ -598,8 +807,7 @@ def perform_regression(settings):
 
     merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
     
-    if settings['transform'] is None:
-        _ = plot_plates(score_data_df, variable=dependent_variable, grouping='mean', min_max='allq', cmap='viridis', min_count=settings['min_cell_count'], dst = res_folder)                
+    _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
     model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
     
@@ -684,7 +892,20 @@ def perform_regression(settings):
         elif settings['volcano'] == 'grna':
             print('grna')
             custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+        
+        phenotype_plot = os.path.join(res_folder,'phenotype_plot.pdf')
+        transcription_heatmap = os.path.join(res_folder,'transcription_heatmap.pdf')
+        data_GT1 = pd.read_csv(settings['metadata_files'][1], low_memory=False)
+        data_ME49 = pd.read_csv(settings['metadata_files'][0], low_memory=False)
+        gene_list = significant.gene.dropna().tolist()
+        columns = ['sense - Tachyzoites', 'sense - Tissue cysts', 'sense - EES1', 'sense - EES2', 'sense - EES3', 'sense - EES4', 'sense - EES5']
 
+        print('Plotting gene phenotypes and heatmaps')
+        print(gene_list)
+
+        plot_gene_phenotypes(data=data_GT1, gene_list=gene_list, save_path=phenotype_plot)
+        plot_gene_heatmaps(data=data_ME49, gene_list=gene_list, columns=columns, x_column='Gene ID', normalize=True, save_path=transcription_heatmap)
+        
         #if len(significant) > 2:
         #    metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
         #    go_term_enrichment_by_column(significant, metadata_path)
