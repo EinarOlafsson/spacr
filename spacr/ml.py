@@ -56,12 +56,12 @@ class BetaRegression:
         self.params = None
 
     def _log_likelihood(self, params, X, y):
-        """Log-likelihood function with proper dimension handling."""
+        """Log-likelihood function with proper dimension checks."""
         beta_0 = params[0]  # Intercept
         beta_1 = params[1:-1]  # Coefficients (aligned with X's features)
         phi = np.exp(params[-1])  # Precision parameter
 
-        # Check the shapes for debugging
+        # Check dimensions for debugging
         print(f"X shape: {X.shape}, beta_1 shape: {beta_1.shape}")
 
         # Predicted mean (inverse logit)
@@ -83,21 +83,21 @@ class BetaRegression:
 
         return -(np.sum(log_lik) - reg_term)
 
-    def fit(self, X, y):
-        """Fit the beta regression model with corrected indexing."""
-        n_features = X.shape[1]  # Number of features (without intercept)
 
-        # Initialize parameters: n_features + 1 for intercept + 1 for phi
+    def fit(self, X, y):
+        """Fit the beta regression model with proper dimension alignment."""
+        if isinstance(X, pd.DataFrame):
+            X = X.values  # Convert to NumPy array if it's a DataFrame
+
+        # Ensure intercept is added only once
+        if not np.all(X[:, 0] == 1):
+            X = np.column_stack([np.ones(X.shape[0]), X])  # Add intercept
+
+        # Initialize parameters: one for each feature + 1 for phi
+        n_features = X.shape[1]  # This should match the updated X shape
         initial_params = np.random.uniform(-0.01, 0.01, size=n_features + 1)
 
-        # Add intercept to X (if not already present)
-        if isinstance(X, pd.DataFrame):
-            first_column = X.iloc[:, 0]
-        else:
-            first_column = X[:, 0]
-
-        if not np.all(first_column == 1):
-            X = np.column_stack([np.ones(X.shape[0]), X])  # Add intercept
+        print(f"Updated X shape: {X.shape}, Initial params shape: {initial_params.shape}")
 
         # Perform the optimization
         result = minimize(self._log_likelihood, initial_params, args=(X, y),
@@ -107,6 +107,7 @@ class BetaRegression:
             raise RuntimeError(f"Optimization failed: {result.message}")
 
         self.params = result.x
+
 
     def predict(self, X):
         """Predict values using the fitted model."""
