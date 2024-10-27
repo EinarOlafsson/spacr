@@ -13,6 +13,10 @@ from statsmodels.tools import add_constant
 from statsmodels.regression.mixed_linear_model import MixedLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.genmod.families import Binomial
+from statsmodels.genmod.families.links import logit
+from scipy.optimize import minimize
+from scipy.special import gammaln
 
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer
@@ -35,6 +39,82 @@ matplotlib.use('Agg')
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+class QuasiBinomial(Binomial):
+    """Custom Quasi-Binomial family with adjustable variance."""
+    def __init__(self, link=logit(), dispersion=1.0):
+        super().__init__(link=link)
+        self.dispersion = dispersion
+
+    def variance(self, mu):
+        """Adjust the variance with the dispersion parameter."""
+        return self.dispersion * super().variance(mu)
+
+class BetaRegression:
+    """Custom Beta Regression using MLE with improved optimization."""
+    def __init__(self):
+        self.params = None
+
+    def _log_likelihood(self, params, X, y):
+        """Log-likelihood function with proper dimension handling."""
+        beta_0 = params[0]  # Intercept
+        beta_1 = params[1:-1]  # Coefficients (aligned with X's features)
+        phi = np.exp(params[-1])  # Precision parameter
+
+        # Check the shapes for debugging
+        print(f"X shape: {X.shape}, beta_1 shape: {beta_1.shape}")
+
+        # Predicted mean (inverse logit)
+        mu = 1 / (1 + np.exp(-(X @ beta_1 + beta_0)))
+
+        # Regularization term
+        reg_lambda = 1e-6
+        reg_term = reg_lambda * np.sum(params**2)
+
+        # Clip y values to avoid log(0) errors
+        epsilon = 1e-9
+        y = np.clip(y, epsilon, 1 - epsilon)
+
+        # Calculate log-likelihood
+        a = mu * phi
+        b = (1 - mu) * phi
+        log_lik = (gammaln(a + b) - gammaln(a) - gammaln(b) +
+                (a - 1) * np.log(y) + (b - 1) * np.log(1 - y))
+
+        return -(np.sum(log_lik) - reg_term)
+
+    def fit(self, X, y):
+        """Fit the beta regression model with corrected indexing."""
+        n_features = X.shape[1]  # Number of features (without intercept)
+
+        # Initialize parameters: n_features + 1 for intercept + 1 for phi
+        initial_params = np.random.uniform(-0.01, 0.01, size=n_features + 1)
+
+        # Add intercept to X (if not already present)
+        if isinstance(X, pd.DataFrame):
+            first_column = X.iloc[:, 0]
+        else:
+            first_column = X[:, 0]
+
+        if not np.all(first_column == 1):
+            X = np.column_stack([np.ones(X.shape[0]), X])  # Add intercept
+
+        # Perform the optimization
+        result = minimize(self._log_likelihood, initial_params, args=(X, y),
+                        method='SLSQP', options={'disp': True, 'maxiter': 1000})
+
+        if not result.success:
+            raise RuntimeError(f"Optimization failed: {result.message}")
+
+        self.params = result.x
+
+    def predict(self, X):
+        """Predict values using the fitted model."""
+        X = np.column_stack([np.ones(X.shape[0]), X])
+        beta_0 = self.params[0]
+        beta_1 = self.params[1:-1]
+        mu = 1 / (1 + np.exp(-(X @ beta_1 + beta_0)))
+        return mu
 
 def calculate_p_values(X, y, model):
     # Predict y values
@@ -134,6 +214,136 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
+               random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
+               dst=None, cov_type=None, plot=False):
+    
+    from .plot import volcano_plot, plot_histogram
+
+    # Generate the volcano filename
+    volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
+
+    # Determine regression type if not specified
+    if regression_type is None:
+        regression_type = check_distribution(df[dependent_variable])
+        #settings['regression_type'] = regression_type
+
+    print(f"Using regression type: {regression_type}")
+
+    df = check_and_clean_data(df, dependent_variable)
+
+    # Handle mixed effects if row/column effect is treated as random
+    if random_row_column_effects:
+        regression_type = 'mixed'
+        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
+        mixed_model, coef_df = fit_mixed_model(df, formula, dst)
+        model = mixed_model
+    else:
+        # Prepare the formula
+        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
+        y, X = dmatrices(formula, data=df, return_type='dataframe')
+
+        # Plot histogram of the dependent variable
+        plot_histogram(y, dependent_variable, dst=dst)
+
+        # Scale the independent variables and dependent variable
+        X, y = scale_variables(X, y)
+
+        # Perform the regression
+        groups = df['prc'] if regression_type == 'mixed' else None
+        print(f'Performing {regression_type} regression')
+
+        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
+
+        # Process the model coefficients
+        coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
+
+    if plot:
+        volcano_plot(coef_df, volcano_path)
+
+    return model, coef_df
+
+def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
+    def plot_regression_line(X, y, model):
+        """Helper to plot regression line for lasso and ridge models."""
+        y_pred = model.predict(X)
+        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
+        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
+        plt.xlabel('Features')
+        plt.ylabel('Dependent Variable')
+        plt.legend()
+        plt.show()
+
+    # Define the dictionary with callables (lambdas) to delay evaluation
+    model_map = {
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'gls': lambda: sm.GLS(y, X).fit(),
+        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
+        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
+        'glm': lambda: sm.GLM(y, X, family=select_glm_family(y)).fit(),
+        'quasi_binomial': lambda: sm.GLM(y, X, family=QuasiBinomial(dispersion=1.5)).fit(),
+        'beta': lambda: BetaRegression().fit(X, y), 
+        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
+        'logit': lambda: sm.Logit(y, X).fit(),
+        'probit': lambda: sm.Probit(y, X).fit(),
+        'poisson': lambda: sm.Poisson(y, X).fit(),
+        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
+        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)}
+
+    # Call the appropriate model only when needed
+    if regression_type in model_map:
+        model = model_map[regression_type]() 
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+    else:
+        raise ValueError(f"Unsupported regression type {regression_type}")
+
+    if regression_type in ['lasso', 'ridge']:
+        plot_regression_line(X, y, model)
+
+    # Handle GLM-specific statistics
+    if regression_type == 'glm':
+        # Calculate McFadden’s pseudo-R²
+        llf_model = model.llf  # Log-likelihood of the fitted model
+        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
+        mcfadden_r2 = 1 - (llf_model / llf_null)
+
+        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+        print(model.summary())
+
+    return model
+
+def check_distribution(y):
+    """Check the type of distribution to recommend a model."""
+    if np.all((y == 0) | (y == 1)):
+        print("Detected binary data.")
+        return 'logit'
+    elif (y > 0).all() and (y < 1).all():
+        print("Detected continuous data between 0 and 1 (excluding 0 and 1).")
+        return 'beta'
+    elif (y >= 0).all() and (y <= 1).all():
+        print("Detected continuous data between 0 and 1 (including 0 or 1).")
+        # Consider quasi-binomial regression
+        return 'quasi_binomial'
+    else:
+        print("Using OLS as a fallback.")
+        return 'ols'
+
+def select_glm_family(y):
+    """Select the appropriate GLM family based on the data."""
+    if np.all((y == 0) | (y == 1)):
+        print("Using Binomial family (for binary data).")
+        return sm.families.Binomial()
+    elif (y >= 0).all() and (y <= 1).all():
+        print("Using Quasi-Binomial family (for proportion data including 0 and 1).")
+        return QuasiBinomial()
+    elif np.all(y.astype(int) == y) and (y >= 0).all():
+        print("Using Poisson family (for count data).")
+        return sm.families.Poisson()
+    else:
+        print("Using Gaussian family (for continuous data).")
+        return sm.families.Gaussian()
+
 def prepare_formula(dependent_variable, random_row_column_effects=False):
     """Return the regression formula using random effects for plate, row, and column."""
     if random_row_column_effects:
@@ -169,139 +379,6 @@ def fit_mixed_model(df, formula, dst):
     })
     
     return mixed_model, coef_df
-
-def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
-
-    def plot_regression_line(X, y, model):
-        """Helper to plot regression line for lasso and ridge models."""
-        y_pred = model.predict(X)
-        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
-        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
-        plt.xlabel('Features')
-        plt.ylabel('Dependent Variable')
-        plt.legend()
-        plt.show()
-
-    # Define the dictionary with callables (lambdas) to delay evaluation
-    model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'gls': lambda: sm.GLS(y, X).fit(),
-        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
-        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
-        'glm': lambda: sm.GLM(y, X, family=sm.families.Gaussian()).fit(),
-        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'poisson': lambda: sm.Poisson(y, X).fit(),
-        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
-    }
-
-    # Call the appropriate model only when needed
-    if regression_type in model_map:
-        model = model_map[regression_type]() 
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type {regression_type}")
-
-    if regression_type in ['lasso', 'ridge']:
-        plot_regression_line(X, y, model)
-
-    # Handle GLM-specific statistics
-    if regression_type == 'glm':
-        # Calculate McFadden’s pseudo-R²
-        llf_model = model.llf  # Log-likelihood of the fitted model
-        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
-        mcfadden_r2 = 1 - (llf_model / llf_null)
-
-        print(f"McFadden's R²: {mcfadden_r2:.4f}")
-        print(model.summary())
-
-    return model
-
-def regression_model_v2(X, y, regression_type=None, groups=None, alpha=1.0, cov_type=None):
-    """Perform regression with automated model selection or user-specified type."""
-
-    print("Checking for NaN or inf in X and y:")
-    print(f"NaN in X: {X.isna().sum().sum()}")
-    print(f"NaN in y: {np.isnan(y).sum()}")
-    print(f"Inf in X: {np.isinf(X).values.sum()}")
-    print(f"Inf in y: {np.isinf(y).sum()}")
-
-    # Ensure y is a pandas Series and flatten if necessary
-    if isinstance(y, np.ndarray) and y.ndim > 1:
-        y = pd.Series(y.ravel())  # Flatten and convert to Series
-    elif not isinstance(y, pd.Series):
-        y = pd.Series(y)
-
-    # Add constant and align X and y
-    X = add_constant(X)
-    X, y = X.align(y, join='inner', axis=0)
-
-    if X.empty or y.empty:
-        raise ValueError("Insufficient data to fit the model after cleaning.")
-
-    # Auto-detect regression type if not specified
-    if regression_type is None:
-        regression_type = check_distribution(y)
-
-    print(f"Selected regression type: {regression_type}")
-
-    model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'glm': lambda: sm.GLM(y, X, family=select_glm_family(y)).fit(),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'poisson': lambda: sm.Poisson(y, X).fit(),
-        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
-    }
-
-    # Call the appropriate model
-    if regression_type in model_map:
-        model = model_map[regression_type]()
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type: {regression_type}")
-
-    # Handle GLM-specific stats
-    if regression_type == 'glm':
-        llf_model = model.llf
-        llf_null = model.null_deviance / -2
-        mcfadden_r2 = 1 - (llf_model / llf_null)
-        print(f"McFadden's R²: {mcfadden_r2:.4f}")
-
-    print(model.summary())
-    return model
-
-def check_distribution(y):
-    """Check the type of distribution to recommend a model."""
-    if np.all((y == 0) | (y == 1)):
-        print("Detected binary data.")
-        return 'logit'
-    elif np.all(y.astype(int) == y):
-        print("Detected count data.")
-        return 'poisson'
-    elif np.issubdtype(y.dtype, np.floating):
-        print("Detected continuous data.")
-        return 'ols'
-    else:
-        print("Using GLM as a fallback.")
-        return 'glm'
-
-def select_glm_family(y):
-    """Select the appropriate GLM family based on the data."""
-    if (y >= 0).all() and (y <= 1).all():
-        print("Using Binomial family (for classification probabilities).")
-        return sm.families.Binomial()
-    elif np.all(y.astype(int) == y) and (y >= 0).all():
-        print("Using Poisson family (for count data).")
-        return sm.families.Poisson()
-    else:
-        print("Using Gaussian family (for continuous data).")
-        return sm.families.Gaussian()
 
 def check_and_clean_data(df, dependent_variable):
     """Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly."""
@@ -384,7 +461,127 @@ def check_and_clean_data(df, dependent_variable):
     print("Data is ready for model fitting.")
     return df_cleaned
 
-def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False):
+def check_normality(y, variable_name):
+    """Check if the data is normally distributed using the Shapiro-Wilk test."""
+    from scipy.stats import shapiro
+
+    stat, p = shapiro(y)
+    alpha = 0.05
+    if p > alpha:
+        print(f"{variable_name} is normally distributed (fail to reject H0)")
+        return True
+    else:
+        print(f"{variable_name} is not normally distributed (reject H0)")
+        return False
+
+def regression_model_v2(X, y, regression_type=None, groups=None, alpha=1.0, cov_type=None):
+    """Perform regression with automated model selection or user-specified type."""
+
+    print("Checking for NaN or inf in X and y:")
+    print(f"NaN in X: {X.isna().sum().sum()}")
+    print(f"NaN in y: {np.isnan(y).sum()}")
+    print(f"Inf in X: {np.isinf(X).values.sum()}")
+    print(f"Inf in y: {np.isinf(y).sum()}")
+
+    # Ensure y is a pandas Series and flatten if necessary
+    if isinstance(y, np.ndarray) and y.ndim > 1:
+        y = pd.Series(y.ravel())  # Flatten and convert to Series
+    elif not isinstance(y, pd.Series):
+        y = pd.Series(y)
+
+    # Add constant and align X and y
+    X = add_constant(X)
+    X, y = X.align(y, join='inner', axis=0)
+
+    if X.empty or y.empty:
+        raise ValueError("Insufficient data to fit the model after cleaning.")
+
+    # Auto-detect regression type if not specified
+    if regression_type is None:
+        regression_type = check_distribution(y)
+
+    print(f"Selected regression type: {regression_type}")
+
+    model_map = {
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'glm': lambda: sm.GLM(y, X, family=select_glm_family(y)).fit(),
+        'logit': lambda: sm.Logit(y, X).fit(),
+        'probit': lambda: sm.Probit(y, X).fit(),
+        'poisson': lambda: sm.Poisson(y, X).fit(),
+        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
+        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
+    }
+
+    # Call the appropriate model
+    if regression_type in model_map:
+        model = model_map[regression_type]()
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+    else:
+        raise ValueError(f"Unsupported regression type: {regression_type}")
+
+    # Handle GLM-specific stats
+    if regression_type == 'glm':
+        llf_model = model.llf
+        llf_null = model.null_deviance / -2
+        mcfadden_r2 = 1 - (llf_model / llf_null)
+        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+
+    print(model.summary())
+    return model
+
+def regression_model_v1(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
+
+    def plot_regression_line(X, y, model):
+        """Helper to plot regression line for lasso and ridge models."""
+        y_pred = model.predict(X)
+        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
+        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
+        plt.xlabel('Features')
+        plt.ylabel('Dependent Variable')
+        plt.legend()
+        plt.show()
+
+    # Define the dictionary with callables (lambdas) to delay evaluation
+    model_map = {
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'gls': lambda: sm.GLS(y, X).fit(),
+        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
+        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
+        'glm': lambda: sm.GLM(y, X, family=sm.families.Gaussian()).fit(),
+        'quasi_binomial': lambda: sm.GLM(y, X, family=sm.families.Binomial()).fit(scale='X2'),
+        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
+        'logit': lambda: sm.Logit(y, X).fit(),
+        'probit': lambda: sm.Probit(y, X).fit(),
+        'poisson': lambda: sm.Poisson(y, X).fit(),
+        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
+        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
+    }
+
+    # Call the appropriate model only when needed
+    if regression_type in model_map:
+        model = model_map[regression_type]() 
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+    else:
+        raise ValueError(f"Unsupported regression type {regression_type}")
+
+    if regression_type in ['lasso', 'ridge']:
+        plot_regression_line(X, y, model)
+
+    # Handle GLM-specific statistics
+    if regression_type == 'glm':
+        # Calculate McFadden’s pseudo-R²
+        llf_model = model.llf  # Log-likelihood of the fitted model
+        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
+        mcfadden_r2 = 1 - (llf_model / llf_null)
+
+        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+        print(model.summary())
+
+    return model
+
+def regression_v1(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False):
     from .plot import volcano_plot, plot_histogram
 
     # Generate the volcano filename
@@ -413,6 +610,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         mixed_model, coef_df = fit_mixed_model(df, formula, dst)
         model = mixed_model
     else:
+
         # Regular regression models
         formula = prepare_formula(dependent_variable, random_row_column_effects=False)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
@@ -428,6 +626,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         print(f'performing {regression_type} regression')
 
         model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
+
 
         # Process the model coefficients
         coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
@@ -706,7 +905,7 @@ def perform_regression(settings):
             if not settings['class_1_threshold'] is None:
                 score_data_df['predictions'] = (score_data_df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
         
-        reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge']
+        reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge', None]
         if settings['regression_type'] not in reg_types:
             print(f'Possible regression types: {reg_types}')
             raise ValueError(f"Unsupported regression type {settings['regression_type']}")
@@ -714,7 +913,8 @@ def perform_regression(settings):
         return count_data_df, score_data_df
     
     def _perform_regression_set_paths(settings):
-        
+
+                
         if isinstance(settings['score_data'], list):
             score_data = settings['score_data'][0]
         else:
@@ -730,7 +930,11 @@ def perform_regression(settings):
             csv_path = settings['count_data']
 
         settings['src'] = src
-        res_folder = os.path.join(src, 'results', score_source, settings['regression_type'])
+    
+        if settings['regression_type'] is None:
+            res_folder = os.path.join(src, 'results', score_source, 'auto')
+        else:
+            res_folder = os.path.join(src, 'results', score_source, settings['regression_type'])
         
         if isinstance(settings['count_data'], list):
             res_folder = os.path.join(res_folder, 'list')
