@@ -473,3 +473,149 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     # Show the combined plot
     plt.tight_layout()
     plt.show()
+
+def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
+    """
+    Plot a line graph for the mean phenotype with standard error shading and highlighted genes.
+    
+    Args:
+        data (pd.DataFrame): The input DataFrame containing gene data.
+        gene_list (list): A list of gene names to highlight on the plot.
+    """
+    # Ensure x_column is properly processed
+    def extract_gene_id(gene):
+        if isinstance(gene, str) and '_' in gene:
+            return gene.split('_')[1]
+        return str(gene)
+
+    data.loc[:, data_column] = pd.to_numeric(data[data_column], errors='coerce')
+    data = data.dropna(subset=[data_column])
+    data.loc[:, error_column] = pd.to_numeric(data[error_column], errors='coerce')
+    data = data.dropna(subset=[error_column])
+
+    data['x'] = data[x_column].apply(extract_gene_id)
+    
+    # Sort by the data_column and assign ranks
+    data = data.sort_values(by=data_column).reset_index(drop=True)
+    data['rank'] = range(1, len(data) + 1)
+
+    # Prepare the x, y, and error values for plotting
+    x = data['rank']
+    y = data[data_column]
+    yerr = data[error_column]
+
+    # Create the plot
+    plt.figure(figsize=(10, 10))
+
+    # Plot the mean phenotype with standard error shading
+    plt.plot(x, y, label='Mean Phenotype', color=(0/255, 155/255, 155/255), linewidth=2)
+    plt.fill_between(
+        x, y - yerr, y + yerr, 
+        color=(0/255, 155/255, 155/255), alpha=0.1, label='Standard Error'
+    )
+
+    # Prepare for adjustText
+    texts = []  # Store text objects for adjustment
+
+    # Highlight the genes in the gene_list
+    for gene in gene_list:
+        gene_id = extract_gene_id(gene)
+        gene_data = data[data['x'] == gene_id]
+        if not gene_data.empty:
+            # Scatter the highlighted points in purple and add labels for adjustment
+            plt.scatter(
+                gene_data['rank'], 
+                gene_data[data_column], 
+                color=(155/255, 55/255, 155/255), 
+                s=200,
+                alpha=0.6,
+                label=f'Highlighted Gene: {gene}',
+                zorder=3  # Ensure the points are on top
+            )
+            # Add the text label next to the highlighted gene
+            texts.append(
+                plt.text(
+                    gene_data['rank'].values[0], 
+                    gene_data[data_column].values[0], 
+                    gene, 
+                    fontsize=9, 
+                    ha='right'
+                )
+            )
+
+    # Adjust text to avoid overlap with lines drawn from points to text
+    adjust_text(texts, arrowprops=dict(arrowstyle='-', color='gray'))
+
+    # Label the plot
+    plt.xlabel('Rank')
+    plt.ylabel('Mean Phenotype')
+    #plt.xticks(rotation=90)  # Rotate x-axis labels for readability
+    plt.legend().remove()  # Remove the legend if not needed
+    plt.tight_layout()
+
+    # Save the plot if a path is provided
+    if save_path:
+        plt.savefig(save_path, format='pdf', dpi=600, bbox_inches='tight')
+        print(f"Figure saved to {save_path}")
+    
+    plt.show()
+
+def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=False, save_path=None):
+    """
+    Generate a teal-to-white heatmap with the specified columns and genes.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame containing gene data.
+        gene_list (list): A list of genes to include in the heatmap.
+        columns (list): A list of column names to visualize as heatmaps.
+        normalize (bool): If True, normalize the values for each gene between 0 and 1.
+        save_path (str): Optional. If provided, the plot will be saved to this path.
+    """
+    # Ensure x_column is properly processed
+    def extract_gene_id(gene):
+        if isinstance(gene, str) and '_' in gene:
+            return gene.split('_')[1]
+        return str(gene)
+
+    data['x'] = data[x_column].apply(extract_gene_id)
+
+    # Filter the data to only include the specified genes
+    filtered_data = data[data['x'].isin(gene_list)].set_index('x')[columns]
+
+    # Normalize each gene's values between 0 and 1 if normalize=True
+    if normalize:
+        filtered_data = filtered_data.apply(lambda x: (x - x.min()) / (x.max() - x.min()), axis=1)
+
+    # Define the figure size dynamically based on the number of genes and columns
+    width = len(columns) * 2
+    height = len(gene_list) * 0.5
+
+    # Create the heatmap
+    plt.figure(figsize=(width, height))
+    cmap = sns.color_palette("viridis", as_cmap=True)
+
+    # Plot the heatmap with genes on the y-axis and columns on the x-axis
+    sns.heatmap(
+        filtered_data, 
+        cmap=cmap, 
+        cbar=True, 
+        annot=False, 
+        linewidths=0.5, 
+        square=True
+    )
+
+    # Set the labels
+    plt.xticks(rotation=90, ha='center')  # Rotate x-axis labels for better readability
+    plt.yticks(rotation=0)  # Keep y-axis labels horizontal
+    plt.xlabel('')
+    plt.ylabel('')
+
+    # Adjust layout to ensure the plot fits well
+    plt.tight_layout()
+
+    # Save the plot if a path is provided
+    if save_path:
+        plt.savefig(save_path, format='pdf', dpi=600, bbox_inches='tight')
+        print(f"Figure saved to {save_path}")
+
+    plt.show()
