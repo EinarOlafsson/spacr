@@ -4067,7 +4067,7 @@ def generate_path_list_from_db(db_path, file_metadata):
     
     return all_paths
 
-def correct_paths(df, base_path):
+def correct_paths(df, base_path, folder='data'):
 
     if isinstance(df, pd.DataFrame):
 
@@ -4083,9 +4083,9 @@ def correct_paths(df, base_path):
     adjusted_image_paths = []
     for path in image_paths:
         if base_path not in path:
-            parts = path.split('/data/')
+            parts = path.split(f'/{folder}/')
             if len(parts) > 1:
-                new_path = os.path.join(base_path, 'data', parts[1])
+                new_path = os.path.join(base_path, f'{folder}', parts[1])
                 adjusted_image_paths.append(new_path)
             else:
                 adjusted_image_paths.append(path)

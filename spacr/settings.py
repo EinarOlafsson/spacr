@@ -549,7 +549,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('filter_column','column')
     settings.setdefault('plate','plate1')
     settings.setdefault('class_1_threshold',None)
-    settings.setdefault('metadata_files',['/home/carruthers/Documents/TGME49_Summary.csv','/home/carruthers/Documents/TGGT1_Summary.csv'])
+    settings.setdefault('metadata_files',['/home/carruthers/Documents/TGGT1_Summary.csv','/home/carruthers/Documents/TGME49_Summary.csv'])
     settings.setdefault('volcano','gene')
     settings.setdefault('toxo', True)
 
