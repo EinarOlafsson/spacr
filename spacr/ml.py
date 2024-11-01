@@ -4,9 +4,13 @@ import numpy as np
 from scipy import stats
 from scipy.stats import shapiro
 
+from sklearn.linear_model import Lasso, Ridge, LassoCV, RidgeCV
+from sklearn.metrics import mean_squared_error
+import numpy as np
+
 import matplotlib.pyplot as plt
 from IPython.display import display
-
+import scipy.stats as st
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.tools import add_constant
@@ -15,9 +19,9 @@ from statsmodels.tools.sm_exceptions import PerfectSeparationError
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.genmod.families import Binomial
 from statsmodels.genmod.families.links import logit
+from statsmodels.othermod.betareg import BetaModel
 from scipy.optimize import minimize
-from scipy.special import gammaln
-
+from scipy.special import gammaln, psi, expit
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer
 from patsy import dmatrices
@@ -29,16 +33,19 @@ from sklearn.inspection import permutation_importance
 from sklearn.metrics import classification_report, precision_recall_curve
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
-
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
-
 from xgboost import XGBClassifier
+
+import numpy as np
+from scipy.stats import kstest, normaltest
+import statsmodels.api as sm
 
 import matplotlib
 matplotlib.use('Agg')
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
 
 class QuasiBinomial(Binomial):
     """Custom Quasi-Binomial family with adjustable variance."""
@@ -49,74 +56,7 @@ class QuasiBinomial(Binomial):
     def variance(self, mu):
         """Adjust the variance with the dispersion parameter."""
         return self.dispersion * super().variance(mu)
-
-class BetaRegression:
-    """Custom Beta Regression using MLE with improved optimization."""
-    def __init__(self):
-        self.params = None
-
-    def _log_likelihood(self, params, X, y):
-        """Log-likelihood function with proper dimension checks."""
-        beta_0 = params[0]  # Intercept
-        beta_1 = params[1:-1]  # Coefficients (aligned with X's features)
-        phi = np.exp(params[-1])  # Precision parameter
-
-        # Check dimensions for debugging
-        print(f"X shape: {X.shape}, beta_1 shape: {beta_1.shape}")
-
-        # Predicted mean (inverse logit)
-        mu = 1 / (1 + np.exp(-(X @ beta_1 + beta_0)))
-
-        # Regularization term
-        reg_lambda = 1e-6
-        reg_term = reg_lambda * np.sum(params**2)
-
-        # Clip y values to avoid log(0) errors
-        epsilon = 1e-9
-        y = np.clip(y, epsilon, 1 - epsilon)
-
-        # Calculate log-likelihood
-        a = mu * phi
-        b = (1 - mu) * phi
-        log_lik = (gammaln(a + b) - gammaln(a) - gammaln(b) +
-                (a - 1) * np.log(y) + (b - 1) * np.log(1 - y))
-
-        return -(np.sum(log_lik) - reg_term)
-
-
-    def fit(self, X, y):
-        """Fit the beta regression model with proper dimension alignment."""
-        if isinstance(X, pd.DataFrame):
-            X = X.values  # Convert to NumPy array if it's a DataFrame
-
-        # Ensure intercept is added only once
-        if not np.all(X[:, 0] == 1):
-            X = np.column_stack([np.ones(X.shape[0]), X])  # Add intercept
-
-        # Initialize parameters: one for each feature + 1 for phi
-        n_features = X.shape[1]  # This should match the updated X shape
-        initial_params = np.random.uniform(-0.01, 0.01, size=n_features + 1)
-
-        print(f"Updated X shape: {X.shape}, Initial params shape: {initial_params.shape}")
-
-        # Perform the optimization
-        result = minimize(self._log_likelihood, initial_params, args=(X, y),
-                        method='SLSQP', options={'disp': True, 'maxiter': 1000})
-
-        if not result.success:
-            raise RuntimeError(f"Optimization failed: {result.message}")
-
-        self.params = result.x
-
-
-    def predict(self, X):
-        """Predict values using the fitted model."""
-        X = np.column_stack([np.ones(X.shape[0]), X])
-        beta_0 = self.params[0]
-        beta_1 = self.params[1:-1]
-        mu = 1 / (1 + np.exp(-(X @ beta_1 + beta_0)))
-        return mu
-
+    
 def calculate_p_values(X, y, model):
     # Predict y values
     y_pred = model.predict(X)
@@ -215,104 +155,9 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
-def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
-               random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
-               dst=None, cov_type=None, plot=False):
-    
-    from .plot import volcano_plot, plot_histogram
 
-    # Generate the volcano filename
-    volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
 
-    # Determine regression type if not specified
-    if regression_type is None:
-        regression_type = check_distribution(df[dependent_variable])
-        #settings['regression_type'] = regression_type
 
-    print(f"Using regression type: {regression_type}")
-
-    df = check_and_clean_data(df, dependent_variable)
-
-    # Handle mixed effects if row/column effect is treated as random
-    if random_row_column_effects:
-        regression_type = 'mixed'
-        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
-        mixed_model, coef_df = fit_mixed_model(df, formula, dst)
-        model = mixed_model
-    else:
-        # Prepare the formula
-        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
-        y, X = dmatrices(formula, data=df, return_type='dataframe')
-
-        # Plot histogram of the dependent variable
-        plot_histogram(y, dependent_variable, dst=dst)
-
-        # Scale the independent variables and dependent variable
-        X, y = scale_variables(X, y)
-
-        # Perform the regression
-        groups = df['prc'] if regression_type == 'mixed' else None
-        print(f'Performing {regression_type} regression')
-
-        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
-
-        # Process the model coefficients
-        coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
-
-    if plot:
-        volcano_plot(coef_df, volcano_path)
-
-    return model, coef_df
-
-def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
-    def plot_regression_line(X, y, model):
-        """Helper to plot regression line for lasso and ridge models."""
-        y_pred = model.predict(X)
-        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
-        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
-        plt.xlabel('Features')
-        plt.ylabel('Dependent Variable')
-        plt.legend()
-        plt.show()
-
-    # Define the dictionary with callables (lambdas) to delay evaluation
-    model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'gls': lambda: sm.GLS(y, X).fit(),
-        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
-        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
-        'glm': lambda: sm.GLM(y, X, family=select_glm_family(y)).fit(),
-        'quasi_binomial': lambda: sm.GLM(y, X, family=QuasiBinomial(dispersion=1.5)).fit(),
-        'beta': lambda: BetaRegression().fit(X, y), 
-        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'poisson': lambda: sm.Poisson(y, X).fit(),
-        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)}
-
-    # Call the appropriate model only when needed
-    if regression_type in model_map:
-        model = model_map[regression_type]() 
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type {regression_type}")
-
-    if regression_type in ['lasso', 'ridge']:
-        plot_regression_line(X, y, model)
-
-    # Handle GLM-specific statistics
-    if regression_type == 'glm':
-        # Calculate McFadden’s pseudo-R²
-        llf_model = model.llf  # Log-likelihood of the fitted model
-        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
-        mcfadden_r2 = 1 - (llf_model / llf_null)
-
-        print(f"McFadden's R²: {mcfadden_r2:.4f}")
-        print(model.summary())
-
-    return model
 
 def check_distribution(y):
     """Check the type of distribution to recommend a model."""
@@ -475,277 +320,6 @@ def check_normality(y, variable_name):
         print(f"{variable_name} is not normally distributed (reject H0)")
         return False
 
-def regression_model_v2(X, y, regression_type=None, groups=None, alpha=1.0, cov_type=None):
-    """Perform regression with automated model selection or user-specified type."""
-
-    print("Checking for NaN or inf in X and y:")
-    print(f"NaN in X: {X.isna().sum().sum()}")
-    print(f"NaN in y: {np.isnan(y).sum()}")
-    print(f"Inf in X: {np.isinf(X).values.sum()}")
-    print(f"Inf in y: {np.isinf(y).sum()}")
-
-    # Ensure y is a pandas Series and flatten if necessary
-    if isinstance(y, np.ndarray) and y.ndim > 1:
-        y = pd.Series(y.ravel())  # Flatten and convert to Series
-    elif not isinstance(y, pd.Series):
-        y = pd.Series(y)
-
-    # Add constant and align X and y
-    X = add_constant(X)
-    X, y = X.align(y, join='inner', axis=0)
-
-    if X.empty or y.empty:
-        raise ValueError("Insufficient data to fit the model after cleaning.")
-
-    # Auto-detect regression type if not specified
-    if regression_type is None:
-        regression_type = check_distribution(y)
-
-    print(f"Selected regression type: {regression_type}")
-
-    model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'glm': lambda: sm.GLM(y, X, family=select_glm_family(y)).fit(),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'poisson': lambda: sm.Poisson(y, X).fit(),
-        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
-    }
-
-    # Call the appropriate model
-    if regression_type in model_map:
-        model = model_map[regression_type]()
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type: {regression_type}")
-
-    # Handle GLM-specific stats
-    if regression_type == 'glm':
-        llf_model = model.llf
-        llf_null = model.null_deviance / -2
-        mcfadden_r2 = 1 - (llf_model / llf_null)
-        print(f"McFadden's R²: {mcfadden_r2:.4f}")
-
-    print(model.summary())
-    return model
-
-def regression_model_v1(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
-
-    def plot_regression_line(X, y, model):
-        """Helper to plot regression line for lasso and ridge models."""
-        y_pred = model.predict(X)
-        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
-        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
-        plt.xlabel('Features')
-        plt.ylabel('Dependent Variable')
-        plt.legend()
-        plt.show()
-
-    # Define the dictionary with callables (lambdas) to delay evaluation
-    model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'gls': lambda: sm.GLS(y, X).fit(),
-        'wls': lambda: sm.WLS(y, X, weights=1 / np.sqrt(X.iloc[:, 1])).fit(),
-        'rlm': lambda: sm.RLM(y, X, M=sm.robust.norms.HuberT()).fit(),
-        'glm': lambda: sm.GLM(y, X, family=sm.families.Gaussian()).fit(),
-        'quasi_binomial': lambda: sm.GLM(y, X, family=sm.families.Binomial()).fit(scale='X2'),
-        'quantile': lambda: sm.QuantReg(y, X).fit(q=alpha),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'poisson': lambda: sm.Poisson(y, X).fit(),
-        'lasso': lambda: Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: Ridge(alpha=alpha).fit(X, y)
-    }
-
-    # Call the appropriate model only when needed
-    if regression_type in model_map:
-        model = model_map[regression_type]() 
-    elif regression_type == 'mixed':
-        model = perform_mixed_model(y, X, groups, alpha=alpha)
-    else:
-        raise ValueError(f"Unsupported regression type {regression_type}")
-
-    if regression_type in ['lasso', 'ridge']:
-        plot_regression_line(X, y, model)
-
-    # Handle GLM-specific statistics
-    if regression_type == 'glm':
-        # Calculate McFadden’s pseudo-R²
-        llf_model = model.llf  # Log-likelihood of the fitted model
-        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
-        mcfadden_r2 = 1 - (llf_model / llf_null)
-
-        print(f"McFadden's R²: {mcfadden_r2:.4f}")
-        print(model.summary())
-
-    return model
-
-def regression_v1(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False):
-    from .plot import volcano_plot, plot_histogram
-
-    # Generate the volcano filename
-    volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
-
-    # Check if the data is normally distributed
-    is_normal = check_normality(df[dependent_variable], dependent_variable)
-
-    if is_normal:
-        print(f"To avoid violating assumptions, it is recommended to use a regression model that assumes normality.")
-        print(f"Recommended regression type: ols (Ordinary Least Squares)")
-    else:
-        print(f"To avoid violating assumptions, it is recommended to use a regression model that does not assume normality.")
-        print(f"Recommended regression type: glm (Generalized Linear Model)")
-
-    # Determine regression type if not specified
-    if regression_type is None:
-        regression_type = 'ols' if is_normal else 'glm'
-
-    df = check_and_clean_data(df, dependent_variable)
-
-    # Handle mixed effects if row/column effect is treated as random
-    if random_row_column_effects:
-        regression_type = 'mixed'
-        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
-        mixed_model, coef_df = fit_mixed_model(df, formula, dst)
-        model = mixed_model
-    else:
-
-        # Regular regression models
-        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
-        y, X = dmatrices(formula, data=df, return_type='dataframe')
-
-        # Plot histogram of the dependent variable
-        plot_histogram(y, dependent_variable, dst=dst)
-
-        # Scale the independent variables and dependent variable
-        X, y = scale_variables(X, y)
-
-        # Perform the regression
-        groups = df['prc'] if regression_type == 'mixed' else None
-        print(f'performing {regression_type} regression')
-
-        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
-
-
-        # Process the model coefficients
-        coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
-    
-    if plot:
-        volcano_plot(coef_df, volcano_path)
-
-    return model, coef_df
-
-def minimum_cell_simulation_v1(settings, num_repeats=10, sample_size=100, tolerance=0.01, smoothing=10, increment=10):
-    """
-    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
-    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
-    """
-
-    from spacr.utils import correct_metadata_column_names
-
-    # Load and process data
-    if isinstance(settings['score_data'], str):
-        settings['score_data'] = [settings['score_data']]
-
-    dfs = []
-    for i, score_data in enumerate(settings['score_data']):
-        df = pd.read_csv(score_data)
-        df = correct_metadata_column_names(df)
-        df['plate'] = f'plate{i + 1}'
-        df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
-        dfs.append(df)
-
-    df = pd.concat(dfs, axis=0)
-
-    # Compute the number of cells per well and select the top 100 wells by cell count
-    cell_counts = df.groupby('prc').size().reset_index(name='cell_count')
-    top_wells = cell_counts.nlargest(sample_size, 'cell_count')['prc']
-
-    # Filter the data to include only the top 100 wells
-    df = df[df['prc'].isin(top_wells)]
-
-    # Initialize storage for absolute difference data
-    diff_data = []
-
-    # Group by wells and iterate over them
-    for i, (prc, group) in enumerate(df.groupby('prc')):
-        original_mean = group[settings['score_column']].mean()  # Original full-well mean
-        max_cells = len(group)
-        sample_sizes = np.arange(2, max_cells + 1, increment)  # Sample sizes from 2 to max cells
-
-        # Iterate over sample sizes and compute absolute difference
-        for sample_size in sample_sizes:
-            abs_diffs = []
-
-            # Perform multiple random samples to reduce noise
-            for _ in range(num_repeats):
-                sample = group.sample(n=sample_size, replace=False)
-                sampled_mean = sample[settings['score_column']].mean()
-                abs_diff = abs(sampled_mean - original_mean)  # Absolute difference
-                abs_diffs.append(abs_diff)
-
-            # Compute the average absolute difference across all repeats
-            avg_abs_diff = np.mean(abs_diffs)
-
-            # Store the result for plotting
-            diff_data.append((sample_size, avg_abs_diff))
-
-    # Convert absolute difference data to DataFrame for plotting
-    diff_df = pd.DataFrame(diff_data, columns=['sample_size', 'avg_abs_diff'])
-
-    # Group by sample size to calculate mean and standard deviation
-    summary_df = diff_df.groupby('sample_size').agg(
-        mean_abs_diff=('avg_abs_diff', 'mean'),
-        std_abs_diff=('avg_abs_diff', 'std')
-    ).reset_index()
-
-    # Apply smoothing using a rolling window
-    summary_df['smoothed_mean_abs_diff'] = summary_df['mean_abs_diff'].rolling(window=smoothing, min_periods=1).mean()
-
-    # Calculate the first derivative (slope)
-    summary_df['first_derivative'] = np.gradient(summary_df['smoothed_mean_abs_diff'])
-
-    # Detect the elbow point (where slope < tolerance)
-    #elbow_index = summary_df[summary_df['first_derivative'].abs() < tolerance].index.min()
-    #elbow_point = summary_df.iloc[elbow_index] if elbow_index is not None else summary_df.iloc[-1]
-    elbow_index = summary_df[summary_df['smoothed_mean_abs_diff'] == tolerance].index
-    elbow_point = summary_df.iloc[elbow_index] if elbow_index is not None else summary_df.iloc[-1]
-
-
-    # Plot the mean absolute difference with standard deviation as shaded area
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.plot(
-        summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
-    )
-    ax.fill_between(
-        summary_df['sample_size'],
-        summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
-        summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
-        color='teal', alpha=0.3, label='±1 Std. Dev.'
-    )
-
-    # Mark the elbow point (inflection) on the plot
-    ax.axvline(elbow_point['sample_size'], color='black', linestyle='--')
-
-    # Formatting the plot
-    ax.set_xlabel('Sample Size')
-    ax.set_ylabel('Mean Absolute Difference')
-    ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
-    ax.legend().remove()
-    dst = os.path.dirname(settings['count_data'][0])
-    
-    if dst is not None:
-        fig_path = os.path.join(dst, 'results')
-        os.makedirs(fig_path, exist_ok=True)
-        fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
-        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
-        print(f"Saved {fig_file_path}")
-    
-    plt.show()
-    return elbow_point['sample_size']
-
 def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
     """
     Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
@@ -855,6 +429,272 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     plt.show()
     return elbow_point['sample_size']
 
+def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
+    """Return DataFrame of model coefficients, standard errors, and p-values."""
+    
+    if regression_type == 'beta':
+        # Extract coefficients and standard errors
+        coefs = model.params
+        std_err = model.bse
+        
+        # Compute Wald test (coefficient / standard error)
+        wald_stats = coefs / std_err
+        
+        # Calculate two-tailed p-values
+        p_values = 2 * (1 - st.norm.cdf(np.abs(wald_stats)))
+        
+        coef_df = pd.DataFrame({
+            'feature': coefs.index,
+            'coefficient': coefs.values,
+            'std_err': std_err.values,
+            'wald_stat': wald_stats.values,
+            'p_value': p_values
+        })
+
+    elif regression_type in ['ols', 'glm', 'logit', 'probit', 'quasi_binomial']:
+        coefs = model.params
+        p_values = model.pvalues
+
+        coef_df = pd.DataFrame({
+            'feature': coefs.index,
+            'coefficient': coefs.values,
+            'p_value': p_values.values
+        })
+
+    elif regression_type in ['ridge', 'lasso']:
+        coefs = model.coef_.flatten()
+        p_values = calculate_p_values(X, y, model)
+
+        coef_df = pd.DataFrame({
+            'feature': X.columns,
+            'coefficient': coefs,
+            'p_value': p_values
+        })
+
+    else:
+        raise ValueError(f"Unsupported regression type: {regression_type}")
+
+    # Additional formatting
+    coef_df['-log10(p_value)'] = -np.log10(coef_df['p_value'])
+    coef_df['grna'] = coef_df['feature'].str.extract(r'\[(.*?)\]')[0]
+    coef_df['condition'] = coef_df.apply(
+        lambda row: 'nc' if nc in row['feature'] else 
+                    'pc' if pc in row['feature'] else 
+                    ('control' if row['grna'] in controls else 'other'), 
+        axis=1
+    )
+
+    return coef_df[~coef_df['feature'].str.contains('row|column')]
+
+def check_distribution(y, epsilon=1e-6):
+    """Check the distribution of y and recommend an appropriate model."""
+    
+    # Check if the dependent variable is binary (only 0 and 1)
+    if np.all((y == 0) | (y == 1)):
+        print("Detected binary data.")
+        return 'logit'
+    
+    # Continuous data between 0 and 1 (excluding exact 0 and 1)
+    elif (y > 0).all() and (y < 1).all():
+        # Check if the data is close to 0 or 1 (boundary issues)
+        if np.any((y < epsilon) | (y > 1 - epsilon)):
+            print("Detected continuous data near 0 or 1. Using quasi-binomial.")
+            return 'quasi_binomial'
+        else:
+            print("Detected continuous data between 0 and 1 (no boundary issues). Using beta regression.")
+            return 'beta'
+    
+    # Continuous data between 0 and 1 (including exact 0 or 1)
+    elif (y >= 0).all() and (y <= 1).all():
+        print("Detected continuous data with boundary values (0 or 1). Using quasi-binomial.")
+        return 'quasi_binomial'
+    
+    # Check if the data is normally distributed for OLS suitability
+    stat, p_value = stats.normaltest(y)  # D’Agostino and Pearson’s test for normality
+    print(f"Normality test p-value: {p_value:.4f}")
+    
+    if p_value > 0.05:
+        print("Detected normally distributed data. Using OLS.")
+        return 'ols'
+    
+    # Check if the data fits a Beta distribution
+    if stats.kstest(y, 'beta', args=(2, 2)).pvalue > 0.05:
+        # Check if the data is close to 0 or 1 (boundary issues)
+        if np.any((y < epsilon) | (y > 1 - epsilon)):
+            print("Detected continuous data near 0 or 1. Using quasi-binomial.")
+            return 'quasi_binomial'
+        else:
+            print("Detected continuous data between 0 and 1 (no boundary issues). Using beta regression.")
+            return 'beta'
+    
+    print("Detected non-normally distributed data. Using GLM.")
+    return 'glm'
+
+def pick_glm_family_and_link(y):
+    """Select the appropriate GLM family and link function based on data."""
+    if np.all((y == 0) | (y == 1)):
+        print("Binary data detected. Using Binomial family with Logit link.")
+        return sm.families.Binomial(link=sm.families.links.Logit())
+
+    elif (y > 0).all() and (y < 1).all():
+        print("Data strictly between 0 and 1. Beta regression recommended.")
+        raise ValueError("Use BetaModel for this data; GLM is not applicable.")
+
+    elif (y >= 0).all() and (y <= 1).all():
+        print("Data between 0 and 1 (including boundaries). Using Quasi-Binomial.")
+        return sm.families.Binomial(link=sm.families.links.Logit())
+
+    stat, p_value = normaltest(y)
+    print(f"Normality test p-value: {p_value:.4f}")
+    if p_value > 0.05:
+        print("Normally distributed data detected. Using Gaussian with Identity link.")
+        return sm.families.Gaussian(link=sm.families.links.Identity())
+
+    if (y >= 0).all() and np.all(y.astype(int) == y):
+        print("Count data detected. Using Poisson with Log link.")
+        return sm.families.Poisson(link=sm.families.links.Log())
+
+    if (y > 0).all() and kstest(y, 'invgauss', args=(1,)).pvalue > 0.05:
+        print("Inverse Gaussian distribution detected. Using InverseGaussian with Log link.")
+        return sm.families.InverseGaussian(link=sm.families.links.Log())
+
+    if (y >= 0).all():
+        print("Overdispersed count data detected. Using Negative Binomial with Log link.")
+        return sm.families.NegativeBinomial(link=sm.families.links.Log())
+
+    print("Using default Gaussian family with Identity link.")
+    return sm.families.Gaussian(link=sm.families.links.Identity())
+
+def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
+    def plot_regression_line(X, y, model):
+        """Helper to plot regression line for lasso and ridge models."""
+        y_pred = model.predict(X)
+        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
+        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
+        plt.xlabel('Features')
+        plt.ylabel('Dependent Variable')
+        plt.legend()
+        plt.show()
+        
+    def find_best_alpha(model_cls):
+        """Find optimal alpha using cross-validation."""
+        alphas = np.logspace(-5, 5, 100)  # Search over a range of alphas
+        if model_cls == 'lasso':
+            model_cv = LassoCV(alphas=alphas, cv=5).fit(X, y)
+        elif model_cls == 'ridge':
+            model_cv = RidgeCV(alphas=alphas, cv=5).fit(X, y)
+        print(f"Optimal alpha for {model_cls}: {model_cv.alpha_}")
+        return model_cv
+
+    # Dictionary of models
+    model_map = {
+        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'glm': lambda: sm.GLM(y, X, family=pick_glm_family_and_link(y)).fit(),
+        'beta': lambda: BetaModel(endog=y, exog=X).fit(),
+        'logit': lambda: sm.Logit(y, X).fit(),
+        'probit': lambda: sm.Probit(y, X).fit(),
+        'lasso': lambda: find_best_alpha('lasso') if alpha in [0, None] else Lasso(alpha=alpha).fit(X, y),
+        'ridge': lambda: find_best_alpha('ridge') if alpha in [0, None] else Ridge(alpha=alpha).fit(X, y)
+    }
+
+    # Select the model based on regression_type
+    if regression_type in model_map:
+        model = model_map[regression_type]()
+    elif regression_type == 'mixed':
+        model = perform_mixed_model(y, X, groups, alpha=alpha)
+    else:
+        raise ValueError(f"Unsupported regression type {regression_type}")
+
+    # Plot regression line for Lasso and Ridge
+    if regression_type in ['lasso', 'ridge']:
+        plot_regression_line(X, y, model)
+
+    # Handle GLM-specific statistics
+    if regression_type == 'glm':
+        llf_model = model.llf  # Log-likelihood of the fitted model
+        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
+        mcfadden_r2 = 1 - (llf_model / llf_null)
+        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+        print(model.summary())
+
+    if regression_type in ['lasso', 'ridge']:
+        # Calculate the Mean Squared Error (MSE)
+        mse = mean_squared_error(y, model.predict(X))
+        print(f"{regression_type.capitalize()} Regression MSE: {mse:.4f}")
+
+        # Display coefficients
+        coef_df = pd.DataFrame({
+            'Feature': X.columns,
+            'Coefficient': model.coef_
+        })
+        print(coef_df)
+
+    return model
+
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
+               random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
+               dst=None, cov_type=None, plot=False):
+    
+    from spacr.plot import volcano_plot, plot_histogram
+    from spacr.ml import create_volcano_filename, check_and_clean_data, prepare_formula, scale_variables
+    
+    # Generate the volcano filename
+    volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
+
+    # Determine regression type if not specified
+    if regression_type is None:
+        regression_type = check_distribution(df[dependent_variable])
+
+    print(f"Using regression type: {regression_type}")
+
+    df = check_and_clean_data(df, dependent_variable)
+
+    # Handle mixed effects if row/column effect is treated as random
+    if random_row_column_effects:
+        regression_type = 'mixed'
+        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
+        mixed_model, coef_df = fit_mixed_model(df, formula, dst)
+        model = mixed_model
+    else:
+        # Prepare the formula
+        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
+        y, X = dmatrices(formula, data=df, return_type='dataframe')
+        
+        # Plot histogram of the dependent variable
+        plot_histogram(y, dependent_variable, dst=dst)
+        plot_histogram(df, 'fraction', dst=dst)
+
+        # Scale the independent variables and dependent variable
+        if regression_type in ['beta', 'quasi_binomial', 'logit']:
+            print('Data will not be scaled')
+        else:
+            X, y = scale_variables(X, y)
+
+        # Perform the regression
+        groups = df['prc'] if regression_type == 'mixed' else None
+        print(f'Performing {regression_type} regression')
+        
+        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
+
+        # Process the model coefficients
+        coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
+        display(coef_df)
+    if plot:
+        volcano_plot(coef_df, volcano_path)
+        
+    return model, coef_df, regression_type
+
+def save_summary_to_file(model, file_path='summary.csv'):
+    """
+    Save the model's summary output to a CSV or text file.
+    """
+    # Get the summary as a string
+    summary_str = model.summary().as_text()
+
+    # Save it as a plain text file or CSV
+    with open(file_path, 'w') as f:
+        f.write(summary_str)
+
 def perform_regression(settings):
     
     from .plot import plot_plates
@@ -915,7 +755,6 @@ def perform_regression(settings):
     
     def _perform_regression_set_paths(settings):
 
-                
         if isinstance(settings['score_data'], list):
             score_data = settings['score_data'][0]
         else:
@@ -1014,7 +853,7 @@ def perform_regression(settings):
     
     _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
-    model, coef_df = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
+    model, coef_df, regression_type = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
     coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
@@ -1047,7 +886,7 @@ def perform_regression(settings):
     gene_coef_df.to_csv(results_path_gene, index=False)
     grna_coef_df.to_csv(results_path_grna, index=False)
     
-    if settings['regression_type'] == 'lasso':
+    if regression_type == 'lasso':
         significant = coef_df[coef_df['coefficient'] > 0]
         
     else:
@@ -1059,8 +898,9 @@ def perform_regression(settings):
         significant.sort_values(by='coefficient', ascending=False, inplace=True)
         significant = significant[~significant['feature'].str.contains('row|column')]
         
-    if settings['regression_type'] == 'ols':
+    if regression_type in ['ols', 'beta']:
         print(model.summary())
+        save_summary_to_file(model, file_path=f'{res_folder}/mode_summary.csv')
     
     significant.to_csv(hits_path, index=False)
 
@@ -1088,21 +928,25 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
+        display(data_path)
+
         if settings['volcano'] == 'all':
             print('all')
-            custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+            gene_list = custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+            display(gene_list)
         elif settings['volcano'] == 'gene':
             print('gene')
-            custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+            gene_list = custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+            display(gene_list)
         elif settings['volcano'] == 'grna':
             print('grna')
-            custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
-        
+            gene_list = custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
+            display(gene_list)
         phenotype_plot = os.path.join(res_folder,'phenotype_plot.pdf')
         transcription_heatmap = os.path.join(res_folder,'transcription_heatmap.pdf')
         data_GT1 = pd.read_csv(settings['metadata_files'][1], low_memory=False)
         data_ME49 = pd.read_csv(settings['metadata_files'][0], low_memory=False)
-        gene_list = significant.gene.dropna().tolist()
+        
         columns = ['sense - Tachyzoites', 'sense - Tissue cysts', 'sense - EES1', 'sense - EES2', 'sense - EES3', 'sense - EES4', 'sense - EES5']
 
         print('Plotting gene phenotypes and heatmaps')

@@ -246,7 +246,7 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('normalize_by','png')
     settings.setdefault('crop_mode',['cell'])
     settings.setdefault('dialate_pngs', False)
-    settings.setdefault('dialate_png_ratios', [0.2,0.2])
+    settings.setdefault('dialate_png_ratios', [0.2])
 
     # Timelapsed settings
     settings.setdefault('timelapse', False)
@@ -697,16 +697,6 @@ expected_types = {
     "overlay_chans": list,
     "overlay": bool,
     "normalization_percentiles": list,
-    "print_object_number": bool,
-    "nr": int,
-    "figuresize": int,
-    "cmap": str,
-    "test_mode": bool,
-    "test_images": int,
-    "remove_background_cell": bool,
-    "remove_background_nucleus": bool,
-    "remove_background_pathogen": bool,
-    "pathogen_model": (str, type(None)),
     "filter": bool,
     "fill_in":bool,
     "upscale": bool,
@@ -825,18 +815,6 @@ expected_types = {
     "transform": (str, type(None)),
     "agg_type": str,
     "min_cell_count": int,
-    "regression_type": str,
-    "random_row_column_effects": bool,
-    "alpha": float,
-    "fraction_threshold": float,
-    "class_1_threshold": (float, type(None)),
-    "batch_size": int,
-    "CP_prob": float,
-    "flow_threshold": float,
-    "percentiles": (list, type(None)),
-    "invert": bool,
-    "diameter": int,
-    "grayscale": bool,
     "resize": bool,
     "target_height": (int, type(None)),
     "target_width": (int, type(None)),
@@ -881,9 +859,6 @@ expected_types = {
     "metadata_type_by":str,
     "custom_measurement":str,
     "custom_model":bool,
-    "size":int,
-    "test_split":float,
-    "class_metadata":list, # This is a list of lists 
     "png_type":str,
     "custom_model_path":str,
     "generate_training_dataset":bool,
@@ -894,6 +869,7 @@ expected_types = {
     "correlate":bool,
     "target_layer":str,
     "save_to_db":bool,
+    "test_mode":bool,
     "normalize_input":bool,
 }
 
@@ -904,7 +880,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "dialate_pngs", "normalize", "use_bounding_box"],
+             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "normalize", "use_bounding_box"],
              "Sequencing": ["signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
@@ -939,6 +915,9 @@ def check_settings(vars_dict, expected_types, q=None):
                 continue
 
         value = var.get()
+        if value == 'None':
+            value = None
+
         expected_type = expected_types.get(key, str)
 
         try:
@@ -953,14 +932,19 @@ def check_settings(vars_dict, expected_types, q=None):
                 #    settings[key] = None
                 else:
                     raise ValueError("Invalid format for list or list of lists")
+                
             elif expected_type == list:
                 settings[key] = parse_list(value) if value else None
+
+                if isinstance(settings[key], list) and len(settings[key]) == 1:
+                    settings[key] = settings[key][0]
+
             elif expected_type == bool:
                 settings[key] = value if isinstance(value, bool) else value.lower() in ['true', '1', 't', 'y', 'yes']
             elif expected_type == (int, type(None)):
-                settings[key] = int(value) if value else None
+                settings[key] = settings[key] = int(value) if isinstance(value, int) or str(value).isdigit() else None
             elif expected_type == (float, type(None)):
-                settings[key] = float(value) if value else None
+                settings[key] = float(value) if isinstance(value, float) or (isinstance(value, str) and value.replace(".", "", 1).isdigit()) else None
             elif expected_type == (int, float):
                 settings[key] = float(value) if '.' in value else int(value)
             elif expected_type == (str, type(None)):
@@ -1000,7 +984,7 @@ def check_settings(vars_dict, expected_types, q=None):
                 settings[key] = expected_type(value) if value else None
         except (ValueError, SyntaxError) as e:
             expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
-            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}. Error: {e}")
+            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}. Error: {e}, Value entered: {value}")
             return
 
     return settings

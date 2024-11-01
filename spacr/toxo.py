@@ -10,6 +10,17 @@ from matplotlib.legend import Legend
 from matplotlib.transforms import Bbox
 from brokenaxes import brokenaxes
 
+import os
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.spatial.distance import cosine
+from scipy.stats import pearsonr
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import mean_absolute_error
+
 
 from matplotlib.gridspec import GridSpec
 
@@ -81,6 +92,8 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     # Hide x-axis labels on the upper plot
     ax_upper.tick_params(axis='x', which='both', bottom=False, labelbottom=False)
 
+    hit_list = []
+
     # Scatter plot on both axes
     for _, row in merged_data.iterrows():
         y_val = -np.log10(row['p_value'])
@@ -92,6 +105,9 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
             marker=marker_dict.get(row[metadata_column], 'o'),
             s=point_size, edgecolor='black', alpha=0.6
         )
+
+        if row['p_value'] <= 0.05 and abs(row['coefficient']) >= abs(threshold):
+            hit_list.append(row['variable'])
 
     # Set axis limits
     ax_upper.set_ylim(y_lims[1])
@@ -109,7 +125,6 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     
     for ax in [ax_upper, ax_lower]:
         ax.spines['right'].set_visible(False)
-
 
     # Add threshold lines to both axes
     for ax in [ax_upper, ax_lower]:
@@ -158,180 +173,8 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
     if save_path:
         plt.savefig(save_path, format='pdf', bbox_inches='tight')
     plt.show()
-
-
-def custom_volcano_plot_v1(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0, split_axis_lims = [10, None, None, 10], save_path=None, x_lim=[-0.5, 0.5]):
-    """
-    Create a volcano plot with the ability to control the shape of points based on a categorical column,
-    color points based on a condition, annotate specific points based on p-value and coefficient thresholds,
-    and control the size of points.
-    """
-    volcano_path = save_path
-    padd = 30
-    fontsize = 18
-    plt.rcParams.update({'font.size': fontsize})
-    # Load the data
-    if isinstance(data_path, pd.DataFrame):
-        data = data_path
-    else:
-        data = pd.read_csv(data_path)
-        
-    data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
-    data['variable'].fillna(data['feature'], inplace=True)
-    split_columns = data['variable'].str.split('_', expand=True)
-    data['gene_nr'] = split_columns[0]
-    data = data[data['variable'] != 'Intercept']
-
-    # Load metadata
-    if isinstance(metadata_path, pd.DataFrame):
-        metadata = metadata_path
-    else:
-        metadata = pd.read_csv(metadata_path)
-
-    metadata['gene_nr'] = metadata['gene_nr'].astype(str)
-    data['gene_nr'] = data['gene_nr'].astype(str)
-
-    # Merge data and metadata on 'gene_nr'
-    merged_data = pd.merge(data, metadata[['gene_nr', 'tagm_location']], on='gene_nr', how='left')
-    merged_data.loc[merged_data['gene_nr'].str.startswith('4'), metadata_column] = 'GT1_gene'
-    merged_data.loc[merged_data['gene_nr'] == 'Intercept', metadata_column] = 'Intercept'
-    merged_data.loc[merged_data['condition'] == 'control', metadata_column] = 'control'
-    merged_data[metadata_column].fillna('unknown', inplace=True)
-    display(merged_data)
-
-    # Categorize condition for coloring
-    merged_data['condition'] = pd.Categorical(
-        merged_data['condition'],
-        categories=['other','pc', 'nc', 'control'],
-        ordered=True)
-
-    # Create subplots with a broken y-axis
-    figsize_2 = figsize / 2
-    fig, (ax1, ax2) = plt.subplots(
-        2, 1, figsize=(figsize, figsize), 
-        sharex=True, gridspec_kw={'height_ratios': [1, 3]}
-    )
-
-    # Define color palette
-    palette = {
-        'pc': 'red',
-        'nc': 'green',
-        'control': 'white',
-        'other': 'gray'}
     
-    # Scatter plot on both axes with legend disabled
-    sns.scatterplot(
-        data=merged_data,
-        x='coefficient',
-        y='-log10(p_value)',
-        hue='condition',
-        style=metadata_column if metadata_column else None,
-        s=point_size,
-        edgecolor='black',
-        palette=palette,
-        legend='brief',  
-        alpha=0.6,
-        ax=ax2  # Lower plot
-    )
-
-    sns.scatterplot(
-        data=merged_data[merged_data['-log10(p_value)'] > 10],
-        x='coefficient',
-        y='-log10(p_value)',
-        hue='condition',
-        style=metadata_column if metadata_column else None,
-        s=point_size,
-        edgecolor='black',
-        palette=palette,
-        legend=False,
-        alpha=0.6,
-        ax=ax1  # Upper plot
-    )
-
-    ax2.legend(
-        bbox_to_anchor=(1.05, 1), 
-        loc='upper left', 
-        borderaxespad=0.25,  # Padding between legend and plot border
-        labelspacing=2,  # Vertical space between entries
-        handletextpad=0.25,  # Horizontal space between handle and text
-        markerscale=1.2  # Scale the marker size in the legend if needed
-    )
-
-    if isinstance(split_axis_lims, list):
-        if len(split_axis_lims) == 4:
-            ylim_min_ax1 = split_axis_lims[0]
-            if split_axis_lims[1] is None:
-                ylim_max_ax1 = merged_data['-log10(p_value)'].max() + 5
-            else:
-                ylim_max_ax1 = split_axis_lims[1]
-            ylim_min_ax2 = split_axis_lims[2]
-            ylim_max_ax2 = split_axis_lims[3]
-        else:
-            ylim_min_ax1 = None
-            ylim_max_ax1 = merged_data['-log10(p_value)'].max() + 5
-            ylim_min_ax2 = 0
-            ylim_max_ax2 = None
-
-    # Set axis limits and hide unnecessary parts
-    ax1.set_ylim(ylim_min_ax1, ylim_max_ax1)
-    ax2.set_ylim(0, ylim_max_ax2)
-
-    if x_lim != None:
-        ax1.set_xlim(x_lim)
-        ax2.set_xlim(x_lim)
-
-    ax1.spines['bottom'].set_visible(False)
-    ax2.spines['top'].set_visible(False)
-    ax1.tick_params(labelbottom=False)
-
-    ax1.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
-
-    # Add vertical threshold lines to both plots
-    if threshold > 0:
-        for ax in (ax1, ax2):
-            ax.axvline(x=-abs(threshold), linestyle='--', color='black')
-            ax.axvline(x=abs(threshold), linestyle='--', color='black')
-
-    # Add a horizontal line at p-value threshold (0.05)
-    ax2.axhline(y=-np.log10(0.05), color='black', linestyle='--')
-
-    # Annotate significant points on both axes
-    texts_ax1 = []
-    texts_ax2 = []
-
-    for i, row in merged_data.iterrows():
-        if row['p_value'] <= 0.05 and abs(row['coefficient']) >= abs(threshold):
-            ax = ax1 if row['-log10(p_value)'] >= ax1.get_ylim()[0] else ax2
-            # Create the annotation on the selected axis
-            text = ax.text(
-                row['coefficient'],
-                -np.log10(row['p_value']),
-                row['variable'],
-                fontsize=fontsize,
-                ha='center',
-                va='bottom',
-            )
-
-            # Store the text annotation in the correct list
-            if ax == ax1:
-                texts_ax1.append(text)
-            else:
-                texts_ax2.append(text)
-
-    # Adjust text positions to avoid overlap for both axes
-    adjust_text(texts_ax1, arrowprops=dict(arrowstyle='-', color='black'), ax=ax1, expand_points=(padd, padd), fontsize=fontsize)
-    adjust_text(texts_ax2, arrowprops=dict(arrowstyle='-', color='black'), ax=ax2, expand_points=(padd, padd), fontsize=fontsize)
-
-    # Adjust the spacing between subplots and move the title
-    plt.subplots_adjust(hspace=0.00)
-    fig.suptitle('Custom Volcano Plot of Coefficients', y=1.02, fontsize=fontsize)  # Title above the top plot
-
-    # Save the plot as PDF
-    plt.savefig(volcano_path, format='pdf', bbox_inches='tight')
-    print(f'Saved Volcano plot: {volcano_path}')
-
-    # Show the plot
-    plt.show()
+    return hit_list
 
 def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=['Computed GO Processes', 'Curated GO Components', 'Curated GO Functions', 'Curated GO Processes']):
     """
@@ -538,7 +381,7 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
                     gene_data['rank'].values[0], 
                     gene_data[data_column].values[0], 
                     gene, 
-                    fontsize=9, 
+                    fontsize=18, 
                     ha='right'
                 )
             )
@@ -587,8 +430,8 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
         filtered_data = filtered_data.apply(lambda x: (x - x.min()) / (x.max() - x.min()), axis=1)
 
     # Define the figure size dynamically based on the number of genes and columns
-    width = len(columns) * 2
-    height = len(gene_list) * 0.5
+    width = len(columns) * 4
+    height = len(gene_list) * 1
 
     # Create the heatmap
     plt.figure(figsize=(width, height))
@@ -619,3 +462,171 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
         print(f"Figure saved to {save_path}")
 
     plt.show()
+
+def generate_score_heatmap(settings):
+    
+    def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
+        
+        df = pd.read_csv(csv)
+        if 'col' in df.columns:
+            df = df[df['col']==column]
+        elif 'column' in df.columns:
+            df['col'] = df['column']
+            df = df[df['col']==column]
+        if not plate is None:
+            df['plate'] = f"plate{plate}"
+        grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
+        grouped_df['prc'] = grouped_df['plate'].astype(str) + '_' + grouped_df['row'].astype(str) + '_' + grouped_df['col'].astype(str)
+        return grouped_df
+
+    def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
+        df = pd.read_csv(csv)  
+        df = df[df['column_name']==column]
+        if plate not in df.columns:
+            df['plate'] = f"plate{plate}"
+        df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
+        grouped_df = df.groupby(['plate', 'row_name', 'column_name'])['count'].sum().reset_index()
+        grouped_df = grouped_df.rename(columns={'count': 'total_count'})
+        merged_df = pd.merge(df, grouped_df, on=['plate', 'row_name', 'column_name'])
+        merged_df['fraction'] = merged_df['count'] / merged_df['total_count']
+        merged_df['prc'] = merged_df['plate'].astype(str) + '_' + merged_df['row_name'].astype(str) + '_' + merged_df['column_name'].astype(str)
+        return merged_df
+
+    def plot_multi_channel_heatmap(df, column='c3'):
+        """
+        Plot a heatmap with multiple channels as columns.
+
+        Parameters:
+        - df: DataFrame with scores for different channels.
+        - column: Column to filter by (default is 'c3').
+        """
+        # Extract row number and convert to integer for sorting
+        df['row_num'] = df['row'].str.extract(r'(\d+)').astype(int)
+
+        # Filter and sort by plate, row, and column
+        df = df[df['col'] == column]
+        df = df.sort_values(by=['plate', 'row_num', 'col'])
+
+        # Drop temporary 'row_num' column after sorting
+        df = df.drop('row_num', axis=1)
+
+        # Create a new column combining plate, row, and column for the index
+        df['plate_row_col'] = df['plate'] + '-' + df['row'] + '-' + df['col']
+
+        # Set 'plate_row_col' as the index
+        df.set_index('plate_row_col', inplace=True)
+
+        # Extract only numeric data for the heatmap
+        heatmap_data = df.select_dtypes(include=[float, int])
+
+        # Plot heatmap with square boxes, no annotations, and 'viridis' colormap
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(
+            heatmap_data,
+            cmap="viridis",
+            cbar=True,
+            square=True,
+            annot=False
+        )
+
+        plt.title("Heatmap of Prediction Scores for All Channels")
+        plt.xlabel("Channels")
+        plt.ylabel("Plate-Row-Column")
+        plt.tight_layout()
+
+        # Save the figure object and return it
+        fig = plt.gcf()
+        plt.show()
+
+        return fig
+
+
+    def combine_classification_scores(folders, csv_name, data_column, plate=1, column='c3'):
+        # Ensure `folders` is a list
+        if isinstance(folders, str):
+            folders = [folders]
+
+        ls = []  # Initialize ls to store found CSV file paths
+
+        # Iterate over the provided folders
+        for folder in folders:
+            sub_folders = os.listdir(folder)  # Get sub-folder list
+            for sub_folder in sub_folders:  # Iterate through sub-folders
+                path = os.path.join(folder, sub_folder)  # Join the full path
+
+                if os.path.isdir(path):  # Check if it’s a directory
+                    csv = os.path.join(path, csv_name)  # Join path to the CSV file
+                    if os.path.exists(csv):  # If CSV exists, add to list
+                        ls.append(csv)
+                    else:
+                        print(f'No such file: {csv}')
+
+        # Initialize combined DataFrame
+        combined_df = None
+        print(f'Found {len(ls)} CSV files')
+
+        # Loop through all collected CSV files and process them
+        for csv_file in ls:
+            df = pd.read_csv(csv_file)  # Read CSV into DataFrame
+            df = df[df['col']==column]
+            if not plate is None:
+                df['plate'] = f"plate{plate}"
+            # Group the data by 'plate', 'row', and 'col'
+            grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
+            # Use the CSV filename to create a new column name
+            folder_name = os.path.dirname(csv_file).replace(".csv", "")
+            new_column_name = os.path.basename(f"{folder_name}_{data_column}")
+            print(new_column_name)
+            grouped_df = grouped_df.rename(columns={data_column: new_column_name})
+
+            # Merge into the combined DataFrame
+            if combined_df is None:
+                combined_df = grouped_df
+            else:
+                combined_df = pd.merge(combined_df, grouped_df, on=['plate', 'row', 'col'], how='outer')
+        combined_df['prc'] = combined_df['plate'].astype(str) + '_' + combined_df['row'].astype(str) + '_' + combined_df['col'].astype(str)
+        return combined_df
+    
+    def calculate_mae(df):
+        """
+        Calculate the MAE between each channel's predictions and the fraction column for all rows.
+        """
+        # Extract numeric columns excluding 'fraction' and 'prc'
+        channels = df.drop(columns=['fraction', 'prc']).select_dtypes(include=[float, int])
+
+        mae_data = []
+
+        # Compute MAE for each channel with 'fraction' for all rows
+        for column in channels.columns:
+            for index, row in df.iterrows():
+                mae = mean_absolute_error([row['fraction']], [row[column]])
+                mae_data.append({'Channel': column, 'MAE': mae, 'Row': row['prc']})
+
+        # Convert the list of dictionaries to a DataFrame
+        mae_df = pd.DataFrame(mae_data)
+        return mae_df
+
+    result_df = combine_classification_scores(settings['folders'], settings['csv_name'], settings['data_column'], settings['plate'], settings['column'], )
+    df = calculate_fraction_mixed_condition(settings['csv'], settings['plate'], settings['column'], settings['control_sgrnas'])
+    df = df[df['grna_name']==settings['fraction_grna']]
+    fraction_df = df[['fraction', 'prc']]
+    merged_df = pd.merge(fraction_df, result_df, on=['prc'])
+    cv_df = group_cv_score(settings['cv_csv'], settings['plate'], settings['column'], settings['data_column_cv'])
+    cv_df = cv_df[[settings['data_column_cv'], 'prc']]
+    merged_df = pd.merge(merged_df, cv_df, on=['prc'])
+    
+    fig = plot_multi_channel_heatmap(merged_df, settings['column'])
+    if 'row_number' in merged_df.columns:
+        merged_df = merged_df.drop('row_num', axis=1)
+    mae_df = calculate_mae(merged_df)
+    if 'row_number' in mae_df.columns:
+        mae_df = mae_df.drop('row_num', axis=1)
+        
+    if not settings['dst'] is None:
+        mae_dst = os.path.join(settings['dst'], f"mae_scores_comparison_plate_{settings['plate']}.csv")
+        merged_dst = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plate']}_data.csv")
+        heatmap_save = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plate']}.pdf")
+        mae_df.to_csv(mae_dst, index=False)
+        merged_df.to_csv(merged_dst, index=False)
+        fig.savefig(heatmap_save, format='pdf', dpi=600, bbox_inches='tight')
+    return merged_df
