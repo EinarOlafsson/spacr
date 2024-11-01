@@ -1028,7 +1028,10 @@ def measure_crop(settings):
                 return
 
             if not isinstance(settings['crop_mode'], list):
-                print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None]")
+                print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
+                settings['crop_mode'] = [settings['crop_mode']]
+                settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
+                print(f"Converted crop_mode to list: {settings['crop_mode']}")
                 return
             
             _save_settings_to_db(settings)

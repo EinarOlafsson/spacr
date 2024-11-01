@@ -16,7 +16,8 @@ from collections import deque
 from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
-from tkinter import ttk, scrolledtext 
+from tkinter import ttk, scrolledtext
+from skimage.color import rgb2gray 
 
 fig = None
 
@@ -1534,20 +1535,45 @@ class ModifyMaskApp:
         tk.Label(self.zoom_toolbar, text="Upper Percentile:", bg='black', fg='white').pack(side='left')
         self.upper_entry = tk.Entry(self.zoom_toolbar, textvariable=self.upper_quantile, bg='black', fg='white')
         self.upper_entry.pack(side='left')
-
-        
+    
     def load_image_and_mask(self, index):
+        # Load the image
         image_path = os.path.join(self.folder_path, self.image_filenames[index])
-        image = imageio.imread(image_path)        
+        image = imageio.imread(image_path)
+        print(f"Original Image shape: {image.shape}, dtype: {image.dtype}")
+
+        # Handle multi-channel or transparency issues
+        if image.ndim == 3:
+            if image.shape[2] == 4:  # If the image has an alpha channel (RGBA)
+                image = image[..., :3]  # Remove the alpha channel
+
+            # Convert RGB to grayscale using weighted average
+            image = np.dot(image[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
+            print(f"Converted to grayscale: {image.shape}")
+
+        # Ensure the shape is (height, width) without extra channel
+        if image.ndim == 3 and image.shape[2] == 1:
+            image = np.squeeze(image, axis=-1)
+
+        if image.dtype != np.uint16:
+            # Scale the image to fit the 16-bit range (0–65535)
+            image = (image / image.max() * 65535).astype(np.uint16)
+            # eventually remove this images should not have to be 16 bit look into downstream function (non 16bit images are jsut black)
+
+        # Load the corresponding mask
         mask_path = os.path.join(self.masks_folder, self.image_filenames[index])
         if os.path.exists(mask_path):
-            print(f'loading mask:{mask_path} for image: {image_path}')
+            print(f'Loading mask: {mask_path} for image: {image_path}')
             mask = imageio.imread(mask_path)
+
+            # Ensure mask is uint8
             if mask.dtype != np.uint8:
-                mask = (mask / np.max(mask) * 255).astype(np.uint8)
+                mask = (mask / mask.max() * 255).astype(np.uint8)
         else:
+            # Create a new mask with the same size as the image
             mask = np.zeros(image.shape[:2], dtype=np.uint8)
-            print(f'loaded new mask for image: {image_path}')
+            print(f'Loaded new mask for image: {image_path}')
+
         return image, mask
     
     ####################################################################################################

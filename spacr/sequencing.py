@@ -548,6 +548,9 @@ def graph_sequencing_stats(settings):
                     label=f'Closest Threshold ({closest_threshold["fraction_threshold"]:.4f})')
         plt.axhline(y=target_unique_count, color='black', linestyle='--',
                     label=f'Target Unique Count ({target_unique_count})')
+        
+        plt.xlim(0,0.1)
+        plt.ylim(0,20)
 
         if dst is not None:
             fig_path = os.path.join(dst, 'results')

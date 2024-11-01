@@ -16,6 +16,7 @@ from skimage import measure
 from skimage.measure import find_contours, label, regionprops
 from skimage.segmentation import mark_boundaries
 from skimage.transform import resize as sk_resize
+import scikit_posthocs as sp
 
 import tifffile as tiff
 
@@ -31,6 +32,7 @@ from IPython.display import Image as ipyimage
 import matplotlib.patches as patches
 from collections import defaultdict
 from matplotlib.gridspec import GridSpec
+
 #filter_dict={'cell':[(0,100000), (0, 65000)],'nucleus':[(3000,100000), (1500, 65000)],'pathogen':[(500,100000), (0, 65000)]}
 def plot_image_mask_overlay(
     file,
@@ -145,7 +147,7 @@ def plot_image_mask_overlay(
                             channel_image_rgb, outline, color, thickness
                         )
                     else:
-                        cmap = random_color_cmap(int(outline.max() + 1))
+                        cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
                         mask = _generate_colored_mask(outline, cmap)
                         channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
             elif current_channel in channels_with_outlines:
@@ -167,7 +169,7 @@ def plot_image_mask_overlay(
                             channel_image_rgb, outline, '#FF00FF', thickness
                         )
                     else:
-                        cmap = random_color_cmap(int(outline.max() + 1))
+                        cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
                         mask = _generate_colored_mask(outline, cmap)
                         channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
             else:
@@ -180,7 +182,7 @@ def plot_image_mask_overlay(
                                 channel_image_rgb, outline, color, thickness
                             )
                         else:
-                            cmap = random_color_cmap(int(outline.max() + 1))
+                            cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
                             mask = _generate_colored_mask(outline, cmap)
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
@@ -192,7 +194,7 @@ def plot_image_mask_overlay(
         for outline in outlines:
             combined_mask = np.maximum(combined_mask, outline)
 
-        cmap = random_color_cmap(int(combined_mask.max() + 1))
+        cmap = random_color_cmap(int(combined_mask.max() + 1), random.randint(0, 100))
         mask = _generate_colored_mask(combined_mask, cmap)
         blank_image = np.zeros((*combined_mask.shape, 3))
         filled_image = _overlay_mask(blank_image, mask)
@@ -2225,17 +2227,17 @@ def volcano_plot(coef_df, filename='volcano_plot.pdf'):
     print(f'Saved Volcano plot: {filename}')
     plt.show()
 
-def plot_histogram(df, dependent_variable, dst=None):
+def plot_histogram(df, column, dst=None):
     # Plot histogram of the dependent variable
     bar_color = (0/255, 155/255, 155/255)
     plt.figure(figsize=(10, 10))
-    sns.histplot(df[dependent_variable], kde=False, color=bar_color, edgecolor=None, alpha=0.6)
-    plt.title(f'Histogram of {dependent_variable}')
-    plt.xlabel(dependent_variable)
+    sns.histplot(df[column], kde=False, color=bar_color, edgecolor=None, alpha=0.6)
+    plt.title(f'Histogram of {column}')
+    plt.xlabel(column)
     plt.ylabel('Frequency')
     
     if not dst is None:
-        filename = os.path.join(dst, 'dependent_variable_histogram.pdf')
+        filename = os.path.join(dst, f'{column}_histogram.pdf')
         plt.savefig(filename, format='pdf')
         print(f'Saved histogram to {filename}')
 
@@ -2752,22 +2754,33 @@ class spacrGraph:
         return filtered_df
 
     def perform_normality_tests(self):
-        """Perform normality tests for each group and each data column."""
+        """Perform normality tests for each group and data column."""
         unique_groups = self.df[self.grouping_column].unique()
         normality_results = []
 
         for column in self.data_column:
-            # Iterate over each group and its corresponding data
             for group in unique_groups:
-                data = self.df.loc[self.df[self.grouping_column] == group, column]
+                data = self.df.loc[self.df[self.grouping_column] == group, column].dropna()
                 n_samples = len(data)
 
+                if n_samples < 3:
+                    # Skip test if there aren't enough data points
+                    print(f"Skipping normality test for group '{group}' on column '{column}' - Not enough data.")
+                    normality_results.append({
+                        'Comparison': f'Normality test for {group} on {column}',
+                        'Test Statistic': None,
+                        'p-value': None,
+                        'Test Name': 'Skipped',
+                        'Column': column,
+                        'n': n_samples
+                    })
+                    continue
+
+                # Choose the appropriate normality test based on the sample size
                 if n_samples >= 8:
-                    # Use D'Agostino-Pearson test for larger samples
                     stat, p_value = normaltest(data)
                     test_name = "D'Agostino-Pearson test"
                 else:
-                    # Use Shapiro-Wilk test for smaller samples
                     stat, p_value = shapiro(data)
                     test_name = "Shapiro-Wilk test"
 
@@ -2778,11 +2791,11 @@ class spacrGraph:
                     'p-value': p_value,
                     'Test Name': test_name,
                     'Column': column,
-                    'n': n_samples  # Sample size
+                    'n': n_samples
                 })
 
             # Check if all groups are normally distributed (p > 0.05)
-            normal_p_values = [result['p-value'] for result in normality_results if result['Column'] == column]
+            normal_p_values = [result['p-value'] for result in normality_results if result['Column'] == column and result['p-value'] is not None]
             is_normal = all(p > 0.05 for p in normal_p_values)
 
         return is_normal, normality_results
@@ -2832,9 +2845,13 @@ class spacrGraph:
                           len(self.df[self.df[self.grouping_column] == unique_groups[1]])})
 
         return test_results
-
+    
     def perform_posthoc_tests(self, is_normal, unique_groups):
         """Perform post-hoc tests for multiple groups based on all_to_all flag."""
+
+        from .utils import choose_p_adjust_method
+
+        posthoc_results = []
         if is_normal and len(unique_groups) > 2 and self.all_to_all:
             tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
             posthoc_results = []
@@ -2850,22 +2867,40 @@ class spacrGraph:
                     'n_object': len(raw_data1) + len(raw_data2),
                     'n_well': len(self.df[self.df[self.grouping_column] == comparison[0]]) + len(self.df[self.df[self.grouping_column] == comparison[1]])})
             return posthoc_results
-       
-        elif len(unique_groups) > 2 and not self.all_to_all and self.compare_group:
-            dunn_result = pg.pairwise_tests(data=self.df, dv=self.data_column, between=self.grouping_column, padjust='bonf', test='dunn')
-            posthoc_results = []
-            for idx, row in dunn_result.iterrows():
-                if row['A'] == self.compare_group or row['B'] == self.compare_group:
-                    posthoc_results.append({
-                        'Comparison': f"{row['A']} vs {row['B']}",
-                        'Test Statistic': row['T'],  # Test statistic from Dunn's test
-                        'p-value': row['p-val'],
-                        'Test Name': 'Dunn’s Post-hoc',
-                        'n_object': None,
-                        'n_well': None})
-                    
+        
+        elif len(unique_groups) > 2 and self.all_to_all:
+            print('performing_dunns')
+
+            # Prepare data for Dunn's test in long format
+            long_data = self.df[[self.data_column[0], self.grouping_column]].dropna()
+
+            p_adjust_method = choose_p_adjust_method(num_groups=len(long_data[self.grouping_column].unique()),num_data_points=len(long_data) // len(long_data[self.grouping_column].unique()))
+
+            # Perform Dunn's test with Bonferroni correction
+            dunn_result = sp.posthoc_dunn(
+                long_data, 
+                val_col=self.data_column[0], 
+                group_col=self.grouping_column, 
+                p_adjust=p_adjust_method
+            )
+
+            for group_a, group_b in zip(*np.triu_indices_from(dunn_result, k=1)):
+                raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == dunn_result.index[group_a]][self.data_column]
+                raw_data2 = self.raw_df[self.raw_df[self.grouping_column] == dunn_result.columns[group_b]][self.data_column]
+
+                posthoc_results.append({
+                    'Comparison': f"{dunn_result.index[group_a]} vs {dunn_result.columns[group_b]}",
+                    'Test Statistic': None,  # Dunn's test does not return a specific test statistic
+                    'p-value': dunn_result.iloc[group_a, group_b],  # Extract the p-value from the matrix
+                    'Test Name': "Dunn's Post-hoc",
+                    'p_adjust_method': p_adjust_method,
+                    'n_object': len(raw_data1) + len(raw_data2),  # Total objects
+                    'n_well': len(self.df[self.df[self.grouping_column] == dunn_result.index[group_a]]) +
+                            len(self.df[self.grouping_column] == dunn_result.columns[group_b])})
+
             return posthoc_results
-        return []
+
+        return posthoc_results
     
     def create_plot(self, ax=None):
         """Create and display the plot based on the chosen graph type."""
@@ -2901,7 +2936,43 @@ class spacrGraph:
             transposed_table = list(map(list, zip(*table_data)))
             return row_labels, transposed_table
 
-        def _place_symbols(row_labels, transposed_table, x_positions, ax):            
+
+        def _place_symbols(row_labels, transposed_table, x_positions, ax):
+            """
+            Places symbols and row labels aligned under the bars or jitter points on the graph.
+            
+            Parameters:
+            - row_labels: List of row titles to be displayed along the y-axis.
+            - transposed_table: Data to be placed under each bar/jitter as symbols.
+            - x_positions: X-axis positions for each group to align the symbols.
+            - ax: The matplotlib Axes object where the plot is drawn.
+            """
+            # Get plot dimensions and adjust for different plot sizes
+            y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
+            symbol_start_y = y_axis_min - 0.05 * (ax.get_ylim()[1] - y_axis_min)  # Adjust a bit below the x-axis
+
+            # Calculate spacing for the table rows (adjust as needed)
+            y_spacing = 0.04  # Adjust this for better spacing between rows
+
+            # Determine the leftmost x-position for row labels (align with the y-axis)
+            label_x_pos = ax.get_xlim()[0] - 0.3  # Adjust offset from the y-axis
+
+            # Place row labels vertically aligned with symbols
+            for row_idx, title in enumerate(row_labels):
+                y_pos = symbol_start_y - (row_idx * y_spacing)  # Calculate vertical position for each label
+                ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=12, fontweight='regular')
+
+            # Place symbols under each bar or jitter point based on x-positions
+            for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
+                for row_idx, text in enumerate(column_data):
+                    y_pos = symbol_start_y - (row_idx * y_spacing)  # Adjust vertical spacing for symbols
+                    ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=12, fontweight='regular')
+
+            # Redraw to apply changes
+            ax.figure.canvas.draw()
+
+
+        def _place_symbols_v1(row_labels, transposed_table, x_positions, ax):            
             
             # Get the bottom of the y-axis (y=0) in data coordinates and convert to display coordinates
             y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
@@ -3036,6 +3107,10 @@ class spacrGraph:
         else:
             raise ValueError(f"Unknown graph type: {self.graph_type}") 
         
+        if len(self.data_column) == 1:
+            num_groups = len(self.df[self.grouping_column].unique())
+            self._standerdize_figure_format(ax=ax, num_groups=num_groups, graph_type=self.graph_type)
+
         # Set y-axis start
         if isinstance(self.y_lim, list):
             if len(self.y_lim) == 2:
@@ -3070,7 +3145,73 @@ class spacrGraph:
         if self.save:
             self._save_results()
 
-        ax.margins(x=0.12) 
+        ax.margins(x=0.12)
+
+    def _standerdize_figure_format(self, ax, num_groups, graph_type):
+        """
+        Adjusts the figure layout (size, bar width, jitter, and spacing) based on the number of groups.
+
+        Parameters:
+        - ax: The matplotlib Axes object.
+        - num_groups: Number of unique groups.
+        - graph_type: The type of graph (e.g., 'bar', 'jitter', 'box', etc.).
+
+        Returns:
+        - None. Modifies the figure and Axes in place.
+        """
+        if graph_type in ['line', 'line_std']:
+            print("Skipping layout adjustment for line graphs.")
+            return  # Skip layout adjustment for line graphs
+        
+        correction_factor = 4
+
+        # Set figure size to ensure it remains square with a minimum size
+        fig_size = max(6, num_groups * 2)  / correction_factor
+        ax.figure.set_size_inches(fig_size, fig_size)
+
+        # Configure layout based on the number of groups
+        bar_width = min(0.8, 1.5 / num_groups) / correction_factor
+        jitter_amount = min(0.1, 0.2 / num_groups) / correction_factor
+        jitter_size = max(50 / num_groups, 200)
+
+        # Adjust axis limits to ensure bars are centered with respect to group labels
+        ax.set_xlim(-0.5, num_groups - 0.5)
+
+        # Set ticks to match the group labels in your DataFrame
+        group_labels = self.df[self.grouping_column].unique()
+        ax.set_xticks(range(len(group_labels)))
+        ax.set_xticklabels(group_labels, rotation=45, ha='right')
+
+        # Customize elements based on the graph type
+        if graph_type == 'bar':
+            # Adjust bars' width and position
+            for bar in ax.patches:
+                bar.set_width(bar_width)
+                bar.set_x(bar.get_x() - bar_width / 2)
+
+        elif graph_type in ['jitter', 'jitter_bar', 'jitter_box']:
+            # Adjust jitter points' position and size
+            for coll in ax.collections:
+                offsets = coll.get_offsets()
+                offsets[:, 0] += jitter_amount  # Shift jitter points slightly
+                coll.set_offsets(offsets)
+                coll.set_sizes([jitter_size]  * len(offsets))  # Adjust point size dynamically
+
+        elif graph_type in ['box', 'violin']:
+            # Adjust box width for consistent spacing
+            for artist in ax.artists:
+                artist.set_width(bar_width)
+
+        # Adjust legend and axis labels
+        ax.tick_params(axis='x', labelsize=max(10, 15 - num_groups // 2))
+        ax.tick_params(axis='y', labelsize=max(10, 15 - num_groups // 2))
+
+        if ax.get_legend():
+            ax.get_legend().set_bbox_to_anchor((1.05, 1)) #loc='upper left',borderaxespad=0.
+            ax.get_legend().prop.set_size(max(8, 12 - num_groups // 3))
+
+        # Redraw the figure to apply changes
+        ax.figure.canvas.draw()
 
     def _create_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
@@ -3289,11 +3430,11 @@ class spacrGraph:
                 bar.set_x(bar.get_x() - target_width / 2)
             
         # Adjust error bars alignment with bars
-        bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
-        for bar, (_, row) in zip(bars, summary_df.iterrows()):
-            x_bar = bar.get_x() + bar.get_width() / 2
-            err = row[self.error_bar_type]
-            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
+        #bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+        #for bar, (_, row) in zip(bars, summary_df.iterrows()):
+        #    x_bar = bar.get_x() + bar.get_width() / 2
+        #    err = row[self.error_bar_type]
+        #    ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
     
         # Set legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3486,9 +3627,13 @@ def plot_data_from_csv(settings):
         dft = pd.read_csv(src)
         if 'plate' not in dft.columns:
             dft['plate'] = f"plate{i+1}"
+            dft['common'] = 'spacr'
         dfs.append(dft)
 
     df = pd.concat(dfs, axis=0)
+
+    display(df)
+
     df = df.dropna(subset=settings['data_column'])
     df = df.dropna(subset=settings['grouping_column'])
     src = srcs[0] 
@@ -3555,8 +3700,18 @@ def plot_region(settings):
     png_paths = _sort_paths_by_basename(paths_df['png_path'].tolist())
     activation_paths = _sort_paths_by_basename(activation_paths_df['png_path'].tolist())
 
-    fig_3 = plot_image_grid(image_paths=activation_paths, percentiles=settings['percentiles'])
-    fig_2 = plot_image_grid(image_paths=png_paths, percentiles=settings['percentiles'])
+    
+    if activation_paths:
+        fig_3 = plot_image_grid(image_paths=activation_paths, percentiles=settings['percentiles'])
+    else:
+        fig_3 = None
+        print(f"Could not find any cropped PNGs")
+    if png_paths:
+        fig_2 = plot_image_grid(image_paths=png_paths, percentiles=settings['percentiles'])
+    else:
+        fig_2 = None
+        print(f"Could not find any activation maps")
+    
     print('fov_path', fov_path)
     fig_1 = plot_image_mask_overlay(file=fov_path,
                                     channels=settings['channels'],
@@ -3571,9 +3726,13 @@ def plot_region(settings):
                                     export_tiffs=settings['export_tiffs'])
     
     dst = os.path.join(settings['src'], 'results', name)
-    save_figure_as_pdf(fig_1, os.path.join(dst, f"{name}_mask_overlay.pdf"))
-    save_figure_as_pdf(fig_2, os.path.join(dst, f"{name}_png_grid.pdf"))
-    save_figure_as_pdf(fig_3, os.path.join(dst, f"{name}_activation_grid.pdf"))
+    
+    if not fig_1 == None:
+        save_figure_as_pdf(fig_1, os.path.join(dst, f"{name}_mask_overlay.pdf"))
+    if not fig_2 == None:
+        save_figure_as_pdf(fig_2, os.path.join(dst, f"{name}_png_grid.pdf"))
+    if not fig_3 == None:
+        save_figure_as_pdf(fig_3, os.path.join(dst, f"{name}_activation_grid.pdf"))
     
     return fig_1, fig_2, fig_3
 
