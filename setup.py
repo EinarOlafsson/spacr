@@ -12,6 +12,7 @@ dependencies = [
     'cellpose>=3.0.6,<4.0',
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
+    'scikit-posthocs>=0.10.0, <0.20',
     'mahotas>=1.4.13,<2.0',
     'btrack>=0.6.5,<1.0',
     'trackpy>=0.6.2,<1.0',
@@ -68,7 +69,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.3.49",
+    version="0.3.52",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

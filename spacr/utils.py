@@ -5225,3 +5225,34 @@ def correct_metadata_column_names(df):
     if 'plate_row' in df.columns:
         df[['plate', 'row']] = df['plate_row'].str.split('_', expand=True)
     return df
+
+def control_filelist(folder, mode='column', values=['01','02']):
+    files = os.listdir(folder)
+    if mode is 'column':
+        filtered_files = [file for file in files if file.split('_')[1][1:] in values]
+    if mode is 'row':
+        filtered_files = [file for file in files if file.split('_')[1][:1] in values]
+    return filtered_files
+
+def choose_p_adjust_method(num_groups, num_data_points):
+    """
+    Selects the most appropriate p-value adjustment method based on data characteristics.
+    
+    Parameters:
+    - num_groups: Number of unique groups being compared
+    - num_data_points: Number of data points per group (assuming balanced groups)
+    
+    Returns:
+    - A string representing the recommended p-adjustment method
+    """
+    num_comparisons = (num_groups * (num_groups - 1)) // 2  # Number of pairwise comparisons
+
+    # Decision logic for choosing the adjustment method
+    if num_comparisons <= 10 and num_data_points > 5:
+        return 'holm'  # Balanced between power and Type I error control
+    elif num_comparisons > 10 and num_data_points <= 5:
+        return 'fdr_bh'  # FDR control for large number of comparisons and small sample size
+    elif num_comparisons <= 10:
+        return 'sidak'  # Less conservative than Bonferroni, good for independent comparisons
+    else:
+        return 'bonferroni'  # Very conservative, use for strict control of Type I errors
