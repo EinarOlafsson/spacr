@@ -155,10 +155,6 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
-
-
-
-
 def check_distribution(y):
     """Check the type of distribution to recommend a model."""
     if np.all((y == 0) | (y == 1)):
@@ -706,11 +702,9 @@ def perform_regression(settings):
     def _perform_regression_read_data(settings):
 
         if isinstance(settings['score_data'], list) and isinstance(settings['count_data'], list):
-            settings['plate'] = None
             if len(settings['score_data']) == 1:
-                settings['score_data'] = settings['score_data'][0]
-            if len(settings['count_data']) == 1:
-                settings['count_data'] = settings['count_data'][0]
+                count_data_df = pd.read_csv(settings['count_data'][0])
+                score_data_df = pd.read_csv(settings['score_data'][0])
             else:
                 count_data_df = pd.DataFrame()
                 for i, count_data in enumerate(settings['count_data']):
@@ -806,9 +800,23 @@ def perform_regression(settings):
             return df, n_gene
         else:
             return df
-        
+
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
+    
+    if "row_name" in count_data_df.columns:
+        num_parts = len(count_data_df['row_name'].iloc[0].split('_'))
+        if num_parts == 2:
+            split = count_data_df['row_name'].str.split('_', expand=True)
+            count_data_df['row_name'] = split[1]
+    
+    if "prc" in score_data_df.columns:
+        num_parts = len(score_data_df['prc'].iloc[0].split('_'))
+        if num_parts == 3:
+            split = score_data_df['prc'].str.split('_', expand=True)
+            score_data_df['plate'] = settings['plate']
+            score_data_df['prc'] = score_data_df['plate'] + '_' + split[1] + '_' + split[2]
+        
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
     save_settings(settings, name='regression', show=True)
 
@@ -857,6 +865,7 @@ def perform_regression(settings):
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
     coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
+    
     coef_df = coef_df.merge(n_grna, how='left', on='grna')
     coef_df = coef_df.merge(n_gene, how='left', on='gene')
 
@@ -903,7 +912,6 @@ def perform_regression(settings):
         save_summary_to_file(model, file_path=f'{res_folder}/mode_summary.csv')
     
     significant.to_csv(hits_path, index=False)
-
     significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
     significant_gene_filtered = significant[significant['n_gene'] > settings['min_n']]
     significant_filtered = pd.concat([significant_grna_filtered, significant_gene_filtered])
@@ -928,8 +936,6 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
-        display(data_path)
-
         if settings['volcano'] == 'all':
             print('all')
             gene_list = custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
@@ -1075,7 +1081,7 @@ def clean_controls(df,values, column):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
-
+    
     if 'plate_name' in df.columns:
         df.drop(columns=['plate'], inplace=True)
         df = df.rename(columns={'plate_name': 'plate'})
@@ -1088,6 +1094,9 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
     df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
 
+    display(df)
+    
+    
     df = df[['prc', dependent_variable]]
 
     # Group by prc and calculate the mean and count of the dependent_variable
