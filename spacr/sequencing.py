@@ -597,8 +597,12 @@ def graph_sequencing_stats(settings):
     df = pd.merge(df, unique_counts, on=['plate', 'row', 'column'], how='left')
 
     print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
-    display(df)
     #_plot_density(df, dependent_variable='unique_counts')
+    
+    has_underscore = df['row'].str.contains('_').any()
+    if has_underscore:
+        df['row'] = df['row'].apply(lambda x: x.split('_')[1])
+    
     plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
     
     return closest_threshold

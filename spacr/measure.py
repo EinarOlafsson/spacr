@@ -16,6 +16,7 @@ from skimage.util import img_as_bool
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
+
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """
     Get the components (nucleus and pathogens) for each cell in the given masks.
@@ -761,12 +762,10 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cytoplasm_min_size'] is not None and settings['cytoplasm_min_size'] != 0:
             cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
 
-        if settings['cell_mask_dim'] is not None:
+        if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
             cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
-
-        # Update data with the new masks
-        if settings['cell_mask_dim'] is not None:
             data[:, :, settings['cell_mask_dim']] = cell_mask.astype(data_type)
+
         if settings['nucleus_mask_dim'] is not None:
             data[:, :, settings['nucleus_mask_dim']] = nucleus_mask.astype(data_type)
         if settings['pathogen_mask_dim'] is not None:
@@ -779,7 +778,6 @@ def _measure_crop_core(index, time_ls, file, settings):
             figs[f'{file_name}__after_filtration'] = fig
 
         if settings['save_measurements']:
-
             cell_df, nucleus_df, pathogen_df, cytoplasm_df = _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings)
 
             #if settings['skeleton']:
@@ -789,7 +787,6 @@ def _measure_crop_core(index, time_ls, file, settings):
             cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
             if settings['cell_mask_dim'] is not None:
                 cell_merged_df = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'])
-
             if settings['nucleus_mask_dim'] is not None:
                 nucleus_merged_df = _merge_and_save_to_database(nucleus_df, nucleus_intensity_df, 'nucleus', source_folder, file_name, settings['experiment'], settings['timelapse'])
 
@@ -800,7 +797,6 @@ def _measure_crop_core(index, time_ls, file, settings):
                 cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'])
 
         if settings['save_png'] or settings['save_arrays'] or settings['plot']:
-
             if isinstance(settings['dialate_pngs'], bool):
                 dialate_pngs = [settings['dialate_pngs'], settings['dialate_pngs'], settings['dialate_pngs']]
             if isinstance(settings['dialate_pngs'], list):
@@ -825,13 +821,15 @@ def _measure_crop_core(index, time_ls, file, settings):
                     
                 if len(crop_ls) != len(size_ls):
                     print(f"Setting: size_ls: {settings['png_size']} should be a list of integers, or a list of lists of integers if crop_ls: {settings['crop_mode']} has multiple elements")
-                    
+                
                 for crop_idx, crop_mode in enumerate(crop_ls):
                     width, height = size_ls[crop_idx]
+
                     if crop_mode == 'cell':
                         crop_mask = cell_mask.copy()
                         dialate_png = dialate_pngs[crop_idx]
                         dialate_png_ratio = dialate_png_ratios[crop_idx]
+
                     elif crop_mode == 'nucleus':
                         crop_mask = nucleus_mask.copy()
                         dialate_png = dialate_pngs[crop_idx]
@@ -852,7 +850,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                     
                     for _id in objects_in_image:
                         
-                        region = (crop_mask == _id)  # This creates a boolean mask for the region of interest
+                        region = (crop_mask == _id)
 
                         # Use the boolean mask to filter the cell_mask and then find unique IDs
                         region_cell_ids = np.atleast_1d(np.unique(cell_mask[region]))
@@ -947,7 +945,7 @@ def measure_crop(settings):
 
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif
-    from .utils import measure_test_mode, print_progress
+    from .utils import measure_test_mode, print_progress, save_settings
     from .settings import get_measure_crop_settings
 
     if not isinstance(settings['src'], (str, list)):
@@ -1032,9 +1030,10 @@ def measure_crop(settings):
                 settings['crop_mode'] = [settings['crop_mode']]
                 settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
                 print(f"Converted crop_mode to list: {settings['crop_mode']}")
-                return
             
             _save_settings_to_db(settings)
+            #save_settings(settings, name='measure_crop', show=True)
+
             files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
             n_jobs = settings['n_jobs']
             print(f'using {n_jobs} cpu cores')

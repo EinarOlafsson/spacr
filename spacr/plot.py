@@ -1793,12 +1793,27 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     if not isinstance(min_count, (int, float)):
         min_count = 0
 
-    df = df.copy()  # Work on a copy to avoid SettingWithCopyWarning
+    # Check the number of parts in 'prc'
+    num_parts = len(df['prc'].iloc[0].split('_'))
+    if num_parts == 4:
+        split = df['prc'].str.split('_', expand=True)
+        df['row'] = split[2]
+        df['prc'] = f"{plate_number}" + '_' + split[2] + '_' + split[3]
+        
+    # Construct 'prc' based on 'plate', 'row', and 'column' columns
+    #df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+
+    if 'col' not in df.columns:
+        if 'column' in df.columns:
+            df['col'] = df['column']
+        if 'column_name' in df.columns:
+            df['col'] = df['column_name']
+                
     df['plate'], df['row'], df['col'] = zip(*df['prc'].str.split('_'))
     
     # Filtering the dataframe based on the plate_number
     df = df[df['plate'] == plate_number].copy()  # Create another copy after filtering
-
+    
     # Ensure proper ordering
     row_order = [f'r{i}' for i in range(1, 17)]
     col_order = [f'c{i}' for i in range(1, 28)]  # Exclude c15 as per your earlier code
