@@ -531,18 +531,22 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('score_data','list of paths')
     settings.setdefault('positive_control','239740')
     settings.setdefault('negative_control','233460')
+    settings.setdefault('min_n',0)
     settings.setdefault('controls',['000000_1','000000_10','000000_11','000000_12','000000_13','000000_14','000000_15','000000_16','000000_17','000000_18','000000_19','000000_20','000000_21','000000_22','000000_23','000000_24','000000_25','000000_26','000000_27','000000_28','000000_29','000000_3','000000_30','000000_31','000000_32','000000_4','000000_5','000000_6','000000_8','000000_9'])
-    settings.setdefault('fraction_threshold',0.12)
+    settings.setdefault('fraction_threshold',None)
     settings.setdefault('dependent_variable','pred')
     settings.setdefault('threshold_method','std')
     settings.setdefault('threshold_multiplier',3)
+    settings.setdefault('target_unique_count',5)
     settings.setdefault('transform',None)
+    settings.setdefault('log_x',False)
+    settings.setdefault('log_y',False)
+    settings.setdefault('x_lim',None)
     settings.setdefault('agg_type','mean')
-    settings.setdefault('min_cell_count',25)
+    settings.setdefault('min_cell_count',None)
     settings.setdefault('regression_type','ols')
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('split_axis_lims','')
-    settings.setdefault('plate','')
     settings.setdefault('cov_type',None)
     settings.setdefault('alpha',1)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
@@ -557,6 +561,7 @@ def get_perform_regression_default_settings(settings):
         print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
         settings['agg_type'] = None
         print(f'agg_type set to None for quantile regression')
+        
     return settings
 
 def get_check_cellpose_models_default_settings(settings):
