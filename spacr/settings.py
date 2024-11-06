@@ -198,7 +198,7 @@ def set_default_umap_image_settings(settings={}):
     settings.setdefault('smooth_lines', True)
     settings.setdefault('clustering', 'dbscan')
     settings.setdefault('exclude', None)
-    settings.setdefault('col_to_compare', 'col')
+    settings.setdefault('col_to_compare', 'column_name')
     settings.setdefault('pos', 'c1')
     settings.setdefault('neg', 'c2')
     settings.setdefault('embedding_by_controls', False)
@@ -289,7 +289,7 @@ def set_default_analyze_screen(settings):
     settings.setdefault('minimum_cell_count',25)
     settings.setdefault('n_estimators',100)
     settings.setdefault('test_size',0.2)
-    settings.setdefault('location_column','col')
+    settings.setdefault('location_column','column_name')
     settings.setdefault('positive_control','c2')
     settings.setdefault('negative_control','c1')
     settings.setdefault('exclude',None)
@@ -337,8 +337,9 @@ def set_default_train_test_model(settings):
     return settings
 
 def set_generate_training_dataset_defaults(settings):
-
+    
     settings.setdefault('src','path')
+    settings.setdefault('tables',['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
     settings.setdefault('annotated_classes',[1,2])
@@ -346,7 +347,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    settings.setdefault('metadata_type_by','col')
+    settings.setdefault('metadata_type_by','column_name')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
@@ -369,7 +370,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    settings.setdefault('metadata_type_by','col')
+    settings.setdefault('metadata_type_by','column_name')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
@@ -453,7 +454,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('pathogen_plate_metadata',[['c1', 'c2', 'c3'],['c4','c5', 'c6']])
     settings.setdefault('treatments',['cm', 'lovastatin'])
     settings.setdefault('treatment_plate_metadata',[['r1', 'r2','r3'], ['r4', 'r5','r6']])
-    settings.setdefault('metadata_types',['col', 'col', 'row'])
+    settings.setdefault('metadata_types',['column_name', 'column_name', 'row_name'])
     settings.setdefault('channel_dims',[0,1,2,3])
     settings.setdefault('cell_chann_dim',3)
     settings.setdefault('cell_mask_dim',4)

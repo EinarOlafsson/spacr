@@ -533,14 +533,14 @@ def exponential_decay(x, a, b, c):
 
 def preprocess_pathogen_data(pathogen_df):
     # Group by identifiers and count the number of parasites
-    parasite_counts = pathogen_df.groupby(['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id']).size().reset_index(name='parasite_count')
+    parasite_counts = pathogen_df.groupby(['plate', 'row_name', 'column_name', 'field', 'timeid', 'pathogen_cell_id']).size().reset_index(name='parasite_count')
 
     # Aggregate numerical columns and take the first of object columns
-    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in ['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id', 'parasite_count']}
-    pathogen_agg = pathogen_df.groupby(['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id']).agg(agg_funcs).reset_index()
+    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in ['plate', 'row_name', 'column_name', 'field', 'timeid', 'pathogen_cell_id', 'parasite_count']}
+    pathogen_agg = pathogen_df.groupby(['plate', 'row_name', 'column_name', 'field', 'timeid', 'pathogen_cell_id']).agg(agg_funcs).reset_index()
 
     # Merge the counts back into the aggregated data
-    pathogen_agg = pathogen_agg.merge(parasite_counts, on=['plate', 'row', 'col', 'field', 'timeid', 'pathogen_cell_id'])
+    pathogen_agg = pathogen_agg.merge(parasite_counts, on=['plate', 'row_name', 'column_name', 'field', 'timeid', 'pathogen_cell_id'])
 
     # Remove the object_label column as it corresponds to the pathogen ID not the cell ID
     if 'object_label' in pathogen_agg.columns:
@@ -604,10 +604,10 @@ def save_results_dataframe(df, src, results_name):
 def summarize_per_well(peak_details_df):
     # Step 1: Split the 'ID' column
     split_columns = peak_details_df['ID'].str.split('_', expand=True)
-    peak_details_df[['plate', 'row', 'column', 'field', 'object_number']] = split_columns
+    peak_details_df[['plate', 'row_name', 'column', 'field', 'object_number']] = split_columns
 
-    # Step 2: Create 'well_ID' by combining 'row' and 'column'
-    peak_details_df['well_ID'] = peak_details_df['row'] + '_' + peak_details_df['column']
+    # Step 2: Create 'well_ID' by combining 'row_name' and 'column'
+    peak_details_df['well_ID'] = peak_details_df['row_name'] + '_' + peak_details_df['column']
 
     # Filter entries where 'amplitude' is not null
     filtered_df = peak_details_df[peak_details_df['amplitude'].notna()]
@@ -635,10 +635,10 @@ def summarize_per_well(peak_details_df):
 def summarize_per_well_inf_non_inf(peak_details_df):
     # Step 1: Split the 'ID' column
     split_columns = peak_details_df['ID'].str.split('_', expand=True)
-    peak_details_df[['plate', 'row', 'column', 'field', 'object_number']] = split_columns
+    peak_details_df[['plate', 'row_name', 'column', 'field', 'object_number']] = split_columns
 
-    # Step 2: Create 'well_ID' by combining 'row' and 'column'
-    peak_details_df['well_ID'] = peak_details_df['row'] + '_' + peak_details_df['column']
+    # Step 2: Create 'well_ID' by combining 'row_name' and 'column'
+    peak_details_df['well_ID'] = peak_details_df['row_name'] + '_' + peak_details_df['column']
 
     # Assume 'pathogen_count' indicates infection if > 0
     # Add an 'infected_status' column to classify cells
@@ -669,7 +669,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         pathogen_df = pd.read_sql("SELECT * FROM pathogen", conn)
         pathogen_df['pathogen_cell_id'] = pathogen_df['pathogen_cell_id'].astype(float).astype('Int64')
         pathogen_df = preprocess_pathogen_data(pathogen_df)
-        cell_df = cell_df.merge(pathogen_df, on=['plate', 'row', 'col', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_pathogen'))
+        cell_df = cell_df.merge(pathogen_df, on=['plate', 'row_name', 'column_name', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_pathogen'))
         cell_df['parasite_count'] = cell_df['parasite_count'].fillna(0)
         print(f'After pathogen merge: {len(cell_df)} objects')
 
@@ -677,7 +677,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     if cytoplasm:
         cytoplasm_df = pd.read_sql(f"SELECT * FROM {'cytoplasm'}", conn)
         # Merge on specified columns
-        cell_df = cell_df.merge(cytoplasm_df, on=['plate', 'row', 'col', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_cytoplasm'))
+        cell_df = cell_df.merge(cytoplasm_df, on=['plate', 'row_name', 'column_name', 'field', 'timeid', 'object_label'], how='left', suffixes=('', '_cytoplasm'))
 
         print(f'After cytoplasm merge: {len(cell_df)} objects')
     
@@ -687,12 +687,12 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     # Prepare DataFrame (use cell_df instead of df)
     prcf_components = cell_df['prcf'].str.split('_', expand=True)
     cell_df['plate'] = prcf_components[0]
-    cell_df['row'] = prcf_components[1]
+    cell_df['row_name'] = prcf_components[1]
     cell_df['column'] = prcf_components[2]
     cell_df['field'] = prcf_components[3]
     cell_df['time'] = prcf_components[4].str.extract('t(\d+)').astype(int)
     cell_df['object_number'] = cell_df['object_label']
-    cell_df['plate_row_column_field_object'] = cell_df['plate'].astype(str) + '_' + cell_df['row'].astype(str) + '_' + cell_df['column'].astype(str) + '_' + cell_df['field'].astype(str) + '_' + cell_df['object_label'].astype(str)
+    cell_df['plate_row_column_field_object'] = cell_df['plate'].astype(str) + '_' + cell_df['row_name'].astype(str) + '_' + cell_df['column'].astype(str) + '_' + cell_df['field'].astype(str) + '_' + cell_df['object_label'].astype(str)
 
     df = cell_df.copy()
 
@@ -753,7 +753,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
                 peak_details_list.append({
                     'ID': unique_id,
                     'plate': group['plate'].iloc[0],
-                    'row': group['row'].iloc[0],
+                    'row_name': group['row_name'].iloc[0],
                     'column': group['column'].iloc[0],
                     'field': group['field'].iloc[0],
                     'object_number': group['object_number'].iloc[0],
@@ -784,7 +784,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
                 peak_details_list.append({
                     'ID': unique_id,
                     'plate': group['plate'].iloc[0],
-                    'row': group['row'].iloc[0],
+                    'row_name': group['row_name'].iloc[0],
                     'column': group['column'].iloc[0],
                     'field': group['field'].iloc[0],
                     'object_number': group['object_number'].iloc[0],
