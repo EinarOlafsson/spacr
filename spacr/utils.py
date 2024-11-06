@@ -78,7 +78,7 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
 
     parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=settings['timelapse'])))
 
-    columns = ['plate', 'row', 'col', 'field']
+    columns = ['plate', 'row_name', 'column_name', 'field']
 
     if settings['timelapse']:
         columns = columns + ['time_id']
@@ -113,7 +113,7 @@ def activation_maps_to_database(img_paths, source_folder, settings):
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
     png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
     parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=False)))
-    columns = ['plate', 'row', 'col', 'field', 'prcfo', 'object']
+    columns = ['plate', 'row_name', 'column_name', 'field', 'prcfo', 'object']
     png_df[columns] = parts
 
     dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]
@@ -136,7 +136,7 @@ def activation_correlations_to_database(df, img_paths, source_folder, settings):
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
     png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
     parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=False)))
-    columns = ['plate', 'row', 'col', 'field', 'prcfo', 'object']
+    columns = ['plate', 'row_name', 'column_name', 'field', 'prcfo', 'object']
     png_df[columns] = parts
 
     # Align both DataFrames by file_name
@@ -547,56 +547,6 @@ def _get_cellpose_batch_size():
     except Exception as e:
         return 8
 
-def _extract_filename_metadata_v1(filenames, src, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
-    
-    images_by_key = defaultdict(list)
-    
-    for filename in filenames:
-        match = regular_expression.match(filename)
-        if match:
-            try:
-                try:
-                    plate = match.group('plateID')
-                except:
-                    plate = os.path.basename(src)
-
-                well = match.group('wellID')
-                field = match.group('fieldID')
-                channel = match.group('chanID')
-                mode = None
-
-                if well[0].isdigit():
-                    well = str(_safe_int_convert(well))
-                if field[0].isdigit():
-                    field = str(_safe_int_convert(field))
-                if channel[0].isdigit():
-                    channel = str(_safe_int_convert(channel))
-
-                if metadata_type =='cq1':
-                    orig_wellID = wellID
-                    wellID = _convert_cq1_well_id(wellID)
-                    print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
-
-                if pick_slice:
-                    try:
-                        mode = match.group('AID')
-                    except IndexError:
-                        sliceid = '00'
-
-                    if mode == skip_mode:
-                        continue
-                        
-                key = (plate, well, field, channel, mode)
-                with Image.open(os.path.join(src, filename)) as img:
-                    images_by_key[key].append(np.array(img))
-            except IndexError:
-                print(f"Could not extract information from filename {filename} using provided regex")
-        else:
-            print(f"Filename {filename} did not match provided regex")
-            continue
-        
-    return images_by_key
-
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
     
     images_by_key = defaultdict(list)
@@ -685,11 +635,11 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=['p
     if 'prcfo' not in df.columns:
         print(f'generating prcfo columns')
         try:
-            df['prcfo'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str) + '_' + df['field'].astype(str) + '_o' + df['object_label'].astype(int).astype(str)
+            df['prcfo'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str) + '_o' + df['object_label'].astype(int).astype(str)
         except Exception as e:
             print('Merging on cell failed, trying with cell_id')
         try:
-            df['prcfo'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str) + '_' + df['field'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
+            df['prcfo'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
         except Exception as e:
             print(e)
         
@@ -781,7 +731,7 @@ def _map_values(row, values, locs):
     if locs:
         value_dict = {loc: value for value, loc_list in zip(values, locs) for loc in loc_list}
         # Determine if we're dealing with row or column based on first location identifier
-        type_ = 'row' if locs[0][0][0] == 'r' else 'col'
+        type_ = 'row_name' if locs[0][0][0] == 'r' else 'column_name'
         return value_dict.get(row[type_], None)
     return values[0] if values else None
 
@@ -966,21 +916,21 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             merged_df['file_name'] = file_name
             merged_df['path_name'] = os.path.join(source_folder, file_name + '.npy')
             if timelapse:
-                merged_df[['plate', 'row', 'col', 'field', 'timeid', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+                merged_df[['plate', 'row_name', 'column_name', 'field', 'timeid', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
             else:
-                merged_df[['plate', 'row', 'col', 'field', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+                merged_df[['plate', 'row_name', 'column_name', 'field', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
             cols = merged_df.columns.tolist()  # get the list of all columns
             if table_type == 'cell' or table_type == 'cytoplasm':
-                column_list = ['object_label', 'plate', 'row', 'col', 'field', 'prcf', 'file_name', 'path_name']
+                column_list = ['object_label', 'plate', 'row_name', 'column_name', 'field', 'prcf', 'file_name', 'path_name']
             elif table_type == 'nucleus' or table_type == 'pathogen':
-                column_list = ['object_label', 'cell_id', 'plate', 'row', 'col', 'field', 'prcf', 'file_name', 'path_name']
+                column_list = ['object_label', 'cell_id', 'plate', 'row_name', 'column_name', 'field', 'prcf', 'file_name', 'path_name']
             else:
                 raise ValueError(f"Invalid table_type: {table_type}")
             # Check if all columns in column_list are in cols
             missing_columns = [col for col in column_list if col not in cols]
             if len(missing_columns) == 1 and missing_columns[0] == 'cell_id':
                 missing_columns = False
-                column_list = ['object_label', 'plate', 'row', 'col', 'field', 'prcf', 'file_name', 'path_name']
+                column_list = ['object_label', 'plate', 'row_name', 'column_name', 'field', 'prcf', 'file_name', 'path_name']
             if missing_columns:
                 raise ValueError(f"Columns missing in DataFrame: {missing_columns}")
             for i, col in enumerate(column_list):
@@ -1373,11 +1323,11 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
     """
     
     def _get_type(val):
-        """Determine if a value maps to 'row' or 'col'."""
+        """Determine if a value maps to 'row_name' or 'column_name'."""
         if isinstance(val, str) and val.startswith('c'):
-            return 'col'
+            return 'column_name'
         elif isinstance(val, str) and val.startswith('r'):
-            return 'row'
+            return 'row_name'
         return None
 
     def _map_or_default(column_name, values, loc, df):
@@ -1514,7 +1464,7 @@ def _group_by_well(df):
     non_numeric_cols = df.select_dtypes(include=['object']).columns
 
     # Apply mean function to numeric columns and first to non-numeric
-    df_grouped = df.groupby(['plate', 'row', 'col']).agg({**{col: np.mean for col in numeric_cols}, **{col: 'first' for col in non_numeric_cols}})
+    df_grouped = df.groupby(['plate', 'row_name', 'column_name']).agg({**{col: np.mean for col in numeric_cols}, **{col: 'first' for col in non_numeric_cols}})
     return df_grouped
 
 ###################################################
@@ -2348,7 +2298,7 @@ def check_multicollinearity(x):
 
 def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     # Separate predictors and response
-    X = merged_df[['gene', 'grna', 'plate', 'row', 'column']]
+    X = merged_df[['gene', 'grna', 'plate', 'row_name', 'column']]
     y = merged_df['pred']
 
     # One-hot encode the categorical predictors
@@ -3999,36 +3949,6 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
     plt.show()
     return grid_fig
 
-def generate_path_list_from_db_v1(db_path, file_metadata):
-
-    all_paths = []
-
-    # Connect to the database and retrieve the image paths
-    print(f"Reading DataBase: {db_path}")
-    try:
-        with sqlite3.connect(db_path) as conn:
-            cursor = conn.cursor()
-            if file_metadata:
-                if isinstance(file_metadata, str):
-                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
-            else:
-                cursor.execute("SELECT png_path FROM png_list")
-
-            while True:
-                rows = cursor.fetchmany(1000)
-                if not rows:
-                    break
-                all_paths.extend([row[0] for row in rows])
-
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return
-    except Exception as e:
-        print(f"Error: {e}")
-        return
-    
-    return all_paths
-
 def generate_path_list_from_db(db_path, file_metadata):
     all_paths = []
 
@@ -4738,11 +4658,11 @@ def process_vision_results(df, threshold=0.5):
     mapped_values = df['path'].apply(lambda x: _map_wells(x))
     
     df['plate'] = mapped_values.apply(lambda x: x[0])
-    df['row'] = mapped_values.apply(lambda x: x[1])
+    df['row_name'] = mapped_values.apply(lambda x: x[1])
     df['column'] = mapped_values.apply(lambda x: x[2])
     df['field'] = mapped_values.apply(lambda x: x[3])
     df['object'] = df['path'].str.split('_').str[3].str.split('.').str[0]
-    df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+    df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column'].astype(str)
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
     return df
@@ -5031,66 +4951,6 @@ def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
 
     raise Exception("Failed to download model files after multiple attempts.")
 
-def download_models_v1(repo_id="einarolafsson/models", local_dir=None, retries=5, delay=5):
-    """
-    Downloads all model files from Hugging Face and stores them in the specified local directory.
-
-    Args:
-        repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').
-        local_dir (str): The local directory where models will be saved. Defaults to '/home/carruthers/Desktop/test'.
-        retries (int): Number of retry attempts in case of failure.
-        delay (int): Delay in seconds between retries.
-
-    Returns:
-        str: The local path to the downloaded models.
-    """
-    # Create the local directory if it doesn't exist
-    if not os.path.exists(local_dir):
-        os.makedirs(local_dir)
-    elif len(os.listdir(local_dir)) > 0:
-        print(f"Models already downloaded to: {local_dir}")
-        return local_dir
-
-    attempt = 0
-    while attempt < retries:
-        try:
-            # List all files in the repo
-            files = list_repo_files(repo_id, repo_type="dataset")
-            print(f"Files in repository: {files}")  # Debugging print to check file list
-
-            # Download each file
-            for file_name in files:
-                for download_attempt in range(retries):
-                    try:
-                        url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
-                        print(f"Downloading file from: {url}")  # Debugging
-
-                        response = requests.get(url, stream=True)
-                        print(f"HTTP response status: {response.status_code}")  # Debugging
-                        response.raise_for_status()
-
-                        # Save the file locally
-                        local_file_path = os.path.join(local_dir, os.path.basename(file_name))
-                        with open(local_file_path, 'wb') as file:
-                            for chunk in response.iter_content(chunk_size=8192):
-                                file.write(chunk)
-                        print(f"Downloaded model file: {file_name} to {local_file_path}")
-                        break  # Exit the retry loop if successful
-                    except (requests.HTTPError, requests.Timeout) as e:
-                        print(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
-                        time.sleep(delay)
-                else:
-                    raise Exception(f"Failed to download {file_name} after multiple attempts.")
-
-            return local_dir  # Return the directory where models are saved
-
-        except (requests.HTTPError, requests.Timeout) as e:
-            print(f"Error downloading files: {e}. Retrying in {delay} seconds...")
-            attempt += 1
-            time.sleep(delay)
-
-    raise Exception("Failed to download model files after multiple attempts.")
-
 def generate_cytoplasm_mask(nucleus_mask, cell_mask):
         
     """
@@ -5216,21 +5076,21 @@ def correct_metadata_column_names(df):
         df = df.rename(columns={'plate_name': 'plate'})
     if 'column_name' in df.columns:
         df = df.rename(columns={'column_name': 'column'})
-    if 'col' in df.columns:
-        df = df.rename(columns={'col': 'column'})
+    if 'column_name' in df.columns:
+        df = df.rename(columns={'column_name': 'column'})
     if 'row_name' in df.columns:
-        df = df.rename(columns={'row_name': 'row'})
+        df = df.rename(columns={'row_name': 'row_name'})
     if 'grna_name' in df.columns:
         df = df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in df.columns:
-        df[['plate', 'row']] = df['plate_row'].str.split('_', expand=True)
+        df[['plate', 'row_name']] = df['plate_row'].str.split('_', expand=True)
     return df
 
 def control_filelist(folder, mode='column', values=['01','02']):
     files = os.listdir(folder)
     if mode is 'column':
         filtered_files = [file for file in files if file.split('_')[1][1:] in values]
-    if mode is 'row':
+    if mode is 'row_name':
         filtered_files = [file for file in files if file.split('_')[1][:1] in values]
     return filtered_files
 
@@ -5256,3 +5116,51 @@ def choose_p_adjust_method(num_groups, num_data_points):
         return 'sidak'  # Less conservative than Bonferroni, good for independent comparisons
     else:
         return 'bonferroni'  # Very conservative, use for strict control of Type I errors
+    
+def rename_columns_in_db(db_path):
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        
+        # Retrieve all table names in the database
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [table[0] for table in cursor.fetchall()]
+
+        for table in tables:
+            # Retrieve column names for each table
+            cursor.execute(f"PRAGMA table_info({table});")
+            columns_info = cursor.fetchall()
+            column_names = [col[1] for col in columns_info]
+
+            # Check if columns 'row' or 'col' exist
+            columns_to_rename = {}
+            if 'row' in column_names:
+                columns_to_rename['row'] = 'row_name'
+            if 'col' in column_names:
+                columns_to_rename['col'] = 'column_name'
+            
+            # Rename columns if necessary
+            if columns_to_rename:
+                # Rename existing table to a temporary name
+                temp_table = f"{table}_old"
+                cursor.execute(f"ALTER TABLE `{table}` RENAME TO `{temp_table}`")
+
+                # Define new columns with updated names
+                column_definitions = ", ".join(
+                    [f"`{columns_to_rename.get(col[1], col[1])}` {col[2]}" for col in columns_info]
+                )
+                cursor.execute(f"CREATE TABLE `{table}` ({column_definitions})")
+                
+                # Copy data to the new table
+                old_columns = ", ".join([f"`{col}`" for col in column_names])
+                new_columns = ", ".join(
+                    [f"`{columns_to_rename.get(col, col)}`" for col in column_names]
+                )
+                cursor.execute(f"INSERT INTO `{table}` ({new_columns}) SELECT {old_columns} FROM `{temp_table}`")
+                try:
+                    cursor.execute(f"DROP TABLE `{temp_table}`")
+                except sqlite3.Error as e:
+                    print(f"Error while dropping temporary table '{temp_table}': {e}")
+
+    # After closing the 'with' block, run VACUUM outside of any transaction
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("VACUUM;")

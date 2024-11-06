@@ -106,32 +106,6 @@ def parse_list(value):
     except (ValueError, SyntaxError) as e:
         raise ValueError(f"Invalid format for list: {value}. Error: {e}")
 
-def parse_list_v1(value):
-    """
-    Parses a string representation of a list and returns the parsed list.
-
-    Args:
-        value (str): The string representation of the list.
-
-    Returns:
-        list: The parsed list, which can contain integers, floats, or strings.
-
-    Raises:
-        ValueError: If the input value is not a valid list format or contains mixed types or unsupported types.
-    """
-    try:
-        parsed_value = ast.literal_eval(value)
-        if isinstance(parsed_value, list):
-            # Check if all elements are homogeneous (either all int, float, or str)
-            if all(isinstance(item, (int, float, str)) for item in parsed_value):
-                return parsed_value
-            else:
-                raise ValueError("List contains mixed types or unsupported types")
-        else:
-            raise ValueError(f"Expected a list but got {type(parsed_value).__name__}")
-    except (ValueError, SyntaxError) as e:
-        raise ValueError(f"Invalid format for list: {value}. Error: {e}")
-
 # Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     """
@@ -695,91 +669,6 @@ def download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5):
 def ensure_after_tasks(frame):
     if not hasattr(frame, 'after_tasks'):
         frame.after_tasks = []
-
-def display_gif_in_plot_frame_v1(gif_path, parent_frame):
-    """Display and zoom a GIF to fill the entire parent_frame, maintaining aspect ratio, with lazy resizing and caching."""
-    # Clear parent_frame if it contains any previous widgets
-    for widget in parent_frame.winfo_children():
-        widget.destroy()
-
-    # Load the GIF
-    gif = Image.open(gif_path)
-
-    # Get the aspect ratio of the GIF
-    gif_width, gif_height = gif.size
-    gif_aspect_ratio = gif_width / gif_height
-
-    # Create a label to display the GIF and configure it to fill the parent_frame
-    label = tk.Label(parent_frame, bg="black")
-    label.grid(row=0, column=0, sticky="nsew")  # Expands in all directions (north, south, east, west)
-
-    # Configure parent_frame to stretch the label to fill available space
-    parent_frame.grid_rowconfigure(0, weight=1)
-    parent_frame.grid_columnconfigure(0, weight=1)
-
-    # Cache for storing resized frames (lazily filled)
-    resized_frames_cache = {}
-
-    # Last frame dimensions
-    last_frame_width = 0
-    last_frame_height = 0
-
-    def resize_and_crop_frame(frame_idx, frame_width, frame_height):
-        """Resize and crop the current frame of the GIF to fit the parent_frame while maintaining the aspect ratio."""
-        # If the frame is already cached at the current size, return it
-        if (frame_idx, frame_width, frame_height) in resized_frames_cache:
-            return resized_frames_cache[(frame_idx, frame_width, frame_height)]
-
-        # Calculate the scaling factor to zoom in on the GIF
-        scale_factor = max(frame_width / gif_width, frame_height / gif_height)
-
-        # Calculate new dimensions while maintaining the aspect ratio
-        new_width = int(gif_width * scale_factor)
-        new_height = int(gif_height * scale_factor)
-
-        # Resize the GIF to fit the frame
-        gif.seek(frame_idx)
-        resized_gif = gif.copy().resize((new_width, new_height), Image.Resampling.LANCZOS)
-
-        # Calculate the cropping box to center the resized GIF in the frame
-        crop_left = (new_width - frame_width) // 2
-        crop_top = (new_height - frame_height) // 2
-        crop_right = crop_left + frame_width
-        crop_bottom = crop_top + frame_height
-
-        # Crop the resized GIF to exactly fit the frame
-        cropped_gif = resized_gif.crop((crop_left, crop_top, crop_right, crop_bottom))
-
-        # Convert the cropped frame to a Tkinter-compatible format
-        frame_image = ImageTk.PhotoImage(cropped_gif)
-
-        # Cache the resized frame
-        resized_frames_cache[(frame_idx, frame_width, frame_height)] = frame_image
-
-        return frame_image
-
-    def update_frame(frame_idx):
-        """Update the GIF frame using lazy resizing and caching."""
-        # Get the current size of the parent_frame
-        frame_width = parent_frame.winfo_width()
-        frame_height = parent_frame.winfo_height()
-
-        # Only resize if the frame size has changed
-        nonlocal last_frame_width, last_frame_height
-        if frame_width != last_frame_width or frame_height != last_frame_height:
-            last_frame_width, last_frame_height = frame_width, frame_height
-
-        # Get the resized and cropped frame image
-        frame_image = resize_and_crop_frame(frame_idx, frame_width, frame_height)
-        label.config(image=frame_image)
-        label.image = frame_image  # Keep a reference to avoid garbage collection
-
-        # Move to the next frame, or loop back to the beginning
-        next_frame_idx = (frame_idx + 1) % gif.n_frames
-        parent_frame.after(gif.info['duration'], update_frame, next_frame_idx)
-
-    # Start the GIF animation from frame 0
-    update_frame(0)
 
 def display_gif_in_plot_frame(gif_path, parent_frame):
     """Display and zoom a GIF to fill the entire parent_frame, maintaining aspect ratio, with lazy resizing and caching."""

@@ -341,17 +341,17 @@ def count_phenotypes(settings):
     unique_values_count = df[settings['annotation_column']].nunique(dropna=True)
     print(f"Unique values in {settings['annotation_column']} (excluding NaN): {unique_values_count}")
 
-    # Count unique values in 'value' column, grouped by 'plate', 'row', 'column'
-    grouped_unique_count = df.groupby(['plate', 'row', 'column'])[settings['annotation_column']].nunique(dropna=True).reset_index(name='unique_count')
+    # Count unique values in 'value' column, grouped by 'plate', 'row_name', 'column'
+    grouped_unique_count = df.groupby(['plate', 'row_name', 'column'])[settings['annotation_column']].nunique(dropna=True).reset_index(name='unique_count')
     display(grouped_unique_count)
 
     save_path = os.path.join(settings['src'], 'phenotype_counts.csv')
 
     # Group by plate, row, and column, then count the occurrences of each unique value
-    grouped_counts = df.groupby(['plate', 'row', 'column', 'value']).size().reset_index(name='count')
+    grouped_counts = df.groupby(['plate', 'row_name', 'column', 'value']).size().reset_index(name='count')
 
     # Pivot the DataFrame so that unique values are columns and their counts are in the rows
-    pivot_df = grouped_counts.pivot_table(index=['plate', 'row', 'column'], columns='value', values='count', fill_value=0)
+    pivot_df = grouped_counts.pivot_table(index=['plate', 'row_name', 'column'], columns='value', values='count', fill_value=0)
 
     # Flatten the multi-level columns
     pivot_df.columns = [f"value_{int(col)}" for col in pivot_df.columns]
@@ -376,17 +376,17 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
                             column='column', value='c3', plate=None, save_paths=None):
 
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
-        if all(col in df.columns for col in ['plate', 'row', 'column']):
-            df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['column']
+        if all(col in df.columns for col in ['plate', 'row_name', 'column']):
+            df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column']
         else:
-            raise ValueError("Cannot find 'plate', 'row', or 'column' in df.columns")
-        prc_summary = df.groupby(['plate', 'row', 'column', 'prc']).size().reset_index(name='total_rows')
-        well_counts = (df.groupby(['plate', 'row', 'column', 'prc', class_columns])
+            raise ValueError("Cannot find 'plate', 'row_name', or 'column' in df.columns")
+        prc_summary = df.groupby(['plate', 'row_name', 'column', 'prc']).size().reset_index(name='total_rows')
+        well_counts = (df.groupby(['plate', 'row_name', 'column', 'prc', class_columns])
                        .size()
                        .unstack(fill_value=0)
                        .reset_index()
                        .rename(columns={0: 'class_0', 1: 'class_1'}))
-        summary_df = pd.merge(prc_summary, well_counts, on=['plate', 'row', 'column', 'prc'], how='left')
+        summary_df = pd.merge(prc_summary, well_counts, on=['plate', 'row_name', 'column', 'prc'], how='left')
         summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
         return summary_df
@@ -481,8 +481,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
         return result
 
     def calculate_well_read_fraction(df, count_column='count'):
-        if all(col in df.columns for col in ['plate', 'row', 'column']):
-            df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['column']
+        if all(col in df.columns for col in ['plate', 'row_name', 'column']):
+            df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column']
         else:
             raise ValueError("Cannot find plate, row or column in df.columns")
         grouped_df = df.groupby('prc')[count_column].sum().reset_index()
@@ -501,18 +501,18 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
                 reads_df_temp['plate'] = f"plate{i+1}"
                 scores_df_temp['plate'] = f"plate{i+1}"
                 
-                if 'col' in reads_df_temp.columns:
-                    reads_df_temp = reads_df_temp.rename(columns={'col': 'column'})
                 if 'column_name' in reads_df_temp.columns:
                     reads_df_temp = reads_df_temp.rename(columns={'column_name': 'column'})
-                if 'col' in scores_df_temp.columns:
-                    scores_df_temp = scores_df_temp.rename(columns={'col': 'column'})
+                if 'column_name' in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'column_name': 'column'})
+                if 'column_name' in scores_df_temp.columns:
+                    scores_df_temp = scores_df_temp.rename(columns={'column_name': 'column'})
                 if 'column_name' in scores_df_temp.columns:
                     scores_df_temp = scores_df_temp.rename(columns={'column_name': 'column'})
                 if 'row_name' in reads_df_temp.columns:
-                    reads_df_temp = reads_df_temp.rename(columns={'row_name': 'row'})
+                    reads_df_temp = reads_df_temp.rename(columns={'row_name': 'row_name'})
                 if 'row_name' in scores_df_temp.columns:
-                    scores_df_temp = scores_df_temp.rename(columns={'row_name': 'row'})
+                    scores_df_temp = scores_df_temp.rename(columns={'row_name': 'row_name'})
                     
                 reads_ls.append(reads_df_temp)
                 scores_ls.append(scores_df_temp)
@@ -539,7 +539,7 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
     
     df_emp = pd.DataFrame([(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) for key, val in empirical_dict.items()],columns=['key', 'value1', 'value2', 'pc_fraction', 'nc_fraction'])
     
-    df = pd.merge(df, df_emp, left_on='row', right_on='key')
+    df = pd.merge(df, df_emp, left_on='row_name', right_on='key')
     
     if any in y_columns not in df.columns:
         print(f"columns in dataframe:")

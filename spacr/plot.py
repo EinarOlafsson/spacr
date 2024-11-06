@@ -366,146 +366,6 @@ def plot_image_mask_overlay(
 
     return fig
 
-def plot_image_mask_overlay_v1(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, percentiles=(2,98), thickness=3, save_pdf=True, mode='outlines', export_tiffs=False):   
-    """Plot image and mask overlays."""
-
-    def _plot_merged_plot(image, outlines, outline_colors, figuresize, thickness, percentiles, mode='outlines'):
-        """Plot the merged plot with overlay, image channels, and masks."""
-
-        def _generate_colored_mask(mask, alpha):
-            """ Generate a colored mask with transparency using the given colormap. """
-            cmap = generate_mask_random_cmap(mask)
-            rgba_mask = cmap(mask / mask.max())  # Normalize mask and map to colormap (RGBA)
-            rgba_mask[..., 3] = np.where(mask > 0, alpha, 0)  # Apply transparency only where mask is present
-            return rgba_mask
-        
-        def _overlay_mask(image, mask):
-            """Overlay the colored mask onto the original image."""
-            combined = np.clip(image + mask[..., :3] * mask[..., 3:4], 0, 1)  # Ensure pixel values stay in [0, 1]
-            return combined
-            
-        def _normalize_image(image, percentiles=(2, 98)):
-            """Normalize the image to the given percentiles."""
-            v_min, v_max = np.percentile(image, percentiles)
-            image_normalized = np.clip((image - v_min) / (v_max - v_min), 0, 1)
-            return image_normalized
-
-        def _generate_contours(mask):
-            """Generate contours for the given mask using OpenCV."""
-            contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            return contours
-
-        def _apply_contours(image, mask, color, thickness):
-            """Apply the contours to the RGB image for each unique label."""
-            unique_labels = np.unique(mask)
-            for label in unique_labels:
-                if label == 0:
-                    continue  # Skip background
-                label_mask = np.where(mask == label, 1, 0).astype(np.uint8)
-                contours = _generate_contours(label_mask)
-                for contour in contours:
-                    cv2.drawContours(image, [contour], -1, mpl.colors.to_rgb(color), thickness)
-            return image
-
-        num_channels = image.shape[-1]
-        fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
-
-        # Plot each channel with its corresponding outlines
-        for v in range(num_channels):
-            channel_image = image[..., v]
-            channel_image_normalized = _normalize_image(channel_image, percentiles)
-            channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
-
-            for outline, color in zip(outlines, outline_colors):
-                if mode == 'outlines':
-                    channel_image_rgb = _apply_contours(channel_image_rgb, outline, color, thickness)
-                else:
-                    mask = _generate_colored_mask(outline, alpha=0.5)
-                    channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
-
-            ax[v].imshow(channel_image_rgb)
-            ax[v].set_title(f'Image - Channel {v}')
-
-        # Plot the combined RGB image with all outlines
-        rgb_image = np.zeros((*image.shape[:2], 3), dtype=float)
-        rgb_channels = min(3, num_channels)
-        for i in range(rgb_channels):
-            channel_image = image[..., i]
-            channel_image_normalized = _normalize_image(channel_image, percentiles)
-            rgb_image[..., i] = channel_image_normalized
-
-        for outline, color in zip(outlines, outline_colors):
-            if mode == 'outlines':
-                rgb_image = _apply_contours(rgb_image, outline, color, thickness)
-            else:
-                mask = _generate_colored_mask(outline, alpha=0.5)
-                rgb_image = _overlay_mask(rgb_image, mask)
-
-        ax[-1].imshow(rgb_image)
-        ax[-1].set_title('Combined RGB Image')
-
-        plt.tight_layout()
-
-        # Save the figure as a PDF
-        if save_pdf:
-            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(file)), 'results', 'overlay')
-            os.makedirs(pdf_dir, exist_ok=True)
-            pdf_path = os.path.join(pdf_dir, os.path.basename(file).replace('.npy', '.pdf'))
-            fig.savefig(pdf_path, format='pdf')
-
-        plt.show()
-        return fig
-    
-    def _save_channels_as_tiff(stack, save_dir, filename):
-        """Save each channel in the stack as a grayscale TIFF."""
-        os.makedirs(save_dir, exist_ok=True)
-        for i in range(stack.shape[-1]):
-            channel = stack[..., i]
-            tiff_path = os.path.join(save_dir, f"{filename}_channel_{i}.tiff")
-            tiff.imwrite(tiff_path, channel, photometric='minisblack')
-            print(f"Saved {tiff_path}")
-    
-    stack = np.load(file)
-
-    if export_tiffs:
-        save_dir = os.path.join(os.path.dirname(os.path.dirname(file)), 'results', os.path.splitext(os.path.basename(file))[0], 'tiff')
-        filename = os.path.splitext(os.path.basename(file))[0]
-        _save_channels_as_tiff(stack, save_dir, filename)
-
-    # Convert to float for normalization and ensure correct handling of both 8-bit and 16-bit arrays
-    if stack.dtype == np.uint16:
-        stack = stack.astype(np.float32)
-    elif stack.dtype == np.uint8:
-        stack = stack.astype(np.float32)
-
-    image = stack[..., channels]
-    outlines = []
-    outline_colors = []
-
-    if pathogen_channel is not None:
-        pathogen_mask_dim = -1  # last dimension
-        outlines.append(np.take(stack, pathogen_mask_dim, axis=2))
-        outline_colors.append('blue')
-
-    if nucleus_channel is not None:
-        nucleus_mask_dim = -2 if pathogen_channel is not None else -1
-        outlines.append(np.take(stack, nucleus_mask_dim, axis=2))
-        outline_colors.append('green')
-
-    if cell_channel is not None:
-        if nucleus_channel is not None and pathogen_channel is not None:
-            cell_mask_dim = -3
-        elif nucleus_channel is not None or pathogen_channel is not None:
-            cell_mask_dim = -2
-        else:
-            cell_mask_dim = -1
-        outlines.append(np.take(stack, cell_mask_dim, axis=2))
-        outline_colors.append('red')
-
-    fig = _plot_merged_plot(image=image, outlines=outlines, outline_colors=outline_colors, figuresize=figuresize, thickness=thickness, percentiles=percentiles, mode=mode)
-
-    return fig
-
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True):
     """
     Plot the masks and flows for a given batch of images.
@@ -1797,19 +1657,19 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     num_parts = len(df['prc'].iloc[0].split('_'))
     if num_parts == 4:
         split = df['prc'].str.split('_', expand=True)
-        df['row'] = split[2]
+        df['row_name'] = split[2]
         df['prc'] = f"{plate_number}" + '_' + split[2] + '_' + split[3]
         
-    # Construct 'prc' based on 'plate', 'row', and 'column' columns
-    #df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+    # Construct 'prc' based on 'plate', 'row_name', and 'column' columns
+    #df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column'].astype(str)
 
-    if 'col' not in df.columns:
+    if 'column_name' not in df.columns:
         if 'column' in df.columns:
-            df['col'] = df['column']
+            df['column_name'] = df['column']
         if 'column_name' in df.columns:
-            df['col'] = df['column_name']
+            df['column_name'] = df['column_name']
                 
-    df['plate'], df['row'], df['col'] = zip(*df['prc'].str.split('_'))
+    df['plate'], df['row_name'], df['column_name'] = zip(*df['prc'].str.split('_'))
     
     # Filtering the dataframe based on the plate_number
     df = df[df['plate'] == plate_number].copy()  # Create another copy after filtering
@@ -1818,15 +1678,15 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     row_order = [f'r{i}' for i in range(1, 17)]
     col_order = [f'c{i}' for i in range(1, 28)]  # Exclude c15 as per your earlier code
     
-    df['row'] = pd.Categorical(df['row'], categories=row_order, ordered=True)
-    df['col'] = pd.Categorical(df['col'], categories=col_order, ordered=True)
-    df['count'] = df.groupby(['row', 'col'])['row'].transform('count')
+    df['row_name'] = pd.Categorical(df['row_name'], categories=row_order, ordered=True)
+    df['column_name'] = pd.Categorical(df['column_name'], categories=col_order, ordered=True)
+    df['count'] = df.groupby(['row_name', 'column_name'])['row_name'].transform('count')
 
     if min_count > 0:
         df = df[df['count'] >= min_count]
 
     # Explicitly set observed=True to avoid FutureWarning
-    grouped = df.groupby(['row', 'col'], observed=True) # Group by row and column
+    grouped = df.groupby(['row_name', 'column_name'], observed=True) # Group by row and column
     
     if grouping == 'mean':
         plate = grouped[variable].mean().reset_index()
@@ -1838,7 +1698,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     else:
         raise ValueError(f"Unsupported grouping: {grouping}")
         
-    plate_map = pd.pivot_table(plate, values=variable, index='row', columns='col').fillna(0)
+    plate_map = pd.pivot_table(plate, values=variable, index='row_name', columns='column_name').fillna(0)
     
     if min_max == 'all':
         min_max = [plate_map.min().min(), plate_map.max().max()]
@@ -1977,81 +1837,6 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
 
         axs[2].set_title('Flows')
         axs[2].axis('off')
-
-    fig.tight_layout()
-    plt.show()
-
-def print_mask_and_flows_v1(stack, mask, flows, overlay=False, max_size=1000):
-    """
-    Display the original image, mask, and flow with optional resizing for large images.
-    
-    Args:
-        stack (np.array): Original image or stack.
-        mask (np.array): Mask image.
-        flows (list): List of flow images.
-        overlay (bool): Whether to overlay the mask on the original image.
-        max_size (int): Maximum allowed size for any dimension of the images.
-    """
-
-    def resize_if_needed(image, max_size):
-        """Resize image if any dimension exceeds max_size while maintaining aspect ratio."""
-        if max(image.shape[:2]) > max_size:
-            scale = max_size / max(image.shape[:2])
-            new_shape = (int(image.shape[0] * scale), int(image.shape[1] * scale))
-            if image.ndim == 3:
-                new_shape += (image.shape[2],)
-            return skimage.transform.resize(image, new_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
-        return image
-
-    # Resize if necessary
-    stack = resize_if_needed(stack, max_size)
-    mask = resize_if_needed(mask, max_size)
-    flows = [resize_if_needed(flow, max_size) for flow in flows]
-
-    fig, axs = plt.subplots(1, 3, figsize=(12, 4))  # Adjust subplot layout
-    
-    if stack.shape[-1] == 1:
-        stack = np.squeeze(stack)
-    
-    # Display original image or its first channel
-    if stack.ndim == 2:
-        axs[0].imshow(stack, cmap='gray')
-    elif stack.ndim == 3:
-        axs[0].imshow(stack)
-    else:
-        raise ValueError("Unexpected stack dimensionality.")
-
-    axs[0].set_title('Original Image')
-    axs[0].axis('off')
-    
-
-    # Overlay mask on original image if overlay is True
-    if overlay:
-        mask_cmap = generate_mask_random_cmap(mask)  # Generate random colormap for mask
-        mask_overlay = np.ma.masked_where(mask == 0, mask)  # Mask background
-        outlines = find_boundaries(mask, mode='thick')  # Find mask outlines
-
-        if stack.ndim == 2 or stack.ndim == 3:
-            axs[1].imshow(stack, cmap='gray' if stack.ndim == 2 else None)
-            axs[1].imshow(mask_overlay, cmap=mask_cmap, alpha=0.5)  # Overlay mask
-            axs[1].contour(outlines, colors='r', linewidths=2)  # Add red outlines with thickness 2
-    else:
-        axs[1].imshow(mask, cmap='gray')
-    
-    axs[1].set_title('Mask with Overlay' if overlay else 'Mask')
-    axs[1].axis('off')
-
-    # Display flow image or its first channel
-    if flows and isinstance(flows, list) and flows[0].ndim in [2, 3]:
-        flow_image = flows[0]
-        if flow_image.ndim == 3:
-            flow_image = flow_image[:, :, 0]  # Use first channel for 3D
-        axs[2].imshow(flow_image, cmap='jet')
-    else:
-        raise ValueError("Unexpected flow dimensionality or structure.")
-    
-    axs[2].set_title('Flows')
-    axs[2].axis('off')
 
     fig.tight_layout()
     plt.show()
@@ -2311,48 +2096,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         plt.savefig(save_file_path, format='pdf', bbox_inches='tight')
         print(f"Saved Lorenz Curve: {save_file_path}")
         plt.show()
-
-def plot_lorenz_curves_v1(csv_files, remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4']):
-    
-    def lorenz_curve(data):
-        """Calculate Lorenz curve."""
-        sorted_data = np.sort(data)
-        cumulative_data = np.cumsum(sorted_data)
-        lorenz_curve = cumulative_data / cumulative_data[-1]
-        lorenz_curve = np.insert(lorenz_curve, 0, 0)
-        return lorenz_curve
-    
-    combined_data = []
-
-    plt.figure(figsize=(10, 6))
-
-    for idx, csv_file in enumerate(csv_files):
-        if idx == 1:
-            save_fldr = os.path.dirname(csv_file)
-            save_path = os.path.join(save_fldr, 'lorenz_curve.pdf')
-            
-        df = pd.read_csv(csv_file)
-        for remove in remove_keys:
-            df = df[df['key'] != remove]
-        
-        values = df['value'].values
-        combined_data.extend(values)
-        
-        lorenz = lorenz_curve(values)
-        name = os.path.basename(csv_file)[:3]
-        plt.plot(np.linspace(0, 1, len(lorenz)), lorenz, label=name)
-
-    # Plot combined Lorenz curve
-    combined_lorenz = lorenz_curve(np.array(combined_data))
-    plt.plot(np.linspace(0, 1, len(combined_lorenz)), combined_lorenz, label="Combined Lorenz Curve", linestyle='--', color='black')
-    
-    plt.title('Lorenz Curves')
-    plt.xlabel('Cumulative Share of Individuals')
-    plt.ylabel('Cumulative Share of Value')
-    plt.legend()
-    plt.grid(False)
-    plt.savefig(save_path)
-    plt.show()
 
 def plot_permutation(permutation_df):
     num_features = len(permutation_df)
@@ -2985,33 +2728,6 @@ class spacrGraph:
 
             # Redraw to apply changes
             ax.figure.canvas.draw()
-
-
-        def _place_symbols_v1(row_labels, transposed_table, x_positions, ax):            
-            
-            # Get the bottom of the y-axis (y=0) in data coordinates and convert to display coordinates
-            y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
-            symbol_start_y = ax.transData.transform((0, y_axis_min))[1] - 30  # Slightly below the x-axis line
-        
-            # Convert to figure coordinates
-            symbol_start_y_fig = ax.transAxes.inverted().transform((0, symbol_start_y))[1]
-        
-            # Calculate y-spacing for the table rows (adjust as needed)
-            y_spacing = 0.02 # Control vertical spacing between elements
-        
-            # X-coordinate for the row labels at the y-axis and x-axis intersection
-            label_x_pos = ax.get_xlim()[0] - 0.5  # Slightly offset from the y-axis
-        
-            # Place the row titles at the y-axis intersection
-            for row_idx, title in enumerate(row_labels):
-                y_pos = symbol_start_y_fig - (row_idx * y_spacing)  # Align with row index
-                ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=12, fontweight='regular')
-        
-            # Place the symbols under each bar
-            for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
-                for row_idx, text in enumerate(column_data):
-                    y_pos = symbol_start_y_fig - (row_idx * y_spacing)
-                    ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=12)
                     
         def _get_positions(self, ax):
             if self.graph_type in ['bar','jitter_bar']: 
@@ -3564,7 +3280,7 @@ def plot_data_from_db(settings):
         dfs.append(dft)
         
     df = pd.concat(dfs, axis=0)
-    df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
+    df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
     #df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
     #df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
     df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
