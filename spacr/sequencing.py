@@ -125,7 +125,7 @@ def process_chunk(chunk_data):
                         consensus_sequences.append(consensus_seq)
                         column_sequence = match.group('column')
                         grna_sequence = match.group('grna')
-                        row_sequence = match.group('row')
+                        row_sequence = match.group('row_name')
                         columns.append(column_sequence)
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
@@ -176,7 +176,7 @@ def process_chunk(chunk_data):
                         consensus_sequences.append(consensus_seq)
                         column_sequence = match.group('column')
                         grna_sequence = match.group('grna')
-                        row_sequence = match.group('row')
+                        row_sequence = match.group('row_name')
                         columns.append(column_sequence)
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
@@ -532,7 +532,7 @@ def graph_sequencing_stats(settings):
         # Iterate through the fraction thresholds
         for threshold in fraction_thresholds:
             filtered_df = df[df['fraction'] >= threshold]
-            unique_count = filtered_df.groupby(['plate', 'row', 'column'])['grna'].nunique().mean()
+            unique_count = filtered_df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().mean()
             results.append((threshold, unique_count))
 
         results_df = pd.DataFrame(results, columns=['fraction_threshold', 'unique_count'])
@@ -588,20 +588,20 @@ def graph_sequencing_stats(settings):
     # Apply the closest threshold to the DataFrame
     df = df[df['fraction'] >= closest_threshold]
 
-    # Group by 'plate', 'row', 'column' and compute unique counts of 'grna'
-    unique_counts = df.groupby(['plate', 'row', 'column'])['grna'].nunique().reset_index(name='unique_counts')
-    unique_count_mean = df.groupby(['plate', 'row', 'column'])['grna'].nunique().mean()
-    unique_count_std = df.groupby(['plate', 'row', 'column'])['grna'].nunique().std()
+    # Group by 'plate', 'row_name', 'column' and compute unique counts of 'grna'
+    unique_counts = df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().reset_index(name='unique_counts')
+    unique_count_mean = df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().mean()
+    unique_count_std = df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().std()
 
     # Merge the unique counts back into the original DataFrame
-    df = pd.merge(df, unique_counts, on=['plate', 'row', 'column'], how='left')
+    df = pd.merge(df, unique_counts, on=['plate', 'row_name', 'column'], how='left')
 
     print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
     #_plot_density(df, dependent_variable='unique_counts')
     
-    has_underscore = df['row'].str.contains('_').any()
+    has_underscore = df['row_name'].str.contains('_').any()
     if has_underscore:
-        df['row'] = df['row'].apply(lambda x: x.split('_')[1])
+        df['row_name'] = df['row_name'].apply(lambda x: x.split('_')[1])
     
     plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
     

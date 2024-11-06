@@ -292,121 +292,6 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
     return normalized_images, labels, image_names, label_names, orig_dims
 
-def _load_normalized_images_and_labels_v1(image_files, label_files, channels=None, percentiles=None, invert=False, visualize=False, remove_background=False, background=0, Signal_to_noise=10, target_height=None, target_width=None):
-    
-    from .plot import normalize_and_visualize, plot_resize
-    from .utils import invert_image, apply_mask
-    from skimage.transform import resize as resizescikit
-
-    if isinstance(percentiles, list):
-        if len(percentiles) !=2:
-            percentiles = None
-        if not percentiles[0] is int:
-            percentiles = None
-        if not percentiles[1] is int:
-            percentiles = None
-    
-    signal_thresholds = background * Signal_to_noise
-    lower_percentile = 2
-
-    images = []
-    labels = []
-    orig_dims = []
-
-    num_channels = 4
-    percentiles_1 = [[] for _ in range(num_channels)]
-    percentiles_99 = [[] for _ in range(num_channels)]
-
-    image_names = [os.path.basename(f) for f in image_files]
-    image_dir = os.path.dirname(image_files[0])
-    
-    if label_files is not None:
-        label_names = [os.path.basename(f) for f in label_files]
-        label_dir = os.path.dirname(label_files[0])
-    
-    # Load, normalize, and resize images
-    for i, img_file in enumerate(image_files):
-        image = cellpose.io.imread(img_file)
-        orig_dims.append((image.shape[0], image.shape[1]))
-        if invert:
-            image = invert_image(image)
-
-        # If specific channels are specified, select them
-        if channels is not None and image.ndim == 3:
-            image = image[..., channels]
-
-        if remove_background:
-            image[image < background] = 0
-        
-        if image.ndim < 3:
-            image = np.expand_dims(image, axis=-1)
-        
-        if percentiles is None:
-            for c in range(image.shape[-1]):
-                p1 = np.percentile(image[..., c], lower_percentile)
-                percentiles_1[c].append(p1)
-                for percentile in [98, 99, 99.9, 99.99, 99.999]:
-                    p = np.percentile(image[..., c], percentile)
-                    if p > signal_thresholds:
-                        percentiles_99[c].append(p)
-                        break
-        
-        # Resize image
-        if target_height is not None and target_width is not None:
-            if image.ndim == 2:
-                image_shape = (target_height, target_width)
-            elif image.ndim == 3:
-                image_shape = (target_height, target_width, image.shape[-1])
-                
-            image = resizescikit(image, image_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
-        
-        images.append(image)
-    
-    if percentiles is None:
-        # Calculate average percentiles for normalization
-        avg_p1 = [np.mean(p) for p in percentiles_1]
-        avg_p99 = [np.mean(p) if len(p) > 0 else np.mean(percentiles_1[i]) for i, p in enumerate(percentiles_99)]
-
-        print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
-
-        normalized_images = []
-        for image in images:
-            normalized_image = np.zeros_like(image, dtype=np.float32)
-            for c in range(image.shape[-1]):
-                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(avg_p1[c], avg_p99[c]), out_range=(0, 1))
-            normalized_images.append(normalized_image)
-            if visualize:
-                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
-    else:
-        normalized_images = []
-        for image in images:
-            normalized_image = np.zeros_like(image, dtype=np.float32)
-            for c in range(image.shape[-1]):
-                low_p = np.percentile(image[..., c], percentiles[0])
-                high_p = np.percentile(image[..., c], percentiles[1])
-                normalized_image[..., c] = rescale_intensity(image[..., c], in_range=(low_p, high_p), out_range=(0, 1))
-            normalized_images.append(normalized_image)
-            if visualize:
-                normalize_and_visualize(image, normalized_image, title=f"Channel {c+1} Normalized")
-
-    if label_files is not None:
-        for lbl_file in label_files:
-            label = cellpose.io.imread(lbl_file)
-            # Resize label
-            if target_height is not None and target_width is not None:
-                label = resizescikit(label, (target_height, target_width), order=0, preserve_range=True, anti_aliasing=False).astype(label.dtype)
-            labels.append(label)
-    else:
-        label_names = []
-        label_dir = None
-
-    print(f'Loaded and normalized {len(normalized_images)} images and {len(labels)} labels from {image_dir} and {label_dir}')
-
-    if visualize and images and labels:
-        plot_resize(images, normalized_images, labels, labels)
-    
-    return normalized_images, labels, image_names, label_names, orig_dims
-
 class CombineLoaders:
 
     """
@@ -1875,6 +1760,9 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
     Returns:
         pandas.DataFrame: The joined DataFrame containing the data from the specified tables, or None if an error occurs.
     """
+    from .utils import rename_columns_in_db
+    rename_columns_in_db(db_path)
+    
     conn = sqlite3.connect(db_path)
     dataframes = {}
     for table_name in table_names:
@@ -1885,11 +1773,11 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
             print(e)
     conn.close()
     if 'png_list' in dataframes:
-        png_list_df = dataframes['png_list'][['cell_id', 'png_path', 'plate', 'row', 'col']].copy()
+        png_list_df = dataframes['png_list'][['cell_id', 'png_path', 'plate', 'row_name', 'column_name']].copy()
         png_list_df['cell_id'] = png_list_df['cell_id'].str[1:].astype(int)
         png_list_df.rename(columns={'cell_id': 'object_label'}, inplace=True)
         if 'cell' in dataframes:
-            join_cols = ['object_label', 'plate', 'row', 'col']
+            join_cols = ['object_label', 'plate', 'row_name', 'column_name']
             dataframes['cell'] = pd.merge(dataframes['cell'], png_list_df, on=join_cols, how='left')
         else:
             print("Cell table not found in database tables.")
@@ -2190,6 +2078,8 @@ def _read_db(db_loc, tables):
     Returns:
     - dfs (list): A list of pandas DataFrames, each containing the data from a table.
     """
+    from .utils import rename_columns_in_db
+    rename_columns_in_db(db_loc)
     conn = sqlite3.connect(db_loc)
     dfs = []
     for table in tables:
@@ -2310,7 +2200,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathog
         merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
     
     #Add prc column (plate row column)
-    metadata = metadata.assign(prc = lambda x: x['plate'] + '_' + x['row'] + '_' +x['col'])
+    metadata = metadata.assign(prc = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name'])
 
     #Count cells per well
     cells_well = pd.DataFrame(metadata.groupby('prc')['object_label'].nunique())
@@ -2322,7 +2212,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathog
     metadata.drop(columns=object_label_cols, inplace=True)
 
     #Add prcfo column (plate row column field object)
-    metadata = metadata.assign(prcfo = lambda x: x['plate'] + '_' + x['row'] + '_' +x['col']+ '_' +x['field']+ '_' +x['object_label'])
+    metadata = metadata.assign(prcfo = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name']+ '_' +x['field']+ '_' +x['object_label'])
     metadata.set_index('prcfo', inplace=True)
 
     merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
@@ -2517,6 +2407,10 @@ def _copy_missclassified(df):
     return
     
 def _read_db(db_loc, tables):
+    
+    from .utils import rename_columns_in_db
+    
+    rename_columns_in_db(db_loc)
     conn = sqlite3.connect(db_loc) # Create a connection to the database
     dfs = []
     for table in tables:
@@ -2667,7 +2561,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathog
             merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
         
     #Add prc column (plate row column)
-    metadata = metadata.assign(prc = lambda x: x['plate'] + '_' + x['row'] + '_' +x['col'])
+    metadata = metadata.assign(prc = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name'])
 
     #Count cells per well
     cells_well = pd.DataFrame(metadata.groupby('prc')['object_label'].nunique())
@@ -2679,7 +2573,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathog
     metadata.drop(columns=object_label_cols, inplace=True)
 
     #Add prcfo column (plate row column field object)
-    metadata = metadata.assign(prcfo = lambda x: x['plate'] + '_' + x['row'] + '_' +x['col']+ '_' +x['field']+ '_' +x['object_label'])
+    metadata = metadata.assign(prcfo = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name']+ '_' +x['field']+ '_' +x['object_label'])
     metadata.set_index('prcfo', inplace=True)
 
     merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
@@ -3030,8 +2924,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
 def generate_training_dataset(settings):
     
     # Function to filter png_list_df by prcfo present in df without merging
-    def filter_png_list(db_path, settings):
-        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+    def filter_png_list(db_path, settings, tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']):
         df, _ = _read_and_merge_data(locs=[db_path],
                                      tables=tables,
                                      verbose=False,
@@ -3053,9 +2946,8 @@ def generate_training_dataset(settings):
         return size
     
     # Measurement-based selection logic
-    def measurement_based_selection(settings, db_path):
+    def measurement_based_selection(settings, db_path, tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']):
         class_paths_ls = []
-        tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
         df, _ = _read_and_merge_data(locs=[db_path],
                                      tables=tables,
                                      verbose=False,
@@ -3068,7 +2960,7 @@ def generate_training_dataset(settings):
                                  treatment_loc=settings['class_metadata'])#, types=settings['metadata_type_by'])
         print('length df 2', len(df))
         
-        png_list_df = filter_png_list(db_path, settings)
+        png_list_df = filter_png_list(db_path, settings, tables=settings['tables'])
 
         if settings['custom_measurement']:
             if isinstance(settings['custom_measurement'], list):
@@ -3101,8 +2993,8 @@ def generate_training_dataset(settings):
     # Metadata-based selection logic
     def metadata_based_selection(db_path, settings):
         class_paths_ls = []
-        df = filter_png_list(db_path, settings)
-
+        df = filter_png_list(db_path, settings, tables=settings['tables'])
+        
         df['metadata_based_class'] = pd.NA
         for i, class_ in enumerate(settings['classes']):
             ls = settings['class_metadata'][i]
@@ -3126,10 +3018,10 @@ def generate_training_dataset(settings):
     def annotation_based_selection(db_path, dst, settings):
         class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
 
-        size = get_smallest_class_size(class_paths_ls, settings, 'annotation')
-        for i, class_paths in enumerate(class_paths_ls):
-            if len(class_paths) > size:
-                class_paths_ls[i] = random.sample(class_paths, size)
+        #size = get_smallest_class_size(class_paths_ls, settings, 'annotation')
+        #for i, class_paths in enumerate(class_paths_ls):
+        #    if len(class_paths) > size:
+        #        class_paths_ls[i] = random.sample(class_paths, size)
 
         return class_paths_ls
     
@@ -3137,6 +3029,13 @@ def generate_training_dataset(settings):
     from .utils import get_paths_from_db, annotate_conditions, save_settings
     from .settings import set_generate_training_dataset_defaults
 
+    if 'nucleus' not in settings['tables']:
+        settings['nuclei_limit'] = False
+        
+    if 'pathogen' not in settings['tables']:
+        settings['pathogen_limit'] = 0
+        settings['uninfected'] = True
+       
     # Set default settings and save
     settings = set_generate_training_dataset_defaults(settings)
     save_settings(settings, 'cv_dataset', show=True)
@@ -3145,6 +3044,7 @@ def generate_training_dataset(settings):
 
     if isinstance(settings['src'], str):
         src = [settings['src']]
+        settings['src'] = src
 
     for i, src in enumerate(settings['src']):
         db_path = os.path.join(src, 'measurements', 'measurements.db')
@@ -3170,7 +3070,7 @@ def generate_training_dataset(settings):
             class_paths_ls = metadata_based_selection(db_path, settings)
 
         elif settings['dataset_mode'] == 'measurement':
-            class_paths_ls = measurement_based_selection(settings, db_path)
+            class_paths_ls = measurement_based_selection(settings, db_path, tables=settings['tables'])
         
         if class_path_list is None:
             class_path_list = [[] for _ in range(len(class_paths_ls))]
@@ -3180,22 +3080,22 @@ def generate_training_dataset(settings):
             class_path_list[idx].extend(class_paths_ls[idx])
 
     # Generate and return training and testing directories
+    print('class_path_list',len(class_path_list))
     train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_path_list, classes=settings['classes'], test_split=settings['test_split'])
 
     return train_class_dir, test_class_dir
 
 def training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
     all_paths = []
-    
+
     # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
     with sqlite3.connect(db_path) as conn:
         cursor = conn.cursor()
-        # Prepare the query with parameterized placeholders for annotated_classes
-        placeholders = ','.join('?' * len(annotated_classes))
-        query = f"SELECT png_path, {annotation_column} FROM png_list WHERE {annotation_column} IN ({placeholders})"
-        cursor.execute(query, annotated_classes)
-
+        # Retrieve all paths and annotations from the database
+        query = f"SELECT png_path, {annotation_column} FROM png_list"
+        cursor.execute(query)
+        
         while True:
             rows = cursor.fetchmany(1000)
             if not rows:
@@ -3203,13 +3103,86 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
             for row in rows:
                 all_paths.append(row)
 
-    # Filter paths based on annotation
+    print('Total paths retrieved:', len(all_paths))
+    
+    # Filter paths based on annotated_classes
     class_paths = []
     for class_ in annotated_classes:
         class_paths_temp = [path for path, annotation in all_paths if annotation == class_]
         class_paths.append(class_paths_temp)
+        print(f'Found {len(class_paths_temp)} images in class {class_}')
+        
+    # If only one class is provided, create an alternative list by sampling paths from all_paths that are not in the annotated class
+    if len(annotated_classes) == 1:
+        target_class = annotated_classes[0]
+        count_target_class = len(class_paths[0])
+        print(f'Annotated class: {target_class} with {count_target_class} images')
+        
+        # Filter all_paths to exclude paths that belong to the target class
+        alt_class_paths = [path for path, annotation in all_paths if annotation != target_class]
+        print('Alternative paths available:', len(alt_class_paths))
+        
+        # Randomly sample an equal number of images for the second class
+        sampled_alt_class_paths = random.sample(alt_class_paths, min(count_target_class, len(alt_class_paths)))
+        print(f'Sampled {len(sampled_alt_class_paths)} alternative images for balancing')
+        
+        # Append this list as the second class
+        class_paths.append(sampled_alt_class_paths)
 
     print(f'Generated a list of lists from annotation of {len(class_paths)} classes')
+    for i, ls in enumerate(class_paths):
+        print(f'Class {i}: {len(ls)} images')
+        
+    return class_paths
+
+def training_dataset_from_annotation_v2(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
+    all_paths = []
+
+    # Connect to the database and retrieve the image paths and annotations
+    print(f'Reading DataBase: {db_path}')
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        # Retrieve all paths and annotations from the database
+        query = f"SELECT png_path, {annotation_column} FROM png_list"
+        cursor.execute(query)
+        
+        while True:
+            rows = cursor.fetchmany(1000)
+            if not rows:
+                break
+            for row in rows:
+                all_paths.append(row)
+
+    print('Total paths retrieved:', len(all_paths))
+    
+    # Filter paths based on annotated_classes
+    class_paths = []
+    for class_ in annotated_classes:
+        class_paths_temp = [path for path, annotation in all_paths if annotation == class_]
+        class_paths.append(class_paths_temp)
+        print(f'Found {len(class_paths_temp)} images in class {class_}')
+        
+    # If only one class is provided, create an alternative list by sampling paths from all_paths that are not in the annotated class
+    if len(annotated_classes) == 1:
+        target_class = annotated_classes[0]
+        count_target_class = len(class_paths[0])
+        print(f'Annotated class: {target_class} with {count_target_class} images')
+        
+        # Filter all_paths to exclude paths that belong to the target class
+        alt_class_paths = [path for path, annotation in all_paths if annotation != target_class]
+        print('Alternative paths available:', len(alt_class_paths))
+        
+        # Randomly sample an equal number of images for the second class
+        sampled_alt_class_paths = random.sample(alt_class_paths, min(count_target_class, len(alt_class_paths)))
+        print(f'Sampled {len(sampled_alt_class_paths)} alternative images for balancing')
+        
+        # Append this list as the second class
+        class_paths.append(sampled_alt_class_paths)
+
+    print(f'Generated a list of lists from annotation of {len(class_paths)} classes')
+    for i, ls in enumerate(class_paths):
+        print(f'Class {i}: {len(ls)} images')
+        
     return class_paths
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
@@ -3228,8 +3201,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
         test_class_dir = os.path.join(dst, f'test/{cls}')
         os.makedirs(train_class_dir, exist_ok=True)
         os.makedirs(test_class_dir, exist_ok=True)
-        
+                
         # Split the data
+        print('data',len(data), test_split)
         train_data, test_data = train_test_split(data, test_size=test_split, shuffle=True, random_state=42)
         
         # Copy train files

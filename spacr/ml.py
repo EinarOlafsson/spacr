@@ -284,7 +284,7 @@ def check_and_clean_data(df, dependent_variable):
     df = handle_missing_values(df, ['fraction', dependent_variable])
     
     # Step 2: Ensure grna, gene, plate, row, column, and prc are categorical types
-    df = ensure_valid_types(df, ['grna', 'gene', 'plate', 'row', 'column', 'prc'])
+    df = ensure_valid_types(df, ['grna', 'gene', 'plate', 'row_name', 'column', 'prc'])
     
     # Step 3: Check for multicollinearity in fraction and the dependent variable
     df_cleaned = check_collinearity(df, ['fraction', dependent_variable])
@@ -294,7 +294,7 @@ def check_and_clean_data(df, dependent_variable):
     df_cleaned['grna'] = df['grna']
     df_cleaned['prc'] = df['prc']
     df_cleaned['plate'] = df['plate']
-    df_cleaned['row'] = df['row']
+    df_cleaned['row_name'] = df['row_name']
     df_cleaned['column'] = df['column']
 
     # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
@@ -333,7 +333,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         df = pd.read_csv(score_data)
         df = correct_metadata_column_names(df)
         df['plate'] = f'plate{i + 1}'
-        df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+        df['prc'] = df['plate'] + '_' + df['row_name'].astype(str) + '_' + df['column'].astype(str)
         dfs.append(df)
 
     df = pd.concat(dfs, axis=0)
@@ -711,7 +711,7 @@ def perform_regression(settings):
                     df = pd.read_csv(count_data)
                     df['plate_name'] = f'plate{i+1}'
                     if 'column' in df.columns:
-                        df['col'] = df['column']
+                        df['column_name'] = df['column']
                     count_data_df = pd.concat([count_data_df, df])
                     print('Count data:', len(count_data_df))
 
@@ -720,7 +720,7 @@ def perform_regression(settings):
                     df = pd.read_csv(score_data)
                     df['plate_name'] = f'plate{i+1}'
                     if 'column' in df.columns:
-                        df['col'] = df['column']
+                        df['column_name'] = df['column']
                     score_data_df = pd.concat([score_data_df, df])
                     print('Score data:', len(score_data_df))
         else:
@@ -857,7 +857,7 @@ def perform_regression(settings):
     merged_df.to_csv(data_path, index=False)
     print(f"Saved regression data to {data_path}")
 
-    merged_df[['plate', 'row', 'column']] = merged_df['prc'].str.split('_', expand=True)
+    merged_df[['plate', 'row_name', 'column']] = merged_df['prc'].str.split('_', expand=True)
     
     _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
@@ -988,14 +988,14 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
         csv_df = csv_df.rename(columns={'plate_name': 'plate'})
     if 'column_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'column_name': 'column'})
-    if 'col' in csv_df.columns:
-        csv_df = csv_df.rename(columns={'col': 'column'})
+    if 'column_name' in csv_df.columns:
+        csv_df = csv_df.rename(columns={'column_name': 'column'})
     if 'row_name' in csv_df.columns:
-        csv_df = csv_df.rename(columns={'row_name': 'row'})
+        csv_df = csv_df.rename(columns={'row_name': 'row_name'})
     if 'grna_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in csv_df.columns:
-        csv_df[['plate', 'row']] = csv_df['plate_row'].str.split('_', expand=True)
+        csv_df[['plate', 'row_name']] = csv_df['plate_row'].str.split('_', expand=True)
 
     if not 'plate' in csv_df.columns:
         if not plate is None:
@@ -1015,11 +1015,11 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
                 csv_df = csv_df[csv_df[filter_col] != value]
     
     # Ensure the necessary columns are present
-    if not all(col in csv_df.columns for col in ['row','column','grna','count']):
-        raise ValueError("The CSV file must contain 'grna', 'count', 'row', and 'column' columns.")
+    if not all(col in csv_df.columns for col in ['row_name','column','grna','count']):
+        raise ValueError("The CSV file must contain 'grna', 'count', 'row_name', and 'column' columns.")
 
     # Create the prc column
-    csv_df['prc'] = csv_df['plate'] + '_' + csv_df['row'] + '_' + csv_df['column']
+    csv_df['prc'] = csv_df['plate'] + '_' + csv_df['row_name'] + '_' + csv_df['column']
 
     # Group by prc and calculate the sum of counts
     grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
@@ -1089,10 +1089,10 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     if plate is not None:
         df['plate'] = plate
 
-    if 'col' not in df.columns:
-        df['col'] = df['column']
+    if 'column_name' not in df.columns:
+        df['column_name'] = df['column']
 
-    df['prc'] = df['plate'].astype(str) + '_' + df['row'].astype(str) + '_' + df['col'].astype(str)
+    df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
 
     display(df)
     
@@ -1266,7 +1266,7 @@ def generate_ml_scores(settings):
 
     return [output, plate_heatmap]
 
-def ml_analysis(df, channel_of_interest=3, location_column='col', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
+def ml_analysis(df, channel_of_interest=3, location_column='column_name', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
     
     """
     Calculates permutation importance for numerical features in the dataframe,
@@ -1412,8 +1412,8 @@ def ml_analysis(df, channel_of_interest=3, location_column='col', positive_contr
     df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
     df['prcfo'] = df.index.astype(str)
-    df[['plate', 'row', 'col', 'field', 'object']] = df['prcfo'].str.split('_', expand=True)
-    df['prc'] = df['plate'] + '_' + df['row'] + '_' + df['col']
+    df[['plate', 'row_name', 'column_name', 'field', 'object']] = df['prcfo'].str.split('_', expand=True)
+    df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column_name']
     
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df], [permutation_fig, feature_importance_fig]
 

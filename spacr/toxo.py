@@ -468,15 +468,15 @@ def generate_score_heatmap(settings):
     def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
         
         df = pd.read_csv(csv)
-        if 'col' in df.columns:
-            df = df[df['col']==column]
+        if 'column_name' in df.columns:
+            df = df[df['column_name']==column]
         elif 'column' in df.columns:
-            df['col'] = df['column']
-            df = df[df['col']==column]
+            df['column_name'] = df['column']
+            df = df[df['column_name']==column]
         if not plate is None:
             df['plate'] = f"plate{plate}"
-        grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
-        grouped_df['prc'] = grouped_df['plate'].astype(str) + '_' + grouped_df['row'].astype(str) + '_' + grouped_df['col'].astype(str)
+        grouped_df = df.groupby(['plate', 'row_name', 'column_name'])[data_column].mean().reset_index()
+        grouped_df['prc'] = grouped_df['plate'].astype(str) + '_' + grouped_df['row_name'].astype(str) + '_' + grouped_df['column_name'].astype(str)
         return grouped_df
 
     def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
@@ -501,17 +501,17 @@ def generate_score_heatmap(settings):
         - column: Column to filter by (default is 'c3').
         """
         # Extract row number and convert to integer for sorting
-        df['row_num'] = df['row'].str.extract(r'(\d+)').astype(int)
+        df['row_num'] = df['row_name'].str.extract(r'(\d+)').astype(int)
 
         # Filter and sort by plate, row, and column
-        df = df[df['col'] == column]
-        df = df.sort_values(by=['plate', 'row_num', 'col'])
+        df = df[df['column_name'] == column]
+        df = df.sort_values(by=['plate', 'row_num', 'column_name'])
 
         # Drop temporary 'row_num' column after sorting
         df = df.drop('row_num', axis=1)
 
         # Create a new column combining plate, row, and column for the index
-        df['plate_row_col'] = df['plate'] + '-' + df['row'] + '-' + df['col']
+        df['plate_row_col'] = df['plate'] + '-' + df['row_name'] + '-' + df['column_name']
 
         # Set 'plate_row_col' as the index
         df.set_index('plate_row_col', inplace=True)
@@ -568,11 +568,11 @@ def generate_score_heatmap(settings):
         # Loop through all collected CSV files and process them
         for csv_file in ls:
             df = pd.read_csv(csv_file)  # Read CSV into DataFrame
-            df = df[df['col']==column]
+            df = df[df['column_name']==column]
             if not plate is None:
                 df['plate'] = f"plate{plate}"
-            # Group the data by 'plate', 'row', and 'col'
-            grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
+            # Group the data by 'plate', 'row_name', and 'column_name'
+            grouped_df = df.groupby(['plate', 'row_name', 'column_name'])[data_column].mean().reset_index()
             # Use the CSV filename to create a new column name
             folder_name = os.path.dirname(csv_file).replace(".csv", "")
             new_column_name = os.path.basename(f"{folder_name}_{data_column}")
@@ -583,8 +583,8 @@ def generate_score_heatmap(settings):
             if combined_df is None:
                 combined_df = grouped_df
             else:
-                combined_df = pd.merge(combined_df, grouped_df, on=['plate', 'row', 'col'], how='outer')
-        combined_df['prc'] = combined_df['plate'].astype(str) + '_' + combined_df['row'].astype(str) + '_' + combined_df['col'].astype(str)
+                combined_df = pd.merge(combined_df, grouped_df, on=['plate', 'row_name', 'column_name'], how='outer')
+        combined_df['prc'] = combined_df['plate'].astype(str) + '_' + combined_df['row_name'].astype(str) + '_' + combined_df['column_name'].astype(str)
         return combined_df
     
     def calculate_mae(df):
