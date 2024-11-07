@@ -909,7 +909,7 @@ def plot_merged(src, settings):
         path = os.path.join(src, file)
         stack = np.load(path)
         print(f'Loaded: {path}')
-        if not settings['uninfected']:
+        if settings['pathogen_limit'] > 0:
             if settings['pathogen_mask_dim'] is not None and settings['cell_mask_dim'] is not None:
                 stack = _remove_noninfected(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'])
 
@@ -2198,8 +2198,8 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                                     tables, 
                                     verbose=True, 
                                     nuclei_limit=True, 
-                                    pathogen_limit=True, 
-                                    uninfected=True)
+                                    pathogen_limit=True)
+        
         paths_df = _read_db(loc, tables=['png_list'])
         merged_df = pd.merge(df, paths_df[0], on='prcfo', how='left')
         return merged_df
@@ -3267,9 +3267,8 @@ def plot_data_from_db(settings):
                                     tables = ['cell', 'nucleus', 'pathogen','cytoplasm'],
                                     verbose=settings['verbose'],
                                     nuclei_limit=settings['nuclei_limit'],
-                                    pathogen_limit=settings['pathogen_limit'],
-                                    uninfected=settings['uninfected'])
-                                    
+                                    pathogen_limit=settings['pathogen_limit'])
+     
         dft = annotate_conditions(df1, 
                                 cells=settings['cell_types'], 
                                 cell_loc=settings['cell_plate_metadata'], 

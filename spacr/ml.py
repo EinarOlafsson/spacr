@@ -1172,15 +1172,14 @@ def generate_ml_scores(settings):
     db_loc = [src+'/measurements/measurements.db']
     tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
 
-    nuclei_limit, pathogen_limit, uninfected = settings['nuclei_limit'], settings['pathogen_limit'], settings['uninfected']
+    nuclei_limit, pathogen_limit = settings['nuclei_limit'], settings['pathogen_limit']
     
     df, _ = _read_and_merge_data(db_loc, 
                                  tables,
                                  settings['verbose'],
                                  nuclei_limit,
-                                 pathogen_limit,
-                                 uninfected)
-
+                                 pathogen_limit)
+    
     if settings['annotation_column'] is not None:
 
         settings['location_column'] = settings['annotation_column']
