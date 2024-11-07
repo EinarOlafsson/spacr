@@ -225,14 +225,30 @@ def annotate(settings):
     conn.close()
 
     root = tk.Tk()
-    root.geometry(settings['geom'])
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], grid_rows=settings['rows'], grid_cols=settings['columns'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'])
-    next_button = tk.Button(root, text="Next", command=app.next_page)
-    next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
-    back_button = tk.Button(root, text="Back", command=app.previous_page)
-    back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)
-    exit_button = tk.Button(root, text="Exit", command=app.shutdown)
-    exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
+    
+    root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
+    
+    db_path = os.path.join(settings['src'], 'measurements/measurements.db')
+
+    app = AnnotateApp(root,
+                      db_path=db_path,
+                      src=settings['src'],
+                      image_type=settings['image_type'],
+                      channels=settings['channels'],
+                      image_size=settings['img_size'],
+                      annotation_column=settings['annotation_column'],
+                      normalize=settings['normalize'],
+                      percentiles=settings['percentiles'],
+                      measurement=settings['measurement'],
+                      threshold=settings['threshold'],
+                      normalize_channels=settings['normalize_channels'])
+    
+    #next_button = tk.Button(root, text="Next", command=app.next_page)
+    #next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
+    #back_button = tk.Button(root, text="Back", command=app.previous_page)
+    #back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)
+    #exit_button = tk.Button(root, text="Exit", command=app.shutdown)
+    #exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
     
     app.load_images()
     root.mainloop()
