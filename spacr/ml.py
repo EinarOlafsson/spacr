@@ -191,18 +191,18 @@ def prepare_formula(dependent_variable, random_row_column_effects=False):
     if random_row_column_effects:
         # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
         return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
-    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + row + column'
+    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + row_name + column_name'
 
 def fit_mixed_model(df, formula, dst):
     from .plot import plot_histogram
 
-    """Fit the mixed model with plate, row, and column as random effects and return results."""
+    """Fit the mixed model with plate, row_name, and column_name as random effects and return results."""
     # Specify random effects for plate, row, and column
     model = smf.mixedlm(formula, 
                         data=df, 
                         groups=df['plate'], 
-                        re_formula="1 + row + column", 
-                        vc_formula={"row": "0 + row", "column": "0 + column"})
+                        re_formula="1 + row_name + column_name", 
+                        vc_formula={"row_name": "0 + row_name", "column_name": "0 + column_name"})
     
     mixed_model = model.fit()
 
@@ -284,7 +284,7 @@ def check_and_clean_data(df, dependent_variable):
     df = handle_missing_values(df, ['fraction', dependent_variable])
     
     # Step 2: Ensure grna, gene, plate, row, column, and prc are categorical types
-    df = ensure_valid_types(df, ['grna', 'gene', 'plate', 'row_name', 'column', 'prc'])
+    df = ensure_valid_types(df, ['grna', 'gene', 'plate', 'row_name', 'column_name', 'prc'])
     
     # Step 3: Check for multicollinearity in fraction and the dependent variable
     df_cleaned = check_collinearity(df, ['fraction', dependent_variable])
@@ -295,7 +295,7 @@ def check_and_clean_data(df, dependent_variable):
     df_cleaned['prc'] = df['prc']
     df_cleaned['plate'] = df['plate']
     df_cleaned['row_name'] = df['row_name']
-    df_cleaned['column'] = df['column']
+    df_cleaned['column_name'] = df['column']
 
     # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
     df_cleaned['gene_fraction'] = df_cleaned.groupby(['prc', 'gene'])['fraction'].transform('sum')
@@ -631,9 +631,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
                dst=None, cov_type=None, plot=False):
     
-    from spacr.plot import volcano_plot, plot_histogram
-    from spacr.ml import create_volcano_filename, check_and_clean_data, prepare_formula, scale_variables
-    
+    from .plot import volcano_plot, plot_histogram
+    #from .ml import create_volcano_filename, check_and_clean_data, prepare_formula, scale_variables
+        
     # Generate the volcano filename
     volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
 
@@ -1085,7 +1085,12 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     if 'plate_name' in df.columns:
         df.drop(columns=['plate'], inplace=True)
         df = df.rename(columns={'plate_name': 'plate'})
-    
+        
+    if 'row' in df.columns:
+        df = df.rename(columns={'row': 'row_name'})
+    if 'col' in df.columns:
+        df = df.rename(columns={'row': 'column_name'})
+        
     if plate is not None:
         df['plate'] = plate
 
