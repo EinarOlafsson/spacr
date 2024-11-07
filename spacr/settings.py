@@ -2,7 +2,6 @@ import os, ast
 
 def set_default_plot_merge_settings():
     settings = {}
-    settings.setdefault('uninfected', True)
     settings.setdefault('pathogen_limit', 10)
     settings.setdefault('nuclei_limit', 1)
     settings.setdefault('remove_background', False)
@@ -295,7 +294,6 @@ def set_default_analyze_screen(settings):
     settings.setdefault('exclude',None)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',3)
-    settings.setdefault('uninfected',True)
     settings.setdefault('n_repeats',10)
     settings.setdefault('top_features',30)
     settings.setdefault('remove_low_variance_features',True)
@@ -353,7 +351,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('tables',None)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
-    settings.setdefault('uninfected',True)
     settings.setdefault('png_type','cell_png')
     
     return settings
@@ -467,7 +464,6 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('plot_nr',3)
     settings.setdefault('plot_control',True)
     settings.setdefault('figuresize',10)
-    settings.setdefault('uninfected',True)
     settings.setdefault('pathogen_limit',10)
     settings.setdefault('nuclei_limit',1)
     settings.setdefault('cells_per_well',0)
@@ -691,7 +687,6 @@ expected_types = {
     "measurement": str,
     "nr_imgs": int,
     "um_per_pixel": (int, float),
-    "uninfected": bool,
     "pathogen_limit": int,
     "nuclei_limit": int,
     "filter_min_max": (list, type(None)),
@@ -898,7 +893,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Plot": ["plot", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "uninfected", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Advanced": ["shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
              }
 
@@ -1080,7 +1075,6 @@ def generate_fields(variables, scrollable_frame):
         "img_zoom": "(float) - Zoom factor for the images in plots.",
         "nuclei_limit": "(int) - Whether to include multinucleated cells in the analysis.",
         "pathogen_limit": "(int) - Whether to include multi-infected cells in the analysis.",
-        "uninfected": "(bool) - Whether to include non-infected cells in the analysis.",
         "uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
         "init_weights": "(bool) - Whether to initialize weights for the model.",
         "src": "(str) - Path to the folder containing the images.",

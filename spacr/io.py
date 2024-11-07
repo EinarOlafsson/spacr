@@ -2089,150 +2089,6 @@ def _read_db(db_loc, tables):
     conn.close()
     return dfs
     
-def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False, uninfected=False):
-    """
-    Read and merge data from SQLite databases and perform data preprocessing.
-
-    Parameters:
-    - locs (list): A list of file paths to the SQLite database files.
-    - tables (list): A list of table names to read from the databases.
-    - verbose (bool): Whether to print verbose output. Default is False.
-    - nuclei_limit (bool): Whether to include multinucleated cells. Default is False.
-    - pathogen_limit (bool): Whether to include cells with multiple infections. Default is False.
-    - uninfected (bool): Whether to include non-infected cells. Default is False.
-
-    Returns:
-    - merged_df (pandas.DataFrame): The merged and preprocessed dataframe.
-    - obj_df_ls (list): A list of pandas DataFrames, each containing the data for a specific object type.
-    """
-
-    from .utils import _split_data
-    
-    #Extract plate DataFrames
-    all_dfs = []
-    for loc in locs:
-        db_dfs = _read_db(loc, tables)
-        all_dfs.append(db_dfs)
-    
-    #Extract Tables from DataFrames and concatinate rows
-    for i, dfs in enumerate(all_dfs):
-        if 'cell' in tables:
-            cell = dfs[0]
-            print(f'plate: {i+1} cells:{len(cell)}')
-
-        if 'nucleus' in tables:
-            nucleus = dfs[1]
-            print(f'plate: {i+1} nucleus:{len(nucleus)} ')
-
-        if 'pathogen' in tables:
-            pathogen = dfs[2]
-            
-            print(f'plate: {i+1} pathogens:{len(pathogen)}')
-        if 'cytoplasm' in tables:
-            if not 'pathogen' in tables:
-                cytoplasm = dfs[2]
-            else:
-                cytoplasm = dfs[3]
-            print(f'plate: {i+1} cytoplasms: {len(cytoplasm)}')
-
-        if i > 0:
-            if 'cell' in tables:
-                cells = pd.concat([cells, cell], axis = 0)
-            if 'nucleus' in tables:
-                nucleus = pd.concat([nucleus, nucleus], axis = 0)
-            if 'pathogen' in tables:
-                pathogens = pd.concat([pathogens, pathogen], axis = 0)
-            if 'cytoplasm' in tables:
-                cytoplasms = pd.concat([cytoplasms, cytoplasm], axis = 0)
-        else:
-            if 'cell' in tables:
-                cells = cell.copy()
-            if 'nucleus' in tables:
-                nucleus = nucleus.copy()
-            if 'pathogen' in tables:
-                pathogens = pathogen.copy()
-            if 'cytoplasm' in tables:
-                cytoplasms = cytoplasm.copy()
-    
-    #Add an o in front of all object and cell lables to convert them to strings
-    if 'cell' in tables:
-        cells = cells.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        cells = cells.assign(prcfo = lambda x: x['prcf'] + '_' + x['object_label'])
-        cells_g_df, metadata = _split_data(cells, 'prcfo', 'object_label')
-        print(f'cells: {len(cells)}')
-        print(f'cells grouped: {len(cells_g_df)}')
-    if 'cytoplasm' in tables:
-        cytoplasms = cytoplasms.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        cytoplasms = cytoplasms.assign(prcfo = lambda x: x['prcf'] + '_' + x['object_label'])
-        cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
-        merged_df = cells_g_df.merge(cytoplasms_g_df, left_index=True, right_index=True)
-        print(f'cytoplasms: {len(cytoplasms)}')
-        print(f'cytoplasms grouped: {len(cytoplasms_g_df)}')
-    if 'nucleus' in tables:
-        nucleus = nucleus.dropna(subset=['cell_id'])
-        nucleus = nucleus.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
-        nucleus = nucleus.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
-        nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
-        if nuclei_limit == False:
-            #nucleus = nucleus[~nucleus['prcfo'].duplicated()]
-            nucleus = nucleus[nucleus['nucleus_prcfo_count']==1]
-        nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
-        print(f'nucleus: {len(nucleus)}')
-        print(f'nucleus grouped: {len(nucleus_g_df)}')
-        if 'cytoplasm' in tables:
-            merged_df = merged_df.merge(nucleus_g_df, left_index=True, right_index=True)
-        else:
-            merged_df = cells_g_df.merge(nucleus_g_df, left_index=True, right_index=True)
-    if 'pathogen' in tables:
-        pathogens = pathogens.dropna(subset=['cell_id'])
-        pathogens = pathogens.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
-        pathogens = pathogens.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
-        pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
-        if uninfected == False:
-            pathogens = pathogens[pathogens['pathogen_prcfo_count']>=1]
-        if pathogen_limit == False:
-            pathogens = pathogens[pathogens['pathogen_prcfo_count']<=1]
-        pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
-        print(f'pathogens: {len(pathogens)}')
-        print(f'pathogens grouped: {len(pathogens_g_df)}')
-        merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
-    
-    #Add prc column (plate row column)
-    metadata = metadata.assign(prc = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name'])
-
-    #Count cells per well
-    cells_well = pd.DataFrame(metadata.groupby('prc')['object_label'].nunique())
-
-    cells_well.reset_index(inplace=True)
-    cells_well.rename(columns={'object_label': 'cells_per_well'}, inplace=True)
-    metadata = pd.merge(metadata, cells_well, on='prc', how='inner', suffixes=('', '_drop_col'))
-    object_label_cols = [col for col in metadata.columns if '_drop_col' in col]
-    metadata.drop(columns=object_label_cols, inplace=True)
-
-    #Add prcfo column (plate row column field object)
-    metadata = metadata.assign(prcfo = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name']+ '_' +x['field']+ '_' +x['object_label'])
-    metadata.set_index('prcfo', inplace=True)
-
-    merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
-    
-    merged_df = merged_df.dropna(axis=1)
-    
-    print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
-    
-    obj_df_ls = []
-    if 'cell' in tables:
-        obj_df_ls.append(cells)
-    if 'cytoplasm' in tables:
-        obj_df_ls.append(cytoplasms)
-    if 'nucleus' in tables:
-        obj_df_ls.append(nucleus)
-    if 'pathogen' in tables:
-        obj_df_ls.append(pathogens)
-        
-    return merged_df, obj_df_ls
-    
 def _results_to_csv(src, df, df_well):
     """
     Save the given dataframes as CSV files in the specified directory.
@@ -2420,7 +2276,7 @@ def _read_db(db_loc, tables):
     conn.close() # Close the connection
     return dfs
     
-def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False, uninfected=False):
+def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False):
     
     from .utils import _split_data
     
@@ -2532,11 +2388,6 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathog
         pathogens = pathogens.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
         pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
         
-        print(f"before noninfected: {len(pathogens)}")
-        if uninfected == False:
-            pathogens = pathogens[pathogens['pathogen_prcfo_count']>=1]
-            print(f"after noninfected: {len(pathogens)}")
-
         if isinstance(pathogen_limit, bool):
             if pathogen_limit == False:
                 pathogens = pathogens[pathogens['pathogen_prcfo_count']<=1]
@@ -2929,8 +2780,8 @@ def generate_training_dataset(settings):
                                      tables=tables,
                                      verbose=False,
                                      nuclei_limit=settings['nuclei_limit'],
-                                     pathogen_limit=settings['pathogen_limit'],
-                                     uninfected=settings['uninfected'])
+                                     pathogen_limit=settings['pathogen_limit'])
+                
         [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
         filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df.index)]
         return filtered_png_list_df
@@ -2952,8 +2803,7 @@ def generate_training_dataset(settings):
                                      tables=tables,
                                      verbose=False,
                                      nuclei_limit=settings['nuclei_limit'],
-                                     pathogen_limit=settings['pathogen_limit'],
-                                     uninfected=settings['uninfected'])
+                                     pathogen_limit=settings['pathogen_limit'])
 
         print('length df 1', len(df))
         df = annotate_conditions(df, cells=['HeLa'], pathogens=['pathogen'], treatments=settings['classes'],
@@ -3034,7 +2884,6 @@ def generate_training_dataset(settings):
         
     if 'pathogen' not in settings['tables']:
         settings['pathogen_limit'] = 0
-        settings['uninfected'] = True
        
     # Set default settings and save
     settings = set_generate_training_dataset_defaults(settings)
