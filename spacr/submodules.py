@@ -43,9 +43,8 @@ def analyze_recruitment(settings={}):
                                  tables=['cell', 'nucleus', 'pathogen','cytoplasm'], 
                                  verbose=True, 
                                  nuclei_limit=settings['nuclei_limit'], 
-                                 pathogen_limit=settings['pathogen_limit'], 
-                                 uninfected=settings['uninfected'])
-    
+                                 pathogen_limit=settings['pathogen_limit'])
+        
     df = annotate_conditions(df, 
                              cells=settings['cell_types'], 
                              cell_loc=settings['cell_plate_metadata'], 
