@@ -4,14 +4,6 @@ from .gui import MainApp
 from .gui_elements import set_dark_style, spacrButton
 
 def convert_to_number(value):
-    
-    """
-    Converts a string value to an integer if possible, otherwise converts to a float.
-    Args:
-        value (str): The string representation of the number.
-    Returns:
-        int or float: The converted number.
-    """
     try:
         return int(value)
     except ValueError:
