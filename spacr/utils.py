@@ -4052,7 +4052,7 @@ def measure_test_mode(settings):
 
     return settings
 
-def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
+def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, column_list=False):
     """
     Preprocesses the given dataframe by applying filtering, removing highly correlated columns,
     applying log transformation, filling NaN values, and scaling the numeric data.
@@ -4076,7 +4076,10 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude):
     # Apply filtering based on the `filter_by` parameter
     if filter_by is not None:
         df, _ = filter_dataframe_features(df, channel_of_interest=filter_by, exclude=exclude)
-        
+            
+    if column_list:
+        df = df[column_list]
+    
     # Select numerical features
     numeric_data = df.select_dtypes(include=['number'])
     
@@ -4181,6 +4184,7 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     
     if verbose:
         print("Columns to remove:", count_and_id_columns)
+        
     df = df.drop(columns=count_and_id_columns)
     
     if not channel_of_interest is None:
@@ -4188,6 +4192,9 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         
         if isinstance(channel_of_interest, list):
             feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
+            
+        elif isinstance(channel_of_interest, str):
+            feature_strings = [channel_of_interest]
             
         elif isinstance(channel_of_interest, int):
             feature_string = f"channel_{channel_of_interest}"

@@ -465,10 +465,8 @@ def generate_image_umap(settings={}):
     display(settings_df)
 
     db_paths = get_db_paths(settings['src'])
-    
     tables = settings['tables'] + ['png_list']
     all_df = pd.DataFrame()
-    #image_paths = []
 
     for i,db_path in enumerate(db_paths):
         df = _read_and_join_tables(db_path, table_names=tables)
@@ -476,7 +474,7 @@ def generate_image_umap(settings={}):
         all_df = pd.concat([all_df, df], axis=0)
         #image_paths.extend(image_paths_tmp)
 
-    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
+    all_df['cond'] = all_df['column_name'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
     if settings['exclude_conditions']:
         if isinstance(settings['exclude_conditions'], str):
@@ -495,7 +493,10 @@ def generate_image_umap(settings={}):
         
         # Extract and reset the index for the column to compare
         col_to_compare = all_df[settings['col_to_compare']].reset_index(drop=True)
-
+        
+        #if settings['only_top_features']:
+        #    column_list = None
+            
         # Preprocess the data to obtain numeric data
         numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
 
@@ -571,7 +572,11 @@ def generate_image_umap(settings={}):
             print(f'Saved {reduction_method} embedding to {embedding_path} and grid to {grid_path}')
 
     # Add cluster labels to the dataframe
-    all_df['cluster'] = labels
+    if len(labels) > 0:
+        all_df['cluster'] = labels
+    else:
+        all_df['cluster'] = 1  # Assign a default cluster label
+        print("No clusters found. Consider reducing 'min_samples' or increasing 'eps' for DBSCAN.")
 
     # Save the results to a CSV file
     results_dir = os.path.join(settings['src'][0], 'results')
@@ -653,7 +658,7 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
         df = _read_and_join_tables(db_path, table_names=tables)
         all_df = pd.concat([all_df, df], axis=0)
 
-    all_df['cond'] = all_df['col'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
+    all_df['cond'] = all_df['column_name'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
     if settings['exclude_conditions']:
         if isinstance(settings['exclude_conditions'], str):
