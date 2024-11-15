@@ -847,11 +847,61 @@ def interperate_vision_model(settings={}):
         
     return output
 
+def _plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object'):
+    # Always calculate chi-squared on raw data
+    raw_counts = df.groupby([group_column, bin_column]).size().unstack(fill_value=0)
+    chi2, p, dof, expected = chi2_contingency(raw_counts)
+    print(f"Chi-squared test statistic (raw data): {chi2:.4f}")
+    print(f"p-value (raw data): {p:.4e}")
+
+    # Extract bin labels and indices for formatting the legend in the correct order
+    bin_labels = df[bin_column].cat.categories if pd.api.types.is_categorical_dtype(df[bin_column]) else sorted(df[bin_column].unique())
+    bin_indices = range(1, len(bin_labels) + 1)
+    legend_labels = [f"{index}: {label}" for index, label in zip(bin_indices, bin_labels)]
+
+    # Plot based on level setting
+    if level == 'well':
+        # Aggregate by well for mean ± SD visualization
+        well_proportions = (
+            df.groupby([group_column, prc_column, bin_column])
+            .size()
+            .groupby(level=[0, 1])
+            .apply(lambda x: x / x.sum())
+            .unstack(fill_value=0)
+        )
+        mean_proportions = well_proportions.groupby(group_column).mean()
+        std_proportions = well_proportions.groupby(group_column).std()
+
+        ax = mean_proportions.plot(
+            kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap='viridis', figsize=(12, 8)
+        )
+        plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
+    else:
+        # Object-level plotting without aggregation
+        group_counts = df.groupby([group_column, bin_column]).size()
+        group_totals = group_counts.groupby(level=0).sum()
+        proportions = group_counts / group_totals
+        proportion_df = proportions.unstack(fill_value=0)
+
+        ax = proportion_df.plot(kind='bar', stacked=True, colormap='viridis', figsize=(12, 8))
+        plt.title('Proportion of Volume Bins by Group')
+
+    plt.xlabel('Group')
+    plt.ylabel('Proportion')
+
+    # Update legend with formatted labels, maintaining correct order
+    volume_unit = "px³" if settings['um_per_px'] is None else "µm³"
+    plt.legend(legend_labels, title=f'Volume Range ({volume_unit})', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.ylim(0, 1)
+    fig = plt.gcf() 
+    return chi2, p, dof, expected, raw_counts, fig
+
 def analyze_endodyogeny(settings):
     
     from .utils import annotate_conditions, save_settings
     from .io import _read_and_merge_data
     from .settings import set_analyze_endodyogeny_defaults
+    from .plot import plot_proportion_stacked_bars
 
     def _calculate_volume_bins(df, compartment='pathogen', min_area_bin=500, max_bins=None, verbose=False):
         area_column = f'{compartment}_area'
@@ -890,55 +940,6 @@ def analyze_endodyogeny(settings):
 
         return df
 
-    def _plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object'):
-        # Always calculate chi-squared on raw data
-        raw_counts = df.groupby([group_column, bin_column]).size().unstack(fill_value=0)
-        chi2, p, dof, expected = chi2_contingency(raw_counts)
-        print(f"Chi-squared test statistic (raw data): {chi2:.4f}")
-        print(f"p-value (raw data): {p:.4e}")
-
-        # Extract bin labels and indices for formatting the legend in the correct order
-        bin_labels = df[bin_column].cat.categories if pd.api.types.is_categorical_dtype(df[bin_column]) else sorted(df[bin_column].unique())
-        bin_indices = range(1, len(bin_labels) + 1)
-        legend_labels = [f"{index}: {label}" for index, label in zip(bin_indices, bin_labels)]
-
-        # Plot based on level setting
-        if level == 'well':
-            # Aggregate by well for mean ± SD visualization
-            well_proportions = (
-                df.groupby([group_column, prc_column, bin_column])
-                .size()
-                .groupby(level=[0, 1])
-                .apply(lambda x: x / x.sum())
-                .unstack(fill_value=0)
-            )
-            mean_proportions = well_proportions.groupby(group_column).mean()
-            std_proportions = well_proportions.groupby(group_column).std()
-
-            ax = mean_proportions.plot(
-                kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap='viridis', figsize=(12, 8)
-            )
-            plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
-        else:
-            # Object-level plotting without aggregation
-            group_counts = df.groupby([group_column, bin_column]).size()
-            group_totals = group_counts.groupby(level=0).sum()
-            proportions = group_counts / group_totals
-            proportion_df = proportions.unstack(fill_value=0)
-
-            ax = proportion_df.plot(kind='bar', stacked=True, colormap='viridis', figsize=(12, 8))
-            plt.title('Proportion of Volume Bins by Group')
-
-        plt.xlabel('Group')
-        plt.ylabel('Proportion')
-
-        # Update legend with formatted labels, maintaining correct order
-        volume_unit = "px³" if settings['um_per_px'] is None else "µm³"
-        plt.legend(legend_labels, title=f'Volume Range ({volume_unit})', bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.ylim(0, 1)
-        fig = plt.gcf() 
-        return chi2, p, dof, expected, raw_counts, fig
-    
     settings = set_analyze_endodyogeny_defaults(settings)
     save_settings(settings, name='analyze_endodyogeny', show=True)
     output = {}
@@ -985,31 +986,30 @@ def analyze_endodyogeny(settings):
     df = _calculate_volume_bins(df, settings['compartment'], settings['min_area_bin'], settings['max_bins'], settings['verbose'])
     output['data'] = df
     # Perform chi-squared test and plot
-    chi2, p, dof, expected, raw_counts, fig = _plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=f"{settings['compartment']}_volume_bin", level=settings['level']
-    )
-
-    # Create a DataFrame with chi-squared test results and raw counts
-    results_df = pd.DataFrame({
-        'chi_squared_stat': [chi2],
-        'p_value': [p],
-        'degrees_of_freedom': [dof]
-    })
-
-    # Flatten and add expected counts to results_df
-    expected_df = pd.DataFrame(expected, index=raw_counts.index, columns=raw_counts.columns)
-    expected_flat = expected_df.stack().reset_index()
-    expected_flat.columns = [settings['group_column'], f"{settings['compartment']}_volume_bin", 'expected_count']
-    results_df = results_df.merge(expected_flat, how="cross")
+    results_df, pairwise_results_df, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=f"{settings['compartment']}_volume_bin", level=settings['level'])
+    
+    # Extract bin labels and indices for formatting the legend in the correct order
+    bin_labels = df[f"{settings['compartment']}_volume_bin"].cat.categories if pd.api.types.is_categorical_dtype(df[f"{settings['compartment']}_volume_bin"]) else sorted(df[f"{settings['compartment']}_volume_bin"].unique())
+    bin_indices = range(1, len(bin_labels) + 1)
+    legend_labels = [f"{index}: {label}" for index, label in zip(bin_indices, bin_labels)]
+    
+    # Update legend with formatted labels, maintaining correct order
+    volume_unit = "px³" if settings['um_per_px'] is None else "µm³"
+    plt.legend(legend_labels, title=f'Volume Range ({volume_unit})', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.ylim(0, 1)
+    
     output['chi_squared'] = results_df
 
     if settings['save']:
         # Save DataFrame to CSV
-        output_dir = os.path.join(settings['src'][0], 'results')
+        output_dir = os.path.join(settings['src'][0], 'results', 'analyze_endodyogeny')
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, 'chi_squared_results.csv')
+        output_path_pairwise = os.path.join(output_dir, 'chi_squared_results.csv')
         output_path_fig = os.path.join(output_dir, 'chi_squared_results.pdf')
         fig.savefig(output_path_fig, dpi=300, bbox_inches='tight')
         results_df.to_csv(output_path, index=False)
+        pairwise_results_df.to_csv(output_path_pairwise, index=False)
         print(f"Chi-squared results saved to {output_path}")
         
     plt.show()     
@@ -1021,51 +1021,8 @@ def analyze_class_proportion(settings):
     from .utils import annotate_conditions, save_settings
     from .io import _read_and_merge_data
     from .settings import set_analyze_class_proportion_defaults
-    from .plot import plot_plates
-    
-    
-    def _plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object'):
-        # Always calculate chi-squared on raw data
-        raw_counts = df.groupby([group_column, bin_column]).size().unstack(fill_value=0)
-        chi2, p, dof, expected = chi2_contingency(raw_counts)
-        print(f"Chi-squared test statistic (raw data): {chi2:.4f}")
-        print(f"p-value (raw data): {p:.4e}")
-
-        # Plot based on level setting
-        if level == 'well':
-            # Aggregate by well for mean ± SD visualization
-            well_proportions = (
-                df.groupby([group_column, prc_column, bin_column])
-                .size()
-                .groupby(level=[0, 1])
-                .apply(lambda x: x / x.sum())
-                .unstack(fill_value=0)
-            )
-            mean_proportions = well_proportions.groupby(group_column).mean()
-            std_proportions = well_proportions.groupby(group_column).std()
-
-            ax = mean_proportions.plot(
-                kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap='viridis', figsize=(12, 8)
-            )
-            plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
-        else:
-            # Object-level plotting without aggregation
-            group_counts = df.groupby([group_column, bin_column]).size()
-            group_totals = group_counts.groupby(level=0).sum()
-            proportions = group_counts / group_totals
-            proportion_df = proportions.unstack(fill_value=0)
-
-            ax = proportion_df.plot(kind='bar', stacked=True, colormap='viridis', figsize=(12, 8))
-            plt.title('Proportion of Volume Bins by Group')
-
-        plt.xlabel('Group')
-        plt.ylabel('Proportion')
-
-        # Update legend with formatted labels, maintaining correct order
-        plt.legend(title=f'Classes', bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.ylim(0, 1)
-        fig = plt.gcf() 
-        return chi2, p, dof, expected, raw_counts, fig
+    from .plot import plot_plates, plot_proportion_stacked_bars
+    from .stats import perform_normality_tests, perform_levene_test, perform_statistical_tests, perform_posthoc_tests
     
     settings = set_analyze_class_proportion_defaults(settings)
     save_settings(settings, name='analyze_class_proportion', show=True)
@@ -1110,25 +1067,20 @@ def analyze_class_proportion(settings):
     output['data'] = df
     
     # Perform chi-squared test and plot
-    chi2, p, dof, expected, raw_counts, fig = _plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=settings['class_column'], level=settings['level'])
-    
-    # Create a DataFrame with chi-squared test results and raw counts
-    results_df = pd.DataFrame({
-        'chi_squared_stat': [chi2],
-        'p_value': [p],
-        'degrees_of_freedom': [dof]
-    })
+    results_df, pairwise_results, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=settings['class_column'], level=settings['level'])
     
     output['chi_squared'] = results_df
     
     if settings['save']:
-        output_dir = os.path.join(settings['src'][0], 'results')
+        output_dir = os.path.join(settings['src'][0], 'results', 'analyze_class_proportion')
         os.makedirs(output_dir, exist_ok=True)
         output_path_chi = os.path.join(output_dir, 'class_chi_squared_results.csv')
+        output_path_chi_pairwise = os.path.join(output_dir, 'class_frequency_test.csv')
         output_path_data = os.path.join(output_dir, 'class_chi_squared_data.csv')
         output_path_fig = os.path.join(output_dir, 'class_chi_squared.pdf')
         fig.savefig(output_path_fig, dpi=300, bbox_inches='tight')
         results_df.to_csv(output_path_chi, index=False)
+        pairwise_results.to_csv(output_path_chi_pairwise, index=False)
         df.to_csv(output_path_data, index=False)
         print(f"Chi-squared results saved to {output_path_chi}")
         print(f"Annotated data saved to {output_path_data}")
@@ -1141,4 +1093,29 @@ def analyze_class_proportion(settings):
         fig2.savefig(output_path_fig2, dpi=300, bbox_inches='tight')
     
     plt.show()
+    
+    # Perform normality, variance, and statistical tests
+    is_normal, normality_results = perform_normality_tests(df, settings['group_column'], [settings['class_column']])
+    variance_stat, variance_p = perform_levene_test(df, settings['group_column'], settings['class_column'])
+
+    print(f"Levene's test statistic: {variance_stat:.4f}, p-value: {variance_p:.4e}")
+    variance_results = {
+        'Test Statistic': variance_stat,
+        'p-value': variance_p,
+        'Test Name': "Levene's Test"
+    }
+
+    test_results = perform_statistical_tests(df, settings['group_column'], [settings['class_column']])
+    posthoc_results = perform_posthoc_tests(
+        df, settings['group_column'], settings['class_column'], is_normal=is_normal
+    )
+
+    # Save additional results
+    if settings['save']:
+        pd.DataFrame(normality_results).to_csv(os.path.join(output_dir, 'normality_results.csv'), index=False)
+        pd.DataFrame([variance_results]).to_csv(os.path.join(output_dir, 'variance_results.csv'), index=False)
+        pd.DataFrame(test_results).to_csv(os.path.join(output_dir, 'statistical_test_results.csv'), index=False)
+        pd.DataFrame(posthoc_results).to_csv(os.path.join(output_dir, 'posthoc_results.csv'), index=False)
+        print("Statistical analysis results saved.")
+
     return output

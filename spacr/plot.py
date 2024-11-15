@@ -17,7 +17,7 @@ from skimage.measure import find_contours, label, regionprops
 from skimage.segmentation import mark_boundaries
 from skimage.transform import resize as sk_resize
 import scikit_posthocs as sp
-
+from scipy.stats import chi2_contingency
 import tifffile as tiff
 
 from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
@@ -2609,7 +2609,7 @@ class spacrGraph:
     def perform_posthoc_tests(self, is_normal, unique_groups):
         """Perform post-hoc tests for multiple groups based on all_to_all flag."""
 
-        from .utils import choose_p_adjust_method
+        from .stats import choose_p_adjust_method
 
         posthoc_results = []
         if is_normal and len(unique_groups) > 2 and self.all_to_all:
@@ -3736,3 +3736,79 @@ def graph_importance(settings):
     # Get the figure object if needed
     fig = spacr_graph.get_figure()
     plt.show()
+    
+def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object'):
+    """
+    Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.
+    
+    Parameters:
+    - settings (dict): Analysis settings.
+    - df (DataFrame): Input data.
+    - group_column (str): Column indicating the groups.
+    - bin_column (str): Column indicating the categories.
+    - prc_column (str): Optional; column for additional stratification.
+    - level (str): Level of aggregation ('well' or 'object').
+    
+    Returns:
+    - chi2 (float): Chi-squared statistic for the overall test.
+    - p (float): p-value for the overall chi-squared test.
+    - dof (int): Degrees of freedom for the overall chi-squared test.
+    - expected (ndarray): Expected frequencies for the overall chi-squared test.
+    - raw_counts (DataFrame): Contingency table of observed counts.
+    - fig (Figure): The generated plot.
+    - pairwise_results (list): Pairwise test results from `chi_pairwise`.
+    """
+    
+    from .stats import chi_pairwise
+    
+    # Calculate contingency table for overall chi-squared test
+    raw_counts = df.groupby([group_column, bin_column]).size().unstack(fill_value=0)
+    chi2, p, dof, expected = chi2_contingency(raw_counts)
+    print(f"Chi-squared test statistic (raw data): {chi2:.4f}")
+    print(f"p-value (raw data): {p:.4e}")
+
+    # Perform pairwise comparisons
+    pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
+
+    # Plot based on level setting
+    if level == 'well':
+        # Aggregate by well for mean ± SD visualization
+        well_proportions = (
+            df.groupby([group_column, prc_column, bin_column])
+            .size()
+            .groupby(level=[0, 1])
+            .apply(lambda x: x / x.sum())
+            .unstack(fill_value=0)
+        )
+        mean_proportions = well_proportions.groupby(group_column).mean()
+        std_proportions = well_proportions.groupby(group_column).std()
+
+        ax = mean_proportions.plot(
+            kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap='viridis', figsize=(12, 8)
+        )
+        plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
+    else:
+        # Object-level plotting without aggregation
+        group_counts = df.groupby([group_column, bin_column]).size()
+        group_totals = group_counts.groupby(level=0).sum()
+        proportions = group_counts / group_totals
+        proportion_df = proportions.unstack(fill_value=0)
+
+        ax = proportion_df.plot(kind='bar', stacked=True, colormap='viridis', figsize=(12, 8))
+        plt.title('Proportion of Volume Bins by Group')
+
+    plt.xlabel('Group')
+    plt.ylabel('Proportion')
+
+    # Update legend with formatted labels, maintaining correct order
+    plt.legend(title=f'Classes', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.ylim(0, 1)
+    fig = plt.gcf()
+    
+    results_df = pd.DataFrame({
+        'chi_squared_stat': [chi2],
+        'p_value': [p],
+        'degrees_of_freedom': [dof]
+    })
+
+    return results_df, pairwise_results, fig
