@@ -3771,7 +3771,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
 
     # Plot based on level setting
-    if level == 'well':
+    if level in ['well', 'plate']:
         # Aggregate by well for mean ± SD visualization
         well_proportions = (
             df.groupby([group_column, prc_column, bin_column])
