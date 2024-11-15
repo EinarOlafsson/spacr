@@ -3737,7 +3737,7 @@ def graph_importance(settings):
     fig = spacr_graph.get_figure()
     plt.show()
     
-def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object'):
+def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
     """
     Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.
     
@@ -3784,7 +3784,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         std_proportions = well_proportions.groupby(group_column).std()
 
         ax = mean_proportions.plot(
-            kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap='viridis', figsize=(12, 8)
+            kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
         )
         plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
     else:
@@ -3794,7 +3794,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         proportions = group_counts / group_totals
         proportion_df = proportions.unstack(fill_value=0)
 
-        ax = proportion_df.plot(kind='bar', stacked=True, colormap='viridis', figsize=(12, 8))
+        ax = proportion_df.plot(kind='bar', stacked=True, colormap=cmap, figsize=(12, 8))
         plt.title('Proportion of Volume Bins by Group')
 
     plt.xlabel('Group')

@@ -952,13 +952,17 @@ def analyze_endodyogeny(settings):
     for s in settings['src']:
         loc = os.path.join(s, 'measurements/measurements.db')
         locs.append(loc)
+        
+    if 'png_list' not in settings['tables']:
+        settings['tables'] = settings['tables'] + ['png_list']
     
     df, _ = _read_and_merge_data(
         locs, 
         tables=settings['tables'], 
         verbose=settings['verbose'], 
         nuclei_limit=settings['nuclei_limit'], 
-        pathogen_limit=settings['pathogen_limit']
+        pathogen_limit=settings['pathogen_limit'],
+        change_plate=settings['change_plate']
     )
     
     if not settings['um_per_px'] is None:
@@ -985,8 +989,15 @@ def analyze_endodyogeny(settings):
     df = df.dropna(subset=[settings['group_column']])
     df = _calculate_volume_bins(df, settings['compartment'], settings['min_area_bin'], settings['max_bins'], settings['verbose'])
     output['data'] = df
+    
+    
+    if settings['level'] == 'plate':
+        prc_column = 'plate'
+    else:
+        prc_column = 'prc'
+    
     # Perform chi-squared test and plot
-    results_df, pairwise_results_df, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=f"{settings['compartment']}_volume_bin", level=settings['level'])
+    results_df, pairwise_results_df, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=f"{settings['compartment']}_volume_bin", prc_column=prc_column, level=settings['level'], cmap=settings['cmap'])
     
     # Extract bin labels and indices for formatting the legend in the correct order
     bin_labels = df[f"{settings['compartment']}_volume_bin"].cat.categories if pd.api.types.is_categorical_dtype(df[f"{settings['compartment']}_volume_bin"]) else sorted(df[f"{settings['compartment']}_volume_bin"].unique())
@@ -1005,10 +1016,12 @@ def analyze_endodyogeny(settings):
         output_dir = os.path.join(settings['src'][0], 'results', 'analyze_endodyogeny')
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, 'chi_squared_results.csv')
+        output_path_data = os.path.join(output_dir, 'data.csv')
         output_path_pairwise = os.path.join(output_dir, 'chi_squared_results.csv')
         output_path_fig = os.path.join(output_dir, 'chi_squared_results.pdf')
         fig.savefig(output_path_fig, dpi=300, bbox_inches='tight')
         results_df.to_csv(output_path, index=False)
+        df.to_csv(output_path_data, index=False)
         pairwise_results_df.to_csv(output_path_pairwise, index=False)
         print(f"Chi-squared results saved to {output_path}")
         
