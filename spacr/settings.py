@@ -1415,6 +1415,8 @@ def set_analyze_endodyogeny_defaults(settings):
     settings.setdefault('um_per_px',0.1)
     settings.setdefault('max_bins',None)
     settings.setdefault('save',False)
+    settings.setdefault('change_plate',False)
+    settings.setdefault('cmap','viridis')
     settings.setdefault('verbose',False)
     return settings
 

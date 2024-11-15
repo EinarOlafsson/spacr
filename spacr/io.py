@@ -2445,7 +2445,7 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=False, pat
         
     return merged_df, obj_df_ls 
 
-def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10):
+def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
     from .io import _read_db
     from .utils import _split_data
 
@@ -2453,8 +2453,10 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     data_dict = {table: [] for table in tables}
 
     # Extract plate DataFrames
-    for loc in locs:
+    for idx, loc in enumerate(locs):
         db_dfs = _read_db(loc, tables)
+        if change_plate:
+            db_dfs['plate'] = f'plate{idx}'
         for table, df in zip(tables, db_dfs):
             data_dict[table].append(df)
 
