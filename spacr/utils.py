@@ -1371,7 +1371,7 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
 
     return df
 
-def _split_data(df, group_by, object_type):
+def _split_data_v1(df, group_by, object_type):
     """
     Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
     and returns the grouped dataframes.
@@ -1385,13 +1385,69 @@ def _split_data(df, group_by, object_type):
     grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns.
     grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.
     """
+    
+    if 'prcf' not in df.columns:
+        try:
+            df['prcf'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str)
+        except Exception as e:
+            print(e)    
+    
     df['prcfo'] = df['prcf'] + '_' + df[object_type]
     df = df.set_index(group_by, inplace=False)
 
     df_numeric = df.select_dtypes(include=np.number)
     df_non_numeric = df.select_dtypes(exclude=np.number)
+    
+    []
 
     grouped_numeric = df_numeric.groupby(df_numeric.index).mean()
+    grouped_non_numeric = df_non_numeric.groupby(df_non_numeric.index).first()
+
+    return pd.DataFrame(grouped_numeric), pd.DataFrame(grouped_non_numeric)
+
+def _split_data(df, group_by, object_type):
+    """
+    Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
+    and returns the grouped dataframes with conditional aggregation.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    group_by (str): The column name to group the dataframes by.
+    object_type (str): The column name to concatenate with 'prcf' to create a new column 'prcfo'.
+
+    Returns:
+    grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns with conditional aggregation.
+    grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.
+    """
+    
+    # Ensure 'prcf' column exists by concatenating specific columns
+    if 'prcf' not in df.columns:
+        try:
+            df['prcf'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str)
+        except Exception as e:
+            print(e)    
+    
+    # Create the 'prcfo' column
+    df['prcfo'] = df['prcf'] + '_' + df[object_type]
+    df = df.set_index(group_by, inplace=False)
+
+    # Split the DataFrame into numeric and non-numeric parts
+    df_numeric = df.select_dtypes(include=np.number)
+    df_non_numeric = df.select_dtypes(exclude=np.number)
+
+    # Define keywords for columns to be summed instead of averaged
+    sum_keywords = ['area', 'perimeter', 'convex_area', 'bbox_area', 'filled_area', 'major_axis_length', 'minor_axis_length', 'equivalent_diameter']
+
+    # Create a dictionary for custom aggregation
+    agg_dict = {}
+    for column in df_numeric.columns:
+        if any(keyword in column for keyword in sum_keywords):
+            agg_dict[column] = 'sum'
+        else:
+            agg_dict[column] = 'mean'
+
+    # Apply custom aggregation
+    grouped_numeric = df_numeric.groupby(df_numeric.index).agg(agg_dict)
     grouped_non_numeric = df_non_numeric.groupby(df_non_numeric.index).first()
 
     return pd.DataFrame(grouped_numeric), pd.DataFrame(grouped_non_numeric)
@@ -5171,3 +5227,33 @@ def rename_columns_in_db(db_path):
     # After closing the 'with' block, run VACUUM outside of any transaction
     with sqlite3.connect(db_path) as conn:
         conn.execute("VACUUM;")
+        
+def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment'):
+
+    # Function to determine compartment based on multiple matches
+    def find_feature_class(feature, compartments):
+        matches = [compartment for compartment in compartments if re.search(compartment, feature)]
+        if len(matches) > 1:
+            return '-'.join(matches)
+        elif matches:
+            return matches[0]
+        else:
+            return None
+        
+    from .plot import spacrGraph
+
+    df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
+    
+    if name == 'channel':
+        df['channel'].fillna('morphology', inplace=True)
+    
+    # Create new DataFrame with summed importance for each compartment and channel
+    importance_sum = df.groupby(name)['importance'].sum().reset_index(name=f'{name}_importance_sum')
+    total_compartment_importance = importance_sum[f'{name}_importance_sum'].sum()
+    importance_sum = pd.concat(
+        [importance_sum,
+         pd.DataFrame(
+             [{name: 'all', '{name}_importance_sum': total_compartment_importance}])]
+        , ignore_index=True)
+    
+    return df
