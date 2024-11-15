@@ -27,6 +27,7 @@ from . import openai
 from . import ml
 from . import toxo
 from . import cellpose
+from . import stats
 from . import logger
 
 __all__ = [
@@ -57,6 +58,7 @@ __all__ = [
     "ml",
     "toxo",
     "cellpose",
+    "stats",
     "logger"
 ]
 
