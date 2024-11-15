@@ -2456,7 +2456,8 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     for idx, loc in enumerate(locs):
         db_dfs = _read_db(loc, tables)
         if change_plate:
-            db_dfs['plate'] = f'plate{idx}'
+            db_dfs['plate'] = f'plate{idx+1}'
+            db_dfs['prc'] = db_dfs['plate'].astype(str) + '_' + db_dfs['row_name'].astype(str) + '_' + db_dfs['column_name'].astype(str)
         for table, df in zip(tables, db_dfs):
             data_dict[table].append(df)
 
