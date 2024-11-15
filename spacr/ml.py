@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from scipy.stats import shapiro
+from math import pi
 
 from sklearn.linear_model import Lasso, Ridge, LassoCV, RidgeCV
 from sklearn.metrics import mean_squared_error
@@ -1515,3 +1516,207 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     
     return df
 
+def interperate_vision_model(settings={}):
+    
+    from .io import _read_and_merge_data, _results_to_csv
+    from .settings import set_interperate_vision_model_defaults
+    from .utils import save_settings
+    
+    settings = set_interperate_vision_model_defaults(settings)
+    save_settings(settings, name='interperate_vision_model', show=True)
+    
+    # Function to create radar plot for individual and combined values
+    def create_extended_radar_plot(values, labels, title):
+        values = list(values) + [values[0]]  # Close the loop for radar chart
+        angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
+        angles += angles[:1]
+
+        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+        ax.plot(angles, values, linewidth=2, linestyle='solid')
+        ax.fill(angles, values, alpha=0.25)
+
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(labels, fontsize=10, rotation=45, ha='right')
+        plt.title(title, pad=20)
+        plt.show()
+
+    def extract_compartment_channel(feature_name):
+        # Identify compartment as the first part before an underscore
+        compartment = feature_name.split('_')[0]
+        
+        if compartment == 'cells':
+            compartment = 'cell'
+
+        # Identify channels based on substring presence
+        channels = []
+        if 'channel_0' in feature_name:
+            channels.append('channel_0')
+        if 'channel_1' in feature_name:
+            channels.append('channel_1')
+        if 'channel_2' in feature_name:
+            channels.append('channel_2')
+        if 'channel_3' in feature_name:
+            channels.append('channel_3')
+
+        # If multiple channels are found, join them with a '+'
+        if channels:
+            channel = ' + '.join(channels)
+        else:
+            channel = 'morphology'  # Use 'morphology' if no channel identifier is found
+
+        return (compartment, channel)
+
+    def read_and_preprocess_data(settings):
+
+        df, _ = _read_and_merge_data(
+            locs=[settings['src']+'/measurements/measurements.db'], 
+            tables=settings['tables'], 
+            verbose=True, 
+            nuclei_limit=settings['nuclei_limit'], 
+            pathogen_limit=settings['pathogen_limit']
+        )
+
+        scores_df = pd.read_csv(settings['scores'])
+
+        # Clean and align columns for merging
+        df['object_label'] = df['object_label'].str.replace('o', '')
+
+        if 'row_name' not in scores_df.columns:
+            scores_df['row_name'] = scores_df['row']
+
+        if 'column_name' not in scores_df.columns:
+            scores_df['column_name'] = scores_df['col']
+
+        if 'object_label' not in scores_df.columns:
+            scores_df['object_label'] = scores_df['object']
+
+        # Remove the 'o' prefix from 'object_label' in df, ensuring it is a string type
+        df['object_label'] = df['object_label'].str.replace('o', '').astype(str)
+
+        # Ensure 'object_label' in scores_df is also a string
+        scores_df['object_label'] = scores_df['object'].astype(str)
+
+        # Ensure all join columns have the same data type in both DataFrames
+        df[['plate', 'row_name', 'column_name', 'field', 'object_label']] = df[['plate', 'row_name', 'column_name', 'field', 'object_label']].astype(str)
+        scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label']] = scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label']].astype(str)
+
+        # Select only the necessary columns from scores_df for merging
+        scores_df = scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label', settings['score_column']]]
+
+        # Now merge DataFrames
+        merged_df = pd.merge(df, scores_df, on=['plate', 'row_name', 'column_name', 'field', 'object_label'], how='inner')
+
+        # Separate numerical features and the score column
+        X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])
+        y = merged_df[settings['score_column']]
+
+        return X, y, merged_df
+    
+    X, y, merged_df = read_and_preprocess_data(settings)
+    
+    # Step 1: Feature Importance using Random Forest
+    if settings['feature_importance'] or settings['feature_importance']:
+        model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
+        model.fit(X, y)
+        
+        if settings['feature_importance']:
+            print(f"Feature Importance ...")
+            feature_importances = model.feature_importances_
+            feature_importance_df = pd.DataFrame({'feature': X.columns, 'importance': feature_importances})
+            feature_importance_df = feature_importance_df.sort_values(by='importance', ascending=False)
+            top_feature_importance_df = feature_importance_df.head(settings['top_features'])
+
+            # Plot Feature Importance
+            plt.figure(figsize=(10, 6))
+            plt.barh(top_feature_importance_df['feature'], top_feature_importance_df['importance'])
+            plt.xlabel('Importance')
+            plt.title(f"Top {settings['top_features']} Features - Feature Importance")
+            plt.gca().invert_yaxis()
+            plt.show()
+        
+        if settings['save']:
+            _results_to_csv(feature_importance_df, filename='feature_importance.csv')
+    
+    # Step 2: Permutation Importance
+    if settings['permutation_importance']:
+        print(f"Permutation Importance ...")
+        perm_importance = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=settings['n_jobs'])
+        perm_importance_df = pd.DataFrame({'feature': X.columns, 'importance': perm_importance.importances_mean})
+        perm_importance_df = perm_importance_df.sort_values(by='importance', ascending=False)
+        top_perm_importance_df = perm_importance_df.head(settings['top_features'])
+
+        # Plot Permutation Importance
+        plt.figure(figsize=(10, 6))
+        plt.barh(top_perm_importance_df['feature'], top_perm_importance_df['importance'])
+        plt.xlabel('Importance')
+        plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
+        plt.gca().invert_yaxis()
+        plt.show()
+        
+        if settings['save']:
+            _results_to_csv(perm_importance_df, filename='permutation_importance.csv')
+    
+    # Step 3: SHAP Analysis
+    if settings['shap']:
+        print(f"SHAP Analysis ...")
+
+        # Select top N features based on Random Forest importance and fit the model on these features only
+        top_features = feature_importance_df.head(settings['top_features'])['feature']
+        X_top = X[top_features]
+
+        # Refit the model on this subset of features
+        model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
+        model.fit(X_top, y)
+
+        # Sample a smaller subset of rows to speed up SHAP
+        if settings['shap_sample']:
+            sample = int(len(X_top) / 100)
+            X_sample = X_top.sample(min(sample, len(X_top)), random_state=42)
+        else:
+            X_sample = X_top
+
+        # Initialize SHAP explainer with the same subset of features
+        explainer = shap.Explainer(model.predict, X_sample)
+        shap_values = explainer(X_sample, max_evals=1500)
+
+        # Plot SHAP summary for the selected sample and top features
+        shap.summary_plot(shap_values, X_sample, max_display=settings['top_features'])
+
+        # Convert SHAP values to a DataFrame for easier manipulation
+        shap_df = pd.DataFrame(shap_values.values, columns=X_sample.columns)
+        
+        # Apply the function to create MultiIndex columns with compartment and channel
+        shap_df.columns = pd.MultiIndex.from_tuples(
+            [extract_compartment_channel(feat) for feat in shap_df.columns], 
+            names=['compartment', 'channel']
+        )
+        
+        # Aggregate SHAP values by compartment and channel
+        compartment_mean = shap_df.abs().groupby(level='compartment', axis=1).mean().mean(axis=0)
+        channel_mean = shap_df.abs().groupby(level='channel', axis=1).mean().mean(axis=0)
+
+        # Calculate combined importance for each pair of compartments and channels
+        combined_compartment = {}
+        for i, comp1 in enumerate(compartment_mean.index):
+            for comp2 in compartment_mean.index[i+1:]:
+                combined_compartment[f"{comp1} + {comp2}"] = shap_df.loc[:, (comp1, slice(None))].abs().mean().mean() + \
+                                                              shap_df.loc[:, (comp2, slice(None))].abs().mean().mean()
+        
+        combined_channel = {}
+        for i, chan1 in enumerate(channel_mean.index):
+            for chan2 in channel_mean.index[i+1:]:
+                combined_channel[f"{chan1} + {chan2}"] = shap_df.loc[:, (slice(None), chan1)].abs().mean().mean() + \
+                                                          shap_df.loc[:, (slice(None), chan2)].abs().mean().mean()
+
+        # Prepare values and labels for radar charts
+        all_compartment_importance = list(compartment_mean.values) + list(combined_compartment.values())
+        all_compartment_labels = list(compartment_mean.index) + list(combined_compartment.keys())
+
+        all_channel_importance = list(channel_mean.values) + list(combined_channel.values())
+        all_channel_labels = list(channel_mean.index) + list(combined_channel.keys())
+
+        # Create radar plots for compartments and channels
+        create_extended_radar_plot(all_compartment_importance, all_compartment_labels, "SHAP Importance by Compartment (Individual and Combined)")
+        create_extended_radar_plot(all_channel_importance, all_channel_labels, "SHAP Importance by Channel (Individual and Combined)")
+    
+    return merged_df

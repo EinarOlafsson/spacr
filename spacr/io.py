@@ -1777,7 +1777,7 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
         png_list_df['cell_id'] = png_list_df['cell_id'].str[1:].astype(int)
         png_list_df.rename(columns={'cell_id': 'object_label'}, inplace=True)
         if 'cell' in dataframes:
-            join_cols = ['object_label', 'plate', 'row_name', 'column_name']
+            join_cols = ['object_label', 'plate', 'row_name', 'column_name','field']
             dataframes['cell'] = pd.merge(dataframes['cell'], png_list_df, on=join_cols, how='left')
         else:
             print("Cell table not found in database tables.")
@@ -2276,7 +2276,7 @@ def _read_db(db_loc, tables):
     conn.close() # Close the connection
     return dfs
     
-def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False):
+def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False):
     
     from .utils import _split_data
     
@@ -2443,7 +2443,137 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=False, pathog
     if 'pathogen' in tables:
         obj_df_ls.append(pathogens)
         
-    return merged_df, obj_df_ls  
+    return merged_df, obj_df_ls 
+
+def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10):
+    from .io import _read_db
+    from .utils import _split_data
+
+    # Initialize an empty dictionary to store DataFrames by table name
+    data_dict = {table: [] for table in tables}
+
+    # Extract plate DataFrames
+    for loc in locs:
+        db_dfs = _read_db(loc, tables)
+        for table, df in zip(tables, db_dfs):
+            data_dict[table].append(df)
+
+    # Concatenate rows across locations for each table
+    for table, dfs in data_dict.items():
+        if dfs:
+            data_dict[table] = pd.concat(dfs, axis=0)
+        if verbose:
+            print(f"{table}: {len(data_dict[table])}")
+
+    # Initialize merged DataFrame with 'cells' if available
+    merged_df = pd.DataFrame()
+
+    # Process each table
+    if 'cell' in data_dict:
+        cells = data_dict['cell'].copy()
+        cells = cells.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        cells = cells.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
+        cells_g_df, metadata = _split_data(cells, 'prcfo', 'object_label')
+        merged_df = cells_g_df.copy()
+        if verbose:
+            print(f'cells: {len(cells)}, cells grouped: {len(cells_g_df)}')
+
+    if 'cytoplasm' in data_dict:
+        cytoplasms = data_dict['cytoplasm'].copy()
+        cytoplasms = cytoplasms.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        cytoplasms = cytoplasms.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
+        
+        if not 'cell' in data_dict:
+            merged_df, metadata = _split_data(cytoplasms, 'prcfo', 'object_label')
+            
+            if verbose:
+                print(f'nucleus: {len(cytoplasms)}, cytoplasms grouped: {len(merged_df)}')
+            
+        else:
+            cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
+            merged_df = merged_df.merge(cytoplasms_g_df, left_index=True, right_index=True)
+            
+            if verbose:
+                print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
+
+    if 'nucleus' in data_dict:
+        nucleus = data_dict['nucleus'].copy()
+        nucleus = nucleus.dropna(subset=['cell_id'])
+        nucleus = nucleus.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
+        nucleus = nucleus.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
+        nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
+        if not nuclei_limit:
+            nucleus = nucleus[nucleus['nucleus_prcfo_count'] == 1]
+            
+        if all(key not in data_dict for key in ['cell', 'cytoplasm']):
+            merged_df, metadata = _split_data(nucleus, 'prcfo', 'cell_id')
+            
+            if verbose:
+                print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(merged_df)}')
+            
+        else:
+            nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
+            merged_df = merged_df.merge(nucleus_g_df, left_index=True, right_index=True)
+            
+            if verbose:
+                print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
+
+    if 'pathogen' in data_dict:
+        pathogens = data_dict['pathogen'].copy()
+        pathogens = pathogens.dropna(subset=['cell_id'])
+        pathogens = pathogens.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
+        pathogens = pathogens.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
+        pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
+
+        if isinstance(pathogen_limit, bool) and not pathogen_limit:
+            pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= 1]
+        elif isinstance(pathogen_limit, (float, int)):
+            pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= int(pathogen_limit)]
+
+        if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus']):
+            merged_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
+            
+            if verbose:
+                print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(merged_df)}')
+            
+        else:
+            pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
+            merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
+        
+            if verbose:
+                print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
+            
+    if 'png_list' in data_dict:
+        png_list = data_dict['png_list'].copy()
+        png_list_g_df_numeric, png_list_g_df_non_numeric = _split_data(png_list, 'prcfo', 'cell_id')
+        png_list_g_df_non_numeric.drop(columns=['plate','row_name','column_name','field','file_name','cell_id', 'prcf'], inplace=True)
+        if verbose:
+            print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
+            print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
+        merged_df = merged_df.merge(png_list_g_df_numeric, left_index=True, right_index=True)
+        merged_df = merged_df.merge(png_list_g_df_non_numeric, left_index=True, right_index=True)
+        
+    # Add prc (plate row column) and prcfo (plate row column field object) columns
+    metadata = metadata.assign(prc=lambda x: x['plate'] + '_' + x['row_name'] + '_' + x['column_name'])
+    cells_well = metadata.groupby('prc')['object_label'].nunique().reset_index(name='cells_per_well')
+    metadata = metadata.merge(cells_well, on='prc')
+    metadata = metadata.assign(prcfo=lambda x: x['plate'] + '_' + x['row_name'] + '_' + x['column_name'] + '_' + x['field'] + '_' + x['object_label'])
+    metadata.set_index('prcfo', inplace=True)
+    
+    # Merge metadata with final merged DataFrame
+    #merged_df = metadata.merge(merged_df, left_index=True, right_index=True).dropna(axis=1)
+    merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
+    merged_df.drop(columns=['label_list_morphology', 'label_list_intensity'], errors='ignore', inplace=True)
+    
+    if verbose:
+        print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
+    
+    # Prepare object DataFrames for output
+    obj_df_ls = [data_dict[table] for table in ['cell', 'cytoplasm', 'nucleus', 'pathogen'] if table in data_dict]
+    
+    return merged_df, obj_df_ls
     
 def _read_mask(mask_path):
     mask = imageio2.imread(mask_path)

@@ -1371,3 +1371,67 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('resample', False)
     settings.setdefault('fill_in', True)
     return settings
+
+def set_graph_importance_defaults(settings):
+    settings.setdefault('csvs','list of paths')
+    settings.setdefault('grouping_column','compartment')
+    settings.setdefault('data_column','compartment_importance_sum')
+    settings.setdefault('graph_type','jitter_bar')
+    settings.setdefault('save',False)
+    return settings
+
+def set_interperate_vision_model_defaults(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('scores','path')
+    settings.setdefault('tables',['cell', 'nucleus', 'pathogen','cytoplasm'])
+    settings.setdefault('feature_importance',True)
+    settings.setdefault('permutation_importance',False)
+    settings.setdefault('shap',True)
+    settings.setdefault('save',False)
+    settings.setdefault('nuclei_limit',1000)
+    settings.setdefault('pathogen_limit',1000)
+    settings.setdefault('top_features',30)
+    settings.setdefault('shap_sample',True)
+    settings.setdefault('n_jobs',-1)
+    settings.setdefault('shap_approximate',True)
+    settings.setdefault('score_column','cv_predictions')
+    return settings
+
+def set_analyze_endodyogeny_defaults(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('tables',['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+    settings.setdefault('cell_types',['Hela'])
+    settings.setdefault('cell_plate_metadata',None)
+    settings.setdefault('pathogen_types',['nc', 'pc'])
+    settings.setdefault('pathogen_plate_metadata',[['c1'], ['c2']])
+    settings.setdefault('treatments',None)
+    settings.setdefault('treatment_plate_metadata',None)
+    settings.setdefault('min_area_bin',500)
+    settings.setdefault('group_column','pathogen')
+    settings.setdefault('compartment','pathogen')
+    settings.setdefault('pathogen_limit',1)
+    settings.setdefault('nuclei_limit',10)
+    settings.setdefault('level','object')
+    settings.setdefault('um_per_px',0.1)
+    settings.setdefault('max_bins',None)
+    settings.setdefault('save',False)
+    settings.setdefault('verbose',False)
+    return settings
+
+def set_analyze_class_proportion_defaults(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('tables',['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+    settings.setdefault('cell_types',['Hela'])
+    settings.setdefault('cell_plate_metadata',None)
+    settings.setdefault('pathogen_types',['nc','pc'])
+    settings.setdefault('pathogen_plate_metadata',[['c1'],['c2']])
+    settings.setdefault('treatments',None)
+    settings.setdefault('treatment_plate_metadata',None)
+    settings.setdefault('group_column','condition')
+    settings.setdefault('class_column','test')
+    settings.setdefault('pathogen_limit',1000)
+    settings.setdefault('nuclei_limit',1000)
+    settings.setdefault('level','well')
+    settings.setdefault('save',False)
+    settings.setdefault('verbose', False)
+    return settings

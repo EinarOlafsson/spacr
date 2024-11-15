@@ -2435,7 +2435,9 @@ class spacrGraph:
 
         self.df = df
         self.grouping_column = grouping_column
+        self.order = sorted(df[self.grouping_column].unique().tolist())
         self.data_column = data_column if isinstance(data_column, list) else [data_column]
+        
         self.graph_type = graph_type
         self.summary_func = summary_func
         self.order = order
@@ -2909,9 +2911,11 @@ class spacrGraph:
         ax.set_xlim(-0.5, num_groups - 0.5)
 
         # Set ticks to match the group labels in your DataFrame
-        group_labels = self.df[self.grouping_column].unique()
-        ax.set_xticks(range(len(group_labels)))
-        ax.set_xticklabels(group_labels, rotation=45, ha='right')
+        #group_labels = self.df[self.grouping_column].unique()
+        #group_labels = self.order
+        #ax.set_xticks(range(len(group_labels)))
+        #ax.set_xticklabels(group_labels, rotation=45, ha='right')
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
 
         # Customize elements based on the graph type
         if graph_type == 'bar':
@@ -2943,6 +2947,66 @@ class spacrGraph:
 
         # Redraw the figure to apply changes
         ax.figure.canvas.draw()
+        
+    def _standerdize_figure_format_v1(self, ax, num_groups, graph_type):
+        """
+        Adjusts the figure layout (size, bar width, jitter, and spacing) based on the number of groups.
+        """
+        if graph_type in ['line', 'line_std']:
+            print("Skipping layout adjustment for line graphs.")
+            return  # Skip layout adjustment for line graphs
+
+        correction_factor = 4
+
+        # Set figure size to ensure it remains square with a minimum size
+        fig_size = max(6, num_groups * 2) / correction_factor
+        ax.figure.set_size_inches(fig_size, fig_size)
+
+        # Configure layout based on the number of groups
+        bar_width = min(0.8, 1.5 / num_groups) / correction_factor
+        jitter_amount = min(0.1, 0.2 / num_groups) / correction_factor
+        jitter_size = max(50 / num_groups, 200)
+
+        # Adjust x-axis limits to fit the specified order of groups
+        ax.set_xlim(-0.5, len(self.order) - 0.5)  # Use `self.order` length to ensure alignment
+
+        # Use `self.order` as the x-tick labels to maintain consistent ordering
+        ax.set_xticks(range(len(self.order)))
+        #ax.set_xticklabels(self.order, rotation=45, ha='right')
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+
+        # Customize elements based on the graph type
+        if graph_type == 'bar':
+            # Adjust bars' width and position
+            for bar in ax.patches:
+                bar.set_width(bar_width)
+                bar.set_x(bar.get_x() - bar_width / 2)
+
+        elif graph_type in ['jitter', 'jitter_bar', 'jitter_box']:
+            # Adjust jitter points' position and size
+            for coll in ax.collections:
+                offsets = coll.get_offsets()
+                offsets[:, 0] += jitter_amount  # Shift jitter points slightly
+                coll.set_offsets(offsets)
+                coll.set_sizes([jitter_size] * len(offsets))  # Adjust point size dynamically
+
+        elif graph_type in ['box', 'violin']:
+            # Adjust box width for consistent spacing
+            for artist in ax.artists:
+                artist.set_width(bar_width)
+
+        # Adjust legend and axis labels
+        ax.tick_params(axis='x', labelsize=max(10, 15 - num_groups // 2))
+        ax.tick_params(axis='y', labelsize=max(10, 15 - num_groups // 2))
+
+        # Adjust legend placement and size
+        if ax.get_legend():
+            ax.get_legend().set_bbox_to_anchor((1.05, 1))
+            ax.get_legend().prop.set_size(max(8, 12 - num_groups // 3))
+
+        # Redraw the figure to apply changes
+        ax.figure.canvas.draw()
+
 
     def _create_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
@@ -2959,7 +3023,7 @@ class spacrGraph:
     
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None)
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None, order=self.order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -2999,7 +3063,7 @@ class spacrGraph:
             hue = None
     
         # Create the jitter plot
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16, order=self.order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3088,7 +3152,7 @@ class spacrGraph:
             hue = None
     
         # Create the box plot
-        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax)
+        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3117,7 +3181,7 @@ class spacrGraph:
             hue = None
     
         # Create the violin plot
-        sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=self.hue,palette=self.sns_palette,ax=ax)
+        sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3148,8 +3212,8 @@ class spacrGraph:
     
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None)
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16)
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None, order=self.order)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16, order=self.order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -3189,8 +3253,8 @@ class spacrGraph:
             hue = None
     
         # Create the box plot
-        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax)
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12)
+        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12, order=self.order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3264,7 +3328,7 @@ def plot_data_from_db(settings):
             [df1] = _read_db(db_loc, tables=[settings['table_names']])
         else:
             df1, _ = _read_and_merge_data(locs=[db_loc],
-                                    tables = ['cell', 'nucleus', 'pathogen','cytoplasm'],
+                                    tables = settings['tables'],
                                     verbose=settings['verbose'],
                                     nuclei_limit=settings['nuclei_limit'],
                                     pathogen_limit=settings['pathogen_limit'])
@@ -3280,10 +3344,7 @@ def plot_data_from_db(settings):
         
     df = pd.concat(dfs, axis=0)
     df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
-    #df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
-    #df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
-    df['class'] = df['png_path'].apply(lambda x: 'class_1' if 'class_1' in x else ('class_0' if 'class_0' in x else None))
-
+    
     if settings['cell_plate_metadata'] !=  None:
         df = df.dropna(subset='host_cell')
 
@@ -3296,7 +3357,6 @@ def plot_data_from_db(settings):
     df = df.dropna(subset=settings['data_column'])
     df = df.dropna(subset=settings['grouping_column'])
 
-    
     src = srcs[0] 
     dst = os.path.join(src, 'results', settings['graph_name'])
     os.makedirs(dst, exist_ok=True)
@@ -3628,3 +3688,51 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
             plt.axis('off')
             plt.show()
 
+def graph_importance(settings):
+    
+    from .settings import set_graph_importance_defaults
+    from .utils import save_settings
+    
+    if not isinstance(settings['csvs'], list):
+        settings['csvs'] = settings['csvs']
+    
+    settings['src'] = os.path.dirname(settings['csvs'][0])
+    
+    settings = set_graph_importance_defaults(settings)
+    save_settings(settings, name='graph_importance')
+    
+    dfs = []
+    for path in settings['csvs']:
+        dft = pd.read_csv(path)
+        dfs.append(dft)
+
+    df = pd.concat(dfs)
+    
+    if not all(col in df.columns for col in (settings['grouping_column'], settings['data_column'])):
+        print(f"grouping {settings['grouping_column']} and data {settings['data_column']} columns must be in {df.columns.to_list()}")
+        return
+    
+    output_dir = os.path.dirname(settings['csvs'][0])
+    
+    spacr_graph = spacrGraph(
+        df=df,                                     
+        grouping_column=settings['grouping_column'],
+        data_column=settings['data_column'],   
+        graph_type=settings['graph_type'],   
+        graph_name=settings['grouping_column'],
+        summary_func='mean',                         
+        colors=None,                                
+        output_dir=output_dir,                              
+        save=settings['save'],                       
+        y_lim=None,                     
+        error_bar_type='std',                       
+        representation='object',
+        theme='muted',                    
+    )
+
+    # Create the plot
+    spacr_graph.create_plot()
+
+    # Get the figure object if needed
+    fig = spacr_graph.get_figure()
+    plt.show()
