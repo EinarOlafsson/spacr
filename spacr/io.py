@@ -2854,6 +2854,12 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
     else:
         print(f'mode:{mode} is not valid, use mode = train or test')
         return
+    
+    class_1_path = os.path.join(data_dir, classes[0])
+    class_2_path = os.path.join(data_dir, classes[1])
+    if not os.path.exists(class_1_path) or not os.path.exists(class_2_path):
+        print(f'One or more classes not found in {data_dir}')
+        print (f'Possible class names are {os.listdir(data_dir)}')
 
     data = spacrDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
     num_workers = n_jobs if n_jobs is not None else 0
@@ -2922,7 +2928,8 @@ def generate_training_dataset(settings):
     # Function to get the smallest class size based on the dataset mode
     def get_smallest_class_size(df, settings, dataset_mode):
         if dataset_mode == 'metadata':
-            sizes = [len(df[df['metadata_based_class'] == c]) for c in settings['classes']]
+            sizes = [len(df[df['condition'] == c]) for c in settings['class_metadata']]
+            print(f'Class sizes: {sizes}')
         elif dataset_mode == 'annotation':
             sizes = [len(class_paths) for class_paths in df]
         size = min(sizes)
@@ -2977,15 +2984,29 @@ def generate_training_dataset(settings):
     def metadata_based_selection(db_path, settings):
         class_paths_ls = []
         df = filter_png_list(db_path, settings, tables=settings['tables'])
+                
+        df = annotate_conditions(df,
+                                 cells=None,
+                                 cell_loc=None,
+                                 pathogens=settings['metadata_item_1_name'],
+                                 pathogen_loc=settings['metadata_item_1_value'],
+                                 treatments=settings['metadata_item_2_name'],
+                                 treatment_loc=settings['metadata_item_2_value'])
         
-        df['metadata_based_class'] = pd.NA
-        for i, class_ in enumerate(settings['classes']):
-            ls = settings['class_metadata'][i]
-            df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
+        #if settings['metadata_type_by'] == 'condition':
+        df = df.dropna(subset=['condition'])
+            
+        display(df)
+            
+        #df['metadata_based_class'] = pd.NA
+        #for i, class_ in enumerate(settings['classes']):
+        #    ls = settings['class_metadata'][i]
+        #    df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
 
         size = get_smallest_class_size(df, settings, 'metadata')
-        for class_ in settings['classes']:
-            class_temp_df = df[df['metadata_based_class'] == class_]
+        
+        for class_ in settings['class_metadata']:
+            class_temp_df = df[df['condition'] == class_]
             print(f'Found {len(class_temp_df)} images for class {class_}')
             class_paths_temp = class_temp_df['png_path'].tolist()
 
@@ -3001,10 +3022,11 @@ def generate_training_dataset(settings):
     def annotation_based_selection(db_path, dst, settings):
         class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
 
-        #size = get_smallest_class_size(class_paths_ls, settings, 'annotation')
-        #for i, class_paths in enumerate(class_paths_ls):
-        #    if len(class_paths) > size:
-        #        class_paths_ls[i] = random.sample(class_paths, size)
+        return class_paths_ls
+    
+    # Metadata-Annotation-based selection logic
+    def metadata_annotation_based_selection(db_path, dst, settings):
+        class_paths_ls = training_dataset_from_annotation_metadata(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'], metadata_type_by=settings['metadata_type_by'], class_metadata=settings['class_metadata'])
 
         return class_paths_ls
     
@@ -3053,6 +3075,14 @@ def generate_training_dataset(settings):
 
         elif settings['dataset_mode'] == 'measurement':
             class_paths_ls = measurement_based_selection(settings, db_path, tables=settings['tables'])
+            
+        elif settings['dataset_mode'] == 'metadata_annotation':
+            class_paths_ls = metadata_annotation_based_selection(db_path, dst, settings)
+            
+        else:
+            print(f"Invalid dataset mode: {settings['dataset_mode']}")
+            print(f"Valid options are: 'annotation', 'metadata', 'measurement', 'metadata_annotation'")
+            return
         
         if class_path_list is None:
             class_path_list = [[] for _ in range(len(class_paths_ls))]
@@ -3063,7 +3093,7 @@ def generate_training_dataset(settings):
 
     # Generate and return training and testing directories
     print('class_path_list',len(class_path_list))
-    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_path_list, classes=settings['classes'], test_split=settings['test_split'])
+    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_path_list, classes=settings['class_metadata'], test_split=settings['test_split'])
 
     return train_class_dir, test_class_dir
 
@@ -3104,11 +3134,16 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
         alt_class_paths = [path for path, annotation in all_paths if annotation != target_class]
         print('Alternative paths available:', len(alt_class_paths))
         
-        # Randomly sample an equal number of images for the second class
-        sampled_alt_class_paths = random.sample(alt_class_paths, min(count_target_class, len(alt_class_paths)))
-        print(f'Sampled {len(sampled_alt_class_paths)} alternative images for balancing')
+        # Sample the same number of images for both classes
+        balanced_count = min(count_target_class, len(alt_class_paths))
+        print(f'Sampling {balanced_count} images for each class')
+
+        # Resample target class to match the smaller size
+        sampled_target_class_paths = random.sample(class_paths[0], balanced_count)
+        sampled_alt_class_paths = random.sample(alt_class_paths, balanced_count)
         
-        # Append this list as the second class
+        # Update class paths
+        class_paths[0] = sampled_target_class_paths
         class_paths.append(sampled_alt_class_paths)
 
     print(f'Generated a list of lists from annotation of {len(class_paths)} classes')
@@ -3117,7 +3152,7 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
         
     return class_paths
 
-def training_dataset_from_annotation_v2(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
+def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='column_name', class_metadata=['c1','c2']):
     all_paths = []
 
     # Connect to the database and retrieve the image paths and annotations
@@ -3125,7 +3160,7 @@ def training_dataset_from_annotation_v2(db_path, dst, annotation_column='test', 
     with sqlite3.connect(db_path) as conn:
         cursor = conn.cursor()
         # Retrieve all paths and annotations from the database
-        query = f"SELECT png_path, {annotation_column} FROM png_list"
+        query = f"SELECT png_path, {annotation_column}, row_name, column_name FROM png_list"
         cursor.execute(query)
         
         while True:
@@ -3136,6 +3171,20 @@ def training_dataset_from_annotation_v2(db_path, dst, annotation_column='test', 
                 all_paths.append(row)
 
     print('Total paths retrieved:', len(all_paths))
+    
+    # Filter all_paths by metadata_type_by and class_metadata
+    filtered_paths = []
+    metadata_index = {'row_name': 2, 'column_name': 3}.get(metadata_type_by, None)
+    if metadata_index is None:
+        raise ValueError(f"Invalid metadata_type_by value: {metadata_type_by}. Must be 'row_name' or 'column_name'. {class_metadata} must be a list formatted as ['c1', 'c2'] or ['r1', 'r2']")
+
+    for row in all_paths:
+        if row[metadata_index] in class_metadata:
+            filtered_paths.append(row)
+
+    print('Total filtered paths:', len(filtered_paths))
+    #all_paths = filtered_paths
+    all_paths = [(row[0], row[1]) for row in filtered_paths]
     
     # Filter paths based on annotated_classes
     class_paths = []
@@ -3154,11 +3203,16 @@ def training_dataset_from_annotation_v2(db_path, dst, annotation_column='test', 
         alt_class_paths = [path for path, annotation in all_paths if annotation != target_class]
         print('Alternative paths available:', len(alt_class_paths))
         
-        # Randomly sample an equal number of images for the second class
-        sampled_alt_class_paths = random.sample(alt_class_paths, min(count_target_class, len(alt_class_paths)))
-        print(f'Sampled {len(sampled_alt_class_paths)} alternative images for balancing')
+        # Sample the same number of images for both classes
+        balanced_count = min(count_target_class, len(alt_class_paths))
+        print(f'Sampling {balanced_count} images for each class')
+
+        # Resample target class to match the smaller size
+        sampled_target_class_paths = random.sample(class_paths[0], balanced_count)
+        sampled_alt_class_paths = random.sample(alt_class_paths, balanced_count)
         
-        # Append this list as the second class
+        # Update class paths
+        class_paths[0] = sampled_target_class_paths
         class_paths.append(sampled_alt_class_paths)
 
     print(f'Generated a list of lists from annotation of {len(class_paths)} classes')
