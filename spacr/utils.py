@@ -1368,6 +1368,7 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
         lambda x: '_'.join([str(v) for v in [x.get('host_cells'), x.get('pathogen'), x.get('treatment')] if pd.notna(v)]), 
         axis=1
     )
+    df.loc[df['condition'] == '', 'condition'] = pd.NA
 
     return df
 
