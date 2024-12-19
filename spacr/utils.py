@@ -4277,6 +4277,12 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     
     if remove_highly_correlated_features:
         df = remove_highly_correlated_columns(df, threshold=0.95, verbose=verbose)
+        
+    # Remove columns with NaN values
+    before_drop_NaN = len(df.columns)
+    df = df.dropna(axis=1)
+    after_drop_NaN = len(df.columns)
+    print(f"Dropped {before_drop_NaN - after_drop_NaN} columns with NaN values")
 
     # Select numerical features
     features = df.select_dtypes(include=[np.number]).columns.tolist()
@@ -4759,7 +4765,8 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
     shap_fig_path = os.path.join(res_fldr, 'shap.pdf')
     plate_heatmap_path = os.path.join(res_fldr, 'plate_heatmap.pdf')
     settings_csv = os.path.join(res_fldr, 'ml_settings.csv')
-    return data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv
+    ml_features = os.path.join(res_fldr, 'ml_features.csv')
+    return data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features
 
 def augment_image(image):
     """

@@ -283,7 +283,10 @@ def set_default_analyze_screen(settings):
     settings.setdefault('cmap','viridis')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('minimum_cell_count',25)
-    settings.setdefault('n_estimators',100)
+    settings.setdefault('reg_alpha',0.1)
+    settings.setdefault('reg_lambda',1.0)
+    settings.setdefault('learning_rate',0.001)
+    settings.setdefault('n_estimators',1000)
     settings.setdefault('test_size',0.2)
     settings.setdefault('location_column','column_name')
     settings.setdefault('positive_control','c2')
@@ -296,6 +299,8 @@ def set_default_analyze_screen(settings):
     settings.setdefault('remove_low_variance_features',True)
     settings.setdefault('remove_highly_correlated_features',True)
     settings.setdefault('n_jobs',-1)
+    settings.setdefault('prune_features',False)
+    settings.setdefault('cross_validation',True)
     settings.setdefault('verbose',True)
     return settings
 
@@ -872,6 +877,13 @@ expected_types = {
     "target_layer":str,
     "save_to_db":bool,
     "test_mode":bool,
+    "test_images":int,
+    "remove_background_cell":bool,
+    "remove_background_nucleus":bool,
+    "remove_background_pathogen":bool,
+    "figuresize":int,
+    "cmap":str,
+    "pathogen_model":str,
     "normalize_input":bool,
 }
 
