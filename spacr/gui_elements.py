@@ -667,7 +667,7 @@ class spacrProgressBar(ttk.Progressbar):
         # Remove any borders and ensure the active color fills the entire space
         self.style.configure(
             "spacr.Horizontal.TProgressbar",
-            troughcolor=self.inactive_color,       # Set the trough to bg color
+            troughcolor=self.inactive_color, # Set the trough to bg color
             background=self.active_color,    # Active part is the active color
             borderwidth=0,                   # Remove border width
             pbarrelief="flat",               # Flat relief for the progress bar

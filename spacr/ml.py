@@ -27,6 +27,9 @@ from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer
 from patsy import dmatrices
 
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -1165,21 +1168,29 @@ def generate_ml_scores(settings):
 
     settings = set_default_analyze_screen(settings)
 
-    src = settings['src']
+    srcs = settings['src']
 
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
     display(settings_df)
-
-    db_loc = [src+'/measurements/measurements.db']
-    tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
-
-    nuclei_limit, pathogen_limit = settings['nuclei_limit'], settings['pathogen_limit']
     
-    df, _ = _read_and_merge_data(db_loc, 
-                                 tables,
-                                 settings['verbose'],
-                                 nuclei_limit,
-                                 pathogen_limit)
+    if isinstance(srcs, str):
+        srcs = [srcs]
+    
+    df = pd.DataFrame()
+    for idx, src in enumerate(srcs):
+        
+        if idx == 0:
+            src1 = src
+
+        db_loc = [src+'/measurements/measurements.db']
+        tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
+        
+        dft, _ = _read_and_merge_data(db_loc, 
+                                    tables,
+                                    settings['verbose'],
+                                    nuclei_limit=settings['nuclei_limit'],
+                                    pathogen_limit=settings['pathogen_limit'])
+        df = pd.concat([df, dft])
     
     if settings['annotation_column'] is not None:
 
@@ -1191,6 +1202,7 @@ def generate_ml_scores(settings):
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         df = annotated_df.merge(df, left_index=True, right_index=True)
         unique_values = df[settings['annotation_column']].dropna().unique()
+        
         if len(unique_values) == 1:
             unannotated_rows = df[df[settings['annotation_column']].isna()].index
             existing_value = unique_values[0]
@@ -1213,8 +1225,8 @@ def generate_ml_scores(settings):
             df[settings['annotation_column']] = df[settings['annotation_column']].apply(str)
     
     if settings['channel_of_interest'] in [0,1,2,3]:
-
-        df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+        if f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity" and f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity" in df.columns:
+            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
     
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
@@ -1224,18 +1236,24 @@ def generate_ml_scores(settings):
                                settings['exclude'],
                                settings['n_repeats'],
                                settings['top_features'],
+                               settings['reg_alpha'],
+                               settings['reg_lambda'],
+                               settings['learning_rate'],                               
                                settings['n_estimators'],
                                settings['test_size'],
                                settings['model_type_ml'],
                                settings['n_jobs'],
                                settings['remove_low_variance_features'],
                                settings['remove_highly_correlated_features'],
+                               settings['prune_features'],
+                               settings['cross_validation'],
                                settings['verbose'])
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
 
     features = output[0].select_dtypes(include=[np.number]).columns.tolist()
-
+    train_features_df = pd.DataFrame(output[9], columns=['feature'])
+    
     if not settings['heatmap_feature'] in features:
         raise ValueError(f"Variable {settings['heatmap_feature']} not found in the dataframe. Please choose one of the following: {features}")
     
@@ -1247,15 +1265,16 @@ def generate_ml_scores(settings):
                                 min_count=settings['minimum_cell_count'],
                                 verbose=settings['verbose'])
 
-    data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv = get_ml_results_paths(src, settings['model_type_ml'], settings['channel_of_interest'])
-    df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df = output
+    data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features = get_ml_results_paths(src1, settings['model_type_ml'], settings['channel_of_interest'])
+    df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df, _ = output
 
     settings_df.to_csv(settings_csv, index=False)
     df.to_csv(data_path, mode='w', encoding='utf-8')
     permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
     feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
+    train_features_df.to_csv(ml_features, mode='w', encoding='utf-8')
     metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
-    
+
     plate_heatmap.savefig(plate_heatmap_path, format='pdf')
     figs[0].savefig(permutation_fig_path, format='pdf')
     figs[1].savefig(feature_importance_fig_path, format='pdf')
@@ -1263,7 +1282,7 @@ def generate_ml_scores(settings):
 
     if settings['save_to_db']:
         settings['csv_path'] = data_path
-        settings['db_path'] = os.path.join(src, 'measurements', 'measurements.db')
+        settings['db_path'] = os.path.join(src1, 'measurements', 'measurements.db')
         settings['table_name'] = 'png_list'
         settings['update_column'] = 'predictions'
         settings['match_column'] = 'prcfo'
@@ -1271,7 +1290,7 @@ def generate_ml_scores(settings):
 
     return [output, plate_heatmap]
 
-def ml_analysis(df, channel_of_interest=3, location_column='column_name', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, n_estimators=100, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
+def ml_analysis(df, channel_of_interest=3, location_column='column_name', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
     
     """
     Calculates permutation importance for numerical features in the dataframe,
@@ -1313,7 +1332,8 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
     if verbose:
         print(f'Found {len(features)} numerical features in the dataframe')
         print(f'Features used in training: {features}')
-
+        print(f'Features: {features}')
+        
     df = pd.concat([df, df_metadata[location_column]], axis=1)
 
     # Subset the dataframe based on specified column values
@@ -1327,14 +1347,26 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
     # Combine the subsets for analysis
     combined_df = pd.concat([df1, df2])
     combined_df = combined_df.drop(columns=[location_column])
+    
     if verbose:
         print(f'Found {len(df1)} samples for {negative_control} and {len(df2)} samples for {positive_control}. Total: {len(combined_df)}')
-
+    
     X = combined_df[features]
     y = combined_df['target']
-
-    print(X)
-    print(y)
+    
+    if prune_features:
+        before_pruning = len(X.columns)
+        selector = SelectKBest(score_func=f_classif, k=top_features)
+        X_selected = selector.fit_transform(X, y)
+        
+        # Get the selected feature names
+        selected_features = X.columns[selector.get_support()]
+        X = pd.DataFrame(X_selected, columns=selected_features, index=X.index)
+        
+        features = selected_features.tolist()
+        
+        after_pruning = len(X.columns)
+        print(f"Removed {before_pruning - after_pruning} features using SelectKBest")
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
@@ -1353,12 +1385,102 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)  # Supports n_jobs internally
     elif model_type == 'xgboost':
-        model = XGBClassifier(n_estimators=n_estimators, random_state=random_state, nthread=n_jobs, use_label_encoder=False, eval_metric='logloss')
+        model = XGBClassifier(reg_alpha=reg_alpha, reg_lambda=reg_lambda, learning_rate=learning_rate, n_estimators=n_estimators, random_state=random_state, nthread=n_jobs, use_label_encoder=False, eval_metric='logloss')
+        
     else:
         raise ValueError(f"Unsupported model_type: {model_type}")
 
-    model.fit(X_train, y_train)
+    # Perform k-fold cross-validation
+    if cross_validation:
+        
+        # Cross-validation setup
+        kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
+        fold_metrics = []
 
+        for fold_idx, (train_index, test_index) in enumerate(kfold.split(X, y), start=1):
+            X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+            y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+            # Train the model
+            model.fit(X_train, y_train)
+
+            # Predict for the current test set
+            predictions_test = model.predict(X_test)
+            combined_df.loc[X_test.index, 'predictions'] = predictions_test
+
+            # Get prediction probabilities for the test set
+            prediction_probabilities_test = model.predict_proba(X_test)
+
+            # Find the optimal threshold
+            optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
+            if verbose:
+                print(f'Fold {fold_idx} - Optimal threshold: {optimal_threshold}')
+
+            # Assign predictions and probabilities to the test set in the DataFrame
+            df.loc[X_test.index, 'predictions'] = predictions_test
+            for i in range(prediction_probabilities_test.shape[1]):
+                df.loc[X_test.index, f'prediction_probability_class_{i}'] = prediction_probabilities_test[:, i]
+
+            # Evaluate performance for the current fold
+            fold_report = classification_report(y_test, predictions_test, output_dict=True)
+            fold_metrics.append(pd.DataFrame(fold_report).transpose())
+
+            if verbose:
+                print(f"Fold {fold_idx} Classification Report:")
+                print(classification_report(y_test, predictions_test))
+
+        # Aggregate metrics across all folds
+        metrics_df = pd.concat(fold_metrics).groupby(level=0).mean()
+
+        # Re-train on full data (X, y) and then apply to entire df
+        model.fit(X, y)  
+        all_predictions = model.predict(df[features])  # Predict on entire df
+        df['predictions'] = all_predictions
+
+        # Get prediction probabilities for all rows in df
+        prediction_probabilities = model.predict_proba(df[features])
+        for i in range(prediction_probabilities.shape[1]):
+            df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
+
+        if verbose:
+            print("\nFinal Classification Report on Full Dataset:")
+            print(classification_report(y, all_predictions))
+
+        # Generate metrics DataFrame
+        final_report_dict = classification_report(y, all_predictions, output_dict=True)
+        metrics_df = pd.DataFrame(final_report_dict).transpose()
+    
+    else:
+        model.fit(X_train, y_train)
+        # Predicting the target variable for the test set
+        predictions_test = model.predict(X_test)
+        combined_df.loc[X_test.index, 'predictions'] = predictions_test
+
+        # Get prediction probabilities for the test set
+        prediction_probabilities_test = model.predict_proba(X_test)
+
+        # Find the optimal threshold
+        optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
+        if verbose:
+            print(f'Optimal threshold: {optimal_threshold}')
+
+        # Predicting the target variable for all other rows in the dataframe
+        X_all = df[features]
+        all_predictions = model.predict(X_all)
+        df['predictions'] = all_predictions
+
+        # Get prediction probabilities for all rows in the dataframe
+        prediction_probabilities = model.predict_proba(X_all)
+        for i in range(prediction_probabilities.shape[1]):
+            df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
+            
+        if verbose:
+            print("\nClassification Report:")
+            print(classification_report(y_test, predictions_test))
+            
+        report_dict = classification_report(y_test, predictions_test, output_dict=True)
+        metrics_df = pd.DataFrame(report_dict).transpose()
+        
     perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
 
     # Create a DataFrame for permutation importances
@@ -1387,40 +1509,13 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
     else:
         feature_importance_df = pd.DataFrame()
 
-    # Predicting the target variable for the test set
-    predictions_test = model.predict(X_test)
-    combined_df.loc[X_test.index, 'predictions'] = predictions_test
-
-    # Get prediction probabilities for the test set
-    prediction_probabilities_test = model.predict_proba(X_test)
-
-    # Find the optimal threshold
-    optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
-    if verbose:
-        print(f'Optimal threshold: {optimal_threshold}')
-
-    # Predicting the target variable for all other rows in the dataframe
-    X_all = df[features]
-    all_predictions = model.predict(X_all)
-    df['predictions'] = all_predictions
-
-    # Get prediction probabilities for all rows in the dataframe
-    prediction_probabilities = model.predict_proba(X_all)
-    for i in range(prediction_probabilities.shape[1]):
-        df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
-    if verbose:
-        print("\nClassification Report:")
-        print(classification_report(y_test, predictions_test))
-    report_dict = classification_report(y_test, predictions_test, output_dict=True)
-    metrics_df = pd.DataFrame(report_dict).transpose()
-
     df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
     df['prcfo'] = df.index.astype(str)
     df[['plate', 'row_name', 'column_name', 'field', 'object']] = df['prcfo'].str.split('_', expand=True)
     df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column_name']
     
-    return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df], [permutation_fig, feature_importance_fig]
+    return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
 def shap_analysis(model, X_train, X_test):
     
@@ -1495,9 +1590,9 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
         inv_cov_matrix = np.linalg.inv(cov_matrix + np.eye(cov_matrix.shape[0]) * epsilon)
         
     # Calculate similarity scores
-    def safe_similarity(func, row, control):
+    def safe_similarity(func, row, control, *args, **kwargs):
         try:
-            return func(row, control)
+            return func(row, control, *args, **kwargs)
         except Exception:
             return np.nan
         
