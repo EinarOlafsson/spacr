@@ -169,7 +169,7 @@ def display_figure(fig):
             #flash_feedback("right")
             show_next_figure()
 
-    def zoom(event):
+    def zoom_v1(event):
         nonlocal scale_factor
 
         zoom_speed = 0.1  # Adjust the zoom speed for smoother experience
@@ -197,6 +197,70 @@ def display_figure(fig):
 
         # Redraw the figure efficiently
         canvas.draw_idle()
+        
+    def zoom_test(event):
+        if event.num == 4:  # Scroll up
+            print("zoom in")
+        elif event.num == 5: # Scroll down
+            print("zoom out")
+            
+    def zoom_2(event):
+        zoom_speed = 0.1  # Change this to control how fast you zoom
+
+        # Determine the zoom direction based on the scroll event
+        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):  # Scroll up = zoom in
+            factor = 1 - zoom_speed
+        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0): # Scroll down = zoom out
+            factor = 1 + zoom_speed
+        else:
+            return  # No recognized scroll direction
+
+        for ax in canvas.figure.get_axes():
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            x_center = (xlim[1] + xlim[0]) / 2
+            y_center = (ylim[1] + ylim[0]) / 2
+
+            x_range = (xlim[1] - xlim[0]) * factor
+            y_range = (ylim[1] - ylim[0]) * factor
+
+            # Set the new limits
+            ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
+            ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
+
+        # Redraw the figure efficiently
+        canvas.draw_idle()
+        
+    def zoom(event):
+        # Fixed zoom factors (adjust these if you want faster or slower zoom)
+        zoom_in_factor = 0.9   # When zooming in, ranges shrink by 10%
+        zoom_out_factor = 1.1  # When zooming out, ranges increase by 10%
+
+        # Determine the zoom direction based on the scroll event
+        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):  # Scroll up = zoom in
+            factor = zoom_in_factor
+        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0): # Scroll down = zoom out
+            factor = zoom_out_factor
+        else:
+            return  # No recognized scroll direction
+
+        for ax in canvas.figure.get_axes():
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            x_center = (xlim[1] + xlim[0]) / 2
+            y_center = (ylim[1] + ylim[0]) / 2
+
+            x_range = (xlim[1] - xlim[0]) * factor
+            y_range = (ylim[1] - ylim[0]) * factor
+
+            # Set the new limits
+            ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
+            ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
+
+        # Redraw the figure efficiently
+        canvas.draw_idle()
 
 
     # Bind events for hover, click interactions, and zoom
@@ -205,19 +269,20 @@ def display_figure(fig):
     canvas_widget.bind("<Button-1>", on_click)
     canvas_widget.bind("<Button-3>", on_right_click)
 
-
     # Detect the operating system and bind the appropriate mouse wheel events
     current_os = platform.system()
 
     if current_os == "Windows":
         canvas_widget.bind("<MouseWheel>", zoom)  # Windows
-    elif current_os == "Darwin":  # macOS
+    elif current_os == "Darwin":
         canvas_widget.bind("<MouseWheel>", zoom)
         canvas_widget.bind("<Button-4>", zoom)  # Scroll up
         canvas_widget.bind("<Button-5>", zoom)  # Scroll down
     elif current_os == "Linux":
         canvas_widget.bind("<Button-4>", zoom)  # Linux Scroll up
         canvas_widget.bind("<Button-5>", zoom)  # Linux Scroll down
+        
+    process_fig_queue()
 
 def clear_unused_figures():
     global figures, figure_index
@@ -230,71 +295,97 @@ def clear_unused_figures():
     figure_index = min(max(figure_index, 0), len(figures) - 1)
 
 def show_previous_figure():
-    global figure_index, figures, fig_queue
+    from .gui_elements import standardize_figure
+    global figure_index, figures, fig_queue, index_control
     
     if figure_index is not None and figure_index > 0:
         figure_index -= 1
+        index_control.set(figure_index)
+        figures[figure_index] = standardize_figure(figures[figure_index])
         display_figure(figures[figure_index])
-        clear_unused_figures()
+        #clear_unused_figures()
 
 def show_next_figure():
-    global figure_index, figures, fig_queue
+    from .gui_elements import standardize_figure
+    global figure_index, figures, fig_queue, index_control
     if figure_index is not None and figure_index < len(figures) - 1:
         figure_index += 1
+        index_control.set(figure_index)
+        index_control.set_to(len(figures) - 1)
+        figures[figure_index] = standardize_figure(figures[figure_index])
         display_figure(figures[figure_index])
-        clear_unused_figures()
+        #clear_unused_figures()
+        
     elif figure_index == len(figures) - 1 and not fig_queue.empty():
         fig = fig_queue.get_nowait()
         figures.append(fig)
         figure_index += 1
+        index_control.set(figure_index)
+        index_control.set_to(len(figures) - 1)
         display_figure(fig)
-                       
+
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
-
     from .gui_elements import standardize_figure
+
+    #print("process_fig_queue called", flush=True)
     try:
+        got_new_figure = False
         while not fig_queue.empty():
             fig = fig_queue.get_nowait()
+            #print("Got a figure from fig_queue", flush=True)
 
             if fig is None:
-                print("Warning: Retrieved a None figure from fig_queue.")
-                continue  # Skip processing if the figure is None
+                print("Warning: Retrieved a None figure from fig_queue.", flush=True)
+                continue
 
-            # Standardize the figure appearance before adding it to the list
+            # Standardize the figure appearance before adding it
             fig = standardize_figure(fig)
-
             figures.append(fig)
 
-            # Update the slider range and set the value to the latest figure index
+            # Update slider maximum
             index_control.set_to(len(figures) - 1)
+            #print("New maximum slider value after adding a figure:", index_control.to, flush=True)
 
+            # If no figure has been displayed yet
             if figure_index == -1:
-                figure_index += 1
+                figure_index = 0
                 display_figure(figures[figure_index])
                 index_control.set(figure_index)
-            
+                #print("Displayed the first figure and set slider value to 0", flush=True)
+
+            #got_new_figure = True
+
+        #if not got_new_figure:
+            # No new figures this time
+            #print("No new figures found in the queue this iteration.", flush=True)
+
     except Exception as e:
+        print("Exception in process_fig_queue:", e, flush=True)
         traceback.print_exc()
+
     finally:
+        # Schedule process_fig_queue() to run again
         after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
+        #print("process_fig_queue scheduled again", flush=True)
 
 def update_figure(value):
-    global figure_index, figures
-
+    from .gui_elements import standardize_figure
+    global figure_index, figures, index_control
+    
     # Convert the value to an integer
     index = int(value)
     
     # Check if the index is valid
     if 0 <= index < len(figures):
         figure_index = index
+        figures[figure_index] = standardize_figure(figures[figure_index])
         display_figure(figures[figure_index])
-
-    # Update the index control widget's range and value
-    index_control.set_to(len(figures) - 1)
-    index_control.set(figure_index)
-
+        index_control.set(figure_index)
+        print("update_figure called with value:", figure_index)
+        index_control.set_to(len(figures) - 1)
+        
 def setup_plot_section(vertical_container, settings_type):
     global canvas, canvas_widget, figures, figure_index, index_control
     from .gui_utils import display_media_in_plot_frame
@@ -305,29 +396,29 @@ def setup_plot_section(vertical_container, settings_type):
 
     # Initialize deque for storing figures and the current index
     figures = deque()
+    figure_index = -1  # Start with no figure displayed
 
     # Create a frame for the plot section
     plot_frame = tk.Frame(vertical_container)
     plot_frame.configure(bg=bg)
     vertical_container.add(plot_frame, stretch="always")
 
-    # Clear the plot_frame (optional, to handle cases where it may already have content)
+    # Clear the plot_frame (optional)
     for widget in plot_frame.winfo_children():
         widget.destroy()
 
-    # Create a figure and plot
+    # Create a figure and plot (initial figure)
     figure = Figure(figsize=(30, 4), dpi=100)
     plot = figure.add_subplot(111)
     plot.plot([], [])
     plot.axis('off')
 
     if settings_type == 'map_barcodes':
-        # Load and display GIF
         current_dir = os.path.dirname(__file__)
         resources_path = os.path.join(current_dir, 'resources', 'icons')
         gif_path = os.path.join(resources_path, 'dna_matrix.mp4')
-
         display_media_in_plot_frame(gif_path, plot_frame)
+
         canvas = FigureCanvasTkAgg(figure, master=plot_frame)
         canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
         canvas_widget = canvas.get_tk_widget()
@@ -348,10 +439,11 @@ def setup_plot_section(vertical_container, settings_type):
     # Create slider
     control_frame = tk.Frame(plot_frame, height=15*2,  bg=bg)
     control_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
-    control_frame.grid_propagate(False) 
+    control_frame.grid_propagate(False)
 
-    # Pass the update_figure function as the command to spacrSlider
-    index_control = spacrSlider(control_frame, from_=0, to=0, value=0, thickness=2, knob_radius=10, position="center", show_index=True, command=update_figure)
+    index_control = spacrSlider(control_frame, from_=0, to=0, value=0, thickness=2, knob_radius=10,
+                                position="center", show_index=True, command=update_figure)
+    
     index_control.grid(row=0, column=0, sticky="ew")
     control_frame.grid_columnconfigure(0, weight=1)
 
@@ -359,10 +451,17 @@ def setup_plot_section(vertical_container, settings_type):
     style = ttk.Style(vertical_container)
     _ = set_dark_style(style, containers=containers, widgets=widgets)
 
+    # Now ensure the first figure is displayed and recognized:
+    figures.append(figure)
+    figure_index = 0
+    display_figure(figures[figure_index])
+    index_control.set_to(len(figures) - 1)   # Slider max = 0 in this case, since there's only one figure
+    index_control.set(figure_index)          # Set slider to 0 to indicate the first figure
+
     return canvas, canvas_widget
 
-def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, figures_var, figure_index_var, index_control_var, progress_bar_var, usage_bars_var):
-    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, progress_bar, usage_bars, index_control
+def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
+    global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
     thread_control = thread_control_var
     q = q_var
     console_output = console_output_var
@@ -372,11 +471,11 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     canvas_widget = canvas_widget_var
     scrollable_frame = scrollable_frame_var
     fig_queue = fig_queue_var
-    figures = figures_var
-    figure_index = figure_index_var
+    #figures = figures_var
+    #figure_index = figure_index_var
+    #index_control = index_control_var
     progress_bar = progress_bar_var
     usage_bars = usage_bars_var
-    index_control = index_control_var
 
 def import_settings(settings_type='mask'):
     global vars_dict, scrollable_frame, button_scrollable_frame
@@ -606,6 +705,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
         widgets.append(import_button)
         btn_row += 1
 
+    btn_row += 1
     # Add the batch progress bar
     progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
     progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
@@ -853,7 +953,8 @@ def process_console_queue():
                     if progress_bar:
                         progress_bar['maximum'] = total_progress
                         progress_bar['value'] = unique_progress_count
-
+                        #print("Current progress bar value:", progress_bar['value']) # Debugg
+                        
                     # Store operation type and additional info
                     if operation_type:
                         progress_bar.operation_type = operation_type
@@ -955,7 +1056,7 @@ def initiate_root(parent, settings_type='mask'):
         else:
             usage_bars = []
 
-        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, figures, figure_index, index_control, progress_bar, usage_bars)
+        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
         description_text = descriptions.get(settings_type, "No description available for this module.")
         
         q.put(f"Console")

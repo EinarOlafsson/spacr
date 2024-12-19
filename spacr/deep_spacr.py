@@ -351,7 +351,7 @@ def train_test_model(settings):
     settings['dst'] = dst
     
     if settings['custom_model']:
-        model = torch.load(settings['custom_model_path'])
+        model = torch.load(settings['custom_model'])
     
     if settings['train']:
         if settings['train'] and settings['test']:
