@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.app_annotate &mdash; spacr 0.2.65 documentation</title>
+  <title>spacr.app_annotate &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
+0.3.80 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -33,9 +32,6 @@
           <a href="../../index.html" class="icon icon-home">
             spacr
           </a>
-              <div class="version">
-                0.2.65
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -79,10 +75,22 @@
 <span class="kn">from</span> <span class="nn">.gui</span> <span class="kn">import</span> <span class="n">MainApp</span>
 <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span><span class="p">,</span> <span class="n">spacrButton</span>
 
+<div class="viewcode-block" id="convert_to_number">
+<a class="viewcode-back" href="../../spacr.html#spacr.app_annotate.convert_to_number">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_to_number</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to convert &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; to an integer or float.&quot;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="initiate_annotation_app">
 <a class="viewcode-back" href="../../spacr.html#spacr.app_annotate.initiate_annotation_app">[docs]</a>
 <span class="k">def</span> <span class="nf">initiate_annotation_app</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">generate_annotate_fields</span><span class="p">,</span> <span class="n">annotate_app</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">generate_annotate_fields</span><span class="p">,</span> <span class="n">annotate_app</span><span class="p">,</span> <span class="n">convert_to_number</span>
     <span class="c1"># Set up the settings window</span>
     <span class="n">settings_window</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">)</span>
     <span class="n">settings_window</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Annotation Settings&quot;</span><span class="p">)</span>
@@ -96,9 +104,9 @@
         <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;entry&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">vars_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
         <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>  <span class="c1"># Convert string to list of integers</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>  <span class="c1"># Convert string to list of integers</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">convert_to_number</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span> <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">98</span><span class="p">]</span>
         <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
-
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_channels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_channels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">])</span>
@@ -116,7 +124,6 @@
                 <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">settings_window</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
-
         <span class="n">annotate_app</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
     
     <span class="n">start_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">settings_window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;annotate&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">start_annotation_app</span><span class="p">,</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

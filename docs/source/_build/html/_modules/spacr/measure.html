@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.measure &mdash; spacr 0.2.65 documentation</title>
+  <title>spacr.measure &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
+0.3.80 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -33,9 +32,6 @@
           <a href="../../index.html" class="icon icon-home">
             spacr
           </a>
-              <div class="version">
-                0.2.65
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -92,7 +88,6 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span><span class="p">,</span> <span class="n">sqrt</span>
 
-<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">log_function_call</span>
 
 <div class="viewcode-block" id="get_components">
 <a class="viewcode-back" href="../../spacr.html#spacr.measure.get_components">[docs]</a>
@@ -739,46 +734,6 @@
     <span class="k">return</span> <span class="n">fig</span></div>
 
 
-<div class="viewcode-block" id="filepaths_to_database">
-<a class="viewcode-back" href="../../spacr.html#spacr.measure.filepaths_to_database">[docs]</a>
-<span class="k">def</span> <span class="nf">filepaths_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">crop_mode</span><span class="p">):</span>
-    <span class="n">from</span><span class="o">.</span> <span class="n">utils</span> <span class="kn">import</span> <span class="nn">_map_wells_png</span>
-    <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
-
-    <span class="n">png_df</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">png_df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-
-    <span class="n">parts</span> <span class="o">=</span> <span class="n">png_df</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">_map_wells_png</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">timelapse</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">])))</span>
-
-    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;plate&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span> <span class="s1">&#39;field&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]:</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;time_id&#39;</span><span class="p">]</span>
-
-    <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;prcfo&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s1">&#39;cell&#39;</span><span class="p">:</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;cell_id&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;nucleus_id&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">:</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;pathogen_id&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">:</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;cytoplasm_id&#39;</span><span class="p">]</span>
-
-    <span class="n">png_df</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">source_folder</span><span class="si">}</span><span class="s1">/measurements/measurements.db&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-        <span class="n">png_df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;png_list&#39;</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-    <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">OperationalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SQLite error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
-
-
 <span class="c1">#@log_function_call</span>
 <span class="k">def</span> <span class="nf">_measure_crop_core</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">time_ls</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
 
@@ -801,7 +756,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_plot_cropped_arrays</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_merge_overlapping_objects</span><span class="p">,</span> <span class="n">_filter_object</span><span class="p">,</span> <span class="n">_relabel_parent_with_child_labels</span><span class="p">,</span> <span class="n">_exclude_objects</span><span class="p">,</span> <span class="n">normalize_to_dtype</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_merge_overlapping_objects</span><span class="p">,</span> <span class="n">_filter_object</span><span class="p">,</span> <span class="n">_relabel_parent_with_child_labels</span><span class="p">,</span> <span class="n">_exclude_objects</span><span class="p">,</span> <span class="n">normalize_to_dtype</span><span class="p">,</span> <span class="n">filepaths_to_database</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_merge_and_save_to_database</span><span class="p">,</span> <span class="n">_crop_center</span><span class="p">,</span> <span class="n">_find_bounding_box</span><span class="p">,</span> <span class="n">_generate_names</span><span class="p">,</span> <span class="n">_get_percentiles</span>
 
     <span class="n">figs</span> <span class="o">=</span> <span class="p">{}</span>
@@ -837,7 +792,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
             <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_uninfected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;uninfected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nucleus_mask</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span>
@@ -888,12 +843,10 @@
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">cytoplasm_mask</span> <span class="o">=</span> <span class="n">_filter_object</span><span class="p">(</span><span class="n">cytoplasm_mask</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">cytoplasm_mask</span> <span class="o">=</span> <span class="n">_exclude_objects</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">cytoplasm_mask</span><span class="p">,</span> <span class="n">include_uninfected</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_uninfected&#39;</span><span class="p">])</span>
-
-        <span class="c1"># Update data with the new masks</span>
-        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">cytoplasm_mask</span> <span class="o">=</span> <span class="n">_exclude_objects</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">cytoplasm_mask</span><span class="p">,</span> <span class="n">uninfected</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;uninfected&#39;</span><span class="p">])</span>
             <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cell_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">nucleus_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -906,7 +859,6 @@
             <span class="n">figs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">__after_filtration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fig</span>
 
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save_measurements&#39;</span><span class="p">]:</span>
-
             <span class="n">cell_df</span><span class="p">,</span> <span class="n">nucleus_df</span><span class="p">,</span> <span class="n">pathogen_df</span><span class="p">,</span> <span class="n">cytoplasm_df</span> <span class="o">=</span> <span class="n">_morphological_measurements</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">cytoplasm_mask</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
 
             <span class="c1">#if settings[&#39;skeleton&#39;]:</span>
@@ -916,7 +868,6 @@
             <span class="n">cell_intensity_df</span><span class="p">,</span> <span class="n">nucleus_intensity_df</span><span class="p">,</span> <span class="n">pathogen_intensity_df</span><span class="p">,</span> <span class="n">cytoplasm_intensity_df</span> <span class="o">=</span> <span class="n">_intensity_measurements</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">cytoplasm_mask</span><span class="p">,</span> <span class="n">channel_arrays</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">periphery</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">outside</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">cell_merged_df</span> <span class="o">=</span> <span class="n">_merge_and_save_to_database</span><span class="p">(</span><span class="n">cell_df</span><span class="p">,</span> <span class="n">cell_intensity_df</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">])</span>
-
             <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">nucleus_merged_df</span> <span class="o">=</span> <span class="n">_merge_and_save_to_database</span><span class="p">(</span><span class="n">nucleus_df</span><span class="p">,</span> <span class="n">nucleus_intensity_df</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">])</span>
 
@@ -927,7 +878,6 @@
                 <span class="n">cytoplasm_merged_df</span> <span class="o">=</span> <span class="n">_merge_and_save_to_database</span><span class="p">(</span><span class="n">cytoplasm_df</span><span class="p">,</span> <span class="n">cytoplasm_intensity_df</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save_png&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save_arrays&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]:</span>
-
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
                 <span class="n">dialate_pngs</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">]]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dialate_pngs&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
@@ -952,13 +902,15 @@
                     
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">crop_ls</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">size_ls</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting: size_ls: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;png_size&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> should be a list of integers, or a list of lists of integers if crop_ls: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> has multiple elements&quot;</span><span class="p">)</span>
-                    
+                
                 <span class="k">for</span> <span class="n">crop_idx</span><span class="p">,</span> <span class="n">crop_mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">crop_ls</span><span class="p">):</span>
                     <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">size_ls</span><span class="p">[</span><span class="n">crop_idx</span><span class="p">]</span>
+
                     <span class="k">if</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s1">&#39;cell&#39;</span><span class="p">:</span>
                         <span class="n">crop_mask</span> <span class="o">=</span> <span class="n">cell_mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                         <span class="n">dialate_png</span> <span class="o">=</span> <span class="n">dialate_pngs</span><span class="p">[</span><span class="n">crop_idx</span><span class="p">]</span>
                         <span class="n">dialate_png_ratio</span> <span class="o">=</span> <span class="n">dialate_png_ratios</span><span class="p">[</span><span class="n">crop_idx</span><span class="p">]</span>
+
                     <span class="k">elif</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
                         <span class="n">crop_mask</span> <span class="o">=</span> <span class="n">nucleus_mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                         <span class="n">dialate_png</span> <span class="o">=</span> <span class="n">dialate_pngs</span><span class="p">[</span><span class="n">crop_idx</span><span class="p">]</span>
@@ -979,7 +931,7 @@
                     
                     <span class="k">for</span> <span class="n">_id</span> <span class="ow">in</span> <span class="n">objects_in_image</span><span class="p">:</span>
                         
-                        <span class="n">region</span> <span class="o">=</span> <span class="p">(</span><span class="n">crop_mask</span> <span class="o">==</span> <span class="n">_id</span><span class="p">)</span>  <span class="c1"># This creates a boolean mask for the region of interest</span>
+                        <span class="n">region</span> <span class="o">=</span> <span class="p">(</span><span class="n">crop_mask</span> <span class="o">==</span> <span class="n">_id</span><span class="p">)</span>
 
                         <span class="c1"># Use the boolean mask to filter the cell_mask and then find unique IDs</span>
                         <span class="n">region_cell_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">[</span><span class="n">region</span><span class="p">]))</span>
@@ -1074,112 +1026,130 @@
 <span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_save_settings_to_db</span><span class="p">,</span> <span class="n">_create_database</span>
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_save_settings_to_db</span>
     <span class="kn">from</span> <span class="nn">.timelapse</span> <span class="kn">import</span> <span class="n">_timelapse_masks_to_gif</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">measure_test_mode</span><span class="p">,</span> <span class="n">print_progress</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">measure_test_mode</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_measure_crop_settings</span>
 
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">measure_test_mode</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-
-    <span class="n">src_fldr</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">src_fldr</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;merged&#39;</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: Source folder, settings: src: </span><span class="si">{</span><span class="n">src_fldr</span><span class="si">}</span><span class="s2"> should end with &#39;/merged&#39;&quot;</span><span class="p">)</span>
-        <span class="n">src_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src_fldr</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Changed source folder to: </span><span class="si">{</span><span class="n">src_fldr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save_measurements&#39;</span><span class="p">]:</span>
-        <span class="n">source_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">source_folder</span><span class="o">+</span><span class="s1">&#39;/measurements&#39;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">_create_database</span><span class="p">(</span><span class="n">source_folder</span><span class="o">+</span><span class="s1">&#39;/measurements/measurements.db&#39;</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_uninfected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;include_uninfected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">elif</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_min_size&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="n">spacr_cores</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">6</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">spacr_cores</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">spacr_cores</span> <span class="o">=</span> <span class="mi">1</span>
-
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">spacr_cores</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning reserving 6 CPU cores for other processes, setting n_jobs to </span><span class="si">{</span><span class="n">spacr_cores</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spacr_cores</span>
-
-    <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
-    <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
-    <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span><span class="s1">&#39;measure_crop_settings.csv&#39;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tlo</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timelapse object:</span><span class="si">{</span><span class="n">tlo</span><span class="si">}</span><span class="s1">, cells will be relabeled to nucleus labels to track cells.&#39;</span><span class="p">)</span>
-
-    <span class="n">int_setting_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_min_size&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus_min_size&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">]</span>
-    
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;src must be a string or a list of strings&#39;</span><span class="p">)</span>
         <span class="k">return</span>
     
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_by&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;fov&#39;</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: normalize_by should be either &#39;png&#39; to notmalize each png to its own percentiles or &#39;fov&#39; to normalize each png to the fov percentiles &quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]]</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">int_setting_keys</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: </span><span class="si">{</span><span class="n">int_setting_keys</span><span class="si">}</span><span class="s2"> must all be integers&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">source_folders</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">source_folder</span> <span class="ow">in</span> <span class="n">source_folders</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Processing folder: </span><span class="si">{</span><span class="n">source_folder</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_folder</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">source_folder</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">measure_test_mode</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: crop_mode should be a list with at least one element e.g. [&#39;cell&#39;] or [&#39;cell&#39;,&#39;nucleus&#39;] or [None]&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
-    
-    <span class="n">_save_settings_to_db</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)]</span>
-    <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;using </span><span class="si">{</span><span class="n">n_jobs</span><span class="si">}</span><span class="s1"> cpu cores&#39;</span><span class="p">)</span>
-    <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">files_to_process</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="p">[],</span> <span class="n">operation_type</span><span class="o">=</span><span class="s1">&#39;Measure and Crop&#39;</span><span class="p">)</span>
+            <span class="n">src_fldr</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">src_fldr</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;merged&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: Source folder, settings: src: </span><span class="si">{</span><span class="n">src_fldr</span><span class="si">}</span><span class="s2"> should end with &#39;/merged&#39;&quot;</span><span class="p">)</span>
+                <span class="n">src_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src_fldr</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Changed source folder to: </span><span class="si">{</span><span class="n">src_fldr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">job_callback</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-        <span class="n">completed_jobs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">process_meassure_crop_results</span><span class="p">([</span><span class="n">result</span><span class="p">],</span> <span class="n">settings</span><span class="p">)</span>
-        <span class="n">files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">completed_jobs</span><span class="p">)</span>
-        <span class="n">files_to_process</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-        <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s1">&#39;Measure and Crop&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">files_processed</span> <span class="o">&gt;=</span> <span class="n">files_to_process</span><span class="p">:</span>
-            <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
-
-    <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">manager</span><span class="p">:</span>
-        <span class="n">time_ls</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-        <span class="n">completed_jobs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># Set to keep track of completed jobs</span>
-        
-        <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
-                <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_measure_crop_core</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">time_ls</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">settings</span><span class="p">),</span> <span class="n">callback</span><span class="o">=</span><span class="n">job_callback</span><span class="p">)</span>
+            <span class="c1">#if settings[&#39;save_measurements&#39;]:</span>
+                <span class="c1">#source_folder = os.path.dirname(settings[&#39;src&#39;])</span>
+                <span class="c1">#os.makedirs(source_folder+&#39;/measurements&#39;, exist_ok=True)</span>
+                <span class="c1">#_create_database(source_folder+&#39;/measurements/measurements.db&#39;)</span>
             
-            <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;uninfected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;uninfected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_min_size&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
-            <span class="n">folder_path</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
-            <span class="n">mask_channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]]</span>
-            <span class="n">object_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">]</span>
-            <span class="n">_timelapse_masks_to_gif</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">mask_channels</span><span class="p">,</span> <span class="n">object_types</span><span class="p">)</span>
+            <span class="n">spacr_cores</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">spacr_cores</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">spacr_cores</span> <span class="o">=</span> <span class="mi">1</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully completed run&quot;</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">spacr_cores</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning reserving 6 CPU cores for other processes, setting n_jobs to </span><span class="si">{</span><span class="n">spacr_cores</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spacr_cores</span>
+
+            <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+            <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
+            <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span><span class="s1">&#39;measure_crop_settings.csv&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="s1">&#39;settings&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">tlo</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timelapse object:</span><span class="si">{</span><span class="n">tlo</span><span class="si">}</span><span class="s1">, cells will be relabeled to nucleus labels to track cells.&#39;</span><span class="p">)</span>
+
+            <span class="n">int_setting_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_min_size&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus_min_size&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_by&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;fov&#39;</span><span class="p">]:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: normalize_by should be either &#39;png&#39; to notmalize each png to its own percentiles or &#39;fov&#39; to normalize each png to the fov percentiles &quot;</span><span class="p">)</span>
+                    <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">int_setting_keys</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: </span><span class="si">{</span><span class="n">int_setting_keys</span><span class="si">}</span><span class="s2"> must all be integers&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: crop_mode should be a list with at least one element e.g. [&#39;cell&#39;] or [&#39;cell&#39;,&#39;nucleus&#39;] or [None] got: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]]</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">crop_mode</span><span class="p">)</span> <span class="k">for</span> <span class="n">crop_mode</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted crop_mode to list: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;crop_mode&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="n">_save_settings_to_db</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+            <span class="c1">#save_settings(settings, name=&#39;measure_crop&#39;, show=True)</span>
+
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npy&#39;</span><span class="p">)]</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;using </span><span class="si">{</span><span class="n">n_jobs</span><span class="si">}</span><span class="s1"> cpu cores&#39;</span><span class="p">)</span>
+            <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">files_to_process</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="p">[],</span> <span class="n">operation_type</span><span class="o">=</span><span class="s1">&#39;Measure and Crop&#39;</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">job_callback</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+                <span class="n">completed_jobs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">process_meassure_crop_results</span><span class="p">([</span><span class="n">result</span><span class="p">],</span> <span class="n">settings</span><span class="p">)</span>
+                <span class="n">files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">completed_jobs</span><span class="p">)</span>
+                <span class="n">files_to_process</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+                <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s1">&#39;Measure and Crop&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">files_processed</span> <span class="o">&gt;=</span> <span class="n">files_to_process</span><span class="p">:</span>
+                    <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+
+            <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">manager</span><span class="p">:</span>
+                <span class="n">time_ls</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+                <span class="n">completed_jobs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># Set to keep track of completed jobs</span>
+                
+                <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+                        <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_measure_crop_core</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">time_ls</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">settings</span><span class="p">),</span> <span class="n">callback</span><span class="o">=</span><span class="n">job_callback</span><span class="p">)</span>
+                    
+                    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
+                    <span class="n">folder_path</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+                    <span class="n">mask_channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">]]</span>
+                    <span class="n">object_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">]</span>
+                    <span class="n">_timelapse_masks_to_gif</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">mask_channels</span><span class="p">,</span> <span class="n">object_types</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully completed run&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="process_meassure_crop_results">
