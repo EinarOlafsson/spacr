@@ -1,8 +1,9 @@
-spacr
-=====
+Modules
+=======
+
+Below is an overview of the main modules in the spacr package:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   setup
-   spacr
+   spacr            <-- references spacr.rst
