@@ -60,6 +60,22 @@ spacr.app\_umap module
    :undoc-members:
    :show-inheritance:
 
+spacr.cellpose module
+---------------------
+
+.. automodule:: spacr.cellpose
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.chat\_bot module
+----------------------
+
+.. automodule:: spacr.chat_bot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 spacr.core module
 -----------------
 
@@ -72,14 +88,6 @@ spacr.deep\_spacr module
 ------------------------
 
 .. automodule:: spacr.deep_spacr
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-spacr.graph\_learning module
-----------------------------
-
-.. automodule:: spacr.graph_learning
    :members:
    :undoc-members:
    :show-inheritance:
@@ -140,6 +148,30 @@ spacr.measure module
    :undoc-members:
    :show-inheritance:
 
+spacr.mediar module
+-------------------
+
+.. automodule:: spacr.mediar
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.ml module
+---------------
+
+.. automodule:: spacr.ml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.openai module
+-------------------
+
+.. automodule:: spacr.openai
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 spacr.plot module
 -----------------
 
@@ -172,10 +204,18 @@ spacr.sim module
    :undoc-members:
    :show-inheritance:
 
-spacr.sim\_app module
----------------------
+spacr.stats module
+------------------
 
-.. automodule:: spacr.sim_app
+.. automodule:: spacr.stats
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.submodules module
+-----------------------
+
+.. automodule:: spacr.submodules
    :members:
    :undoc-members:
    :show-inheritance:
@@ -184,6 +224,14 @@ spacr.timelapse module
 ----------------------
 
 .. automodule:: spacr.timelapse
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spacr.toxo module
+-----------------
+
+.. automodule:: spacr.toxo
    :members:
    :undoc-members:
    :show-inheritance:
