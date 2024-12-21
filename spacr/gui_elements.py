@@ -17,8 +17,7 @@ from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
-from skimage.color import rgb2gray 
-
+from skimage.color import rgb2gray
 fig = None
 
 def create_menu_bar(root):

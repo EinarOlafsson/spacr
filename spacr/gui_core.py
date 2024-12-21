@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from multiprocessing import Process, Value, Queue, set_start_method
 from tkinter import ttk
+import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
@@ -324,17 +325,14 @@ def show_next_figure():
         index_control.set_to(len(figures) - 1)
         display_figure(fig)
 
-def process_fig_queue():
+def process_fig_queue_v1():
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
     from .gui_elements import standardize_figure
 
     #print("process_fig_queue called", flush=True)
     try:
-        got_new_figure = False
         while not fig_queue.empty():
             fig = fig_queue.get_nowait()
-            #print("Got a figure from fig_queue", flush=True)
-
             if fig is None:
                 print("Warning: Retrieved a None figure from fig_queue.", flush=True)
                 continue
@@ -345,20 +343,12 @@ def process_fig_queue():
 
             # Update slider maximum
             index_control.set_to(len(figures) - 1)
-            #print("New maximum slider value after adding a figure:", index_control.to, flush=True)
 
             # If no figure has been displayed yet
             if figure_index == -1:
                 figure_index = 0
                 display_figure(figures[figure_index])
                 index_control.set(figure_index)
-                #print("Displayed the first figure and set slider value to 0", flush=True)
-
-            #got_new_figure = True
-
-        #if not got_new_figure:
-            # No new figures this time
-            #print("No new figures found in the queue this iteration.", flush=True)
 
     except Exception as e:
         print("Exception in process_fig_queue:", e, flush=True)
@@ -368,7 +358,48 @@ def process_fig_queue():
         # Schedule process_fig_queue() to run again
         after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
-        #print("process_fig_queue scheduled again", flush=True)
+        
+def process_fig_queue():
+    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
+    from .gui_elements import standardize_figure
+
+    try:
+        while not fig_queue.empty():
+            fig = fig_queue.get_nowait()
+            if fig is None:
+                print("Warning: Retrieved a None figure from fig_queue.")
+                continue
+
+            # Standardize the figure appearance before adding it
+            fig = standardize_figure(fig)
+            figures.append(fig)
+
+            # OPTIONAL: Cap the size of the figures deque at 100
+            MAX_FIGURES = 100
+            while len(figures) > MAX_FIGURES:
+                # Discard the oldest figure
+                old_fig = figures.popleft()
+                # If needed, you could also close the figure to free memory:
+                matplotlib.pyplot.close(old_fig)
+
+            # Update slider maximum
+            index_control.set_to(len(figures) - 1)
+
+            # If no figure has been displayed yet
+            if figure_index == -1:
+                figure_index = 0
+                display_figure(figures[figure_index])
+                index_control.set(figure_index)
+
+    except Exception as e:
+        print("Exception in process_fig_queue:", e)
+        traceback.print_exc()
+
+    finally:
+        # Schedule process_fig_queue() to run again
+        after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
+        parent_frame.after_tasks.append(after_id)
+
 
 def update_figure(value):
     from .gui_elements import standardize_figure

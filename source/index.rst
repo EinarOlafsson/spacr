@@ -1,7 +1,5 @@
 .. spacr documentation master file, created by
-   sphinx-quickstart on Thu Oct 14 12:34:56 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root  directive.
+   sphinx-quickstart on <some date>.
 
 Welcome to spacr's documentation!
 =================================
@@ -10,7 +8,9 @@ Welcome to spacr's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   modules        <-- references modules.rst
+   setup          <-- references setup.rst (if you want to include it)
+   spacr          <-- references spacr.rst if you want to list that as well
 
 Indices and tables
 ==================

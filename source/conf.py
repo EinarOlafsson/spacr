@@ -1,22 +1,39 @@
+# Configuration file for the Sphinx documentation builder.
+
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../spacr'))
+import datetime
+
+# The full version, including alpha/beta/rc tags.
+from spacr.version import version as release
+
+# -- Path setup --------------------------------------------------------------
+
+# If your module (spacr) is one level above your docs folder, do:
+sys.path.insert(0, os.path.abspath('../../'))
+
+# -- Project information -----------------------------------------------------
 
 project = 'spacr'
 author = 'Einar Birnir Olafsson'
-release = '0.0.70'
+copyright = f"{datetime.date.today().year}, {author}"
+
+# -- General configuration ---------------------------------------------------
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme'
+    'sphinx.ext.napoleon',
+    'sphinx.ext.todo',
+    'sphinx_autodoc_typehints'
 ]
-
-autodoc_mock_imports = ["torch", "cv2", "pandas", "shap", "skimage", "scipy", "matplotlib", "numpy", "tifffile", "fastremap", "natsort", "numba"]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
+# -- Options for HTML output -------------------------------------------------
+
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+
+# Enable todo directives if you want them
+todo_include_todos = True
