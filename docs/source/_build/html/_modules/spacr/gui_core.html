@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui_core &mdash; spacr 0.2.65 documentation</title>
+  <title>spacr.gui_core &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
+0.3.80 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -33,9 +32,6 @@
           <a href="../../index.html" class="icon icon-home">
             spacr
           </a>
-              <div class="version">
-                0.2.65
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -74,12 +70,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for spacr.gui_core</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">traceback</span><span class="o">,</span> <span class="nn">ctypes</span><span class="o">,</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">traceback</span><span class="o">,</span> <span class="nn">ctypes</span><span class="o">,</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">set_start_method</span>
-<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span><span class="p">,</span> <span class="n">scrolledtext</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>
 <span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span> <span class="nn">matplotlib.backends.backend_tkagg</span> <span class="kn">import</span> <span class="n">FigureCanvasTkAgg</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -87,15 +83,13 @@
 <span class="kn">import</span> <span class="nn">GPUtil</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 <span class="kn">import</span> <span class="nn">tracemalloc</span>
-<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">Menu</span>
-<span class="kn">import</span> <span class="nn">io</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">shcore</span><span class="o">.</span><span class="n">SetProcessDpiAwareness</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
     <span class="k">pass</span>
 
-<span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">spacrProgressBar</span><span class="p">,</span> <span class="n">spacrButton</span><span class="p">,</span> <span class="n">spacrLabel</span><span class="p">,</span> <span class="n">spacrFrame</span><span class="p">,</span> <span class="n">spacrDropdownMenu</span> <span class="p">,</span> <span class="n">set_dark_style</span>
+<span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">spacrProgressBar</span><span class="p">,</span> <span class="n">spacrButton</span><span class="p">,</span> <span class="n">spacrFrame</span><span class="p">,</span> <span class="n">spacrDropdownMenu</span> <span class="p">,</span> <span class="n">spacrSlider</span><span class="p">,</span> <span class="n">set_dark_style</span>
 
 <span class="c1"># Define global variables</span>
 <span class="n">q</span> <span class="o">=</span> <span class="kc">None</span>
@@ -111,8 +105,7 @@
 <span class="n">figure_index</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">progress_bar</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">usage_bars</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">fig_memory_limit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">figure_current_memory_usage</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">index_control</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="n">thread_control</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;run_thread&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;stop_requested&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
@@ -159,40 +152,12 @@
     <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">hide_all_settings</span><span class="p">(</span><span class="n">vars_dict</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="process_fig_queue">
-<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.process_fig_queue">[docs]</a>
-<span class="k">def</span> <span class="nf">process_fig_queue</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span>
-
-    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">while</span> <span class="ow">not</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Retrieved a None figure from fig_queue.&quot;</span><span class="p">)</span>
-                <span class="k">continue</span>  <span class="c1"># Skip processing if the figure is None</span>
-
-            <span class="c1"># Standardize the figure appearance before adding it to the list</span>
-            <span class="n">standardize_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-
-            <span class="n">figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">figure_index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">figure_index</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">display_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="n">after_id</span> <span class="o">=</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">process_fig_queue</span><span class="p">)</span>
-        <span class="n">parent_frame</span><span class="o">.</span><span class="n">after_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">after_id</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="display_figure">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.display_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">display_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span>
 
-    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">modify_figure_properties</span><span class="p">,</span> <span class="n">save_figure_as_format</span><span class="p">,</span> <span class="n">modify_figure</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">save_figure_as_format</span><span class="p">,</span> <span class="n">modify_figure</span>
 
     <span class="c1"># Apply the dark style to the context menu</span>
     <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
@@ -281,38 +246,99 @@
             <span class="c1">#flash_feedback(&quot;right&quot;)</span>
             <span class="n">show_next_figure</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">zoom_v1</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
         <span class="k">nonlocal</span> <span class="n">scale_factor</span>
 
         <span class="n">zoom_speed</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># Adjust the zoom speed for smoother experience</span>
 
-        <span class="c1"># Adjust zoom factor based on the operating system and mouse event</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Scroll up</span>
-            <span class="n">scale_factor</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">zoom_speed</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Scroll down</span>
-            <span class="n">scale_factor</span> <span class="o">/=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">zoom_speed</span><span class="p">)</span>
+        <span class="c1"># Determine the zoom direction based on the scroll event</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Scroll up (zoom in)</span>
+            <span class="n">scale_factor</span> <span class="o">/=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">zoom_speed</span><span class="p">)</span>  <span class="c1"># Divide to zoom in</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Scroll down (zoom out)</span>
+            <span class="n">scale_factor</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">zoom_speed</span><span class="p">)</span>  <span class="c1"># Multiply to zoom out</span>
 
-        <span class="c1"># Get mouse position relative to the figure</span>
-        <span class="n">x_mouse</span><span class="p">,</span> <span class="n">y_mouse</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span>
-        <span class="n">x_ratio</span> <span class="o">=</span> <span class="n">x_mouse</span> <span class="o">/</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">()</span>
-        <span class="n">y_ratio</span> <span class="o">=</span> <span class="n">y_mouse</span> <span class="o">/</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">winfo_height</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+        <span class="c1"># Adjust the axes limits based on the new scale factor</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
             <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
             <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
 
-            <span class="c1"># Calculate the new limits</span>
-            <span class="n">x_center</span> <span class="o">=</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_ratio</span> <span class="o">*</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">y_center</span> <span class="o">=</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">x_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">y_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
 
             <span class="n">x_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">scale_factor</span>
             <span class="n">y_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">scale_factor</span>
 
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">x_center</span> <span class="o">-</span> <span class="n">x_range</span> <span class="o">*</span> <span class="n">x_ratio</span><span class="p">,</span> <span class="n">x_center</span> <span class="o">+</span> <span class="n">x_range</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x_ratio</span><span class="p">)])</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_center</span> <span class="o">-</span> <span class="n">y_range</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_ratio</span><span class="p">),</span> <span class="n">y_center</span> <span class="o">+</span> <span class="n">y_range</span> <span class="o">*</span> <span class="n">y_ratio</span><span class="p">])</span>
+            <span class="c1"># Set the new limits</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">x_center</span> <span class="o">-</span> <span class="n">x_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x_center</span> <span class="o">+</span> <span class="n">x_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_center</span> <span class="o">-</span> <span class="n">y_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y_center</span> <span class="o">+</span> <span class="n">y_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
 
-        <span class="c1"># Redraw the figure</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+        <span class="c1"># Redraw the figure efficiently</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">zoom_test</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># Scroll up</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;zoom in&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span> <span class="c1"># Scroll down</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;zoom out&quot;</span><span class="p">)</span>
+            
+    <span class="k">def</span> <span class="nf">zoom_2</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+        <span class="n">zoom_speed</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># Change this to control how fast you zoom</span>
+
+        <span class="c1"># Determine the zoom direction based on the scroll event</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># Scroll up = zoom in</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">zoom_speed</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span> <span class="c1"># Scroll down = zoom out</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">zoom_speed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># No recognized scroll direction</span>
+
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+
+            <span class="n">x_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">y_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+
+            <span class="n">x_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span>
+            <span class="n">y_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span>
+
+            <span class="c1"># Set the new limits</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">x_center</span> <span class="o">-</span> <span class="n">x_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x_center</span> <span class="o">+</span> <span class="n">x_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_center</span> <span class="o">-</span> <span class="n">y_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y_center</span> <span class="o">+</span> <span class="n">y_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Redraw the figure efficiently</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+        <span class="c1"># Fixed zoom factors (adjust these if you want faster or slower zoom)</span>
+        <span class="n">zoom_in_factor</span> <span class="o">=</span> <span class="mf">0.9</span>   <span class="c1"># When zooming in, ranges shrink by 10%</span>
+        <span class="n">zoom_out_factor</span> <span class="o">=</span> <span class="mf">1.1</span>  <span class="c1"># When zooming out, ranges increase by 10%</span>
+
+        <span class="c1"># Determine the zoom direction based on the scroll event</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># Scroll up = zoom in</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="n">zoom_in_factor</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span> <span class="c1"># Scroll down = zoom out</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="n">zoom_out_factor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># No recognized scroll direction</span>
+
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+
+            <span class="n">x_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">y_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+
+            <span class="n">x_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span>
+            <span class="n">y_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span>
+
+            <span class="c1"># Set the new limits</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">x_center</span> <span class="o">-</span> <span class="n">x_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x_center</span> <span class="o">+</span> <span class="n">x_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_center</span> <span class="o">-</span> <span class="n">y_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y_center</span> <span class="o">+</span> <span class="n">y_range</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Redraw the figure efficiently</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
 
     <span class="c1"># Bind events for hover, click interactions, and zoom</span>
     <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Motion&gt;&quot;</span><span class="p">,</span> <span class="n">on_hover</span><span class="p">)</span>
@@ -320,10 +346,20 @@
     <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-1&gt;&quot;</span><span class="p">,</span> <span class="n">on_click</span><span class="p">)</span>
     <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-3&gt;&quot;</span><span class="p">,</span> <span class="n">on_right_click</span><span class="p">)</span>
 
-    <span class="c1"># Bind mouse wheel for zooming (cross-platform)</span>
-    <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;MouseWheel&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Windows</span>
-    <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-4&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Linux/macOS Scroll Up</span>
-    <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-5&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Linux/macOS Scroll Down</span></div>
+    <span class="c1"># Detect the operating system and bind the appropriate mouse wheel events</span>
+    <span class="n">current_os</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">current_os</span> <span class="o">==</span> <span class="s2">&quot;Windows&quot;</span><span class="p">:</span>
+        <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;MouseWheel&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Windows</span>
+    <span class="k">elif</span> <span class="n">current_os</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span>
+        <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;MouseWheel&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+        <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-4&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Scroll up</span>
+        <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-5&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Scroll down</span>
+    <span class="k">elif</span> <span class="n">current_os</span> <span class="o">==</span> <span class="s2">&quot;Linux&quot;</span><span class="p">:</span>
+        <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-4&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Linux Scroll up</span>
+        <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Button-5&gt;&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>  <span class="c1"># Linux Scroll down</span>
+        
+    <span class="n">process_fig_queue</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="clear_unused_figures">
@@ -342,32 +378,188 @@
 <div class="viewcode-block" id="show_previous_figure">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.show_previous_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">show_previous_figure</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">fig_queue</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
+    <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">index_control</span>
+    
     <span class="k">if</span> <span class="n">figure_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">figure_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">figure_index</span> <span class="o">-=</span> <span class="mi">1</span>
-        <span class="n">display_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
-        <span class="n">clear_unused_figures</span><span class="p">()</span></div>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span>
+        <span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">standardize_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
+        <span class="n">display_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span></div>
 
+        <span class="c1">#clear_unused_figures()</span>
 
 <div class="viewcode-block" id="show_next_figure">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.show_next_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">show_next_figure</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">fig_queue</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
+    <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">index_control</span>
     <span class="k">if</span> <span class="n">figure_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">figure_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">figure_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">standardize_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
         <span class="n">display_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
-        <span class="n">clear_unused_figures</span><span class="p">()</span>
+        <span class="c1">#clear_unused_figures()</span>
+        
     <span class="k">elif</span> <span class="n">figure_index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
         <span class="n">figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
         <span class="n">figure_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">display_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="process_fig_queue">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.process_fig_queue">[docs]</a>
+<span class="k">def</span> <span class="nf">process_fig_queue</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">index_control</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
+
+    <span class="c1">#print(&quot;process_fig_queue called&quot;, flush=True)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">got_new_figure</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">fig_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+            <span class="c1">#print(&quot;Got a figure from fig_queue&quot;, flush=True)</span>
+
+            <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Retrieved a None figure from fig_queue.&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Standardize the figure appearance before adding it</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">standardize_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+            <span class="n">figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+            <span class="c1"># Update slider maximum</span>
+            <span class="n">index_control</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1">#print(&quot;New maximum slider value after adding a figure:&quot;, index_control.to, flush=True)</span>
+
+            <span class="c1"># If no figure has been displayed yet</span>
+            <span class="k">if</span> <span class="n">figure_index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">figure_index</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">display_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
+                <span class="n">index_control</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span>
+                <span class="c1">#print(&quot;Displayed the first figure and set slider value to 0&quot;, flush=True)</span>
+
+            <span class="c1">#got_new_figure = True</span>
+
+        <span class="c1">#if not got_new_figure:</span>
+            <span class="c1"># No new figures this time</span>
+            <span class="c1">#print(&quot;No new figures found in the queue this iteration.&quot;, flush=True)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exception in process_fig_queue:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Schedule process_fig_queue() to run again</span>
+        <span class="n">after_id</span> <span class="o">=</span> <span class="n">canvas_widget</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">process_fig_queue</span><span class="p">)</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">after_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">after_id</span><span class="p">)</span></div>
+
+        <span class="c1">#print(&quot;process_fig_queue scheduled again&quot;, flush=True)</span>
+
+<div class="viewcode-block" id="update_figure">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.update_figure">[docs]</a>
+<span class="k">def</span> <span class="nf">update_figure</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
+    <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">index_control</span>
+    
+    <span class="c1"># Convert the value to an integer</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    
+    <span class="c1"># Check if the index is valid</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">):</span>
+        <span class="n">figure_index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">standardize_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
+        <span class="n">display_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;update_figure called with value:&quot;</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">)</span>
+        <span class="n">index_control</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="setup_plot_section">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_plot_section">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">index_control</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">display_media_in_plot_frame</span>
+
+    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
+    <span class="n">bg</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">]</span>
+    <span class="n">fg</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Initialize deque for storing figures and the current index</span>
+    <span class="n">figures</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+    <span class="n">figure_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Start with no figure displayed</span>
+
+    <span class="c1"># Create a frame for the plot section</span>
+    <span class="n">plot_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+    <span class="n">plot_frame</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plot_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Clear the plot_frame (optional)</span>
+    <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">plot_frame</span><span class="o">.</span><span class="n">winfo_children</span><span class="p">():</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+    <span class="c1"># Create a figure and plot (initial figure)</span>
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[])</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;map_barcodes&#39;</span><span class="p">:</span>
+        <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">resources_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;icons&#39;</span><span class="p">)</span>
+        <span class="n">gif_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resources_path</span><span class="p">,</span> <span class="s1">&#39;dna_matrix.mp4&#39;</span><span class="p">)</span>
+        <span class="n">display_media_in_plot_frame</span><span class="p">(</span><span class="n">gif_path</span><span class="p">,</span> <span class="n">plot_frame</span><span class="p">)</span>
+
+        <span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvasTkAgg</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="n">plot_frame</span><span class="p">)</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span>
+    
+    <span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvasTkAgg</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="n">plot_frame</span><span class="p">)</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span>
+    <span class="n">canvas_widget</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+    <span class="n">plot_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plot_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">figure</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
+    <span class="n">containers</span> <span class="o">=</span> <span class="p">[</span><span class="n">plot_frame</span><span class="p">]</span>
+
+    <span class="c1"># Create slider</span>
+    <span class="n">control_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">plot_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">15</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>  <span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+    <span class="n">control_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">control_frame</span><span class="o">.</span><span class="n">grid_propagate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">index_control</span> <span class="o">=</span> <span class="n">spacrSlider</span><span class="p">(</span><span class="n">control_frame</span><span class="p">,</span> <span class="n">from_</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">knob_radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                <span class="n">position</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">show_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">update_figure</span><span class="p">)</span>
+    
+    <span class="n">index_control</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">)</span>
+    <span class="n">control_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">canvas_widget</span><span class="p">,</span> <span class="n">index_control</span><span class="p">]</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="n">containers</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+
+    <span class="c1"># Now ensure the first figure is displayed and recognized:</span>
+    <span class="n">figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span>
+    <span class="n">figure_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">display_figure</span><span class="p">(</span><span class="n">figures</span><span class="p">[</span><span class="n">figure_index</span><span class="p">])</span>
+    <span class="n">index_control</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>   <span class="c1"># Slider max = 0 in this case, since there&#39;s only one figure</span>
+    <span class="n">index_control</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span>          <span class="c1"># Set slider to 0 to indicate the first figure</span>
+
+    <span class="k">return</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span></div>
 
 
 <div class="viewcode-block" id="set_globals">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.set_globals">[docs]</a>
-<span class="k">def</span> <span class="nf">set_globals</span><span class="p">(</span><span class="n">thread_control_var</span><span class="p">,</span> <span class="n">q_var</span><span class="p">,</span> <span class="n">console_output_var</span><span class="p">,</span> <span class="n">parent_frame_var</span><span class="p">,</span> <span class="n">vars_dict_var</span><span class="p">,</span> <span class="n">canvas_var</span><span class="p">,</span> <span class="n">canvas_widget_var</span><span class="p">,</span> <span class="n">scrollable_frame_var</span><span class="p">,</span> <span class="n">fig_queue_var</span><span class="p">,</span> <span class="n">figures_var</span><span class="p">,</span> <span class="n">figure_index_var</span><span class="p">,</span> <span class="n">progress_bar_var</span><span class="p">,</span> <span class="n">usage_bars_var</span><span class="p">,</span> <span class="n">fig_memory_limit_var</span><span class="p">,</span> <span class="n">figure_current_memory_usage_var</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">fig_memory_limit</span><span class="p">,</span> <span class="n">figure_current_memory_usage</span>
+<span class="k">def</span> <span class="nf">set_globals</span><span class="p">(</span><span class="n">thread_control_var</span><span class="p">,</span> <span class="n">q_var</span><span class="p">,</span> <span class="n">console_output_var</span><span class="p">,</span> <span class="n">parent_frame_var</span><span class="p">,</span> <span class="n">vars_dict_var</span><span class="p">,</span> <span class="n">canvas_var</span><span class="p">,</span> <span class="n">canvas_widget_var</span><span class="p">,</span> <span class="n">scrollable_frame_var</span><span class="p">,</span> <span class="n">fig_queue_var</span><span class="p">,</span> <span class="n">progress_bar_var</span><span class="p">,</span> <span class="n">usage_bars_var</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span>
     <span class="n">thread_control</span> <span class="o">=</span> <span class="n">thread_control_var</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">q_var</span>
     <span class="n">console_output</span> <span class="o">=</span> <span class="n">console_output_var</span>
@@ -377,20 +569,22 @@
     <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">canvas_widget_var</span>
     <span class="n">scrollable_frame</span> <span class="o">=</span> <span class="n">scrollable_frame_var</span>
     <span class="n">fig_queue</span> <span class="o">=</span> <span class="n">fig_queue_var</span>
-    <span class="n">figures</span> <span class="o">=</span> <span class="n">figures_var</span>
-    <span class="n">figure_index</span> <span class="o">=</span> <span class="n">figure_index_var</span>
+    <span class="c1">#figures = figures_var</span>
+    <span class="c1">#figure_index = figure_index_var</span>
+    <span class="c1">#index_control = index_control_var</span>
     <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">progress_bar_var</span>
-    <span class="n">usage_bars</span> <span class="o">=</span> <span class="n">usage_bars_var</span>
-    <span class="n">fig_memory_limit</span> <span class="o">=</span> <span class="n">fig_memory_limit_var</span>
-    <span class="n">figure_current_memory_usage</span> <span class="o">=</span> <span class="n">figure_current_memory_usage_var</span></div>
+    <span class="n">usage_bars</span> <span class="o">=</span> <span class="n">usage_bars_var</span></div>
 
 
 <div class="viewcode-block" id="import_settings">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.import_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">import_settings</span><span class="p">(</span><span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">,</span> <span class="n">hide_all_settings</span>
     <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_scrollable_frame</span>
-    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">set_default_train_test_model</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span>
+
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">,</span> <span class="n">hide_all_settings</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">set_default_train_test_model</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_default_generate_activation_map_settings</span><span class="p">,</span> <span class="n">get_analyze_plaque_settings</span>
 
     <span class="k">def</span> <span class="nf">read_settings_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">):</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
@@ -431,6 +625,12 @@
         <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">:</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;activation&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_default_generate_activation_map_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;analyze_plaques&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_plaque_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;convert&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid settings type: </span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     
@@ -444,7 +644,10 @@
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_settings_panel">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_settings_panel</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span>
-    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">,</span> <span class="n">set_default_analyze_screen</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">deep_spacr_defaults</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span><span class="p">,</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">get_perform_regression_default_settings</span><span class="p">,</span> <span class="n">get_train_cellpose_default_settings</span><span class="p">,</span> <span class="n">get_map_barcodes_default_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">,</span> <span class="n">get_check_cellpose_models_default_settings</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">,</span> <span class="n">set_default_analyze_screen</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">deep_spacr_defaults</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_map_barcodes_default_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">,</span> <span class="n">get_check_cellpose_models_default_settings</span><span class="p">,</span> <span class="n">get_analyze_plaque_settings</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">get_perform_regression_default_settings</span><span class="p">,</span> <span class="n">get_train_cellpose_default_settings</span><span class="p">,</span> <span class="n">get_default_generate_activation_map_settings</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_element_size</span>
 
@@ -487,6 +690,12 @@
         <span class="n">settings</span> <span class="o">=</span> <span class="n">get_perform_regression_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">:</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;activation&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_default_generate_activation_map_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;analyze_plaques&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_analyze_plaque_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;convert&#39;</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;src&#39;</span><span class="p">:</span><span class="s1">&#39;path to images&#39;</span><span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid settings type: </span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -503,55 +712,12 @@
     <span class="k">return</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">vars_dict</span></div>
 
 
-<div class="viewcode-block" id="setup_plot_section">
-<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_plot_section">[docs]</a>
-<span class="k">def</span> <span class="nf">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span>
-
-    <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_element_size</span>
-
-    <span class="c1"># Initialize deque for storing figures and the current index</span>
-    <span class="n">figures</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
-    <span class="n">figure_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-
-    <span class="c1"># Create a frame for the plot section</span>
-    <span class="n">plot_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
-    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plot_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Set up the plot</span>
-    <span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-    <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">plot</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[])</span>
-    <span class="n">plot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
-    
-    <span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvasTkAgg</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="n">plot_frame</span><span class="p">)</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;arrow&#39;</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">get_tk_widget</span><span class="p">()</span>
-    <span class="n">canvas_widget</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
-
-    <span class="n">plot_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">plot_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">figure</span>  <span class="c1"># Ensure that the figure is linked to the canvas</span>
-    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
-
-    <span class="n">figure</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
-    <span class="n">plot</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
-    <span class="n">containers</span> <span class="o">=</span> <span class="p">[</span><span class="n">plot_frame</span><span class="p">]</span>
-    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">canvas_widget</span><span class="p">]</span>
-    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="n">containers</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span></div>
-
-
 <div class="viewcode-block" id="setup_console">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_console">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_console</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">console_output</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span>
-
+    
     <span class="c1"># Apply dark style and get style output</span>
     <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
     <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
@@ -582,34 +748,28 @@
     <span class="k">def</span> <span class="nf">on_leave</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
         <span class="n">top_border</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
 
+    <span class="c1">#def on_enter_key(event):</span>
+    <span class="c1">#    user_input = console_output.get(&quot;1.0&quot;, &quot;end-1c&quot;).strip()  # Get the user input from the console</span>
+    <span class="c1">#    if user_input:</span>
+    <span class="c1">#        # Print the user input with the (user) tag</span>
+    <span class="c1">#        console_output.insert(&quot;end&quot;, f&quot;\n(user): {user_input}\n&quot;)</span>
+    <span class="c1">#        </span>
+    <span class="c1">#        # Get the AI response from the chatbot</span>
+    <span class="c1">#        response = chatbot.ask_question(user_input)</span>
+    <span class="c1">#        </span>
+    <span class="c1">#        # Print the AI response with the (ai) tag</span>
+    <span class="c1">#        console_output.insert(&quot;end&quot;, f&quot;(ai): {response}\n&quot;)</span>
+    <span class="c1">#        </span>
+    <span class="c1">#        console_output.see(&quot;end&quot;)  # Scroll to the end</span>
+    <span class="c1">#        #console_output.delete(&quot;1.0&quot;, &quot;end&quot;)  # Clear the input field</span>
+    <span class="c1">#    return &quot;break&quot;  # Prevent the default behavior of inserting a new line</span>
+
     <span class="n">console_output</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Enter&gt;&quot;</span><span class="p">,</span> <span class="n">on_enter</span><span class="p">)</span>
     <span class="n">console_output</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Leave&gt;&quot;</span><span class="p">,</span> <span class="n">on_leave</span><span class="p">)</span>
 
+    <span class="c1">#console_output.bind(&quot;&lt;Return&gt;&quot;, on_enter_key)</span>
+
     <span class="k">return</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">console_frame</span></div>
-
-
-<div class="viewcode-block" id="setup_progress_frame">
-<a class="viewcode-back" href="../../spacr.html#spacr.gui_core.setup_progress_frame">[docs]</a>
-<span class="k">def</span> <span class="nf">setup_progress_frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">progress_output</span>
-    <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
-    <span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
-    <span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span>
-    <span class="n">progress_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
-    <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">progress_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
-    <span class="n">label_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">progress_frame</span><span class="p">)</span>
-    <span class="n">label_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">progress_label</span> <span class="o">=</span> <span class="n">spacrLabel</span><span class="p">(</span><span class="n">label_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Processing: 0%&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">),</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-    <span class="n">progress_label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">progress_output</span> <span class="o">=</span> <span class="n">scrolledtext</span><span class="o">.</span><span class="n">ScrolledText</span><span class="p">(</span><span class="n">progress_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">progress_output</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
-    <span class="n">progress_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">progress_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">containers</span> <span class="o">=</span> <span class="p">[</span><span class="n">progress_frame</span><span class="p">,</span> <span class="n">label_frame</span><span class="p">]</span>
-    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">progress_label</span><span class="p">,</span> <span class="n">progress_output</span><span class="p">]</span>
-    <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="n">containers</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">progress_output</span></div>
 
 
 <div class="viewcode-block" id="setup_button_section">
@@ -655,6 +815,7 @@
         <span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">import_button</span><span class="p">)</span>
         <span class="n">btn_row</span> <span class="o">+=</span> <span class="mi">1</span>
 
+    <span class="n">btn_row</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="c1"># Add the batch progress bar</span>
     <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">spacrProgressBar</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;determinate&#39;</span><span class="p">)</span>
     <span class="n">progress_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">btn_row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
@@ -715,7 +876,7 @@
     <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="n">usage_scrollable_frame</span><span class="o">.</span><span class="n">scrollable_frame</span><span class="p">]</span>
     
     <span class="n">usage_bars</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">max_elements_per_column</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">max_elements_per_column</span> <span class="o">=</span> <span class="mi">5</span>
     <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -827,7 +988,7 @@
 <span class="k">def</span> <span class="nf">start_process</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">parent_frame</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">check_settings</span><span class="p">,</span> <span class="n">expected_types</span>
-    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">run_function_gui</span><span class="p">,</span> <span class="n">set_high_priority</span><span class="p">,</span> <span class="n">set_cpu_affinity</span><span class="p">,</span> <span class="n">initialize_cuda</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">run_function_gui</span><span class="p">,</span> <span class="n">set_cpu_affinity</span><span class="p">,</span> <span class="n">initialize_cuda</span><span class="p">,</span> <span class="n">display_gif_in_plot_frame</span><span class="p">,</span> <span class="n">print_widget_structure</span>
 
     <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
@@ -849,16 +1010,14 @@
     <span class="n">initialize_cuda</span><span class="p">()</span>
 
     <span class="n">process_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">stop_requested</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">settings_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;umap&#39;</span><span class="p">,</span> <span class="s1">&#39;measure&#39;</span><span class="p">,</span> <span class="s1">&#39;simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">,</span> 
-                         <span class="s1">&#39;classify&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;train_cellpose&#39;</span><span class="p">,</span> <span class="s1">&#39;ml_analyze&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_masks&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_all&#39;</span><span class="p">,</span> <span class="s1">&#39;map_barcodes&#39;</span><span class="p">,</span> 
-                         <span class="s1">&#39;regression&#39;</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">,</span> <span class="s1">&#39;plaques&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;vision_scores&#39;</span><span class="p">,</span> <span class="s1">&#39;vision_dataset&#39;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">settings_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="s1">&#39;umap&#39;</span><span class="p">,</span> <span class="s1">&#39;measure&#39;</span><span class="p">,</span> <span class="s1">&#39;simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">,</span> <span class="s1">&#39;classify&#39;</span><span class="p">,</span> <span class="s1">&#39;analyze_plaques&#39;</span><span class="p">,</span> 
+                         <span class="s1">&#39;cellpose_dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;train_cellpose&#39;</span><span class="p">,</span> <span class="s1">&#39;ml_analyze&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_masks&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_all&#39;</span><span class="p">,</span> 
+                         <span class="s1">&#39;map_barcodes&#39;</span><span class="p">,</span> <span class="s1">&#39;regression&#39;</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;vision_scores&#39;</span><span class="p">,</span> 
+                         <span class="s1">&#39;vision_dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;convert&#39;</span><span class="p">]:</span>
 
         <span class="c1"># Start the process</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">run_function_gui</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">process_args</span><span class="p">)</span>
         <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-        <span class="c1"># Set high priority for the process</span>
-        <span class="c1">#set_high_priority(process)</span>
 
         <span class="c1"># Set CPU affinity if necessary</span>
         <span class="n">set_cpu_affinity</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
@@ -916,7 +1075,8 @@
                     <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
                         <span class="n">progress_bar</span><span class="p">[</span><span class="s1">&#39;maximum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_progress</span>
                         <span class="n">progress_bar</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_progress_count</span>
-
+                        <span class="c1">#print(&quot;Current progress bar value:&quot;, progress_bar[&#39;value&#39;]) # Debugg</span>
+                        
                     <span class="c1"># Store operation type and additional info</span>
                     <span class="k">if</span> <span class="n">operation_type</span><span class="p">:</span>
                         <span class="n">progress_bar</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span>
@@ -968,12 +1128,16 @@
 <span class="sd">        tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">global</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">fig_memory_limit</span><span class="p">,</span> <span class="n">figure_current_memory_usage</span>
+    <span class="k">global</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">index_control</span><span class="p">,</span> <span class="n">usage_bars</span>
     
-    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">setup_frame</span>
+    <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">setup_frame</span><span class="p">,</span> <span class="n">get_screen_dimensions</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">descriptions</span>
+    <span class="c1">#from .openai import Chatbot</span>
 
-    <span class="n">uppdate_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">uppdate_frequency</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="n">num_cores</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+    <span class="c1">#chatbot = Chatbot(api_key=&quot;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&quot;)</span>
 
     <span class="c1"># Start tracemalloc and initialize global variables</span>
     <span class="n">tracemalloc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -985,8 +1149,6 @@
     <span class="c1"># Initialize global variables</span>
     <span class="n">figures</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
     <span class="n">figure_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="n">fig_memory_limit</span> <span class="o">=</span> <span class="mi">200</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># 200 MB limit</span>
-    <span class="n">figure_current_memory_usage</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="n">parent_frame</span> <span class="o">=</span> <span class="n">parent</span>
 
@@ -1013,12 +1175,16 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">vars_dict</span> <span class="o">=</span> <span class="n">setup_settings_panel</span><span class="p">(</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;setup_settings_panel&#39;</span><span class="p">)</span>
-        <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
-        <span class="n">console_output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">setup_console</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span>
+        <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span> <span class="o">=</span> <span class="n">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">)</span>
+        <span class="n">console_output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">setup_console</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">)</span> <span class="c1">#, chatbot)</span>
         <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">setup_button_section</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">)</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">setup_usage_panel</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">btn_col</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">num_cores</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">setup_usage_panel</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">btn_col</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">usage_bars</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">set_globals</span><span class="p">(</span><span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">fig_memory_limit</span><span class="p">,</span> <span class="n">figure_current_memory_usage</span><span class="p">)</span>
+        <span class="n">set_globals</span><span class="p">(</span><span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">)</span>
         <span class="n">description_text</span> <span class="o">=</span> <span class="n">descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="s2">&quot;No description available for this module.&quot;</span><span class="p">)</span>
         
         <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Console&quot;</span><span class="p">)</span>
@@ -1032,6 +1198,8 @@
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Root initialization complete&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span></div>
+
+
 
 </pre></div>
 

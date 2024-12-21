@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui_utils &mdash; spacr 0.2.65 documentation</title>
+  <title>spacr.gui_utils &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
+0.3.80 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -33,9 +32,6 @@
           <a href="../../index.html" class="icon icon-home">
             spacr
           </a>
-              <div class="version">
-                0.2.65
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -74,7 +70,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for spacr.gui_utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">ast</span><span class="o">,</span> <span class="nn">ctypes</span><span class="o">,</span> <span class="nn">ast</span><span class="o">,</span> <span class="nn">sqlite3</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">traceback</span><span class="o">,</span> <span class="nn">torch</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">ast</span><span class="o">,</span> <span class="nn">ctypes</span><span class="o">,</span> <span class="nn">ast</span><span class="o">,</span> <span class="nn">sqlite3</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">traceback</span><span class="o">,</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span>
@@ -82,6 +78,8 @@
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">list_repo_files</span>
 <span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageTk</span>
+<span class="kn">from</span> <span class="nn">screeninfo</span> <span class="kn">import</span> <span class="n">get_monitors</span>
 
 <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">AnnotateApp</span><span class="p">,</span> <span class="n">spacrEntry</span><span class="p">,</span> <span class="n">spacrCheck</span><span class="p">,</span> <span class="n">spacrCombo</span>
 
@@ -165,7 +163,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">proceed_with_app</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">app_func</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="parse_list">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.parse_list">[docs]</a>
 <span class="k">def</span> <span class="nf">parse_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
@@ -176,7 +174,7 @@
 <span class="sd">        value (str): The string representation of the list.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list: The parsed list.</span>
+<span class="sd">        list: The parsed list, which can contain integers, floats, or strings.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If the input value is not a valid list format or contains mixed types or unsupported types.</span>
@@ -184,13 +182,14 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">parsed_value</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parsed_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="c1"># Check if the list elements are homogeneous (all int or all str)</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">parsed_value</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">parsed_value</span>
-            <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">parsed_value</span><span class="p">):</span>
+            <span class="c1"># Check if all elements are homogeneous (either all int, float, or str)</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">parsed_value</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">parsed_value</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;List contains mixed types or unsupported types&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parsed_value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="c1"># Convert tuple to list if it’s a single-element tuple</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">parsed_value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parsed_value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">[</span><span class="n">parsed_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected a list but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">parsed_value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">SyntaxError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -336,14 +335,30 @@
     <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
-    <span class="n">root</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;geom&#39;</span><span class="p">])</span>
-    <span class="n">app</span> <span class="o">=</span> <span class="n">AnnotateApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_type&#39;</span><span class="p">],</span> <span class="n">channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="n">image_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">],</span> <span class="n">grid_rows</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;rows&#39;</span><span class="p">],</span> <span class="n">grid_cols</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">],</span> <span class="n">annotation_column</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="n">percentiles</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">],</span> <span class="n">measurement</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">],</span> <span class="n">threshold</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">])</span>
-    <span class="n">next_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Next&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">next_page</span><span class="p">)</span>
-    <span class="n">next_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">back_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">previous_page</span><span class="p">)</span>
-    <span class="n">back_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">exit_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Exit&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">shutdown</span><span class="p">)</span>
-    <span class="n">exit_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span>
+    
+    <span class="n">root</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">winfo_screenwidth</span><span class="p">()</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">winfo_screenheight</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;measurements/measurements.db&#39;</span><span class="p">)</span>
+
+    <span class="n">app</span> <span class="o">=</span> <span class="n">AnnotateApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span>
+                      <span class="n">db_path</span><span class="o">=</span><span class="n">db_path</span><span class="p">,</span>
+                      <span class="n">src</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span>
+                      <span class="n">image_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_type&#39;</span><span class="p">],</span>
+                      <span class="n">channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span>
+                      <span class="n">image_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">],</span>
+                      <span class="n">annotation_column</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">],</span>
+                      <span class="n">normalize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span>
+                      <span class="n">percentiles</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">],</span>
+                      <span class="n">measurement</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">],</span>
+                      <span class="n">threshold</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">],</span>
+                      <span class="n">normalize_channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_channels&#39;</span><span class="p">])</span>
+    
+    <span class="c1">#next_button = tk.Button(root, text=&quot;Next&quot;, command=app.next_page)</span>
+    <span class="c1">#next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)</span>
+    <span class="c1">#back_button = tk.Button(root, text=&quot;Back&quot;, command=app.previous_page)</span>
+    <span class="c1">#back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)</span>
+    <span class="c1">#exit_button = tk.Button(root, text=&quot;Exit&quot;, command=app.shutdown)</span>
+    <span class="c1">#exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)</span>
     
     <span class="n">app</span><span class="o">.</span><span class="n">load_images</span><span class="p">()</span>
     <span class="n">root</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span></div>
@@ -371,7 +386,6 @@
     <span class="c1"># Arrange input fields and labels</span>
     <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vars_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">fg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c1">#ttk.Label(frame, text=f&quot;{name.replace(&#39;_&#39;, &#39; &#39;).capitalize()}:&quot;, background=&quot;black&quot;, foreground=&quot;white&quot;).grid(row=row, column=0)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
             <span class="c1"># Convert lists to comma-separated strings</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;entry&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])))</span>
@@ -390,6 +404,7 @@
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>  <span class="c1"># Convert string to list of integers</span>
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>  <span class="c1"># Convert string to list of integers</span>
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
+    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_channels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;rows&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;rows&#39;</span><span class="p">])</span>
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">])</span>
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
@@ -438,46 +453,6 @@
             <span class="n">next_app_func</span><span class="p">(</span><span class="n">new_root</span><span class="p">,</span> <span class="o">*</span><span class="n">next_app_args</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">annotate_with_image_refs</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">shutdown_callback</span><span class="p">):</span>
-    <span class="c1">#from .gui_utils import proceed_with_app</span>
-    <span class="kn">from</span> <span class="nn">.gui</span> <span class="kn">import</span> <span class="n">gui_app</span>
-    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_annotate_default_settings</span>
-
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_annotate_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-    <span class="n">src</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
-
-    <span class="n">db</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;measurements/measurements.db&#39;</span><span class="p">)</span>
-    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;PRAGMA table_info(png_list)&#39;</span><span class="p">)</span>
-    <span class="n">cols</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]:</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALTER TABLE png_list ADD COLUMN </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> integer&quot;</span><span class="p">)</span>
-    <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="n">app</span> <span class="o">=</span> <span class="n">AnnotateApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_type&#39;</span><span class="p">],</span> <span class="n">channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="n">image_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">],</span> <span class="n">grid_rows</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;rows&#39;</span><span class="p">],</span> <span class="n">grid_cols</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">],</span> <span class="n">annotation_column</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="n">percentiles</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">],</span> <span class="n">measurement</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">],</span> <span class="n">threshold</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">])</span>
-
-    <span class="c1"># Set the canvas background to black</span>
-    <span class="n">root</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
-
-    <span class="n">next_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Next&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">next_page</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">next_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">back_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">previous_page</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">back_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">exit_button</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Exit&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="n">app</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(),</span> <span class="n">shutdown_callback</span><span class="p">()],</span> <span class="n">background</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">exit_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">grid_cols</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span>
-
-    <span class="c1">#app.load_images()</span>
-
-    <span class="c1"># Store the shutdown function and next app details in the root</span>
-    <span class="n">root</span><span class="o">.</span><span class="n">current_app_exit_func</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="n">app</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(),</span> <span class="n">shutdown_callback</span><span class="p">()]</span>
-    <span class="n">root</span><span class="o">.</span><span class="n">next_app_func</span> <span class="o">=</span> <span class="n">proceed_with_app</span>
-    <span class="n">root</span><span class="o">.</span><span class="n">next_app_args</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Main App&quot;</span><span class="p">,</span> <span class="n">gui_app</span><span class="p">)</span>
-
-    <span class="c1"># Call load_images after setting up the root window</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">load_images</span><span class="p">()</span>
-
 <div class="viewcode-block" id="annotate_with_image_refs">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.annotate_with_image_refs">[docs]</a>
 <span class="k">def</span> <span class="nf">annotate_with_image_refs</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">shutdown_callback</span><span class="p">):</span>
@@ -500,7 +475,7 @@
     <span class="n">screen_height</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">winfo_screenheight</span><span class="p">()</span>
     <span class="n">root</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">screen_width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">screen_height</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">app</span> <span class="o">=</span> <span class="n">AnnotateApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_type&#39;</span><span class="p">],</span> <span class="n">channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="n">image_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">],</span> <span class="n">annotation_column</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="n">percentiles</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">],</span> <span class="n">measurement</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">],</span> <span class="n">threshold</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">])</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">AnnotateApp</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">image_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_type&#39;</span><span class="p">],</span> <span class="n">channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="n">image_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_size&#39;</span><span class="p">],</span> <span class="n">annotation_column</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="n">percentiles</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;percentiles&#39;</span><span class="p">],</span> <span class="n">measurement</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">],</span> <span class="n">threshold</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">],</span> <span class="n">normalize_channels</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize_channels&#39;</span><span class="p">])</span>
 
     <span class="c1"># Set the canvas background to black</span>
     <span class="n">root</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
@@ -522,17 +497,18 @@
     <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">special_cases</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;metadata_type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;cellvoyager&#39;</span><span class="p">,</span> <span class="s1">&#39;cq1&#39;</span><span class="p">,</span> <span class="s1">&#39;nikon&#39;</span><span class="p">,</span> <span class="s1">&#39;zeis&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">],</span> <span class="s1">&#39;cellvoyager&#39;</span><span class="p">),</span>
-        <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1,2]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0]&#39;</span><span class="p">],</span> <span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1,2]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,0]&#39;</span><span class="p">],</span> <span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">),</span>
         <span class="s1">&#39;train_channels&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;[&#39;r&#39;,&#39;g&#39;,&#39;b&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;[&#39;r&#39;,&#39;g&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;[&#39;r&#39;,&#39;b&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;[&#39;g&#39;,&#39;b&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;[&#39;r&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;[&#39;g&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;[&#39;b&#39;]&quot;</span><span class="p">],</span> <span class="s2">&quot;[&#39;r&#39;,&#39;g&#39;,&#39;b&#39;]&quot;</span><span class="p">),</span>
         <span class="s1">&#39;channel_dims&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1,2]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0]&#39;</span><span class="p">],</span> <span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">),</span>
         <span class="s1">&#39;dataset_mode&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;annotation&#39;</span><span class="p">,</span> <span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">],</span> <span class="s1">&#39;metadata&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;cov_type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;HC0&#39;</span><span class="p">,</span> <span class="s1">&#39;HC1&#39;</span><span class="p">,</span> <span class="s1">&#39;HC2&#39;</span><span class="p">,</span> <span class="s1">&#39;HC3&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;cell_mask_dim&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;cell_chann_dim&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;nucleus_mask_dim&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;nucleus_chann_dim&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;pathogen_mask_dim&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;pathogen_chann_dim&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="s1">&#39;crop_mode&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;[cell, nucleus, pathogen]&#39;</span><span class="p">,</span> <span class="s1">&#39;[cell,nucleus, pathogen]&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">]),</span>
+        <span class="s1">&#39;crop_mode&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;cell&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nucleus&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">]],</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">]),</span>
         <span class="s1">&#39;magnification&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">20</span><span class="p">),</span>
         <span class="s1">&#39;nucleus_channel&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans_v2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="s1">&#39;cell_channel&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="n">chans_v2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -627,12 +603,16 @@
 <span class="k">def</span> <span class="nf">run_function_gui</span><span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">stop_requested</span><span class="p">):</span>
     
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">process_stdout_stderr</span>
-    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">generate_image_umap</span><span class="p">,</span> <span class="n">preprocess_generate_masks</span><span class="p">,</span> <span class="n">generate_ml_scores</span><span class="p">,</span> <span class="n">identify_masks_finetune</span><span class="p">,</span> <span class="n">check_cellpose_models</span><span class="p">,</span> <span class="n">analyze_recruitment</span><span class="p">,</span> <span class="n">train_cellpose</span><span class="p">,</span> <span class="n">compare_cellpose_masks</span><span class="p">,</span> <span class="n">analyze_plaques</span><span class="p">,</span> <span class="n">generate_dataset</span><span class="p">,</span> <span class="n">apply_model_to_tar</span>
-    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">generate_cellpose_train_test</span>
+    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">generate_image_umap</span><span class="p">,</span> <span class="n">preprocess_generate_masks</span>
+    <span class="kn">from</span> <span class="nn">.cellpose</span> <span class="kn">import</span> <span class="n">identify_masks_finetune</span><span class="p">,</span> <span class="n">check_cellpose_models</span><span class="p">,</span> <span class="n">compare_cellpose_masks</span>
+    <span class="kn">from</span> <span class="nn">.submodules</span> <span class="kn">import</span> <span class="n">analyze_recruitment</span>
+    <span class="kn">from</span> <span class="nn">.ml</span> <span class="kn">import</span> <span class="n">generate_ml_scores</span><span class="p">,</span> <span class="n">perform_regression</span>
+    <span class="kn">from</span> <span class="nn">.submodules</span> <span class="kn">import</span> <span class="n">train_cellpose</span><span class="p">,</span> <span class="n">analyze_plaques</span>
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">process_non_tif_non_2D_images</span><span class="p">,</span> <span class="n">generate_cellpose_train_test</span><span class="p">,</span> <span class="n">generate_dataset</span>
     <span class="kn">from</span> <span class="nn">.measure</span> <span class="kn">import</span> <span class="n">measure_crop</span>
     <span class="kn">from</span> <span class="nn">.sim</span> <span class="kn">import</span> <span class="n">run_multiple_simulations</span>
-    <span class="kn">from</span> <span class="nn">.deep_spacr</span> <span class="kn">import</span> <span class="n">deep_spacr</span>
-    <span class="kn">from</span> <span class="nn">.sequencing</span> <span class="kn">import</span> <span class="n">generate_barecode_mapping</span><span class="p">,</span> <span class="n">perform_regression</span>
+    <span class="kn">from</span> <span class="nn">.deep_spacr</span> <span class="kn">import</span> <span class="n">deep_spacr</span><span class="p">,</span> <span class="n">apply_model_to_tar</span>
+    <span class="kn">from</span> <span class="nn">.sequencing</span> <span class="kn">import</span> <span class="n">generate_barecode_mapping</span>
     <span class="n">process_stdout_stderr</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;run_function_gui settings_type: </span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> 
@@ -654,7 +634,7 @@
         <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;ml_analyze&#39;</span><span class="p">:</span>
         <span class="n">function</span> <span class="o">=</span> <span class="n">generate_ml_scores</span>
-        <span class="n">imports</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;cellpose_masks&#39;</span><span class="p">:</span>
         <span class="n">function</span> <span class="o">=</span> <span class="n">identify_masks_finetune</span>
         <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
@@ -672,6 +652,12 @@
         <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;umap&#39;</span><span class="p">:</span>
         <span class="n">function</span> <span class="o">=</span> <span class="n">generate_image_umap</span>
+        <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;analyze_plaques&#39;</span><span class="p">:</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">analyze_plaques</span>
+        <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;convert&#39;</span><span class="p">:</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">process_non_tif_non_2D_images</span>
         <span class="n">imports</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid settings type: </span><span class="si">{</span><span class="n">settings_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -721,31 +707,42 @@
     <span class="n">size_dict</span> <span class="o">=</span> <span class="n">set_element_size</span><span class="p">()</span>
     <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
 
-    <span class="n">settings_container</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;settings_width&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
-    <span class="n">vertical_container</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;panel_width&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
-    <span class="n">horizontal_container</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;panel_height&#39;</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;panel_width&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+    <span class="c1"># Configure the main layout using PanedWindow</span>
+    <span class="n">main_paned</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">bd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">)</span>
+    <span class="n">main_paned</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
 
+    <span class="c1"># Allow the main_paned to expand and fill the window</span>
     <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">settings_container</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
-    <span class="n">vertical_container</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
-    <span class="n">horizontal_container</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">)</span>
+    <span class="c1"># Create the settings container on the left</span>
+    <span class="n">settings_container</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">main_paned</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;settings_width&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">bd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">)</span>
+    <span class="n">main_paned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">minsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># Allow resizing with a minimum size</span>
 
-    <span class="c1"># Ensure settings_container maintains its width</span>
-    <span class="n">settings_container</span><span class="o">.</span><span class="n">grid_propagate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings_container</span><span class="o">.</span><span class="n">update_idletasks</span><span class="p">()</span>
+    <span class="c1"># Create a right container frame to hold vertical and horizontal containers</span>
+    <span class="n">right_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">main_paned</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">bd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">)</span>
+    <span class="n">main_paned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">right_frame</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
 
-    <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Settings Container&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">)</span>
+    <span class="c1"># Configure the right_frame grid layout</span>
+    <span class="n">right_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Vertical container expands</span>
+    <span class="n">right_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Horizontal container at bottom</span>
+    <span class="n">right_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="p">[</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">vertical_container</span><span class="p">,</span> <span class="n">horizontal_container</span><span class="p">])</span>
-    
-    <span class="c1">#size = style_out[&#39;font_size&#39;] - 2</span>
-    <span class="c1">#set_default_font(parent_frame, font_name=style_out[&#39;font_family&#39;], size=size)</span>
+    <span class="c1"># Inside right_frame, add vertical_container at the top</span>
+    <span class="n">vertical_container</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">right_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">bd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">)</span>
+    <span class="n">vertical_container</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add horizontal_container aligned with the bottom of settings_container</span>
+    <span class="n">horizontal_container</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">right_frame</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;panel_height&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">],</span> <span class="n">bd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">)</span>
+    <span class="n">horizontal_container</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;ew&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Example content for settings_container</span>
+    <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Settings Container&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="p">[</span><span class="n">settings_container</span><span class="p">,</span> <span class="n">vertical_container</span><span class="p">,</span> <span class="n">horizontal_container</span><span class="p">,</span> <span class="n">main_paned</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vertical_container</span><span class="p">,</span> <span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_container</span></div>
+
 
 
 <div class="viewcode-block" id="download_hug_dataset">
@@ -840,6 +837,283 @@
 <span class="k">def</span> <span class="nf">ensure_after_tasks</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="s1">&#39;after_tasks&#39;</span><span class="p">):</span>
         <span class="n">frame</span><span class="o">.</span><span class="n">after_tasks</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="display_gif_in_plot_frame">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.display_gif_in_plot_frame">[docs]</a>
+<span class="k">def</span> <span class="nf">display_gif_in_plot_frame</span><span class="p">(</span><span class="n">gif_path</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display and zoom a GIF to fill the entire parent_frame, maintaining aspect ratio, with lazy resizing and caching.&quot;&quot;&quot;</span>
+    <span class="c1"># Clear parent_frame if it contains any previous widgets</span>
+    <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_children</span><span class="p">():</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+    <span class="c1"># Load the GIF</span>
+    <span class="n">gif</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">gif_path</span><span class="p">)</span>
+
+    <span class="c1"># Get the aspect ratio of the GIF</span>
+    <span class="n">gif_width</span><span class="p">,</span> <span class="n">gif_height</span> <span class="o">=</span> <span class="n">gif</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">gif_aspect_ratio</span> <span class="o">=</span> <span class="n">gif_width</span> <span class="o">/</span> <span class="n">gif_height</span>
+
+    <span class="c1"># Create a label to display the GIF and configure it to fill the parent_frame</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+    <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>  <span class="c1"># Expands in all directions (north, south, east, west)</span>
+
+    <span class="c1"># Configure parent_frame to stretch the label to fill available space</span>
+    <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Cache for storing resized frames (lazily filled)</span>
+    <span class="n">resized_frames_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Store last frame size and aspect ratio</span>
+    <span class="n">last_frame_width</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">last_frame_height</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">resize_and_crop_frame</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resize and crop the current frame of the GIF to fit the parent_frame while maintaining the aspect ratio.&quot;&quot;&quot;</span>
+        <span class="c1"># If the frame is already cached at the current size, return it</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">)</span> <span class="ow">in</span> <span class="n">resized_frames_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resized_frames_cache</span><span class="p">[(</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">)]</span>
+
+        <span class="c1"># Calculate the scaling factor to zoom in on the GIF</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">frame_width</span> <span class="o">/</span> <span class="n">gif_width</span><span class="p">,</span> <span class="n">frame_height</span> <span class="o">/</span> <span class="n">gif_height</span><span class="p">)</span>
+
+        <span class="c1"># Calculate new dimensions while maintaining the aspect ratio</span>
+        <span class="n">new_width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gif_width</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span>
+        <span class="n">new_height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gif_height</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span>
+
+        <span class="c1"># Resize the GIF to fit the frame using NEAREST for faster resizing</span>
+        <span class="n">gif</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>
+        <span class="n">resized_gif</span> <span class="o">=</span> <span class="n">gif</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">NEAREST</span> <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the cropping box to center the resized GIF in the frame</span>
+        <span class="n">crop_left</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_width</span> <span class="o">-</span> <span class="n">frame_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">crop_top</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_height</span> <span class="o">-</span> <span class="n">frame_height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">crop_right</span> <span class="o">=</span> <span class="n">crop_left</span> <span class="o">+</span> <span class="n">frame_width</span>
+        <span class="n">crop_bottom</span> <span class="o">=</span> <span class="n">crop_top</span> <span class="o">+</span> <span class="n">frame_height</span>
+
+        <span class="c1"># Crop the resized GIF to exactly fit the frame</span>
+        <span class="n">cropped_gif</span> <span class="o">=</span> <span class="n">resized_gif</span><span class="o">.</span><span class="n">crop</span><span class="p">((</span><span class="n">crop_left</span><span class="p">,</span> <span class="n">crop_top</span><span class="p">,</span> <span class="n">crop_right</span><span class="p">,</span> <span class="n">crop_bottom</span><span class="p">))</span>
+
+        <span class="c1"># Convert the cropped frame to a Tkinter-compatible format</span>
+        <span class="n">frame_image</span> <span class="o">=</span> <span class="n">ImageTk</span><span class="o">.</span><span class="n">PhotoImage</span><span class="p">(</span><span class="n">cropped_gif</span><span class="p">)</span>
+
+        <span class="c1"># Cache the resized frame</span>
+        <span class="n">resized_frames_cache</span><span class="p">[(</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">)]</span> <span class="o">=</span> <span class="n">frame_image</span>
+
+        <span class="k">return</span> <span class="n">frame_image</span>
+
+    <span class="k">def</span> <span class="nf">update_frame</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the GIF frame using lazy resizing and caching.&quot;&quot;&quot;</span>
+        <span class="c1"># Get the current size of the parent_frame</span>
+        <span class="n">frame_width</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">()</span>
+        <span class="n">frame_height</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_height</span><span class="p">()</span>
+
+        <span class="c1"># Only resize if the frame size has changed</span>
+        <span class="k">nonlocal</span> <span class="n">last_frame_width</span><span class="p">,</span> <span class="n">last_frame_height</span>
+        <span class="k">if</span> <span class="n">frame_width</span> <span class="o">!=</span> <span class="n">last_frame_width</span> <span class="ow">or</span> <span class="n">frame_height</span> <span class="o">!=</span> <span class="n">last_frame_height</span><span class="p">:</span>
+            <span class="n">last_frame_width</span><span class="p">,</span> <span class="n">last_frame_height</span> <span class="o">=</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span>
+
+        <span class="c1"># Get the resized and cropped frame image</span>
+        <span class="n">frame_image</span> <span class="o">=</span> <span class="n">resize_and_crop_frame</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">frame_image</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">frame_image</span>  <span class="c1"># Keep a reference to avoid garbage collection</span>
+
+        <span class="c1"># Move to the next frame, or loop back to the beginning</span>
+        <span class="n">next_frame_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">frame_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">gif</span><span class="o">.</span><span class="n">n_frames</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">gif</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">],</span> <span class="n">update_frame</span><span class="p">,</span> <span class="n">next_frame_idx</span><span class="p">)</span>
+
+    <span class="c1"># Start the GIF animation from frame 0</span>
+    <span class="n">update_frame</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="display_media_in_plot_frame">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.display_media_in_plot_frame">[docs]</a>
+<span class="k">def</span> <span class="nf">display_media_in_plot_frame</span><span class="p">(</span><span class="n">media_path</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display an MP4, AVI, or GIF and play it on repeat in the parent_frame, fully filling the frame while maintaining aspect ratio.&quot;&quot;&quot;</span>
+    <span class="c1"># Clear parent_frame if it contains any previous widgets</span>
+    <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_children</span><span class="p">():</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+    <span class="c1"># Check file extension to decide between video (mp4/avi) or gif</span>
+    <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">file_extension</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;.avi&#39;</span><span class="p">]:</span>
+        <span class="c1"># Handle video formats (mp4, avi) using OpenCV</span>
+        <span class="n">video</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
+
+        <span class="c1"># Create a label to display the video</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Configure the parent_frame to expand</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">update_frame</span><span class="p">():</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Update function for playing video.&quot;&quot;&quot;</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="c1"># Get the frame dimensions</span>
+                <span class="n">frame_height</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span>
+
+                <span class="c1"># Get parent frame dimensions</span>
+                <span class="n">parent_width</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">()</span>
+                <span class="n">parent_height</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_height</span><span class="p">()</span>
+
+                <span class="c1"># Ensure dimensions are greater than 0</span>
+                <span class="k">if</span> <span class="n">parent_width</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">parent_height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Calculate the aspect ratio of the media</span>
+                    <span class="n">frame_aspect_ratio</span> <span class="o">=</span> <span class="n">frame_width</span> <span class="o">/</span> <span class="n">frame_height</span>
+                    <span class="n">parent_aspect_ratio</span> <span class="o">=</span> <span class="n">parent_width</span> <span class="o">/</span> <span class="n">parent_height</span>
+
+                    <span class="c1"># Determine whether to scale based on width or height to cover the parent frame</span>
+                    <span class="k">if</span> <span class="n">parent_aspect_ratio</span> <span class="o">&gt;</span> <span class="n">frame_aspect_ratio</span><span class="p">:</span>
+                        <span class="c1"># The parent frame is wider than the video aspect ratio</span>
+                        <span class="c1"># Fit to width, crop height</span>
+                        <span class="n">new_width</span> <span class="o">=</span> <span class="n">parent_width</span>
+                        <span class="n">new_height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parent_width</span> <span class="o">/</span> <span class="n">frame_aspect_ratio</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># The parent frame is taller than the video aspect ratio</span>
+                        <span class="c1"># Fit to height, crop width</span>
+                        <span class="n">new_width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parent_height</span> <span class="o">*</span> <span class="n">frame_aspect_ratio</span><span class="p">)</span>
+                        <span class="n">new_height</span> <span class="o">=</span> <span class="n">parent_height</span>
+
+                    <span class="c1"># Resize the frame to the new dimensions (cover the parent frame)</span>
+                    <span class="n">resized_frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">(</span><span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">))</span>
+
+                    <span class="c1"># Crop the frame to fit exactly within the parent frame</span>
+                    <span class="n">x_offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_width</span> <span class="o">-</span> <span class="n">parent_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                    <span class="n">y_offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_height</span> <span class="o">-</span> <span class="n">parent_height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                    <span class="n">cropped_frame</span> <span class="o">=</span> <span class="n">resized_frame</span><span class="p">[</span><span class="n">y_offset</span><span class="p">:</span><span class="n">y_offset</span> <span class="o">+</span> <span class="n">parent_height</span><span class="p">,</span> <span class="n">x_offset</span><span class="p">:</span><span class="n">x_offset</span> <span class="o">+</span> <span class="n">parent_width</span><span class="p">]</span>
+
+                    <span class="c1"># Convert the frame to RGB (OpenCV uses BGR by default)</span>
+                    <span class="n">cropped_frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">cropped_frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+
+                    <span class="c1"># Convert the frame to a Tkinter-compatible format</span>
+                    <span class="n">frame_image</span> <span class="o">=</span> <span class="n">ImageTk</span><span class="o">.</span><span class="n">PhotoImage</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">cropped_frame</span><span class="p">))</span>
+
+                    <span class="c1"># Update the label with the new frame</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">frame_image</span><span class="p">)</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">frame_image</span>  <span class="c1"># Keep a reference to avoid garbage collection</span>
+
+                <span class="c1"># Call update_frame again after a delay to match the video&#39;s frame rate</span>
+                <span class="n">parent_frame</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">/</span> <span class="n">video</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FPS</span><span class="p">)),</span> <span class="n">update_frame</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Restart the video if it reaches the end</span>
+                <span class="n">video</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_POS_FRAMES</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">update_frame</span><span class="p">()</span>
+
+        <span class="c1"># Start the video playback</span>
+        <span class="n">update_frame</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="s1">&#39;.gif&#39;</span><span class="p">:</span>
+        <span class="c1"># Handle GIF format using PIL</span>
+        <span class="n">gif</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
+
+        <span class="c1"># Create a label to display the GIF</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Configure the parent_frame to expand</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">parent_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">update_gif_frame</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Update function for playing GIF.&quot;&quot;&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">gif</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>  <span class="c1"># Move to the next frame</span>
+
+                <span class="c1"># Get the frame dimensions</span>
+                <span class="n">gif_width</span><span class="p">,</span> <span class="n">gif_height</span> <span class="o">=</span> <span class="n">gif</span><span class="o">.</span><span class="n">size</span>
+
+                <span class="c1"># Get parent frame dimensions</span>
+                <span class="n">parent_width</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">()</span>
+                <span class="n">parent_height</span> <span class="o">=</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_height</span><span class="p">()</span>
+
+                <span class="c1"># Ensure dimensions are greater than 0</span>
+                <span class="k">if</span> <span class="n">parent_width</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">parent_height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Calculate the aspect ratio of the GIF</span>
+                    <span class="n">gif_aspect_ratio</span> <span class="o">=</span> <span class="n">gif_width</span> <span class="o">/</span> <span class="n">gif_height</span>
+                    <span class="n">parent_aspect_ratio</span> <span class="o">=</span> <span class="n">parent_width</span> <span class="o">/</span> <span class="n">parent_height</span>
+
+                    <span class="c1"># Determine whether to scale based on width or height to cover the parent frame</span>
+                    <span class="k">if</span> <span class="n">parent_aspect_ratio</span> <span class="o">&gt;</span> <span class="n">gif_aspect_ratio</span><span class="p">:</span>
+                        <span class="c1"># Fit to width, crop height</span>
+                        <span class="n">new_width</span> <span class="o">=</span> <span class="n">parent_width</span>
+                        <span class="n">new_height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parent_width</span> <span class="o">/</span> <span class="n">gif_aspect_ratio</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Fit to height, crop width</span>
+                        <span class="n">new_width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parent_height</span> <span class="o">*</span> <span class="n">gif_aspect_ratio</span><span class="p">)</span>
+                        <span class="n">new_height</span> <span class="o">=</span> <span class="n">parent_height</span>
+
+                    <span class="c1"># Resize the GIF frame to cover the parent frame</span>
+                    <span class="n">resized_gif</span> <span class="o">=</span> <span class="n">gif</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+
+                    <span class="c1"># Crop the resized GIF to fit the exact parent frame dimensions</span>
+                    <span class="n">x_offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_width</span> <span class="o">-</span> <span class="n">parent_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                    <span class="n">y_offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_height</span> <span class="o">-</span> <span class="n">parent_height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                    <span class="n">cropped_gif</span> <span class="o">=</span> <span class="n">resized_gif</span><span class="o">.</span><span class="n">crop</span><span class="p">((</span><span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span><span class="p">,</span> <span class="n">x_offset</span> <span class="o">+</span> <span class="n">parent_width</span><span class="p">,</span> <span class="n">y_offset</span> <span class="o">+</span> <span class="n">parent_height</span><span class="p">))</span>
+
+                    <span class="c1"># Convert the frame to a Tkinter-compatible format</span>
+                    <span class="n">frame_image</span> <span class="o">=</span> <span class="n">ImageTk</span><span class="o">.</span><span class="n">PhotoImage</span><span class="p">(</span><span class="n">cropped_gif</span><span class="p">)</span>
+
+                    <span class="c1"># Update the label with the new frame</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">frame_image</span><span class="p">)</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">frame_image</span>  <span class="c1"># Keep a reference to avoid garbage collection</span>
+                    <span class="n">frame_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+                <span class="n">frame_idx</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Restart the GIF if at the end</span>
+
+            <span class="c1"># Schedule the next frame update</span>
+            <span class="n">parent_frame</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">gif</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">],</span> <span class="n">update_gif_frame</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">)</span>
+
+        <span class="c1"># Start the GIF animation from frame 0</span>
+        <span class="n">update_gif_frame</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported file format. Only .mp4, .avi, and .gif are supported.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_widget_structure">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.print_widget_structure">[docs]</a>
+<span class="k">def</span> <span class="nf">print_widget_structure</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively print the widget structure.&quot;&quot;&quot;</span>
+    <span class="c1"># Print the widget&#39;s name and class</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">indent</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">widget</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">widget</span><span class="o">.</span><span class="n">winfo_class</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Recursively print all child widgets</span>
+    <span class="k">for</span> <span class="n">child_name</span><span class="p">,</span> <span class="n">child_widget</span> <span class="ow">in</span> <span class="n">widget</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">print_widget_structure</span><span class="p">(</span><span class="n">child_widget</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_screen_dimensions">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.get_screen_dimensions">[docs]</a>
+<span class="k">def</span> <span class="nf">get_screen_dimensions</span><span class="p">():</span>
+    <span class="n">monitor</span> <span class="o">=</span> <span class="n">get_monitors</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get the primary monitor</span>
+    <span class="n">screen_width</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">screen_height</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span>
+    <span class="k">return</span> <span class="n">screen_width</span><span class="p">,</span> <span class="n">screen_height</span></div>
+
+
+<div class="viewcode-block" id="convert_to_number">
+<a class="viewcode-back" href="../../spacr.html#spacr.gui_utils.convert_to_number">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_to_number</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a string value to an integer if possible, otherwise converts to a float.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        value (str): The string representation of the number.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        int or float: The converted number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to convert &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; to an integer or float.&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

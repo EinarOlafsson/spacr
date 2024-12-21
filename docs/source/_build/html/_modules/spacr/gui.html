@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui &mdash; spacr 0.2.65 documentation</title>
+  <title>spacr.gui &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
+0.3.80 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=30a7333d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -33,9 +32,6 @@
           <a href="../../index.html" class="icon icon-home">
             spacr
           </a>
-              <div class="version">
-                0.2.65
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -79,17 +75,38 @@
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">set_start_method</span>
 <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">spacrButton</span><span class="p">,</span> <span class="n">create_menu_bar</span><span class="p">,</span> <span class="n">set_dark_style</span>
 <span class="kn">from</span> <span class="nn">.gui_core</span> <span class="kn">import</span> <span class="n">initiate_root</span>
+<span class="kn">from</span> <span class="nn">screeninfo</span> <span class="kn">import</span> <span class="n">get_monitors</span>
 
 <div class="viewcode-block" id="MainApp">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui.MainApp">[docs]</a>
 <span class="k">class</span> <span class="nc">MainApp</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_app</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_screenwidth</span><span class="p">()</span>
-        <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_screenheight</span><span class="p">()</span>
+
+        <span class="c1"># Initialize the window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="s2">&quot;100x100&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_idletasks</span><span class="p">()</span>
+
+        <span class="c1"># Get the current window position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_idletasks</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_x</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_y</span><span class="p">()</span>
+
+        <span class="c1"># Find the monitor where the window is located</span>
+        <span class="k">for</span> <span class="n">monitor</span> <span class="ow">in</span> <span class="n">get_monitors</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">monitor</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">monitor</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="n">monitor</span><span class="o">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">monitor</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">monitor</span> <span class="o">=</span> <span class="n">get_monitors</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span>
+
+        <span class="c1"># Set the window size to the dimensions of the monitor where it is located</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;SpaCr GUI Collection&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s1">&#39;#333333&#39;</span><span class="p">)</span>  <span class="c1"># Set window background to dark gray</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s1">&#39;#333333&#39;</span><span class="p">)</span>
 
         <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">color_settings</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">parent_frame</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
@@ -105,7 +122,7 @@
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">additional_gui_apps</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1">#&quot;Sequencing&quot;: (lambda frame: initiate_root(self, &#39;sequencing&#39;), &quot;Analyze sequencing data.&quot;),</span>
+            <span class="s2">&quot;Convert&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;convert&#39;</span><span class="p">),</span> <span class="s2">&quot;Convert images to Grayscale TIFs.&quot;</span><span class="p">),</span>
             <span class="s2">&quot;Umap&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;umap&#39;</span><span class="p">),</span> <span class="s2">&quot;Generate UMAP embeddings with datapoints represented as images.&quot;</span><span class="p">),</span>
             <span class="s2">&quot;Train Cellpose&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;train_cellpose&#39;</span><span class="p">),</span> <span class="s2">&quot;Train custom Cellpose models.&quot;</span><span class="p">),</span>
             <span class="s2">&quot;ML Analyze&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ml_analyze&#39;</span><span class="p">),</span> <span class="s2">&quot;Machine learning analysis of data.&quot;</span><span class="p">),</span>
@@ -113,7 +130,9 @@
             <span class="s2">&quot;Cellpose All&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;cellpose_all&#39;</span><span class="p">),</span> <span class="s2">&quot;Run Cellpose on all images.&quot;</span><span class="p">),</span>
             <span class="s2">&quot;Map Barcodes&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;map_barcodes&#39;</span><span class="p">),</span> <span class="s2">&quot;Map barcodes to data.&quot;</span><span class="p">),</span>
             <span class="s2">&quot;Regression&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;regression&#39;</span><span class="p">),</span> <span class="s2">&quot;Perform regression analysis.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;Recruitment&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">),</span> <span class="s2">&quot;Analyze recruitment data.&quot;</span><span class="p">)</span>
+            <span class="s2">&quot;Recruitment&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">),</span> <span class="s2">&quot;Analyze recruitment data.&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;Activation&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;activation&#39;</span><span class="p">),</span> <span class="s2">&quot;Generate activation maps of computer vision models and measure channel-activation correlation.&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;Plaque&quot;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">frame</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;analyze_plaques&#39;</span><span class="p">),</span> <span class="s2">&quot;Analyze plaque data.&quot;</span><span class="p">)</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">selected_app</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
@@ -129,17 +148,21 @@
     <span class="k">def</span> <span class="nf">create_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">create_menu_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">highlightthickness</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+        <span class="c1"># Use a grid layout for centering</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Center the content frame within the window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">create_window</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">winfo_screenwidth</span><span class="p">()</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_screenheight</span><span class="p">()</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">window</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
-
-        <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">create_startup_screen</span><span class="p">()</span></div>
 
@@ -147,17 +170,17 @@
 <div class="viewcode-block" id="MainApp.create_startup_screen">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui.MainApp.create_startup_screen">[docs]</a>
     <span class="k">def</span> <span class="nf">create_startup_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clear_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
 
-        <span class="n">main_buttons_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">)</span>
+        <span class="n">main_buttons_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
         <span class="n">main_buttons_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">main_buttons_frame</span><span class="p">])</span>
 
-        <span class="n">additional_buttons_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">)</span>
+        <span class="n">additional_buttons_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
         <span class="n">additional_buttons_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">additional_buttons_frame</span><span class="p">])</span>
 
-        <span class="n">description_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">70</span><span class="p">)</span>
+        <span class="n">description_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">70</span><span class="p">)</span>
         <span class="n">description_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">description_frame</span><span class="o">.</span><span class="n">pack_propagate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">description_frame</span><span class="p">])</span>
@@ -167,7 +190,7 @@
 
         <span class="n">logo_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">main_buttons_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SpaCr&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_app</span><span class="p">(</span><span class="s2">&quot;logo_spacr&quot;</span><span class="p">,</span> <span class="n">initiate_root</span><span class="p">),</span> <span class="n">icon_name</span><span class="o">=</span><span class="s2">&quot;logo_spacr&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">logo_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">main_buttons</span><span class="p">[</span><span class="n">logo_button</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens..&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_buttons</span><span class="p">[</span><span class="n">logo_button</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.&quot;</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">app_name</span><span class="p">,</span> <span class="n">app_data</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main_gui_apps</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="n">app_func</span><span class="p">,</span> <span class="n">app_desc</span> <span class="o">=</span> <span class="n">app_data</span>
@@ -213,9 +236,9 @@
 <div class="viewcode-block" id="MainApp.load_app">
 <a class="viewcode-back" href="../../spacr.html#spacr.gui.MainApp.load_app">[docs]</a>
     <span class="k">def</span> <span class="nf">load_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">app_func</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clear_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
 
-        <span class="n">app_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+        <span class="n">app_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
         <span class="n">app_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">app_frame</span><span class="p">])</span>
         <span class="n">app_func</span><span class="p">(</span><span class="n">app_frame</span><span class="p">)</span></div>
