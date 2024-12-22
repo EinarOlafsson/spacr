@@ -6,14 +6,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>spacr.utils &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
-0.3.80 documentation</title>
+0.3.81 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="../../_static/documentation_options.js?v=2eab0ada"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -5596,19 +5596,22 @@
 <div class="viewcode-block" id="add_column_to_database">
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.add_column_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">add_column_to_database</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adds a new column to the database table by matching on a common column from the DataFrame.</span>
-<span class="sd">    If the column already exists in the database, it adds the column with a suffix.</span>
-<span class="sd">    NaN values will remain as NULL in the database.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    - settings: A dictionary containing the following keys:</span>
-<span class="sd">        - &#39;csv_path&#39;: Path to the CSV file with the data to be added.</span>
-<span class="sd">        - &#39;db_path&#39;: Path to the SQLite database (or connection string for other databases).</span>
-<span class="sd">        - &#39;table_name&#39;: The name of the table in the database.</span>
-<span class="sd">        - &#39;update_column&#39;: The name of the new column in the DataFrame to add to the database.</span>
-<span class="sd">        - &#39;match_column&#39;: The common column used to match rows.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#&quot;&quot;&quot;</span>
+    <span class="c1">#Adds a new column to the database table by matching on a common column from the DataFrame.</span>
+    <span class="c1">#If the column already exists in the database, it adds the column with a suffix.</span>
+    <span class="c1">#NaN values will remain as NULL in the database.</span>
+
+    <span class="c1">#Parameters:</span>
+    <span class="c1">#    settings (dict): A dictionary containing the following keys:</span>
+    <span class="c1">#    csv_path (str): Path to the CSV file with the data to be added.</span>
+    <span class="c1">#    db_path (str): Path to the SQLite database (or connection string for other databases).</span>
+    <span class="c1">#    table_name (str): The name of the table in the database.</span>
+    <span class="c1">#    update_column (str): The name of the new column in the DataFrame to add to the database.</span>
+    <span class="c1">#    match_column (str): The common column used to match rows.</span>
+
+    <span class="c1">#Returns:</span>
+    <span class="c1">#    None</span>
+    <span class="c1">#&quot;&quot;&quot;</span>
 
     <span class="c1"># Read the DataFrame from the provided CSV path</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;csv_path&#39;</span><span class="p">])</span>
