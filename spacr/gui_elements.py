@@ -20,6 +20,22 @@ from tkinter import ttk, scrolledtext
 from skimage.color import rgb2gray
 fig = None
 
+def restart_gui_app(root):
+    """
+    Restarts the GUI application by destroying the current instance
+    and launching a fresh one.
+    """
+    try:
+        # Destroy the current root window
+        root.destroy()
+        
+        # Import and launch a new instance of the application
+        from spacr.gui import gui_app
+        new_root = tk.Tk()  # Create a fresh Tkinter root instance
+        gui_app()
+    except Exception as e:
+        print(f"Error restarting GUI application: {e}")
+
 def create_menu_bar(root):
     from .gui import initiate_root
     gui_apps = {
@@ -55,6 +71,7 @@ def create_menu_bar(root):
 
     # Add a separator and an exit option
     app_menu.add_separator()
+    #app_menu.add_command(label="Home",command=lambda: restart_gui_app(root))
     app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://spacr.readthedocs.io/en/latest/?badge=latest"))
     app_menu.add_command(label="Exit", command=root.quit)
 
