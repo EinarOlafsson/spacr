@@ -1018,6 +1018,66 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget):
         print(f"Error updating GUI canvas: {e}")
     finally:
         root.after(uppdate_frequency, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget))
+        
+def cleanup_previous_instance():
+    """
+    Cleans up resources from the previous application instance.
+    """
+    global parent_frame, usage_bars, figures, figure_index, thread_control, canvas, q, fig_queue
+
+    # 1. Destroy all widgets in the parent frame
+    if parent_frame is not None:
+        for widget in parent_frame.winfo_children():
+            try:
+                widget.destroy()
+            except Exception as e:
+                print(f"Error destroying widget: {e}")
+        parent_frame.update_idletasks()
+        parent_frame = None
+
+    # 2. Cancel all pending `after` tasks
+    if parent_frame is not None:
+        parent_window = parent_frame.winfo_toplevel()
+        if hasattr(parent_window, 'after_tasks'):
+            for after_id in parent_window.after_tasks:
+                parent_window.after_cancel(after_id)
+            parent_window.after_tasks = []
+
+    # 3. Clear global queues
+    if q is not None:
+        while not q.empty():
+            q.get()
+        q = None
+
+    if fig_queue is not None:
+        while not fig_queue.empty():
+            fig_queue.get()
+        fig_queue = None
+
+    # 4. Stop and reset global thread control
+    if thread_control is not None:
+        thread_control['stop'] = True
+        thread_control = None
+
+    # 5. Reset usage bars, figures, and indices
+    usage_bars = []
+    figures = deque()
+    figure_index = -1
+
+    # 6. Clear canvas or other visualizations
+    if canvas is not None:
+        try:
+            if hasattr(canvas, 'figure'):  # Check if it's a FigureCanvasTkAgg
+                canvas.figure.clear()  # Clear the Matplotlib figure
+                canvas.get_tk_widget().destroy()  # Destroy the Tkinter widget
+            else:
+                # Assume it's a standard Tkinter Canvas
+                canvas.delete("all")
+        except Exception as e:
+            print(f"Error clearing canvas: {e}")
+        canvas = None
+
+    print("Previous instance cleaned up successfully.")
 
 def initiate_root(parent, settings_type='mask'):
     """
@@ -1033,7 +1093,11 @@ def initiate_root(parent, settings_type='mask'):
     
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
     
-    from .gui_utils import setup_frame, get_screen_dimensions
+    # Clean up any previous instance
+    cleanup_previous_instance()
+    
+    from .gui_utils import setup_frame
+    from .gui_elements import create_menu_bar
     from .settings import descriptions
     #from .openai import Chatbot
 
@@ -1096,6 +1160,7 @@ def initiate_root(parent, settings_type='mask'):
         
         process_console_queue()
         process_fig_queue()
+        create_menu_bar(parent)
         after_id = parent_window.after(uppdate_frequency, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
         parent_window.after_tasks.append(after_id)
 
