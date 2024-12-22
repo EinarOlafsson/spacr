@@ -10,8 +10,8 @@ project = 'spacr'
 copyright = '2024, Your Name'
 author = 'Your Name'
 
-version = 'Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.3.80'
-release = 'Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.3.80'
+version = 'Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.3.81'
+release = 'Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.3.81'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

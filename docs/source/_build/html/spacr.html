@@ -7,14 +7,14 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>spacr package &mdash; spacr Models already downloaded to: /home/carruthers/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
-0.3.80 documentation</title>
+0.3.81 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8ad38ec3"></script>
+      <script src="_static/documentation_options.js?v=2eab0ada"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -131,6 +131,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.main_thread_update_function"><code class="docutils literal notranslate"><span class="pre">main_thread_update_function()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.process_console_queue"><code class="docutils literal notranslate"><span class="pre">process_console_queue()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.process_fig_queue"><code class="docutils literal notranslate"><span class="pre">process_fig_queue()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.process_fig_queue_v1"><code class="docutils literal notranslate"><span class="pre">process_fig_queue_v1()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.set_globals"><code class="docutils literal notranslate"><span class="pre">set_globals()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.setup_button_section"><code class="docutils literal notranslate"><span class="pre">setup_button_section()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.setup_console"><code class="docutils literal notranslate"><span class="pre">setup_console()</span></code></a></li>
@@ -1107,6 +1108,11 @@ all_labels (list): The true labels for each prediction.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.process_fig_queue">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">process_fig_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#process_fig_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.process_fig_queue" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.process_fig_queue_v1">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">process_fig_queue_v1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#process_fig_queue_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.process_fig_queue_v1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -4840,21 +4846,7 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.add_column_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">add_column_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#add_column_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.add_column_to_database" title="Link to this definition"></a></dt>
-<dd><p>Adds a new column to the database table by matching on a common column from the DataFrame.
-If the column already exists in the database, it adds the column with a suffix.
-NaN values will remain as NULL in the database.</p>
-<p>Parameters:
-- settings: A dictionary containing the following keys:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>‘csv_path’: Path to the CSV file with the data to be added.</p></li>
-<li><p>‘db_path’: Path to the SQLite database (or connection string for other databases).</p></li>
-<li><p>‘table_name’: The name of the table in the database.</p></li>
-<li><p>‘update_column’: The name of the new column in the DataFrame to add to the database.</p></li>
-<li><p>‘match_column’: The common column used to match rows.</p></li>
-</ul>
-</div></blockquote>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.add_images_to_tar">
