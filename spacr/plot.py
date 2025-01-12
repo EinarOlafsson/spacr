@@ -1381,11 +1381,11 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=1
     axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
     axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    axes[0].legend_.remove()
-    axes[1].legend_.remove()
-    axes[2].legend_.remove()
-    axes[3].legend_.remove()
-
+    #axes[0].legend_.remove()
+    #axes[1].legend_.remove()
+    #axes[2].legend_.remove()
+    #axes[3].legend_.remove()
+        
     handles, labels = axes[3].get_legend_handles_labels()
     axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
     for i in [0,1,2,3]:
@@ -2484,21 +2484,79 @@ class spacrGraph:
             plt.show()
         return reordered_palette
 
+    #def preprocess_data(self):
+    #    """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
+    #    # Remove NaNs in both the grouping column and each data column
+    #    df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
+    #    # Group by 'prc' column if representation is 'well'
+    #    if self.representation == 'well':
+    #        df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
+    #    if self.representation == 'plate':
+    #        df = df.groupby(['plate', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
+    #    if self.order:
+    #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
+    #    else:
+    #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
+    #    return df
+  
     def preprocess_data(self):
-        """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
-        # Remove NaNs in both the grouping column and each data column
+        """
+        Preprocess the data: remove NaNs, optionally ensure 'plate' column is created,
+        then group by either 'prc', 'plate', or do no grouping at all if representation == 'object'.
+        """
+        # 1) Remove NaNs in both the grouping column and each data column
         df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
-        # Group by 'prc' column if representation is 'well'
-        if self.representation == 'well':
-            df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-        if self.representation == 'plate':
-            df = df.groupby(['plate', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-        if self.order:
-            df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
-        else:
-            df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
-        return df
 
+        # 2) Decide how to handle grouping based on 'representation'
+        if self.representation == 'object':
+            # -- No grouping at all --
+            # We do nothing except keep df as-is after removing NaNs
+            group_cols = None
+
+        elif self.representation == 'well':
+            # Group by ['prc', grouping_column]
+            group_cols = ['prc', self.grouping_column]
+
+        elif self.representation == 'plate':
+            # Make sure 'plate' exists (split from 'prc' if needed)
+            if 'plate' not in df.columns:
+                if 'prc' in df.columns:
+                    df[['plate', 'row', 'column']] = df['prc'].str.split('_', expand=True)
+                else:
+                    raise KeyError(
+                        "Representation is 'plate', but no 'plate' column found. "
+                        "Also cannot split from 'prc' because 'prc' column is missing."
+                    )
+            # If the grouping column IS 'plate', only group by ['plate'] once
+            if self.grouping_column == 'plate':
+                group_cols = ['plate']
+            else:
+                group_cols = ['plate', self.grouping_column]
+
+        else:
+            raise ValueError(f"Unknown representation: {self.representation}")
+
+        # 3) Perform grouping only if group_cols is set
+        if group_cols is not None:
+            df = df.groupby(group_cols)[self.data_column].agg(self.summary_func).reset_index()
+
+        # 4) Handle ordering if specified (and if the grouping_column still exists)
+        if self.order and (self.grouping_column in df.columns):
+            df[self.grouping_column] = pd.Categorical(
+                df[self.grouping_column],
+                categories=self.order,
+                ordered=True
+            )
+        elif (self.grouping_column in df.columns):
+            # Default to sorting unique values
+            df[self.grouping_column] = pd.Categorical(
+                df[self.grouping_column],
+                categories=sorted(df[self.grouping_column].unique()),
+                ordered=True
+            )
+
+        return df
+   
     def remove_outliers_from_plot(self):
         """Remove outliers from the plot but keep them in the data."""
         filtered_df = self.df.copy()
@@ -2900,6 +2958,11 @@ class spacrGraph:
 
         # Set figure size to ensure it remains square with a minimum size
         fig_size = max(6, num_groups * 2)  / correction_factor
+        
+        if fig_size < 10:
+            fig_size = 10
+        
+        
         ax.figure.set_size_inches(fig_size, fig_size)
 
         # Configure layout based on the number of groups
@@ -3328,7 +3391,7 @@ def plot_data_from_db(settings):
             [df1] = _read_db(db_loc, tables=[settings['table_names']])
         else:
             df1, _ = _read_and_merge_data(locs=[db_loc],
-                                    tables = settings['tables'],
+                                    tables = settings['table_names'],
                                     verbose=settings['verbose'],
                                     nuclei_limit=settings['nuclei_limit'],
                                     pathogen_limit=settings['pathogen_limit'])
@@ -3410,8 +3473,6 @@ def plot_data_from_csv(settings):
     else:
         raise ValueError("src must be a string or a list of strings.")
     
-    #save_settings(settings, name=f"{settings['graph_name']}_plot_settings_csv", show=True)
-
     dfs = []
     for i, src in enumerate(srcs):
         dft = pd.read_csv(src)
@@ -3421,7 +3482,17 @@ def plot_data_from_csv(settings):
         dfs.append(dft)
 
     df = pd.concat(dfs, axis=0)
+    
+    if 'prc' in df.columns:
+        # Check if 'plate', 'row', and 'column' are all missing from df.columns
+        if not all(col in df.columns for col in ['plate', 'row_name', 'column_name']):
+            try:
+                # Split 'prc' into 'plate', 'row', and 'column'
+                df[['plate', 'row_name', 'column_name']] = df['prc'].str.split('_', expand=True)
+            except Exception as e:
+                print(f"Could not split the prc column: {e}")
 
+                
     display(df)
 
     df = df.dropna(subset=settings['data_column'])

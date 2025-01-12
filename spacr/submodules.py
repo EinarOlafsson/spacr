@@ -1,3 +1,6 @@
+
+
+
 import seaborn as sns
 import os, random, sqlite3, re, shap
 import pandas as pd
@@ -10,7 +13,10 @@ from IPython.display import display
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from math import pi
-from scipy.stats import chi2_contingency
+from scipy.stats import chi2_contingency, pearsonr
+from scipy.spatial.distance import cosine
+
+from sklearn.metrics import mean_absolute_error
 
 import matplotlib.pyplot as plt
 from natsort import natsorted
@@ -1132,3 +1138,171 @@ def analyze_class_proportion(settings):
         print("Statistical analysis results saved.")
 
     return output
+
+def generate_score_heatmap(settings):
+    
+    def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
+        
+        df = pd.read_csv(csv)
+        if 'col' in df.columns:
+            df = df[df['col']==column]
+        elif 'column' in df.columns:
+            df['col'] = df['column']
+            df = df[df['col']==column]
+        if not plate is None:
+            df['plate'] = f"plate{plate}"
+        grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
+        grouped_df['prc'] = grouped_df['plate'].astype(str) + '_' + grouped_df['row'].astype(str) + '_' + grouped_df['col'].astype(str)
+        return grouped_df
+
+    def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
+        df = pd.read_csv(csv)  
+        df = df[df['column_name']==column]
+        if plate not in df.columns:
+            df['plate'] = f"plate{plate}"
+        df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
+        grouped_df = df.groupby(['plate', 'row_name', 'column_name'])['count'].sum().reset_index()
+        grouped_df = grouped_df.rename(columns={'count': 'total_count'})
+        merged_df = pd.merge(df, grouped_df, on=['plate', 'row_name', 'column_name'])
+        merged_df['fraction'] = merged_df['count'] / merged_df['total_count']
+        merged_df['prc'] = merged_df['plate'].astype(str) + '_' + merged_df['row_name'].astype(str) + '_' + merged_df['column_name'].astype(str)
+        return merged_df
+
+    def plot_multi_channel_heatmap(df, column='c3', cmap='coolwarm'):
+        """
+        Plot a heatmap with multiple channels as columns.
+
+        Parameters:
+        - df: DataFrame with scores for different channels.
+        - column: Column to filter by (default is 'c3').
+        """
+        # Extract row number and convert to integer for sorting
+        df['row_num'] = df['row'].str.extract(r'(\d+)').astype(int)
+
+        # Filter and sort by plate, row, and column
+        df = df[df['col'] == column]
+        df = df.sort_values(by=['plate', 'row_num', 'col'])
+
+        # Drop temporary 'row_num' column after sorting
+        df = df.drop('row_num', axis=1)
+
+        # Create a new column combining plate, row, and column for the index
+        df['plate_row_col'] = df['plate'] + '-' + df['row'] + '-' + df['col']
+
+        # Set 'plate_row_col' as the index
+        df.set_index('plate_row_col', inplace=True)
+
+        # Extract only numeric data for the heatmap
+        heatmap_data = df.select_dtypes(include=[float, int])
+
+        # Plot heatmap with square boxes, no annotations, and 'viridis' colormap
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(
+            heatmap_data,
+            cmap=cmap,
+            cbar=True,
+            square=True,
+            annot=False
+        )
+
+        plt.title("Heatmap of Prediction Scores for All Channels")
+        plt.xlabel("Channels")
+        plt.ylabel("Plate-Row-Column")
+        plt.tight_layout()
+
+        # Save the figure object and return it
+        fig = plt.gcf()
+        plt.show()
+
+        return fig
+
+
+    def combine_classification_scores(folders, csv_name, data_column, plate=1, column='c3'):
+        # Ensure `folders` is a list
+        if isinstance(folders, str):
+            folders = [folders]
+
+        ls = []  # Initialize ls to store found CSV file paths
+
+        # Iterate over the provided folders
+        for folder in folders:
+            sub_folders = os.listdir(folder)  # Get sub-folder list
+            for sub_folder in sub_folders:  # Iterate through sub-folders
+                path = os.path.join(folder, sub_folder)  # Join the full path
+
+                if os.path.isdir(path):  # Check if it’s a directory
+                    csv = os.path.join(path, csv_name)  # Join path to the CSV file
+                    if os.path.exists(csv):  # If CSV exists, add to list
+                        ls.append(csv)
+                    else:
+                        print(f'No such file: {csv}')
+
+        # Initialize combined DataFrame
+        combined_df = None
+        print(f'Found {len(ls)} CSV files')
+
+        # Loop through all collected CSV files and process them
+        for csv_file in ls:
+            df = pd.read_csv(csv_file)  # Read CSV into DataFrame
+            df = df[df['col']==column]
+            if not plate is None:
+                df['plate'] = f"plate{plate}"
+            # Group the data by 'plate', 'row', and 'col'
+            grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
+            # Use the CSV filename to create a new column name
+            folder_name = os.path.dirname(csv_file).replace(".csv", "")
+            new_column_name = os.path.basename(f"{folder_name}_{data_column}")
+            print(new_column_name)
+            grouped_df = grouped_df.rename(columns={data_column: new_column_name})
+
+            # Merge into the combined DataFrame
+            if combined_df is None:
+                combined_df = grouped_df
+            else:
+                combined_df = pd.merge(combined_df, grouped_df, on=['plate', 'row', 'col'], how='outer')
+        combined_df['prc'] = combined_df['plate'].astype(str) + '_' + combined_df['row'].astype(str) + '_' + combined_df['col'].astype(str)
+        return combined_df
+    
+    def calculate_mae(df):
+        """
+        Calculate the MAE between each channel's predictions and the fraction column for all rows.
+        """
+        # Extract numeric columns excluding 'fraction' and 'prc'
+        channels = df.drop(columns=['fraction', 'prc']).select_dtypes(include=[float, int])
+
+        mae_data = []
+
+        # Compute MAE for each channel with 'fraction' for all rows
+        for column in channels.columns:
+            for index, row in df.iterrows():
+                mae = mean_absolute_error([row['fraction']], [row[column]])
+                mae_data.append({'Channel': column, 'MAE': mae, 'Row': row['prc']})
+
+        # Convert the list of dictionaries to a DataFrame
+        mae_df = pd.DataFrame(mae_data)
+        return mae_df
+
+    result_df = combine_classification_scores(settings['folders'], settings['csv_name'], settings['data_column'], settings['plate'], settings['column'], )
+    df = calculate_fraction_mixed_condition(settings['csv'], settings['plate'], settings['column'], settings['control_sgrnas'])
+    df = df[df['grna_name']==settings['fraction_grna']]
+    fraction_df = df[['fraction', 'prc']]
+    merged_df = pd.merge(fraction_df, result_df, on=['prc'])
+    cv_df = group_cv_score(settings['cv_csv'], settings['plate'], settings['column'], settings['data_column_cv'])
+    cv_df = cv_df[[settings['data_column_cv'], 'prc']]
+    merged_df = pd.merge(merged_df, cv_df, on=['prc'])
+    
+    fig = plot_multi_channel_heatmap(merged_df, settings['column'], settings['cmap'])
+    if 'row_number' in merged_df.columns:
+        merged_df = merged_df.drop('row_num', axis=1)
+    mae_df = calculate_mae(merged_df)
+    if 'row_number' in mae_df.columns:
+        mae_df = mae_df.drop('row_num', axis=1)
+        
+    if not settings['dst'] is None:
+        mae_dst = os.path.join(settings['dst'], f"mae_scores_comparison_plate_{settings['plate']}.csv")
+        merged_dst = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plate']}_data.csv")
+        heatmap_save = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plate']}.pdf")
+        mae_df.to_csv(mae_dst, index=False)
+        merged_df.to_csv(merged_dst, index=False)
+        fig.savefig(heatmap_save, format='pdf', dpi=600, bbox_inches='tight')
+    return merged_df

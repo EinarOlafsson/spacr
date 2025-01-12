@@ -945,7 +945,7 @@ def measure_crop(settings):
 
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif
-    from .utils import measure_test_mode, print_progress, save_settings
+    from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings
     from .settings import get_measure_crop_settings
 
     if not isinstance(settings['src'], (str, list)):
@@ -995,11 +995,12 @@ def measure_crop(settings):
                 print(f'Warning reserving 6 CPU cores for other processes, setting n_jobs to {spacr_cores}')
                 settings['n_jobs'] = spacr_cores
 
-            dirname = os.path.dirname(settings['src'])
-            settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-            settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
-            os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
-            settings_df.to_csv(settings_csv, index=False)
+            #dirname = os.path.dirname(settings['src'])
+            #settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
+            #settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
+            #os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
+            #settings_df.to_csv(settings_csv, index=False)
+            save_settings(settings, name='measure_crop_settings', show=True)
 
             if settings['timelapse_objects'] == 'nucleus':
                 if not settings['cell_mask_dim'] is None:
@@ -1065,6 +1066,9 @@ def measure_crop(settings):
                     mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
                     object_types = ['nucleus', 'pathogen', 'cell']
                     _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
+                    
+            if settings['delete_intermediate']:
+                delete_intermedeate_files(settings)
 
             print("Successfully completed run")
 

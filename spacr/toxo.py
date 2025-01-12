@@ -50,6 +50,23 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         '_',  # Horizontal line
     ]
     
+    colors = {'dense_granules':'teal',
+              'non_cutting':'black',
+              'Rhoptries':'darkviolet',
+              'no_data':'slategray',
+              'mitochondrion':'red',
+              'micronemes':'darkslategray',
+              'nucleus':'blue',
+              'proteasome':'black',
+              'cytosol':'turquoise',
+              'outlier':'black',
+              'Apical':'orange',
+              'golgi':'green',
+              'imc':'slategray',
+              'pm':'mediumvioletred',
+              'er':'pink',
+              }
+    
     plt.rcParams.update({'font.size': 14})
 
     # Load data
@@ -99,6 +116,15 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
         y_val = -np.log10(row['p_value'])
         ax = ax_upper if y_val > y_lims[1][0] else ax_lower
 
+        #ax.scatter(
+        #    row['coefficient'], y_val,
+        #    color=palette.get(row['condition'], 'gray'),
+        #    marker=marker_dict.get(row[metadata_column], 'o'),
+        #    s=point_size, edgecolor='black', alpha=0.6
+        #)
+        
+        
+        
         ax.scatter(
             row['coefficient'], y_val,
             color=palette.get(row['condition'], 'gray'),

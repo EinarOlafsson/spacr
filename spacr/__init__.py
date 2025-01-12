@@ -67,8 +67,4 @@ logging.basicConfig(filename='spacr.log', level=logging.INFO,
 
 from .utils import download_models
 
-# Check if models already exist
-#models_dir = os.path.join(os.path.dirname(__file__), 'resources', 'models', 'cp')
-#if not os.path.exists(models_dir) or not os.listdir(models_dir):
-#    print("Models not found, downloading...")
 download_models()
