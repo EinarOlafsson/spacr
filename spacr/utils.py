@@ -5150,8 +5150,8 @@ def correct_metadata_column_names(df):
         df = df.rename(columns={'plate_name': 'plate'})
     if 'column_name' in df.columns:
         df = df.rename(columns={'column_name': 'column'})
-    if 'column_name' in df.columns:
-        df = df.rename(columns={'column_name': 'column'})
+    if 'col' in df.columns:
+        df = df.rename(columns={'col': 'column'})
     if 'row_name' in df.columns:
         df = df.rename(columns={'row_name': 'row_name'})
     if 'grna_name' in df.columns:
@@ -5245,3 +5245,39 @@ def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pat
         , ignore_index=True)
     
     return df
+
+def delete_intermedeate_files(settings):
+    
+    path_orig = os.path.join(settings['src'], 'orig')
+    path_stack = os.path.join(settings['src'], 'stack')
+    path_norm_chan_stack = os.path.join(settings['src'], 'norm_channel_stack')
+    path_1 = os.path.join(settings['src'], '1')
+    path_2 = os.path.join(settings['src'], '2')
+    path_3 = os.path.join(settings['src'], '3')
+    path_4 = os.path.join(settings['src'], '4')
+    path_5 = os.path.join(settings['src'], '5')
+    path_6 = os.path.join(settings['src'], '6')
+    path_7 = os.path.join(settings['src'], '7')
+    path_8 = os.path.join(settings['src'], '8')
+    path_9 = os.path.join(settings['src'], '9')
+    path_10 = os.path.join(settings['src'], '10')
+    
+    paths = [path_stack, path_norm_chan_stack, path_1, path_2, path_3, path_4, path_5, path_6, path_7, path_8, path_9, path_10]
+    
+    if 'src' in settings:
+        if os.path.exists(settings['src']):
+            if os.path.exists(path_orig):
+                for path in paths:
+                    if os.path.exists(path):
+                        try:
+                            shutil.rmtree(path)
+                            print(f"Deleted {path}")
+                        except OSError as e:
+                            print(f"{path} could not be deleted: {e}. Delete manually.")
+            else:
+                print(f"{path_orig} does not exist.")
+        else:
+            print(f"{settings['src']} does not exist.")
+    else:
+        print("No 'src' key in settings dictionary.")
+            

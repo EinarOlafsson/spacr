@@ -7,11 +7,11 @@ from IPython.display import display
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
-def preprocess_generate_masks(src, settings={}):
+def preprocess_generate_masks(settings={}):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_image_mask_overlay, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files
     from .settings import set_default_settings_preprocess_generate_masks
 
     if not isinstance(settings['src'], (str, list)):
@@ -27,9 +27,9 @@ def preprocess_generate_masks(src, settings={}):
             print(f'Processing folder: {source_folder}')
             settings['src'] = source_folder
             src = source_folder
-            settings = set_default_settings_preprocess_generate_masks(src, settings)
+            settings = set_default_settings_preprocess_generate_masks(settings)
             
-            save_settings(settings, name='gen_mask')
+            save_settings(settings, name='gen_mask_settings')
 
             if not settings['pathogen_channel'] is None:
                 custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
@@ -158,6 +158,10 @@ def preprocess_generate_masks(src, settings={}):
                     
             torch.cuda.empty_cache()
             gc.collect()
+            
+            if settings['delete_intermediate']:
+                delete_intermedeate_files(settings)
+
             print("Successfully completed run")
     return
 
@@ -172,8 +176,10 @@ def generate_cellpose_masks(src, settings, object_type):
     gc.collect()
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
-
-    settings = set_default_settings_preprocess_generate_masks(src, settings)
+        
+    settings['src'] = src
+    
+    settings = set_default_settings_preprocess_generate_masks(settings)
 
     if settings['verbose']:
         settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
@@ -192,11 +198,13 @@ def generate_cellpose_masks(src, settings, object_type):
         timelapse_objects = settings['timelapse_objects']
     
     batch_size = settings['batch_size']
+    
     cellprob_threshold = settings[f'{object_type}_CP_prob']
 
     flow_threshold = settings[f'{object_type}_FT']
 
     object_settings = _get_object_settings(object_type, settings)
+    
     model_name = object_settings['model_name']
     
     cellpose_channels = _get_cellpose_channels(src, settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel'])
@@ -781,8 +789,10 @@ def generate_mediar_masks(src, settings, object_type):
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
 
+    settings['src'] = src
+
     # Preprocess settings
-    settings = set_default_settings_preprocess_generate_masks(src, settings)
+    settings = set_default_settings_preprocess_generate_masks(settings)
 
     if settings['verbose']:
         settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])

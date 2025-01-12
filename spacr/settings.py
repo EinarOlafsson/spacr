@@ -24,15 +24,10 @@ def set_default_plot_merge_settings():
     settings.setdefault('verbose', True)
     return settings
 
-def set_default_settings_preprocess_generate_masks(src, settings={}):
-    # Main settings
-    if src != None:
-        settings['src'] = src
-    else:
-        settings.setdefault('src', 'path')
-    if 'src' not in settings:
-        settings['src'] = 'path'
-
+def set_default_settings_preprocess_generate_masks(settings={}):
+    
+    settings.setdefault('src', 'path')
+    settings.setdefault('delete_intermediate', False)
     settings.setdefault('segmentation_mode', 'cellpose')
     settings.setdefault('preprocess', True)
     settings.setdefault('masks', True)
@@ -49,6 +44,10 @@ def set_default_settings_preprocess_generate_masks(src, settings={}):
     settings.setdefault('remove_background_cell', False)
     settings.setdefault('remove_background_nucleus', False)
     settings.setdefault('remove_background_pathogen', False)
+    
+    settings.setdefault('cell_diamiter', None)
+    settings.setdefault('nucleus_diamiter', None)
+    settings.setdefault('pathogen_diamiter', None)
 
     # Channel settings
     settings.setdefault('cell_channel', None)
@@ -147,12 +146,27 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
+        if settings['cell_diamiter'] is not None:
+            if isinstance(settings['cell_diamiter'], (int, float)):
+                object_settings['diameter'] = settings['cell_diamiter']
+                object_settings['minimum_size'] = (object_settings['diameter']**2)/4
+                object_settings['maximum_size'] = (object_settings['diameter']**2)*10
+            else:
+                print(f'Cell diameter must be an integer or float, got {settings["cell_diamiter"]}')
 
     elif object_type == 'nucleus':
         object_settings['model_name'] = 'nuclei'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
+        
+        if settings['nucleus_diamiter'] is not None:
+            if isinstance(settings['nucleus_diamiter'], (int, float)):
+                object_settings['diameter'] = settings['nucleus_diamiter']
+                object_settings['minimum_size'] = (object_settings['diameter']**2)/4
+                object_settings['maximum_size'] = (object_settings['diameter']**2)*10
+            else:
+                print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diamiter"]}')
 
     elif object_type == 'pathogen':
         object_settings['model_name'] = 'cyto'
@@ -161,6 +175,14 @@ def _get_object_settings(object_type, settings):
         object_settings['resample'] = False
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         object_settings['merge'] = settings['merge_pathogens']
+        
+        if settings['pathogen_diamiter'] is not None:
+            if isinstance(settings['pathogen_diamiter'], (int, float)):
+                object_settings['diameter'] = settings['pathogen_diamiter']
+                object_settings['minimum_size'] = (object_settings['diameter']**2)/4
+                object_settings['maximum_size'] = (object_settings['diameter']**2)*10
+            else:
+                print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diamiter"]}')
         
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
@@ -216,6 +238,8 @@ def set_default_umap_image_settings(settings={}):
 def get_measure_crop_settings(settings={}):
 
     settings.setdefault('src', 'path')
+    settings.setdefault('delete_intermediate', False)
+    
     settings.setdefault('verbose', False)
     settings.setdefault('experiment', 'exp')
     
@@ -457,7 +481,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('pathogen_plate_metadata',[['c1', 'c2', 'c3'],['c4','c5', 'c6']])
     settings.setdefault('treatments',['cm', 'lovastatin'])
     settings.setdefault('treatment_plate_metadata',[['r1', 'r2','r3'], ['r4', 'r5','r6']])
-    settings.setdefault('metadata_types',['column_name', 'column_name', 'row_name'])
+    #settings.setdefault('metadata_types',['column_name', 'column_name', 'row_name'])
     settings.setdefault('channel_dims',[0,1,2,3])
     settings.setdefault('cell_chann_dim',3)
     settings.setdefault('cell_mask_dim',4)
@@ -545,6 +569,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('log_x',False)
     settings.setdefault('log_y',False)
     settings.setdefault('x_lim',None)
+    settings.setdefault('outlier_detection',True)
     settings.setdefault('agg_type','mean')
     settings.setdefault('min_cell_count',None)
     settings.setdefault('regression_type','ols')
@@ -908,17 +933,19 @@ expected_types = {
     "offset_start":int,
     "chunk_size":int,
     "single_direction":str,
+    "delete_intermediate":bool,
+    "outlier_detection":bool,
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode"],
+             "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode", "delete_intermediate"],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
              "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "normalize", "use_bounding_box"],
-             "Sequencing": ["offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
+             "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
