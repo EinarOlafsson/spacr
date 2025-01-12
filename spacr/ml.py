@@ -337,7 +337,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         df = pd.read_csv(score_data)
         df = correct_metadata_column_names(df)
         df['plate'] = f'plate{i + 1}'
-        df['prc'] = df['plate'] + '_' + df['row_name'].astype(str) + '_' + df['column'].astype(str)
+        df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
         dfs.append(df)
 
     df = pd.concat(dfs, axis=0)
@@ -697,7 +697,7 @@ def save_summary_to_file(model, file_path='summary.csv'):
 
 def perform_regression(settings):
     
-    from .plot import plot_plates
+    from .plot import plot_plates, plot_data_from_csv
     from .utils import merge_regression_res_with_metadata, save_settings
     from .settings import get_perform_regression_default_settings
     from .toxo import go_term_enrichment_by_column, custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
@@ -715,7 +715,11 @@ def perform_regression(settings):
                     df = pd.read_csv(count_data)
                     df['plate_name'] = f'plate{i+1}'
                     if 'column' in df.columns:
-                        df['column_name'] = df['column']
+                        #df['column_name'] = df['column']
+                        df.rename(columns={'column': 'column_name'}, inplace=True)
+                    if 'col' in df.columns:
+                        #df['column_name'] = df['col']
+                        df.rename(columns={'col': 'column_name'}, inplace=True)
                     count_data_df = pd.concat([count_data_df, df])
                     print('Count data:', len(count_data_df))
 
@@ -724,13 +728,17 @@ def perform_regression(settings):
                     df = pd.read_csv(score_data)
                     df['plate_name'] = f'plate{i+1}'
                     if 'column' in df.columns:
-                        df['column_name'] = df['column']
+                        #df['column_name'] = df['column']
+                        df.rename(columns={'column': 'column_name'}, inplace=True)
+                    if 'col' in df.columns:
+                        #df['column_name'] = df['col']
+                        df.rename(columns={'col': 'column_name'}, inplace=True)
+                        
                     score_data_df = pd.concat([score_data_df, df])
                     print('Score data:', len(score_data_df))
         else:
             count_data_df = pd.read_csv(settings['count_data'])
             score_data_df = pd.read_csv(settings['score_data'])
-
             print(f"Dependent variable: {len(score_data_df)}")
             print(f"Independent variable: {len(count_data_df)}")
 
@@ -804,6 +812,75 @@ def perform_regression(settings):
             return df, n_gene
         else:
             return df
+        
+    def grna_metricks(df):
+        df[['plate', 'row', 'column']] = df['prc'].str.split('_', expand=True)
+
+        # --- 2) Compute GRNA-level Well Counts ---
+        # For each (grna, plate), count the number of unique prc (wells)
+        grna_well_counts = (df.groupby(['grna', 'plate'])['prc'].nunique().reset_index(name='grna_well_count'))
+
+        # --- 3) Compute Gene-level Well Counts ---
+        # For each (gene, plate), count the number of unique prc
+        gene_well_counts = (df.groupby(['gene', 'plate'])['prc'].nunique().reset_index(name='gene_well_count'))
+
+        # --- 4) Merge These Counts into a Single DataFrame ---
+        # Because each grna is typically associated with one gene, we bring them together.
+        # First, create a unique (grna, gene, plate) reference from the original df
+        unique_triplets = df[['grna', 'gene', 'plate']].drop_duplicates()
+
+        # Merge the grna_well_count
+        merged_df = pd.merge(unique_triplets, grna_well_counts, on=['grna', 'plate'], how='left')
+
+        # Merge the gene_well_count
+        merged_df = pd.merge(merged_df, gene_well_counts, on=['gene', 'plate'], how='left')
+
+        # Keep only the columns needed (if you want to keep 'gene', remove the drop below)
+        final_grna_df = merged_df[['grna', 'plate', 'grna_well_count', 'gene_well_count']]
+
+        # --- 5) Compute gene_count per prc ---
+        # For each prc (well), how many distinct genes are there?
+        prc_gene_count_df = (df.groupby('prc')['gene'].nunique().reset_index(name='gene_count'))
+        prc_gene_count_df[['plate', 'row', 'column']] = prc_gene_count_df['prc'].str.split('_', expand=True)
+        
+        return final_grna_df, prc_gene_count_df
+    
+    def get_outlier_reference_values(df, outlier_col, return_col):
+        """
+        Detect outliers in 'outlier_col' of 'df' using the 1.5 × IQR rule,
+        and return values from 'return_col' that correspond to those outliers.
+        
+        Parameters:
+        -----------
+        df : pd.DataFrame
+            Input DataFrame.
+        outlier_col : str
+            Column in which to check for outliers.
+        return_col : str
+            Column whose values to return for rows that are outliers in 'outlier_col'.
+        
+        Returns:
+        --------
+        pd.Series
+            A Series containing values from 'return_col' for the outlier rows.
+        """
+        # Calculate Q1, Q3, and IQR for the outlier_col
+        Q1 = df[outlier_col].quantile(0.05)
+        Q3 = df[outlier_col].quantile(0.95)
+        IQR = Q3 - Q1
+        
+        # Determine the outlier cutoffs
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        # Create a mask for outliers
+        outlier_mask = (df[outlier_col] < lower_bound) | (df[outlier_col] > upper_bound)
+        
+        outliers = df.loc[outlier_mask, return_col]
+        
+        outliers_ls = outliers.unique().tolist()
+        
+        return outliers_ls
 
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
@@ -840,28 +917,91 @@ def perform_regression(settings):
     if settings['min_cell_count'] is None:
         settings['min_cell_count'] = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
     print(f"Minimum cell count: {settings['min_cell_count']}")
+    print(f"Dependent variable after minimum cell count filter: {len(score_data_df)}")
 
     orig_dv = settings['dependent_variable']
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     print(f"Dependent variable after process_scores: {len(dependent_df)}")
-
+    
     if settings['fraction_threshold'] is None:
         settings['fraction_threshold'] = graph_sequencing_stats(settings)
 
     independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'], filter_column=filter_column, filter_value=filter_value)
     independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
-
+    
     print(f"Independent variable after process_reads: {len(independent_df)}")
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
-
+    merged_df[['plate', 'row_name', 'column']] = merged_df['prc'].str.split('_', expand=True)
+    
     os.makedirs(res_folder, exist_ok=True)
     data_path = os.path.join(res_folder, 'regression_data.csv')
     merged_df.to_csv(data_path, index=False)
     print(f"Saved regression data to {data_path}")
+    
+    cell_settings = {'src':data_path,
+                    'graph_name':'cell_count',
+                    'data_column':['cell_count'],
+                    'grouping_column':'plate',
+                    'graph_type':'jitter_bar',
+                    'theme':'bright',
+                    'save':True,
+                    'y_lim':[None,None],
+                    'log_y':False,
+                    'log_x':False,
+                    'representation':'well',
+                    'verbose':False}
+    
+    _, _ = plot_data_from_csv(settings=cell_settings)
+    
+    final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
+    
+    if settings['outlier_detection']:
+        outliers_grna = get_outlier_reference_values(final_grna_df,outlier_col='grna_well_count',return_col='grna')
+        if len (outliers_grna) > 0:
+            merged_df = merged_df[~merged_df['grna'].isin(outliers_grna)]
+            final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
+            merged_df.to_csv(data_path, index=False)
+            print(f"Saved regression data to {data_path}")
 
-    merged_df[['plate', 'row_name', 'column']] = merged_df['prc'].str.split('_', expand=True)
+    grna_data_path = os.path.join(res_folder, 'grna_well.csv')
+    final_grna_df.to_csv(grna_data_path, index=False)
+    print(f"Saved grna per well data to {grna_data_path}")
+    
+    wells_per_gene_settings = {'src':grna_data_path,
+                'graph_name':'wells_per_gene',
+                'data_column':['grna_well_count'],
+                'grouping_column':'plate',
+                'graph_type':'jitter_bar',
+                'theme':'bright',
+                'save':True,
+                'y_lim':[None,None],
+                'log_y':False,
+                'log_x':False,
+                'representation':'object',
+                'verbose':True}
+    
+    _, _ = plot_data_from_csv(settings=wells_per_gene_settings)
+    
+    grna_well_data_path = os.path.join(res_folder, 'well_grna.csv')
+    prc_gene_count_df.to_csv(grna_well_data_path, index=False)
+    print(f"Saved well per grna data to {grna_well_data_path}")
+    
+    grna_per_well_settings = {'src':grna_well_data_path,
+                            'graph_name':'gene_per_well',
+                            'data_column':['gene_count'],
+                            'grouping_column':'plate',
+                            'graph_type':'jitter_bar',
+                            'theme':'bright',
+                            'save':True,
+                            'y_lim':[None,None],
+                            'log_y':False,
+                            'log_x':False,
+                            'representation':'well',
+                            'verbose':False}
+    
+    _, _ = plot_data_from_csv(settings=grna_per_well_settings)
     
     _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
@@ -1092,14 +1232,17 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         
     if 'row' in df.columns:
         df = df.rename(columns={'row': 'row_name'})
+        
     if 'col' in df.columns:
-        df = df.rename(columns={'row': 'column_name'})
+        df = df.rename(columns={'col': 'column_name'})
         
     if plate is not None:
         df['plate'] = plate
 
     if 'column_name' not in df.columns:
         df['column_name'] = df['column']
+        
+    display(df)
 
     df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
 

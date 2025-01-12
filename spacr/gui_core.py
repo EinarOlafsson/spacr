@@ -544,7 +544,7 @@ def import_settings(settings_type='mask'):
     #vars_dict = hide_all_settings(vars_dict, categories=None)
     csv_settings = read_settings_from_csv(csv_file_path)
     if settings_type == 'mask':
-        settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
+        settings = set_default_settings_preprocess_generate_masks(settings={})
     elif settings_type == 'measure':
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
@@ -596,7 +596,7 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     settings_frame.grid_columnconfigure(0, weight=1)
 
     if settings_type == 'mask':
-        settings = set_default_settings_preprocess_generate_masks(src='path', settings={})
+        settings = set_default_settings_preprocess_generate_masks(settings={})
     elif settings_type == 'measure':
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':

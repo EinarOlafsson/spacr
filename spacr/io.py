@@ -1773,7 +1773,7 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
             print(e)
     conn.close()
     if 'png_list' in dataframes:
-        png_list_df = dataframes['png_list'][['cell_id', 'png_path', 'plate', 'row_name', 'column_name']].copy()
+        png_list_df = dataframes['png_list'][['cell_id', 'png_path', 'plate', 'row_name', 'column_name', 'field']].copy()
         png_list_df['cell_id'] = png_list_df['cell_id'].str[1:].astype(int)
         png_list_df.rename(columns={'cell_id': 'object_label'}, inplace=True)
         if 'cell' in dataframes:
