@@ -22,7 +22,7 @@ cat <<EOL > ../.readthedocs.yaml
 version: 2
 
 build:
-  os: ubuntu-20.04
+  os: ubuntu-22.04
   tools:
     python: "3.9"
 
@@ -40,7 +40,7 @@ EOL
 VERSION=$(python -c "from spacr.version import version; print(version)")
 
 # Run sphinx-quickstart with necessary configurations in the source directory
-sphinx-quickstart source -q -p "spacr" -a "Your Name" -v "$VERSION" --ext-autodoc --ext-viewcode --ext-todo
+sphinx-quickstart source -q -p "spacr" -a "Einar Olafsson" -v "$VERSION" --ext-autodoc --ext-viewcode --ext-todo
 
 # Update conf.py with additional configurations
 cat <<EOT >> source/conf.py
