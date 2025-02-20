@@ -363,7 +363,7 @@ def set_default_train_test_model(settings):
 def set_generate_training_dataset_defaults(settings):
     
     settings.setdefault('src','path')
-    settings.setdefault('tables',['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+    settings.setdefault('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
     settings.setdefault('annotated_classes',[1,2])
@@ -935,6 +935,9 @@ expected_types = {
     "single_direction":str,
     "delete_intermediate":bool,
     "outlier_detection":bool,
+    "CP_prob":int,
+    "diameter":int,
+    "flow_threshold":float,
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],

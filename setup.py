@@ -28,6 +28,7 @@ dependencies = [
     'captum>=0.7.0, <1.0',
     'seaborn>=0.13.2,<1.0',
     'matplotlib>=3.8.3,<4.0',
+    'matplotlib_venn>=1.1,<2.0',
     'adjustText>=1.2.0,<2.0',
     'bottleneck>=1.3.6,<2.0',
     'numexpr>=2.8.4,<3.0',
@@ -69,7 +70,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.3.81",
+    version="0.4.00",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

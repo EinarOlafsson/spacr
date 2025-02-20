@@ -2275,175 +2275,6 @@ def _read_db(db_loc, tables):
         dfs.append(df)
     conn.close() # Close the connection
     return dfs
-    
-def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=False, pathogen_limit=False):
-    
-    from .utils import _split_data
-    
-    #Extract plate DataFrames
-    all_dfs = []
-    for loc in locs:
-        db_dfs = _read_db(loc, tables)
-        all_dfs.append(db_dfs)
-    
-    #Extract Tables from DataFrames and concatinate rows
-    for i, dfs in enumerate(all_dfs):
-        if 'cell' in tables:
-            cell = dfs[0]
-            if verbose:
-                print(f'plate: {i+1} cells:{len(cell)}')
-	# see pathogens logic, copy logic to other tables #here
-        if 'nucleus' in tables:
-            nucleus = dfs[1]
-            if verbose:
-                print(f'plate: {i+1} nucleus:{len(nucleus)} ')
-
-        if 'pathogen' in tables:
-            if len(tables) == 1:
-                pathogen = dfs[0]
-                print(len(pathogen))
-            else:
-                pathogen = dfs[2]
-            if verbose:
-                print(f'plate: {i+1} pathogens:{len(pathogen)}')
-        
-        if 'cytoplasm' in tables:
-            if not 'pathogen' in tables:
-                cytoplasm = dfs[2]
-            else:
-                cytoplasm = dfs[3]
-            if verbose:
-                print(f'plate: {i+1} cytoplasms: {len(cytoplasm)}')
-
-        if i > 0:
-            if 'cell' in tables:
-                cells = pd.concat([cells, cell], axis = 0)
-            if 'nucleus' in tables:
-                nucleus = pd.concat([nucleus, nucleus], axis = 0)
-            if 'pathogen' in tables:
-                pathogens = pd.concat([pathogens, pathogen], axis = 0)
-            if 'cytoplasm' in tables:
-                cytoplasms = pd.concat([cytoplasms, cytoplasm], axis = 0)
-        else:
-            if 'cell' in tables:
-                cells = cell.copy()
-            if 'nucleus' in tables:
-                nucleus = nucleus.copy()
-            if 'pathogen' in tables:
-                pathogens = pathogen.copy()
-            if 'cytoplasm' in tables:
-                cytoplasms = cytoplasm.copy()
-    
-    #Add an o in front of all object and cell lables to convert them to strings
-    if 'cell' in tables:
-        cells = cells.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        cells = cells.assign(prcfo = lambda x: x['prcf'] + '_' + x['object_label'])
-        cells_g_df, metadata = _split_data(cells, 'prcfo', 'object_label')
-        merged_df = cells_g_df.copy()
-        if verbose:
-            print(f'cells: {len(cells)}')
-            print(f'cells grouped: {len(cells_g_df)}')
-		
-    if 'cytoplasm' in tables:
-        cytoplasms = cytoplasms.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        cytoplasms = cytoplasms.assign(prcfo = lambda x: x['prcf'] + '_' + x['object_label'])
-        cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
-        merged_df = cells_g_df.merge(cytoplasms_g_df, left_index=True, right_index=True)
-        if verbose:
-            print(f'cytoplasms: {len(cytoplasms)}')
-            print(f'cytoplasms grouped: {len(cytoplasms_g_df)}')
-		
-    if 'nucleus' in tables:
-        if not 'cell' in tables:
-            cells_g_df = pd.DataFrame()
-        nucleus = nucleus.dropna(subset=['cell_id'])
-        nucleus = nucleus.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
-        nucleus = nucleus.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
-        nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
-        if nuclei_limit == False:
-            nucleus = nucleus[nucleus['nucleus_prcfo_count']==1]
-        nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
-        if verbose:
-            print(f'nucleus: {len(nucleus)}')
-            print(f'nucleus grouped: {len(nucleus_g_df)}')
-        if 'cytoplasm' in tables:
-            merged_df = merged_df.merge(nucleus_g_df, left_index=True, right_index=True)
-        else:
-            merged_df = cells_g_df.merge(nucleus_g_df, left_index=True, right_index=True)
-		
-    if 'pathogen' in tables:
-        if not 'cell' in tables:
-            cells_g_df = pd.DataFrame()
-            merged_df = []
-        try:
-            pathogens = pathogens.dropna(subset=['cell_id'])
-
-        except:
-            pathogens['cell_id'] = pathogens['object_label']
-            pathogens = pathogens.dropna(subset=['cell_id'])
-		
-        pathogens = pathogens.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
-        pathogens = pathogens.assign(prcfo = lambda x: x['prcf'] + '_' + x['cell_id'])
-        pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
-        
-        if isinstance(pathogen_limit, bool):
-            if pathogen_limit == False:
-                pathogens = pathogens[pathogens['pathogen_prcfo_count']<=1]
-                print(f"after multiinfected Bool: {len(pathogens)}")
-        if isinstance(pathogen_limit, float):
-            pathogen_limit = int(pathogen_limit)
-        if isinstance(pathogen_limit, int):
-            pathogens = pathogens[pathogens['pathogen_prcfo_count']<=pathogen_limit]
-            print(f"afer multiinfected Float: {len(pathogens)}")
-        if not 'cell' in tables:
-            pathogens_g_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
-        else:
-            pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
-        
-        if verbose:
-            print(f'pathogens: {len(pathogens)}')
-            print(f'pathogens grouped: {len(pathogens_g_df)}')
-        
-        if len(merged_df) == 0:
-            merged_df = pathogens_g_df
-        else:
-            merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
-        
-    #Add prc column (plate row column)
-    metadata = metadata.assign(prc = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name'])
-
-    #Count cells per well
-    cells_well = pd.DataFrame(metadata.groupby('prc')['object_label'].nunique())
-
-    cells_well.reset_index(inplace=True)
-    cells_well.rename(columns={'object_label': 'cells_per_well'}, inplace=True)
-    metadata = pd.merge(metadata, cells_well, on='prc', how='inner', suffixes=('', '_drop_col'))
-    object_label_cols = [col for col in metadata.columns if '_drop_col' in col]
-    metadata.drop(columns=object_label_cols, inplace=True)
-
-    #Add prcfo column (plate row column field object)
-    metadata = metadata.assign(prcfo = lambda x: x['plate'] + '_' + x['row_name'] + '_' +x['column_name']+ '_' +x['field']+ '_' +x['object_label'])
-    metadata.set_index('prcfo', inplace=True)
-
-    merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
-    
-    merged_df = merged_df.dropna(axis=1)
-    if verbose:
-        print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
-    
-    obj_df_ls = []
-    if 'cell' in tables:
-        obj_df_ls.append(cells)
-    if 'cytoplasm' in tables:
-        obj_df_ls.append(cytoplasms)
-    if 'nucleus' in tables:
-        obj_df_ls.append(nucleus)
-    if 'pathogen' in tables:
-        obj_df_ls.append(pathogens)
-        
-    return merged_df, obj_df_ls 
 
 def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
     from .io import _read_db
@@ -2929,6 +2760,7 @@ def generate_training_dataset(settings):
     def get_smallest_class_size(df, settings, dataset_mode):
         if dataset_mode == 'metadata':
             sizes = [len(df[df['condition'] == c]) for c in settings['class_metadata']]
+            #sizes = [len(df[df['condition'].isin(class_list)]) for class_list in settings['class_metadata']]
             print(f'Class sizes: {sizes}')
         elif dataset_mode == 'annotation':
             sizes = [len(class_paths) for class_paths in df]
@@ -2997,16 +2829,12 @@ def generate_training_dataset(settings):
         df = df.dropna(subset=['condition'])
             
         display(df)
-            
-        #df['metadata_based_class'] = pd.NA
-        #for i, class_ in enumerate(settings['classes']):
-        #    ls = settings['class_metadata'][i]
-        #    df.loc[df[settings['metadata_type_by']].isin(ls), 'metadata_based_class'] = class_
 
         size = get_smallest_class_size(df, settings, 'metadata')
         
         for class_ in settings['class_metadata']:
             class_temp_df = df[df['condition'] == class_]
+            #class_temp_df = df[df['condition'].isin(class_)]
             print(f'Found {len(class_temp_df)} images for class {class_}')
             class_paths_temp = class_temp_df['png_path'].tolist()
 
@@ -3033,6 +2861,8 @@ def generate_training_dataset(settings):
     from .io import _read_and_merge_data, _read_db
     from .utils import get_paths_from_db, annotate_conditions, save_settings
     from .settings import set_generate_training_dataset_defaults
+    
+    settings = set_generate_training_dataset_defaults(settings)
 
     if 'nucleus' not in settings['tables']:
         settings['nuclei_limit'] = False
@@ -3041,7 +2871,6 @@ def generate_training_dataset(settings):
         settings['pathogen_limit'] = 0
        
     # Set default settings and save
-    settings = set_generate_training_dataset_defaults(settings)
     save_settings(settings, 'cv_dataset', show=True)
 
     class_path_list = None

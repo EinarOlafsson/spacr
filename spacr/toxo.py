@@ -24,143 +24,128 @@ from sklearn.metrics import mean_absolute_error
 
 from matplotlib.gridspec import GridSpec
 
+def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location',point_size=50, figsize=20, threshold=0,save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 20]]):
 
-def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location',
-                        point_size=50, figsize=20, threshold=0,
-                        save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 15]]):
+    # Dictionary mapping compartment to color
     
-    markers = [
-        'o',  # Circle
-        'X',  # X-shaped marker
-        '^',  # Upward triangle
-        's',  # Square
-        'v',  # Downward triangle
-        'P',  # Plus-filled pentagon
-        '*',  # Star
-        '+',  # Plus
-        'x',  # Cross
-        '.',  # Point
-        ',',  # Pixel
-        'd',  # Diamond
-        'D',  # Thin diamond
-        'h',  # Hexagon 1
-        'H',  # Hexagon 2
-        'p',  # Pentagon
-        '|',  # Vertical line
-        '_',  # Horizontal line
-    ]
-    
-    colors = {'dense_granules':'teal',
-              'non_cutting':'black',
-              'Rhoptries':'darkviolet',
-              'no_data':'slategray',
-              'mitochondrion':'red',
-              'micronemes':'darkslategray',
-              'nucleus':'blue',
-              'proteasome':'black',
+    colors = {'micronemes':'black',
+              'rhoptries 1':'darkviolet',
+              'rhoptries 2':'darkviolet',
+              'nucleus - chromatin':'blue',
+              'nucleus - non-chromatin':'blue',
+              'dense granules':'teal',
+              'ER 1':'pink',
+              'ER 2':'pink',
+              'unknown':'black',
+              'tubulin cytoskeleton':'slategray',
+              'IMC':'slategray',
+              'PM - peripheral 1':'slategray',
+              'PM - peripheral 2':'slategray',
               'cytosol':'turquoise',
-              'outlier':'black',
-              'Apical':'orange',
-              'golgi':'green',
-              'imc':'slategray',
-              'pm':'mediumvioletred',
-              'er':'pink',
+              'mitochondrion - soluble':'red',
+              'mitochondrion - membranes':'red',
+              'apicoplast':'slategray',
+              'Golgi':'green',
+              'PM - integral':'slategray',
+              'apical 1':'orange',
+              'apical 2':'orange',
+              '19S proteasome':'slategray',
+              '20S proteasome':'slategray',
+              '60S ribosome':'slategray',
+              '40S ribosome':'slategray',
               }
-    
-    plt.rcParams.update({'font.size': 14})
 
-    # Load data
+    # Increase font size for better readability
+    fontsize = 18
+    plt.rcParams.update({'font.size': fontsize})
+    
+    # --- Load data ---
     if isinstance(data_path, pd.DataFrame):
         data = data_path
     else:
         data = pd.read_csv(data_path)
-
-    fontsize = 18
-
-    plt.rcParams.update({'font.size': fontsize})
+        
+    # Extract ‘variable’ and ‘gene_nr’ from your feature notation
     data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
     data['variable'].fillna(data['feature'], inplace=True)
     data['gene_nr'] = data['variable'].str.split('_').str[0]
     data = data[data['variable'] != 'Intercept']
 
-    # Load metadata
+    # --- Load metadata ---
     if isinstance(metadata_path, pd.DataFrame):
         metadata = metadata_path
     else:
         metadata = pd.read_csv(metadata_path)
+
     metadata['gene_nr'] = metadata['gene_nr'].astype(str)
     data['gene_nr'] = data['gene_nr'].astype(str)
 
-    merged_data = pd.merge(data, metadata[['gene_nr', metadata_column]], on='gene_nr', how='left')
+    # Merge data and metadata
+    merged_data = pd.merge(data, metadata[['gene_nr', metadata_column]], 
+                           on='gene_nr', how='left')
     merged_data[metadata_column].fillna('unknown', inplace=True)
 
-    # Define palette and markers
-    palette = {'pc': 'red', 'nc': 'green', 'control': 'white', 'other': 'gray'}
-    marker_dict = {val: marker for val, marker in zip(
-        merged_data[metadata_column].unique(), markers)}
-
-    # Create the figure with custom spacing
-    fig = plt.figure(figsize=(figsize,figsize))
+    # --- Create figure with "upper" and "lower" subplots sharing the x-axis ---
+    fig = plt.figure(figsize=(figsize, figsize))
     gs = GridSpec(2, 1, height_ratios=[1, 3], hspace=0.05)
-
     ax_upper = fig.add_subplot(gs[0])
     ax_lower = fig.add_subplot(gs[1], sharex=ax_upper)
 
     # Hide x-axis labels on the upper plot
     ax_upper.tick_params(axis='x', which='both', bottom=False, labelbottom=False)
 
+    # List to collect the variables (hits) that meet threshold criteria
     hit_list = []
 
-    # Scatter plot on both axes
+    # --- Scatter plot on both axes ---
     for _, row in merged_data.iterrows():
         y_val = -np.log10(row['p_value'])
+        
+        # Decide which axis to draw on based on the p-value
         ax = ax_upper if y_val > y_lims[1][0] else ax_lower
 
-        #ax.scatter(
-        #    row['coefficient'], y_val,
-        #    color=palette.get(row['condition'], 'gray'),
-        #    marker=marker_dict.get(row[metadata_column], 'o'),
-        #    s=point_size, edgecolor='black', alpha=0.6
-        #)
-        
-        
-        
+        # Here is the main change: color by the colors dict
         ax.scatter(
-            row['coefficient'], y_val,
-            color=palette.get(row['condition'], 'gray'),
-            marker=marker_dict.get(row[metadata_column], 'o'),
-            s=point_size, edgecolor='black', alpha=0.6
+            row['coefficient'], 
+            y_val,
+            color=colors.get(row[metadata_column], 'gray'),  # <-- Use your color dict
+            marker='o',  # You can fix a single marker if desired
+            s=point_size, 
+            edgecolor='black', 
+            alpha=0.6
         )
 
-        if row['p_value'] <= 0.05 and abs(row['coefficient']) >= abs(threshold):
+        # Check significance thresholds
+        if (row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold)):
             hit_list.append(row['variable'])
 
-    # Set axis limits
+    # --- Adjust axis limits ---
     ax_upper.set_ylim(y_lims[1])
     ax_lower.set_ylim(y_lims[0])
     ax_lower.set_xlim(x_lim)
 
+    # Hide top spines
     ax_lower.spines['top'].set_visible(False)
     ax_upper.spines['top'].set_visible(False)
     ax_upper.spines['bottom'].set_visible(False)
 
-    # Set x-axis and y-axis titles
-    ax_lower.set_xlabel('Coefficient')  # X-axis title on the lower graph
-    ax_lower.set_ylabel('-log10(p-value)')  # Y-axis title on the lower graph
-    ax_upper.set_ylabel('-log10(p-value)')  # Y-axis title on the upper graph
-    
+    # Set x-axis and y-axis labels
+    ax_lower.set_xlabel('Coefficient')  
+    ax_lower.set_ylabel('-log10(p-value)')
+    ax_upper.set_ylabel('-log10(p-value)')
+
     for ax in [ax_upper, ax_lower]:
         ax.spines['right'].set_visible(False)
 
-    # Add threshold lines to both axes
+    # --- Add threshold lines to both axes ---
     for ax in [ax_upper, ax_lower]:
         ax.axvline(x=-abs(threshold), linestyle='--', color='black')
         ax.axvline(x=abs(threshold), linestyle='--', color='black')
 
     ax_lower.axhline(y=-np.log10(0.05), linestyle='--', color='black')
 
-    # Annotate significant points
-    texts_upper, texts_lower = [], []  # Collect text annotations separately
+    # --- Annotate significant points ---
+    texts_upper, texts_lower = [], []
 
     for _, row in merged_data.iterrows():
         y_val = -np.log10(row['p_value'])
@@ -168,38 +153,50 @@ def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location
             continue
 
         ax = ax_upper if y_val > y_lims[1][0] else ax_lower
-        text = ax.text(row['coefficient'], y_val, row['variable'], 
-                       fontsize=fontsize, ha='center', va='bottom')
+        text = ax.text(
+            row['coefficient'],
+            y_val,
+            row['variable'],
+            fontsize=fontsize,
+            ha='center',
+            va='bottom'
+        )
 
         if ax == ax_upper:
             texts_upper.append(text)
         else:
             texts_lower.append(text)
 
-    # Adjust text positions to avoid overlap
+    # Attempt to keep text labels from overlapping
     adjust_text(texts_upper, ax=ax_upper, arrowprops=dict(arrowstyle='-', color='black'))
     adjust_text(texts_lower, ax=ax_lower, arrowprops=dict(arrowstyle='-', color='black'))
 
-    # Add a single legend on the lower axis
-    handles = [plt.Line2D([0], [0], marker=m, color='w', markerfacecolor='gray', markersize=10)
-               for m in marker_dict.values()]
-    labels = marker_dict.keys()
-    ax_lower.legend(handles, 
-                    labels, 
-                    bbox_to_anchor=(1.05, 1), 
-                    loc='upper left',
-                    borderaxespad=0.25, 
-                    labelspacing=2, 
-                    handletextpad=0.25, 
-                    markerscale=2, 
-                    prop={'size': fontsize})
+    # --- Add a legend keyed by color (optional) ---
+    # If you'd like a legend that shows what each compartment color represents:
+    legend_handles = []
+    for comp, comp_color in colors.items():
+        # Create a “dummy” scatter for legend
+        legend_handles.append(
+            plt.Line2D([0], [0], marker='o', color=comp_color, 
+                       label=comp, linewidth=0, markersize=8)
+        )
+    # You can adjust the location and styling of the legend to taste:
+    ax_lower.legend(
+        handles=legend_handles,
+        bbox_to_anchor=(1.05, 1),
+        loc='upper left',
+        borderaxespad=0.25,
+        labelspacing=2,
+        handletextpad=0.25,
+        markerscale=1.5,
+        prop={'size': fontsize}
+    )
 
-
-    # Save and show the plot
+    # --- Save and show ---
     if save_path:
         plt.savefig(save_path, format='pdf', bbox_inches='tight')
     plt.show()
-    
+
     return hit_list
 
 def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=['Computed GO Processes', 'Curated GO Components', 'Curated GO Functions', 'Curated GO Processes']):

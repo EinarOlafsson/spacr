@@ -7,6 +7,7 @@ from tkinter import font
 from queue import Queue
 from tkinter import Label, Frame, Button
 import numpy as np
+import pandas as pd
 from PIL import Image, ImageOps, ImageTk, ImageDraw, ImageFont, ImageEnhance
 from concurrent.futures import ThreadPoolExecutor
 from skimage.exposure import rescale_intensity
@@ -17,7 +18,10 @@ from skimage.draw import polygon, line
 from skimage.transform import resize
 from scipy.ndimage import binary_fill_holes, label
 from tkinter import ttk, scrolledtext
-from skimage.color import rgb2gray
+from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
 fig = None
 
 def restart_gui_app(root):
@@ -2217,7 +2221,8 @@ class AnnotateApp:
             self.image_size = (image_size, image_size)
         else:
             raise ValueError("Invalid image size")
-
+        
+        self.orig_annotation_columns = annotation_column
         self.annotation_column = annotation_column
         self.image_type = image_type
         self.channels = channels
@@ -2274,6 +2279,12 @@ class AnnotateApp:
 
         self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button.pack(side="right", padx=5)
+        
+        self.train_button = Button(self.button_frame,text="Train & Classify (beta)",command=self.train_and_classify,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.train_button.pack(side="right", padx=5)
+        
+        self.train_button = Button(self.button_frame,text="orig.",command=self.swich_back_annotation_column,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.train_button.pack(side="right", padx=5)
 
         # Calculate grid rows and columns based on the root window size and image size
         self.calculate_grid_dimensions()
@@ -2296,7 +2307,12 @@ class AnnotateApp:
             self.grid_frame.grid_rowconfigure(row, weight=1)
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
-
+            
+    def swich_back_annotation_column(self):
+        self.annotation_column = self.orig_annotation_columns
+        self.prefilter_paths_annotations()
+        self.update_display()
+            
     def calculate_grid_dimensions(self):
         window_width = self.root.winfo_width()
         window_height = self.root.winfo_height()
@@ -2619,6 +2635,163 @@ class AnnotateApp:
             print(f'Quit application')
         else:
             print('Waiting for pending updates to finish before quitting')
+            
+    def train_and_classify(self):
+        """
+        1) Merge data from the relevant DB tables (including png_list).
+        2) Collect manual annotations from png_list.<annotation_column> => 'manual_annotation'.
+           - 1 => class=1, 2 => class=0 (for training).
+        3) If only one class is present, randomly sample unannotated images as the other class.
+        4) Train an XGBoost model.
+        5) Classify *all* rows -> fill XGboost_score (prob of class=1) & XGboost_annotation (1 or 2 if high confidence).
+        6) Write those columns back to sqlite, so every row in png_list has a score (and possibly an annotation).
+        7) Refresh the UI (prefilter_paths_annotations + load_images).
+        """
+
+        # Optionally, update your GUI status label
+        self.update_gui_text("Merging data...")
+
+        from spacr.io import _read_and_merge_data  # Adapt to your actual import
+
+        # (1) Merge data
+        merged_df, obj_df_ls = _read_and_merge_data(
+            locs=[self.db_path],
+            tables=['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'],
+            verbose=False
+        )
+
+        # (2) Load manual annotations from the DB
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE {self.annotation_column} IS NOT NULL")
+        annotated_rows = c.fetchall()  # e.g. [(png_path, 1 or 2), ...]
+        conn.close()
+
+        # dict {png_path -> 1 or 2}
+        annot_dict = dict(annotated_rows)
+
+        # Add 'manual_annotation' to merged_df
+        merged_df['manual_annotation'] = merged_df['png_path'].map(annot_dict)
+
+        # Subset with manual labels
+        annotated_df = merged_df.dropna(subset=['manual_annotation']).copy()
+        # Convert "2" => "0" for binary classification
+        annotated_df['manual_annotation'] = annotated_df['manual_annotation'].replace({2: 0}).astype(int)
+
+        # (3) Handle single-class scenario
+        class_counts = annotated_df['manual_annotation'].value_counts()
+        if len(class_counts) == 1:
+            single_class = class_counts.index[0]  # 0 or 1
+            needed = class_counts.iloc[0]
+            other_class = 1 if single_class == 0 else 0
+
+            unannotated_df_all = merged_df[merged_df['manual_annotation'].isna()].copy()
+            if len(unannotated_df_all) == 0:
+                print("No unannotated rows to sample for the other class. Cannot proceed.")
+                self.update_gui_text("Not enough data to train (no second class).")
+                return
+
+            sample_size = min(needed, len(unannotated_df_all))
+            artificially_labeled = unannotated_df_all.sample(n=sample_size, replace=False).copy()
+            artificially_labeled['manual_annotation'] = other_class
+
+            annotated_df = pd.concat([annotated_df, artificially_labeled], ignore_index=True)
+            print(f"Only one class was present => randomly labeled {sample_size} unannotated rows as {other_class}.")
+
+        if len(annotated_df) < 2:
+            print("Not enough annotated data to train (need at least 2).")
+            self.update_gui_text("Not enough data to train.")
+            return
+
+        # (4) Train XGBoost
+        self.update_gui_text("Training XGBoost model...")
+
+        # Identify numeric columns
+        ignore_cols = {'png_path', 'manual_annotation'}
+        feature_cols = [
+            col for col in annotated_df.columns
+            if col not in ignore_cols
+            and (annotated_df[col].dtype == float or annotated_df[col].dtype == int)
+        ]
+
+        X_data = annotated_df[feature_cols].fillna(0).values
+        y_data = annotated_df['manual_annotation'].values
+
+        # standard train/test
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_data, y_data, test_size=0.1, random_state=42
+        )
+        model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+        model.fit(X_train, y_train)
+
+        # Evaluate
+        preds = model.predict(X_test)
+        print("=== Classification Report ===")
+        print(classification_report(y_test, preds))
+        print("=== Confusion Matrix ===")
+        print(confusion_matrix(y_test, preds))
+
+        # (5) Classify ALL rows
+        all_df = merged_df.copy()
+        X_all = all_df[feature_cols].fillna(0).values
+        probs_all = model.predict_proba(X_all)[:, 1]
+        # Probability => XGboost_score
+        all_df['XGboost_score'] = probs_all
+
+        # Decide XGboost_annotation
+        def get_annotation_from_prob(prob):
+            if prob > 0.9:
+                return 1  # class=1
+            elif prob < 0.1:
+                return 0  # class=0
+            return None  # uncertain
+
+        xgb_anno_col = [get_annotation_from_prob(p) for p in probs_all]
+        # Convert 0 => 2 if your DB uses "2" for the negative class
+        xgb_anno_col = [2 if x == 0 else x for x in xgb_anno_col]
+
+        all_df['XGboost_annotation'] = xgb_anno_col
+
+        # (6) Write results back to png_list
+        self.update_gui_text("Updating the database with XGBoost predictions...")
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        # Ensure columns exist
+        try:
+            c.execute("ALTER TABLE png_list ADD COLUMN XGboost_annotation INTEGER")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE png_list ADD COLUMN XGboost_score FLOAT")
+        except sqlite3.OperationalError:
+            pass
+
+        # Update each row
+        for idx, row in all_df.iterrows():
+            score_val = float(row['XGboost_score'])
+            anno_val  = row['XGboost_annotation']
+            the_path  = row['png_path']
+            if pd.isna(the_path):
+                continue  # skip if no path
+
+            if pd.isna(anno_val):
+                # We set annotation=NULL but do set the score
+                c.execute("""
+                    UPDATE png_list
+                       SET XGboost_annotation = NULL,
+                           XGboost_score       = ?
+                     WHERE png_path = ?
+                """, (score_val, the_path))
+            else:
+                # numeric annotation + numeric score
+                c.execute("""
+                    UPDATE png_list
+                       SET XGboost_annotation = ?,
+                           XGboost_score       = ?
+                     WHERE png_path = ?
+                """, (int(anno_val), score_val, the_path))
+                
+        self.annotation_column = 'XGboost_annotation'
 
 def standardize_figure(fig):
     from .gui_elements import set_dark_style

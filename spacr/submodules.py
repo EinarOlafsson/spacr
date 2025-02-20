@@ -1306,3 +1306,110 @@ def generate_score_heatmap(settings):
         merged_df.to_csv(merged_dst, index=False)
         fig.savefig(heatmap_save, format='pdf', dpi=600, bbox_inches='tight')
     return merged_df
+
+def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
+    
+    def _analyze_and_visualize_grna_correlation(df, grna_list, save_folder, save=False):
+        """
+        Analyze and visualize the correlation matrix of gRNAs based on their fractions and overlap.
+
+        Parameters:
+        df (pd.DataFrame): DataFrame with columns ['grna', 'fraction', 'prc'].
+        grna_list (list): List of gRNAs to include in the correlation analysis.
+        save_folder (str): Path to the folder where figures and data will be saved.
+
+        Returns:
+        pd.DataFrame: Correlation matrix of the gRNAs.
+        """
+        # Filter the DataFrame to include only rows with gRNAs in the list
+        filtered_df = df[df['grna'].isin(grna_list)]
+
+        # Pivot the data to create a prc-by-gRNA matrix, using fractions as values
+        pivot_df = filtered_df.pivot_table(index='prc', columns='grna', values='fraction', aggfunc='sum').fillna(0)
+
+        # Compute the correlation matrix
+        correlation_matrix = pivot_df.corr()
+        
+        if save:
+            # Save the correlation matrix
+            correlation_matrix.to_csv(os.path.join(save_folder, 'correlation_matrix.csv'))
+        
+        # Visualize the correlation matrix as a heatmap
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', cbar=True)
+        plt.title('gRNA Correlation Matrix')
+        plt.xlabel('gRNAs')
+        plt.ylabel('gRNAs')
+        plt.tight_layout()
+        
+        if save:
+            correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
+            plt.savefig(correlation_fig_path, dpi=300)
+        
+        plt.show()
+
+        return correlation_matrix
+
+    def _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save=False):
+        """
+        Compute and visualize the effect sizes of gRNAs given fixed effect sizes for a subset of gRNAs.
+
+        Parameters:
+        correlation_matrix (pd.DataFrame): Correlation matrix of gRNAs.
+        grna_dict (dict): Dictionary of gRNAs with fixed effect sizes {grna_name: effect_size}.
+        save_folder (str): Path to the folder where figures and data will be saved.
+
+        Returns:
+        pd.Series: Effect sizes of all gRNAs.
+        """
+        # Ensure the matrix is symmetric and normalize values to 0-1
+        corr_matrix = correlation_matrix.copy()
+        corr_matrix = (corr_matrix - corr_matrix.min().min()) / (corr_matrix.max().max() - corr_matrix.min().min())
+
+        # Initialize the effect sizes with dtype float
+        effect_sizes = pd.Series(0.0, index=corr_matrix.index)
+
+        # Set the effect sizes for the specified gRNAs
+        for grna, size in grna_dict.items():
+            effect_sizes[grna] = size
+
+        # Propagate the effect sizes
+        for grna in corr_matrix.index:
+            if grna not in grna_dict:
+                # Weighted sum of correlations with the fixed gRNAs
+                effect_sizes[grna] = np.dot(corr_matrix.loc[grna], effect_sizes) / np.sum(corr_matrix.loc[grna])
+        
+        if save:
+            # Save the effect sizes
+            effect_sizes.to_csv(os.path.join(save_folder, 'effect_sizes.csv'))
+
+        # Visualization
+        plt.figure(figsize=(10, 6))
+        sns.barplot(x=effect_sizes.index, y=effect_sizes.values, palette="viridis", hue=None, legend=False)
+
+        #for i, val in enumerate(effect_sizes.values):
+        #    plt.text(i, val + 0.02, f"{val:.2f}", ha='center', va='bottom', fontsize=9)
+        plt.title("Effect Sizes of gRNAs")
+        plt.xlabel("gRNAs")
+        plt.ylabel("Effect Size")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
+        if save:
+            effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
+            plt.savefig(effect_sizes_fig_path, dpi=300)
+        
+        plt.show()
+
+        return effect_sizes
+    
+    # Ensure the save folder exists
+    save_folder = os.path.join(os.path.dirname(csv_file), 'post_regression_analysis_results')
+    os.makedirs(save_folder, exist_ok=True)
+    
+    # Load the data
+    df = pd.read_csv(csv_file)
+    
+    # Perform analysis
+    correlation_matrix = _analyze_and_visualize_grna_correlation(df, grna_list, save_folder, save)
+    effect_sizes = _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save)

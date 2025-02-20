@@ -481,7 +481,7 @@ def generate_image_umap(settings={}):
         df, image_paths_tmp = correct_paths(df, settings['src'][i])
         all_df = pd.concat([all_df, df], axis=0)
         #image_paths.extend(image_paths_tmp)
-
+        
     all_df['cond'] = all_df['column_name'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
     if settings['exclude_conditions']:
@@ -501,7 +501,7 @@ def generate_image_umap(settings={}):
         
         # Extract and reset the index for the column to compare
         col_to_compare = all_df[settings['col_to_compare']].reset_index(drop=True)
-        
+        print(col_to_compare)
         #if settings['only_top_features']:
         #    column_list = None
             
