@@ -1041,7 +1041,7 @@ def analyze_class_proportion(settings):
     from .io import _read_and_merge_data
     from .settings import set_analyze_class_proportion_defaults
     from .plot import plot_plates, plot_proportion_stacked_bars
-    from .stats import perform_normality_tests, perform_levene_test, perform_statistical_tests, perform_posthoc_tests
+    from .sp_stats import perform_normality_tests, perform_levene_test, perform_statistical_tests, perform_posthoc_tests
     
     settings = set_analyze_class_proportion_defaults(settings)
     save_settings(settings, name='analyze_class_proportion', show=True)

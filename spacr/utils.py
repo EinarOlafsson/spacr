@@ -5011,22 +5011,22 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     return cytoplasm_mask
 
 def add_column_to_database(settings):
-    #"""
-    #Adds a new column to the database table by matching on a common column from the DataFrame.
-    #If the column already exists in the database, it adds the column with a suffix.
-    #NaN values will remain as NULL in the database.
+    """
+    Adds a new column to the database table by matching on a common column from the DataFrame.
+    If the column already exists in the database, it adds the column with a suffix.
+    NaN values will remain as NULL in the database.
 
-    #Parameters:
-    #    settings (dict): A dictionary containing the following keys:
-    #    csv_path (str): Path to the CSV file with the data to be added.
-    #    db_path (str): Path to the SQLite database (or connection string for other databases).
-    #    table_name (str): The name of the table in the database.
-    #    update_column (str): The name of the new column in the DataFrame to add to the database.
-    #    match_column (str): The common column used to match rows.
+    Parameters:
+        settings (dict): A dictionary containing the following keys:
+            csv_path (str): Path to the CSV file with the data to be added.
+            db_path (str): Path to the SQLite database (or connection string for other databases).
+            table_name (str): The name of the table in the database.
+            update_column (str): The name of the new column in the DataFrame to add to the database.
+            match_column (str): The common column used to match rows.
 
-    #Returns:
-    #    None
-    #"""
+    Returns:
+        None
+    """
 
     # Read the DataFrame from the provided CSV path
     df = pd.read_csv(settings['csv_path'])

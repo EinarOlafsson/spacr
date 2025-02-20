@@ -2705,7 +2705,7 @@ class spacrGraph:
     def perform_posthoc_tests(self, is_normal, unique_groups):
         """Perform post-hoc tests for multiple groups based on all_to_all flag."""
 
-        from .stats import choose_p_adjust_method
+        from .sp_stats import choose_p_adjust_method
 
         posthoc_results = []
         if is_normal and len(unique_groups) > 2 and self.all_to_all:
@@ -3815,7 +3815,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     - pairwise_results (list): Pairwise test results from `chi_pairwise`.
     """
     
-    from .stats import chi_pairwise
+    from .sp_stats import chi_pairwise
     
     # Calculate contingency table for overall chi-squared test
     raw_counts = df.groupby([group_column, bin_column]).size().unstack(fill_value=0)
