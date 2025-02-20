@@ -337,7 +337,140 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         df = pd.read_csv(score_data)
         df = correct_metadata_column_names(df)
         df['plate'] = f'plate{i + 1}'
-        df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+        
+        if 'prc' not in df.columns:
+            df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+            
+        dfs.append(df)
+
+    df = pd.concat(dfs, axis=0)
+
+    # Compute the number of cells per well and select the top 100 wells by cell count
+    cell_counts = df.groupby('prc').size().reset_index(name='cell_count')
+    top_wells = cell_counts.nlargest(sample_size, 'cell_count')['prc']
+
+    # Filter the data to include only the top 100 wells
+    df = df[df['prc'].isin(top_wells)]
+
+    # Initialize storage for absolute difference data
+    diff_data = []
+
+    # Group by wells and iterate over them
+    for i, (prc, group) in enumerate(df.groupby('prc')):
+        original_mean = group[settings['score_column']].mean()  # Original full-well mean
+        max_cells = len(group)
+        sample_sizes = np.arange(2, max_cells + 1, increment)  # Sample sizes from 2 to max cells
+
+        # Iterate over sample sizes and compute absolute difference
+        for sample_size in sample_sizes:
+            abs_diffs = []
+
+            # Perform multiple random samples to reduce noise
+            for _ in range(num_repeats):
+                sample = group.sample(n=sample_size, replace=False)
+                sampled_mean = sample[settings['score_column']].mean()
+                abs_diff = abs(sampled_mean - original_mean)  # Absolute difference
+                abs_diffs.append(abs_diff)
+
+            # Compute the average absolute difference across all repeats
+            avg_abs_diff = np.mean(abs_diffs)
+
+            # Store the result for plotting
+            diff_data.append((sample_size, avg_abs_diff))
+
+    # Convert absolute difference data to DataFrame for plotting
+    diff_df = pd.DataFrame(diff_data, columns=['sample_size', 'avg_abs_diff'])
+
+    # Group by sample size to calculate mean and standard deviation
+    summary_df = diff_df.groupby('sample_size').agg(
+        mean_abs_diff=('avg_abs_diff', 'mean'),
+        std_abs_diff=('avg_abs_diff', 'std')
+    ).reset_index()
+
+    # Apply smoothing using a rolling window
+    summary_df['smoothed_mean_abs_diff'] = summary_df['mean_abs_diff'].rolling(window=smoothing, min_periods=1).mean()
+
+    # Convert percentage to fraction
+    if isinstance(settings['tolerance'], int):
+        tolerance_fraction = settings['tolerance'] / 100  # Convert 2% to 0.02
+    elif isinstance(settings['tolerance'], float):
+        tolerance_fraction = settings['tolerance']
+    else:
+        raise ValueError("Tolerance must be an integer 0 - 100 or float 0.0 - 1.0.")
+
+    # Compute the relative threshold for each well
+    relative_thresholds = {
+        prc: tolerance_fraction * group[settings['score_column']].mean()  # Compute % of original mean
+        for prc, group in df.groupby('prc')
+    }
+
+    # Detect the elbow point when mean absolute difference is below the relative threshold
+    summary_df['relative_threshold'] = summary_df['sample_size'].map(
+        lambda size: np.mean([relative_thresholds[prc] for prc in top_wells])  # Average across selected wells
+    )
+
+    elbow_df = summary_df[summary_df['smoothed_mean_abs_diff'] <= summary_df['relative_threshold']]
+
+    # Select the first occurrence if it exists; otherwise, use the last point
+    if not elbow_df.empty:
+        elbow_point = elbow_df.iloc[0]  # First point where condition is met
+    else:
+        elbow_point = summary_df.iloc[-1]  # Fallback to last point
+
+    # Plot the mean absolute difference with standard deviation as shaded area
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.plot(
+        summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
+    )
+    ax.fill_between(
+        summary_df['sample_size'],
+        summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
+        summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
+        color='teal', alpha=0.3, label='±1 Std. Dev.'
+    )
+
+    # Mark the elbow point (inflection) on the plot
+    ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
+
+    # Formatting the plot
+    ax.set_xlabel('Sample Size')
+    ax.set_ylabel('Mean Absolute Difference')
+    ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
+    ax.legend().remove()
+
+    # Save the plot if a destination is provided
+    dst = os.path.dirname(settings['count_data'][0])
+    if dst is not None:
+        fig_path = os.path.join(dst, 'results')
+        os.makedirs(fig_path, exist_ok=True)
+        fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
+        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+        print(f"Saved {fig_file_path}")
+
+    plt.show()
+    return elbow_point['sample_size']
+
+def minimum_cell_simulation_v1(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
+    """
+    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
+    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
+    """
+
+    from spacr.utils import correct_metadata_column_names
+
+    # Load and process data
+    if isinstance(settings['score_data'], str):
+        settings['score_data'] = [settings['score_data']]
+
+    dfs = []
+    for i, score_data in enumerate(settings['score_data']):
+        df = pd.read_csv(score_data)
+        df = correct_metadata_column_names(df)
+        df['plate'] = f'plate{i + 1}'
+        
+        if 'prc' not in df.columns:
+            df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+            
         dfs.append(df)
 
     df = pd.concat(dfs, axis=0)
@@ -698,7 +831,7 @@ def save_summary_to_file(model, file_path='summary.csv'):
 def perform_regression(settings):
     
     from .plot import plot_plates, plot_data_from_csv
-    from .utils import merge_regression_res_with_metadata, save_settings
+    from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance
     from .settings import get_perform_regression_default_settings
     from .toxo import go_term_enrichment_by_column, custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
     from .sequencing import graph_sequencing_stats
@@ -715,10 +848,8 @@ def perform_regression(settings):
                     df = pd.read_csv(count_data)
                     df['plate_name'] = f'plate{i+1}'
                     if 'column' in df.columns:
-                        #df['column_name'] = df['column']
                         df.rename(columns={'column': 'column_name'}, inplace=True)
                     if 'col' in df.columns:
-                        #df['column_name'] = df['col']
                         df.rename(columns={'col': 'column_name'}, inplace=True)
                     count_data_df = pd.concat([count_data_df, df])
                     print('Count data:', len(count_data_df))
@@ -728,13 +859,12 @@ def perform_regression(settings):
                     df = pd.read_csv(score_data)
                     df['plate_name'] = f'plate{i+1}'
                     if 'column' in df.columns:
-                        #df['column_name'] = df['column']
                         df.rename(columns={'column': 'column_name'}, inplace=True)
                     if 'col' in df.columns:
-                        #df['column_name'] = df['col']
                         df.rename(columns={'col': 'column_name'}, inplace=True)
                         
                     score_data_df = pd.concat([score_data_df, df])
+                    display(score_data_df)
                     print('Score data:', len(score_data_df))
         else:
             count_data_df = pd.read_csv(settings['count_data'])
@@ -746,7 +876,8 @@ def perform_regression(settings):
             print(f'Columns in DataFrame:')
             for col in score_data_df.columns:
                 print(col)
-            raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
+            if not settings['dependent_variable'] == 'pathogen_nucleus_shortest_distance':
+                raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
         
         if 'prediction_probability_class_1' in score_data_df.columns:
             if not settings['class_1_threshold'] is None:
@@ -916,13 +1047,16 @@ def perform_regression(settings):
 
     if settings['min_cell_count'] is None:
         settings['min_cell_count'] = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
+    
     print(f"Minimum cell count: {settings['min_cell_count']}")
     print(f"Dependent variable after minimum cell count filter: {len(score_data_df)}")
+    display(score_data_df)
 
     orig_dv = settings['dependent_variable']
 
     dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
     print(f"Dependent variable after process_scores: {len(dependent_df)}")
+    display(dependent_df)
     
     if settings['fraction_threshold'] is None:
         settings['fraction_threshold'] = graph_sequencing_stats(settings)
@@ -933,16 +1067,53 @@ def perform_regression(settings):
     print(f"Independent variable after process_reads: {len(independent_df)}")
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
+    
+    display(independent_df)
+    display(dependent_df)
+
+    display(merged_df)
+    
+    
     merged_df[['plate', 'row_name', 'column']] = merged_df['prc'].str.split('_', expand=True)
-    
-    os.makedirs(res_folder, exist_ok=True)
-    data_path = os.path.join(res_folder, 'regression_data.csv')
-    merged_df.to_csv(data_path, index=False)
-    print(f"Saved regression data to {data_path}")
-    
-    cell_settings = {'src':data_path,
-                    'graph_name':'cell_count',
-                    'data_column':['cell_count'],
+        
+    try:
+        os.makedirs(res_folder, exist_ok=True)
+        data_path = os.path.join(res_folder, 'regression_data.csv')
+        merged_df.to_csv(data_path, index=False)
+        print(f"Saved regression data to {data_path}")
+        
+        cell_settings = {'src':data_path,
+                        'graph_name':'cell_count',
+                        'data_column':['cell_count'],
+                        'grouping_column':'plate',
+                        'graph_type':'jitter_bar',
+                        'theme':'bright',
+                        'save':True,
+                        'y_lim':[None,None],
+                        'log_y':False,
+                        'log_x':False,
+                        'representation':'well',
+                        'verbose':False}
+        
+        _, _ = plot_data_from_csv(settings=cell_settings)
+        
+        final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
+        
+        if settings['outlier_detection']:
+            outliers_grna = get_outlier_reference_values(final_grna_df,outlier_col='grna_well_count',return_col='grna')
+            if len (outliers_grna) > 0:
+                merged_df = merged_df[~merged_df['grna'].isin(outliers_grna)]
+                final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
+                merged_df.to_csv(data_path, index=False)
+                print(f"Saved regression data to {data_path}")
+
+        grna_data_path = os.path.join(res_folder, 'grna_well.csv')
+        final_grna_df.to_csv(grna_data_path, index=False)
+        print(f"Saved grna per well data to {grna_data_path}")
+        
+        wells_per_gene_settings = {'src':grna_data_path,
+                    'graph_name':'wells_per_gene',
+                    'data_column':['grna_well_count'],
                     'grouping_column':'plate',
                     'graph_type':'jitter_bar',
                     'theme':'bright',
@@ -950,59 +1121,33 @@ def perform_regression(settings):
                     'y_lim':[None,None],
                     'log_y':False,
                     'log_x':False,
-                    'representation':'well',
-                    'verbose':False}
-    
-    _, _ = plot_data_from_csv(settings=cell_settings)
-    
-    final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
-    
-    if settings['outlier_detection']:
-        outliers_grna = get_outlier_reference_values(final_grna_df,outlier_col='grna_well_count',return_col='grna')
-        if len (outliers_grna) > 0:
-            merged_df = merged_df[~merged_df['grna'].isin(outliers_grna)]
-            final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
-            merged_df.to_csv(data_path, index=False)
-            print(f"Saved regression data to {data_path}")
-
-    grna_data_path = os.path.join(res_folder, 'grna_well.csv')
-    final_grna_df.to_csv(grna_data_path, index=False)
-    print(f"Saved grna per well data to {grna_data_path}")
-    
-    wells_per_gene_settings = {'src':grna_data_path,
-                'graph_name':'wells_per_gene',
-                'data_column':['grna_well_count'],
-                'grouping_column':'plate',
-                'graph_type':'jitter_bar',
-                'theme':'bright',
-                'save':True,
-                'y_lim':[None,None],
-                'log_y':False,
-                'log_x':False,
-                'representation':'object',
-                'verbose':True}
-    
-    _, _ = plot_data_from_csv(settings=wells_per_gene_settings)
-    
-    grna_well_data_path = os.path.join(res_folder, 'well_grna.csv')
-    prc_gene_count_df.to_csv(grna_well_data_path, index=False)
-    print(f"Saved well per grna data to {grna_well_data_path}")
-    
-    grna_per_well_settings = {'src':grna_well_data_path,
-                            'graph_name':'gene_per_well',
-                            'data_column':['gene_count'],
-                            'grouping_column':'plate',
-                            'graph_type':'jitter_bar',
-                            'theme':'bright',
-                            'save':True,
-                            'y_lim':[None,None],
-                            'log_y':False,
-                            'log_x':False,
-                            'representation':'well',
-                            'verbose':False}
-    
-    _, _ = plot_data_from_csv(settings=grna_per_well_settings)
-    
+                    'representation':'object',
+                    'verbose':True}
+        
+        _, _ = plot_data_from_csv(settings=wells_per_gene_settings)
+        
+        grna_well_data_path = os.path.join(res_folder, 'well_grna.csv')
+        prc_gene_count_df.to_csv(grna_well_data_path, index=False)
+        print(f"Saved well per grna data to {grna_well_data_path}")
+        
+        grna_per_well_settings = {'src':grna_well_data_path,
+                                'graph_name':'gene_per_well',
+                                'data_column':['gene_count'],
+                                'grouping_column':'plate',
+                                'graph_type':'jitter_bar',
+                                'theme':'bright',
+                                'save':True,
+                                'y_lim':[None,None],
+                                'log_y':False,
+                                'log_x':False,
+                                'representation':'well',
+                                'verbose':False}
+        
+        _, _ = plot_data_from_csv(settings=grna_per_well_settings)
+        
+    except Exception as e:
+        print(e)
+        
     _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
     model, coef_df, regression_type = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
@@ -1080,6 +1225,8 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
+        
+        
         if settings['volcano'] == 'all':
             print('all')
             gene_list = custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
@@ -1092,6 +1239,7 @@ def perform_regression(settings):
             print('grna')
             gene_list = custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
             display(gene_list)
+        
         phenotype_plot = os.path.join(res_folder,'phenotype_plot.pdf')
         transcription_heatmap = os.path.join(res_folder,'transcription_heatmap.pdf')
         data_GT1 = pd.read_csv(settings['metadata_files'][1], low_memory=False)
@@ -1146,6 +1294,11 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
             csv_df['plate'] = plate
         else:
             csv_df['plate'] = 'plate1'
+            
+    if 'prcfo' in csv_df.columns:
+        #csv_df = csv_df.loc[:, ~csv_df.columns.duplicated()].copy()
+        csv_df[['plate_name', 'row_name', 'column_name', 'field_name', 'object_name']] = csv_df['prcfo'].str.split('_', expand=True)
+        csv_df['prc'] = csv_df['plate_name'].astype(str) + '_' + csv_df['row_name'].astype(str) + '_' + csv_df['column_name'].astype(str)
 
     if isinstance(filter_column, str):
         filter_column = [filter_column]
@@ -1225,34 +1378,43 @@ def clean_controls(df,values, column):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
+    from .utils import calculate_shortest_distance
+    df = df.reset_index(drop=True)
     
-    if 'plate_name' in df.columns:
-        df.drop(columns=['plate'], inplace=True)
-        df = df.rename(columns={'plate_name': 'plate'})
+    if 'prcfo' in df.columns:
+        df = df.loc[:, ~df.columns.duplicated()].copy()
+        if not all(col in df.columns for col in ['plate_name', 'row_name', 'column_name']):
+            df[['plate_name', 'row_name', 'column_name', 'field_name', 'object_name']] = df['prcfo'].str.split('_', expand=True)
+        if all(col in df.columns for col in ['plate_name', 'row_name', 'column_name']):
+            df['prc'] = df['plate_name'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+    else:
+        if 'plate_name' in df.columns:
+            df.drop(columns=['plate'], inplace=True)
+            #df = df.rename(columns={'plate_name': 'plate'})
+            
+        if 'plate' in df.columns:
+            df['plate_name'] = df['plate']
+            
+        if plate is not None:
+            df['plate_name'] = plate
         
-    if 'row' in df.columns:
-        df = df.rename(columns={'row': 'row_name'})
-        
-    if 'col' in df.columns:
-        df = df.rename(columns={'col': 'column_name'})
-        
-    if plate is not None:
-        df['plate'] = plate
-
-    if 'column_name' not in df.columns:
-        df['column_name'] = df['column']
-        
-    display(df)
-
-    df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
-
-    display(df)
+        if 'row' in df.columns:
+            df = df.rename(columns={'row': 'row_name'})
+            
+        if 'col' in df.columns:
+            df = df.rename(columns={'col': 'column_name'})
+            
+        if 'column' in df.columns:
+            df = df.rename(columns={'column': 'column_name'})
     
-    
+        df = df.loc[:, ~df.columns.duplicated()].copy()
+        df['prc'] = df['plate_name'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+
     df = df[['prc', dependent_variable]]
-
     # Group by prc and calculate the mean and count of the dependent_variable
     grouped = df.groupby('prc')[dependent_variable]
+    
+    display(grouped)
     
     if regression_type != 'poisson':
     
@@ -1306,7 +1468,7 @@ def generate_ml_scores(settings):
     
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
-    from .utils import get_ml_results_paths, add_column_to_database
+    from .utils import get_ml_results_paths, add_column_to_database, calculate_shortest_distance
     from .settings import set_default_analyze_screen
 
     settings = set_default_analyze_screen(settings)
@@ -1334,6 +1496,11 @@ def generate_ml_scores(settings):
                                     nuclei_limit=settings['nuclei_limit'],
                                     pathogen_limit=settings['pathogen_limit'])
         df = pd.concat([df, dft])
+    
+    try:
+        df = calculate_shortest_distance(df, 'pathogen', 'nucleus')
+    except Exception as e:
+        print(e)
     
     if settings['annotation_column'] is not None:
 
@@ -1480,9 +1647,16 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
     df = pd.concat([df, df_metadata[location_column]], axis=1)
 
     # Subset the dataframe based on specified column values
-    df1 = df[df[location_column] == negative_control].copy()
-    df2 = df[df[location_column] == positive_control].copy()
-
+    if isinstance(negative_control, str):
+        df1 = df[df[location_column] == negative_control].copy()
+    elif isinstance(negative_control, list):
+        df1 = df[df[location_column].isin(negative_control)].copy()
+    
+    if isinstance(positive_control, str):
+        df2 = df[df[location_column] == positive_control].copy()
+    elif isinstance(positive_control, list):
+        df2 = df[df[location_column].isin(positive_control)].copy()
+        
     # Create target variable
     df1['target'] = 0 # Negative control
     df2['target'] = 1 # Positive control
@@ -1585,13 +1759,13 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
         for i in range(prediction_probabilities.shape[1]):
             df[f'prediction_probability_class_{i}'] = prediction_probabilities[:, i]
 
-        if verbose:
-            print("\nFinal Classification Report on Full Dataset:")
-            print(classification_report(y, all_predictions))
+        #if verbose:
+        #    print("\nFinal Classification Report on Full Dataset:")
+        #    print(classification_report(y, all_predictions))
 
         # Generate metrics DataFrame
-        final_report_dict = classification_report(y, all_predictions, output_dict=True)
-        metrics_df = pd.DataFrame(final_report_dict).transpose()
+        #final_report_dict = classification_report(y, all_predictions, output_dict=True)
+        #metrics_df = pd.DataFrame(final_report_dict).transpose()
     
     else:
         model.fit(X_train, y_train)
@@ -1715,8 +1889,14 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     pandas.DataFrame: DataFrame with similarity scores.
     """
     # Separate positive and negative control wells
-    pos_control = df[df[col_to_compare] == val1][features].mean()
-    neg_control = df[df[col_to_compare] == val2][features].mean()
+    if isinstance(val1, str):
+        pos_control = df[df[col_to_compare] == val1][features].mean()
+    elif isinstance(val1, list):
+        pos_control = df[df[col_to_compare].isin(val1)][features].mean()
+    if isinstance(val2, str):
+        neg_control = df[df[col_to_compare] == val2][features].mean()
+    elif isinstance(val2, list):
+        neg_control = df[df[col_to_compare].isin(val2)][features].mean()
     
     # Standardize features for Mahalanobis distance
     scaler = StandardScaler()
