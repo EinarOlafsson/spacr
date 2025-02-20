@@ -940,103 +940,12 @@ all_labels (list): The true labels for each prediction.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.model_fusion">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">model_fusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'maxvit_t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#model_fusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.model_fusion" title="Link to this definition"></a></dt>
-<dd><p>Fuses an arbitrary number of TorchModel instances by combining their weights
-(using mean, geomean, median, sum, max, or min) and saves the entire fused
-model object.</p>
-<p>You can later load the fused model with:</p>
-<blockquote>
-<div><p>model = torch.load(‘fused_model.pth’)</p>
-</div></blockquote>
-<p>which returns a ready-to-use TorchModel instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_paths</strong> (<em>list</em><em> of </em><em>str</em>) – <p>Paths to the model checkpoints to fuse. Each checkpoint can be:</p>
-<ul>
-<li><p>A dict with keys [‘model’, ‘model_name’, …]</p></li>
-<li><p>A TorchModel instance</p></li>
-</ul>
-</p></li>
-<li><p><strong>save_path</strong> (<em>str</em>) – Destination path to save the fused model.</p></li>
-<li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’ for loading weights and setting the final device.</p></li>
-<li><p><strong>model_name</strong> (<em>str</em>) – Default model name (used if not specified in the checkpoint).</p></li>
-<li><p><strong>pretrained</strong> (<em>bool</em>) – Whether to use pretrained weights (if not specified in the checkpoint).</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em>) – Dropout rate to use if not specified in the checkpoint.</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Whether to load from a checkpoint if not specified.</p></li>
-<li><p><strong>aggregator</strong> (<em>str</em>) – How to combine weights across models: ‘mean’, ‘geomean’, ‘median’,
-‘sum’, ‘max’, or ‘min’.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The final fused TorchModel instance with combined weights.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>fused_model (<a class="reference internal" href="#spacr.utils.TorchModel" title="spacr.utils.TorchModel">TorchModel</a>)</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.model_knowledge_transfer">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">model_knowledge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teacher_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">student_save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">student_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'maxvit_t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#model_knowledge_transfer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.model_knowledge_transfer" title="Link to this definition"></a></dt>
-<dd><p>Performs multi-teacher knowledge distillation on a new labeled dataset,
-producing a single student TorchModel that combines (distills) the
-teachers’ knowledge with the labeled data.</p>
-<p class="rubric">Example</p>
-<dl>
-<dt>student = model_knowledge_transfer(</dt><dd><dl class="simple">
-<dt>teacher_paths=[</dt><dd><p>‘teacherA.pth’,
-‘teacherB.pth’</p>
-</dd>
-</dl>
-<p>],
-student_save_path=’distilled_student.pth’,
-data_loader=my_data_loader,
-device=’cuda’,
-student_model_name=’maxvit_t’,
-pretrained=True,
-dropout_rate=None,
-use_checkpoint=False,
-alpha=0.5,
-temperature=2.0,
-lr=1e-4,
-epochs=10</p>
-</dd>
-</dl>
-<p>)</p>
-<p>Then load it via:</p>
-<blockquote>
-<div><p>fused_student = torch.load(‘distilled_student.pth’)
-# fused_student is a TorchModel instance, ready for inference.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>teacher_paths</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of paths to teacher models (each can be a TorchModel or a dict
-with a ‘model’ key). The models must have the same architecture or
-at least produce outputs of the same dimension.</p></li>
-<li><p><strong>student_save_path</strong> (<em>str</em>) – Destination path to save the final student TorchModel.</p></li>
-<li><p><strong>data_loader</strong> (<em>DataLoader</em>) – A DataLoader that yields (images, labels) from the new dataset.</p></li>
-<li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’.</p></li>
-<li><p><strong>student_model_name</strong> (<em>str</em>) – Architecture name for the student TorchModel.</p></li>
-<li><p><strong>pretrained</strong> (<em>bool</em>) – Whether the student should be initialized as pretrained.</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em>) – Dropout rate for the TorchModel (if needed).</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Whether to use a checkpoint when initializing the TorchModel.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em>) – Weight balancing between real-label cross-entropy and distillation
-loss (0..1).</p></li>
-<li><p><strong>temperature</strong> (<em>float</em>) – Distillation temperature (typically &gt; 1).</p></li>
-<li><p><strong>lr</strong> (<em>float</em>) – Learning rate for training the student.</p></li>
-<li><p><strong>epochs</strong> (<em>int</em>) – Number of training epochs.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The final, trained student model.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#spacr.utils.TorchModel" title="spacr.utils.TorchModel">TorchModel</a></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_core">

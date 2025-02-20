@@ -1055,79 +1055,7 @@
 <div class="viewcode-block" id="model_knowledge_transfer">
 <a class="viewcode-back" href="../../spacr.html#spacr.deep_spacr.model_knowledge_transfer">[docs]</a>
 <span class="k">def</span> <span class="nf">model_knowledge_transfer</span><span class="p">(</span><span class="n">teacher_paths</span><span class="p">,</span> <span class="n">student_save_path</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span> <span class="n">student_model_name</span><span class="o">=</span><span class="s1">&#39;maxvit_t&#39;</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Performs multi-teacher knowledge distillation on a new labeled dataset,</span>
-<span class="sd">    producing a single student TorchModel that combines (distills) the</span>
-<span class="sd">    teachers&#39; knowledge with the labeled data.</span>
 
-<span class="sd">    Example:</span>
-<span class="sd">        student = model_knowledge_transfer(</span>
-<span class="sd">            teacher_paths=[</span>
-<span class="sd">                &#39;teacherA.pth&#39;, </span>
-<span class="sd">                &#39;teacherB.pth&#39;</span>
-<span class="sd">            ],</span>
-<span class="sd">            student_save_path=&#39;distilled_student.pth&#39;,</span>
-<span class="sd">            data_loader=my_data_loader,</span>
-<span class="sd">            device=&#39;cuda&#39;,</span>
-<span class="sd">            student_model_name=&#39;maxvit_t&#39;,</span>
-<span class="sd">            pretrained=True,</span>
-<span class="sd">            dropout_rate=None,</span>
-<span class="sd">            use_checkpoint=False,</span>
-<span class="sd">            alpha=0.5,</span>
-<span class="sd">            temperature=2.0,</span>
-<span class="sd">            lr=1e-4,</span>
-<span class="sd">            epochs=10</span>
-<span class="sd">        )</span>
-
-<span class="sd">    Then load it via:</span>
-
-<span class="sd">        fused_student = torch.load(&#39;distilled_student.pth&#39;)</span>
-<span class="sd">        # fused_student is a TorchModel instance, ready for inference.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        teacher_paths (list[str]):</span>
-<span class="sd">            List of paths to teacher models (each can be a TorchModel or a dict</span>
-<span class="sd">            with a &#39;model&#39; key). The models must have the same architecture or</span>
-<span class="sd">            at least produce outputs of the same dimension.</span>
-
-<span class="sd">        student_save_path (str):</span>
-<span class="sd">            Destination path to save the final student TorchModel.</span>
-
-<span class="sd">        data_loader (DataLoader):</span>
-<span class="sd">            A DataLoader that yields (images, labels) from the new dataset.</span>
-
-<span class="sd">        device (str):</span>
-<span class="sd">            &#39;cpu&#39; or &#39;cuda&#39;.</span>
-
-<span class="sd">        student_model_name (str):</span>
-<span class="sd">            Architecture name for the student TorchModel.</span>
-
-<span class="sd">        pretrained (bool):</span>
-<span class="sd">            Whether the student should be initialized as pretrained.</span>
-
-<span class="sd">        dropout_rate (float):</span>
-<span class="sd">            Dropout rate for the TorchModel (if needed).</span>
-
-<span class="sd">        use_checkpoint (bool):</span>
-<span class="sd">            Whether to use a checkpoint when initializing the TorchModel.</span>
-
-<span class="sd">        alpha (float):</span>
-<span class="sd">            Weight balancing between real-label cross-entropy and distillation</span>
-<span class="sd">            loss (0..1).</span>
-
-<span class="sd">        temperature (float):</span>
-<span class="sd">            Distillation temperature (typically &gt; 1).</span>
-
-<span class="sd">        lr (float):</span>
-<span class="sd">            Learning rate for training the student.</span>
-
-<span class="sd">        epochs (int):</span>
-<span class="sd">            Number of training epochs.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        TorchModel:</span>
-<span class="sd">            The final, trained student model.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">spacr.utils</span> <span class="kn">import</span> <span class="n">TorchModel</span>  <span class="c1"># Adapt if needed</span>
 
     <span class="c1"># Adjust filename to reflect knowledge-distillation if desired</span>
@@ -1234,50 +1162,7 @@
 <div class="viewcode-block" id="model_fusion">
 <a class="viewcode-back" href="../../spacr.html#spacr.deep_spacr.model_fusion">[docs]</a>
 <span class="k">def</span> <span class="nf">model_fusion</span><span class="p">(</span><span class="n">model_paths</span><span class="p">,</span><span class="n">save_path</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;maxvit_t&#39;</span><span class="p">,</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">aggregator</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fuses an arbitrary number of TorchModel instances by combining their weights</span>
-<span class="sd">    (using mean, geomean, median, sum, max, or min) and saves the entire fused</span>
-<span class="sd">    model object.</span>
 
-<span class="sd">    You can later load the fused model with:</span>
-
-<span class="sd">        model = torch.load(&#39;fused_model.pth&#39;)</span>
-
-<span class="sd">    which returns a ready-to-use TorchModel instance.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">        model_paths (list of str):</span>
-<span class="sd">            Paths to the model checkpoints to fuse. Each checkpoint can be:</span>
-
-<span class="sd">            - A dict with keys [&#39;model&#39;, &#39;model_name&#39;, ...]</span>
-<span class="sd">            - A TorchModel instance</span>
-
-<span class="sd">        save_path (str):</span>
-<span class="sd">            Destination path to save the fused model.</span>
-
-<span class="sd">        device (str):</span>
-<span class="sd">            &#39;cpu&#39; or &#39;cuda&#39; for loading weights and setting the final device.</span>
-
-<span class="sd">        model_name (str):</span>
-<span class="sd">            Default model name (used if not specified in the checkpoint).</span>
-
-<span class="sd">        pretrained (bool):</span>
-<span class="sd">            Whether to use pretrained weights (if not specified in the checkpoint).</span>
-
-<span class="sd">        dropout_rate (float):</span>
-<span class="sd">            Dropout rate to use if not specified in the checkpoint.</span>
-
-<span class="sd">        use_checkpoint (bool):</span>
-<span class="sd">            Whether to load from a checkpoint if not specified.</span>
-
-<span class="sd">        aggregator (str):</span>
-<span class="sd">            How to combine weights across models: &#39;mean&#39;, &#39;geomean&#39;, &#39;median&#39;,</span>
-<span class="sd">            &#39;sum&#39;, &#39;max&#39;, or &#39;min&#39;.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        fused_model (TorchModel):</span>
-<span class="sd">            The final fused TorchModel instance with combined weights.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">spacr.utils</span> <span class="kn">import</span> <span class="n">TorchModel</span>
     
     <span class="k">if</span> <span class="n">save_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pth&#39;</span><span class="p">):</span>
