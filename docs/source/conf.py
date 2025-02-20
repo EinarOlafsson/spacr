@@ -10,6 +10,9 @@ project = 'spacr'
 copyright = '2025, Einar Olafsson'
 author = 'Einar Olafsson'
 
+version = 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.4.0'
+release = 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.4.0'
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
