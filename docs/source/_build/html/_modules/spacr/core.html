@@ -5,15 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.core &mdash; spacr Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
-0.3.61 documentation</title>
+  <title>spacr.core &mdash; spacr  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=4d879c53"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -81,11 +80,11 @@
 
 <div class="viewcode-block" id="preprocess_generate_masks">
 <a class="viewcode-back" href="../../spacr.html#spacr.core.preprocess_generate_masks">[docs]</a>
-<span class="k">def</span> <span class="nf">preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">def</span> <span class="nf">preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
 
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">preprocess_img_data</span><span class="p">,</span> <span class="n">_load_and_concatenate_arrays</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_image_mask_overlay</span><span class="p">,</span> <span class="n">plot_arrays</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_pivot_counts_table</span><span class="p">,</span> <span class="n">check_mask_folder</span><span class="p">,</span> <span class="n">adjust_cell_masks</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_pivot_counts_table</span><span class="p">,</span> <span class="n">check_mask_folder</span><span class="p">,</span> <span class="n">adjust_cell_masks</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">delete_intermedeate_files</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_settings_preprocess_generate_masks</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
@@ -101,9 +100,9 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Processing folder: </span><span class="si">{</span><span class="n">source_folder</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_folder</span>
             <span class="n">src</span> <span class="o">=</span> <span class="n">source_folder</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
             
-            <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;gen_mask&#39;</span><span class="p">)</span>
+            <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;gen_mask_settings&#39;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">custom_model_ls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;toxo_pv_lumen&#39;</span><span class="p">,</span><span class="s1">&#39;toxo_cyto&#39;</span><span class="p">]</span>
@@ -232,6 +231,10 @@
                     
             <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
             <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;delete_intermediate&#39;</span><span class="p">]:</span>
+                <span class="n">delete_intermedeate_files</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully completed run&quot;</span><span class="p">)</span>
     <span class="k">return</span></div>
 
@@ -249,8 +252,10 @@
     <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Torch CUDA is not available, using CPU&#39;</span><span class="p">)</span>
-
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+        
+    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
+    
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
         <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;setting_key&#39;</span><span class="p">,</span> <span class="s1">&#39;setting_value&#39;</span><span class="p">])</span>
@@ -269,11 +274,13 @@
         <span class="n">timelapse_objects</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span>
     
     <span class="n">batch_size</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+    
     <span class="n">cellprob_threshold</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_CP_prob&#39;</span><span class="p">]</span>
 
     <span class="n">flow_threshold</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_FT&#39;</span><span class="p">]</span>
 
     <span class="n">object_settings</span> <span class="o">=</span> <span class="n">_get_object_settings</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+    
     <span class="n">model_name</span> <span class="o">=</span> <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span>
     
     <span class="n">cellpose_channels</span> <span class="o">=</span> <span class="n">_get_cellpose_channels</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">])</span>
@@ -553,7 +560,7 @@
         <span class="n">df</span><span class="p">,</span> <span class="n">image_paths_tmp</span> <span class="o">=</span> <span class="n">correct_paths</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
         <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="c1">#image_paths.extend(image_paths_tmp)</span>
-
+        
     <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">map_condition</span><span class="p">,</span> <span class="n">neg</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;neg&#39;</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">],</span> <span class="n">mix</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mix&#39;</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]:</span>
@@ -573,7 +580,7 @@
         
         <span class="c1"># Extract and reset the index for the column to compare</span>
         <span class="n">col_to_compare</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        
+        <span class="nb">print</span><span class="p">(</span><span class="n">col_to_compare</span><span class="p">)</span>
         <span class="c1">#if settings[&#39;only_top_features&#39;]:</span>
         <span class="c1">#    column_list = None</span>
             
@@ -867,8 +874,10 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Torch CUDA is not available, using CPU&#39;</span><span class="p">)</span>
 
+    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
+
     <span class="c1"># Preprocess settings</span>
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
         <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;setting_key&#39;</span><span class="p">,</span> <span class="s1">&#39;setting_value&#39;</span><span class="p">])</span>
@@ -1053,7 +1062,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Your Name.</p>
+    <p>&#169; Copyright 2025, Einar Olafsson.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

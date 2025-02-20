@@ -5,15 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.utils &mdash; spacr Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
-0.3.61 documentation</title>
+  <title>spacr.utils &mdash; spacr  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=4d879c53"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1490,6 +1489,7 @@
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;host_cells&#39;</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pathogen&#39;</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;treatment&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">v</span><span class="p">)]),</span> 
         <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -1497,7 +1497,7 @@
 <span class="k">def</span> <span class="nf">_split_data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">group_by</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,</span>
-<span class="sd">    and returns the grouped dataframes.</span>
+<span class="sd">    and returns the grouped dataframes with conditional aggregation.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    df (pandas.DataFrame): The input dataframe.</span>
@@ -1505,16 +1505,38 @@
 <span class="sd">    object_type (str): The column name to concatenate with &#39;prcf&#39; to create a new column &#39;prcfo&#39;.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns.</span>
+<span class="sd">    grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns with conditional aggregation.</span>
 <span class="sd">    grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Ensure &#39;prcf&#39; column exists by concatenating specific columns</span>
+    <span class="k">if</span> <span class="s1">&#39;prcf&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prcf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;row_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>    
+    
+    <span class="c1"># Create the &#39;prcfo&#39; column</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prcfo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prcf&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+    <span class="c1"># Split the DataFrame into numeric and non-numeric parts</span>
     <span class="n">df_numeric</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
     <span class="n">df_non_numeric</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
 
-    <span class="n">grouped_numeric</span> <span class="o">=</span> <span class="n">df_numeric</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df_numeric</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="c1"># Define keywords for columns to be summed instead of averaged</span>
+    <span class="n">sum_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;perimeter&#39;</span><span class="p">,</span> <span class="s1">&#39;convex_area&#39;</span><span class="p">,</span> <span class="s1">&#39;bbox_area&#39;</span><span class="p">,</span> <span class="s1">&#39;filled_area&#39;</span><span class="p">,</span> <span class="s1">&#39;major_axis_length&#39;</span><span class="p">,</span> <span class="s1">&#39;minor_axis_length&#39;</span><span class="p">,</span> <span class="s1">&#39;equivalent_diameter&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Create a dictionary for custom aggregation</span>
+    <span class="n">agg_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df_numeric</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">keyword</span> <span class="ow">in</span> <span class="n">column</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">sum_keywords</span><span class="p">):</span>
+            <span class="n">agg_dict</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sum&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">agg_dict</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+
+    <span class="c1"># Apply custom aggregation</span>
+    <span class="n">grouped_numeric</span> <span class="o">=</span> <span class="n">df_numeric</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df_numeric</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_dict</span><span class="p">)</span>
     <span class="n">grouped_non_numeric</span> <span class="o">=</span> <span class="n">df_non_numeric</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df_non_numeric</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">grouped_numeric</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">grouped_non_numeric</span><span class="p">)</span>
@@ -4687,6 +4709,12 @@
     
     <span class="k">if</span> <span class="n">remove_highly_correlated_features</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">remove_highly_correlated_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        
+    <span class="c1"># Remove columns with NaN values</span>
+    <span class="n">before_drop_NaN</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">after_drop_NaN</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dropped </span><span class="si">{</span><span class="n">before_drop_NaN</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">after_drop_NaN</span><span class="si">}</span><span class="s2"> columns with NaN values&quot;</span><span class="p">)</span>
 
     <span class="c1"># Select numerical features</span>
     <span class="n">features</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
@@ -5214,7 +5242,8 @@
     <span class="n">shap_fig_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;shap.pdf&#39;</span><span class="p">)</span>
     <span class="n">plate_heatmap_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;plate_heatmap.pdf&#39;</span><span class="p">)</span>
     <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;ml_settings.csv&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">permutation_path</span><span class="p">,</span> <span class="n">feature_importance_path</span><span class="p">,</span> <span class="n">model_metricks_path</span><span class="p">,</span> <span class="n">permutation_fig_path</span><span class="p">,</span> <span class="n">feature_importance_fig_path</span><span class="p">,</span> <span class="n">shap_fig_path</span><span class="p">,</span> <span class="n">plate_heatmap_path</span><span class="p">,</span> <span class="n">settings_csv</span></div>
+    <span class="n">ml_features</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_fldr</span><span class="p">,</span> <span class="s1">&#39;ml_features.csv&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">permutation_path</span><span class="p">,</span> <span class="n">feature_importance_path</span><span class="p">,</span> <span class="n">model_metricks_path</span><span class="p">,</span> <span class="n">permutation_fig_path</span><span class="p">,</span> <span class="n">feature_importance_fig_path</span><span class="p">,</span> <span class="n">shap_fig_path</span><span class="p">,</span> <span class="n">plate_heatmap_path</span><span class="p">,</span> <span class="n">settings_csv</span><span class="p">,</span> <span class="n">ml_features</span></div>
 
 
 <div class="viewcode-block" id="augment_image">
@@ -5533,17 +5562,18 @@
 <a class="viewcode-back" href="../../spacr.html#spacr.utils.add_column_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">add_column_to_database</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adds a new column to the database table by matching on a common column from the DataFrame.</span>
-<span class="sd">    If the column already exists in the database, it adds the column with a suffix.</span>
-<span class="sd">    NaN values will remain as NULL in the database.</span>
-<span class="sd">    </span>
+<span class="sd">    Adds a new column to the database table by matching on a common column from the DataFrame. If the column already exists in the database, it adds the column with a suffix. NaN values will remain as NULL in the database.</span>
+
 <span class="sd">    Parameters:</span>
-<span class="sd">    - settings: A dictionary containing the following keys:</span>
-<span class="sd">        - &#39;csv_path&#39;: Path to the CSV file with the data to be added.</span>
-<span class="sd">        - &#39;db_path&#39;: Path to the SQLite database (or connection string for other databases).</span>
-<span class="sd">        - &#39;table_name&#39;: The name of the table in the database.</span>
-<span class="sd">        - &#39;update_column&#39;: The name of the new column in the DataFrame to add to the database.</span>
-<span class="sd">        - &#39;match_column&#39;: The common column used to match rows.</span>
+<span class="sd">        settings (dict): A dictionary containing the following keys:</span>
+<span class="sd">        csv_path (str): Path to the CSV file with the data to be added.</span>
+<span class="sd">        db_path (str): Path to the SQLite database (or connection string for other databases).</span>
+<span class="sd">        table_name (str): The name of the table in the database.</span>
+<span class="sd">        update_column (str): The name of the new column in the DataFrame to add to the database.</span>
+<span class="sd">        match_column (str): The common column used to match rows.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Read the DataFrame from the provided CSV path</span>
@@ -5640,8 +5670,8 @@
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;plate_name&#39;</span><span class="p">:</span> <span class="s1">&#39;plate&#39;</span><span class="p">})</span>
     <span class="k">if</span> <span class="s1">&#39;column_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;column_name&#39;</span><span class="p">:</span> <span class="s1">&#39;column&#39;</span><span class="p">})</span>
-    <span class="k">if</span> <span class="s1">&#39;column_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;column_name&#39;</span><span class="p">:</span> <span class="s1">&#39;column&#39;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s1">&#39;col&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;col&#39;</span><span class="p">:</span> <span class="s1">&#39;column&#39;</span><span class="p">})</span>
     <span class="k">if</span> <span class="s1">&#39;row_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;row_name&#39;</span><span class="p">:</span> <span class="s1">&#39;row_name&#39;</span><span class="p">})</span>
     <span class="k">if</span> <span class="s1">&#39;grna_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -5660,32 +5690,6 @@
     <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="s1">&#39;row_name&#39;</span><span class="p">:</span>
         <span class="n">filtered_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">filtered_files</span></div>
-
-
-<div class="viewcode-block" id="choose_p_adjust_method">
-<a class="viewcode-back" href="../../spacr.html#spacr.utils.choose_p_adjust_method">[docs]</a>
-<span class="k">def</span> <span class="nf">choose_p_adjust_method</span><span class="p">(</span><span class="n">num_groups</span><span class="p">,</span> <span class="n">num_data_points</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Selects the most appropriate p-value adjustment method based on data characteristics.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    - num_groups: Number of unique groups being compared</span>
-<span class="sd">    - num_data_points: Number of data points per group (assuming balanced groups)</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">    - A string representing the recommended p-adjustment method</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">num_comparisons</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_groups</span> <span class="o">*</span> <span class="p">(</span><span class="n">num_groups</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># Number of pairwise comparisons</span>
-
-    <span class="c1"># Decision logic for choosing the adjustment method</span>
-    <span class="k">if</span> <span class="n">num_comparisons</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">num_data_points</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;holm&#39;</span>  <span class="c1"># Balanced between power and Type I error control</span>
-    <span class="k">elif</span> <span class="n">num_comparisons</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">num_data_points</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;fdr_bh&#39;</span>  <span class="c1"># FDR control for large number of comparisons and small sample size</span>
-    <span class="k">elif</span> <span class="n">num_comparisons</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;sidak&#39;</span>  <span class="c1"># Less conservative than Bonferroni, good for independent comparisons</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;bonferroni&#39;</span>  <span class="c1"># Very conservative, use for strict control of Type I errors</span></div>
 
     
 <div class="viewcode-block" id="rename_columns_in_db">
@@ -5738,6 +5742,177 @@
     <span class="k">with</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
         <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;VACUUM;&quot;</span><span class="p">)</span></div>
 
+        
+<div class="viewcode-block" id="group_feature_class">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.group_feature_class">[docs]</a>
+<span class="k">def</span> <span class="nf">group_feature_class</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">feature_groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;compartment&#39;</span><span class="p">):</span>
+
+    <span class="c1"># Function to determine compartment based on multiple matches</span>
+    <span class="k">def</span> <span class="nf">find_feature_class</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">compartments</span><span class="p">):</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">compartment</span> <span class="k">for</span> <span class="n">compartment</span> <span class="ow">in</span> <span class="n">compartments</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">compartment</span><span class="p">,</span> <span class="n">feature</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">spacrGraph</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">find_feature_class</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">feature_groups</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;channel&#39;</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;morphology&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># Create new DataFrame with summed importance for each compartment and channel</span>
+    <span class="n">importance_sum</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="s1">&#39;importance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_importance_sum&#39;</span><span class="p">)</span>
+    <span class="n">total_compartment_importance</span> <span class="o">=</span> <span class="n">importance_sum</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_importance_sum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">importance_sum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">importance_sum</span><span class="p">,</span>
+         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+             <span class="p">[{</span><span class="n">name</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{name}</span><span class="s1">_importance_sum&#39;</span><span class="p">:</span> <span class="n">total_compartment_importance</span><span class="p">}])]</span>
+        <span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="delete_intermedeate_files">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.delete_intermedeate_files">[docs]</a>
+<span class="k">def</span> <span class="nf">delete_intermedeate_files</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+    
+    <span class="n">path_orig</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;orig&#39;</span><span class="p">)</span>
+    <span class="n">path_stack</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;stack&#39;</span><span class="p">)</span>
+    <span class="n">merged_stack</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;merged&#39;</span><span class="p">)</span>
+    <span class="n">path_norm_chan_stack</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;norm_channel_stack&#39;</span><span class="p">)</span>
+    <span class="n">path_1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span>
+    <span class="n">path_2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;2&#39;</span><span class="p">)</span>
+    <span class="n">path_3</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;3&#39;</span><span class="p">)</span>
+    <span class="n">path_4</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;4&#39;</span><span class="p">)</span>
+    <span class="n">path_5</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;5&#39;</span><span class="p">)</span>
+    <span class="n">path_6</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;6&#39;</span><span class="p">)</span>
+    <span class="n">path_7</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;7&#39;</span><span class="p">)</span>
+    <span class="n">path_8</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;8&#39;</span><span class="p">)</span>
+    <span class="n">path_9</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;9&#39;</span><span class="p">)</span>
+    <span class="n">path_10</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;10&#39;</span><span class="p">)</span>
+    
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_stack</span><span class="p">,</span> <span class="n">path_norm_chan_stack</span><span class="p">,</span> <span class="n">path_1</span><span class="p">,</span> <span class="n">path_2</span><span class="p">,</span> <span class="n">path_3</span><span class="p">,</span> <span class="n">path_4</span><span class="p">,</span> <span class="n">path_5</span><span class="p">,</span> <span class="n">path_6</span><span class="p">,</span> <span class="n">path_7</span><span class="p">,</span> <span class="n">path_8</span><span class="p">,</span> <span class="n">path_9</span><span class="p">,</span> <span class="n">path_10</span><span class="p">]</span>
+    
+    <span class="n">merged_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">merged_stack</span><span class="p">)</span>
+    <span class="n">stack_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path_stack</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">merged_len</span> <span class="o">==</span> <span class="n">stack_len</span> <span class="ow">and</span> <span class="n">stack_len</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;src&#39;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_orig</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleted </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> could not be deleted: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Delete manually.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path_orig</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No &#39;src&#39; key in settings dictionary.&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="filter_and_save_csv">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.filter_and_save_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_and_save_csv</span><span class="p">(</span><span class="n">input_csv</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">upper_threshold</span><span class="p">,</span> <span class="n">lower_threshold</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads a CSV into a DataFrame, filters rows based on a column for values &gt; upper_threshold and &lt; lower_threshold,</span>
+<span class="sd">    and saves the filtered DataFrame to a new CSV file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        input_csv (str): Path to the input CSV file.</span>
+<span class="sd">        output_csv (str): Path to save the filtered CSV file.</span>
+<span class="sd">        column_name (str): Column name to apply the filters on.</span>
+<span class="sd">        upper_threshold (float): Upper threshold for filtering (values greater than this are retained).</span>
+<span class="sd">        lower_threshold (float): Lower threshold for filtering (values less than this are retained).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read the input CSV file into a DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">input_csv</span><span class="p">)</span>
+
+    <span class="c1"># Filter rows based on the thresholds</span>
+    <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">upper_threshold</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lower_threshold</span><span class="p">)]</span>
+
+    <span class="c1"># Save the filtered DataFrame to a new CSV file</span>
+    <span class="n">filtered_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">filtered_df</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtered DataFrame saved to </span><span class="si">{</span><span class="n">output_csv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="extract_tar_bz2_files">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.extract_tar_bz2_files">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_tar_bz2_files</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts all .tar.bz2 files in the given folder into subfolders with the same name as the tar file.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        folder_path (str): Path to the folder containing .tar.bz2 files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The provided path &#39;</span><span class="si">{</span><span class="n">folder_path</span><span class="si">}</span><span class="s2">&#39; is not a valid folder.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Iterate over files in the folder</span>
+    <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.tar.bz2&#39;</span><span class="p">):</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="n">extract_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+            
+            <span class="c1"># Create the subfolder for extraction if it doesn&#39;t exist</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">extract_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="c1"># Extract the tar.bz2 file</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r:bz2&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+                    <span class="n">tar</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">extract_folder</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">extract_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to extract </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+            
+            
+<div class="viewcode-block" id="calculate_shortest_distance">
+<a class="viewcode-back" href="../../spacr.html#spacr.utils.calculate_shortest_distance">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_shortest_distance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    - df: Pandas DataFrame containing measurements</span>
+<span class="sd">    - object1: String, name of the first object (e.g., &quot;pathogen&quot;)</span>
+<span class="sd">    - object2: String, name of the second object (e.g., &quot;nucleus&quot;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - df: Pandas DataFrame with a new column for shortest edge-to-edge distance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compute centroid-to-centroid Euclidean distance</span>
+    <span class="n">centroid_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object1</span><span class="si">}</span><span class="s1">_channel_0_centroid_weighted-0&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object2</span><span class="si">}</span><span class="s1">_channel_0_centroid_weighted-0&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object1</span><span class="si">}</span><span class="s1">_channel_0_centroid_weighted-1&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object2</span><span class="si">}</span><span class="s1">_channel_0_centroid_weighted-1&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Estimate object radii using Feret diameters</span>
+    <span class="n">object1_radius</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object1</span><span class="si">}</span><span class="s1">_feret_diameter_max&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">object2_radius</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object2</span><span class="si">}</span><span class="s1">_feret_diameter_max&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="c1"># Compute shortest edge-to-edge distance</span>
+    <span class="n">shortest_distance</span> <span class="o">=</span> <span class="n">centroid_distance</span> <span class="o">-</span> <span class="p">(</span><span class="n">object1_radius</span> <span class="o">+</span> <span class="n">object2_radius</span><span class="p">)</span>
+
+    <span class="c1"># Ensure distances are non-negative (overlapping objects should have distance 0)</span>
+    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object1</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">object2</span><span class="si">}</span><span class="s1">_shortest_distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">shortest_distance</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
 </pre></div>
 
            </div>
@@ -5747,7 +5922,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Your Name.</p>
+    <p>&#169; Copyright 2025, Einar Olafsson.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

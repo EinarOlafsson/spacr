@@ -6,15 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr package &mdash; spacr Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
-0.3.61 documentation</title>
+  <title>spacr package &mdash; spacr  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=4d879c53"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -103,11 +102,14 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.deep_spacr">spacr.deep_spacr module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.SmoothGrad"><code class="docutils literal notranslate"><span class="pre">SmoothGrad</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.annotate_filter_vision"><code class="docutils literal notranslate"><span class="pre">annotate_filter_vision()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.apply_model"><code class="docutils literal notranslate"><span class="pre">apply_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.apply_model_to_tar"><code class="docutils literal notranslate"><span class="pre">apply_model_to_tar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.deep_spacr"><code class="docutils literal notranslate"><span class="pre">deep_spacr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.evaluate_model_performance"><code class="docutils literal notranslate"><span class="pre">evaluate_model_performance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.generate_activation_map"><code class="docutils literal notranslate"><span class="pre">generate_activation_map()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.model_fusion"><code class="docutils literal notranslate"><span class="pre">model_fusion()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.model_knowledge_transfer"><code class="docutils literal notranslate"><span class="pre">model_knowledge_transfer()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.test_model_core"><code class="docutils literal notranslate"><span class="pre">test_model_core()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.test_model_performance"><code class="docutils literal notranslate"><span class="pre">test_model_performance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.deep_spacr.train_model"><code class="docutils literal notranslate"><span class="pre">train_model()</span></code></a></li>
@@ -123,6 +125,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.gui_core">spacr.gui_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.cleanup_previous_instance"><code class="docutils literal notranslate"><span class="pre">cleanup_previous_instance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.clear_unused_figures"><code class="docutils literal notranslate"><span class="pre">clear_unused_figures()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.display_figure"><code class="docutils literal notranslate"><span class="pre">display_figure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_core.import_settings"><code class="docutils literal notranslate"><span class="pre">import_settings()</span></code></a></li>
@@ -151,6 +154,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.generate_dna_matrix"><code class="docutils literal notranslate"><span class="pre">generate_dna_matrix()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.modify_figure"><code class="docutils literal notranslate"><span class="pre">modify_figure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.modify_figure_properties"><code class="docutils literal notranslate"><span class="pre">modify_figure_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.restart_gui_app"><code class="docutils literal notranslate"><span class="pre">restart_gui_app()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.save_figure_as_format"><code class="docutils literal notranslate"><span class="pre">save_figure_as_format()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.set_dark_style"><code class="docutils literal notranslate"><span class="pre">set_dark_style()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.set_element_size"><code class="docutils literal notranslate"><span class="pre">set_element_size()</span></code></a></li>
@@ -226,7 +230,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.spacrDataLoader"><code class="docutils literal notranslate"><span class="pre">spacrDataLoader</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.spacrDataset"><code class="docutils literal notranslate"><span class="pre">spacrDataset</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.io.training_dataset_from_annotation"><code class="docutils literal notranslate"><span class="pre">training_dataset_from_annotation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.io.training_dataset_from_annotation_v2"><code class="docutils literal notranslate"><span class="pre">training_dataset_from_annotation_v2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.io.training_dataset_from_annotation_metadata"><code class="docutils literal notranslate"><span class="pre">training_dataset_from_annotation_metadata()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.logger">spacr.logger module</a><ul>
@@ -263,7 +267,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.find_optimal_threshold"><code class="docutils literal notranslate"><span class="pre">find_optimal_threshold()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.fit_mixed_model"><code class="docutils literal notranslate"><span class="pre">fit_mixed_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.generate_ml_scores"><code class="docutils literal notranslate"><span class="pre">generate_ml_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.ml.interperate_vision_model"><code class="docutils literal notranslate"><span class="pre">interperate_vision_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.minimum_cell_simulation"><code class="docutils literal notranslate"><span class="pre">minimum_cell_simulation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.ml.minimum_cell_simulation_v1"><code class="docutils literal notranslate"><span class="pre">minimum_cell_simulation_v1()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.ml_analysis"><code class="docutils literal notranslate"><span class="pre">ml_analysis()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.perform_mixed_model"><code class="docutils literal notranslate"><span class="pre">perform_mixed_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.ml.perform_regression"><code class="docutils literal notranslate"><span class="pre">perform_regression()</span></code></a></li>
@@ -283,8 +289,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.openai">spacr.openai module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.plot">spacr.plot module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.create_grouped_plot"><code class="docutils literal notranslate"><span class="pre">create_grouped_plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.plot.create_venn_diagram"><code class="docutils literal notranslate"><span class="pre">create_venn_diagram()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.generate_mask_random_cmap"><code class="docutils literal notranslate"><span class="pre">generate_mask_random_cmap()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.generate_plate_heatmap"><code class="docutils literal notranslate"><span class="pre">generate_plate_heatmap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.plot.graph_importance"><code class="docutils literal notranslate"><span class="pre">graph_importance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.jitterplot_by_annotation"><code class="docutils literal notranslate"><span class="pre">jitterplot_by_annotation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.normalize_and_visualize"><code class="docutils literal notranslate"><span class="pre">normalize_and_visualize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.overlay_masks_on_images"><code class="docutils literal notranslate"><span class="pre">overlay_masks_on_images()</span></code></a></li>
@@ -303,6 +311,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.plot_object_outlines"><code class="docutils literal notranslate"><span class="pre">plot_object_outlines()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.plot_permutation"><code class="docutils literal notranslate"><span class="pre">plot_permutation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.plot_plates"><code class="docutils literal notranslate"><span class="pre">plot_plates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.plot.plot_proportion_stacked_bars"><code class="docutils literal notranslate"><span class="pre">plot_proportion_stacked_bars()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.plot_region"><code class="docutils literal notranslate"><span class="pre">plot_region()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.plot_resize"><code class="docutils literal notranslate"><span class="pre">plot_resize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.plot.print_mask_and_flows"><code class="docutils literal notranslate"><span class="pre">print_mask_and_flows()</span></code></a></li>
@@ -347,6 +356,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.get_perform_regression_default_settings"><code class="docutils literal notranslate"><span class="pre">get_perform_regression_default_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.get_train_cellpose_default_settings"><code class="docutils literal notranslate"><span class="pre">get_train_cellpose_default_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.get_train_test_model_settings"><code class="docutils literal notranslate"><span class="pre">get_train_test_model_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_analyze_class_proportion_defaults"><code class="docutils literal notranslate"><span class="pre">set_analyze_class_proportion_defaults()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_analyze_endodyogeny_defaults"><code class="docutils literal notranslate"><span class="pre">set_analyze_endodyogeny_defaults()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_annotate_default_settings"><code class="docutils literal notranslate"><span class="pre">set_annotate_default_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_default_analyze_screen"><code class="docutils literal notranslate"><span class="pre">set_default_analyze_screen()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_default_generate_barecode_mapping"><code class="docutils literal notranslate"><span class="pre">set_default_generate_barecode_mapping()</span></code></a></li>
@@ -357,6 +368,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_default_umap_image_settings"><code class="docutils literal notranslate"><span class="pre">set_default_umap_image_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_generate_dataset_defaults"><code class="docutils literal notranslate"><span class="pre">set_generate_dataset_defaults()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_generate_training_dataset_defaults"><code class="docutils literal notranslate"><span class="pre">set_generate_training_dataset_defaults()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_graph_importance_defaults"><code class="docutils literal notranslate"><span class="pre">set_graph_importance_defaults()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.settings.set_interperate_vision_model_defaults"><code class="docutils literal notranslate"><span class="pre">set_interperate_vision_model_defaults()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.sim">spacr.sim module</a><ul>
@@ -409,12 +422,25 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.sim.visualize_all"><code class="docutils literal notranslate"><span class="pre">visualize_all()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#spacr-stats-module">spacr.stats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spacr.sp_stats">spacr.sp_stats module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.sp_stats.chi_pairwise"><code class="docutils literal notranslate"><span class="pre">chi_pairwise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.sp_stats.choose_p_adjust_method"><code class="docutils literal notranslate"><span class="pre">choose_p_adjust_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.sp_stats.perform_levene_test"><code class="docutils literal notranslate"><span class="pre">perform_levene_test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.sp_stats.perform_normality_tests"><code class="docutils literal notranslate"><span class="pre">perform_normality_tests()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.sp_stats.perform_posthoc_tests"><code class="docutils literal notranslate"><span class="pre">perform_posthoc_tests()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.sp_stats.perform_statistical_tests"><code class="docutils literal notranslate"><span class="pre">perform_statistical_tests()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spacr.submodules">spacr.submodules module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.analyze_class_proportion"><code class="docutils literal notranslate"><span class="pre">analyze_class_proportion()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.analyze_endodyogeny"><code class="docutils literal notranslate"><span class="pre">analyze_endodyogeny()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.analyze_plaques"><code class="docutils literal notranslate"><span class="pre">analyze_plaques()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.analyze_recruitment"><code class="docutils literal notranslate"><span class="pre">analyze_recruitment()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.compare_reads_to_scores"><code class="docutils literal notranslate"><span class="pre">compare_reads_to_scores()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.count_phenotypes"><code class="docutils literal notranslate"><span class="pre">count_phenotypes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.generate_score_heatmap"><code class="docutils literal notranslate"><span class="pre">generate_score_heatmap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.interperate_vision_model"><code class="docutils literal notranslate"><span class="pre">interperate_vision_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.post_regression_analysis"><code class="docutils literal notranslate"><span class="pre">post_regression_analysis()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.submodules.train_cellpose"><code class="docutils literal notranslate"><span class="pre">train_cellpose()</span></code></a></li>
 </ul>
 </li>
@@ -474,13 +500,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.calculate_activation_correlations"><code class="docutils literal notranslate"><span class="pre">calculate_activation_correlations()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.calculate_iou"><code class="docutils literal notranslate"><span class="pre">calculate_iou()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.calculate_loss"><code class="docutils literal notranslate"><span class="pre">calculate_loss()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.calculate_shortest_distance"><code class="docutils literal notranslate"><span class="pre">calculate_shortest_distance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.check_index"><code class="docutils literal notranslate"><span class="pre">check_index()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.check_mask_folder"><code class="docutils literal notranslate"><span class="pre">check_mask_folder()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.check_multicollinearity"><code class="docutils literal notranslate"><span class="pre">check_multicollinearity()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.check_normality"><code class="docutils literal notranslate"><span class="pre">check_normality()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.check_overlap"><code class="docutils literal notranslate"><span class="pre">check_overlap()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.choose_model"><code class="docutils literal notranslate"><span class="pre">choose_model()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.choose_p_adjust_method"><code class="docutils literal notranslate"><span class="pre">choose_p_adjust_method()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.class_visualization"><code class="docutils literal notranslate"><span class="pre">class_visualization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.classification_metrics"><code class="docutils literal notranslate"><span class="pre">classification_metrics()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.close_file_descriptors"><code class="docutils literal notranslate"><span class="pre">close_file_descriptors()</span></code></a></li>
@@ -499,12 +525,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.count_reads_in_fastq"><code class="docutils literal notranslate"><span class="pre">count_reads_in_fastq()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.create_circular_mask"><code class="docutils literal notranslate"><span class="pre">create_circular_mask()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.delete_folder"><code class="docutils literal notranslate"><span class="pre">delete_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.delete_intermedeate_files"><code class="docutils literal notranslate"><span class="pre">delete_intermedeate_files()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.dice_coefficient"><code class="docutils literal notranslate"><span class="pre">dice_coefficient()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.download_models"><code class="docutils literal notranslate"><span class="pre">download_models()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.extract_boundaries"><code class="docutils literal notranslate"><span class="pre">extract_boundaries()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.extract_features"><code class="docutils literal notranslate"><span class="pre">extract_features()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.extract_tar_bz2_files"><code class="docutils literal notranslate"><span class="pre">extract_tar_bz2_files()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.filepaths_to_database"><code class="docutils literal notranslate"><span class="pre">filepaths_to_database()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.fill_holes_in_mask"><code class="docutils literal notranslate"><span class="pre">fill_holes_in_mask()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.filter_and_save_csv"><code class="docutils literal notranslate"><span class="pre">filter_and_save_csv()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.filter_columns"><code class="docutils literal notranslate"><span class="pre">filter_columns()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.filter_dataframe_features"><code class="docutils literal notranslate"><span class="pre">filter_dataframe_features()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.find_non_overlapping_position"><code class="docutils literal notranslate"><span class="pre">find_non_overlapping_position()</span></code></a></li>
@@ -520,6 +549,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.get_paths_from_db"><code class="docutils literal notranslate"><span class="pre">get_paths_from_db()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.get_sequencing_paths"><code class="docutils literal notranslate"><span class="pre">get_sequencing_paths()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.get_submodules"><code class="docutils literal notranslate"><span class="pre">get_submodules()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.group_feature_class"><code class="docutils literal notranslate"><span class="pre">group_feature_class()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.initiate_counter"><code class="docutils literal notranslate"><span class="pre">initiate_counter()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.invert_image"><code class="docutils literal notranslate"><span class="pre">invert_image()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.is_list_of_lists"><code class="docutils literal notranslate"><span class="pre">is_list_of_lists()</span></code></a></li>
@@ -815,7 +845,7 @@ results (list): List of corresponding result DataFrames.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.preprocess_generate_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">preprocess_generate_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#preprocess_generate_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.preprocess_generate_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">preprocess_generate_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/core.html#preprocess_generate_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.preprocess_generate_masks" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -855,6 +885,11 @@ None</p>
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.annotate_filter_vision">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">annotate_filter_vision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#annotate_filter_vision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.annotate_filter_vision" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.apply_model">
@@ -900,6 +935,113 @@ all_labels (list): The true labels for each prediction.</p>
 <dt class="sig sig-object py" id="spacr.deep_spacr.generate_activation_map">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">generate_activation_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#generate_activation_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.generate_activation_map" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.model_fusion">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">model_fusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'maxvit_t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#model_fusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.model_fusion" title="Link to this definition"></a></dt>
+<dd><p>Fuses an arbitrary number of TorchModel instances by combining their weights
+(using mean, geomean, median, sum, max, or min) and saves the entire fused
+model object.</p>
+<dl class="simple">
+<dt>You can later load the fused model with:</dt><dd><p>model = torch.load(‘fused_model.pth’)</p>
+</dd>
+</dl>
+<p>which returns a ready-to-use TorchModel instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_paths</strong> (<em>list</em><em> of </em><em>str</em>) – <p>Paths to the model checkpoints to fuse.
+Each checkpoint can be:</p>
+<blockquote>
+<div><ul>
+<li><p>A dict with keys [‘model’, ‘model_name’, …]</p></li>
+<li><p>A TorchModel instance</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Destination path to save the fused model.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’ for loading weights and final model device.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Default model name (used if not in checkpoint).</p></li>
+<li><p><strong>pretrained</strong> (<em>bool</em>) – Default if not in checkpoint.</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em>) – Default if not in checkpoint.</p></li>
+<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Default if not in checkpoint.</p></li>
+<li><p><strong>aggregator</strong> (<em>str</em>) – How to combine weights across models:
+‘mean’, ‘geomean’, ‘median’, ‘sum’, ‘max’, or ‘min’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The final fused TorchModel instance</dt><dd><p>with combined weights.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fused_model (<a class="reference internal" href="#spacr.utils.TorchModel" title="spacr.utils.TorchModel">TorchModel</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.model_knowledge_transfer">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">model_knowledge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teacher_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">student_save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">student_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'maxvit_t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#model_knowledge_transfer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.model_knowledge_transfer" title="Link to this definition"></a></dt>
+<dd><p>Performs multi-teacher knowledge distillation on a new labeled dataset,
+producing a single student TorchModel that combines (distills) the
+teachers’ knowledge plus the labeled data.</p>
+<dl>
+<dt>Usage:</dt><dd><dl>
+<dt>student = model_knowledge_transfer(</dt><dd><dl class="simple">
+<dt>teacher_paths=[</dt><dd><p>‘teacherA.pth’,
+‘teacherB.pth’,
+…</p>
+</dd>
+</dl>
+<p>],
+student_save_path=’distilled_student.pth’,
+data_loader=my_data_loader,
+device=’cuda’,
+student_model_name=’maxvit_t’,
+alpha=0.5,
+temperature=2.0,
+lr=1e-4,
+epochs=10</p>
+</dd>
+</dl>
+<p>)</p>
+</dd>
+<dt>Then load it via:</dt><dd><p>fused_student = torch.load(‘distilled_student.pth’)
+# fused_student is a TorchModel instance, ready for inference.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>teacher_paths</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of paths to teacher models (TorchModel
+or dict with ‘model’ in it). They must have the same architecture
+or at least produce the same dimension of output.</p></li>
+<li><p><strong>student_save_path</strong> (<em>str</em>) – Destination path to save the final student
+TorchModel.</p></li>
+<li><p><strong>data_loader</strong> (<em>DataLoader</em>) – Yields (images, labels) from the new dataset.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’.</p></li>
+<li><p><strong>student_model_name</strong> (<em>str</em>) – Architecture name for the student TorchModel.</p></li>
+<li><p><strong>pretrained</strong> (<em>bool</em>) – If the student should be initialized as pretrained.</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em>) – If needed by your TorchModel init.</p></li>
+<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – If needed by your TorchModel init.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Weight balancing real-label CE vs. distillation loss
+(0..1).</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – Distillation temperature (&gt;1 typically).</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate for the student.</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of training epochs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The final, trained student model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#spacr.utils.TorchModel" title="spacr.utils.TorchModel">TorchModel</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_core">
@@ -1037,6 +1179,12 @@ all_labels (list): The true labels for each prediction.</p>
 <section id="module-spacr.gui_core">
 <span id="spacr-gui-core-module"></span><h2>spacr.gui_core module<a class="headerlink" href="#module-spacr.gui_core" title="Link to this heading"></a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_core.cleanup_previous_instance">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">cleanup_previous_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#cleanup_previous_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.cleanup_previous_instance" title="Link to this definition"></a></dt>
+<dd><p>Cleans up resources from the previous application instance.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.clear_unused_figures">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">clear_unused_figures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#clear_unused_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.clear_unused_figures" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1093,7 +1241,7 @@ all_labels (list): The true labels for each prediction.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.set_globals">
-<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">set_globals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_control_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_output_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollable_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figures_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_index_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_control_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_bars_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#set_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.set_globals" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">set_globals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_control_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_output_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollable_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_bars_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_core.html#set_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.set_globals" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1224,6 +1372,26 @@ all_labels (list): The true labels for each prediction.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.shutdown">
 <span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#AnnotateApp.shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.shutdown" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.swich_back_annotation_column">
+<span class="sig-name descname"><span class="pre">swich_back_annotation_column</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#AnnotateApp.swich_back_annotation_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.swich_back_annotation_column" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.train_and_classify">
+<span class="sig-name descname"><span class="pre">train_and_classify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#AnnotateApp.train_and_classify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.train_and_classify" title="Link to this definition"></a></dt>
+<dd><ol class="arabic simple">
+<li><p>Merge data from the relevant DB tables (including png_list).</p></li>
+<li><p>Collect manual annotations from png_list.&lt;annotation_column&gt; =&gt; ‘manual_annotation’.
+- 1 =&gt; class=1, 2 =&gt; class=0 (for training).</p></li>
+<li><p>If only one class is present, randomly sample unannotated images as the other class.</p></li>
+<li><p>Train an XGBoost model.</p></li>
+<li><p>Classify <em>all</em> rows -&gt; fill XGboost_score (prob of class=1) &amp; XGboost_annotation (1 or 2 if high confidence).</p></li>
+<li><p>Write those columns back to sqlite, so every row in png_list has a score (and possibly an annotation).</p></li>
+<li><p>Refresh the UI (prefilter_paths_annotations + load_images).</p></li>
+</ol>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.update_database_worker">
@@ -1564,6 +1732,13 @@ all_labels (list): The true labels for each prediction.</p>
 - bg_color: Color for the figure and subplot background (optional).
 - text_color: Color for all text in the figure (optional).
 - line_color: Color for all lines in the figure (optional).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_elements.restart_gui_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">restart_gui_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/gui_elements.html#restart_gui_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.restart_gui_app" title="Link to this definition"></a></dt>
+<dd><p>Restarts the GUI application by destroying the current instance
+and launching a fresh one.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2498,8 +2673,8 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.io.training_dataset_from_annotation_v2">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#training_dataset_from_annotation_v2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.training_dataset_from_annotation_v2" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.training_dataset_from_annotation_metadata">
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_type_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'column_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['c1',</span> <span class="pre">'c2']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/io.html#training_dataset_from_annotation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.training_dataset_from_annotation_metadata" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -2788,6 +2963,11 @@ float: The optimal threshold.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.interperate_vision_model">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">interperate_vision_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/ml.html#interperate_vision_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.interperate_vision_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.ml.minimum_cell_simulation">
 <span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">minimum_cell_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/ml.html#minimum_cell_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.minimum_cell_simulation" title="Link to this definition"></a></dt>
 <dd><p>Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
@@ -2795,8 +2975,15 @@ Detect and mark the elbow point (inflection) with smoothing and tolerance contro
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.minimum_cell_simulation_v1">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">minimum_cell_simulation_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/ml.html#minimum_cell_simulation_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.minimum_cell_simulation_v1" title="Link to this definition"></a></dt>
+<dd><p>Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
+Detect and mark the elbow point (inflection) with smoothing and tolerance control.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.ml.ml_analysis">
-<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">ml_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'column_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xgboost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_low_variance_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_highly_correlated_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/ml.html#ml_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.ml_analysis" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">ml_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'column_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_lambda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xgboost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_low_variance_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_highly_correlated_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_validation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/ml.html#ml_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.ml_analysis" title="Link to this definition"></a></dt>
 <dd><p>Calculates permutation importance for numerical features in the dataframe,
 comparing groups based on specified column values and uses the model to predict
 the class for all other rows in the dataframe.</p>
@@ -2924,6 +3111,31 @@ fig: Matplotlib figure object containing the SHAP summary plot.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.create_venn_diagram">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">create_venn_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gene'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#create_venn_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.create_venn_diagram" title="Link to this definition"></a></dt>
+<dd><p>Reads two CSV files, extracts the <cite>gene</cite> column, and creates a Venn diagram
+to show overlapping and non-overlapping genes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file1</strong> (<em>str</em>) – Path to the first CSV file.</p></li>
+<li><p><strong>file2</strong> (<em>str</em>) – Path to the second CSV file.</p></li>
+<li><p><strong>gene_column</strong> (<em>str</em>) – Name of the column containing gene data (default: “gene”).</p></li>
+<li><p><strong>filter_coeff</strong> (<em>float</em>) – Coefficient threshold for filtering genes.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save the plot.</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Path to save the Venn diagram figure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Overlapping and non-overlapping genes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.generate_mask_random_cmap">
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">generate_mask_random_cmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#generate_mask_random_cmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.generate_mask_random_cmap" title="Link to this definition"></a></dt>
 <dd><p>Generate a random colormap based on the unique labels in the given mask.</p>
@@ -2936,6 +3148,11 @@ matplotlib.colors.ListedColormap: The random colormap.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.generate_plate_heatmap">
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">generate_plate_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plate_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#generate_plate_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.generate_plate_heatmap" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.graph_importance">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">graph_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#graph_importance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.graph_importance" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -3054,7 +3271,7 @@ Unused subplots are filled with black, and padding is minimized.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_lorenz_curves">
-<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_lorenz_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grna_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'count'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['TGGT1_220950_1',</span> <span class="pre">'TGGT1_233460_4']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_lorenz_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_lorenz_curves" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_lorenz_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grna_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'count'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_outliers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_lorenz_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_lorenz_curves" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -3111,6 +3328,27 @@ Unused subplots are filled with black, and padding is minimized.</p>
 <dt class="sig sig-object py" id="spacr.plot.plot_plates">
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_plates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_plates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_plates" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_proportion_stacked_bars">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_proportion_stacked_bars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prc_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'object'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#plot_proportion_stacked_bars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_proportion_stacked_bars" title="Link to this definition"></a></dt>
+<dd><p>Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.</p>
+<p>Parameters:
+- settings (dict): Analysis settings.
+- df (DataFrame): Input data.
+- group_column (str): Column indicating the groups.
+- bin_column (str): Column indicating the categories.
+- prc_column (str): Optional; column for additional stratification.
+- level (str): Level of aggregation (‘well’ or ‘object’).</p>
+<p>Returns:
+- chi2 (float): Chi-squared statistic for the overall test.
+- p (float): p-value for the overall chi-squared test.
+- dof (int): Degrees of freedom for the overall chi-squared test.
+- expected (ndarray): Expected frequencies for the overall chi-squared test.
+- raw_counts (DataFrame): Contingency table of observed counts.
+- fig (Figure): The generated plot.
+- pairwise_results (list): Pairwise test results from <cite>chi_pairwise</cite>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_region">
@@ -3204,7 +3442,8 @@ random_cmap (matplotlib.colors.ListedColormap): A random colormap.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.plot.spacrGraph.preprocess_data">
 <span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/plot.html#spacrGraph.preprocess_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.preprocess_data" title="Link to this definition"></a></dt>
-<dd><p>Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by ‘prc’.</p>
+<dd><p>Preprocess the data: remove NaNs, optionally ensure ‘plate’ column is created,
+then group by either ‘prc’, ‘plate’, or do no grouping at all if representation == ‘object’.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -3392,6 +3631,16 @@ random_cmap (matplotlib.colors.ListedColormap): A random colormap.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_analyze_class_proportion_defaults">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_analyze_class_proportion_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_analyze_class_proportion_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_analyze_class_proportion_defaults" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_analyze_endodyogeny_defaults">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_analyze_endodyogeny_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_analyze_endodyogeny_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_analyze_endodyogeny_defaults" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_annotate_default_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_annotate_default_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_annotate_default_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_annotate_default_settings" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -3413,7 +3662,7 @@ random_cmap (matplotlib.colors.ListedColormap): A random colormap.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_settings_preprocess_generate_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_settings_preprocess_generate_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_default_settings_preprocess_generate_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_settings_preprocess_generate_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_settings_preprocess_generate_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_default_settings_preprocess_generate_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_settings_preprocess_generate_masks" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -3439,6 +3688,16 @@ random_cmap (matplotlib.colors.ListedColormap): A random colormap.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_generate_training_dataset_defaults">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_generate_training_dataset_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_generate_training_dataset_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_generate_training_dataset_defaults" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_graph_importance_defaults">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_graph_importance_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_graph_importance_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_graph_importance_defaults" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_interperate_vision_model_defaults">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_interperate_vision_model_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/settings.html#set_interperate_vision_model_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_interperate_vision_model_defaults" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -4139,11 +4398,68 @@ list of dict: The adjusted list of simulation parameter sets.</p>
 </dd></dl>
 
 </section>
-<section id="spacr-stats-module">
-<h2>spacr.stats module<a class="headerlink" href="#spacr-stats-module" title="Link to this heading"></a></h2>
+<section id="module-spacr.sp_stats">
+<span id="spacr-sp-stats-module"></span><h2>spacr.sp_stats module<a class="headerlink" href="#module-spacr.sp_stats" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sp_stats.chi_pairwise">
+<span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">chi_pairwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sp_stats.html#chi_pairwise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.chi_pairwise" title="Link to this definition"></a></dt>
+<dd><p>Perform pairwise chi-square or Fisher’s exact tests between all unique group pairs
+and apply p-value correction.</p>
+<p>Parameters:
+- raw_counts (DataFrame): Contingency table with group-wise counts.
+- verbose (bool): Whether to print results for each pair.</p>
+<p>Returns:
+- pairwise_df (DataFrame): DataFrame with pairwise test results, including corrected p-values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sp_stats.choose_p_adjust_method">
+<span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">choose_p_adjust_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_data_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sp_stats.html#choose_p_adjust_method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.choose_p_adjust_method" title="Link to this definition"></a></dt>
+<dd><p>Selects the most appropriate p-value adjustment method based on data characteristics.</p>
+<p>Parameters:
+- num_groups: Number of unique groups being compared
+- num_data_points: Number of data points per group (assuming balanced groups)</p>
+<p>Returns:
+- A string representing the recommended p-adjustment method</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sp_stats.perform_levene_test">
+<span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_levene_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sp_stats.html#perform_levene_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_levene_test" title="Link to this definition"></a></dt>
+<dd><p>Perform Levene’s test for equal variance.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sp_stats.perform_normality_tests">
+<span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_normality_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sp_stats.html#perform_normality_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_normality_tests" title="Link to this definition"></a></dt>
+<dd><p>Perform normality tests for each group and data column.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sp_stats.perform_posthoc_tests">
+<span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_posthoc_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_normal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sp_stats.html#perform_posthoc_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_posthoc_tests" title="Link to this definition"></a></dt>
+<dd><p>Perform post-hoc tests for multiple groups with both original and adjusted p-values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sp_stats.perform_statistical_tests">
+<span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_statistical_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paired</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/sp_stats.html#perform_statistical_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_statistical_tests" title="Link to this definition"></a></dt>
+<dd><p>Perform statistical tests for each data column.</p>
+</dd></dl>
+
 </section>
 <section id="module-spacr.submodules">
 <span id="spacr-submodules-module"></span><h2>spacr.submodules module<a class="headerlink" href="#module-spacr.submodules" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.submodules.analyze_class_proportion">
+<span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_class_proportion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#analyze_class_proportion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_class_proportion" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.submodules.analyze_endodyogeny">
+<span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_endodyogeny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#analyze_endodyogeny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_endodyogeny" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.analyze_plaques">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_plaques</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#analyze_plaques"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_plaques" title="Link to this definition"></a></dt>
@@ -4167,6 +4483,21 @@ None</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.count_phenotypes">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">count_phenotypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#count_phenotypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.count_phenotypes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.submodules.generate_score_heatmap">
+<span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">generate_score_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#generate_score_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.generate_score_heatmap" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.submodules.interperate_vision_model">
+<span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">interperate_vision_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#interperate_vision_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.interperate_vision_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.submodules.post_regression_analysis">
+<span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">post_regression_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grna_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grna_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/submodules.html#post_regression_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.post_regression_analysis" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -4227,7 +4558,7 @@ None</p>
 <span id="spacr-toxo-module"></span><h2>spacr.toxo module<a class="headerlink" href="#module-spacr.toxo" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.custom_volcano_plot">
-<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">custom_volcano_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tagm_location'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-0.5,</span> <span class="pre">0.5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[0,</span> <span class="pre">6],</span> <span class="pre">[9,</span> <span class="pre">15]]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/toxo.html#custom_volcano_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.toxo.custom_volcano_plot" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">custom_volcano_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tagm_location'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-0.5,</span> <span class="pre">0.5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[0,</span> <span class="pre">6],</span> <span class="pre">[9,</span> <span class="pre">20]]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/toxo.html#custom_volcano_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.toxo.custom_volcano_plot" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -4709,20 +5040,22 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.add_column_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">add_column_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#add_column_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.add_column_to_database" title="Link to this definition"></a></dt>
-<dd><p>Adds a new column to the database table by matching on a common column from the DataFrame.
-If the column already exists in the database, it adds the column with a suffix.
-NaN values will remain as NULL in the database.</p>
-<p>Parameters:
-- settings: A dictionary containing the following keys:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>‘csv_path’: Path to the CSV file with the data to be added.</p></li>
-<li><p>‘db_path’: Path to the SQLite database (or connection string for other databases).</p></li>
-<li><p>‘table_name’: The name of the table in the database.</p></li>
-<li><p>‘update_column’: The name of the new column in the DataFrame to add to the database.</p></li>
-<li><p>‘match_column’: The common column used to match rows.</p></li>
+<dd><p>Adds a new column to the database table by matching on a common column from the DataFrame. If the column already exists in the database, it adds the column with a suffix. NaN values will remain as NULL in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the following keys:</p></li>
+<li><p><strong>csv_path</strong> (<em>str</em>) – Path to the CSV file with the data to be added.</p></li>
+<li><p><strong>db_path</strong> (<em>str</em>) – Path to the SQLite database (or connection string for other databases).</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table in the database.</p></li>
+<li><p><strong>update_column</strong> (<em>str</em>) – The name of the new column in the DataFrame to add to the database.</p></li>
+<li><p><strong>match_column</strong> (<em>str</em>) – The common column used to match rows.</p></li>
 </ul>
-</div></blockquote>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -4872,6 +5205,18 @@ NaN is used for missing values, and they are excluded from the ‘condition’ c
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.utils.calculate_shortest_distance">
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">calculate_shortest_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#calculate_shortest_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.calculate_shortest_distance" title="Link to this definition"></a></dt>
+<dd><p>Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).</p>
+<p>Parameters:
+- df: Pandas DataFrame containing measurements
+- object1: String, name of the first object (e.g., “pathogen”)
+- object2: String, name of the second object (e.g., “nucleus”)</p>
+<p>Returns:
+- df: Pandas DataFrame with a new column for shortest edge-to-edge distance.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.check_index">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">check_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_char</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#check_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.check_index" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -4924,17 +5269,6 @@ NaN is used for missing values, and they are excluded from the ‘condition’ c
 <dd class="field-odd"><p>torch.nn.Module</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.utils.choose_p_adjust_method">
-<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">choose_p_adjust_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_data_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#choose_p_adjust_method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.choose_p_adjust_method" title="Link to this definition"></a></dt>
-<dd><p>Selects the most appropriate p-value adjustment method based on data characteristics.</p>
-<p>Parameters:
-- num_groups: Number of unique groups being compared
-- num_data_points: Number of data points per group (assuming balanced groups)</p>
-<p>Returns:
-- A string representing the recommended p-adjustment method</p>
 </dd></dl>
 
 <dl class="py function">
@@ -5063,6 +5397,11 @@ and Kruskal-Wallis for non-normally distributed features. Combine results into a
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.utils.delete_intermedeate_files">
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">delete_intermedeate_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#delete_intermedeate_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.delete_intermedeate_files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.dice_coefficient">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">dice_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#dice_coefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.dice_coefficient" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -5101,6 +5440,17 @@ within the installed <cite>spacr</cite> package.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.utils.extract_tar_bz2_files">
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">extract_tar_bz2_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#extract_tar_bz2_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.extract_tar_bz2_files" title="Link to this definition"></a></dt>
+<dd><p>Extracts all .tar.bz2 files in the given folder into subfolders with the same name as the tar file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>folder_path</strong> (<em>str</em>) – Path to the folder containing .tar.bz2 files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.filepaths_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">filepaths_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#filepaths_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.filepaths_to_database" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -5118,6 +5468,27 @@ within the installed <cite>spacr</cite> package.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.utils.filter_and_save_csv">
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">filter_and_save_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#filter_and_save_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.filter_and_save_csv" title="Link to this definition"></a></dt>
+<dd><p>Reads a CSV into a DataFrame, filters rows based on a column for values &gt; upper_threshold and &lt; lower_threshold,
+and saves the filtered DataFrame to a new CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_csv</strong> (<em>str</em>) – Path to the input CSV file.</p></li>
+<li><p><strong>output_csv</strong> (<em>str</em>) – Path to save the filtered CSV file.</p></li>
+<li><p><strong>column_name</strong> (<em>str</em>) – Column name to apply the filters on.</p></li>
+<li><p><strong>upper_threshold</strong> (<em>float</em>) – Upper threshold for filtering (values greater than this are retained).</p></li>
+<li><p><strong>lower_threshold</strong> (<em>float</em>) – Lower threshold for filtering (values less than this are retained).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -5209,6 +5580,11 @@ within the installed <cite>spacr</cite> package.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.get_submodules">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">get_submodules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#get_submodules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.get_submodules" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.utils.group_feature_class">
+<span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">group_feature_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['cell',</span> <span class="pre">'cytoplasm',</span> <span class="pre">'nucleus',</span> <span class="pre">'pathogen']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'compartment'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#group_feature_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.group_feature_class" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -5641,7 +6017,7 @@ labels (np.array): Cluster labels.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Your Name.</p>
+    <p>&#169; Copyright 2025, Einar Olafsson.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

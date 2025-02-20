@@ -7,11 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'spacr'
-copyright = '2025, Your Name'
-author = 'Your Name'
-
-version = 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.3.61'
-release = 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.3.61'
+copyright = '2025, Einar Olafsson'
+author = 'Einar Olafsson'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
