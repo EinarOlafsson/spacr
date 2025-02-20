@@ -12,6 +12,7 @@ from PIL import Image
 from sklearn.metrics import auc, precision_recall_curve
 from IPython.display import display
 from multiprocessing import cpu_count
+import torch.optim as optim
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -76,10 +77,11 @@ def apply_model_to_tar(settings={}):
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
 
-    if os.path.exists(settings['dataset']):
-        tar_path = settings['dataset']
-    else:
-        tar_path = os.path.join(settings['src'], 'datasets', settings['dataset'])
+    #if os.path.exists(settings['dataset']):
+    #    tar_path = settings['dataset']
+    #else:
+    #    tar_path = os.path.join(settings['src'], 'datasets', settings['dataset'])
+    tar_path = settings['tar_path']
     model_path = settings['model_path']
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -103,7 +105,8 @@ def apply_model_to_tar(settings={}):
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=True, num_workers=settings['n_jobs'], pin_memory=True)
     
     model_name = os.path.splitext(os.path.basename(model_path))[0]
-    dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]  
+    #dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0] 
+    dataset_name = os.path.splitext(os.path.basename(settings['tar_path']))[0] 
     date_name = datetime.date.today().strftime('%y%m%d')
     dst = os.path.dirname(tar_path)
     result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
@@ -934,3 +937,373 @@ def deep_spacr(settings={}):
             
         if os.path.exists(settings['model_path']):
             apply_model_to_tar(settings)
+            
+def model_knowledge_transfer(
+    teacher_paths,
+    student_save_path,
+    data_loader,                 # A DataLoader with (images, labels)
+    device='cpu',
+    student_model_name='maxvit_t',
+    pretrained=True,
+    dropout_rate=None,
+    use_checkpoint=False,
+    alpha=0.5,
+    temperature=2.0,
+    lr=1e-4,
+    epochs=10
+):
+    """
+    Performs multi-teacher knowledge distillation on a new labeled dataset,
+    producing a single student TorchModel that combines (distills) the 
+    teachers' knowledge plus the labeled data.
+
+    Usage:
+        student = model_knowledge_transfer(
+            teacher_paths=[
+                'teacherA.pth', 
+                'teacherB.pth', 
+                ...
+            ],
+            student_save_path='distilled_student.pth',
+            data_loader=my_data_loader, 
+            device='cuda', 
+            student_model_name='maxvit_t',
+            alpha=0.5,
+            temperature=2.0,
+            lr=1e-4,
+            epochs=10
+        )
+
+    Then load it via:
+        fused_student = torch.load('distilled_student.pth')
+        # fused_student is a TorchModel instance, ready for inference.
+
+    Args:
+        teacher_paths (list[str]): List of paths to teacher models (TorchModel 
+            or dict with 'model' in it). They must have the same architecture 
+            or at least produce the same dimension of output.
+        student_save_path (str): Destination path to save the final student 
+            TorchModel. 
+        data_loader (DataLoader): Yields (images, labels) from the new dataset.
+        device (str): 'cpu' or 'cuda'.
+        student_model_name (str): Architecture name for the student TorchModel.
+        pretrained (bool): If the student should be initialized as pretrained.
+        dropout_rate (float): If needed by your TorchModel init.
+        use_checkpoint (bool): If needed by your TorchModel init.
+        alpha (float): Weight balancing real-label CE vs. distillation loss 
+            (0..1). 
+        temperature (float): Distillation temperature (>1 typically).
+        lr (float): Learning rate for the student.
+        epochs (int): Number of training epochs.
+
+    Returns:
+        TorchModel: The final, trained student model.
+    """
+    from spacr.utils import TorchModel  # Adapt if needed
+
+    # Adjust filename to reflect knowledge-distillation if desired
+    if student_save_path.endswith('.pth'):
+        base, ext = os.path.splitext(student_save_path)
+    else:
+        base = student_save_path
+    student_save_path = base + '_KD.pth'
+
+    # -- 1. Load teacher models --
+    teachers = []
+    print("Loading teacher models:")
+    for path in teacher_paths:
+        print(f"  Loading teacher: {path}")
+        ckpt = torch.load(path, map_location=device)
+        if isinstance(ckpt, TorchModel):
+            teacher = ckpt.to(device)
+        elif isinstance(ckpt, dict):
+            # If it's a dict with 'model' inside
+            # We might need to check if it has 'model_name', etc. 
+            # But let's keep it simple: same architecture as the student
+            teacher = TorchModel(
+                model_name=ckpt.get('model_name', student_model_name),
+                pretrained=ckpt.get('pretrained', pretrained),
+                dropout_rate=ckpt.get('dropout_rate', dropout_rate),
+                use_checkpoint=ckpt.get('use_checkpoint', use_checkpoint)
+            ).to(device)
+            teacher.load_state_dict(ckpt['model'])
+        else:
+            raise ValueError(f"Unsupported checkpoint type at {path} (must be TorchModel or dict).")
+
+        teacher.eval()  # For consistent batchnorm, dropout
+        teachers.append(teacher)
+
+    # -- 2. Initialize the student TorchModel --
+    student_model = TorchModel(
+        model_name=student_model_name,
+        pretrained=pretrained,
+        dropout_rate=dropout_rate,
+        use_checkpoint=use_checkpoint
+    ).to(device)
+
+    # You could load a partial checkpoint into the student here if desired.
+
+    # -- 3. Optimizer --
+    optimizer = optim.Adam(student_model.parameters(), lr=lr)
+
+    # Distillation training loop
+    for epoch in range(epochs):
+        student_model.train()
+        running_loss = 0.0
+
+        for images, labels in data_loader:
+            images, labels = images.to(device), labels.to(device)
+
+            # Forward pass student
+            logits_s = student_model(images)         # shape: (B, num_classes)
+            logits_s_temp = logits_s / temperature   # scale by T
+
+            # Distillation from teachers
+            with torch.no_grad():
+                # We'll average teacher probabilities
+                teacher_probs_list = []
+                for tm in teachers:
+                    logits_t = tm(images) / temperature
+                    # convert to probabilities
+                    teacher_probs_list.append(F.softmax(logits_t, dim=1))
+                # average them
+                teacher_probs_ensemble = torch.mean(torch.stack(teacher_probs_list), dim=0)
+
+            # Student probabilities (log-softmax)
+            student_log_probs = F.log_softmax(logits_s_temp, dim=1)
+
+            # Distillation loss => KLDiv
+            loss_distill = F.kl_div(
+                student_log_probs,
+                teacher_probs_ensemble,
+                reduction='batchmean'
+            ) * (temperature ** 2)
+
+            # Real label loss => cross-entropy
+            # We can compute this on the raw logits or scaled. Typically raw logits is standard:
+            loss_ce = F.cross_entropy(logits_s, labels)
+
+            # Weighted sum
+            loss = alpha * loss_ce + (1 - alpha) * loss_distill
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+        avg_loss = running_loss / len(data_loader)
+        print(f"Epoch [{epoch+1}/{epochs}] - Loss: {avg_loss:.4f}")
+
+    # -- 4. Save final student as a TorchModel --
+    torch.save(student_model, student_save_path)
+    print(f"Knowledge-distilled student saved to: {student_save_path}")
+
+    return student_model
+            
+def model_fusion(model_paths,
+                 save_path,
+                 device='cpu',
+                 model_name='maxvit_t',
+                 pretrained=True,
+                 dropout_rate=None,
+                 use_checkpoint=False,
+                 aggregator='mean'):
+    """
+    Fuses an arbitrary number of TorchModel instances by combining their weights 
+    (using mean, geomean, median, sum, max, or min) and saves the entire fused 
+    model object. 
+
+    You can later load the fused model with:
+        model = torch.load('fused_model.pth')
+
+    which returns a ready-to-use TorchModel instance.
+
+    Parameters:
+        model_paths (list of str): Paths to the model checkpoints to fuse.
+                                   Each checkpoint can be:
+                                     - A dict with keys ['model', 'model_name', ...]
+                                     - A TorchModel instance
+        save_path (str): Destination path to save the fused model.
+        device (str): 'cpu' or 'cuda' for loading weights and final model device.
+        model_name (str): Default model name (used if not in checkpoint).
+        pretrained (bool): Default if not in checkpoint.
+        dropout_rate (float): Default if not in checkpoint.
+        use_checkpoint (bool): Default if not in checkpoint.
+        aggregator (str): How to combine weights across models:
+                            'mean', 'geomean', 'median', 'sum', 'max', or 'min'.
+
+    Returns:
+        fused_model (TorchModel): The final fused TorchModel instance 
+                                  with combined weights.
+    """
+    from spacr.utils import TorchModel
+    
+    if save_path.endswith('.pth'):
+        save_path_part1, ext = os.path.splitext(save_path)
+    else:
+        save_path_part1 = save_path
+    
+    save_path = save_path_part1 + f'_{aggregator}.pth'
+
+    valid_aggregators = {'mean', 'geomean', 'median', 'sum', 'max', 'min'}
+    if aggregator not in valid_aggregators:
+        raise ValueError(f"Invalid aggregator '{aggregator}'. "
+                         f"Must be one of {valid_aggregators}.")
+
+    # --- 1. Load the first checkpoint to figure out architecture & hyperparams ---
+    print(f"Loading the first model from: {model_paths[0]} to derive architecture")
+    first_ckpt = torch.load(model_paths[0], map_location=device)
+
+    if isinstance(first_ckpt, dict):
+        # It's a dict with state_dict + possibly metadata
+        # Use any stored metadata if present
+        model_name = first_ckpt.get('model_name', model_name)
+        pretrained = first_ckpt.get('pretrained', pretrained)
+        dropout_rate = first_ckpt.get('dropout_rate', dropout_rate)
+        use_checkpoint = first_ckpt.get('use_checkpoint', use_checkpoint)
+
+        # Initialize the fused model
+        fused_model = TorchModel(
+            model_name=model_name,
+            pretrained=pretrained,
+            dropout_rate=dropout_rate,
+            use_checkpoint=use_checkpoint
+        ).to(device)
+
+        # We'll collect state dicts in a list
+        state_dicts = [first_ckpt['model']]  # the actual weights
+    elif isinstance(first_ckpt, TorchModel):
+        # The checkpoint is directly a TorchModel instance
+        fused_model = first_ckpt.to(device)
+        state_dicts = [fused_model.state_dict()]
+    else:
+        raise ValueError("Unsupported checkpoint format. Must be a dict or a TorchModel instance.")
+
+    # --- 2. Load the rest of the checkpoints ---
+    for path in model_paths[1:]:
+        print(f"Loading model from: {path}")
+        ckpt = torch.load(path, map_location=device)
+        if isinstance(ckpt, dict):
+            state_dicts.append(ckpt['model'])  # Just the state dict portion
+        elif isinstance(ckpt, TorchModel):
+            state_dicts.append(ckpt.state_dict())
+        else:
+            raise ValueError(f"Unsupported checkpoint format in {path} (must be dict or TorchModel).")
+
+    # --- 3. Verify all state dicts have the same keys ---
+    fused_sd = fused_model.state_dict()
+    for sd in state_dicts:
+        if fused_sd.keys() != sd.keys():
+            raise ValueError("All models must have identical architecture/state_dict keys.")
+
+    # --- 4. Define aggregator logic ---
+    def combine_tensors(tensor_list, mode='mean'):
+        """Given a list of Tensors, combine them using the chosen aggregator."""
+        # stack along new dimension => shape (num_models, *tensor.shape)
+        stacked = torch.stack(tensor_list, dim=0).float()
+
+        if mode == 'mean':
+            return stacked.mean(dim=0)
+        elif mode == 'geomean':
+            # geometric mean = exp(mean(log(tensor))) 
+            # caution: requires all > 0
+            return torch.exp(torch.log(stacked).mean(dim=0))
+        elif mode == 'median':
+            return stacked.median(dim=0).values
+        elif mode == 'sum':
+            return stacked.sum(dim=0)
+        elif mode == 'max':
+            return stacked.max(dim=0).values
+        elif mode == 'min':
+            return stacked.min(dim=0).values
+        else:
+            raise ValueError(f"Unsupported aggregator: {mode}")
+
+    # --- 5. Combine the weights ---
+    for key in fused_sd.keys():
+        # gather all versions of this tensor
+        all_tensors = [sd[key] for sd in state_dicts]
+        fused_sd[key] = combine_tensors(all_tensors, mode=aggregator)
+
+    # Load combined weights into the fused model
+    fused_model.load_state_dict(fused_sd)
+
+    # --- 6. Save the entire TorchModel object ---
+    torch.save(fused_model, save_path)
+    print(f"Fused model (aggregator='{aggregator}') saved as a full TorchModel to: {save_path}")
+
+    return fused_model
+
+def annotate_filter_vision(settings):
+    
+    from .utils import annotate_conditions
+    
+    def filter_csv_by_png(csv_file):
+        """
+        Filters a DataFrame by removing rows that match PNG filenames in a folder.
+
+        Parameters:
+            csv_file (str): Path to the CSV file.
+
+        Returns:
+            pd.DataFrame: Filtered DataFrame.
+        """
+        # Split the path to identify the datasets folder and build the training folder path
+        before_datasets, after_datasets = csv_file.split(os.sep + "datasets" + os.sep, 1)
+        train_fldr = os.path.join(before_datasets, 'datasets', 'training', 'train')
+
+        # Paths for train/nc and train/pc
+        nc_folder = os.path.join(train_fldr, 'nc')
+        pc_folder = os.path.join(train_fldr, 'pc')
+
+        # Load the CSV file into a DataFrame
+        df = pd.read_csv(csv_file)
+
+        # Collect PNG filenames from train/nc and train/pc
+        png_files = set()
+        for folder in [nc_folder, pc_folder]:
+            if os.path.exists(folder):  # Ensure the folder exists
+                png_files.update({file for file in os.listdir(folder) if file.endswith(".png")})
+
+        # Filter the DataFrame by excluding rows where filenames match PNG files
+        filtered_df = df[~df['path'].isin(png_files)]
+
+        return filtered_df
+    
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
+    
+    for src in settings['src']:
+        ann_src, ext = os.path.splitext(src)
+        output_csv = ann_src+'_annotated_filtered.csv'
+        print(output_csv)
+
+        df = pd.read_csv(src)
+        
+        if 'column_name' not in df.columns:
+            df['column_name'] = df['column']
+            
+        df = annotate_conditions(df, 
+                            cells=settings['cells'],
+                            cell_loc=settings['cell_loc'],
+                            pathogens=settings['pathogens'],
+                            pathogen_loc=settings['pathogen_loc'],
+                            treatments=settings['treatments'],
+                            treatment_loc=settings['treatment_loc'])
+        
+        if not settings['filter_column'] is None:
+            if settings['filter_column'] in df.columns:
+                filtered_df = df[(df[settings['filter_column']] > settings['upper_threshold']) | (df[settings['filter_column']] < settings['lower_threshold'])]
+                print(f'Filtered DataFrame with {len(df)} rows to {len(filtered_df)} rows.')
+            else:
+                print(f"{settings['filter_column']} not in DataFrame columns.")
+                filtered_df = df
+        else:
+            filtered_df = df
+                
+        filtered_df.to_csv(output_csv, index=False)
+        
+        if settings['remove_train']:
+            df = filter_csv_by_png(output_csv)
+            df.to_csv(output_csv, index=False)

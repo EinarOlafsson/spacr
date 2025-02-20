@@ -324,40 +324,6 @@ def show_next_figure():
         index_control.set(figure_index)
         index_control.set_to(len(figures) - 1)
         display_figure(fig)
-
-def process_fig_queue_v1():
-    global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
-    from .gui_elements import standardize_figure
-
-    #print("process_fig_queue called", flush=True)
-    try:
-        while not fig_queue.empty():
-            fig = fig_queue.get_nowait()
-            if fig is None:
-                print("Warning: Retrieved a None figure from fig_queue.", flush=True)
-                continue
-
-            # Standardize the figure appearance before adding it
-            fig = standardize_figure(fig)
-            figures.append(fig)
-
-            # Update slider maximum
-            index_control.set_to(len(figures) - 1)
-
-            # If no figure has been displayed yet
-            if figure_index == -1:
-                figure_index = 0
-                display_figure(figures[figure_index])
-                index_control.set(figure_index)
-
-    except Exception as e:
-        print("Exception in process_fig_queue:", e, flush=True)
-        traceback.print_exc()
-
-    finally:
-        # Schedule process_fig_queue() to run again
-        after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
-        parent_frame.after_tasks.append(after_id)
         
 def process_fig_queue():
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
@@ -912,7 +878,7 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         q.put(f"Error: {e}")
         return
 
-    if thread_control.get("run_thread") is not None:
+    if isinstance(thread_control, dict) and thread_control.get("run_thread") is not None:
         initiate_abort()
     
     stop_requested = Value('i', 0)
@@ -1057,7 +1023,7 @@ def cleanup_previous_instance():
     # 4. Stop and reset global thread control
     if thread_control is not None:
         thread_control['stop'] = True
-        thread_control = None
+        #thread_control = None
 
     # 5. Reset usage bars, figures, and indices
     usage_bars = []

@@ -1372,40 +1372,6 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
 
     return df
 
-def _split_data_v1(df, group_by, object_type):
-    """
-    Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
-    and returns the grouped dataframes.
-
-    Parameters:
-    df (pandas.DataFrame): The input dataframe.
-    group_by (str): The column name to group the dataframes by.
-    object_type (str): The column name to concatenate with 'prcf' to create a new column 'prcfo'.
-
-    Returns:
-    grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns.
-    grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.
-    """
-    
-    if 'prcf' not in df.columns:
-        try:
-            df['prcf'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str)
-        except Exception as e:
-            print(e)    
-    
-    df['prcfo'] = df['prcf'] + '_' + df[object_type]
-    df = df.set_index(group_by, inplace=False)
-
-    df_numeric = df.select_dtypes(include=np.number)
-    df_non_numeric = df.select_dtypes(exclude=np.number)
-    
-    []
-
-    grouped_numeric = df_numeric.groupby(df_numeric.index).mean()
-    grouped_non_numeric = df_non_numeric.groupby(df_non_numeric.index).first()
-
-    return pd.DataFrame(grouped_numeric), pd.DataFrame(grouped_non_numeric)
-
 def _split_data(df, group_by, object_type):
     """
     Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
@@ -5250,6 +5216,7 @@ def delete_intermedeate_files(settings):
     
     path_orig = os.path.join(settings['src'], 'orig')
     path_stack = os.path.join(settings['src'], 'stack')
+    merged_stack = os.path.join(settings['src'], 'merged')
     path_norm_chan_stack = os.path.join(settings['src'], 'norm_channel_stack')
     path_1 = os.path.join(settings['src'], '1')
     path_2 = os.path.join(settings['src'], '2')
@@ -5264,20 +5231,109 @@ def delete_intermedeate_files(settings):
     
     paths = [path_stack, path_norm_chan_stack, path_1, path_2, path_3, path_4, path_5, path_6, path_7, path_8, path_9, path_10]
     
-    if 'src' in settings:
-        if os.path.exists(settings['src']):
-            if os.path.exists(path_orig):
-                for path in paths:
-                    if os.path.exists(path):
-                        try:
-                            shutil.rmtree(path)
-                            print(f"Deleted {path}")
-                        except OSError as e:
-                            print(f"{path} could not be deleted: {e}. Delete manually.")
+    merged_len = len(merged_stack)
+    stack_len = len(path_stack)
+    
+    if merged_len == stack_len and stack_len != 0:
+        if 'src' in settings:
+            if os.path.exists(settings['src']):
+                if os.path.exists(path_orig):
+                    for path in paths:
+                        if os.path.exists(path):
+                            try:
+                                shutil.rmtree(path)
+                                print(f"Deleted {path}")
+                            except OSError as e:
+                                print(f"{path} could not be deleted: {e}. Delete manually.")
+                else:
+                    print(f"{path_orig} does not exist.")
             else:
-                print(f"{path_orig} does not exist.")
+                print(f"{settings['src']} does not exist.")
         else:
-            print(f"{settings['src']} does not exist.")
-    else:
-        print("No 'src' key in settings dictionary.")
+            print("No 'src' key in settings dictionary.")
+        
+def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold):
+    """
+    Reads a CSV into a DataFrame, filters rows based on a column for values > upper_threshold and < lower_threshold,
+    and saves the filtered DataFrame to a new CSV file.
+
+    Parameters:
+        input_csv (str): Path to the input CSV file.
+        output_csv (str): Path to save the filtered CSV file.
+        column_name (str): Column name to apply the filters on.
+        upper_threshold (float): Upper threshold for filtering (values greater than this are retained).
+        lower_threshold (float): Lower threshold for filtering (values less than this are retained).
+
+    Returns:
+        None
+    """
+    # Read the input CSV file into a DataFrame
+    df = pd.read_csv(input_csv)
+
+    # Filter rows based on the thresholds
+    filtered_df = df[(df[column_name] > upper_threshold) | (df[column_name] < lower_threshold)]
+
+    # Save the filtered DataFrame to a new CSV file
+    filtered_df.to_csv(output_csv, index=False)
+    display(filtered_df)
+
+    print(f"Filtered DataFrame saved to {output_csv}")
+    
+def extract_tar_bz2_files(folder_path):
+    """
+    Extracts all .tar.bz2 files in the given folder into subfolders with the same name as the tar file.
+    
+    Parameters:
+        folder_path (str): Path to the folder containing .tar.bz2 files.
+    """
+    if not os.path.isdir(folder_path):
+        raise ValueError(f"The provided path '{folder_path}' is not a valid folder.")
+    
+    # Iterate over files in the folder
+    for file_name in os.listdir(folder_path):
+        if file_name.endswith('.tar.bz2'):
+            file_path = os.path.join(folder_path, file_name)
+            extract_folder = os.path.join(folder_path, os.path.splitext(os.path.splitext(file_name)[0])[0])
             
+            # Create the subfolder for extraction if it doesn't exist
+            os.makedirs(extract_folder, exist_ok=True)
+            
+            # Extract the tar.bz2 file
+            try:
+                with tarfile.open(file_path, 'r:bz2') as tar:
+                    tar.extractall(path=extract_folder)
+                print(f"Extracted: {file_name} -> {extract_folder}")
+            except Exception as e:
+                print(f"Failed to extract {file_name}: {e}")
+            
+            
+def calculate_shortest_distance(df, object1, object2):
+    """
+    Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).
+    
+    Parameters:
+    - df: Pandas DataFrame containing measurements
+    - object1: String, name of the first object (e.g., "pathogen")
+    - object2: String, name of the second object (e.g., "nucleus")
+
+    Returns:
+    - df: Pandas DataFrame with a new column for shortest edge-to-edge distance.
+    """
+
+    # Compute centroid-to-centroid Euclidean distance
+    centroid_distance = np.sqrt(
+        (df[f'{object1}_channel_0_centroid_weighted-0'] - df[f'{object2}_channel_0_centroid_weighted-0'])**2 +
+        (df[f'{object1}_channel_0_centroid_weighted-1'] - df[f'{object2}_channel_0_centroid_weighted-1'])**2
+    )
+
+    # Estimate object radii using Feret diameters
+    object1_radius = df[f'{object1}_feret_diameter_max'] / 2
+    object2_radius = df[f'{object2}_feret_diameter_max'] / 2
+
+    # Compute shortest edge-to-edge distance
+    shortest_distance = centroid_distance - (object1_radius + object2_radius)
+
+    # Ensure distances are non-negative (overlapping objects should have distance 0)
+    df[f'{object1}_{object2}_shortest_distance'] = np.maximum(shortest_distance, 0)
+
+    return df

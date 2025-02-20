@@ -32,6 +32,7 @@ from IPython.display import Image as ipyimage
 import matplotlib.patches as patches
 from collections import defaultdict
 from matplotlib.gridspec import GridSpec
+from matplotlib_venn import venn2
 
 #filter_dict={'cell':[(0,100000), (0, 65000)],'nucleus':[(3000,100000), (1500, 65000)],'pathogen':[(500,100000), (0, 65000)]}
 def plot_image_mask_overlay(
@@ -2043,7 +2044,9 @@ def plot_histogram(df, column, dst=None):
 
     plt.show()
 
-def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count', remove_keys=['TGGT1_220950_1', 'TGGT1_233460_4'], x_lim=[0.0,1], y_lim=[0,1], save=True):
+def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count', 
+                       remove_keys=None, 
+                       x_lim=[0.0, 1], y_lim=[0, 1], remove_outliers=False, save=True):
     
     def lorenz_curve(data):
         """Calculate Lorenz curve."""
@@ -2053,34 +2056,64 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         lorenz_curve = np.insert(lorenz_curve, 0, 0)
         return lorenz_curve
     
+    def gini_coefficient(data):
+        """Calculate Gini coefficient from data."""
+        sorted_data = np.sort(data)
+        n = len(data)
+        cumulative_data = np.cumsum(sorted_data) / np.sum(sorted_data)
+        cumulative_data = np.insert(cumulative_data, 0, 0)
+        gini = 1 - 2 * np.sum(cumulative_data[:-1] * np.diff(np.linspace(0, 1, n + 1)))
+        return gini
+
+    def remove_outliers_by_wells(data, name_col, wells_col):
+        """Remove outliers based on 95% confidence interval for well counts."""
+        well_counts = data.groupby(name_col).size()
+        q1 = well_counts.quantile(0.05)
+        q3 = well_counts.quantile(0.95)
+        iqr_range = q3 - q1
+        lower_bound = q1 - 1.5 * iqr_range
+        upper_bound = q3 + 1.5 * iqr_range
+        valid_names = well_counts[(well_counts >= lower_bound) & (well_counts <= upper_bound)].index
+        return data[data[name_col].isin(valid_names)]
+    
     combined_data = []
+    gini_values = {}
 
     plt.figure(figsize=(10, 10))
 
     for idx, csv_file in enumerate(csv_files):
-        if idx == 1:
-            save_fldr = os.path.dirname(csv_file)
-            save_path = os.path.join(save_fldr, 'lorenz_curve.pdf')
-            
         df = pd.read_csv(csv_file)
+        
+        # Remove specified keys
         for remove in remove_keys:
             df = df[df[name_column] != remove]
+        
+        # Remove outliers
+        if remove_outliers:
+            df = remove_outliers_by_wells(df, name_column, value_column)
         
         values = df[value_column].values
         combined_data.extend(values)
         
+        # Calculate Lorenz curve and Gini coefficient
         lorenz = lorenz_curve(values)
-        name = f"plate {idx+1}"
+        gini = gini_coefficient(values)
+        gini_values[f"plate {idx+1}"] = gini
+        
+        name = f"plate {idx+1} (Gini: {gini:.4f})"
         plt.plot(np.linspace(0, 1, len(lorenz)), lorenz, label=name)
 
     # Plot combined Lorenz curve
     combined_lorenz = lorenz_curve(np.array(combined_data))
-    plt.plot(np.linspace(0, 1, len(combined_lorenz)), combined_lorenz, label="Combined", linestyle='--', color='black')
+    combined_gini = gini_coefficient(np.array(combined_data))
+    gini_values["Combined"] = combined_gini
     
-    if x_lim != None:
+    plt.plot(np.linspace(0, 1, len(combined_lorenz)), combined_lorenz, label=f"Combined (Gini: {combined_gini:.4f})", linestyle='--', color='black')
+    
+    if x_lim is not None:
         plt.xlim(x_lim)
     
-    if y_lim != None:
+    if y_lim is not None:
         plt.ylim(y_lim)
         
     plt.title('Lorenz Curves')
@@ -2092,10 +2125,15 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
     if save:
         save_path = os.path.join(os.path.dirname(csv_files[0]), 'results')
         os.makedirs(save_path, exist_ok=True)
-        save_file_path = os.path.join(save_path, 'lorenz_curve.pdf')
+        save_file_path = os.path.join(save_path, 'lorenz_curve_with_gini.pdf')
         plt.savefig(save_file_path, format='pdf', bbox_inches='tight')
         print(f"Saved Lorenz Curve: {save_file_path}")
-        plt.show()
+    
+    plt.show()
+
+    # Print Gini coefficients
+    for plate, gini in gini_values.items():
+        print(f"{plate}: Gini Coefficient = {gini:.4f}")
 
 def plot_permutation(permutation_df):
     num_features = len(permutation_df)
@@ -3011,66 +3049,6 @@ class spacrGraph:
         # Redraw the figure to apply changes
         ax.figure.canvas.draw()
         
-    def _standerdize_figure_format_v1(self, ax, num_groups, graph_type):
-        """
-        Adjusts the figure layout (size, bar width, jitter, and spacing) based on the number of groups.
-        """
-        if graph_type in ['line', 'line_std']:
-            print("Skipping layout adjustment for line graphs.")
-            return  # Skip layout adjustment for line graphs
-
-        correction_factor = 4
-
-        # Set figure size to ensure it remains square with a minimum size
-        fig_size = max(6, num_groups * 2) / correction_factor
-        ax.figure.set_size_inches(fig_size, fig_size)
-
-        # Configure layout based on the number of groups
-        bar_width = min(0.8, 1.5 / num_groups) / correction_factor
-        jitter_amount = min(0.1, 0.2 / num_groups) / correction_factor
-        jitter_size = max(50 / num_groups, 200)
-
-        # Adjust x-axis limits to fit the specified order of groups
-        ax.set_xlim(-0.5, len(self.order) - 0.5)  # Use `self.order` length to ensure alignment
-
-        # Use `self.order` as the x-tick labels to maintain consistent ordering
-        ax.set_xticks(range(len(self.order)))
-        #ax.set_xticklabels(self.order, rotation=45, ha='right')
-        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
-
-        # Customize elements based on the graph type
-        if graph_type == 'bar':
-            # Adjust bars' width and position
-            for bar in ax.patches:
-                bar.set_width(bar_width)
-                bar.set_x(bar.get_x() - bar_width / 2)
-
-        elif graph_type in ['jitter', 'jitter_bar', 'jitter_box']:
-            # Adjust jitter points' position and size
-            for coll in ax.collections:
-                offsets = coll.get_offsets()
-                offsets[:, 0] += jitter_amount  # Shift jitter points slightly
-                coll.set_offsets(offsets)
-                coll.set_sizes([jitter_size] * len(offsets))  # Adjust point size dynamically
-
-        elif graph_type in ['box', 'violin']:
-            # Adjust box width for consistent spacing
-            for artist in ax.artists:
-                artist.set_width(bar_width)
-
-        # Adjust legend and axis labels
-        ax.tick_params(axis='x', labelsize=max(10, 15 - num_groups // 2))
-        ax.tick_params(axis='y', labelsize=max(10, 15 - num_groups // 2))
-
-        # Adjust legend placement and size
-        if ax.get_legend():
-            ax.get_legend().set_bbox_to_anchor((1.05, 1))
-            ax.get_legend().prop.set_size(max(8, 12 - num_groups // 3))
-
-        # Redraw the figure to apply changes
-        ax.figure.canvas.draw()
-
-
     def _create_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
         # Flatten DataFrame: Combine grouping column and data column into one group if needed
@@ -3418,6 +3396,13 @@ def plot_data_from_db(settings):
         df = df.dropna(subset='treatment')
 
     df = df.dropna(subset=settings['data_column'])
+        
+    if settings['grouping_column'] not in df.columns:
+        print(f"Grouping column {settings['grouping_column']} not found in DataFrame.")
+        print(f'Please use one of the following columns: {df.columns}')
+        display(df)
+        return None
+    
     df = df.dropna(subset=settings['grouping_column'])
 
     src = srcs[0] 
@@ -3883,3 +3868,58 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     })
 
     return results_df, pairwise_results, fig
+
+def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save=True, save_path=None):
+    """
+    Reads two CSV files, extracts the `gene` column, and creates a Venn diagram
+    to show overlapping and non-overlapping genes.
+
+    Parameters:
+        file1 (str): Path to the first CSV file.
+        file2 (str): Path to the second CSV file.
+        gene_column (str): Name of the column containing gene data (default: "gene").
+        filter_coeff (float): Coefficient threshold for filtering genes.
+        save (bool): Whether to save the plot.
+        save_path (str): Path to save the Venn diagram figure.
+
+    Returns:
+        dict: Overlapping and non-overlapping genes.
+    """
+    # Read CSV files
+    df1 = pd.read_csv(file1)
+    df2 = pd.read_csv(file2)
+
+    # Filter based on coefficient
+    if filter_coeff is not None:
+        df1 = df1[df1['coefficient'] > filter_coeff] if filter_coeff >= 0 else df1[df1['coefficient'] < filter_coeff]
+        df2 = df2[df2['coefficient'] > filter_coeff] if filter_coeff >= 0 else df2[df2['coefficient'] < filter_coeff]
+
+    # Extract gene columns and drop NaN values
+    genes1 = set(df1[gene_column].dropna())
+    genes2 = set(df2[gene_column].dropna())
+
+    # Calculate overlapping and non-overlapping genes
+    overlapping_genes = genes1.intersection(genes2)
+    unique_to_file1 = genes1.difference(genes2)
+    unique_to_file2 = genes2.difference(genes1)
+
+    # Create a Venn diagram
+    plt.figure(figsize=(8, 6))
+    venn = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'))
+    plt.title("Venn Diagram of Overlapping Genes")
+
+    # Save or show the figure
+    if save:
+        if save_path is None:
+            raise ValueError("save_path must be provided when save=True.")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight", format='pdf')
+        print(f"Venn diagram saved to {save_path}")
+    else:
+        plt.show()
+
+    # Return the results
+    return {
+        "overlap": list(overlapping_genes),
+        "unique_to_file1": list(unique_to_file1),
+        "unique_to_file2": list(unique_to_file2)
+    }
