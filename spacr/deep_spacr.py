@@ -938,67 +938,8 @@ def deep_spacr(settings={}):
         if os.path.exists(settings['model_path']):
             apply_model_to_tar(settings)
             
-def model_knowledge_transfer(
-    teacher_paths,
-    student_save_path,
-    data_loader,                 # A DataLoader with (images, labels)
-    device='cpu',
-    student_model_name='maxvit_t',
-    pretrained=True,
-    dropout_rate=None,
-    use_checkpoint=False,
-    alpha=0.5,
-    temperature=2.0,
-    lr=1e-4,
-    epochs=10
-):
-    """
-    Performs multi-teacher knowledge distillation on a new labeled dataset,
-    producing a single student TorchModel that combines (distills) the 
-    teachers' knowledge plus the labeled data.
+def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=1e-4, epochs=10):
 
-    Usage:
-        student = model_knowledge_transfer(
-            teacher_paths=[
-                'teacherA.pth', 
-                'teacherB.pth', 
-                ...
-            ],
-            student_save_path='distilled_student.pth',
-            data_loader=my_data_loader, 
-            device='cuda', 
-            student_model_name='maxvit_t',
-            alpha=0.5,
-            temperature=2.0,
-            lr=1e-4,
-            epochs=10
-        )
-
-    Then load it via:
-        fused_student = torch.load('distilled_student.pth')
-        # fused_student is a TorchModel instance, ready for inference.
-
-    Args:
-        teacher_paths (list[str]): List of paths to teacher models (TorchModel 
-            or dict with 'model' in it). They must have the same architecture 
-            or at least produce the same dimension of output.
-        student_save_path (str): Destination path to save the final student 
-            TorchModel. 
-        data_loader (DataLoader): Yields (images, labels) from the new dataset.
-        device (str): 'cpu' or 'cuda'.
-        student_model_name (str): Architecture name for the student TorchModel.
-        pretrained (bool): If the student should be initialized as pretrained.
-        dropout_rate (float): If needed by your TorchModel init.
-        use_checkpoint (bool): If needed by your TorchModel init.
-        alpha (float): Weight balancing real-label CE vs. distillation loss 
-            (0..1). 
-        temperature (float): Distillation temperature (>1 typically).
-        lr (float): Learning rate for the student.
-        epochs (int): Number of training epochs.
-
-    Returns:
-        TorchModel: The final, trained student model.
-    """
     from spacr.utils import TorchModel  # Adapt if needed
 
     # Adjust filename to reflect knowledge-distillation if desired
@@ -1101,42 +1042,8 @@ def model_knowledge_transfer(
 
     return student_model
             
-def model_fusion(model_paths,
-                 save_path,
-                 device='cpu',
-                 model_name='maxvit_t',
-                 pretrained=True,
-                 dropout_rate=None,
-                 use_checkpoint=False,
-                 aggregator='mean'):
-    """
-    Fuses an arbitrary number of TorchModel instances by combining their weights 
-    (using mean, geomean, median, sum, max, or min) and saves the entire fused 
-    model object. 
+def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretrained=True,dropout_rate=None,use_checkpoint=False,aggregator='mean'):
 
-    You can later load the fused model with:
-        model = torch.load('fused_model.pth')
-
-    which returns a ready-to-use TorchModel instance.
-
-    Parameters:
-        model_paths (list of str): Paths to the model checkpoints to fuse.
-                                   Each checkpoint can be:
-                                     - A dict with keys ['model', 'model_name', ...]
-                                     - A TorchModel instance
-        save_path (str): Destination path to save the fused model.
-        device (str): 'cpu' or 'cuda' for loading weights and final model device.
-        model_name (str): Default model name (used if not in checkpoint).
-        pretrained (bool): Default if not in checkpoint.
-        dropout_rate (float): Default if not in checkpoint.
-        use_checkpoint (bool): Default if not in checkpoint.
-        aggregator (str): How to combine weights across models:
-                            'mean', 'geomean', 'median', 'sum', 'max', or 'min'.
-
-    Returns:
-        fused_model (TorchModel): The final fused TorchModel instance 
-                                  with combined weights.
-    """
     from spacr.utils import TorchModel
     
     if save_path.endswith('.pth'):
