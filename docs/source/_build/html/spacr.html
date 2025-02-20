@@ -6,14 +6,15 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr package &mdash; spacr  documentation</title>
+  <title>spacr package &mdash; spacr Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
+0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/documentation_options.js?v=f27469d6"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -942,39 +943,32 @@ all_labels (list): The true labels for each prediction.</p>
 <dd><p>Fuses an arbitrary number of TorchModel instances by combining their weights
 (using mean, geomean, median, sum, max, or min) and saves the entire fused
 model object.</p>
-<dl class="simple">
-<dt>You can later load the fused model with:</dt><dd><p>model = torch.load(‘fused_model.pth’)</p>
-</dd>
-</dl>
+<p>You can later load the fused model with:</p>
+<blockquote>
+<div><p>model = torch.load(‘fused_model.pth’)</p>
+</div></blockquote>
 <p>which returns a ready-to-use TorchModel instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_paths</strong> (<em>list</em><em> of </em><em>str</em>) – <p>Paths to the model checkpoints to fuse.
-Each checkpoint can be:</p>
-<blockquote>
-<div><ul>
+<li><p><strong>model_paths</strong> (<em>list</em><em> of </em><em>str</em>) – <p>Paths to the model checkpoints to fuse. Each checkpoint can be:</p>
+<ul>
 <li><p>A dict with keys [‘model’, ‘model_name’, …]</p></li>
 <li><p>A TorchModel instance</p></li>
 </ul>
-</div></blockquote>
 </p></li>
 <li><p><strong>save_path</strong> (<em>str</em>) – Destination path to save the fused model.</p></li>
-<li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’ for loading weights and final model device.</p></li>
-<li><p><strong>model_name</strong> (<em>str</em>) – Default model name (used if not in checkpoint).</p></li>
-<li><p><strong>pretrained</strong> (<em>bool</em>) – Default if not in checkpoint.</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em>) – Default if not in checkpoint.</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Default if not in checkpoint.</p></li>
-<li><p><strong>aggregator</strong> (<em>str</em>) – How to combine weights across models:
-‘mean’, ‘geomean’, ‘median’, ‘sum’, ‘max’, or ‘min’.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’ for loading weights and setting the final device.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Default model name (used if not specified in the checkpoint).</p></li>
+<li><p><strong>pretrained</strong> (<em>bool</em>) – Whether to use pretrained weights (if not specified in the checkpoint).</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em>) – Dropout rate to use if not specified in the checkpoint.</p></li>
+<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Whether to load from a checkpoint if not specified.</p></li>
+<li><p><strong>aggregator</strong> (<em>str</em>) – How to combine weights across models: ‘mean’, ‘geomean’, ‘median’,
+‘sum’, ‘max’, or ‘min’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>The final fused TorchModel instance</dt><dd><p>with combined weights.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>The final fused TorchModel instance with combined weights.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>fused_model (<a class="reference internal" href="#spacr.utils.TorchModel" title="spacr.utils.TorchModel">TorchModel</a>)</p>
@@ -987,13 +981,12 @@ Each checkpoint can be:</p>
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">model_knowledge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teacher_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">student_save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">student_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'maxvit_t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/deep_spacr.html#model_knowledge_transfer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.model_knowledge_transfer" title="Link to this definition"></a></dt>
 <dd><p>Performs multi-teacher knowledge distillation on a new labeled dataset,
 producing a single student TorchModel that combines (distills) the
-teachers’ knowledge plus the labeled data.</p>
+teachers’ knowledge with the labeled data.</p>
+<p class="rubric">Example</p>
 <dl>
-<dt>Usage:</dt><dd><dl>
 <dt>student = model_knowledge_transfer(</dt><dd><dl class="simple">
 <dt>teacher_paths=[</dt><dd><p>‘teacherA.pth’,
-‘teacherB.pth’,
-…</p>
+‘teacherB.pth’</p>
 </dd>
 </dl>
 <p>],
@@ -1001,6 +994,9 @@ student_save_path=’distilled_student.pth’,
 data_loader=my_data_loader,
 device=’cuda’,
 student_model_name=’maxvit_t’,
+pretrained=True,
+dropout_rate=None,
+use_checkpoint=False,
 alpha=0.5,
 temperature=2.0,
 lr=1e-4,
@@ -1008,29 +1004,28 @@ epochs=10</p>
 </dd>
 </dl>
 <p>)</p>
-</dd>
-<dt>Then load it via:</dt><dd><p>fused_student = torch.load(‘distilled_student.pth’)
+<p>Then load it via:</p>
+<blockquote>
+<div><p>fused_student = torch.load(‘distilled_student.pth’)
 # fused_student is a TorchModel instance, ready for inference.</p>
-</dd>
-</dl>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>teacher_paths</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of paths to teacher models (TorchModel
-or dict with ‘model’ in it). They must have the same architecture
-or at least produce the same dimension of output.</p></li>
-<li><p><strong>student_save_path</strong> (<em>str</em>) – Destination path to save the final student
-TorchModel.</p></li>
-<li><p><strong>data_loader</strong> (<em>DataLoader</em>) – Yields (images, labels) from the new dataset.</p></li>
+<li><p><strong>teacher_paths</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of paths to teacher models (each can be a TorchModel or a dict
+with a ‘model’ key). The models must have the same architecture or
+at least produce outputs of the same dimension.</p></li>
+<li><p><strong>student_save_path</strong> (<em>str</em>) – Destination path to save the final student TorchModel.</p></li>
+<li><p><strong>data_loader</strong> (<em>DataLoader</em>) – A DataLoader that yields (images, labels) from the new dataset.</p></li>
 <li><p><strong>device</strong> (<em>str</em>) – ‘cpu’ or ‘cuda’.</p></li>
 <li><p><strong>student_model_name</strong> (<em>str</em>) – Architecture name for the student TorchModel.</p></li>
-<li><p><strong>pretrained</strong> (<em>bool</em>) – If the student should be initialized as pretrained.</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em>) – If needed by your TorchModel init.</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – If needed by your TorchModel init.</p></li>
-<li><p><strong>alpha</strong> (<em>float</em>) – Weight balancing real-label CE vs. distillation loss
-(0..1).</p></li>
-<li><p><strong>temperature</strong> (<em>float</em>) – Distillation temperature (&gt;1 typically).</p></li>
-<li><p><strong>lr</strong> (<em>float</em>) – Learning rate for the student.</p></li>
+<li><p><strong>pretrained</strong> (<em>bool</em>) – Whether the student should be initialized as pretrained.</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em>) – Dropout rate for the TorchModel (if needed).</p></li>
+<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Whether to use a checkpoint when initializing the TorchModel.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Weight balancing between real-label cross-entropy and distillation
+loss (0..1).</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – Distillation temperature (typically &gt; 1).</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate for training the student.</p></li>
 <li><p><strong>epochs</strong> (<em>int</em>) – Number of training epochs.</p></li>
 </ul>
 </dd>
@@ -5040,17 +5035,17 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.add_column_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">add_column_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/utils.html#add_column_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.add_column_to_database" title="Link to this definition"></a></dt>
-<dd><p>Adds a new column to the database table by matching on a common column from the DataFrame. If the column already exists in the database, it adds the column with a suffix. NaN values will remain as NULL in the database.</p>
+<dd><p>Adds a new column to the database table by matching on a common column from the DataFrame.
+If the column already exists in the database, it adds the column with a suffix.
+NaN values will remain as NULL in the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the following keys:</p></li>
-<li><p><strong>csv_path</strong> (<em>str</em>) – Path to the CSV file with the data to be added.</p></li>
-<li><p><strong>db_path</strong> (<em>str</em>) – Path to the SQLite database (or connection string for other databases).</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table in the database.</p></li>
-<li><p><strong>update_column</strong> (<em>str</em>) – The name of the new column in the DataFrame to add to the database.</p></li>
-<li><p><strong>match_column</strong> (<em>str</em>) – The common column used to match rows.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the following keys:
+csv_path (str): Path to the CSV file with the data to be added.
+db_path (str): Path to the SQLite database (or connection string for other databases).
+table_name (str): The name of the table in the database.
+update_column (str): The name of the new column in the DataFrame to add to the database.
+match_column (str): The common column used to match rows.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>

@@ -1,5 +1,5 @@
 const DOCUMENTATION_OPTIONS = {
-    VERSION: '',
+    VERSION: 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models0.4.0',
     LANGUAGE: 'en',
     COLLAPSE_INDEX: false,
     BUILDER: 'html',
