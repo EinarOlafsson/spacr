@@ -5,15 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.deep_spacr &mdash; spacr Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models
-0.3.61 documentation</title>
+  <title>spacr.deep_spacr &mdash; spacr  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=4d879c53"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -84,6 +83,7 @@
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">auc</span><span class="p">,</span> <span class="n">precision_recall_curve</span>
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
 
 <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
@@ -153,10 +153,11 @@
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">TarImageDataset</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">process_vision_results</span><span class="p">,</span> <span class="n">print_progress</span>
 
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]):</span>
-        <span class="n">tar_path</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">tar_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">])</span>
+    <span class="c1">#if os.path.exists(settings[&#39;dataset&#39;]):</span>
+    <span class="c1">#    tar_path = settings[&#39;dataset&#39;]</span>
+    <span class="c1">#else:</span>
+    <span class="c1">#    tar_path = os.path.join(settings[&#39;src&#39;], &#39;datasets&#39;, settings[&#39;dataset&#39;])</span>
+    <span class="n">tar_path</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;tar_path&#39;</span><span class="p">]</span>
     <span class="n">model_path</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;model_path&#39;</span><span class="p">]</span>
     
     <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
@@ -180,7 +181,8 @@
     <span class="n">data_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">],</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">model_path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>  
+    <span class="c1">#dataset_name = os.path.splitext(os.path.basename(settings[&#39;dataset&#39;]))[0] </span>
+    <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;tar_path&#39;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span> 
     <span class="n">date_name</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tar_path</span><span class="p">)</span>
     <span class="n">result_loc</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">date_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">_result.csv&#39;</span>
@@ -440,7 +442,7 @@
     <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dst&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dst</span>
     
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_model&#39;</span><span class="p">]:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_model_path&#39;</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_model&#39;</span><span class="p">])</span>
     
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]:</span>
@@ -1048,6 +1050,385 @@
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;model_path&#39;</span><span class="p">]):</span>
             <span class="n">apply_model_to_tar</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span></div>
 
+            
+<div class="viewcode-block" id="model_knowledge_transfer">
+<a class="viewcode-back" href="../../spacr.html#spacr.deep_spacr.model_knowledge_transfer">[docs]</a>
+<span class="k">def</span> <span class="nf">model_knowledge_transfer</span><span class="p">(</span>
+    <span class="n">teacher_paths</span><span class="p">,</span>
+    <span class="n">student_save_path</span><span class="p">,</span>
+    <span class="n">data_loader</span><span class="p">,</span>                 <span class="c1"># A DataLoader with (images, labels)</span>
+    <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span>
+    <span class="n">student_model_name</span><span class="o">=</span><span class="s1">&#39;maxvit_t&#39;</span><span class="p">,</span>
+    <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs multi-teacher knowledge distillation on a new labeled dataset,</span>
+<span class="sd">    producing a single student TorchModel that combines (distills) the </span>
+<span class="sd">    teachers&#39; knowledge plus the labeled data.</span>
+
+<span class="sd">    Usage:</span>
+<span class="sd">        student = model_knowledge_transfer(</span>
+<span class="sd">            teacher_paths=[</span>
+<span class="sd">                &#39;teacherA.pth&#39;, </span>
+<span class="sd">                &#39;teacherB.pth&#39;, </span>
+<span class="sd">                ...</span>
+<span class="sd">            ],</span>
+<span class="sd">            student_save_path=&#39;distilled_student.pth&#39;,</span>
+<span class="sd">            data_loader=my_data_loader, </span>
+<span class="sd">            device=&#39;cuda&#39;, </span>
+<span class="sd">            student_model_name=&#39;maxvit_t&#39;,</span>
+<span class="sd">            alpha=0.5,</span>
+<span class="sd">            temperature=2.0,</span>
+<span class="sd">            lr=1e-4,</span>
+<span class="sd">            epochs=10</span>
+<span class="sd">        )</span>
+
+<span class="sd">    Then load it via:</span>
+<span class="sd">        fused_student = torch.load(&#39;distilled_student.pth&#39;)</span>
+<span class="sd">        # fused_student is a TorchModel instance, ready for inference.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        teacher_paths (list[str]): List of paths to teacher models (TorchModel </span>
+<span class="sd">            or dict with &#39;model&#39; in it). They must have the same architecture </span>
+<span class="sd">            or at least produce the same dimension of output.</span>
+<span class="sd">        student_save_path (str): Destination path to save the final student </span>
+<span class="sd">            TorchModel. </span>
+<span class="sd">        data_loader (DataLoader): Yields (images, labels) from the new dataset.</span>
+<span class="sd">        device (str): &#39;cpu&#39; or &#39;cuda&#39;.</span>
+<span class="sd">        student_model_name (str): Architecture name for the student TorchModel.</span>
+<span class="sd">        pretrained (bool): If the student should be initialized as pretrained.</span>
+<span class="sd">        dropout_rate (float): If needed by your TorchModel init.</span>
+<span class="sd">        use_checkpoint (bool): If needed by your TorchModel init.</span>
+<span class="sd">        alpha (float): Weight balancing real-label CE vs. distillation loss </span>
+<span class="sd">            (0..1). </span>
+<span class="sd">        temperature (float): Distillation temperature (&gt;1 typically).</span>
+<span class="sd">        lr (float): Learning rate for the student.</span>
+<span class="sd">        epochs (int): Number of training epochs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        TorchModel: The final, trained student model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">spacr.utils</span> <span class="kn">import</span> <span class="n">TorchModel</span>  <span class="c1"># Adapt if needed</span>
+
+    <span class="c1"># Adjust filename to reflect knowledge-distillation if desired</span>
+    <span class="k">if</span> <span class="n">student_save_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pth&#39;</span><span class="p">):</span>
+        <span class="n">base</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">student_save_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">student_save_path</span>
+    <span class="n">student_save_path</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="s1">&#39;_KD.pth&#39;</span>
+
+    <span class="c1"># -- 1. Load teacher models --</span>
+    <span class="n">teachers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading teacher models:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">teacher_paths</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Loading teacher: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ckpt</span><span class="p">,</span> <span class="n">TorchModel</span><span class="p">):</span>
+            <span class="n">teacher</span> <span class="o">=</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ckpt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="c1"># If it&#39;s a dict with &#39;model&#39; inside</span>
+            <span class="c1"># We might need to check if it has &#39;model_name&#39;, etc. </span>
+            <span class="c1"># But let&#39;s keep it simple: same architecture as the student</span>
+            <span class="n">teacher</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="p">(</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="n">student_model_name</span><span class="p">),</span>
+                <span class="n">pretrained</span><span class="o">=</span><span class="n">ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pretrained&#39;</span><span class="p">,</span> <span class="n">pretrained</span><span class="p">),</span>
+                <span class="n">dropout_rate</span><span class="o">=</span><span class="n">ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dropout_rate&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">),</span>
+                <span class="n">use_checkpoint</span><span class="o">=</span><span class="n">ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_checkpoint&#39;</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">teacher</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">ckpt</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported checkpoint type at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (must be TorchModel or dict).&quot;</span><span class="p">)</span>
+
+        <span class="n">teacher</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># For consistent batchnorm, dropout</span>
+        <span class="n">teachers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">teacher</span><span class="p">)</span>
+
+    <span class="c1"># -- 2. Initialize the student TorchModel --</span>
+    <span class="n">student_model</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="p">(</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="n">student_model_name</span><span class="p">,</span>
+        <span class="n">pretrained</span><span class="o">=</span><span class="n">pretrained</span><span class="p">,</span>
+        <span class="n">dropout_rate</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span>
+        <span class="n">use_checkpoint</span><span class="o">=</span><span class="n">use_checkpoint</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="c1"># You could load a partial checkpoint into the student here if desired.</span>
+
+    <span class="c1"># -- 3. Optimizer --</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">student_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">)</span>
+
+    <span class="c1"># Distillation training loop</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+        <span class="n">student_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+            <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="c1"># Forward pass student</span>
+            <span class="n">logits_s</span> <span class="o">=</span> <span class="n">student_model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>         <span class="c1"># shape: (B, num_classes)</span>
+            <span class="n">logits_s_temp</span> <span class="o">=</span> <span class="n">logits_s</span> <span class="o">/</span> <span class="n">temperature</span>   <span class="c1"># scale by T</span>
+
+            <span class="c1"># Distillation from teachers</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="c1"># We&#39;ll average teacher probabilities</span>
+                <span class="n">teacher_probs_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">tm</span> <span class="ow">in</span> <span class="n">teachers</span><span class="p">:</span>
+                    <span class="n">logits_t</span> <span class="o">=</span> <span class="n">tm</span><span class="p">(</span><span class="n">images</span><span class="p">)</span> <span class="o">/</span> <span class="n">temperature</span>
+                    <span class="c1"># convert to probabilities</span>
+                    <span class="n">teacher_probs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits_t</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="c1"># average them</span>
+                <span class="n">teacher_probs_ensemble</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">teacher_probs_list</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Student probabilities (log-softmax)</span>
+            <span class="n">student_log_probs</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">logits_s_temp</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># Distillation loss =&gt; KLDiv</span>
+            <span class="n">loss_distill</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">kl_div</span><span class="p">(</span>
+                <span class="n">student_log_probs</span><span class="p">,</span>
+                <span class="n">teacher_probs_ensemble</span><span class="p">,</span>
+                <span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;batchmean&#39;</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="c1"># Real label loss =&gt; cross-entropy</span>
+            <span class="c1"># We can compute this on the raw logits or scaled. Typically raw logits is standard:</span>
+            <span class="n">loss_ce</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span><span class="n">logits_s</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+            <span class="c1"># Weighted sum</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">loss_ce</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">loss_distill</span>
+
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">running_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch [</span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">epochs</span><span class="si">}</span><span class="s2">] - Loss: </span><span class="si">{</span><span class="n">avg_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># -- 4. Save final student as a TorchModel --</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">student_model</span><span class="p">,</span> <span class="n">student_save_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Knowledge-distilled student saved to: </span><span class="si">{</span><span class="n">student_save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">student_model</span></div>
+
+            
+<div class="viewcode-block" id="model_fusion">
+<a class="viewcode-back" href="../../spacr.html#spacr.deep_spacr.model_fusion">[docs]</a>
+<span class="k">def</span> <span class="nf">model_fusion</span><span class="p">(</span><span class="n">model_paths</span><span class="p">,</span>
+                 <span class="n">save_path</span><span class="p">,</span>
+                 <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span>
+                 <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;maxvit_t&#39;</span><span class="p">,</span>
+                 <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">aggregator</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fuses an arbitrary number of TorchModel instances by combining their weights </span>
+<span class="sd">    (using mean, geomean, median, sum, max, or min) and saves the entire fused </span>
+<span class="sd">    model object. </span>
+
+<span class="sd">    You can later load the fused model with:</span>
+<span class="sd">        model = torch.load(&#39;fused_model.pth&#39;)</span>
+
+<span class="sd">    which returns a ready-to-use TorchModel instance.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        model_paths (list of str): Paths to the model checkpoints to fuse.</span>
+<span class="sd">                                   Each checkpoint can be:</span>
+<span class="sd">                                     - A dict with keys [&#39;model&#39;, &#39;model_name&#39;, ...]</span>
+<span class="sd">                                     - A TorchModel instance</span>
+<span class="sd">        save_path (str): Destination path to save the fused model.</span>
+<span class="sd">        device (str): &#39;cpu&#39; or &#39;cuda&#39; for loading weights and final model device.</span>
+<span class="sd">        model_name (str): Default model name (used if not in checkpoint).</span>
+<span class="sd">        pretrained (bool): Default if not in checkpoint.</span>
+<span class="sd">        dropout_rate (float): Default if not in checkpoint.</span>
+<span class="sd">        use_checkpoint (bool): Default if not in checkpoint.</span>
+<span class="sd">        aggregator (str): How to combine weights across models:</span>
+<span class="sd">                            &#39;mean&#39;, &#39;geomean&#39;, &#39;median&#39;, &#39;sum&#39;, &#39;max&#39;, or &#39;min&#39;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        fused_model (TorchModel): The final fused TorchModel instance </span>
+<span class="sd">                                  with combined weights.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">spacr.utils</span> <span class="kn">import</span> <span class="n">TorchModel</span>
+    
+    <span class="k">if</span> <span class="n">save_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pth&#39;</span><span class="p">):</span>
+        <span class="n">save_path_part1</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">save_path_part1</span> <span class="o">=</span> <span class="n">save_path</span>
+    
+    <span class="n">save_path</span> <span class="o">=</span> <span class="n">save_path_part1</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">aggregator</span><span class="si">}</span><span class="s1">.pth&#39;</span>
+
+    <span class="n">valid_aggregators</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;geomean&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">aggregator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_aggregators</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid aggregator &#39;</span><span class="si">{</span><span class="n">aggregator</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;Must be one of </span><span class="si">{</span><span class="n">valid_aggregators</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- 1. Load the first checkpoint to figure out architecture &amp; hyperparams ---</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading the first model from: </span><span class="si">{</span><span class="n">model_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> to derive architecture&quot;</span><span class="p">)</span>
+    <span class="n">first_ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">map_location</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first_ckpt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="c1"># It&#39;s a dict with state_dict + possibly metadata</span>
+        <span class="c1"># Use any stored metadata if present</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">first_ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="n">pretrained</span> <span class="o">=</span> <span class="n">first_ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pretrained&#39;</span><span class="p">,</span> <span class="n">pretrained</span><span class="p">)</span>
+        <span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">first_ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dropout_rate&#39;</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">)</span>
+        <span class="n">use_checkpoint</span> <span class="o">=</span> <span class="n">first_ckpt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_checkpoint&#39;</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the fused model</span>
+        <span class="n">fused_model</span> <span class="o">=</span> <span class="n">TorchModel</span><span class="p">(</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+            <span class="n">pretrained</span><span class="o">=</span><span class="n">pretrained</span><span class="p">,</span>
+            <span class="n">dropout_rate</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span>
+            <span class="n">use_checkpoint</span><span class="o">=</span><span class="n">use_checkpoint</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># We&#39;ll collect state dicts in a list</span>
+        <span class="n">state_dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">first_ckpt</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]]</span>  <span class="c1"># the actual weights</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first_ckpt</span><span class="p">,</span> <span class="n">TorchModel</span><span class="p">):</span>
+        <span class="c1"># The checkpoint is directly a TorchModel instance</span>
+        <span class="n">fused_model</span> <span class="o">=</span> <span class="n">first_ckpt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">state_dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">fused_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported checkpoint format. Must be a dict or a TorchModel instance.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- 2. Load the rest of the checkpoints ---</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">model_paths</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading model from: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ckpt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">state_dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ckpt</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">])</span>  <span class="c1"># Just the state dict portion</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ckpt</span><span class="p">,</span> <span class="n">TorchModel</span><span class="p">):</span>
+            <span class="n">state_dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ckpt</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported checkpoint format in </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (must be dict or TorchModel).&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- 3. Verify all state dicts have the same keys ---</span>
+    <span class="n">fused_sd</span> <span class="o">=</span> <span class="n">fused_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">state_dicts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fused_sd</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">sd</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All models must have identical architecture/state_dict keys.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- 4. Define aggregator logic ---</span>
+    <span class="k">def</span> <span class="nf">combine_tensors</span><span class="p">(</span><span class="n">tensor_list</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a list of Tensors, combine them using the chosen aggregator.&quot;&quot;&quot;</span>
+        <span class="c1"># stack along new dimension =&gt; shape (num_models, *tensor.shape)</span>
+        <span class="n">stacked</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tensor_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stacked</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;geomean&#39;</span><span class="p">:</span>
+            <span class="c1"># geometric mean = exp(mean(log(tensor))) </span>
+            <span class="c1"># caution: requires all &gt; 0</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">stacked</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stacked</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;sum&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stacked</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;min&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stacked</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported aggregator: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- 5. Combine the weights ---</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fused_sd</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="c1"># gather all versions of this tensor</span>
+        <span class="n">all_tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">sd</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">state_dicts</span><span class="p">]</span>
+        <span class="n">fused_sd</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_tensors</span><span class="p">(</span><span class="n">all_tensors</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">aggregator</span><span class="p">)</span>
+
+    <span class="c1"># Load combined weights into the fused model</span>
+    <span class="n">fused_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">fused_sd</span><span class="p">)</span>
+
+    <span class="c1"># --- 6. Save the entire TorchModel object ---</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fused_model</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fused model (aggregator=&#39;</span><span class="si">{</span><span class="n">aggregator</span><span class="si">}</span><span class="s2">&#39;) saved as a full TorchModel to: </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fused_model</span></div>
+
+
+<div class="viewcode-block" id="annotate_filter_vision">
+<a class="viewcode-back" href="../../spacr.html#spacr.deep_spacr.annotate_filter_vision">[docs]</a>
+<span class="k">def</span> <span class="nf">annotate_filter_vision</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+    
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">annotate_conditions</span>
+    
+    <span class="k">def</span> <span class="nf">filter_csv_by_png</span><span class="p">(</span><span class="n">csv_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters a DataFrame by removing rows that match PNG filenames in a folder.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            csv_file (str): Path to the CSV file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Filtered DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Split the path to identify the datasets folder and build the training folder path</span>
+        <span class="n">before_datasets</span><span class="p">,</span> <span class="n">after_datasets</span> <span class="o">=</span> <span class="n">csv_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s2">&quot;datasets&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">train_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">before_datasets</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Paths for train/nc and train/pc</span>
+        <span class="n">nc_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">train_fldr</span><span class="p">,</span> <span class="s1">&#39;nc&#39;</span><span class="p">)</span>
+        <span class="n">pc_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">train_fldr</span><span class="p">,</span> <span class="s1">&#39;pc&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Load the CSV file into a DataFrame</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+
+        <span class="c1"># Collect PNG filenames from train/nc and train/pc</span>
+        <span class="n">png_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="p">[</span><span class="n">nc_folder</span><span class="p">,</span> <span class="n">pc_folder</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>  <span class="c1"># Ensure the folder exists</span>
+                <span class="n">png_files</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">)})</span>
+
+        <span class="c1"># Filter the DataFrame by excluding rows where filenames match PNG files</span>
+        <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">png_files</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">filtered_df</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]]</span>
+    
+    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]:</span>
+        <span class="n">ann_src</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">output_csv</span> <span class="o">=</span> <span class="n">ann_src</span><span class="o">+</span><span class="s1">&#39;_annotated_filtered.csv&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">output_csv</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;column_name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column&#39;</span><span class="p">]</span>
+            
+        <span class="n">df</span> <span class="o">=</span> <span class="n">annotate_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> 
+                            <span class="n">cells</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cells&#39;</span><span class="p">],</span>
+                            <span class="n">cell_loc</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_loc&#39;</span><span class="p">],</span>
+                            <span class="n">pathogens</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogens&#39;</span><span class="p">],</span>
+                            <span class="n">pathogen_loc</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_loc&#39;</span><span class="p">],</span>
+                            <span class="n">treatments</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;treatments&#39;</span><span class="p">],</span>
+                            <span class="n">treatment_loc</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;treatment_loc&#39;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_column&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_column&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_column&#39;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;upper_threshold&#39;</span><span class="p">])</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_column&#39;</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;lower_threshold&#39;</span><span class="p">])]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Filtered DataFrame with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> rows to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filtered_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> rows.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_column&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> not in DataFrame columns.&quot;</span><span class="p">)</span>
+                <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span>
+                
+        <span class="n">filtered_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_train&#39;</span><span class="p">]:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">filter_csv_by_png</span><span class="p">(</span><span class="n">output_csv</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -1057,7 +1438,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Your Name.</p>
+    <p>&#169; Copyright 2025, Einar Olafsson.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

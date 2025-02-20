@@ -204,10 +204,10 @@ spacr.sim module
    :undoc-members:
    :show-inheritance:
 
-spacr.stats module
-------------------
+spacr.sp\_stats module
+----------------------
 
-.. automodule:: spacr.stats
+.. automodule:: spacr.sp_stats
    :members:
    :undoc-members:
    :show-inheritance:
