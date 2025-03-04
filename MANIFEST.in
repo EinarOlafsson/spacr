@@ -13,7 +13,6 @@ include requirements.txt
 
 # Recursively include specific folders and file types
 recursive-include docs *.rst *.py *.html *.css *.js *.inv *.pickle *.png *.svg *.ttf *.woff *.woff2 *.eot *.txt *.bat Makefile
-recursive-include notebooks *.ipynb
 recursive-include path *.csv *.db
 recursive-include settings *.csv
 recursive-include source *.py *.rst
@@ -32,3 +31,7 @@ global-exclude docs-env/
 
 # Exclude model files from distribution
 exclude spacr/resources/models/cp/*
+prune notebooks
+prune spacr/notebooks
+prune spacr/datasets
+

@@ -21,7 +21,7 @@ from sklearn.metrics import mean_absolute_error
 import matplotlib.pyplot as plt
 from natsort import natsorted
 
-def analyze_recruitment(settings={}):
+def analyze_recruitment(settings):
     """
     Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.
 
