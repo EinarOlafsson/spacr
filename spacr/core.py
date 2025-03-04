@@ -7,15 +7,20 @@ from IPython.display import display
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
-def preprocess_generate_masks(settings={}):
+def preprocess_generate_masks(settings):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files
     from .settings import set_default_settings_preprocess_generate_masks
-
-    if not isinstance(settings['src'], (str, list)):
-        ValueError(f'src must be a string or a list of strings')
+    
+    
+    if 'src' in settings:
+        if not isinstance(settings['src'], (str, list)):
+            ValueError(f'src must be a string or a list of strings')
+            return
+    else:
+        ValueError(f'src is a required parameter')
         return
     
     if isinstance(settings['src'], str):
@@ -28,7 +33,6 @@ def preprocess_generate_masks(settings={}):
             settings['src'] = source_folder
             src = source_folder
             settings = set_default_settings_preprocess_generate_masks(settings)
-            
             save_settings(settings, name='gen_mask_settings')
 
             if not settings['pathogen_channel'] is None:
