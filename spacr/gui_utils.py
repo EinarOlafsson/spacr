@@ -482,7 +482,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     if settings_type == 'mask':
         function = preprocess_generate_masks
-        imports = 2
+        imports = 1
     elif settings_type == 'measure':
         function = measure_crop
         imports = 1

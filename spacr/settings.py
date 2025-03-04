@@ -89,7 +89,7 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('timelapse_frame_limits', None)
     settings.setdefault('timelapse_remove_transient', False)
     settings.setdefault('timelapse_mode', 'trackpy')
-    settings.setdefault('timelapse_objects', 'cells')
+    settings.setdefault('timelapse_objects', None)
 
     # Misc settings
     settings.setdefault('all_to_mip', False)
@@ -938,14 +938,17 @@ expected_types = {
     "CP_prob":int,
     "diameter":int,
     "flow_threshold":float,
+    "cell_diamiter":int,
+    "nucleus_diamiter":int,
+    "pathogen_diamiter":int
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode", "delete_intermediate"],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
-             "Nucleus": ["nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
-             "Pathogen": ["pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
+             "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
+             "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
+             "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "normalize", "use_bounding_box"],
              "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
@@ -1062,6 +1065,9 @@ def generate_fields(variables, scrollable_frame):
     row = 1
     vars_dict = {}
     tooltips = {
+        "cell_diamiter": "(int) - Diameter for cellpose objects to segment.",
+        "nucleus_diamiter": "(int) - Diameter for cellpose objects to segment.",
+        "pathogen_diamiter": "(int) - Diameter for cellpose objects to segment.",
         "adjust_cells": "(bool) - Adjust cell parameters for better segmentation.",
         "agg_type": "(str) - Type of aggregation to use for the data.",
         "alpha": "(float) - Alpha parameter for the regression model.",
