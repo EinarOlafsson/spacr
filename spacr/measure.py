@@ -945,20 +945,25 @@ def measure_crop(settings):
 
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif
-    from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings
+    from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings, format_path_for_system, normalize_src_path
     from .settings import get_measure_crop_settings
 
     if not isinstance(settings['src'], (str, list)):
         ValueError(f'src must be a string or a list of strings')
         return
     
+    settings['src'] = normalize_src_path(settings['src'])
+    
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
     if isinstance(settings['src'], list):
         source_folders = settings['src']
+        
         for source_folder in source_folders:
             print(f'Processing folder: {source_folder}')
+            
+            source_folder = format_path_for_system(source_folder)
             settings['src'] = source_folder
             src = source_folder
 
@@ -966,15 +971,12 @@ def measure_crop(settings):
             settings = measure_test_mode(settings)
 
             src_fldr = settings['src']
+            
             if not os.path.basename(src_fldr).endswith('merged'):
                 print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
                 src_fldr = os.path.join(src_fldr, 'merged')
+                settings['src'] = src_fldr
                 print(f"Changed source folder to: {src_fldr}")
-
-            #if settings['save_measurements']:
-                #source_folder = os.path.dirname(settings['src'])
-                #os.makedirs(source_folder+'/measurements', exist_ok=True)
-                #_create_database(source_folder+'/measurements/measurements.db')
             
             if settings['cell_mask_dim'] is None:
                 settings['uninfected'] = True
@@ -995,12 +997,9 @@ def measure_crop(settings):
                 print(f'Warning reserving 6 CPU cores for other processes, setting n_jobs to {spacr_cores}')
                 settings['n_jobs'] = spacr_cores
 
-            #dirname = os.path.dirname(settings['src'])
-            #settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-            #settings_csv = os.path.join(dirname,'settings','measure_crop_settings.csv')
-            #os.makedirs(os.path.join(dirname,'settings'), exist_ok=True)
-            #settings_df.to_csv(settings_csv, index=False)
-            save_settings(settings, name='measure_crop_settings', show=True)
+            settings_save = settings.copy()
+            settings_save['src'] = os.path.dirname(settings['src'])
+            save_settings(settings_save, name='measure_crop_settings', show=True)
 
             if settings['timelapse_objects'] == 'nucleus':
                 if not settings['cell_mask_dim'] is None:

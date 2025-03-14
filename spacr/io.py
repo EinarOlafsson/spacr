@@ -891,11 +891,16 @@ def _merge_channels(src, plot=False):
     from .utils import print_progress
     
     stack_dir = os.path.join(src, 'stack')
-    allowed_names = ['01', '02', '03', '04', '00', '1', '2', '3', '4', '0']
+    #allowed_names = ['01', '02', '03', '04', '00', '1', '2', '3', '4', '0']
+    
+    string_list = [str(i) for i in range(101)]+[f"{i:02d}" for i in range(10)]
+    allowed_names = sorted(string_list, key=lambda x: int(x))
     
     # List directories that match the allowed names
     chan_dirs = [d for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d in allowed_names]
     chan_dirs.sort()
+    
+    num_matching_folders = len(chan_dirs)
 
     print(f'List of folders in src: {chan_dirs}. Single channel folders.')
     
@@ -925,7 +930,7 @@ def _merge_channels(src, plot=False):
     if plot:
         plot_arrays(os.path.join(src, 'stack'))
 
-    return
+    return num_matching_folders
 
 def _mip_all(src, include_first_chan=True):
     
@@ -1584,10 +1589,6 @@ def preprocess_img_data(settings):
     else:
         print(f'Could not find any {valid_ext} files in {src} only found {extension_counts[0]}')
         
-        
-        
-        
-        
         if os.path.exists(os.path.join(src,'stack')):
             print('Found existing stack folder.')
         if os.path.exists(os.path.join(src,'channel_stack')):
@@ -1644,7 +1645,13 @@ def preprocess_img_data(settings):
                             print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
                             raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
         
-                _merge_channels(src, plot=False)
+                nr_channel_folders = _merge_channels(src, plot=False)
+                
+                if len(settings['channels']) != nr_channel_folders:
+                    print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
+                    new_channels = list(range(nr_channel_folders))
+                    print(f"Setting channels to {new_channels}")
+                    settings['channels'] = new_channels
 
                 if timelapse:
                     _create_movies_from_npy_per_channel(stack_path, fps=2)
