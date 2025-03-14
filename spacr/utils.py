@@ -328,14 +328,13 @@ def save_settings(settings, name='settings', show=False):
     
     if isinstance(settings['src'], list):
         src = settings['src'][0]
-        #if os.path.exists(src):
-
         name = f"{name}_list"
     else:
         src = settings['src']
 
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
     os.makedirs(os.path.join(src,'settings'), exist_ok=True)
+    print(f"Saving settings to {settings_csv}")
     settings_df.to_csv(settings_csv, index=False)
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
@@ -1145,7 +1144,7 @@ def _masks_to_masks_stack(masks):
         mask_stack.append(mask)
     return mask_stack
     
-def _get_diam(mag, obj):
+def _get_diam_v1(mag, obj):
 
     if mag == 20:
         if obj == 'cell':
@@ -1176,10 +1175,27 @@ def _get_diam(mag, obj):
             diamiter = 60
         else:
             raise ValueError("Invalid magnification: Use 20, 40 or 60")
+
     else:
         raise ValueError("Invalid magnification: Use 20, 40 or 60")
     
     return diamiter
+
+def _get_diam(mag, obj):
+
+    if obj == 'cell':
+        diamiter = 2 * mag + 80
+        
+    if obj == 'cell_large':
+        diamiter = 2 * mag + 120
+                                
+    if obj == 'nucleus':
+        diamiter = 0.75 * mag + 45
+                                
+    if obj == 'pathogen':
+        diamiter = mag
+                                
+    return int(diamiter)
 
 def _get_object_settings(object_type, settings):
     object_settings = {}
@@ -1333,20 +1349,25 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
     def _map_or_default(column_name, values, loc, df):
         """
         Consolidates the logic for mapping values or assigning defaults when loc is None.
-
+    
         Args:
             column_name (str): The column in the DataFrame to annotate.
             values (list/str): The list of values or a single string to annotate.
             loc (list of lists): Location mapping for the values, or None if not used.
             df (pandas.DataFrame): The DataFrame to modify.
         """
-        if isinstance(values, str) or (isinstance(values, list) and loc is None):
-            # Assign all rows the first value in the list or the single string
-            df[column_name] = values if isinstance(values, str) else values[0]
+        if isinstance(values, str) and loc is None:
+            # If a single string is provided and loc is None, assign the value to all rows
+            df[column_name] = values  
+    
+        elif isinstance(values, list) and loc is None:
+            # If a list of values is provided but no loc, assign the first value to all rows
+            df[column_name] = values[0]
+    
         elif values is not None and loc is not None:
-            # Perform the location-based mapping
+            # Perform location-based mapping
             value_dict = {val: key for key, loc_list in zip(values, loc) for val in loc_list}
-            df[column_name] = np.nan
+            df[column_name] = np.nan  # Start with NaN
             for val, key in value_dict.items():
                 loc_type = _get_type(val)
                 if loc_type:
@@ -4945,7 +4966,7 @@ def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)
     elif len(os.listdir(local_dir)) > 0:
-        print(f"Models already downloaded to: {local_dir}")
+        #print(f"Models already downloaded to: {local_dir}")
         return local_dir
 
     attempt = 0
@@ -5337,3 +5358,63 @@ def calculate_shortest_distance(df, object1, object2):
     df[f'{object1}_{object2}_shortest_distance'] = np.maximum(shortest_distance, 0)
 
     return df
+
+def format_path_for_system(path):
+    """
+    Takes a file path and reformats it to be compatible with the current operating system.
+    
+    Args:
+        path (str): The file path to be formatted.
+
+    Returns:
+        str: The formatted path for the current operating system.
+    """
+    system = platform.system()
+    
+    # Convert Windows-style paths to Unix-style (Linux/macOS)
+    if system in ["Linux", "Darwin"]:  # Darwin is macOS
+        formatted_path = path.replace("\\", "/")
+    
+    # Convert Unix-style paths to Windows-style
+    elif system == "Windows":
+        formatted_path = path.replace("/", "\\")
+    
+    else:
+        raise ValueError(f"Unsupported OS: {system}")
+    
+    # Normalize path to ensure consistency
+    new_path = os.path.normpath(formatted_path)
+    if os.path.exists(new_path):
+        print(f"Found path: {new_path}")
+    else:
+        print(f"Path not found: {new_path}")
+        
+    return new_path
+
+
+def normalize_src_path(src):
+    """
+    Ensures that the 'src' value is properly formatted as either a list of strings or a single string.
+
+    Args:
+        src (str or list): The input source path(s).
+
+    Returns:
+        list or str: A correctly formatted list if the input was a list (or string representation of a list),
+                     otherwise a single string.
+    """
+    if isinstance(src, list):
+        return src  # Already a list, return as-is
+
+    if isinstance(src, str):
+        try:
+            # Check if it is a string representation of a list
+            evaluated_src = ast.literal_eval(src)
+            if isinstance(evaluated_src, list) and all(isinstance(item, str) for item in evaluated_src):
+                return evaluated_src  # Convert to real list
+        except (SyntaxError, ValueError):
+            pass  # Not a valid list, treat as a string
+
+        return src  # Return as a string if not a list
+
+    raise ValueError(f"Invalid type for 'src': {type(src).__name__}, expected str or list")

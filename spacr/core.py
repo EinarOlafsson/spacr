@@ -11,7 +11,7 @@ def preprocess_generate_masks(settings):
 
     from .io import preprocess_img_data, _load_and_concatenate_arrays
     from .plot import plot_image_mask_overlay, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path
     from .settings import set_default_settings_preprocess_generate_masks
     
     
@@ -23,6 +23,8 @@ def preprocess_generate_masks(settings):
         ValueError(f'src is a required parameter')
         return
     
+    settings['src'] = normalize_src_path(settings['src'])
+    
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
@@ -30,6 +32,7 @@ def preprocess_generate_masks(settings):
         source_folders = settings['src']
         for source_folder in source_folders:
             print(f'Processing folder: {source_folder}')
+            source_folder = format_path_for_system(source_folder)            
             settings['src'] = source_folder
             src = source_folder
             settings = set_default_settings_preprocess_generate_masks(settings)

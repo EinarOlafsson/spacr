@@ -86,7 +86,7 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('fps', 2)
     settings.setdefault('timelapse_displacement', None)
     settings.setdefault('timelapse_memory', 3)
-    settings.setdefault('timelapse_frame_limits', None)
+    settings.setdefault('timelapse_frame_limits', [5,60])
     settings.setdefault('timelapse_remove_transient', False)
     settings.setdefault('timelapse_mode', 'trackpy')
     settings.setdefault('timelapse_objects', None)
@@ -256,7 +256,13 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('homogeneity', True)
     settings.setdefault('homogeneity_distances', [8,16,32])
 
-    # Cropping settings
+    # Cropping settings    # Cropping settings
+    settings.setdefault('save_arrays', False)
+    settings.setdefault('save_png',True)
+    settings.setdefault('use_bounding_box',False)
+    settings.setdefault('png_size',[224,224])
+    settings.setdefault('png_dims',[0,1,2])
+    settings.setdefault('normalize',False)    # Cropping settings
     settings.setdefault('save_arrays', False)
     settings.setdefault('save_png',True)
     settings.setdefault('use_bounding_box',False)
@@ -277,9 +283,79 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('n_jobs', os.cpu_count()-2)
 
     # Object settings
-    settings.setdefault('cell_mask_dim',None)
-    settings.setdefault('nucleus_mask_dim',None)
-    settings.setdefault('pathogen_mask_dim',None)
+    settings.setdefault('cell_mask_dim',4)
+    settings.setdefault('nucleus_mask_dim',5)
+    settings.setdefault('pathogen_mask_dim',6)
+    settings.setdefault('cytoplasm',False)
+    settings.setdefault('uninfected',True)
+    settings.setdefault('cell_min_size',0)
+    settings.setdefault('nucleus_min_size',0)
+    settings.setdefault('pathogen_min_size',0)
+    settings.setdefault('cytoplasm_min_size',0)
+    settings.setdefault('merge_edge_pathogen_cells', True)
+
+    if settings['test_mode']:
+        settings['verbose'] = True
+        settings['plot'] = True
+        test_imgs = settings['test_nr']
+        print(f'Test mode enabled with {test_imgs} images, plotting set to True')
+
+    return settings
+    settings.setdefault('normalize_by','png')
+    settings.setdefault('crop_mode',['cell'])
+    settings.setdefault('dialate_pngs', False)
+    settings.setdefault('dialate_png_ratios', [0.2])
+
+    # Timelapsed settings
+    settings.setdefault('timelapse', False)
+    settings.setdefault('timelapse_objects', 'cell')
+
+    # Operational settings
+    settings.setdefault('plot',False)
+    settings.setdefault('n_jobs', os.cpu_count()-2)
+
+    # Object settings
+    settings.setdefault('cell_mask_dim',4)
+    settings.setdefault('nucleus_mask_dim',5)
+    settings.setdefault('pathogen_mask_dim',6)
+    settings.setdefault('cytoplasm',False)
+    settings.setdefault('uninfected',True)
+    settings.setdefault('cell_min_size',0)
+    settings.setdefault('nucleus_min_size',0)
+    settings.setdefault('pathogen_min_size',0)
+    settings.setdefault('cytoplasm_min_size',0)
+    settings.setdefault('merge_edge_pathogen_cells', True)
+
+    if settings['test_mode']:
+        settings['verbose'] = True
+        settings['plot'] = True
+        test_imgs = settings['test_nr']
+        print(f'Test mode enabled with {test_imgs} images, plotting set to True')
+
+    return settings
+    settings.setdefault('save_arrays', False)
+    settings.setdefault('save_png',True)
+    settings.setdefault('use_bounding_box',False)
+    settings.setdefault('png_size',[224,224])
+    settings.setdefault('png_dims',[0,1,2])
+    settings.setdefault('normalize',False)
+    settings.setdefault('normalize_by','png')
+    settings.setdefault('crop_mode',['cell'])
+    settings.setdefault('dialate_pngs', False)
+    settings.setdefault('dialate_png_ratios', [0.2])
+
+    # Timelapsed settings
+    settings.setdefault('timelapse', False)
+    settings.setdefault('timelapse_objects', 'cell')
+
+    # Operational settings
+    settings.setdefault('plot',False)
+    settings.setdefault('n_jobs', os.cpu_count()-2)
+
+    # Object settings
+    settings.setdefault('cell_mask_dim',4)
+    settings.setdefault('nucleus_mask_dim',5)
+    settings.setdefault('pathogen_mask_dim',6)
     settings.setdefault('cytoplasm',False)
     settings.setdefault('uninfected',True)
     settings.setdefault('cell_min_size',0)
@@ -473,7 +549,7 @@ def get_train_test_model_settings(settings):
      return settings
 
 def get_analyze_recruitment_default_settings(settings):
-    settings.setdefault('src','path')
+    settings.setdefault('src', 'path')
     settings.setdefault('target','protein')
     settings.setdefault('cell_types',['HeLa'])
     settings.setdefault('cell_plate_metadata',None)
@@ -672,6 +748,7 @@ expected_types = {
     "timelapse_displacement": int,
     "timelapse_memory": int,
     "timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
+    #"timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
     "timelapse_remove_transient": bool,
     "timelapse_mode": str,
     "timelapse_objects": list,
@@ -944,13 +1021,13 @@ expected_types = {
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode", "delete_intermediate"],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode", "delete_intermediate", "uninfected", ],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_chann_dim", "cell_channel", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cell_mask_dim", "cytoplasm", "cytoplasm_min_size", "uninfected", "merge_edge_pathogen_cells", "adjust_cells", "cells", "cell_loc"],
-             "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_chann_dim", "nucleus_channel", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_mask_dim", "nucleus_loc"],
-             "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_chann_dim", "pathogen_channel", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogen_mask_dim", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
+             "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
+             "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
+             "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "normalize", "use_bounding_box"],
+             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
              "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
@@ -959,11 +1036,10 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
              "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
-             "Plot": ["plot", "split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
-             "Test": ["test_mode", "test_images", "random_test", "test_nr", "test", "test_split"],
+             "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
-             "Miscellaneous": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
+             "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Beta": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
              }
 
 
@@ -984,22 +1060,28 @@ def check_settings(vars_dict, expected_types, q=None):
                 q.put(f"Key {key} not found in expected types.")
                 continue
 
-        value = var.get()
-        if value == 'None':
+        value = var.get()            
+        if value in ['None', '']:
             value = None
 
         expected_type = expected_types.get(key, str)
 
         try:
-            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "pathogen_loc", "treatment_loc", "pathogen_plate_metadata", "treatment_plate_metadata", "barcode_coordinates", "class_metadata"]:
-                parsed_value = ast.literal_eval(value) if value else None
+            #if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "pathogen_loc", "treatment_loc", "pathogen_plate_metadata", "treatment_plate_metadata", "barcode_coordinates", "class_metadata"]:
+            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "class_metadata", "crop_mode"]:
+
+                if value is None:
+                        parsed_value = None
+                else:
+                    parsed_value = ast.literal_eval(value) if isinstance(value, str) and value.strip() else None
+                        
+                #parsed_value = ast.literal_eval(value) if value else None
+                
                 if isinstance(parsed_value, list):
                     if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
                         settings[key] = parsed_value
                     else:
                         raise ValueError("Invalid format: Mixed list and list of lists")
-                #elif parsed_value == None:
-                #    settings[key] = None
                 else:
                     raise ValueError("Invalid format for list or list of lists")
                 
@@ -1180,30 +1262,7 @@ def generate_fields(variables, scrollable_frame):
         "n_epochs": "(int) - Number of epochs for training the Cellpose model.",
         "n_jobs": "(int) - The number of n_jobs to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
         "n_neighbors": "(int) - Number of neighbors for UMAP.",
-        "n_repeats": "(int) - Number of repeats for cross-validation.",
-        "normalize": "(list) - The percentiles to use for normalizing the images. This will be used to determine the range of intensities to normalize images to. If None, no normalization is done.",
-        "normalize_by": "(str) - Whether to normalize the images by field of view (fov) or by PNG image (png).",
-        "normalize_plots": "(bool) - Whether to normalize the plots.",
-        "nr_imgs": "(int) - The number of images to plot.",
-        "nucleus_CP_prob": "(float) - The cellpose probability threshold for the nucleus channel. This will be used to segment the nucleus.",
-        "nucleus_FT": "(float) - The flow threshold for nucleus objects. This will be used in nucleus segmentation.",
-        "nucleus_background": "(float) - The background intensity for the nucleus channel. This will be used to remove background noise.",
-        "nucleus_chann_dim": "(int) - Dimension of the channel to use for nucleus segmentation.",
-        "nucleus_channel": "(int) - The channel to use for the nucleus. If None, the nucleus will not be segmented.",
-        "nucleus_intensity_range": "(list) - Intensity range for nucleus segmentation.",
-        "nucleus_loc": "(str) - Location of the nucleus in the images.",
-        "nucleus_mask_dim": "(int) - The dimension of the array the nucleus mask is saved in.",
-        "nucleus_min_size": "(int) - The minimum size of nucleus objects in pixels^2.",
-        "nucleus_Signal_to_noise": "(float) - The signal-to-noise ratio for the nucleus channel. This will be used to determine the range of intensities to normalize images to for nucleus segmentation.",
-        "nucleus_size_range": "(list) - Size range for nucleus segmentation.",
-        "optimizer_type": "(str) - Type of optimizer to use.",
-        "other": "(dict) - Additional parameters for the regression analysis.",
-        "pathogen_CP_prob": "(float) - The cellpose probability threshold for the pathogen channel. This will be used to segment the pathogen.",
-        "pathogen_FT": "(float) - The flow threshold for pathogen objects. This will be used in pathogen segmentation.",
-        "pathogen_background": "(float) - The background intensity for the pathogen channel. This will be used to remove background noise.",
-        "pathogen_chann_dim": "(int) - Dimension of the channel to use for pathogen segmentation.",
-        "pathogen_channel": "(int) - The channel to use for the pathogen. If None, the pathogen will not be segmented.",
-        "pathogen_intensity_range": "(str) - Metadata for the pathogen plate.",
+        "n_repeats": "(int) - Number of repeats for the pathogen plate.",
         "pathogen_Signal_to_noise": "(float) - The signal-to-noise ratio for the pathogen channel. This will be used to determine the range of intensities to normalize images to for pathogen segmentation.",
         "pathogen_size_range": "(list) - Size range for pathogen segmentation.",
         "pathogen_types": "(list) - Types of pathogens to include in the analysis.",
@@ -1222,7 +1281,7 @@ def generate_fields(variables, scrollable_frame):
         "plot_nr": "(int) - Number of plots to generate.",
         "plot_outlines": "(bool) - Whether to plot outlines of segmented objects.",
         "png_dims": "(list) - The dimensions of the PNG images to save. This will determine the dimensions of the saved images. Maximum of 3 dimensions e.g. [1,2,3].",
-        "png_size": "(int) - The size of the PNG images to save. This will determine the size of the saved images.",
+        "png_size": "(list) - The size of the PNG images to save. This will determine the size of the saved images.",
         "positive_control": "(str) - Identifier for the positive control.",
         "preprocess": "(bool) - Whether to preprocess the images before segmentation. This includes background removal and normalization. Set to False only if this step has already been done.",
         "radial_dist": "(list) - Radial distances for measuring features.",

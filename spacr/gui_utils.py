@@ -106,7 +106,6 @@ def parse_list(value):
     except (ValueError, SyntaxError) as e:
         raise ValueError(f"Invalid format for list: {value}. Error: {e}")
 
-# Usage example in your create_input_field function
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
     """
     Create an input field in the specified frame.
@@ -365,13 +364,16 @@ def convert_settings_dict_for_gui(settings):
     from torchvision import models as torch_models
     torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
     chans = ['0', '1', '2', '3', '4', '5', '6', '7', '8', None]
+    chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
     chans_v2 = [0, 1, 2, 3, None]
+    chans_v3 = list(range(0, 21, 1)) + [None]
+    chans_v4 = [0, 1, 2, 3, None]
     variables = {}
     special_cases = {
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
-        'channels': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]'], '[0,1,2,3]'),
+        'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
-        'channel_dims': ('combo', ['[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]'], '[0,1,2,3]'),
+        'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
         'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'cell_mask_dim': ('combo', chans, None),
@@ -380,12 +382,12 @@ def convert_settings_dict_for_gui(settings):
         'nucleus_chann_dim': ('combo', chans, None),
         'pathogen_mask_dim': ('combo', chans, None),
         'pathogen_chann_dim': ('combo', chans, None),
-        'crop_mode': ('combo', [['cell'], ['nucleus'], ['pathogen'], ['cell', 'nucleus'], ['cell', 'pathogen'], ['nucleus', 'pathogen'], ['cell', 'nucleus', 'pathogen']], ['cell']),
-        'magnification': ('combo', [20, 40, 60], 20),
-        'nucleus_channel': ('combo', chans_v2, None),
-        'cell_channel': ('combo', chans_v2, None),
-        'channel_of_interest': ('combo', chans_v2, None),
-        'pathogen_channel': ('combo', chans_v2, None),
+        'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']"], "['cell']"),
+         #'magnification': ('combo', [20, 40, 60], 20),
+        'nucleus_channel': ('combo', chans_v3, None),
+        'cell_channel': ('combo', chans_v3, None),
+        'channel_of_interest': ('combo', chans_v3, None),
+        'pathogen_channel': ('combo', chans_v3, None),
         'timelapse_mode': ('combo', ['trackpy', 'btrack'], 'trackpy'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
