@@ -170,49 +170,22 @@ def display_figure(fig):
             #flash_feedback("right")
             show_next_figure()
 
-    def zoom_v1(event):
-        nonlocal scale_factor
-
-        zoom_speed = 0.1  # Adjust the zoom speed for smoother experience
-
-        # Determine the zoom direction based on the scroll event
-        if event.num == 4 or event.delta > 0:  # Scroll up (zoom in)
-            scale_factor /= (1 + zoom_speed)  # Divide to zoom in
-        elif event.num == 5 or event.delta < 0:  # Scroll down (zoom out)
-            scale_factor *= (1 + zoom_speed)  # Multiply to zoom out
-
-        # Adjust the axes limits based on the new scale factor
-        for ax in canvas.figure.get_axes():
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
-
-            x_center = (xlim[1] + xlim[0]) / 2
-            y_center = (ylim[1] + ylim[0]) / 2
-
-            x_range = (xlim[1] - xlim[0]) * scale_factor
-            y_range = (ylim[1] - ylim[0]) * scale_factor
-
-            # Set the new limits
-            ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
-            ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
-
-        # Redraw the figure efficiently
-        canvas.draw_idle()
-        
     def zoom_test(event):
         if event.num == 4:  # Scroll up
             print("zoom in")
         elif event.num == 5: # Scroll down
             print("zoom out")
-            
-    def zoom_2(event):
-        zoom_speed = 0.1  # Change this to control how fast you zoom
+        
+    def zoom_v1(event):
+        # Fixed zoom factors (adjust these if you want faster or slower zoom)
+        zoom_in_factor = 0.9   # When zooming in, ranges shrink by 10%
+        zoom_out_factor = 1.1  # When zooming out, ranges increase by 10%
 
         # Determine the zoom direction based on the scroll event
         if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):  # Scroll up = zoom in
-            factor = 1 - zoom_speed
+            factor = zoom_in_factor
         elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0): # Scroll down = zoom out
-            factor = 1 + zoom_speed
+            factor = zoom_out_factor
         else:
             return  # No recognized scroll direction
 
@@ -247,22 +220,27 @@ def display_figure(fig):
             return  # No recognized scroll direction
 
         for ax in canvas.figure.get_axes():
+            # Get the current mouse position in pixel coordinates
+            mouse_x, mouse_y = event.x, event.y
+
+            # Convert pixel coordinates to data coordinates
+            inv = ax.transData.inverted()
+            data_x, data_y = inv.transform((mouse_x, mouse_y))
+
+            # Get the current axis limits
             xlim = ax.get_xlim()
             ylim = ax.get_ylim()
 
-            x_center = (xlim[1] + xlim[0]) / 2
-            y_center = (ylim[1] + ylim[0]) / 2
-
+            # Calculate the zooming range around the cursor position
             x_range = (xlim[1] - xlim[0]) * factor
             y_range = (ylim[1] - ylim[0]) * factor
 
-            # Set the new limits
-            ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
-            ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
+            # Adjust the limits while keeping the mouse position fixed
+            ax.set_xlim([data_x - (data_x - xlim[0]) * factor, data_x + (xlim[1] - data_x) * factor])
+            ax.set_ylim([data_y - (data_y - ylim[0]) * factor, data_y + (ylim[1] - data_y) * factor])
 
         # Redraw the figure efficiently
         canvas.draw_idle()
-
 
     # Bind events for hover, click interactions, and zoom
     canvas_widget.bind("<Motion>", on_hover)
