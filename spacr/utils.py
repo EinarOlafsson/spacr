@@ -319,7 +319,6 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
 
     return result_dict
 
-
 def save_settings(settings, name='settings', show=False):
     
     settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
@@ -331,6 +330,12 @@ def save_settings(settings, name='settings', show=False):
         name = f"{name}_list"
     else:
         src = settings['src']
+        
+    if 'test_mode' in settings.keys():
+        settings['test_mode'] = False
+        
+        if 'plot' in settings.keys():
+            settings['plot'] = False
 
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
     os.makedirs(os.path.join(src,'settings'), exist_ok=True)
@@ -3120,12 +3125,8 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
         regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
     elif metadata_type == 'cq1':
         regex = f'W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'nikon':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'zeis':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
-    elif metadata_type == 'leica':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+    elif metadata_type == 'auto':
+        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif'     
     elif metadata_type == 'custom':
         regex = f'({custom_regex}){img_format}'
         

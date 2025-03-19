@@ -37,6 +37,7 @@ dependencies = [
     'tifffile>=2023.4.12',
     'nd2reader>=3.3.0, <4.0',
     'czifile',
+    'readlif',
     'imageio>=2.34.0,<3.0',
     'pingouin>=0.5.5,<1.0',
     'umap-learn>=0.5.6,<1.0',
@@ -70,7 +71,7 @@ dependencies = [
 
 setup(
     name="spacr",
-    version="0.4.15",
+    version="0.4.2",
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",

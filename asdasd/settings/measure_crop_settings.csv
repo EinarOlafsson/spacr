@@ -1,0 +1,47 @@
+Key,Value
+src,asdasd
+delete_intermediate,False
+verbose,False
+experiment,exp
+test_mode,False
+test_nr,10
+channels,"[0, 1, 2, 3]"
+save_measurements,True
+radial_dist,True
+calculate_correlation,True
+manders_thresholds,"[15, 85, 95]"
+homogeneity,True
+homogeneity_distances,"[8, 16, 32]"
+save_arrays,False
+save_png,True
+use_bounding_box,False
+png_size,"[224, 224]"
+png_dims,"[0, 1, 2]"
+normalize,False
+normalize_by,png
+crop_mode,['cell']
+dialate_pngs,False
+dialate_png_ratios,0.2
+timelapse,False
+timelapse_objects,
+plot,False
+n_jobs,26
+cell_mask_dim,4
+nucleus_mask_dim,5
+pathogen_mask_dim,6
+cytoplasm,True
+uninfected,True
+cell_min_size,0
+nucleus_min_size,0
+pathogen_min_size,0
+cytoplasm_min_size,0
+merge_edge_pathogen_cells,True
+Paths,
+General,
+Cell,
+Nucleus,
+Pathogen,
+Measurements,
+Object Image,
+Timelapse,
+Advanced,

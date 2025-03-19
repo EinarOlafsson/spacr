@@ -86,7 +86,7 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('fps', 2)
     settings.setdefault('timelapse_displacement', None)
     settings.setdefault('timelapse_memory', 3)
-    settings.setdefault('timelapse_frame_limits', [5,60])
+    settings.setdefault('timelapse_frame_limits', [5,])
     settings.setdefault('timelapse_remove_transient', False)
     settings.setdefault('timelapse_mode', 'trackpy')
     settings.setdefault('timelapse_objects', None)
@@ -263,76 +263,6 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('png_size',[224,224])
     settings.setdefault('png_dims',[0,1,2])
     settings.setdefault('normalize',False)    # Cropping settings
-    settings.setdefault('save_arrays', False)
-    settings.setdefault('save_png',True)
-    settings.setdefault('use_bounding_box',False)
-    settings.setdefault('png_size',[224,224])
-    settings.setdefault('png_dims',[0,1,2])
-    settings.setdefault('normalize',False)
-    settings.setdefault('normalize_by','png')
-    settings.setdefault('crop_mode',['cell'])
-    settings.setdefault('dialate_pngs', False)
-    settings.setdefault('dialate_png_ratios', [0.2])
-
-    # Timelapsed settings
-    settings.setdefault('timelapse', False)
-    settings.setdefault('timelapse_objects', 'cell')
-
-    # Operational settings
-    settings.setdefault('plot',False)
-    settings.setdefault('n_jobs', os.cpu_count()-2)
-
-    # Object settings
-    settings.setdefault('cell_mask_dim',4)
-    settings.setdefault('nucleus_mask_dim',5)
-    settings.setdefault('pathogen_mask_dim',6)
-    settings.setdefault('cytoplasm',False)
-    settings.setdefault('uninfected',True)
-    settings.setdefault('cell_min_size',0)
-    settings.setdefault('nucleus_min_size',0)
-    settings.setdefault('pathogen_min_size',0)
-    settings.setdefault('cytoplasm_min_size',0)
-    settings.setdefault('merge_edge_pathogen_cells', True)
-
-    if settings['test_mode']:
-        settings['verbose'] = True
-        settings['plot'] = True
-        test_imgs = settings['test_nr']
-        print(f'Test mode enabled with {test_imgs} images, plotting set to True')
-
-    return settings
-    settings.setdefault('normalize_by','png')
-    settings.setdefault('crop_mode',['cell'])
-    settings.setdefault('dialate_pngs', False)
-    settings.setdefault('dialate_png_ratios', [0.2])
-
-    # Timelapsed settings
-    settings.setdefault('timelapse', False)
-    settings.setdefault('timelapse_objects', 'cell')
-
-    # Operational settings
-    settings.setdefault('plot',False)
-    settings.setdefault('n_jobs', os.cpu_count()-2)
-
-    # Object settings
-    settings.setdefault('cell_mask_dim',4)
-    settings.setdefault('nucleus_mask_dim',5)
-    settings.setdefault('pathogen_mask_dim',6)
-    settings.setdefault('cytoplasm',False)
-    settings.setdefault('uninfected',True)
-    settings.setdefault('cell_min_size',0)
-    settings.setdefault('nucleus_min_size',0)
-    settings.setdefault('pathogen_min_size',0)
-    settings.setdefault('cytoplasm_min_size',0)
-    settings.setdefault('merge_edge_pathogen_cells', True)
-
-    if settings['test_mode']:
-        settings['verbose'] = True
-        settings['plot'] = True
-        test_imgs = settings['test_nr']
-        print(f'Test mode enabled with {test_imgs} images, plotting set to True')
-
-    return settings
     settings.setdefault('save_arrays', False)
     settings.setdefault('save_png',True)
     settings.setdefault('use_bounding_box',False)
@@ -1053,6 +983,127 @@ def check_settings(vars_dict, expected_types, q=None):
         q = Queue()
 
     settings = {}
+    errors = []  # Collect errors instead of stopping at the first one
+
+    for key, (label, widget, var, _) in vars_dict.items():
+        if key not in expected_types and key not in category_keys:
+            errors.append(f"Warning: Key '{key}' not found in expected types.")
+            continue
+
+        value = var.get()
+        if value in ['None', '']:
+            value = None
+
+        expected_type = expected_types.get(key, str)
+
+        try:
+            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "class_metadata", "crop_mode"]:
+                if value is None:
+                    parsed_value = None
+                else:
+                    try:
+                        parsed_value = ast.literal_eval(value)
+                    except (ValueError, SyntaxError):
+                        raise ValueError(f"Expected a list or list of lists but got an invalid format: {value}")
+
+                if isinstance(parsed_value, list):
+                    if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
+                        settings[key] = parsed_value
+                    else:
+                        raise ValueError(f"Invalid format: '{key}' contains mixed types (single values and lists).")
+
+                else:
+                    raise ValueError(f"Expected a list for '{key}', but got {type(parsed_value).__name__}.")
+            
+            elif expected_type == list:
+                settings[key] = parse_list(value) if value else None
+
+                if isinstance(settings[key], list) and len(settings[key]) == 1:
+                    settings[key] = settings[key][0]
+
+            elif expected_type == bool:
+                settings[key] = value.lower() in ['true', '1', 't', 'y', 'yes'] if isinstance(value, str) else bool(value)
+            
+            elif expected_type == (int, type(None)):
+                if value is None or str(value).isdigit():
+                    settings[key] = int(value) if value is not None else None
+                else:
+                    raise ValueError(f"Expected an integer or None for '{key}', but got '{value}'.")
+
+            elif expected_type == (float, type(None)):
+                if value is None or (isinstance(value, str) and value.replace(".", "", 1).isdigit()):
+                    settings[key] = float(value) if value is not None else None
+                else:
+                    raise ValueError(f"Expected a float or None for '{key}', but got '{value}'.")
+
+            elif expected_type == (int, float):
+                try:
+                    settings[key] = float(value) if '.' in str(value) else int(value)
+                except ValueError:
+                    raise ValueError(f"Expected an integer or float for '{key}', but got '{value}'.")
+
+            elif expected_type == (str, type(None)):
+                settings[key] = str(value) if value is not None else None
+
+            elif expected_type == (str, type(None), list):
+                if isinstance(value, list):
+                    settings[key] = parse_list(value) if value else None
+                elif isinstance(value, str):
+                    settings[key] = str(value)
+                else:
+                    settings[key] = None
+            
+            elif expected_type == dict:
+                try:
+                    if isinstance(value, str):
+                        parsed_dict = ast.literal_eval(value)
+                    else:
+                        raise ValueError("Expected a string representation of a dictionary.")
+
+                    if not isinstance(parsed_dict, dict):
+                        raise ValueError(f"Expected a dictionary for '{key}', but got {type(parsed_dict).__name__}.")
+
+                    settings[key] = parsed_dict
+                except (ValueError, SyntaxError) as e:
+                    settings[key] = {}
+                    errors.append(f"Error: Invalid dictionary format for '{key}'. Expected type: dict. Error: {e}")
+
+            elif isinstance(expected_type, tuple):
+                for typ in expected_type:
+                    try:
+                        settings[key] = typ(value) if value else None
+                        break
+                    except (ValueError, TypeError):
+                        continue
+                else:
+                    raise ValueError(f"Value '{value}' for '{key}' does not match any expected types: {expected_type}.")
+
+            else:
+                try:
+                    settings[key] = expected_type(value) if value else None
+                except (ValueError, TypeError):
+                    raise ValueError(f"Expected type {expected_type.__name__} for '{key}', but got '{value}'.")
+
+        except (ValueError, SyntaxError) as e:
+            expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
+            errors.append(f"Error: '{key}' has invalid format. Expected type: {expected_type_name}. Got value: '{value}'. Error: {e}")
+
+    # Send all collected errors to the queue
+    for error in errors:
+        q.put(error)
+        
+    
+
+    return settings, errors
+
+def check_settings_v1(vars_dict, expected_types, q=None):
+    from .gui_utils import parse_list
+
+    if q is None:
+        from multiprocessing import Queue
+        q = Queue()
+
+    settings = {}
 
     for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types:
@@ -1074,9 +1125,7 @@ def check_settings(vars_dict, expected_types, q=None):
                         parsed_value = None
                 else:
                     parsed_value = ast.literal_eval(value) if isinstance(value, str) and value.strip() else None
-                        
-                #parsed_value = ast.literal_eval(value) if value else None
-                
+                                        
                 if isinstance(parsed_value, list):
                     if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
                         settings[key] = parsed_value
@@ -1444,8 +1493,8 @@ def set_annotate_default_settings(settings):
     settings.setdefault('normalize', 'False')
     settings.setdefault('normalize_channels', "r,g,b")
     settings.setdefault('percentiles', [2, 98])
-    settings.setdefault('measurement', '')#'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
-    settings.setdefault('threshold', '')#'2')
+    settings.setdefault('measurement', '') #'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
+    settings.setdefault('threshold', '') #'2')
     return settings
 
 def set_default_generate_barecode_mapping(settings={}):
