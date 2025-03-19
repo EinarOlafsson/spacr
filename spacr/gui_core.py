@@ -832,7 +832,7 @@ def initiate_abort():
     global thread_control, q, parent_frame
     if thread_control.get("run_thread") is not None:
         try:
-            q.put("Aborting processes...")
+            #q.put("Aborting processes...")
             thread_control.get("run_thread").terminate()
             thread_control["run_thread"] = None
             q.put("Processes aborted.")
@@ -840,22 +840,136 @@ def initiate_abort():
             q.put(f"Error aborting process: {e}")
 
     thread_control = {"run_thread": None, "stop_requested": False}
+    
+def check_src_folders_files(settings, settings_type, q):
+    """
+    Checks if 'src' is a key in the settings dictionary and if it exists as a valid path.
+    If 'src' is a list, iterates through the list and checks each path.
+    If any path is missing, prompts the user to edit or remove invalid paths.
+    """
+
+    request_stop = False
+        
+    def _folder_has_images(folder_path, image_extensions = {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".tif", ".webp", ".npy", ".npz", "nd2", "czi", "lif"}):
+        """Check if a folder contains any image files."""
+        return any(file.lower().endswith(tuple(image_extensions)) for file in os.listdir(folder_path))
+
+    def _has_folder(parent_folder, sub_folder="measure"):
+        """Check if a specific sub-folder exists inside the given folder."""
+        return os.path.isdir(os.path.join(parent_folder, sub_folder))
+    
+    from .utils import normalize_src_path
+    
+    settings['src'] = normalize_src_path(settings['src'])
+
+    src_value = settings.get("src")
+
+    # **Skip if 'src' is missing**
+    if src_value is None:
+        return request_stop
+
+    # Convert single string src to a list for uniform handling
+    if isinstance(src_value, str):
+        src_list = [src_value]
+    elif isinstance(src_value, list):
+        src_list = src_value
+    else:
+        request_stop = True
+        return request_stop  # Ensure early exit
+
+    # Identify missing paths
+    missing_paths = {i: path for i, path in enumerate(src_list) if not os.path.exists(path)}
+
+    if missing_paths:
+        q.put(f'Error: The following paths are missing: {missing_paths}')
+        request_stop = True
+        return request_stop  # Ensure early exit
+
+    conditions = [True]  # Initialize conditions list
+
+    for path in src_list:  # Fixed: Use src_list instead of src_value
+        if settings_type == 'mask':
+            pictures_continue = _folder_has_images(path)
+            folder_chan_continue = _has_folder(path, "1")
+            folder_stack_continue = _has_folder(path, "stack")
+            folder_npz_continue = _has_folder(path, "norm_channel_stack")
+            
+            if not pictures_continue:
+                if not any([folder_chan_continue, folder_stack_continue, folder_npz_continue]):
+                    if not folder_chan_continue:
+                        q.put(f"Error: Missing channel folder in folder: {path}")
+                        
+                    if not folder_stack_continue:
+                        q.put(f"Error: Missing stack folder in folder: {path}")
+                        
+                    if not folder_npz_continue:
+                        q.put(f"Error: Missing norm_channel_stack folder in folder: {path}")
+                    else:
+                        q.put(f"Error: No images in folder: {path}")
+            
+            #q.put(f"path:{path}")
+            #q.put(f"pictures_continue:{pictures_continue}, folder_chan_continue:{folder_chan_continue}, folder_stack_continue:{folder_stack_continue}, folder_npz_continue:{folder_npz_continue}")
+
+            conditions = [pictures_continue, folder_chan_continue, folder_stack_continue, folder_npz_continue]
+            
+        if settings_type == 'measure':
+            npy_continue = _folder_has_images(path, image_extensions={".npy"})
+            conditions = [npy_continue]
+            
+        if settings_type == 'recruitment':
+            db_continue = _folder_has_images(path, image_extensions={".db"})
+            conditions = [db_continue]
+            
+        if settings_type == 'umap':
+            db_continue = _folder_has_images(path, image_extensions={".db"})
+            conditions = [db_continue]
+            
+        if settings_type == 'analyze_plaques':
+            conditions = [True]
+        
+        if settings_type == 'map_barcodes':
+            conditions = [True]
+        
+        if settings_type == 'regression':
+            db_continue = _folder_has_images(path, image_extensions={".db"})
+            conditions = [db_continue]
+            
+        if settings_type == 'classify':
+            db_continue = _folder_has_images(path, image_extensions={".db"})
+            conditions = [db_continue]
+            
+        if settings_type == 'analyze_plaques':
+            db_continue = _folder_has_images(path, image_extensions={".db"})
+            conditions = [db_continue]
+            
+    if not any(conditions):
+        q.put(f"Error: The following path(s) is missing images or folders: {path}")
+        request_stop = True
+            
+    return request_stop
 
 def start_process(q=None, fig_queue=None, settings_type='mask'):
     global thread_control, vars_dict, parent_frame
     from .settings import check_settings, expected_types
     from .gui_utils import run_function_gui, set_cpu_affinity, initialize_cuda, display_gif_in_plot_frame, print_widget_structure
-
+        
     if q is None:
         q = Queue()
     if fig_queue is None:
         fig_queue = Queue()
     try:
-        settings = check_settings(vars_dict, expected_types, q)
+        settings, errors = check_settings(vars_dict, expected_types, q)
+        
+        if len(errors) > 0:
+            return
+        
+        if check_src_folders_files(settings, settings_type, q):
+            return
+    
     except ValueError as e:
         q.put(f"Error: {e}")
         return
-
+        
     if isinstance(thread_control, dict) and thread_control.get("run_thread") is not None:
         initiate_abort()
     
@@ -880,11 +994,174 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
 
         # Store the process in thread_control for future reference
         thread_control["run_thread"] = process
+        
     else:
         q.put(f"Error: Unknown settings type '{settings_type}'")
         return
-
+    
 def process_console_queue():
+    global q, console_output, parent_frame, progress_bar, process_console_queue
+
+    # Initialize function attribute if it doesn't exist
+    if not hasattr(process_console_queue, "completed_tasks"):
+        process_console_queue.completed_tasks = []
+    if not hasattr(process_console_queue, "current_maximum"):
+        process_console_queue.current_maximum = None
+
+    ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+    
+    spacing = 5
+
+    # **Configure styles for different message types**
+    console_output.tag_configure("error", foreground="red", spacing3 = spacing)
+    console_output.tag_configure("warning", foreground="orange", spacing3 = spacing)
+    console_output.tag_configure("normal", foreground="white", spacing3 = spacing)
+
+    while not q.empty():
+        message = q.get_nowait()
+        clean_message = ansi_escape_pattern.sub('', message)
+
+        # **Detect Error Messages (Red)**
+        if clean_message.startswith("Error:"):
+            console_output.insert(tk.END, clean_message + "\n", "error")
+            console_output.see(tk.END)
+            #print("Run aborted due to error:", clean_message)  # Debug message
+            #return  # **Exit immediately to stop further execution**
+
+        # **Detect Warning Messages (Orange)**
+        elif clean_message.startswith("Warning:"):
+            console_output.insert(tk.END, clean_message + "\n", "warning")
+        
+        # **Process Progress Messages Normally**
+        elif clean_message.startswith("Progress:"):
+            try:
+                # Extract the progress information
+                match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*),(.*)', clean_message)
+
+                if match:
+                    current_progress = int(match.group(1))
+                    total_progress = int(match.group(2))
+                    operation_type = match.group(3).strip()
+                    additional_info = match.group(4).strip()  # Capture everything after operation_type
+                    
+                    # Check if the maximum value has changed
+                    if process_console_queue.current_maximum != total_progress:
+                        process_console_queue.current_maximum = total_progress
+                        process_console_queue.completed_tasks = []
+
+                    # Add the task to the completed set
+                    process_console_queue.completed_tasks.append(current_progress)
+                    
+                    # Calculate the unique progress count
+                    unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
+
+                    # Update the progress bar
+                    if progress_bar:
+                        progress_bar['maximum'] = total_progress
+                        progress_bar['value'] = unique_progress_count
+
+                    # Store operation type and additional info
+                    if operation_type:
+                        progress_bar.operation_type = operation_type
+                        progress_bar.additional_info = additional_info
+
+                    # Update the progress label
+                    if progress_bar.progress_label:
+                        progress_bar.update_label()
+
+                    # Clear completed tasks when progress is complete
+                    if unique_progress_count >= total_progress:
+                        process_console_queue.completed_tasks.clear()
+
+            except Exception as e:
+                print(f"Error parsing progress message: {e}")
+
+        # **Insert Normal Messages with Extra Line Spacing**
+        else:
+            console_output.insert(tk.END, clean_message + "\n", "normal")
+
+        console_output.see(tk.END)
+
+    # **Continue processing if no error was detected**
+    after_id = console_output.after(uppdate_frequency, process_console_queue)
+    parent_frame.after_tasks.append(after_id)
+    
+def process_console_queue_v2():
+    global q, console_output, parent_frame, progress_bar, process_console_queue
+
+    # Initialize function attribute if it doesn't exist
+    if not hasattr(process_console_queue, "completed_tasks"):
+        process_console_queue.completed_tasks = []
+    if not hasattr(process_console_queue, "current_maximum"):
+        process_console_queue.current_maximum = None
+
+    ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+
+    while not q.empty():
+        message = q.get_nowait()
+        clean_message = ansi_escape_pattern.sub('', message)
+
+        # **Abort Execution if an Error Message is Detected**
+        if clean_message.startswith("Error:"):
+            console_output.insert(tk.END, clean_message + "\n", "error")
+            console_output.see(tk.END)
+            print("Run aborted due to error:", clean_message)  # Debug message
+            return  # **Exit immediately to stop further execution**
+
+        # Check if the message contains progress information
+        if clean_message.startswith("Progress:"):
+            try:
+                # Extract the progress information
+                match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*),(.*)', clean_message)
+
+                if match:
+                    current_progress = int(match.group(1))
+                    total_progress = int(match.group(2))
+                    operation_type = match.group(3).strip()
+                    additional_info = match.group(4).strip()  # Capture everything after operation_type
+                    
+                    # Check if the maximum value has changed
+                    if process_console_queue.current_maximum != total_progress:
+                        process_console_queue.current_maximum = total_progress
+                        process_console_queue.completed_tasks = []
+
+                    # Add the task to the completed set
+                    process_console_queue.completed_tasks.append(current_progress)
+                    
+                    # Calculate the unique progress count
+                    unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
+
+                    # Update the progress bar
+                    if progress_bar:
+                        progress_bar['maximum'] = total_progress
+                        progress_bar['value'] = unique_progress_count
+
+                    # Store operation type and additional info
+                    if operation_type:
+                        progress_bar.operation_type = operation_type
+                        progress_bar.additional_info = additional_info
+
+                    # Update the progress label
+                    if progress_bar.progress_label:
+                        progress_bar.update_label()
+
+                    # Clear completed tasks when progress is complete
+                    if unique_progress_count >= total_progress:
+                        process_console_queue.completed_tasks.clear()
+
+            except Exception as e:
+                print(f"Error parsing progress message: {e}")
+
+        else:
+            # Insert non-progress messages into the console
+            console_output.insert(tk.END, clean_message + "\n")
+            console_output.see(tk.END)
+
+    # **Continue processing if no error was detected**
+    after_id = console_output.after(uppdate_frequency, process_console_queue)
+    parent_frame.after_tasks.append(after_id)
+
+def process_console_queue_v1():
     global q, console_output, parent_frame, progress_bar, process_console_queue
 
     # Initialize function attribute if it doesn't exist
