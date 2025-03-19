@@ -2285,6 +2285,9 @@ class AnnotateApp:
         
         self.train_button = Button(self.button_frame,text="orig.",command=self.swich_back_annotation_column,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
         self.train_button.pack(side="right", padx=5)
+        
+        self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.settings_button.pack(side="right", padx=5)
 
         # Calculate grid rows and columns based on the root window size and image size
         self.calculate_grid_dimensions()
@@ -2307,6 +2310,134 @@ class AnnotateApp:
             self.grid_frame.grid_rowconfigure(row, weight=1)
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
+            
+    def open_settings_window(self):
+        from .gui_utils import generate_annotate_fields, convert_to_number
+
+        # Create settings window
+        settings_window = tk.Toplevel(self.root)
+        settings_window.title("Modify Annotation Settings")
+
+        style_out = set_dark_style(ttk.Style())
+        settings_window.configure(bg=style_out['bg_color'])
+        
+        settings_frame = tk.Frame(settings_window, bg=style_out['bg_color'])
+        settings_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Generate fields with current settings pre-filled
+        vars_dict = generate_annotate_fields(settings_frame)
+
+        # Pre-fill the current settings into vars_dict
+        current_settings = {
+            'image_type': self.image_type or '',
+            'channels': ','.join(self.channels) if self.channels else '',
+            'img_size': f"{self.image_size[0]},{self.image_size[1]}",
+            'annotation_column': self.annotation_column or '',
+            'normalize': str(self.normalize),
+            'percentiles': ','.join(map(str, self.percentiles)),
+            'measurement': ','.join(self.measurement) if self.measurement else '',
+            'threshold': str(self.threshold) if self.threshold is not None else '',
+            'normalize_channels': ','.join(self.normalize_channels) if self.normalize_channels else ''
+        }
+
+        for key, data in vars_dict.items():
+            if key in current_settings:
+                data['entry'].delete(0, tk.END)
+                data['entry'].insert(0, current_settings[key])
+
+        def apply_new_settings():
+            settings = {key: data['entry'].get() for key, data in vars_dict.items()}
+            
+            # Process settings exactly as your original initiation function does
+            settings['channels'] = settings['channels'].split(',') if settings['channels'] else None
+            settings['img_size'] = list(map(int, settings['img_size'].split(',')))
+            settings['percentiles'] = list(map(convert_to_number, settings['percentiles'].split(','))) if settings['percentiles'] else [1, 99]
+            settings['normalize'] = settings['normalize'].lower() == 'true'
+            settings['normalize_channels'] = settings['normalize_channels'].split(',') if settings['normalize_channels'] else None
+
+            try:
+                settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
+                settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
+            except:
+                settings['measurement'] = None
+                settings['threshold'] = None
+
+            # Convert empty strings to None
+            for key, value in settings.items():
+                if isinstance(value, list):
+                    settings[key] = [v if v != '' else None for v in value]
+                elif value == '':
+                    settings[key] = None
+
+            # Apply these settings dynamically using update_settings method
+            self.update_settings(**{
+                'image_type': settings.get('image_type'),
+                'channels': settings.get('channels'),
+                'image_size': settings.get('img_size'),
+                'annotation_column': settings.get('annotation_column'),
+                'normalize': settings.get('normalize'),
+                'percentiles': settings.get('percentiles'),
+                'measurement': settings.get('measurement'),
+                'threshold': settings.get('threshold'),
+                'normalize_channels': settings.get('normalize_channels')
+            })
+
+            settings_window.destroy()
+
+        apply_button = spacrButton(settings_window, text="Apply Settings", command=apply_new_settings,show_text=False)
+        apply_button.pack(pady=10)
+        
+    def update_settings(self, **kwargs):
+        allowed_attributes = {
+            'image_type', 'channels', 'image_size', 'annotation_column',
+            'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels'
+        }
+
+        updated = False
+
+        for attr, value in kwargs.items():
+            if attr in allowed_attributes and value is not None:
+                setattr(self, attr, value)
+                updated = True
+
+        if 'image_size' in kwargs:
+            if isinstance(self.image_size, list):
+                self.image_size = (int(self.image_size[0]), int(self.image_size[0]))
+            elif isinstance(self.image_size, int):
+                self.image_size = (self.image_size, self.image_size)
+            else:
+                raise ValueError("Invalid image size")
+
+            self.calculate_grid_dimensions()
+            self.recreate_image_grid()
+
+        if updated:
+            current_index = self.index  # Retain current index
+            self.prefilter_paths_annotations()
+
+            # Ensure the retained index is still valid (not out of bounds)
+            max_index = len(self.filtered_paths_annotations) - 1
+            self.index = min(current_index, max_index := max(0, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0))))
+            self.load_images()
+
+    def recreate_image_grid(self):
+        # Remove current labels
+        for label in self.labels:
+            label.destroy()
+        self.labels.clear()
+
+        # Recreate the labels grid with updated dimensions
+        for i in range(self.grid_rows * self.grid_cols):
+            label = Label(self.grid_frame, bg=self.root.cget('bg'))
+            label.grid(row=i // self.grid_cols, column=i % self.grid_cols, padx=2, pady=2, sticky="nsew")
+            self.labels.append(label)
+
+        # Reconfigure grid weights
+        for row in range(self.grid_rows):
+            self.grid_frame.grid_rowconfigure(row, weight=1)
+        for col in range(self.grid_cols):
+            self.grid_frame.grid_columnconfigure(col, weight=1)
+
             
     def swich_back_annotation_column(self):
         self.annotation_column = self.orig_annotation_columns

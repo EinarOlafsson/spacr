@@ -370,24 +370,24 @@ def convert_settings_dict_for_gui(settings):
     chans_v4 = [0, 1, 2, 3, None]
     variables = {}
     special_cases = {
-        'metadata_type': ('combo', ['cellvoyager', 'cq1', 'nikon', 'zeis', 'custom'], 'cellvoyager'),
+        'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
         'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
-        'cell_mask_dim': ('combo', chans, None),
-        'cell_chann_dim': ('combo', chans, None),
-        'nucleus_mask_dim': ('combo', chans, None),
-        'nucleus_chann_dim': ('combo', chans, None),
-        'pathogen_mask_dim': ('combo', chans, None),
-        'pathogen_chann_dim': ('combo', chans, None),
+        #'cell_mask_dim': ('combo', chans_v3, None),
+        #'cell_chann_dim': ('combo', chans_v3, None),
+        #'nucleus_mask_dim': ('combo', chans_v3, None),
+        #'nucleus_chann_dim': ('combo', chans_v3, None),
+        #'pathogen_mask_dim': ('combo', chans_v3, None),
+        #'pathogen_chann_dim': ('combo', chans_v3, None),
         'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']"], "['cell']"),
          #'magnification': ('combo', [20, 40, 60], 20),
-        'nucleus_channel': ('combo', chans_v3, None),
-        'cell_channel': ('combo', chans_v3, None),
-        'channel_of_interest': ('combo', chans_v3, None),
-        'pathogen_channel': ('combo', chans_v3, None),
+        #'nucleus_channel': ('combo', chans_v3, None),
+        #'cell_channel': ('combo', chans_v3, None),
+        #'channel_of_interest': ('combo', chans_v3, None),
+        #'pathogen_channel': ('combo', chans_v3, None),
         'timelapse_mode': ('combo', ['trackpy', 'btrack'], 'trackpy'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
@@ -464,10 +464,11 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
     finally:
         # Restore the original plt.show function
         plt.show = original_show
+        
 
+                    
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
-    from .gui_utils import process_stdout_stderr
     from .core import generate_image_umap, preprocess_generate_masks
     from .cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
     from .submodules import analyze_recruitment
@@ -478,9 +479,10 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     from .sim import run_multiple_simulations
     from .deep_spacr import deep_spacr, apply_model_to_tar
     from .sequencing import generate_barecode_mapping
+    
     process_stdout_stderr(q)
-
-    print(f'run_function_gui settings_type: {settings_type}') 
+    
+    print(f'run_function_gui settings_type: {settings_type}')
     
     if settings_type == 'mask':
         function = preprocess_generate_masks
@@ -525,7 +527,7 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         function = process_non_tif_non_2D_images
         imports = 1
     else:
-        raise ValueError(f"Invalid settings type: {settings_type}")
+        raise ValueError(f"Error: Invalid settings type: {settings_type}")
     try:
         function_gui_wrapper(function, settings, q, fig_queue, imports)
     except Exception as e:
