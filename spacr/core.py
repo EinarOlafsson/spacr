@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0
 
 def preprocess_generate_masks(settings):
 
-    from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa
+    from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path
     from .settings import set_default_settings_preprocess_generate_masks
@@ -30,10 +30,27 @@ def preprocess_generate_masks(settings):
     if isinstance(settings['src'], list):
         source_folders = settings['src']
         for source_folder in source_folders:
+            
             print(f'Processing folder: {source_folder}')
             
             if settings['metadata_type'] == 'auto':
-                convert_to_yokogawa(folder=source_folder)
+                if settings['custom_regex'] == None:
+                    try:
+                        convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
+                    except:
+                        try:
+                            convert_to_yokogawa(folder=source_folder)
+                        except Exception as e:
+                            print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
+                            print(f'Error: {e}')
+                            return
+                else:
+                    try:
+                        convert_to_yokogawa(folder=source_folder)
+                    except Exception as e:
+                        print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
+                        print(f'Error: {e}')
+                        return
             
             source_folder = format_path_for_system(source_folder)            
             settings['src'] = source_folder

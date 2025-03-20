@@ -3104,157 +3104,66 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
-def convert_to_yokogawa_v1(folder):
-    """
-    Detects file type in the folder and converts them
-    to Yokogawa-style naming with Maximum Intensity Projection (MIP).
-    """
-    
+def convert_separate_files_to_yokogawa(folder, regex):
+    ROWS = "ABCDEFGHIJKLMNOP"
+    COLS = [f"{i:02d}" for i in range(1, 25)]
+    WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
+
     def _get_next_well(used_wells):
-        """
-        Determines the next available well position in a 384-well format.
-        Iterates wells, and after P24, switches to plate2.
-        """
         plate = 1
         for well in WELLS:
             well_name = f"plate{plate}_{well}"
             if well_name not in used_wells:
                 return well_name
-            if well == "P24":  
-                plate += 1  
+            if well == "P24":
+                plate += 1
         return f"plate{plate}_A01"
 
-    # Define 384-well plate format
-    ROWS = "ABCDEFGHIJKLMNOP"
-    COLS = [f"{i:02d}" for i in range(1, 25)]
-    WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
+    pattern = re.compile(regex, re.I)
 
-    filenames = []
+    files_by_fov = {}
     rename_log = []
     csv_path = os.path.join(folder, "rename_log.csv")
     used_wells = set(os.listdir(folder))
+    fov_to_well = {}
 
+    # Group files by FOV
     for file in os.listdir(folder):
-        path = os.path.join(folder, file)
-        ext = file.lower().split('.')[-1]
+        match = pattern.match(file)
+        if not match:
+            print(f"Skipping {file}: does not match regex.")
+            continue
 
-        ### **Process Nikon ND2 Files**
-        if ext == 'nd2':
-            nd2 = ND2Reader(path)
-            metadata = nd2.metadata
+        meta = match.groupdict()
 
-            timepoints = metadata.get("frames", [0])
-            fields = metadata.get("fields_of_view", [0])
-            z_levels = list(metadata.get("z_levels", range(1)))
-            channels = metadata.get("channels", [])
+        # Extract required metadata
+        fov = meta['fov']
+        channel = int(meta['channel'])
 
-            for t_idx in timepoints:
-                for f_idx in fields:
-                    for c_idx, channel in enumerate(channels):
-                        well = _get_next_well(used_wells)
+        # Optional metadata with defaults
+        time = int(meta.get('time', 1))
+        z_slice = int(meta.get('slice', 1))
 
-                        z_stack = [nd2.get_frame_2D(t=t_idx, v=f_idx, z=z_idx, c=c_idx) for z_idx in z_levels]
-                        mip_image = np.max(np.stack(z_stack), axis=0)
-                        dtype = z_stack[0].dtype
+        files_by_fov.setdefault(fov, []).append((file, channel, time, z_slice))
 
-                        filename = f"{well}_T{t_idx+1:04d}F{f_idx+1:03d}L01C{c_idx+1:02d}.tif"
-                        filepath = os.path.join(folder, filename)
-                        tifffile.imwrite(filepath, mip_image.astype(dtype))
-                        used_wells.add(well)
-                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
+    # Assign wells per FOV
+    for fov, file_list in files_by_fov.items():
+        if fov not in fov_to_well:
+            fov_to_well[fov] = _get_next_well(used_wells)
+            used_wells.add(fov_to_well[fov])
 
-        ### **Process Zeiss CZI Files**
-        elif ext == 'czi':
-            with czifile.CziFile(path) as czi:
-                shape = czi.shape  
+        well = fov_to_well[fov]
 
-                timepoints = range(shape[0])
-                z_levels = range(shape[1])
-                channels = range(shape[2])
+        for original_file, channel, time, z_slice in file_list:
+            img = tifffile.imread(os.path.join(folder, original_file))
+            dtype = img.dtype
 
-                for t_idx in timepoints:
-                    for c_idx in channels:
-                        well = _get_next_well(used_wells)
+            filename = f"{well}_T{time:04d}F001L01C{channel:02d}Z{z_slice:03d}.tif"
+            filepath = os.path.join(folder, filename)
+            tifffile.imwrite(filepath, img.astype(dtype))
 
-                        z_stack = [czi.asarray()[t_idx, z_idx, c_idx] for z_idx in z_levels]
-                        mip_image = np.max(np.stack(z_stack), axis=0)
-                        dtype = z_stack[0].dtype
+            rename_log.append({"Original File": original_file, "Renamed TIFF": filename})
 
-                        filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
-                        filepath = os.path.join(folder, filename)
-                        tifffile.imwrite(filepath, mip_image.astype(dtype))
-                        used_wells.add(well)
-                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
-
-        ### **Process Leica LIF Files**
-        elif ext == 'lif':
-            lif_file = readlif.Reader(path)
-
-            for image in lif_file.getIterImage():
-                timepoints = range(image.dims.t)
-                z_levels = range(image.dims.z)
-                channels = range(image.dims.c)
-
-                for t_idx in timepoints:
-                    for c_idx in channels:
-                        well = _get_next_well(used_wells)
-
-                        z_stack = [image.getFrame(z=z_idx, t=t_idx, c=c_idx) for z_idx in z_levels]
-                        mip_image = np.max(np.stack(z_stack), axis=0)
-                        dtype = z_stack[0].dtype
-
-                        filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
-                        filepath = os.path.join(folder, filename)
-                        tifffile.imwrite(filepath, mip_image.astype(dtype))
-                        used_wells.add(well)
-                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
-
-        ### **Process Standard Images (.tif, .tiff, .png, .jpg, .bmp, etc.)**
-        elif ext in ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp'] and not file.startswith("plate"):
-            with tifffile.TiffFile(path) as tif:
-                well = _get_next_well(used_wells)
-                num_pages = len(tif.pages)
-
-                if num_pages > 1:
-                    # Assume multi-channel or z-stack
-                    images = tif.asarray()
-                    if images.ndim == 4:  # (T, Z, C, Y, X)
-                        timepoints = range(images.shape[0])
-                        z_levels = range(images.shape[1])
-                        channels = range(images.shape[2])
-
-                        for t_idx in timepoints:
-                            for c_idx in channels:
-                                mip_image = np.max(images[t_idx, :, c_idx], axis=0)
-                                dtype = images.dtype
-
-                                filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
-                                filepath = os.path.join(folder, filename)
-                                tifffile.imwrite(filepath, mip_image.astype(dtype))
-                                used_wells.add(well)
-                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
-
-                    elif images.ndim == 3:  # (Z, Y, X) or (C, Y, X)
-                        z_stack = images if images.shape[0] > 1 else [images]
-                        mip_image = np.max(np.stack(z_stack), axis=0)
-                        dtype = images.dtype
-
-                        filename = f"{well}_T0001F001L01C01.tif"
-                        filepath = os.path.join(folder, filename)
-                        tifffile.imwrite(filepath, mip_image.astype(dtype))
-                        used_wells.add(well)
-                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
-                else:
-                    image = tif.pages[0].asarray()
-                    dtype = image.dtype
-
-                    filename = f"{well}_T0001F001L01C01.tif"
-                    filepath = os.path.join(folder, filename)
-                    tifffile.imwrite(filepath, image.astype(dtype))
-                    used_wells.add(well)
-                    rename_log.append({"Original File": file, "Renamed TIFF": filename})
-
-    # Save rename log as CSV
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
 
