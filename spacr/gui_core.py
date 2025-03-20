@@ -913,34 +913,52 @@ def check_src_folders_files(settings, settings_type, q):
             conditions = [pictures_continue, folder_chan_continue, folder_stack_continue, folder_npz_continue]
             
         if settings_type == 'measure':
+            if not os.path.basename(path) == 'merged':
+                path = os.path.join(path, "merged")
             npy_continue = _folder_has_images(path, image_extensions={".npy"})
             conditions = [npy_continue]
             
-        if settings_type == 'recruitment':
-            db_continue = _folder_has_images(path, image_extensions={".db"})
-            conditions = [db_continue]
+        #if settings_type == 'recruitment':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
             
-        if settings_type == 'umap':
-            db_continue = _folder_has_images(path, image_extensions={".db"})
-            conditions = [db_continue]
+        #if settings_type == 'umap':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
             
-        if settings_type == 'analyze_plaques':
-            conditions = [True]
+        #if settings_type == 'analyze_plaques':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
         
-        if settings_type == 'map_barcodes':
-            conditions = [True]
+        #if settings_type == 'map_barcodes':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
         
-        if settings_type == 'regression':
-            db_continue = _folder_has_images(path, image_extensions={".db"})
-            conditions = [db_continue]
+        #if settings_type == 'regression':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
             
-        if settings_type == 'classify':
-            db_continue = _folder_has_images(path, image_extensions={".db"})
-            conditions = [db_continue]
+        #if settings_type == 'classify':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
             
-        if settings_type == 'analyze_plaques':
-            db_continue = _folder_has_images(path, image_extensions={".db"})
-            conditions = [db_continue]
+        #if settings_type == 'analyze_plaques':
+        #    if not os.path.basename(path) == 'measurements':
+        #        path = os.path.join(path, "measurements")
+        #    db_continue = _folder_has_images(path, image_extensions={".db"})
+        #    conditions = [db_continue]
             
     if not any(conditions):
         q.put(f"Error: The following path(s) is missing images or folders: {path}")
