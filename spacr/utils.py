@@ -554,7 +554,7 @@ def _get_cellpose_batch_size():
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
     
     images_by_key = defaultdict(list)
-    
+
     for filename in filenames:
         match = regular_expression.match(filename)
         if match:
@@ -597,7 +597,7 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
             except IndexError:
                 print(f"Could not extract information from filename {filename} using provided regex")
         else:
-            print(f"Filename {filename} did not match provided regex")
+            print(f"Filename {filename} did not match provided regex: {regular_expression}")
             continue
         
     return images_by_key

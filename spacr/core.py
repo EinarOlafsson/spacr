@@ -33,9 +33,15 @@ def preprocess_generate_masks(settings):
             
             print(f'Processing folder: {source_folder}')
             
+            source_folder = format_path_for_system(source_folder)            
+            settings['src'] = source_folder
+            src = source_folder
+            settings = set_default_settings_preprocess_generate_masks(settings)
+            
             if settings['metadata_type'] == 'auto':
-                if settings['custom_regex'] == None:
+                if settings['custom_regex'] != None:
                     try:
+                        print(f"using regex: {settings['custom_regex']}")
                         convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
                     except:
                         try:
@@ -51,11 +57,6 @@ def preprocess_generate_masks(settings):
                         print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
                         print(f'Error: {e}')
                         return
-            
-            source_folder = format_path_for_system(source_folder)            
-            settings['src'] = source_folder
-            src = source_folder
-            settings = set_default_settings_preprocess_generate_masks(settings)
             
             if settings['cell_channel'] is None and settings['nucleus_channel'] is None and settings['pathogen_channel'] is None:
                 print(f'Error: At least one of cell_channel, nucleus_channel or pathogen_channel must be defined')
