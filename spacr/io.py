@@ -647,7 +647,7 @@ def load_images_from_paths(images_by_key):
     
     return images_dict
 
-#@log_function_call
+#@log_function_call 
 def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=False, skip_mode='01', metadata_type='', img_format='.tif'):
     """
     Convert z-stack images to maximum intensity projection (MIP) images.
@@ -664,13 +664,16 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
         None
     """
     
+    if isinstance(img_format, str):
+        img_format = [img_format]
+    
     from .utils import _extract_filename_metadata, print_progress
     
     regular_expression = re.compile(regex)
     stack_path = os.path.join(src, 'stack')
     files_processed = 0
     if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
-        all_filenames = [filename for filename in os.listdir(src) if filename.endswith(img_format)]
+        all_filenames = [filename for filename in os.listdir(src) if any(filename.endswith(ext) for ext in img_format)]
         print(f'All files: {len(all_filenames)} in {src}')
         time_ls = []
         image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type, pick_slice, skip_mode)
@@ -729,11 +732,11 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
             images_by_key.clear()
 
         # Move original images to a new directory
-        valid_exts = [img_format]
         newpath = os.path.join(src, 'orig')
         os.makedirs(newpath, exist_ok=True)
         for filename in os.listdir(src):
-            if os.path.splitext(filename)[1] in valid_exts:
+            #print(f"{filename}: {os.path.splitext(filename)[1]}")
+            if os.path.splitext(filename)[1] in img_format:
                 move = os.path.join(newpath, filename)
                 if os.path.exists(move):
                     print(f'WARNING: A file with the same name already exists at location {move}')
@@ -1628,6 +1631,7 @@ def preprocess_img_data(settings):
                 if timelapse:
                     _move_to_chan_folder(src, regex, timelapse, metadata_type)
                 else:
+                    img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
                     _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
                     
                     #Make sure no batches will be of only one image
@@ -3105,6 +3109,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
 def convert_separate_files_to_yokogawa(folder, regex):
+    
     ROWS = "ABCDEFGHIJKLMNOP"
     COLS = [f"{i:02d}" for i in range(1, 25)]
     WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
@@ -3121,13 +3126,13 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
     pattern = re.compile(regex, re.I)
 
-    files_by_fov = {}
+    files_by_region = {}
     rename_log = []
     csv_path = os.path.join(folder, "rename_log.csv")
-    used_wells = set(os.listdir(folder))
-    fov_to_well = {}
+    used_wells = set()
+    region_to_well = {}
 
-    # Group files by FOV
+    # Group files by (plateID, wellID, fieldID, timeID, chanID)
     for file in os.listdir(folder):
         match = pattern.match(file)
         if not match:
@@ -3136,36 +3141,62 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         meta = match.groupdict()
 
-        # Extract required metadata
-        fov = meta['fov']
-        channel = int(meta['channel'])
+        # Mandatory metadata
+        if 'wellID' not in meta or meta['wellID'] is None:
+            print(f"Skipping {file}: missing mandatory wellID.")
+            continue
+        wellID = meta['wellID']
 
         # Optional metadata with defaults
-        time = int(meta.get('time', 1))
-        z_slice = int(meta.get('slice', 1))
+        plateID = meta.get('plateID', '1') or '1'
+        fieldID = meta.get('fieldID', '1') or '1'
+        timeID = int(meta.get('timeID', 1) or 1)
+        chanID = int(meta.get('chanID', 1) or 1)
+        sliceID = meta.get('sliceID')
+        sliceID = int(sliceID) if sliceID is not None else None
 
-        files_by_fov.setdefault(fov, []).append((file, channel, time, z_slice))
+        region_key = (plateID, wellID, fieldID, timeID, chanID)
 
-    # Assign wells per FOV
-    for fov, file_list in files_by_fov.items():
-        if fov not in fov_to_well:
-            fov_to_well[fov] = _get_next_well(used_wells)
-            used_wells.add(fov_to_well[fov])
+        files_by_region.setdefault(region_key, []).append((file, sliceID))
 
-        well = fov_to_well[fov]
+    # Assign wells and process files per region
+    for region, file_list in files_by_region.items():
+        if region[:3] not in region_to_well:
+            next_well = _get_next_well(used_wells)
+            region_to_well[region[:3]] = next_well
+            used_wells.add(next_well)
 
-        for original_file, channel, time, z_slice in file_list:
-            img = tifffile.imread(os.path.join(folder, original_file))
-            dtype = img.dtype
+        assigned_well = region_to_well[region[:3]]
+        plateID, wellID, fieldID, timeID, chanID = region
 
-            filename = f"{well}_T{time:04d}F001L01C{channel:02d}Z{z_slice:03d}.tif"
-            filepath = os.path.join(folder, filename)
-            tifffile.imwrite(filepath, img.astype(dtype))
+        # Check if multiple slices exist and are meaningful
+        slice_ids = [sid for _, sid in file_list if sid is not None]
+        unique_slices = set(slice_ids)
 
-            rename_log.append({"Original File": original_file, "Renamed TIFF": filename})
+        images = []
+        for filename, _ in sorted(file_list, key=lambda x: x[1] or 1):
+            img = tifffile.imread(os.path.join(folder, filename))
+            images.append(img)
+
+        # Perform MIP only if multiple unique slices are present
+        if len(unique_slices) > 1:
+            img_to_save = np.max(np.stack(images), axis=0)
+        else:
+            img_to_save = images[0]
+
+        dtype = img_to_save.dtype
+
+        new_filename = f"{assigned_well}_T{timeID:04d}F{int(fieldID):03d}L01C{chanID:02d}.tif"
+        new_filepath = os.path.join(folder, new_filename)
+        tifffile.imwrite(new_filepath, img_to_save.astype(dtype))
+
+        # Log original filenames involved in MIP or single file rename
+        original_files = ";".join(f[0] for f in file_list)
+        rename_log.append({"Original File(s)": original_files, "Renamed TIFF": new_filename})
 
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
+
 
 def convert_to_yokogawa(folder):
     """
