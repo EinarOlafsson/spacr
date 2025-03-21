@@ -77,6 +77,18 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Exclude all notebooks by default
+notebooks/
+spacr/notebooks/
+
+# But include non-old notebooks directly under notebooks/
+!notebooks/*.ipynb
+!spacr/notebooks/*.ipynb
+
+# Explicitly exclude "old" subfolders
+notebooks/old/
+spacr/notebooks/old/
+
 # IPython
 profile_default/
 ipython_config.py
