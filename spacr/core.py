@@ -13,7 +13,7 @@ def preprocess_generate_masks(settings):
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path
     from .settings import set_default_settings_preprocess_generate_masks
-    
+        
     if 'src' in settings:
         if not isinstance(settings['src'], (str, list)):
             ValueError(f'src must be a string or a list of strings')
@@ -33,7 +33,7 @@ def preprocess_generate_masks(settings):
             
             print(f'Processing folder: {source_folder}')
             
-            source_folder = format_path_for_system(source_folder)            
+            source_folder = format_path_for_system(source_folder)   
             settings['src'] = source_folder
             src = source_folder
             settings = set_default_settings_preprocess_generate_masks(settings)
@@ -61,9 +61,9 @@ def preprocess_generate_masks(settings):
             if settings['cell_channel'] is None and settings['nucleus_channel'] is None and settings['pathogen_channel'] is None:
                 print(f'Error: At least one of cell_channel, nucleus_channel or pathogen_channel must be defined')
                 return
-
+            
             save_settings(settings, name='gen_mask_settings')
-
+            
             if not settings['pathogen_channel'] is None:
                 custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
                 if settings['pathogen_model'] not in custom_model_ls:
@@ -83,7 +83,7 @@ def preprocess_generate_masks(settings):
                 settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
                 settings_df['setting_value'] = settings_df['setting_value'].apply(str)
                 display(settings_df)
-
+                
             if settings['test_mode']:
                 print(f'Starting Test mode ...')
 

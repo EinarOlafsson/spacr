@@ -35,3 +35,13 @@ prune notebooks
 prune spacr/notebooks
 prune spacr/datasets
 
+# Exclude model files from distribution
+#exclude spacr/resources/models/cp/*
+#prune spacr/resources/models/cp
+
+# Exclude all notebooks (including old ones)
+prune notebooks
+prune spacr/notebooks
+prune spacr/notebooks/submodules
+prune spacr/notebooks/old
+
