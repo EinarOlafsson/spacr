@@ -321,21 +321,24 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
 
 def save_settings(settings, name='settings', show=False):
     
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    if show:
-        display(settings_df)
+    settings_2 = settings.copy()
     
-    if isinstance(settings['src'], list):
-        src = settings['src'][0]
+    if isinstance(settings_2['src'], list):
+        src = settings_2['src'][0]
         name = f"{name}_list"
     else:
-        src = settings['src']
+        src = settings_2['src']
         
-    if 'test_mode' in settings.keys():
-        settings['test_mode'] = False
+    if 'test_mode' in settings_2.keys():
+        settings_2['test_mode'] = False
         
-        if 'plot' in settings.keys():
-            settings['plot'] = False
+        if 'plot' in settings_2.keys():
+            settings_2['plot'] = False
+            
+    settings_df = pd.DataFrame(list(settings_2.items()), columns=['Key', 'Value'])
+    
+    if show:
+        display(settings_df)
 
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
     os.makedirs(os.path.join(src,'settings'), exist_ok=True)
@@ -3144,7 +3147,7 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     if os.path.exists(os.path.join(src, 'orig')):
         src = os.path.join(src, 'orig')
-    
+        
     all_filenames = [filename for filename in os.listdir(src) if regular_expression.match(filename)]
     print(f'Found {len(all_filenames)} files')
     images_by_set = defaultdict(list)

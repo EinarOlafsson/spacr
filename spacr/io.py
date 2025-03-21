@@ -1574,7 +1574,7 @@ def preprocess_img_data(settings):
     Returns:
         None
     """
-
+    
     src = settings['src']
     valid_ext = ['tif', 'tiff', 'png', 'jpeg']
     files = os.listdir(src)
@@ -1602,11 +1602,11 @@ def preprocess_img_data(settings):
         
     mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
     backgrounds = [settings['nucleus_background'], settings['cell_background'], settings['pathogen_background']]
-
+    
     settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test = set_default_settings_preprocess_img_data(settings)
-
+    
     regex = _get_regex(metadata_type, img_format, custom_regex)
-
+    
     if test_mode:
 
         print(f'Running spacr in test mode')
@@ -1615,6 +1615,8 @@ def preprocess_img_data(settings):
             os.rmdir(os.path.join(src, 'test'))
             print(f"Deleted test directory: {os.path.join(src, 'test')}")
         except OSError as e:
+            print(f"Error deleting test directory: {e}")
+            print(f"Delete manually before running test mode")
             pass
 
         src = _run_test_mode(settings['src'], regex, timelapse, test_images, random_test)
