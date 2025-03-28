@@ -1,14 +1,20 @@
-
-
-
 import seaborn as sns
-import os, random, sqlite3, re, shap
+import os, random, sqlite3, re, shap, string
 import pandas as pd
 import numpy as np
-import cellpose
+
 from skimage.measure import regionprops, label
+from skimage.transform import resize as sk_resize, rotate
+from skimage.exposure import rescale_intensity
+
+import cellpose
 from cellpose import models as cp_models
 from cellpose import train as train_cp
+from cellpose import models as cp_models
+from cellpose import io as cp_io
+from cellpose import train as train_cp
+from cellpose.metrics import aggregated_jaccard_index
+
 from IPython.display import display
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
@@ -20,6 +26,412 @@ from sklearn.metrics import mean_absolute_error
 
 import matplotlib.pyplot as plt
 from natsort import natsorted
+
+import torch
+from torch.utils.data import Dataset
+from spacr.settings import get_train_cellpose_default_settings
+from spacr.utils import save_settings, invert_image
+
+
+
+class CellposeLazyDataset(Dataset):
+    def __init__(self, image_files, label_files, settings, randomize=True, augment=False):
+        combined = list(zip(image_files, label_files))
+        if randomize:
+            random.shuffle(combined)
+        self.image_files, self.label_files = zip(*combined)
+        self.normalize = settings['normalize']
+        self.percentiles = settings.get('percentiles', [2, 99])
+        self.target_size = settings['target_size']
+        self.augment = augment
+
+    def __len__(self):
+        return len(self.image_files) * (8 if self.augment else 1)
+
+    def apply_augmentation(self, image, label, aug_idx):
+        if aug_idx == 1:
+            return rotate(image, 90, resize=False, preserve_range=True), rotate(label, 90, resize=False, preserve_range=True)
+        elif aug_idx == 2:
+            return rotate(image, 180, resize=False, preserve_range=True), rotate(label, 180, resize=False, preserve_range=True)
+        elif aug_idx == 3:
+            return rotate(image, 270, resize=False, preserve_range=True), rotate(label, 270, resize=False, preserve_range=True)
+        elif aug_idx == 4:
+            return np.fliplr(image), np.fliplr(label)
+        elif aug_idx == 5:
+            return np.flipud(image), np.flipud(label)
+        elif aug_idx == 6:
+            return np.fliplr(rotate(image, 90, resize=False, preserve_range=True)), np.fliplr(rotate(label, 90, resize=False, preserve_range=True))
+        elif aug_idx == 7:
+            return np.flipud(rotate(image, 90, resize=False, preserve_range=True)), np.flipud(rotate(label, 90, resize=False, preserve_range=True))
+        return image, label
+
+    def __getitem__(self, idx):
+        base_idx = idx // 8 if self.augment else idx
+        aug_idx = idx % 8 if self.augment else 0
+
+        image = cp_io.imread(self.image_files[base_idx])
+        label = cp_io.imread(self.label_files[base_idx])
+
+        if image.ndim == 3:
+            image = image.mean(axis=-1)
+
+        if image.max() > 1:
+            image = image / image.max()
+
+        if self.normalize:
+            lower_p, upper_p = np.percentile(image, self.percentiles)
+            image = rescale_intensity(image, in_range=(lower_p, upper_p), out_range=(0, 1))
+
+        image, label = self.apply_augmentation(image, label, aug_idx)
+
+        image_shape = (self.target_size, self.target_size)
+        image = sk_resize(image, image_shape, preserve_range=True, anti_aliasing=True).astype(np.float32)
+        label = sk_resize(label, image_shape, order=0, preserve_range=True, anti_aliasing=False).astype(np.uint8)
+
+        return image, label
+
+
+def plot_cellpose_batch(images, labels):
+    from spacr.plot import generate_mask_random_cmap
+
+    cmap_lbl = generate_mask_random_cmap(labels)
+    batch_size = len(images)
+    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8))
+    for i in range(batch_size):
+        axs[0, i].imshow(images[i], cmap='gray')
+        axs[0, i].set_title(f'Image {i+1}')
+        axs[0, i].axis('off')
+        axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
+        axs[1, i].set_title(f'Label {i+1}')
+        axs[1, i].axis('off')
+    plt.show()
+    
+    
+def plot_cellpose_test_v1(images, labels, masks_pred, flows):
+    from spacr.plot import generate_mask_random_cmap
+    
+    fig, axs = plt.subplots(len(images), 4, figsize=(16, 4 * len(images)), gridspec_kw={'wspace':0.1, 'hspace':0.1})
+    
+    for i in range(len(images)):
+        cmap_lbl = generate_mask_random_cmap(labels[i])
+        cmap_msk = generate_mask_random_cmap(masks_pred[i])
+        
+        axs[i, 0].imshow(images[i], cmap='gray')
+        axs[i, 0].set_title(f'Image {i+1}')
+        axs[i, 0].axis('off')
+        axs[i, 1].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
+        axs[i, 1].set_title(f'True Label {i+1}')
+        axs[i, 1].axis('off')
+        axs[i, 2].imshow(masks_pred[i], cmap=cmap_msk, interpolation='nearest')
+        axs[i, 2].set_title(f'Predicted Mask {i+1}')
+        axs[i, 2].axis('off')
+        axs[i, 3].imshow(flows[i][0], cmap='gray')
+        axs[i, 3].set_title(f'Flows {i+1}')
+        axs[i, 3].axis('off')
+    
+    plt.tight_layout(pad=0.5)
+    plt.show()
+    
+def plot_cellpose_test(images, labels, masks_pred, flows, save_dir=None, prefix='cellpose_result'):
+    """
+    Plot image, label, prediction, and flow for each sample in its own figure.
+
+    Parameters:
+    images (list): List of input images.
+    labels (list): List of ground truth masks.
+    masks_pred (list): List of predicted masks.
+    flows (list): List of flow images (use flow[0] for each).
+    save_dir (str or None): Directory to save figures. If None, figures are not saved.
+    prefix (str): Prefix for saved figure filenames.
+    """
+    from spacr.plot import generate_mask_random_cmap
+
+    os.makedirs(save_dir, exist_ok=True) if save_dir else None
+
+    for i in range(len(images)):
+        
+        width = sum(x is not None for x in [images, labels, masks_pred, flows])    
+        fig, axs = plt.subplots(1, width, figsize=(16, width), gridspec_kw={'wspace':0.1, 'hspace':0.1})
+        j = 0
+        if not images is None:
+            axs[j].imshow(images[i], cmap='gray')
+            axs[j].set_title(f'Image {i+1}')
+            axs[j].axis('off')
+        
+        if not labels is None:
+            j += 1
+            cmap_lbl = generate_mask_random_cmap(labels[i])
+            axs[j].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
+            axs[j].set_title(f'True Label {i+1}')
+            axs[j].axis('off')
+
+        if not masks_pred is None:
+            j += 1
+            cmap_msk = generate_mask_random_cmap(masks_pred[i])
+            axs[j].imshow(masks_pred[i], cmap=cmap_msk, interpolation='nearest')
+            axs[j].set_title(f'Predicted Mask {i+1}')
+            axs[j].axis('off')
+
+        if not flows is None:
+            j += 1
+            axs[j].imshow(flows[i][0], cmap='gray')
+            axs[j].set_title(f'Flows {i+1}')
+            axs[j].axis('off')
+
+        plt.tight_layout(pad=0.01)
+
+        if save_dir:
+            save_path = os.path.join(save_dir, f"{prefix}_{i+1:03d}.png")
+            plt.savefig(save_path, dpi=200, bbox_inches='tight')
+        plt.show()
+        plt.close(fig)
+
+
+def train_cellpose(settings):
+    settings = get_train_cellpose_default_settings(settings)
+    img_src = os.path.join(settings['src'], 'train', 'images')
+    mask_src = os.path.join(settings['src'], 'train', 'masks')
+    target_size = settings['target_size']
+
+    model_name = f"{settings['model_name']}_cyto_e{settings['n_epochs']}_X{target_size}_Y{target_size}.CP_model"
+    model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
+    os.makedirs(model_save_path, exist_ok=True)
+
+    save_settings(settings, name=model_name)
+
+    model = cp_models.CellposeModel(gpu=True, model_type='cyto', diam_mean=30, pretrained_model='cyto')
+    cp_channels = [0, 0]
+
+    train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
+    train_label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
+
+    train_dataset = CellposeLazyDataset(train_image_files, train_label_files, settings, randomize=True, augment=settings['augment'])
+
+    n_aug = 8 if settings['augment'] else 1
+    max_base_images = len(train_dataset) // n_aug if settings['augment'] else len(train_dataset)
+    n_base = min(settings['batch_size'], max_base_images)
+
+    unique_base_indices = list(range(max_base_images))
+    random.shuffle(unique_base_indices)
+    selected_indices = unique_base_indices[:n_base]
+
+    images, labels = [], []
+    for idx in selected_indices:
+        for aug_idx in range(n_aug):
+            i = idx * n_aug + aug_idx if settings['augment'] else idx
+            img, lbl = train_dataset[i]
+            images.append(img)
+            labels.append(lbl)
+    try:
+        plot_cellpose_batch(images, labels)
+    except:
+        print(f"could not print batch images")
+        
+    print(f"Training model with {len(images)} ber patch for {settings['n_epochs']} Epochs")
+
+    train_cp.train_seg(model.net,
+                       train_data=images,
+                       train_labels=labels,
+                       channels=cp_channels,
+                       save_path=model_save_path,
+                       n_epochs=settings['n_epochs'],
+                       batch_size=settings['batch_size'],
+                       learning_rate=settings['learning_rate'],
+                       weight_decay=settings['weight_decay'],
+                       model_name=model_name,
+                       save_every=max(1, (settings['n_epochs'] // 10)),
+                       rescale=False)
+
+    print(f"Model saved at: {model_save_path}/{model_name}")
+    
+def test_cellpose_model(settings):
+    
+    from spacr.plot import generate_mask_random_cmap
+    
+    test_image_folder = os.path.join(settings['src'], 'test', 'images')
+    test_label_folder = os.path.join(settings['src'], 'test', 'masks')
+
+    test_image_files = sorted([os.path.join(test_image_folder, f) for f in os.listdir(test_image_folder) if f.endswith('.tif')])
+    test_label_files = sorted([os.path.join(test_label_folder, f) for f in os.listdir(test_label_folder) if f.endswith('.tif')])
+
+    test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
+    
+    images, labels = map(list, zip(*[test_dataset[i] for i in range(len(test_dataset))]))
+
+    model = cp_models.CellposeModel(gpu=True, pretrained_model=settings['model_path'])
+    
+    masks_pred, flows, _ = model.eval(x=images, 
+                                      channels=[0, 0],
+                                      normalize=False,
+                                      diameter=30,
+                                      flow_threshold=settings['FT'],
+                                      cellprob_threshold=settings['CP_probability'])
+
+    scores = [float(aggregated_jaccard_index([label], [pred])) for label, pred in zip(labels, masks_pred)]
+    
+    df_results = pd.DataFrame({
+        'label_image': [os.path.basename(f) for f in test_label_files],
+        'Jaccard': scores
+    })
+    
+    if settings['save']:
+        results_dir = os.path.join(settings['src'], 'results')
+        os.makedirs(results_dir, exist_ok=True)
+        df_results.to_csv(os.path.join(results_dir, 'test_results.csv'), index=False)
+        plot_cellpose_test(images, labels, masks_pred, flows, save_dir=results_dir, prefix='cellpose_result')        
+        
+def generate_cellpose_masks(settings):
+    
+    """
+    Generate masks for a folder of images using a pretrained Cellpose model.
+
+    Parameters:
+    - image_dir (str): Path to directory containing input images (.tif).
+    - model_path (str): Path to pretrained Cellpose model (.CP_model).
+    - save_dir (str or None): If specified, saves masks to this directory.
+    - settings (dict or None): Optional dictionary with keys:
+        'target_size': int (rescale input),
+        'normalize': bool,
+        'percentiles': tuple of (lower, upper) for intensity rescaling.
+    """
+    
+    image_dir = settings['src']
+    model_path = settings['model_path']
+    save_dir = os.path.join(settings['src'],  'masks')
+    
+    image_files = sorted([os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith('.tif')])
+    if not image_files:
+        raise ValueError(f"No .tif files found in {image_dir}")
+
+    os.makedirs(save_dir, exist_ok=True) if save_dir else None
+
+    normalize = settings.get('normalize', True) if settings else True
+    percentiles = settings.get('percentiles', (2, 99)) if settings else (2, 99)
+    target_size = settings.get('target_size', None) if settings else None
+
+    images = []
+    for path in image_files:
+        img = cp_io.imread(path)
+        if img.ndim == 3:
+            img = img.mean(axis=-1)
+
+        if img.max() > 1:
+            img = img / img.max()
+
+        if normalize:
+            p_low, p_high = np.percentile(img, percentiles)
+            img = rescale_intensity(img, in_range=(p_low, p_high), out_range=(0, 1))
+
+        if target_size:
+            img = sk_resize(img, (target_size, target_size), preserve_range=True, anti_aliasing=True).astype(np.float32)
+
+        images.append(img)
+
+    model = cp_models.CellposeModel(gpu=True, pretrained_model=model_path)
+    masks, flows, _ = model.eval(x=images,
+                                  channels=[0, 0],
+                                  normalize=False,
+                                  diameter=30,
+                                  flow_threshold=0.4,
+                                  cellprob_threshold=0.0)
+         
+    if settings['save']:
+        results_dir = os.path.join(settings['src'], 'results')
+        os.makedirs(results_dir, exist_ok=True)
+        plot_cellpose_test(images, None, masks, flows, save_dir=results_dir, prefix='cellpose_result')
+        
+        for path, mask in zip(image_files, masks):
+            base = os.path.splitext(os.path.basename(path))[0]
+            save_path = os.path.join(save_dir, base + "_mask.tif")
+            cp_io.imsave(save_path, mask.astype(np.uint16))
+    return
+
+
+def analyze_percent_positive(settings):
+    from spacr.io import _read_and_merge_data
+    from spacr.utils import save_settings
+    from .settings import default_settings_analyze_percent_positive
+    
+    settings = default_settings_analyze_percent_positive(settings)
+    
+    def translate_well_in_df(csv_loc):
+        # Load and extract metadata
+        df = pd.read_csv(csv_loc)
+        df[['plate', 'well']] = df['Renamed TIFF'].str.replace('.tif', '', regex=False).str.split('_', expand=True)[[0, 1]]
+        df['plate_well'] = df['plate'] + '_' + df['well']
+
+        # Retain one row per plate_well
+        df_2 = df.drop_duplicates(subset='plate_well').copy()
+
+        # Translate well to row and column
+        df_2['row_name'] = 'r' + df_2['well'].str[0].map(lambda x: str(string.ascii_uppercase.index(x) + 1))
+        df_2['column_name'] = 'c' + df_2['well'].str[1:].astype(int).astype(str)
+
+        # Optional: add prcf ID (plate_row_column_field)
+        df_2['field'] = 'f1'  # default or extract from filename if needed
+        df_2['prc'] = 'p' + df_2['plate'].str.extract(r'(\d+)')[0] + '_' + df_2['row_name'] + '_' + df_2['column_name']
+
+        return df_2
+    
+    def annotate_and_summarize(df, value_col, condition_col, well_col, threshold, annotation_col='annotation'):
+        """
+        Annotate and summarize a DataFrame based on a threshold.
+
+        Parameters:
+        - df: pandas.DataFrame
+        - value_col: str, column name to apply threshold on
+        - condition_col: str, column name for experimental condition
+        - well_col: str, column name for wells
+        - threshold: float, threshold value for annotation
+        - annotation_col: str, name of the new annotation column
+
+        Returns:
+        - df: annotated DataFrame
+        - summary_df: DataFrame with counts and fractions per condition and well
+        """
+        # Annotate
+        df[annotation_col] = np.where(df[value_col] > threshold, 'above', 'below')
+
+        # Count per condition and well
+        count_df = df.groupby([condition_col, well_col, annotation_col]).size().unstack(fill_value=0)
+
+        # Calculate total and fractions
+        count_df['total'] = count_df.sum(axis=1)
+        count_df['fraction_above'] = count_df.get('above', 0) / count_df['total']
+        count_df['fraction_below'] = count_df.get('below', 0) / count_df['total']
+
+        return df, count_df.reset_index()
+    
+    save_settings(settings, name='analyze_percent_positive', show=False)
+    
+    df, _ = _read_and_merge_data(locs=[settings['src']+'/measurements/measurements.db'], 
+                             tables=settings['tables'], 
+                             verbose=True, 
+                             nuclei_limit=None, 
+                             pathogen_limit=None)
+
+    df['condition'] = 'none'
+    
+    if not settings['filter_1'] is None:
+        df = df[df[settings['filter_1'][0]]>settings['filter_1'][1]]
+    
+    condition_col = 'condition'
+    well_col = 'prc'
+    
+    df, count_df = annotate_and_summarize(df, settings['value_col'], condition_col, well_col, settings['threshold'], annotation_col='annotation')
+    count_df[['plate', 'row_name', 'column_name']] = count_df['prc'].str.split('_', expand=True)
+    
+    csv_loc = os.path.join(settings['src'], 'rename_log.csv')
+    csv_out_loc = os.path.join(settings['src'], 'result.csv')
+    translate_df = translate_well_in_df(csv_loc)
+    
+    merged = pd.merge(count_df, translate_df, on=['row_name', 'column_name'], how='inner')
+
+    merged = merged[['plate_y', 'well', 'plate_well','field','row_name','column_name','prc_x','Original File','Renamed TIFF','above','below','fraction_above','fraction_below']]
+    merged[[f'part{i}' for i in range(merged['Original File'].str.count('_').max() + 1)]] = merged['Original File'].str.split('_', expand=True)
+    merged.to_csv(csv_out_loc, index=False)
+    display(merged)
+    return merged
 
 def analyze_recruitment(settings):
     """
@@ -197,8 +609,161 @@ def analyze_plaques(settings):
     conn.close()
     
     print(f"Analysis completed and saved to database '{db_name}'.")
+    
 
-def train_cellpose(settings):
+
+def train_cellpose_v2(settings):
+    
+    from spacr.io import _load_normalized_images_and_labels, _load_images_and_labels
+    from spacr.settings import get_train_cellpose_default_settings
+    from spacr.utils import save_settings
+    
+    settings = get_train_cellpose_default_settings(settings)
+    
+    img_src = settings['src']
+    
+    img_src = os.path.join(settings['src'],'train', 'images')
+    mask_src = os.path.join(settings['src'], 'train', 'masks')
+    test_img_src = os.path.join(settings['src'],'test', 'images')
+    test_mask_src = os.path.join(settings['src'], 'test', 'masks')
+    
+    if settings['resize']:
+        target_dimensions = settings['width_dimensions']
+
+    if settings['test']:
+        if os.path.exists(test_img_src) and os.path.exists(test_mask_src):
+            print(f"Found test set")
+        else:
+            print(f"could not find test folders: {test_img_src} and {test_mask_src}")
+            return
+
+    test_images, test_masks, test_image_names, test_mask_names = None,None,None,None
+
+    if settings['from_scratch']:
+        model_name=f"scratch_{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}_X{target_dimensions}_Y{target_dimensions}.CP_model"
+    else:
+        if settings['resize']:
+            model_name=f"{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}_X{target_dimensions}_Y{target_dimensions}.CP_model"
+        else:
+            model_name=f"{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}.CP_model"
+
+    model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
+    
+    print(model_save_path)
+    
+    os.makedirs(model_save_path, exist_ok=True)
+    save_settings(settings, name=f"{model_name}")
+    
+    if settings['from_scratch']:
+        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_type'], diam_mean=settings['diameter'], pretrained_model=None)
+    else:
+        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_type'])
+        
+    if settings['normalize']:
+
+        image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
+        label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
+        images, masks, image_names, mask_names, orig_dims = _load_normalized_images_and_labels(image_files, 
+                                                                                               label_files, 
+                                                                                               settings['channels'], 
+                                                                                               settings['percentiles'],  
+                                                                                               settings['invert'], 
+                                                                                               settings['verbose'], 
+                                                                                               settings['remove_background'], 
+                                                                                               settings['background'], 
+                                                                                               settings['Signal_to_noise'], 
+                                                                                               settings['target_dimensions'], 
+                                                                                               settings['target_dimensions'])        
+        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
+        
+        if settings['test']:
+            test_image_files = [os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')]
+            test_label_files = [os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')]
+            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(test_image_files, 
+                                                                                                            test_label_files, 
+                                                                                                            settings['channels'], 
+                                                                                                            settings['percentiles'],  
+                                                                                                            settings['invert'], 
+                                                                                                            settings['verbose'], 
+                                                                                                            settings['remove_background'], 
+                                                                                                            settings['background'], 
+                                                                                                            settings['Signal_to_noise'], 
+                                                                                                            settings['target_dimensions'], 
+                                                                                                            settings['target_dimensions'])
+            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
+            
+    else:
+        image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
+        label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
+        images, masks, image_names, mask_names = _load_images_and_labels(image_files, label_files, settings['invert'])
+        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
+        
+        if settings['test']:
+            test_image_files = sorted([os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')])
+            test_label_files = sorted([os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')])
+            test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(test_image_files, test_label_files, settings['invert'])
+            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
+    
+    #if resize:
+    #    images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
+
+    if settings['model_type'] == 'cyto':
+        cp_channels = [0,1]
+    if settings['model_type'] == 'cyto2':
+        cp_channels = [0,2]
+    if settings['model_type'] == 'cyto3':
+        cp_channels = [0,2]
+    if settings['model_type'] == 'nucleus':
+        cp_channels = [0,0]
+    if settings['grayscale']:
+        cp_channels = [0,0]
+        images = [np.squeeze(img) if img.ndim == 3 and 1 in img.shape else img for img in images]
+    
+    masks = [np.squeeze(mask) if mask.ndim == 3 and 1 in mask.shape else mask for mask in masks]
+
+    print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {masks[0].shape}, image type: masks[0].shape')
+    save_every = int(settings['n_epochs']/10)
+    if save_every < 10:
+        save_every = settings['n_epochs']
+        
+    if settings['test'] and (not test_images or not test_masks):
+        print("WARNING: Test data missing or empty. Proceeding without test set.")
+        test_images, test_masks = None, None
+        test_image_names, test_mask_names = None, None
+
+    train_cp.train_seg(model.net,
+                    train_data=images,
+                    train_labels=masks,
+                    train_files=image_names,
+                    train_labels_files=mask_names,
+                    train_probs=None,
+                    test_data=test_images,
+                    test_labels=test_masks,
+                    test_files=test_image_names,
+                    test_labels_files=test_mask_names, 
+                    test_probs=None,
+                    load_files=True,
+                    batch_size=settings['batch_size'],
+                    learning_rate=settings['learning_rate'],
+                    n_epochs=settings['n_epochs'],
+                    weight_decay=settings['weight_decay'],
+                    momentum=0.9,
+                    SGD=False,
+                    channels=cp_channels,
+                    channel_axis=None,
+                    normalize=False, 
+                    compute_flows=False,
+                    save_path=model_save_path,
+                    save_every=save_every,
+                    nimg_per_epoch=None,
+                    nimg_test_per_epoch=None,
+                    rescale=settings['rescale'],
+                    min_train_masks=1,
+                    model_name=settings['model_name'])
+
+    return print(f"Model saved at: {model_save_path}/{model_name}")
+
+def train_cellpose_v1(settings):
     
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
     from .settings import get_train_cellpose_default_settings

@@ -1842,7 +1842,7 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
     fig.tight_layout()
     plt.show()
     
-def plot_resize(images, resized_images, labels, resized_labels):
+def plot_resize_v1(images, resized_images, labels, resized_labels):
     # Display an example image and label before and after resizing
     fig, ax = plt.subplots(2, 2, figsize=(20, 20))
     
@@ -1864,6 +1864,48 @@ def plot_resize(images, resized_images, labels, resized_labels):
     ax[1, 0].set_title('Original Label')
     ax[1, 1].imshow(resized_labels[0], cmap='gray')
     ax[1, 1].set_title('Resized Label')
+    plt.show()
+    
+
+def plot_resize(images, resized_images, labels, resized_labels):
+    def prepare_image(img):
+        if img.ndim == 2:
+            return img, 'gray'
+        elif img.ndim == 3:
+            if img.shape[-1] == 1:
+                return np.squeeze(img, axis=-1), 'gray'
+            elif img.shape[-1] == 3:
+                return img, None  # RGB
+            elif img.shape[-1] == 4:
+                return img, None  # RGBA
+            else:
+                # fallback: average across channels to show as grayscale
+                return np.mean(img, axis=-1), 'gray'
+        else:
+            raise ValueError(f"Unsupported image shape: {img.shape}")
+
+    fig, ax = plt.subplots(2, 2, figsize=(20, 20))
+
+    # Original Image
+    img, cmap = prepare_image(images[0])
+    ax[0, 0].imshow(img, cmap=cmap)
+    ax[0, 0].set_title('Original Image')
+
+    # Resized Image
+    img, cmap = prepare_image(resized_images[0])
+    ax[0, 1].imshow(img, cmap=cmap)
+    ax[0, 1].set_title('Resized Image')
+
+    # Labels (assumed grayscale or single-channel)
+    lbl, cmap = prepare_image(labels[0])
+    ax[1, 0].imshow(lbl, cmap=cmap)
+    ax[1, 0].set_title('Original Label')
+
+    lbl, cmap = prepare_image(resized_labels[0])
+    ax[1, 1].imshow(lbl, cmap=cmap)
+    ax[1, 1].set_title('Resized Label')
+
+    plt.tight_layout()
     plt.show()
     
 def normalize_and_visualize(image, normalized_image, title=""):
