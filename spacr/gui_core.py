@@ -858,7 +858,7 @@ def check_src_folders_files(settings, settings_type, q):
         """Check if a specific sub-folder exists inside the given folder."""
         return os.path.isdir(os.path.join(parent_folder, sub_folder))
     
-    from .utils import normalize_src_path
+    from .utils import normalize_src_path, generate_image_path_map
     
     settings['src'] = normalize_src_path(settings['src'])
 
@@ -889,28 +889,38 @@ def check_src_folders_files(settings, settings_type, q):
 
     for path in src_list:  # Fixed: Use src_list instead of src_value
         if settings_type == 'mask':
-            pictures_continue = _folder_has_images(path)
-            folder_chan_continue = _has_folder(path, "1")
-            folder_stack_continue = _has_folder(path, "stack")
-            folder_npz_continue = _has_folder(path, "norm_channel_stack")
+            if settings['consolidate']:
+                image_map = generate_image_path_map(path)
+                if len(image_map) > 0:
+                    request_stop = False
+                    return request_stop
+                else:
+                    q.put(f"Error: Missing subfolders with images for: {path}")
+                    request_stop = True
+                    return request_stop
+            else:
+                pictures_continue = _folder_has_images(path)
+                folder_chan_continue = _has_folder(path, "1")
+                folder_stack_continue = _has_folder(path, "stack")
+                folder_npz_continue = _has_folder(path, "norm_channel_stack")
             
-            if not pictures_continue:
-                if not any([folder_chan_continue, folder_stack_continue, folder_npz_continue]):
-                    if not folder_chan_continue:
-                        q.put(f"Error: Missing channel folder in folder: {path}")
-                        
-                    if not folder_stack_continue:
-                        q.put(f"Error: Missing stack folder in folder: {path}")
-                        
-                    if not folder_npz_continue:
-                        q.put(f"Error: Missing norm_channel_stack folder in folder: {path}")
-                    else:
-                        q.put(f"Error: No images in folder: {path}")
-            
-            #q.put(f"path:{path}")
-            #q.put(f"pictures_continue:{pictures_continue}, folder_chan_continue:{folder_chan_continue}, folder_stack_continue:{folder_stack_continue}, folder_npz_continue:{folder_npz_continue}")
+                if not pictures_continue:
+                    if not any([folder_chan_continue, folder_stack_continue, folder_npz_continue]):
+                        if not folder_chan_continue:
+                            q.put(f"Error: Missing channel folder in folder: {path}")
+                            
+                        if not folder_stack_continue:
+                            q.put(f"Error: Missing stack folder in folder: {path}")
+                            
+                        if not folder_npz_continue:
+                            q.put(f"Error: Missing norm_channel_stack folder in folder: {path}")
+                        else:
+                            q.put(f"Error: No images in folder: {path}")
+                
+                #q.put(f"path:{path}")
+                #q.put(f"pictures_continue:{pictures_continue}, folder_chan_continue:{folder_chan_continue}, folder_stack_continue:{folder_stack_continue}, folder_npz_continue:{folder_npz_continue}")
 
-            conditions = [pictures_continue, folder_chan_continue, folder_stack_continue, folder_npz_continue]
+                conditions = [pictures_continue, folder_chan_continue, folder_stack_continue, folder_npz_continue]
             
         if settings_type == 'measure':
             if not os.path.basename(path) == 'merged':

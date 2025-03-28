@@ -92,7 +92,8 @@ def process_chunk(chunk_data):
     def paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex):
 
         consensus_sequences, columns, grnas, rows = [], [], [], []
-
+        consensus_seq = None
+        
         for r1_lines, r2_lines in zip(r1_chunk, r2_chunk):
             _, r1_sequence, _, r1_quality = r1_lines.split('\n')
             _, r2_sequence, _, r2_quality = r2_lines.split('\n')
@@ -134,12 +135,13 @@ def process_chunk(chunk_data):
             print(f"WARNING: No sequences matched {regex} in chunk")
             print(f"Are bacode sequences in the correct orientation?")
             print(f"Is {consensus_seq} compatible with {regex} ?")
-
-            if len(consensus_seq) >= expected_end:
-                consensus_seq_rc = reverse_complement(consensus_seq)
-                match = re.match(regex, consensus_seq_rc)
-                if match:
-                    print(f"Reverse complement of last sequence in chunk matched {regex}")
+            
+            if consensus_seq:
+                if len(consensus_seq) >= expected_end:
+                    consensus_seq_rc = reverse_complement(consensus_seq)
+                    match = re.match(regex, consensus_seq_rc)
+                    if match:
+                        print(f"Reverse complement of last sequence in chunk matched {regex}")
 
         return consensus_sequences, columns, grnas, rows
     
