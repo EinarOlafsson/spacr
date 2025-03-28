@@ -5422,3 +5422,70 @@ def normalize_src_path(src):
         return src  # Return as a string if not a list
 
     raise ValueError(f"Invalid type for 'src': {type(src).__name__}, expected str or list")
+
+def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png", "jpg", "jpeg", "bmp", "czi", "nd2", "lif")):
+    """
+    Recursively scans a folder and its subfolders for images, then creates a mapping of:
+    {original_image_path: new_image_path}, where the new path includes all subfolder names.
+
+    Args:
+        root_folder (str): The root directory to scan for images.
+        valid_extensions (tuple): Tuple of valid image file extensions.
+
+    Returns:
+        dict: A dictionary mapping original image paths to their new paths.
+    """
+    image_path_map = {}
+
+    for dirpath, _, filenames in os.walk(root_folder):
+        for file in filenames:
+            ext = file.lower().split('.')[-1]
+            if ext in valid_extensions:
+                # Get relative path of the image from root_folder
+                relative_path = os.path.relpath(dirpath, root_folder)
+                
+                # Construct new filename: Embed folder hierarchy into the name
+                folder_parts = relative_path.split(os.sep)  # Get all folder names
+                folder_info = "_".join(folder_parts) if folder_parts else ""  # Join with underscores
+                
+                # Generate new filename
+                new_filename = f"{folder_info}_{file}" if folder_info else file
+
+                # Store in dictionary (original path -> new path)
+                original_path = os.path.join(dirpath, file)
+                new_path = os.path.join(root_folder, new_filename)
+                image_path_map[original_path] = new_path
+
+    return image_path_map
+
+def copy_images_to_consolidated(image_path_map, root_folder):
+    """
+    Copies images from their original locations to a 'consolidated' folder,
+    renaming them according to the generated dictionary.
+
+    Args:
+        image_path_map (dict): Dictionary mapping {original_path: new_path}.
+        root_folder (str): The root directory where the 'consolidated' folder will be created.
+    """
+    
+    consolidated_folder = os.path.join(root_folder, "consolidated")
+    os.makedirs(consolidated_folder, exist_ok=True)  # Ensure 'consolidated' folder exists
+    files_processed = 0
+    files_to_process = len(image_path_map)
+    time_ls= []
+    
+    for original_path, new_path in image_path_map.items():
+        
+        start = time.time()
+        new_filename = os.path.basename(new_path)  # Extract only the new filename
+        new_file_path = os.path.join(consolidated_folder, new_filename)  # Place in 'consolidated' folder
+        
+        shutil.copy2(original_path, new_file_path)  # Copy file with metadata preserved
+        
+        files_processed += 1
+        stop = time.time()
+        duration = (stop - start)
+        time_ls.append(duration)
+        
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'Consolidating images')
+        #print(f"Copied: {original_path} -> {new_file_path}")

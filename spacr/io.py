@@ -23,6 +23,7 @@ import seaborn as sns
 from nd2reader import ND2Reader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
+import readlif
 
 def process_non_tif_non_2D_images(folder):
     """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
@@ -130,6 +131,65 @@ def process_non_tif_non_2D_images(folder):
                 print(f"Error processing {filename}: {str(e)}")
 
 def _load_images_and_labels(image_files, label_files, invert=False):
+    
+    from .utils import invert_image
+    
+    images = []
+    labels = []
+
+    image_names = sorted([os.path.basename(f) for f in image_files]) if image_files else []
+    label_names = sorted([os.path.basename(f) for f in label_files]) if label_files else []
+
+    if image_files and label_files:
+        for img_file, lbl_file in zip(image_files, label_files):
+            image = cellpose.io.imread(img_file)
+            if image is None:
+                print(f"WARNING: Could not load image: {img_file}")
+                continue
+            if invert:
+                image = invert_image(image)
+            if image.max() > 1:
+                image = image / image.max()
+
+            label = cellpose.io.imread(lbl_file)
+            if label is None:
+                print(f"WARNING: Could not load label: {lbl_file}")
+                continue
+
+            images.append(image)
+            labels.append(label)
+
+    elif image_files:
+        for img_file in image_files:
+            image = cellpose.io.imread(img_file)
+            if image is None:
+                print(f"WARNING: Could not load image: {img_file}")
+                continue
+            if invert:
+                image = invert_image(image)
+            if image.max() > 1:
+                image = image / image.max()
+            images.append(image)
+
+    elif label_files:
+        for lbl_file in label_files:
+            label = cellpose.io.imread(lbl_file)
+            if label is None:
+                print(f"WARNING: Could not load label: {lbl_file}")
+                continue
+            labels.append(label)
+
+    image_dir = os.path.dirname(image_files[0]) if image_files else None
+    label_dir = os.path.dirname(label_files[0]) if label_files else None
+
+    print(f'Loaded {len(images)} images and {len(labels)} labels from {image_dir} and {label_dir}')
+    if images and labels:
+        print(f'image shape: {images[0].shape}, image type: {images[0].dtype}; '
+              f'label shape: {labels[0].shape}, label type: {labels[0].dtype}')
+
+    return images, labels, image_names, label_names
+
+def _load_images_and_labels_v1(image_files, label_files, invert=False):
     
     from .utils import invert_image, apply_mask
     
@@ -3199,8 +3259,7 @@ def convert_separate_files_to_yokogawa(folder, regex):
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
 
-
-def convert_to_yokogawa(folder):
+def convert_to_yokogawa_v1(folder):
     """
     Detects file type in the folder and converts them
     to Yokogawa-style naming with Maximum Intensity Projection (MIP).
@@ -3342,3 +3401,583 @@ def convert_to_yokogawa(folder):
     # Save rename log as CSV
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
+    
+def convert_to_yokogawa_v2(folder):
+    """
+    Detects file type in the folder and converts them
+    to Yokogawa-style naming with Maximum Intensity Projection (MIP).
+    """
+
+    def _get_next_well(used_wells):
+        """
+        Determines the next available well position in a 384-well format.
+        Iterates wells, and after P24, switches to plate2.
+        """
+        plate = 1
+        for well in WELLS:
+            well_name = f"plate{plate}_{well}"
+            if well_name not in used_wells:
+                return well_name
+            if well == "P24":  
+                plate += 1  
+        return f"plate{plate}_A01"
+
+    # Define 384-well plate format
+    ROWS = "ABCDEFGHIJKLMNOP"
+    COLS = [f"{i:02d}" for i in range(1, 25)]
+    WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
+
+    filenames = []
+    rename_log = []
+    csv_path = os.path.join(folder, "rename_log.csv")
+    used_wells = set(os.listdir(folder))
+
+    # **Dictionary to store well assignments per original file**
+    file_to_well = {}
+
+    for file in os.listdir(folder):
+        path = os.path.join(folder, file)
+        ext = file.lower().split('.')[-1]
+
+        # **Assign a well only once per original file**
+        if file not in file_to_well:
+            file_to_well[file] = _get_next_well(used_wells)
+            used_wells.add(file_to_well[file])  # Mark it as used
+
+        well = file_to_well[file]  # Use the same well for all channels/times
+
+        ### **Process Nikon ND2 Files**
+        if ext == 'nd2':
+            try:
+                nd2 = ND2Reader(path)
+                metadata = nd2.metadata
+
+                timepoints = list(range(len(metadata.get("frames", [0])))) or [0]
+                fields = list(range(len(metadata.get("fields_of_view", [0])))) or [0]
+                z_levels = list(metadata.get("z_levels", range(1))) if metadata.get("z_levels") else [0]
+                channels = metadata.get("channels", [])
+
+                for t_idx in timepoints:
+                    for f_idx in fields:
+                        for c_idx, channel in enumerate(channels):
+                            try:
+                                mip_image = np.max.reduce([
+                                    nd2.get_frame_2D(t=t_idx, v=f_idx, z=z_idx, c=c_idx) 
+                                    for z_idx in z_levels
+                                ], axis=0)
+
+                                dtype = mip_image.dtype
+                                filename = f"{well}_T{t_idx+1:04d}F{f_idx+1:03d}L01C{c_idx+1:02d}.tif"
+                                filepath = os.path.join(folder, filename)
+
+                                tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+                            except IndexError:
+                                print(f"Warning: ND2 file {file} has an incomplete data structure. Skipping.")
+
+            except Exception as e:
+                print(f"Error processing ND2 file {file}: {e}")
+
+        ### **Process Zeiss CZI Files**
+        elif ext == 'czi':
+            with czifile.CziFile(path) as czi:
+                img_data = czi.asarray()  # Read the full image array
+
+                # Remove singleton dimensions (if any)
+                img_data = np.squeeze(img_data)
+
+                # Get the actual shape of the data
+                shape = img_data.shape
+                num_dims = len(shape)
+
+                # Default values if dimensions are missing
+                timepoints = 1
+                z_levels = 1
+                channels = 1
+
+                # Determine dimension mapping dynamically
+                if num_dims == 2:  # (Y, X) → Single 2D image
+                    y_dim, x_dim = shape
+                    img_data = img_data.reshape(1, 1, 1, y_dim, x_dim)  # Add missing dimensions
+                elif num_dims == 3:  # (C, Y, X) or (Z, Y, X)
+                    if shape[0] <= 4:  # Likely (C, Y, X)
+                        channels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(1, 1, channels, y_dim, x_dim)  # Add missing dimensions
+                    else:  # Likely (Z, Y, X)
+                        z_levels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(1, z_levels, 1, y_dim, x_dim)  # Add missing dimensions
+                elif num_dims == 4:  # Could be (T, C, Y, X) or (T, Z, Y, X) or (Z, C, Y, X)
+                    if shape[1] <= 4:  # Assume (T, C, Y, X)
+                        timepoints, channels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(timepoints, 1, channels, y_dim, x_dim)  # Add missing Z
+                    else:  # Assume (T, Z, Y, X) or (Z, C, Y, X)
+                        timepoints, z_levels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(timepoints, z_levels, 1, y_dim, x_dim)  # Add missing C
+                elif num_dims == 5:  # Standard (T, Z, C, Y, X)
+                    timepoints, z_levels, channels, y_dim, x_dim = shape
+                else:
+                    raise ValueError(f"Unexpected CZI shape: {shape}. Unable to process.")
+
+                # Iterate over detected timepoints, channels, and perform MIP over Z
+                for t_idx in range(timepoints):
+                    for c_idx in range(channels):
+                        # Extract Z-stack or single image
+                        if z_levels > 1:
+                            z_stack = img_data[t_idx, :, c_idx, :, :]  # MIP over Z
+                            mip_image = np.max(z_stack, axis=0)
+                        else:
+                            mip_image = img_data[t_idx, 0, c_idx, :, :]  # No Z, take directly
+
+                        # Ensure correct dtype
+                        dtype = mip_image.dtype
+
+                        # Generate Yokogawa-style filename
+                        filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
+                        filepath = os.path.join(folder, filename)
+
+                        # Save the extracted image
+                        tifffile.imwrite(filepath, mip_image.astype(dtype))
+
+                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+        ### **Process Leica LIF Files**
+        elif ext == 'lif':
+            try:
+                lif_file = readlif.Reader(path)
+
+                for image in lif_file.getIterImage():
+                    timepoints = range(getattr(image.dims, 't', 1))
+                    z_levels = range(getattr(image.dims, 'z', 1))
+                    channels = range(getattr(image.dims, 'c', 1))
+
+                    for t_idx in timepoints:
+                        for c_idx in channels:
+                            try:
+                                mip_image = np.max.reduce([
+                                    image.getFrame(z=z_idx, t=t_idx, c=c_idx) 
+                                    for z_idx in z_levels
+                                ], axis=0)
+
+                                dtype = mip_image.dtype
+                                filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
+                                filepath = os.path.join(folder, filename)
+
+                                tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+                            except IndexError:
+                                print(f"Warning: LIF file {file} has missing frames or corrupted metadata.")
+
+            except Exception as e:
+                print(f"Error processing LIF file {file}: {e}")
+
+        ### **Process Standard Image Files (TIFF, PNG, JPEG, BMP)**
+        elif ext in ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp'] and not file.startswith("plate"):
+            try:
+                with tifffile.TiffFile(path) as tif:
+                    images = tif.asarray()
+
+                    if images.ndim == 2:  # Single image
+                        mip_image = images
+                    elif images.ndim == 3:  # (C, Y, X) or (T, Y, X) or (Z, Y, X)
+                        if images.shape[0] > 4:  # Likely (Z, Y, X)
+                            mip_image = np.max(images, axis=0)
+                        else:  # Likely (C, Y, X)
+                            mip_image = np.max(images, axis=0)
+                    elif images.ndim == 4:  # (T, C, Y, X) or (T, Z, Y, X)
+                        mip_image = np.max(images, axis=(1, 2))  # Project over Z and C
+
+                    dtype = mip_image.dtype
+                    filename = f"{well}_T0001F001L01C01.tif"
+                    filepath = os.path.join(folder, filename)
+
+                    tifffile.imwrite(filepath, mip_image.astype(dtype))
+                    rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+            except Exception as e:
+                print(f"Error processing standard image file {file}: {e}")
+
+    # Save rename log as CSV
+    pd.DataFrame(rename_log).to_csv(csv_path, index=False)
+    print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
+    
+def convert_to_yokogawa(folder):
+    """
+    Detects file type in the folder and converts them
+    to Yokogawa-style naming with Maximum Intensity Projection (MIP).
+    """
+    
+    #def _get_next_well(used_wells):
+    #    """
+    #    Determines the next available well position in a 384-well format.
+    #    Iterates wells, and after P24, switches to plate2.
+    #    """
+    #    plate = 1
+    #    for well in WELLS:
+    #        well_name = f"plate{plate}_{well}"
+    #        if well_name not in used_wells:
+    #            used_wells.add(well_name)
+    #            return well_name
+    #        if well == "P24":  
+    #            plate += 1  
+    #    raise ValueError("All wells exhausted.")
+    
+    def _get_next_well(used_wells):
+        """
+        Determines the next available well position across multiple 384-well plates.
+        """
+        ROWS = "ABCDEFGHIJKLMNOP"
+        COLS = [f"{i:02d}" for i in range(1, 25)]
+        WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
+
+        plate = 1
+        while True:
+            for well in WELLS:
+                well_name = f"plate{plate}_{well}"
+                if well_name not in used_wells:
+                    used_wells.add(well_name)
+                    return well_name
+            plate += 1  # All wells exhausted in current plate, increment to next plate
+
+
+    # Define 384-well plate format
+    ROWS = "ABCDEFGHIJKLMNOP"
+    COLS = [f"{i:02d}" for i in range(1, 25)]
+    WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
+
+    filenames = []
+    rename_log = []
+    csv_path = os.path.join(folder, "rename_log.csv")
+    used_wells = set()
+
+    # **Dictionary to store well assignments per original file**
+    file_to_well = {}
+
+    for file in os.listdir(folder):
+        path = os.path.join(folder, file)
+        ext = file.lower().split('.')[-1]
+
+        # **Assign a well only once per original file**
+        if file not in file_to_well:
+            file_to_well[file] = _get_next_well(used_wells)
+            #used_wells.add(file_to_well[file])  # Mark it as used
+
+        well = file_to_well[file]  # Use the same well for all channels/times
+
+        ### **Process Nikon ND2 Files**
+        if ext == 'nd2':
+            try:
+                nd2 = ND2Reader(path)
+                metadata = nd2.metadata
+
+                timepoints = list(range(len(metadata.get("frames", [0])))) or [0]
+                fields = list(range(len(metadata.get("fields_of_view", [0])))) or [0]
+                z_levels = list(metadata.get("z_levels", range(1))) if metadata.get("z_levels") else [0]
+                channels = metadata.get("channels", [])
+
+                for t_idx in timepoints:
+                    for f_idx in fields:
+                        for c_idx, channel in enumerate(channels):
+                            try:
+                                mip_image = np.max.reduce([
+                                    nd2.get_frame_2D(t=t_idx, v=f_idx, z=z_idx, c=c_idx) 
+                                    for z_idx in z_levels
+                                ], axis=0)
+
+                                dtype = mip_image.dtype
+                                filename = f"{well}_T{t_idx+1:04d}F{f_idx+1:03d}L01C{c_idx+1:02d}.tif"
+                                filepath = os.path.join(folder, filename)
+
+                                tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+                            except IndexError:
+                                print(f"Warning: ND2 file {file} has an incomplete data structure. Skipping.")
+
+            except Exception as e:
+                print(f"Error processing ND2 file {file}: {e}")
+
+        ### **Process Zeiss CZI Files**
+        elif ext == 'czi':
+            with czifile.CziFile(path) as czi:
+                img_data = czi.asarray()  # Read the full image array
+
+                # Remove singleton dimensions (if any)
+                img_data = np.squeeze(img_data)
+
+                # Get the actual shape of the data
+                shape = img_data.shape
+                num_dims = len(shape)
+
+                # Default values if dimensions are missing
+                timepoints = 1
+                z_levels = 1
+                channels = 1
+
+                # Determine dimension mapping dynamically
+                if num_dims == 2:  # (Y, X) → Single 2D image
+                    y_dim, x_dim = shape
+                    img_data = img_data.reshape(1, 1, 1, y_dim, x_dim)  # Add missing dimensions
+                elif num_dims == 3:  # (C, Y, X) or (Z, Y, X)
+                    if shape[0] <= 4:  # Likely (C, Y, X)
+                        channels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(1, 1, channels, y_dim, x_dim)  # Add missing dimensions
+                    else:  # Likely (Z, Y, X)
+                        z_levels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(1, z_levels, 1, y_dim, x_dim)  # Add missing dimensions
+                elif num_dims == 4:  # Could be (T, C, Y, X) or (T, Z, Y, X) or (Z, C, Y, X)
+                    if shape[1] <= 4:  # Assume (T, C, Y, X)
+                        timepoints, channels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(timepoints, 1, channels, y_dim, x_dim)  # Add missing Z
+                    else:  # Assume (T, Z, Y, X) or (Z, C, Y, X)
+                        timepoints, z_levels, y_dim, x_dim = shape
+                        img_data = img_data.reshape(timepoints, z_levels, 1, y_dim, x_dim)  # Add missing C
+                elif num_dims == 5:  # Standard (T, Z, C, Y, X)
+                    timepoints, z_levels, channels, y_dim, x_dim = shape
+                else:
+                    raise ValueError(f"Unexpected CZI shape: {shape}. Unable to process.")
+
+                # Iterate over detected timepoints, channels, and perform MIP over Z
+                for t_idx in range(timepoints):
+                    for c_idx in range(channels):
+                        # Extract Z-stack or single image
+                        if z_levels > 1:
+                            z_stack = img_data[t_idx, :, c_idx, :, :]  # MIP over Z
+                            mip_image = np.max(z_stack, axis=0)
+                        else:
+                            mip_image = img_data[t_idx, 0, c_idx, :, :]  # No Z, take directly
+
+                        # Ensure correct dtype
+                        dtype = mip_image.dtype
+
+                        # Generate Yokogawa-style filename
+                        filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
+                        filepath = os.path.join(folder, filename)
+
+                        # Save the extracted image
+                        tifffile.imwrite(filepath, mip_image.astype(dtype))
+
+                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+        ### **Process Leica LIF Files**
+        elif ext == 'lif':
+            try:
+                lif_file = readlif.Reader(path)
+
+                for image_idx, image in enumerate(lif_file.getIterImage()):
+                    timepoints = range(getattr(image.dims, 't', 1))
+                    z_levels = range(getattr(image.dims, 'z', 1))
+                    channels = range(getattr(image.dims, 'c', 1))
+
+                    for t_idx in timepoints:
+                        for c_idx in channels:
+                            z_stack = []
+                            for z_idx in z_levels:
+                                try:
+                                    frame = image.getFrame(z=z_idx, t=t_idx, c=c_idx)
+                                    z_stack.append(frame)
+                                except IndexError:
+                                    print(f"Missing frame: T{t_idx}, Z{z_idx}, C{c_idx} in {file}, skipping frame.")
+                            
+                            if z_stack:
+                                mip_image = np.max(np.stack(z_stack), axis=0)
+                                dtype = mip_image.dtype
+                                filename = f"{well}_T{t_idx+1:04d}F{image_idx+1:03d}L01C{c_idx+1:02d}.tif"
+                                filepath = os.path.join(folder, filename)
+
+                                tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+            except Exception as e:
+                print(f"Error processing LIF file {file}: {e}")
+
+        ### **Process Standard Image Files (TIFF, PNG, JPEG, BMP)**
+        elif ext in ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp'] and not file.startswith("plate"):
+            try:
+                with tifffile.TiffFile(path) as tif:
+                    images = tif.asarray()
+                    ndim = images.ndim
+
+                    # Defaults
+                    t_dim = z_dim = c_dim = 1
+
+                    # Determine dimensions more explicitly
+                    if ndim == 2:
+                        mip_image = images
+                        filename = f"{well}_T0001F001L01C01.tif"
+                        tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
+                        continue
+
+                    elif ndim == 3:
+                        if images.shape[0] <= 4:  # Likely channels
+                            c_dim = images.shape[0]
+                            for c in range(c_dim):
+                                mip_image = images[c, :, :]
+                                filename = f"{well}_T0001F001L01C{c+1:02d}.tif"
+                                tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
+                        else:  # Z-stack
+                            mip_image = np.max(images, axis=0)
+                            filename = f"{well}_T0001F001L01C01.tif"
+                            tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                            rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+                    elif ndim == 4:
+                        t_dim, z_dim, y_dim, x_dim = images.shape
+                        for t in range(t_dim):
+                            mip_image = np.max(images[t, :, :, :], axis=0)
+                            filename = f"{well}_T{t+1:04d}F001L01C01.tif"
+                            tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                            rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
+                    else:
+                        raise ValueError(f"Unsupported TIFF dimensions: {images.shape}")
+
+            except Exception as e:
+                print(f"Error processing standard image file {file}: {e}")
+
+
+    # Save rename log as CSV
+    pd.DataFrame(rename_log).to_csv(csv_path, index=False)
+    print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
+    
+def apply_augmentation(image, method):
+    if method == 'rotate90':
+        return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+    elif method == 'rotate180':
+        return cv2.rotate(image, cv2.ROTATE_180)
+    elif method == 'rotate270':
+        return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    elif method == 'flip_h':
+        return cv2.flip(image, 1)
+    elif method == 'flip_v':
+        return cv2.flip(image, 0)
+    return image
+
+def process_instruction(entry):
+    img = tifffile.imread(entry["src_img"])
+    msk = tifffile.imread(entry["src_msk"])
+    if entry["augment"]:
+        img = apply_augmentation(img, entry["augment"])
+        msk = apply_augmentation(msk, entry["augment"])
+    tifffile.imwrite(entry["dst_img"], img)
+    tifffile.imwrite(entry["dst_msk"], msk)
+    return 1
+
+def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None):
+    
+    from .utils import print_progress
+
+    time_ls = []
+    input_root = os.path.abspath(input_root)
+    output_root = os.path.join(input_root, "cellpose_dataset")
+
+    def get_augmentations():
+        return ['rotate90', 'rotate180', 'rotate270', 'flip_h', 'flip_v']
+
+    def find_image_mask_pairs(dataset_path):
+        mask_dir = os.path.join(dataset_path, "masks")
+        pairs = []
+        for fname in os.listdir(dataset_path):
+            if fname.lower().endswith((".tif", ".tiff")):
+                img_path = os.path.join(dataset_path, fname)
+                msk_path = os.path.join(mask_dir, fname)
+                if os.path.isfile(msk_path):
+                    pairs.append((img_path, msk_path))
+        return pairs
+
+    def prepare_output_folders(base):
+        for subset in ["train", "test"]:
+            os.makedirs(os.path.join(base, subset, "images"), exist_ok=True)
+            os.makedirs(os.path.join(base, subset, "masks"), exist_ok=True)
+
+    print("Scanning datasets...")
+    datasets = []
+    for subdir in os.listdir(input_root):
+        dataset_path = os.path.join(input_root, subdir)
+        if os.path.isdir(dataset_path) and os.path.isdir(os.path.join(dataset_path, "masks")):
+            pairs = find_image_mask_pairs(dataset_path)
+            if pairs:
+                datasets.append(pairs)
+                print(f"  Found {len(pairs)} images in {dataset_path}")
+
+    if not datasets:
+        raise ValueError("No valid datasets with images and masks found.")
+
+    prepare_output_folders(output_root)
+
+    min_size = min(len(pairs) for pairs in datasets)
+    target_size = min_size if not augment_data else max(len(pairs) for pairs in datasets)
+
+    print("\nPreparing instruction list...")
+    instructions = []
+    global_index = 0
+
+    for pairs in datasets:
+        dataset_len = len(pairs)
+
+        # --- Step 1: Sample or augment ---
+        sampled_pairs = []
+        if dataset_len >= target_size:
+            sampled_pairs = random.sample(pairs, target_size)
+        else:
+            sampled_pairs = pairs.copy()
+            if augment_data:
+                needed = target_size - dataset_len
+                aug_methods = get_augmentations()
+                full_loops = needed // len(aug_methods)
+                extra = needed % len(aug_methods)
+
+                for _ in range(full_loops):
+                    for (img_path, msk_path), aug in zip(pairs, aug_methods * (dataset_len // len(aug_methods))):
+                        sampled_pairs.append((img_path, msk_path, aug))
+                if extra > 0:
+                    subset = random.sample(pairs * ((extra // len(aug_methods)) + 1), extra)
+                    for (img_path, msk_path), aug in zip(subset, aug_methods[:extra]):
+                        sampled_pairs.append((img_path, msk_path, aug))
+
+        # Add "no augmentation" tag to original files
+        augmented_sampled = [
+            (tup[0], tup[1], None) if len(tup) == 2 else tup
+            for tup in sampled_pairs
+        ]
+
+        # --- Step 2: Split into train/test ---
+        random.shuffle(augmented_sampled)
+        split_idx = int(train_fraction * len(augmented_sampled))
+        split_sets = {
+            "train": augmented_sampled[:split_idx],
+            "test": augmented_sampled[split_idx:]
+        }
+
+        for subset, items in split_sets.items():
+            for img_path, msk_path, aug in items:
+                dst_img = os.path.join(output_root, subset, "images", f"{global_index:05d}.tif")
+                dst_msk = os.path.join(output_root, subset, "masks", f"{global_index:05d}.tif")
+                instructions.append({
+                    "src_img": img_path,
+                    "src_msk": msk_path,
+                    "dst_img": dst_img,
+                    "dst_msk": dst_msk,
+                    "augment": aug
+                })
+                global_index += 1
+
+    print(f"Total files to process: {len(instructions)}")
+
+    # --- Step 3: Process with multiprocessing ---
+    print("Processing images with multiprocessing...")
+    
+    if n_jobs is None:
+        n_jobs = max(1, cpu_count() - 1)
+    else:
+        n_jobs = int(n_jobs)
+        
+    with Pool(n_jobs) as pool:
+        for i, _ in enumerate(pool.imap_unordered(process_instruction, instructions), 1):
+            print_progress(i, len(instructions), n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type="cellpose dataset")
+
+    print(f"Done. Dataset saved to: {output_root}")
+

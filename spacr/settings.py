@@ -32,6 +32,7 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('preprocess', True)
     settings.setdefault('masks', True)
     settings.setdefault('save', True)
+    settings.setdefault('consolidate', False)
     settings.setdefault('batch_size', 50)
     settings.setdefault('test_mode', False)
     settings.setdefault('test_images', 10)
@@ -509,7 +510,15 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('pathogen_intensity_range',[0,100000])
     settings.setdefault('nucleus_intensity_range',[0,100000])
     settings.setdefault('cell_intensity_range',[0,100000])
-    settings.setdefault('target_intensity_min',0)
+    settings.setdefault('target_intensity_min',1)
+    return settings
+
+def default_settings_analyze_percent_positive(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('tables',['cell'])
+    settings.setdefault('filter_1',['cell_area',1000])
+    settings.setdefault('value_col','cell_channel_2_mean_intensity')
+    settings.setdefault('threshold',2000)
     return settings
 
 def get_analyze_reads_default_settings(settings):
@@ -947,7 +956,8 @@ expected_types = {
     "flow_threshold":float,
     "cell_diamiter":int,
     "nucleus_diamiter":int,
-    "pathogen_diamiter":int
+    "pathogen_diamiter":int,
+    "consolidate":bool
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
@@ -969,7 +979,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
-             "Beta": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor"]
+             "Beta": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor", "consolidate"]
              }
 
 
@@ -1246,6 +1256,7 @@ def generate_fields(variables, scrollable_frame):
         "col_to_compare": "(str) - Column to compare in the embeddings.",
         "color_by": "(str) - Coloring scheme for the plots.",
         "compartments": "(list) - The compartments to measure in the images.",
+        "consolidate": "(bool) - Consolidate image files from subfolders into one folder named consolidated.",
         "CP_prob": "(float) - Cellpose probability threshold for segmentation.",
         "crop_mode": "(str) - Mode to use for cropping images (cell, nucleus, pathogen, cytoplasm).",
         "custom_model": "(str) - Path to a custom Cellpose model.",
