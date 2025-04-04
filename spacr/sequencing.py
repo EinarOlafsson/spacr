@@ -43,9 +43,9 @@ def save_unique_combinations_to_csv(unique_combinations, csv_file):
         if not existing_df.empty:
             unique_combinations = pd.concat([existing_df, unique_combinations])
             unique_combinations = unique_combinations.groupby(
-                ['row_name', 'column_name', 'grna_name'], as_index=False).sum()
+                ['rowID', 'columnID', 'grna_name'], as_index=False).sum()
 
-        unique_combinations.to_csv(csv_file, index=False)
+        unique_combinations.to_csv(csv_file, index=True)
     except Exception as e:
         print(f"Error while saving unique combinations to CSV: {e}")
 
@@ -124,12 +124,20 @@ def process_chunk(chunk_data):
                     match = re.match(regex, consensus_seq)
                     if match:
                         consensus_sequences.append(consensus_seq)
-                        column_sequence = match.group('column')
+                        
+                        #print(f"r1_seq: {r1_seq}")
+                        #print(f"r2_seq: {r2_seq}")
+                        #print(f"consensus_sequences: {consensus_sequences}")
+                        
+                        column_sequence = match.group('columnID')
                         grna_sequence = match.group('grna')
-                        row_sequence = match.group('row_name')
+                        row_sequence = match.group('rowID')
                         columns.append(column_sequence)
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
+                        
+                        #print(f"row bc: {row_sequence} col bc: {column_sequence} grna bc: {grna_sequence}")
+                        #print(f"row bc: {rows} col bc: {columns} grna bc: {grnas}")
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
@@ -176,9 +184,9 @@ def process_chunk(chunk_data):
                     match = re.match(regex, consensus_seq)
                     if match:
                         consensus_sequences.append(consensus_seq)
-                        column_sequence = match.group('column')
+                        column_sequence = match.group('columnID')
                         grna_sequence = match.group('grna')
-                        row_sequence = match.group('row_name')
+                        row_sequence = match.group('rowID')
                         columns.append(column_sequence)
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
@@ -196,10 +204,10 @@ def process_chunk(chunk_data):
 
         return consensus_sequences, columns, grnas, rows
 
+    if len(chunk_data) == 10:
+        r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
     if len(chunk_data) == 9:
-        r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv = chunk_data
-    if len(chunk_data) == 8:
-        r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv = chunk_data
+        r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
         r2_chunk = None
 
     if r2_chunk is None:
@@ -214,9 +222,9 @@ def process_chunk(chunk_data):
     df = pd.DataFrame({
         'read': consensus_sequences,
         'column_sequence': columns,
-        'column_name': column_names,
+        'columnID': column_names,
         'row_sequence': rows,
-        'row_name': row_names,
+        'rowID': row_names,
         'grna_sequence': grnas,
         'grna_name': grna_names
     })
@@ -225,8 +233,20 @@ def process_chunk(chunk_data):
     qc_df.columns = df.columns
     qc_df.index = ["NaN_Counts"]
     qc_df['total_reads'] = len(df)
+    
+    if fill_na:
+        df2 = df.copy()
+        if 'columnID' in df2.columns:
+            df2['columnID'] = df2['columnID'].fillna(df2['column_sequence'])
+        if 'rowID' in df2.columns:
+            df2['rowID'] = df2['rowID'].fillna(df2['row_sequence'])
+        if 'grna_name' in df2.columns:
+            df2['grna_name'] = df2['grna_name'].fillna(df2['grna_sequence'])
+        
+        unique_combinations = df2.groupby(['rowID', 'columnID', 'grna_name']).size().reset_index(name='count')
+    else:
+        unique_combinations = df.groupby(['rowID', 'columnID', 'grna_name']).size().reset_index(name='count')
 
-    unique_combinations = df.groupby(['row_name', 'column_name', 'grna_name']).size().reset_index(name='count')
     return df, unique_combinations, qc_df
 
 # Function to save data from the queue
@@ -241,7 +261,7 @@ def saver_process(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_cs
         save_unique_combinations_to_csv(unique_combinations, unique_combinations_csv)
         save_qc_df_to_csv(qc_df, qc_csv_file)
 
-def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False):
+def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False):
 
     from .utils import count_reads_in_fastq, print_progress
 
@@ -297,14 +317,12 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 break
 
             chunk_count += 1
-            chunk_data = (r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv)
+            chunk_data = (r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)
 
-            # Process chunks in parallel
+            # Process chunks in parallel-
             result = pool.apply_async(process_chunk, (chunk_data,))
 
             df, unique_combinations, qc_df = result.get()
-
-            # Queue the results for saving
             save_queue.put((df, unique_combinations, qc_df))
 
             end_time = time.time()
@@ -325,7 +343,7 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     save_queue.put("STOP")
     save_process.join()
 
-def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False):
+def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False):
 
     from .utils import count_reads_in_fastq, print_progress
 
@@ -375,10 +393,11 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 break
 
             chunk_count += 1
-            chunk_data = (r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv)
+            chunk_data = (r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)
 
             # Process chunks in parallel
             result = pool.apply_async(process_chunk, (chunk_data,))
+            
             df, unique_combinations, qc_df = result.get()
 
             # Queue the results for saving
@@ -416,6 +435,8 @@ def generate_barecode_mapping(settings={}):
     print(f'Using regex: {regex} to extract barcode information')
 
     samples_dict = parse_gz_files(settings['src'])
+    
+    print(samples_dict)
 
     print(f'If compression is low and save_h5 is True, saving might take longer than processing.')
     
@@ -464,7 +485,8 @@ def generate_barecode_mapping(settings={}):
                      qc_csv_file=qc_csv_file,
                      chunk_size=settings['chunk_size'],
                      n_jobs=settings['n_jobs'],
-                     test=settings['test'])
+                     test=settings['test'],
+                     fill_na=settings['fill_na'])
 
 # Function to read the CSV, compute reverse complement, and save it
 def barecodes_reverse_complement(csv_file):
@@ -491,7 +513,7 @@ def barecodes_reverse_complement(csv_file):
 
 def graph_sequencing_stats(settings):
 
-    from .utils import correct_metadata_column_names
+    from .utils import correct_metadata_column_names, correct_metadata
 
     def _plot_density(df, dependent_variable, dst=None):
         """Plot a density plot of the dependent variable."""
@@ -534,7 +556,7 @@ def graph_sequencing_stats(settings):
         # Iterate through the fraction thresholds
         for threshold in fraction_thresholds:
             filtered_df = df[df['fraction'] >= threshold]
-            unique_count = filtered_df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().mean()
+            unique_count = filtered_df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().mean()
             results.append((threshold, unique_count))
 
         results_df = pd.DataFrame(results, columns=['fraction_threshold', 'unique_count'])
@@ -570,8 +592,19 @@ def graph_sequencing_stats(settings):
     dfs = []
     for i, count_data in enumerate(settings['count_data']):
         df = pd.read_csv(count_data)
-        df['plate'] = f'plate{i+1}'
-        df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+        
+        df = correct_metadata(df)
+        
+        if 'plateID' not in df.columns:
+            df['plateID'] = f'plate{i+1}'
+            
+        display(df)
+        
+        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+        else:
+            raise ValueError("The DataFrame must contain 'plateID', 'rowID', and 'columnID' columns.")
+        
         df['total_count'] = df.groupby(['prc'])['count'].transform('sum')
         df['fraction'] = df['count'] / df['total_count']
         dfs.append(df)
@@ -590,20 +623,20 @@ def graph_sequencing_stats(settings):
     # Apply the closest threshold to the DataFrame
     df = df[df['fraction'] >= closest_threshold]
 
-    # Group by 'plate', 'row_name', 'column' and compute unique counts of 'grna'
-    unique_counts = df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().reset_index(name='unique_counts')
-    unique_count_mean = df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().mean()
-    unique_count_std = df.groupby(['plate', 'row_name', 'column'])['grna'].nunique().std()
+    # Group by 'plateID', 'rowID', 'columnID' and compute unique counts of 'grna'
+    unique_counts = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().reset_index(name='unique_counts')
+    unique_count_mean = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().mean()
+    unique_count_std = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().std()
 
     # Merge the unique counts back into the original DataFrame
-    df = pd.merge(df, unique_counts, on=['plate', 'row_name', 'column'], how='left')
+    df = pd.merge(df, unique_counts, on=['plateID', 'rowID', 'columnID'], how='left')
 
     print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
     #_plot_density(df, dependent_variable='unique_counts')
     
-    has_underscore = df['row_name'].str.contains('_').any()
+    has_underscore = df['rowID'].str.contains('_').any()
     if has_underscore:
-        df['row_name'] = df['row_name'].apply(lambda x: x.split('_')[1])
+        df['rowID'] = df['rowID'].apply(lambda x: x.split('_')[1])
     
     plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
     

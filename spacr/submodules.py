@@ -1,5 +1,5 @@
 import seaborn as sns
-import os, random, sqlite3, re, shap, string
+import os, random, sqlite3, re, shap, string, time
 import pandas as pd
 import numpy as np
 
@@ -14,6 +14,7 @@ from cellpose import models as cp_models
 from cellpose import io as cp_io
 from cellpose import train as train_cp
 from cellpose.metrics import aggregated_jaccard_index
+from cellpose.metrics import average_precision
 
 from IPython.display import display
 from sklearn.ensemble import RandomForestClassifier
@@ -23,7 +24,7 @@ from scipy.stats import chi2_contingency, pearsonr
 from scipy.spatial.distance import cosine
 
 from sklearn.metrics import mean_absolute_error
-
+from skimage.measure import regionprops, label as sklabel 
 import matplotlib.pyplot as plt
 from natsort import natsorted
 
@@ -31,8 +32,6 @@ import torch
 from torch.utils.data import Dataset
 from spacr.settings import get_train_cellpose_default_settings
 from spacr.utils import save_settings, invert_image
-
-
 
 class CellposeLazyDataset(Dataset):
     def __init__(self, image_files, label_files, settings, randomize=True, augment=False):
@@ -90,104 +89,11 @@ class CellposeLazyDataset(Dataset):
 
         return image, label
 
-
-def plot_cellpose_batch(images, labels):
-    from spacr.plot import generate_mask_random_cmap
-
-    cmap_lbl = generate_mask_random_cmap(labels)
-    batch_size = len(images)
-    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8))
-    for i in range(batch_size):
-        axs[0, i].imshow(images[i], cmap='gray')
-        axs[0, i].set_title(f'Image {i+1}')
-        axs[0, i].axis('off')
-        axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
-        axs[1, i].set_title(f'Label {i+1}')
-        axs[1, i].axis('off')
-    plt.show()
-    
-    
-def plot_cellpose_test_v1(images, labels, masks_pred, flows):
-    from spacr.plot import generate_mask_random_cmap
-    
-    fig, axs = plt.subplots(len(images), 4, figsize=(16, 4 * len(images)), gridspec_kw={'wspace':0.1, 'hspace':0.1})
-    
-    for i in range(len(images)):
-        cmap_lbl = generate_mask_random_cmap(labels[i])
-        cmap_msk = generate_mask_random_cmap(masks_pred[i])
-        
-        axs[i, 0].imshow(images[i], cmap='gray')
-        axs[i, 0].set_title(f'Image {i+1}')
-        axs[i, 0].axis('off')
-        axs[i, 1].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
-        axs[i, 1].set_title(f'True Label {i+1}')
-        axs[i, 1].axis('off')
-        axs[i, 2].imshow(masks_pred[i], cmap=cmap_msk, interpolation='nearest')
-        axs[i, 2].set_title(f'Predicted Mask {i+1}')
-        axs[i, 2].axis('off')
-        axs[i, 3].imshow(flows[i][0], cmap='gray')
-        axs[i, 3].set_title(f'Flows {i+1}')
-        axs[i, 3].axis('off')
-    
-    plt.tight_layout(pad=0.5)
-    plt.show()
-    
-def plot_cellpose_test(images, labels, masks_pred, flows, save_dir=None, prefix='cellpose_result'):
-    """
-    Plot image, label, prediction, and flow for each sample in its own figure.
-
-    Parameters:
-    images (list): List of input images.
-    labels (list): List of ground truth masks.
-    masks_pred (list): List of predicted masks.
-    flows (list): List of flow images (use flow[0] for each).
-    save_dir (str or None): Directory to save figures. If None, figures are not saved.
-    prefix (str): Prefix for saved figure filenames.
-    """
-    from spacr.plot import generate_mask_random_cmap
-
-    os.makedirs(save_dir, exist_ok=True) if save_dir else None
-
-    for i in range(len(images)):
-        
-        width = sum(x is not None for x in [images, labels, masks_pred, flows])    
-        fig, axs = plt.subplots(1, width, figsize=(16, width), gridspec_kw={'wspace':0.1, 'hspace':0.1})
-        j = 0
-        if not images is None:
-            axs[j].imshow(images[i], cmap='gray')
-            axs[j].set_title(f'Image {i+1}')
-            axs[j].axis('off')
-        
-        if not labels is None:
-            j += 1
-            cmap_lbl = generate_mask_random_cmap(labels[i])
-            axs[j].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
-            axs[j].set_title(f'True Label {i+1}')
-            axs[j].axis('off')
-
-        if not masks_pred is None:
-            j += 1
-            cmap_msk = generate_mask_random_cmap(masks_pred[i])
-            axs[j].imshow(masks_pred[i], cmap=cmap_msk, interpolation='nearest')
-            axs[j].set_title(f'Predicted Mask {i+1}')
-            axs[j].axis('off')
-
-        if not flows is None:
-            j += 1
-            axs[j].imshow(flows[i][0], cmap='gray')
-            axs[j].set_title(f'Flows {i+1}')
-            axs[j].axis('off')
-
-        plt.tight_layout(pad=0.01)
-
-        if save_dir:
-            save_path = os.path.join(save_dir, f"{prefix}_{i+1:03d}.png")
-            plt.savefig(save_path, dpi=200, bbox_inches='tight')
-        plt.show()
-        plt.close(fig)
-
-
 def train_cellpose(settings):
+    
+    from spacr.settings import get_train_cellpose_default_settings
+    from spacr.utils import save_settings
+    
     settings = get_train_cellpose_default_settings(settings)
     img_src = os.path.join(settings['src'], 'train', 'images')
     mask_src = os.path.join(settings['src'], 'train', 'masks')
@@ -202,8 +108,17 @@ def train_cellpose(settings):
     model = cp_models.CellposeModel(gpu=True, model_type='cyto', diam_mean=30, pretrained_model='cyto')
     cp_channels = [0, 0]
 
-    train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
-    train_label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
+    #train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
+    #train_label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
+    
+    image_filenames = set(f for f in os.listdir(img_src) if f.endswith('.tif'))
+    label_filenames = set(f for f in os.listdir(mask_src) if f.endswith('.tif'))
+
+    # Only keep files that are present in both folders
+    matched_filenames = sorted(image_filenames & label_filenames)
+
+    train_image_files = [os.path.join(img_src, f) for f in matched_filenames]
+    train_label_files = [os.path.join(mask_src, f) for f in matched_filenames]
 
     train_dataset = CellposeLazyDataset(train_image_files, train_label_files, settings, randomize=True, augment=settings['augment'])
 
@@ -246,106 +161,324 @@ def train_cellpose(settings):
     
 def test_cellpose_model(settings):
     
-    from spacr.plot import generate_mask_random_cmap
+    from spacr.utils import save_settings, print_progress
+    from .settings import get_default_test_cellpose_model_settings
     
+    def plot_cellpose_resilts(i, j, results_dir, img, lbl, pred, flow):
+        from spacr. plot import generate_mask_random_cmap
+        fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+        cmap_lbl = generate_mask_random_cmap(lbl)
+        cmap_pred = generate_mask_random_cmap(pred)
+
+        axs[0].imshow(img, cmap='gray')
+        axs[0].set_title('Image')
+        axs[0].axis('off')
+
+        axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
+        axs[1].set_title('True Mask')
+        axs[1].axis('off')
+
+        axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')
+        axs[2].set_title('Predicted Mask')
+        axs[2].axis('off')
+        
+        axs[3].imshow(flow[2], cmap='gray')
+        axs[3].set_title('Cell Probability')
+        axs[3].axis('off')
+
+        axs[4].imshow(flow[0], cmap='gray')
+        axs[4].set_title('Flows')
+        axs[4].axis('off')
+
+        save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
+        plt.savefig(save_path, dpi=200, bbox_inches='tight')
+        plt.show()
+        plt.close(fig)
+        
+        
+    settings = get_default_test_cellpose_model_settings(settings)
+        
+    save_settings(settings, name='test_cellpose_model')
     test_image_folder = os.path.join(settings['src'], 'test', 'images')
     test_label_folder = os.path.join(settings['src'], 'test', 'masks')
+    results_dir = os.path.join(settings['src'], 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    
+    print(f"Results will be saved in: {results_dir}")
 
-    test_image_files = sorted([os.path.join(test_image_folder, f) for f in os.listdir(test_image_folder) if f.endswith('.tif')])
-    test_label_files = sorted([os.path.join(test_label_folder, f) for f in os.listdir(test_label_folder) if f.endswith('.tif')])
+    image_filenames = set(f for f in os.listdir(test_image_folder) if f.endswith('.tif'))
+    label_filenames = set(f for f in os.listdir(test_label_folder) if f.endswith('.tif'))
+
+    # Only keep files that are present in both folders
+    matched_filenames = sorted(image_filenames & label_filenames)
+
+    test_image_files = [os.path.join(test_image_folder, f) for f in matched_filenames]
+    test_label_files = [os.path.join(test_label_folder, f) for f in matched_filenames]
+
+    print(f"Found {len(test_image_files)} images and {len(test_label_files)} masks")
 
     test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
-    
-    images, labels = map(list, zip(*[test_dataset[i] for i in range(len(test_dataset))]))
 
     model = cp_models.CellposeModel(gpu=True, pretrained_model=settings['model_path'])
-    
-    masks_pred, flows, _ = model.eval(x=images, 
-                                      channels=[0, 0],
-                                      normalize=False,
-                                      diameter=30,
-                                      flow_threshold=settings['FT'],
-                                      cellprob_threshold=settings['CP_probability'])
 
-    scores = [float(aggregated_jaccard_index([label], [pred])) for label, pred in zip(labels, masks_pred)]
+    batch_size = settings['batch_size']
+    scores = []
+    names = []
+    time_ls = []
     
+    files_to_process = len(test_image_folder)
+
+    for i in range(0, len(test_dataset), batch_size):
+        start = time.time()
+        batch = [test_dataset[j] for j in range(i, min(i + batch_size, len(test_dataset)))]
+        images, labels = zip(*batch)
+
+        masks_pred, flows, _ = model.eval(x=list(images),
+                                          channels=[0, 0],
+                                          normalize=False,
+                                          diameter=30,
+                                          flow_threshold=settings['FT'],
+                                          cellprob_threshold=settings['CP_probability'],
+                                          rescale=None,     
+                                          resample=True,
+                                          interp=True,
+                                          anisotropy=None,
+                                          min_size=5,         
+                                          augment=True,
+                                          tile=True,
+                                          tile_overlap=0.2,
+                                          bsize=224)
+        
+        n_objects_true_ls = []
+        n_objects_pred_ls = []
+        mean_area_true_ls = []
+        mean_area_pred_ls = []
+        tp_ls, fp_ls, fn_ls = [], [], []
+        precision_ls, recall_ls, f1_ls, accuracy_ls = [], [], [], []
+
+        for j, (img, lbl, pred, flow) in enumerate(zip(images, labels, masks_pred, flows)):
+            score = float(aggregated_jaccard_index([lbl], [pred]))
+            fname = os.path.basename(test_label_files[i + j])
+            scores.append(score)
+            names.append(fname)
+
+            # Label masks
+            lbl_lab = label(lbl)
+            pred_lab = label(pred)
+
+            # Count objects
+            n_true = lbl_lab.max()
+            n_pred = pred_lab.max()
+            n_objects_true_ls.append(n_true)
+            n_objects_pred_ls.append(n_pred)
+
+            # Mean object size (area)
+            area_true = [p.area for p in regionprops(lbl_lab)]
+            area_pred = [p.area for p in regionprops(pred_lab)]
+
+            mean_area_true = np.mean(area_true) if area_true else 0
+            mean_area_pred = np.mean(area_pred) if area_pred else 0
+            mean_area_true_ls.append(mean_area_true)
+            mean_area_pred_ls.append(mean_area_pred)
+            
+            # Compute object-level TP, FP, FN
+            ap, tp, fp, fn = average_precision([lbl], [pred], threshold=[0.5])
+            tp, fp, fn = int(tp[0, 0]), int(fp[0, 0]), int(fn[0, 0])
+            tp_ls.append(tp)
+            fp_ls.append(fp)
+            fn_ls.append(fn)
+
+            # Precision, Recall, F1, Accuracy
+            prec = tp / (tp + fp) if (tp + fp) > 0 else 0
+            rec = tp / (tp + fn) if (tp + fn) > 0 else 0
+            f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0
+            acc = tp / (tp + fp + fn) if (tp + fp + fn) > 0 else 0
+
+            precision_ls.append(prec)
+            recall_ls.append(rec)
+            f1_ls.append(f1)
+            accuracy_ls.append(acc)
+
+            if settings['save']:
+                plot_cellpose_resilts(i, j, results_dir, img, lbl, pred, flow)
+
+            if settings['save']:
+                plot_cellpose_resilts(i,j,results_dir, img, lbl, pred, flow)
+                
+        stop = time.time()
+        duration = stop-start
+        files_processed = (i+1) * batch_size
+        time_ls.append(duration)
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=batch_size, operation_type="test custom cellpose model")
+
     df_results = pd.DataFrame({
-        'label_image': [os.path.basename(f) for f in test_label_files],
-        'Jaccard': scores
+        'label_image': names,
+        'Jaccard': scores,
+        'n_objects_true': n_objects_true_ls,
+        'n_objects_pred': n_objects_pred_ls,
+        'mean_area_true': mean_area_true_ls,
+        'mean_area_pred': mean_area_pred_ls,
+        'TP': tp_ls,
+        'FP': fp_ls,
+        'FN': fn_ls,
+        'Precision': precision_ls,
+        'Recall': recall_ls,
+        'F1': f1_ls,
+        'Accuracy': accuracy_ls
     })
     
+    df_results['n_error'] = abs(df_results['n_objects_pred'] - df_results['n_objects_true'])
+
+    print(f"Average true objects/image: {df_results['n_objects_true'].mean():.2f}")
+    print(f"Average predicted objects/image: {df_results['n_objects_pred'].mean():.2f}")
+    print(f"Mean object area (true): {df_results['mean_area_true'].mean():.2f} px")
+    print(f"Mean object area (pred): {df_results['mean_area_pred'].mean():.2f} px")
+    print(f"Average Jaccard score: {df_results['Jaccard'].mean():.4f}")
+    
+    print(f"Average Precision: {df_results['Precision'].mean():.3f}")
+    print(f"Average Recall: {df_results['Recall'].mean():.3f}")
+    print(f"Average F1-score: {df_results['F1'].mean():.3f}")
+    print(f"Average Accuracy: {df_results['Accuracy'].mean():.3f}")
+
+    display(df_results)
+
     if settings['save']:
-        results_dir = os.path.join(settings['src'], 'results')
-        os.makedirs(results_dir, exist_ok=True)
         df_results.to_csv(os.path.join(results_dir, 'test_results.csv'), index=False)
-        plot_cellpose_test(images, labels, masks_pred, flows, save_dir=results_dir, prefix='cellpose_result')        
         
-def generate_cellpose_masks(settings):
+def apply_cellpose_model(settings):
     
-    """
-    Generate masks for a folder of images using a pretrained Cellpose model.
-
-    Parameters:
-    - image_dir (str): Path to directory containing input images (.tif).
-    - model_path (str): Path to pretrained Cellpose model (.CP_model).
-    - save_dir (str or None): If specified, saves masks to this directory.
-    - settings (dict or None): Optional dictionary with keys:
-        'target_size': int (rescale input),
-        'normalize': bool,
-        'percentiles': tuple of (lower, upper) for intensity rescaling.
-    """
+    from .settings import get_default_apply_cellpose_model_settings
+    from spacr.utils import save_settings, print_progress
     
-    image_dir = settings['src']
-    model_path = settings['model_path']
-    save_dir = os.path.join(settings['src'],  'masks')
-    
-    image_files = sorted([os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith('.tif')])
-    if not image_files:
-        raise ValueError(f"No .tif files found in {image_dir}")
-
-    os.makedirs(save_dir, exist_ok=True) if save_dir else None
-
-    normalize = settings.get('normalize', True) if settings else True
-    percentiles = settings.get('percentiles', (2, 99)) if settings else (2, 99)
-    target_size = settings.get('target_size', None) if settings else None
-
-    images = []
-    for path in image_files:
-        img = cp_io.imread(path)
-        if img.ndim == 3:
-            img = img.mean(axis=-1)
-
-        if img.max() > 1:
-            img = img / img.max()
-
-        if normalize:
-            p_low, p_high = np.percentile(img, percentiles)
-            img = rescale_intensity(img, in_range=(p_low, p_high), out_range=(0, 1))
-
-        if target_size:
-            img = sk_resize(img, (target_size, target_size), preserve_range=True, anti_aliasing=True).astype(np.float32)
-
-        images.append(img)
-
-    model = cp_models.CellposeModel(gpu=True, pretrained_model=model_path)
-    masks, flows, _ = model.eval(x=images,
-                                  channels=[0, 0],
-                                  normalize=False,
-                                  diameter=30,
-                                  flow_threshold=0.4,
-                                  cellprob_threshold=0.0)
-         
-    if settings['save']:
-        results_dir = os.path.join(settings['src'], 'results')
-        os.makedirs(results_dir, exist_ok=True)
-        plot_cellpose_test(images, None, masks, flows, save_dir=results_dir, prefix='cellpose_result')
+    def plot_cellpose_result(i, j, results_dir, img, pred, flow):
         
-        for path, mask in zip(image_files, masks):
-            base = os.path.splitext(os.path.basename(path))[0]
-            save_path = os.path.join(save_dir, base + "_mask.tif")
-            cp_io.imsave(save_path, mask.astype(np.uint16))
-    return
+        from .plot import generate_mask_random_cmap  
+        
+        fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+        cmap_pred = generate_mask_random_cmap(pred)
 
+        axs[0].imshow(img, cmap='gray')
+        axs[0].set_title('Image')
+        axs[0].axis('off')
+
+        axs[1].imshow(pred, cmap=cmap_pred, interpolation='nearest')
+        axs[1].set_title('Predicted Mask')
+        axs[1].axis('off')
+        
+        axs[2].imshow(flow[2], cmap='gray')
+        axs[2].set_title('Cell Probability')
+        axs[2].axis('off')
+        
+        axs[3].imshow(flow[0], cmap='gray')
+        axs[3].set_title('Flows')
+        axs[3].axis('off')
+
+        save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
+        plt.savefig(save_path, dpi=200, bbox_inches='tight')
+        plt.show()
+        plt.close(fig)
+        
+        
+    settings = get_default_apply_cellpose_model_settings(settings)
+    save_settings(settings, name='apply_cellpose_model')
+
+    image_folder = os.path.join(settings['src'])
+    results_dir = os.path.join(settings['src'], 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    print(f"Results will be saved in: {results_dir}")
+
+    image_files = sorted([os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.endswith('.tif')])
+    print(f"Found {len(image_files)} images")
+
+    dummy_labels = [image_files[0]] * len(image_files)
+    dataset = CellposeLazyDataset(image_files, dummy_labels, settings, randomize=False, augment=False)
+
+    model = cp_models.CellposeModel(gpu=True, pretrained_model=settings['model_path'])
+    batch_size = settings['batch_size']
+    measurements = []
+    
+    files_to_process = len(image_files)
+    time_ls = []
+
+    for i in range(0, len(dataset), batch_size):
+        start = time.time() 
+        batch = [dataset[j] for j in range(i, min(i + batch_size, len(dataset)))]
+        images, _ = zip(*batch)
+        
+        X = list(images)
+        
+        print(settings['CP_probability'])
+        masks_pred, flows, _ = model.eval(x=list(images),
+                                          channels=[0, 0],
+                                          normalize=False,
+                                          diameter=30,
+                                          flow_threshold=settings['FT'],
+                                          cellprob_threshold=settings['CP_probability'],
+                                          rescale=None,     
+                                          resample=True,
+                                          interp=True,
+                                          anisotropy=None,
+                                          min_size=5,         
+                                          augment=True,
+                                          tile=True,
+                                          tile_overlap=0.2,
+                                          bsize=224)
+        
+        for j, (img, pred, flow) in enumerate(zip(images, masks_pred, flows)):
+            fname = os.path.basename(image_files[i + j])
+
+            if settings.get('circularize', False):
+                h, w = pred.shape
+                Y, X = np.ogrid[:h, :w]
+                center_x, center_y = w / 2, h / 2
+                radius = min(center_x, center_y)
+                circular_mask = (X - center_x)**2 + (Y - center_y)**2 <= radius**2
+                pred = pred * circular_mask
+
+            if settings['save']:
+                plot_cellpose_result(i, j, results_dir, img, pred, flow)
+
+            props = regionprops(sklabel(pred))
+            for k, prop in enumerate(props):
+                measurements.append({
+                    'image': fname,
+                    'object_id': k + 1,
+                    'area': prop.area
+                })
+                
+        stop = time.time()            
+        duration = stop-start
+        files_processed = (i+1) * batch_size
+        time_ls.append(duration)
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=batch_size, operation_type="apply custom cellpose model")
+
+
+        # Write after each batch
+        df_measurements = pd.DataFrame(measurements)
+        df_measurements.to_csv(os.path.join(results_dir, 'measurements.csv'), index=False)
+        print("Saved object counts and areas to measurements.csv")
+
+        df_summary = df_measurements.groupby('image').agg(
+            object_count=('object_id', 'count'),
+            average_area=('area', 'mean')
+        ).reset_index()
+        df_summary.to_csv(os.path.join(results_dir, 'summary.csv'), index=False)
+        print("Saved object count and average area to summary.csv")
+
+def plot_cellpose_batch(images, labels):
+    from spacr.plot import generate_mask_random_cmap
+
+    cmap_lbl = generate_mask_random_cmap(labels)
+    batch_size = len(images)
+    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8))
+    for i in range(batch_size):
+        axs[0, i].imshow(images[i], cmap='gray')
+        axs[0, i].set_title(f'Image {i+1}')
+        axs[0, i].axis('off')
+        axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
+        axs[1, i].set_title(f'Label {i+1}')
+        axs[1, i].axis('off')
+    plt.show()
 
 def analyze_percent_positive(settings):
     from spacr.io import _read_and_merge_data
@@ -357,19 +490,19 @@ def analyze_percent_positive(settings):
     def translate_well_in_df(csv_loc):
         # Load and extract metadata
         df = pd.read_csv(csv_loc)
-        df[['plate', 'well']] = df['Renamed TIFF'].str.replace('.tif', '', regex=False).str.split('_', expand=True)[[0, 1]]
-        df['plate_well'] = df['plate'] + '_' + df['well']
+        df[['plateID', 'well']] = df['Renamed TIFF'].str.replace('.tif', '', regex=False).str.split('_', expand=True)[[0, 1]]
+        df['plate_well'] = df['plateID'] + '_' + df['well']
 
         # Retain one row per plate_well
         df_2 = df.drop_duplicates(subset='plate_well').copy()
 
         # Translate well to row and column
-        df_2['row_name'] = 'r' + df_2['well'].str[0].map(lambda x: str(string.ascii_uppercase.index(x) + 1))
+        df_2['rowID'] = 'r' + df_2['well'].str[0].map(lambda x: str(string.ascii_uppercase.index(x) + 1))
         df_2['column_name'] = 'c' + df_2['well'].str[1:].astype(int).astype(str)
 
         # Optional: add prcf ID (plate_row_column_field)
-        df_2['field'] = 'f1'  # default or extract from filename if needed
-        df_2['prc'] = 'p' + df_2['plate'].str.extract(r'(\d+)')[0] + '_' + df_2['row_name'] + '_' + df_2['column_name']
+        df_2['fieldID'] = 'f1'  # default or extract from filename if needed
+        df_2['prc'] = 'p' + df_2['plateID'].str.extract(r'(\d+)')[0] + '_' + df_2['rowID'] + '_' + df_2['column_name']
 
         return df_2
     
@@ -419,15 +552,15 @@ def analyze_percent_positive(settings):
     well_col = 'prc'
     
     df, count_df = annotate_and_summarize(df, settings['value_col'], condition_col, well_col, settings['threshold'], annotation_col='annotation')
-    count_df[['plate', 'row_name', 'column_name']] = count_df['prc'].str.split('_', expand=True)
+    count_df[['plateID', 'rowID', 'column_name']] = count_df['prc'].str.split('_', expand=True)
     
     csv_loc = os.path.join(settings['src'], 'rename_log.csv')
     csv_out_loc = os.path.join(settings['src'], 'result.csv')
     translate_df = translate_well_in_df(csv_loc)
     
-    merged = pd.merge(count_df, translate_df, on=['row_name', 'column_name'], how='inner')
+    merged = pd.merge(count_df, translate_df, on=['rowID', 'column_name'], how='inner')
 
-    merged = merged[['plate_y', 'well', 'plate_well','field','row_name','column_name','prc_x','Original File','Renamed TIFF','above','below','fraction_above','fraction_below']]
+    merged = merged[['plate_y', 'well', 'plate_well','fieldID','rowID','column_name','prc_x','Original File','Renamed TIFF','above','below','fraction_above','fraction_below']]
     merged[[f'part{i}' for i in range(merged['Original File'].str.count('_').max() + 1)]] = merged['Original File'].str.split('_', expand=True)
     merged.to_csv(csv_out_loc, index=False)
     display(merged)
@@ -609,300 +742,6 @@ def analyze_plaques(settings):
     conn.close()
     
     print(f"Analysis completed and saved to database '{db_name}'.")
-    
-
-
-def train_cellpose_v2(settings):
-    
-    from spacr.io import _load_normalized_images_and_labels, _load_images_and_labels
-    from spacr.settings import get_train_cellpose_default_settings
-    from spacr.utils import save_settings
-    
-    settings = get_train_cellpose_default_settings(settings)
-    
-    img_src = settings['src']
-    
-    img_src = os.path.join(settings['src'],'train', 'images')
-    mask_src = os.path.join(settings['src'], 'train', 'masks')
-    test_img_src = os.path.join(settings['src'],'test', 'images')
-    test_mask_src = os.path.join(settings['src'], 'test', 'masks')
-    
-    if settings['resize']:
-        target_dimensions = settings['width_dimensions']
-
-    if settings['test']:
-        if os.path.exists(test_img_src) and os.path.exists(test_mask_src):
-            print(f"Found test set")
-        else:
-            print(f"could not find test folders: {test_img_src} and {test_mask_src}")
-            return
-
-    test_images, test_masks, test_image_names, test_mask_names = None,None,None,None
-
-    if settings['from_scratch']:
-        model_name=f"scratch_{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}_X{target_dimensions}_Y{target_dimensions}.CP_model"
-    else:
-        if settings['resize']:
-            model_name=f"{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}_X{target_dimensions}_Y{target_dimensions}.CP_model"
-        else:
-            model_name=f"{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}.CP_model"
-
-    model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
-    
-    print(model_save_path)
-    
-    os.makedirs(model_save_path, exist_ok=True)
-    save_settings(settings, name=f"{model_name}")
-    
-    if settings['from_scratch']:
-        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_type'], diam_mean=settings['diameter'], pretrained_model=None)
-    else:
-        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_type'])
-        
-    if settings['normalize']:
-
-        image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
-        label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
-        images, masks, image_names, mask_names, orig_dims = _load_normalized_images_and_labels(image_files, 
-                                                                                               label_files, 
-                                                                                               settings['channels'], 
-                                                                                               settings['percentiles'],  
-                                                                                               settings['invert'], 
-                                                                                               settings['verbose'], 
-                                                                                               settings['remove_background'], 
-                                                                                               settings['background'], 
-                                                                                               settings['Signal_to_noise'], 
-                                                                                               settings['target_dimensions'], 
-                                                                                               settings['target_dimensions'])        
-        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-        
-        if settings['test']:
-            test_image_files = [os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')]
-            test_label_files = [os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')]
-            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(test_image_files, 
-                                                                                                            test_label_files, 
-                                                                                                            settings['channels'], 
-                                                                                                            settings['percentiles'],  
-                                                                                                            settings['invert'], 
-                                                                                                            settings['verbose'], 
-                                                                                                            settings['remove_background'], 
-                                                                                                            settings['background'], 
-                                                                                                            settings['Signal_to_noise'], 
-                                                                                                            settings['target_dimensions'], 
-                                                                                                            settings['target_dimensions'])
-            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
-            
-    else:
-        image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
-        label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
-        images, masks, image_names, mask_names = _load_images_and_labels(image_files, label_files, settings['invert'])
-        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-        
-        if settings['test']:
-            test_image_files = sorted([os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')])
-            test_label_files = sorted([os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')])
-            test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(test_image_files, test_label_files, settings['invert'])
-            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
-    
-    #if resize:
-    #    images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
-
-    if settings['model_type'] == 'cyto':
-        cp_channels = [0,1]
-    if settings['model_type'] == 'cyto2':
-        cp_channels = [0,2]
-    if settings['model_type'] == 'cyto3':
-        cp_channels = [0,2]
-    if settings['model_type'] == 'nucleus':
-        cp_channels = [0,0]
-    if settings['grayscale']:
-        cp_channels = [0,0]
-        images = [np.squeeze(img) if img.ndim == 3 and 1 in img.shape else img for img in images]
-    
-    masks = [np.squeeze(mask) if mask.ndim == 3 and 1 in mask.shape else mask for mask in masks]
-
-    print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {masks[0].shape}, image type: masks[0].shape')
-    save_every = int(settings['n_epochs']/10)
-    if save_every < 10:
-        save_every = settings['n_epochs']
-        
-    if settings['test'] and (not test_images or not test_masks):
-        print("WARNING: Test data missing or empty. Proceeding without test set.")
-        test_images, test_masks = None, None
-        test_image_names, test_mask_names = None, None
-
-    train_cp.train_seg(model.net,
-                    train_data=images,
-                    train_labels=masks,
-                    train_files=image_names,
-                    train_labels_files=mask_names,
-                    train_probs=None,
-                    test_data=test_images,
-                    test_labels=test_masks,
-                    test_files=test_image_names,
-                    test_labels_files=test_mask_names, 
-                    test_probs=None,
-                    load_files=True,
-                    batch_size=settings['batch_size'],
-                    learning_rate=settings['learning_rate'],
-                    n_epochs=settings['n_epochs'],
-                    weight_decay=settings['weight_decay'],
-                    momentum=0.9,
-                    SGD=False,
-                    channels=cp_channels,
-                    channel_axis=None,
-                    normalize=False, 
-                    compute_flows=False,
-                    save_path=model_save_path,
-                    save_every=save_every,
-                    nimg_per_epoch=None,
-                    nimg_test_per_epoch=None,
-                    rescale=settings['rescale'],
-                    min_train_masks=1,
-                    model_name=settings['model_name'])
-
-    return print(f"Model saved at: {model_save_path}/{model_name}")
-
-def train_cellpose_v1(settings):
-    
-    from .io import _load_normalized_images_and_labels, _load_images_and_labels
-    from .settings import get_train_cellpose_default_settings
-    from .utils import save_settings
-
-    settings = get_train_cellpose_default_settings(settings)
-
-    img_src = settings['img_src'] 
-    mask_src = os.path.join(img_src, 'masks')
-    test_img_src = settings['test_img_src']
-    test_mask_src = settings['test_mask_src']
-
-    if settings['resize']:
-        target_height = settings['width_height'][1]
-        target_width = settings['width_height'][0]
-
-    if settings['test']:
-        test_img_src = os.path.join(os.path.dirname(settings['img_src']), 'test')
-        test_mask_src = os.path.join(settings['test_img_src'], 'mask')
-
-    test_images, test_masks, test_image_names, test_mask_names = None,None,None,None
-    print(settings)
-
-    if settings['from_scratch']:
-        model_name=f"scratch_{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}_X{target_width}_Y{target_height}.CP_model"
-    else:
-        if settings['resize']:
-            model_name=f"{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}_X{target_width}_Y{target_height}.CP_model"
-        else:
-            model_name=f"{settings['model_name']}_{settings['model_type']}_e{settings['n_epochs']}.CP_model"
-
-    model_save_path = os.path.join(settings['mask_src'], 'models', 'cellpose_model')
-    print(model_save_path)
-    os.makedirs(model_save_path, exist_ok=True)
-
-    save_settings(settings, name=model_name)
-    
-    if settings['from_scratch']:
-        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_type'], diam_mean=settings['diameter'], pretrained_model=None)
-    else:
-        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_type'])
-        
-    if settings['normalize']:
-
-        image_files = [os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')]
-        label_files = [os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')]
-        images, masks, image_names, mask_names, orig_dims = _load_normalized_images_and_labels(image_files, 
-                                                                                               label_files, 
-                                                                                               settings['channels'], 
-                                                                                               settings['percentiles'],  
-                                                                                               settings['invert'], 
-                                                                                               settings['verbose'], 
-                                                                                               settings['remove_background'], 
-                                                                                               settings['background'], 
-                                                                                               settings['Signal_to_noise'], 
-                                                                                               settings['target_height'], 
-                                                                                               settings['target_width'])        
-        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-        
-        if settings['test']:
-            test_image_files = [os.path.join(test_img_src, f) for f in os.listdir(test_img_src) if f.endswith('.tif')]
-            test_label_files = [os.path.join(test_mask_src, f) for f in os.listdir(test_mask_src) if f.endswith('.tif')]
-            test_images, test_masks, test_image_names, test_mask_names = _load_normalized_images_and_labels(test_image_files, 
-                                                                                                            test_label_files, 
-                                                                                                            settings['channels'], 
-                                                                                                            settings['percentiles'],  
-                                                                                                            settings['invert'], 
-                                                                                                            settings['verbose'], 
-                                                                                                            settings['remove_background'], 
-                                                                                                            settings['background'], 
-                                                                                                            settings['Signal_to_noise'], 
-                                                                                                            settings['target_height'], 
-                                                                                                            settings['target_width'])
-            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
-            
-    else:
-        images, masks, image_names, mask_names = _load_images_and_labels(img_src, mask_src, settings['invert'])
-        images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-        
-        if settings['test']:
-            test_images, test_masks, test_image_names, test_mask_names = _load_images_and_labels(test_img_src, 
-                                                                                                 test_mask_src, 
-                                                                                                 settings['invert'])
-            
-            test_images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in test_images]
-    
-    #if resize:
-    #    images, masks = resize_images_and_labels(images, masks, target_height, target_width, show_example=True)
-
-    if settings['model_type'] == 'cyto':
-        cp_channels = [0,1]
-    if settings['model_type'] == 'cyto2':
-        cp_channels = [0,2]
-    if settings['model_type'] == 'nucleus':
-        cp_channels = [0,0]
-    if settings['grayscale']:
-        cp_channels = [0,0]
-        images = [np.squeeze(img) if img.ndim == 3 and 1 in img.shape else img for img in images]
-    
-    masks = [np.squeeze(mask) if mask.ndim == 3 and 1 in mask.shape else mask for mask in masks]
-
-    print(f'image shape: {images[0].shape}, image type: images[0].shape mask shape: {masks[0].shape}, image type: masks[0].shape')
-    save_every = int(settings['n_epochs']/10)
-    if save_every < 10:
-        save_every = settings['n_epochs']
-
-    train_cp.train_seg(model.net,
-                    train_data=images,
-                    train_labels=masks,
-                    train_files=image_names,
-                    train_labels_files=mask_names,
-                    train_probs=None,
-                    test_data=test_images,
-                    test_labels=test_masks,
-                    test_files=test_image_names,
-                    test_labels_files=test_mask_names, 
-                    test_probs=None,
-                    load_files=True,
-                    batch_size=settings['batch_size'],
-                    learning_rate=settings['learning_rate'],
-                    n_epochs=settings['n_epochs'],
-                    weight_decay=settings['weight_decay'],
-                    momentum=0.9,
-                    SGD=False,
-                    channels=cp_channels,
-                    channel_axis=None,
-                    normalize=False, 
-                    compute_flows=False,
-                    save_path=model_save_path,
-                    save_every=save_every,
-                    nimg_per_epoch=None,
-                    nimg_test_per_epoch=None,
-                    rescale=settings['rescale'],
-                    #scale_range=None,
-                    #bsize=224,
-                    min_train_masks=1,
-                    model_name=settings['model_name'])
-
-    return print(f"Model saved at: {model_save_path}/{model_name}")
 
 def count_phenotypes(settings):
     from .io import _read_db
@@ -915,17 +754,17 @@ def count_phenotypes(settings):
     unique_values_count = df[settings['annotation_column']].nunique(dropna=True)
     print(f"Unique values in {settings['annotation_column']} (excluding NaN): {unique_values_count}")
 
-    # Count unique values in 'value' column, grouped by 'plate', 'row_name', 'column'
-    grouped_unique_count = df.groupby(['plate', 'row_name', 'column'])[settings['annotation_column']].nunique(dropna=True).reset_index(name='unique_count')
+    # Count unique values in 'value' column, grouped by 'plateID', 'rowID', 'columnID'
+    grouped_unique_count = df.groupby(['plateID', 'rowID', 'columnID'])[settings['annotation_column']].nunique(dropna=True).reset_index(name='unique_count')
     display(grouped_unique_count)
 
     save_path = os.path.join(settings['src'], 'phenotype_counts.csv')
 
     # Group by plate, row, and column, then count the occurrences of each unique value
-    grouped_counts = df.groupby(['plate', 'row_name', 'column', 'value']).size().reset_index(name='count')
+    grouped_counts = df.groupby(['plateID', 'rowID', 'columnID', 'value']).size().reset_index(name='count')
 
     # Pivot the DataFrame so that unique values are columns and their counts are in the rows
-    pivot_df = grouped_counts.pivot_table(index=['plate', 'row_name', 'column'], columns='value', values='count', fill_value=0)
+    pivot_df = grouped_counts.pivot_table(index=['plateID', 'rowID', 'columnID'], columns='value', values='count', fill_value=0)
 
     # Flatten the multi-level columns
     pivot_df.columns = [f"value_{int(col)}" for col in pivot_df.columns]
@@ -947,20 +786,20 @@ def count_phenotypes(settings):
 def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),'r2':(90,10),'r3':(80,20),'r4':(80,20),'r5':(70,30),'r6':(70,30),'r7':(60,40),'r8':(60,40),'r9':(50,50),'r10':(50,50),'r11':(40,60),'r12':(40,60),'r13':(30,70),'r14':(30,70),'r15':(20,80),'r16':(20,80)},
                             pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4', 
                             y_columns=['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction'], 
-                            column='column', value='c3', plate=None, save_paths=None):
+                            column='columnID', value='c3', plate=None, save_paths=None):
 
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
-        if all(col in df.columns for col in ['plate', 'row_name', 'column']):
-            df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column']
+        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
         else:
-            raise ValueError("Cannot find 'plate', 'row_name', or 'column' in df.columns")
-        prc_summary = df.groupby(['plate', 'row_name', 'column', 'prc']).size().reset_index(name='total_rows')
-        well_counts = (df.groupby(['plate', 'row_name', 'column', 'prc', class_columns])
+            raise ValueError("Cannot find 'plateID', 'rowID', or 'columnID' in df.columns")
+        prc_summary = df.groupby(['plateID', 'rowID', 'columnID', 'prc']).size().reset_index(name='total_rows')
+        well_counts = (df.groupby(['plateID', 'rowID', 'columnID', 'prc', class_columns])
                        .size()
                        .unstack(fill_value=0)
                        .reset_index()
                        .rename(columns={0: 'class_0', 1: 'class_1'}))
-        summary_df = pd.merge(prc_summary, well_counts, on=['plate', 'row_name', 'column', 'prc'], how='left')
+        summary_df = pd.merge(prc_summary, well_counts, on=['plateID', 'rowID', 'columnID', 'prc'], how='left')
         summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
         return summary_df
@@ -1055,8 +894,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
         return result
 
     def calculate_well_read_fraction(df, count_column='count'):
-        if all(col in df.columns for col in ['plate', 'row_name', 'column']):
-            df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column']
+        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
         else:
             raise ValueError("Cannot find plate, row or column in df.columns")
         grouped_df = df.groupby('prc')[count_column].sum().reset_index()
@@ -1072,21 +911,17 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
             for i, reads_csv_temp in enumerate(reads_csv):
                 reads_df_temp = pd.read_csv(reads_csv_temp)
                 scores_df_temp = pd.read_csv(scores_csv[i])
-                reads_df_temp['plate'] = f"plate{i+1}"
-                scores_df_temp['plate'] = f"plate{i+1}"
+                reads_df_temp['plateID'] = f"plate{i+1}"
+                scores_df_temp['plateID'] = f"plate{i+1}"
                 
+                if 'column' in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'column': 'columnID'})
                 if 'column_name' in reads_df_temp.columns:
-                    reads_df_temp = reads_df_temp.rename(columns={'column_name': 'column'})
-                if 'column_name' in reads_df_temp.columns:
-                    reads_df_temp = reads_df_temp.rename(columns={'column_name': 'column'})
-                if 'column_name' in scores_df_temp.columns:
-                    scores_df_temp = scores_df_temp.rename(columns={'column_name': 'column'})
-                if 'column_name' in scores_df_temp.columns:
-                    scores_df_temp = scores_df_temp.rename(columns={'column_name': 'column'})
-                if 'row_name' in reads_df_temp.columns:
-                    reads_df_temp = reads_df_temp.rename(columns={'row_name': 'row_name'})
+                    reads_df_temp = reads_df_temp.rename(columns={'column_name': 'columnID'})
+                if 'row' in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'row_name': 'rowID'})
                 if 'row_name' in scores_df_temp.columns:
-                    scores_df_temp = scores_df_temp.rename(columns={'row_name': 'row_name'})
+                    scores_df_temp = scores_df_temp.rename(columns={'row_name': 'rowID'})
                     
                 reads_ls.append(reads_df_temp)
                 scores_ls.append(scores_df_temp)
@@ -1100,8 +935,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
         reads_df = pd.read_csv(reads_csv)
         scores_df = pd.read_csv(scores_csv)
         if plate != None:
-            reads_df['plate'] = plate
-            scores_df['plate'] = plate
+            reads_df['plateID'] = plate
+            scores_df['plateID'] = plate
         
     reads_df = calculate_well_read_fraction(reads_df)
     scores_df = calculate_well_score_fractions(scores_df)
@@ -1113,7 +948,7 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
     
     df_emp = pd.DataFrame([(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) for key, val in empirical_dict.items()],columns=['key', 'value1', 'value2', 'pc_fraction', 'nc_fraction'])
     
-    df = pd.merge(df, df_emp, left_on='row_name', right_on='key')
+    df = pd.merge(df, df_emp, left_on='rowID', right_on='key')
     
     if any in y_columns not in df.columns:
         print(f"columns in dataframe:")
@@ -1263,11 +1098,17 @@ def interperate_vision_model(settings={}):
         # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')
 
-        if 'row_name' not in scores_df.columns:
-            scores_df['row_name'] = scores_df['row']
+        if 'rowID' not in scores_df.columns:
+            if 'row' in scores_df.columns:
+                scores_df['rowID'] = scores_df['row']
+            if 'row_name' in scores_df.columns:
+                scores_df['rowID'] = scores_df['row_name']
 
-        if 'column_name' not in scores_df.columns:
-            scores_df['column_name'] = scores_df['col']
+        if 'columnID' not in scores_df.columns:
+            if 'column_name' in scores_df.columns:
+                scores_df['columnID'] = scores_df['column_name']
+            if 'column' in scores_df.columns:
+                scores_df['columnID'] = scores_df['column']
 
         if 'object_label' not in scores_df.columns:
             scores_df['object_label'] = scores_df['object']
@@ -1279,14 +1120,14 @@ def interperate_vision_model(settings={}):
         scores_df['object_label'] = scores_df['object'].astype(str)
 
         # Ensure all join columns have the same data type in both DataFrames
-        df[['plate', 'row_name', 'column_name', 'field', 'object_label']] = df[['plate', 'row_name', 'column_name', 'field', 'object_label']].astype(str)
-        scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label']] = scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label']].astype(str)
+        df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']] = df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']].astype(str)
+        scores_df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']] = scores_df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']].astype(str)
 
         # Select only the necessary columns from scores_df for merging
-        scores_df = scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label', settings['score_column']]]
+        scores_df = scores_df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label', settings['score_column']]]
 
         # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=['plate', 'row_name', 'column_name', 'field', 'object_label'], how='inner')
+        merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'column_name', 'fieldID', 'object_label'], how='inner')
 
         # Separate numerical features and the score column
         X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])
@@ -1562,8 +1403,8 @@ def analyze_endodyogeny(settings):
     output['data'] = df
     
     
-    if settings['level'] == 'plate':
-        prc_column = 'plate'
+    if settings['level'] == 'plateID':
+        prc_column = 'plateID'
     else:
         prc_column = 'prc'
     
@@ -1709,28 +1550,28 @@ def generate_score_heatmap(settings):
     def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
         
         df = pd.read_csv(csv)
-        if 'col' in df.columns:
-            df = df[df['col']==column]
+        if 'columnID' in df.columns:
+            df = df[df['columnID']==column]
         elif 'column' in df.columns:
-            df['col'] = df['column']
-            df = df[df['col']==column]
+            df['columnID'] = df['column']
+            df = df[df['columnID']==column]
         if not plate is None:
-            df['plate'] = f"plate{plate}"
-        grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
-        grouped_df['prc'] = grouped_df['plate'].astype(str) + '_' + grouped_df['row'].astype(str) + '_' + grouped_df['col'].astype(str)
+            df['plateID'] = f"plate{plate}"
+        grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])[data_column].mean().reset_index()
+        grouped_df['prc'] = grouped_df['plateID'].astype(str) + '_' + grouped_df['rowID'].astype(str) + '_' + grouped_df['columnID'].astype(str)
         return grouped_df
 
     def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
         df = pd.read_csv(csv)  
         df = df[df['column_name']==column]
         if plate not in df.columns:
-            df['plate'] = f"plate{plate}"
+            df['plateID'] = f"plate{plate}"
         df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
-        grouped_df = df.groupby(['plate', 'row_name', 'column_name'])['count'].sum().reset_index()
+        grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])['count'].sum().reset_index()
         grouped_df = grouped_df.rename(columns={'count': 'total_count'})
-        merged_df = pd.merge(df, grouped_df, on=['plate', 'row_name', 'column_name'])
+        merged_df = pd.merge(df, grouped_df, on=['plateID', 'rowID', 'column_name'])
         merged_df['fraction'] = merged_df['count'] / merged_df['total_count']
-        merged_df['prc'] = merged_df['plate'].astype(str) + '_' + merged_df['row_name'].astype(str) + '_' + merged_df['column_name'].astype(str)
+        merged_df['prc'] = merged_df['plateID'].astype(str) + '_' + merged_df['rowID'].astype(str) + '_' + merged_df['column_name'].astype(str)
         return merged_df
 
     def plot_multi_channel_heatmap(df, column='c3', cmap='coolwarm'):
@@ -1742,17 +1583,17 @@ def generate_score_heatmap(settings):
         - column: Column to filter by (default is 'c3').
         """
         # Extract row number and convert to integer for sorting
-        df['row_num'] = df['row'].str.extract(r'(\d+)').astype(int)
+        df['row_num'] = df['rowID'].str.extract(r'(\d+)').astype(int)
 
         # Filter and sort by plate, row, and column
-        df = df[df['col'] == column]
-        df = df.sort_values(by=['plate', 'row_num', 'col'])
+        df = df[df['columnID'] == column]
+        df = df.sort_values(by=['plateID', 'row_num', 'columnID'])
 
         # Drop temporary 'row_num' column after sorting
         df = df.drop('row_num', axis=1)
 
         # Create a new column combining plate, row, and column for the index
-        df['plate_row_col'] = df['plate'] + '-' + df['row'] + '-' + df['col']
+        df['plate_row_col'] = df['plateID'] + '-' + df['rowID'] + '-' + df['columnID']
 
         # Set 'plate_row_col' as the index
         df.set_index('plate_row_col', inplace=True)
@@ -1809,11 +1650,11 @@ def generate_score_heatmap(settings):
         # Loop through all collected CSV files and process them
         for csv_file in ls:
             df = pd.read_csv(csv_file)  # Read CSV into DataFrame
-            df = df[df['col']==column]
+            df = df[df['columnID']==column]
             if not plate is None:
-                df['plate'] = f"plate{plate}"
-            # Group the data by 'plate', 'row', and 'col'
-            grouped_df = df.groupby(['plate', 'row', 'col'])[data_column].mean().reset_index()
+                df['plateID'] = f"plate{plate}"
+            # Group the data by 'plateID', 'rowID', and 'columnID'
+            grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])[data_column].mean().reset_index()
             # Use the CSV filename to create a new column name
             folder_name = os.path.dirname(csv_file).replace(".csv", "")
             new_column_name = os.path.basename(f"{folder_name}_{data_column}")
@@ -1824,8 +1665,8 @@ def generate_score_heatmap(settings):
             if combined_df is None:
                 combined_df = grouped_df
             else:
-                combined_df = pd.merge(combined_df, grouped_df, on=['plate', 'row', 'col'], how='outer')
-        combined_df['prc'] = combined_df['plate'].astype(str) + '_' + combined_df['row'].astype(str) + '_' + combined_df['col'].astype(str)
+                combined_df = pd.merge(combined_df, grouped_df, on=['plateID', 'rowID', 'columnID'], how='outer')
+        combined_df['prc'] = combined_df['plateID'].astype(str) + '_' + combined_df['rowID'].astype(str) + '_' + combined_df['columnID'].astype(str)
         return combined_df
     
     def calculate_mae(df):
@@ -1847,16 +1688,16 @@ def generate_score_heatmap(settings):
         mae_df = pd.DataFrame(mae_data)
         return mae_df
 
-    result_df = combine_classification_scores(settings['folders'], settings['csv_name'], settings['data_column'], settings['plate'], settings['column'], )
-    df = calculate_fraction_mixed_condition(settings['csv'], settings['plate'], settings['column'], settings['control_sgrnas'])
+    result_df = combine_classification_scores(settings['folders'], settings['csv_name'], settings['data_column'], settings['plateID'], settings['columnID'], )
+    df = calculate_fraction_mixed_condition(settings['csv'], settings['plateID'], settings['columnID'], settings['control_sgrnas'])
     df = df[df['grna_name']==settings['fraction_grna']]
     fraction_df = df[['fraction', 'prc']]
     merged_df = pd.merge(fraction_df, result_df, on=['prc'])
-    cv_df = group_cv_score(settings['cv_csv'], settings['plate'], settings['column'], settings['data_column_cv'])
+    cv_df = group_cv_score(settings['cv_csv'], settings['plateID'], settings['columnID'], settings['data_column_cv'])
     cv_df = cv_df[[settings['data_column_cv'], 'prc']]
     merged_df = pd.merge(merged_df, cv_df, on=['prc'])
     
-    fig = plot_multi_channel_heatmap(merged_df, settings['column'], settings['cmap'])
+    fig = plot_multi_channel_heatmap(merged_df, settings['columnID'], settings['cmap'])
     if 'row_number' in merged_df.columns:
         merged_df = merged_df.drop('row_num', axis=1)
     mae_df = calculate_mae(merged_df)
@@ -1864,9 +1705,9 @@ def generate_score_heatmap(settings):
         mae_df = mae_df.drop('row_num', axis=1)
         
     if not settings['dst'] is None:
-        mae_dst = os.path.join(settings['dst'], f"mae_scores_comparison_plate_{settings['plate']}.csv")
-        merged_dst = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plate']}_data.csv")
-        heatmap_save = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plate']}.pdf")
+        mae_dst = os.path.join(settings['dst'], f"mae_scores_comparison_plate_{settings['plateID']}.csv")
+        merged_dst = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plateID']}_data.csv")
+        heatmap_save = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plateID']}.pdf")
         mae_df.to_csv(mae_dst, index=False)
         merged_df.to_csv(merged_dst, index=False)
         fig.savefig(heatmap_save, format='pdf', dpi=600, bbox_inches='tight')

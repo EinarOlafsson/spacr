@@ -195,18 +195,18 @@ def prepare_formula(dependent_variable, random_row_column_effects=False):
     if random_row_column_effects:
         # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
         return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
-    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + row_name + column_name'
+    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + rowID + columnID'
 
 def fit_mixed_model(df, formula, dst):
     from .plot import plot_histogram
 
-    """Fit the mixed model with plate, row_name, and column_name as random effects and return results."""
+    """Fit the mixed model with plate, row_name, and columnID as random effects and return results."""
     # Specify random effects for plate, row, and column
     model = smf.mixedlm(formula, 
                         data=df, 
-                        groups=df['plate'], 
-                        re_formula="1 + row_name + column_name", 
-                        vc_formula={"row_name": "0 + row_name", "column_name": "0 + column_name"})
+                        groups=df['plateID'], 
+                        re_formula="1 + rowID + columnID", 
+                        vc_formula={"rowID": "0 + rowID", "columnID": "0 + columnID"})
     
     mixed_model = model.fit()
 
@@ -288,7 +288,7 @@ def check_and_clean_data(df, dependent_variable):
     df = handle_missing_values(df, ['fraction', dependent_variable])
     
     # Step 2: Ensure grna, gene, plate, row, column, and prc are categorical types
-    df = ensure_valid_types(df, ['grna', 'gene', 'plate', 'row_name', 'column_name', 'prc'])
+    df = ensure_valid_types(df, ['grna', 'gene', 'plateID', 'rowID', 'columnID', 'prc'])
     
     # Step 3: Check for multicollinearity in fraction and the dependent variable
     df_cleaned = check_collinearity(df, ['fraction', dependent_variable])
@@ -297,9 +297,9 @@ def check_and_clean_data(df, dependent_variable):
     df_cleaned['gene'] = df['gene']
     df_cleaned['grna'] = df['grna']
     df_cleaned['prc'] = df['prc']
-    df_cleaned['plate'] = df['plate']
-    df_cleaned['row_name'] = df['row_name']
-    df_cleaned['column_name'] = df['column']
+    df_cleaned['plateID'] = df['plateID']
+    df_cleaned['rowID'] = df['rowID']
+    df_cleaned['columnID'] = df['columnID']
 
     # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
     df_cleaned['gene_fraction'] = df_cleaned.groupby(['prc', 'gene'])['fraction'].transform('sum')
@@ -336,10 +336,10 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     for i, score_data in enumerate(settings['score_data']):
         df = pd.read_csv(score_data)
         df = correct_metadata_column_names(df)
-        df['plate'] = f'plate{i + 1}'
+        df['plateID'] = f'plate{i + 1}'
         
         if 'prc' not in df.columns:
-            df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
+            df['prc'] = df['plateID'] + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
             
         dfs.append(df)
 
@@ -429,120 +429,11 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         color='teal', alpha=0.3, label='±1 Std. Dev.'
     )
 
-    # Mark the elbow point (inflection) on the plot
-    ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
-
-    # Formatting the plot
-    ax.set_xlabel('Sample Size')
-    ax.set_ylabel('Mean Absolute Difference')
-    ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
-    ax.legend().remove()
-
-    # Save the plot if a destination is provided
-    dst = os.path.dirname(settings['count_data'][0])
-    if dst is not None:
-        fig_path = os.path.join(dst, 'results')
-        os.makedirs(fig_path, exist_ok=True)
-        fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
-        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
-        print(f"Saved {fig_file_path}")
-
-    plt.show()
-    return elbow_point['sample_size']
-
-def minimum_cell_simulation_v1(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
-    """
-    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
-    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
-    """
-
-    from spacr.utils import correct_metadata_column_names
-
-    # Load and process data
-    if isinstance(settings['score_data'], str):
-        settings['score_data'] = [settings['score_data']]
-
-    dfs = []
-    for i, score_data in enumerate(settings['score_data']):
-        df = pd.read_csv(score_data)
-        df = correct_metadata_column_names(df)
-        df['plate'] = f'plate{i + 1}'
-        
-        if 'prc' not in df.columns:
-            df['prc'] = df['plate'] + '_' + df['row'].astype(str) + '_' + df['column'].astype(str)
-            
-        dfs.append(df)
-
-    df = pd.concat(dfs, axis=0)
-
-    # Compute the number of cells per well and select the top 100 wells by cell count
-    cell_counts = df.groupby('prc').size().reset_index(name='cell_count')
-    top_wells = cell_counts.nlargest(sample_size, 'cell_count')['prc']
-
-    # Filter the data to include only the top 100 wells
-    df = df[df['prc'].isin(top_wells)]
-
-    # Initialize storage for absolute difference data
-    diff_data = []
-
-    # Group by wells and iterate over them
-    for i, (prc, group) in enumerate(df.groupby('prc')):
-        original_mean = group[settings['score_column']].mean()  # Original full-well mean
-        max_cells = len(group)
-        sample_sizes = np.arange(2, max_cells + 1, increment)  # Sample sizes from 2 to max cells
-
-        # Iterate over sample sizes and compute absolute difference
-        for sample_size in sample_sizes:
-            abs_diffs = []
-
-            # Perform multiple random samples to reduce noise
-            for _ in range(num_repeats):
-                sample = group.sample(n=sample_size, replace=False)
-                sampled_mean = sample[settings['score_column']].mean()
-                abs_diff = abs(sampled_mean - original_mean)  # Absolute difference
-                abs_diffs.append(abs_diff)
-
-            # Compute the average absolute difference across all repeats
-            avg_abs_diff = np.mean(abs_diffs)
-
-            # Store the result for plotting
-            diff_data.append((sample_size, avg_abs_diff))
-
-    # Convert absolute difference data to DataFrame for plotting
-    diff_df = pd.DataFrame(diff_data, columns=['sample_size', 'avg_abs_diff'])
-
-    # Group by sample size to calculate mean and standard deviation
-    summary_df = diff_df.groupby('sample_size').agg(
-        mean_abs_diff=('avg_abs_diff', 'mean'),
-        std_abs_diff=('avg_abs_diff', 'std')
-    ).reset_index()
-
-    # Apply smoothing using a rolling window
-    summary_df['smoothed_mean_abs_diff'] = summary_df['mean_abs_diff'].rolling(window=smoothing, min_periods=1).mean()
-
-    # Detect the elbow point (where mean_abs_diff < tolerance)
-    elbow_df = summary_df[summary_df['smoothed_mean_abs_diff'] <= tolerance]
-
-    # Select the first occurrence if it exists; otherwise, use the last point
-    if not elbow_df.empty:
-        elbow_point = elbow_df.iloc[0]  # First point where the condition is met
+    if settings['min_cell_count'] is None:
+        # Mark the elbow point (inflection) on the plot
+        ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
     else:
-        elbow_point = summary_df.iloc[-1]  # Fallback to the last point
-
-    # Plot the mean absolute difference with standard deviation as shaded area
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.plot(
-        summary_df['sample_size'], summary_df['smoothed_mean_abs_diff'], color='teal', label='Smoothed Mean Absolute Difference'
-    )
-    ax.fill_between(
-        summary_df['sample_size'],
-        summary_df['smoothed_mean_abs_diff'] - summary_df['std_abs_diff'],
-        summary_df['smoothed_mean_abs_diff'] + summary_df['std_abs_diff'],
-        color='teal', alpha=0.3, label='±1 Std. Dev.'
-    )
-
-    # Mark the elbow point (inflection) on the plot
-    ax.axvline(elbow_point['sample_size'], color='black', linestyle='--', label='Elbow Point')
+        ax.axvline(settings['min_cell_count'], color='black', linestyle='--', label='Elbow Point')
 
     # Formatting the plot
     ax.set_xlabel('Sample Size')
@@ -831,46 +722,40 @@ def save_summary_to_file(model, file_path='summary.csv'):
 def perform_regression(settings):
     
     from .plot import plot_plates, plot_data_from_csv
-    from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance
+    from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance, correct_metadata
     from .settings import get_perform_regression_default_settings
     from .toxo import go_term_enrichment_by_column, custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
     from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
+        
+        if not isinstance(settings['score_data'], list):
+            settings['score_data'] = [settings['score_data']]
+        if not isinstance(settings['count_data'], list):
+            settings['count_data'] = [settings['count_data']]
+            
+        score_data_df = pd.DataFrame()
+        for i, score_data in enumerate(settings['score_data']):
+            df = pd.read_csv(score_data)
+            df = correct_metadata(df)
+            if not 'plateID' in df.columns:
+                df['plateID'] = f'plate{i+1}'
 
-        if isinstance(settings['score_data'], list) and isinstance(settings['count_data'], list):
-            if len(settings['score_data']) == 1:
-                count_data_df = pd.read_csv(settings['count_data'][0])
-                score_data_df = pd.read_csv(settings['score_data'][0])
-            else:
-                count_data_df = pd.DataFrame()
-                for i, count_data in enumerate(settings['count_data']):
-                    df = pd.read_csv(count_data)
-                    df['plate_name'] = f'plate{i+1}'
-                    if 'column' in df.columns:
-                        df.rename(columns={'column': 'column_name'}, inplace=True)
-                    if 'col' in df.columns:
-                        df.rename(columns={'col': 'column_name'}, inplace=True)
-                    count_data_df = pd.concat([count_data_df, df])
-                    print('Count data:', len(count_data_df))
+            score_data_df = pd.concat([score_data_df, df])
+            print('Score data:', len(score_data_df))
+            
+        count_data_df = pd.DataFrame()
+        for i, count_data in enumerate(settings['count_data']):
+            df = pd.read_csv(count_data)
+            df = correct_metadata(df)
+            if not 'plateID' in df.columns:
+                df['plateID'] = f'plate{i+1}'
+                
+            count_data_df = pd.concat([count_data_df, df])
+            print('Count data:', len(count_data_df))
 
-                score_data_df = pd.DataFrame()
-                for i, score_data in enumerate(settings['score_data']):
-                    df = pd.read_csv(score_data)
-                    df['plate_name'] = f'plate{i+1}'
-                    if 'column' in df.columns:
-                        df.rename(columns={'column': 'column_name'}, inplace=True)
-                    if 'col' in df.columns:
-                        df.rename(columns={'col': 'column_name'}, inplace=True)
-                        
-                    score_data_df = pd.concat([score_data_df, df])
-                    display(score_data_df)
-                    print('Score data:', len(score_data_df))
-        else:
-            count_data_df = pd.read_csv(settings['count_data'])
-            score_data_df = pd.read_csv(settings['score_data'])
-            print(f"Dependent variable: {len(score_data_df)}")
-            print(f"Independent variable: {len(count_data_df)}")
+        print(f"Dependent variable: {len(score_data_df)}")
+        print(f"Independent variable: {len(count_data_df)}")
 
         if settings['dependent_variable'] not in score_data_df.columns:
             print(f'Columns in DataFrame:')
@@ -878,10 +763,6 @@ def perform_regression(settings):
                 print(col)
             if not settings['dependent_variable'] == 'pathogen_nucleus_shortest_distance':
                 raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
-        
-        if 'prediction_probability_class_1' in score_data_df.columns:
-            if not settings['class_1_threshold'] is None:
-                score_data_df['predictions'] = (score_data_df['prediction_probability_class_1'] >= settings['class_1_threshold']).astype(int)
         
         reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge', None]
         if settings['regression_type'] not in reg_types:
@@ -945,34 +826,34 @@ def perform_regression(settings):
             return df
         
     def grna_metricks(df):
-        df[['plate', 'row', 'column']] = df['prc'].str.split('_', expand=True)
+        df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
 
         # --- 2) Compute GRNA-level Well Counts ---
         # For each (grna, plate), count the number of unique prc (wells)
-        grna_well_counts = (df.groupby(['grna', 'plate'])['prc'].nunique().reset_index(name='grna_well_count'))
+        grna_well_counts = (df.groupby(['grna', 'plateID'])['prc'].nunique().reset_index(name='grna_well_count'))
 
         # --- 3) Compute Gene-level Well Counts ---
         # For each (gene, plate), count the number of unique prc
-        gene_well_counts = (df.groupby(['gene', 'plate'])['prc'].nunique().reset_index(name='gene_well_count'))
+        gene_well_counts = (df.groupby(['gene', 'plateID'])['prc'].nunique().reset_index(name='gene_well_count'))
 
         # --- 4) Merge These Counts into a Single DataFrame ---
         # Because each grna is typically associated with one gene, we bring them together.
         # First, create a unique (grna, gene, plate) reference from the original df
-        unique_triplets = df[['grna', 'gene', 'plate']].drop_duplicates()
+        unique_triplets = df[['grna', 'gene', 'plateID']].drop_duplicates()
 
         # Merge the grna_well_count
-        merged_df = pd.merge(unique_triplets, grna_well_counts, on=['grna', 'plate'], how='left')
+        merged_df = pd.merge(unique_triplets, grna_well_counts, on=['grna', 'plateID'], how='left')
 
         # Merge the gene_well_count
-        merged_df = pd.merge(merged_df, gene_well_counts, on=['gene', 'plate'], how='left')
+        merged_df = pd.merge(merged_df, gene_well_counts, on=['gene', 'plateID'], how='left')
 
         # Keep only the columns needed (if you want to keep 'gene', remove the drop below)
-        final_grna_df = merged_df[['grna', 'plate', 'grna_well_count', 'gene_well_count']]
+        final_grna_df = merged_df[['grna', 'plateID', 'grna_well_count', 'gene_well_count']]
 
         # --- 5) Compute gene_count per prc ---
         # For each prc (well), how many distinct genes are there?
         prc_gene_count_df = (df.groupby('prc')['gene'].nunique().reset_index(name='gene_count'))
-        prc_gene_count_df[['plate', 'row', 'column']] = prc_gene_count_df['prc'].str.split('_', expand=True)
+        prc_gene_count_df[['plateID', 'rowID', 'columnID']] = prc_gene_count_df['prc'].str.split('_', expand=True)
         
         return final_grna_df, prc_gene_count_df
     
@@ -1016,18 +897,18 @@ def perform_regression(settings):
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
     
-    if "row_name" in count_data_df.columns:
-        num_parts = len(count_data_df['row_name'].iloc[0].split('_'))
+    if "rowID" in count_data_df.columns:
+        num_parts = len(count_data_df['rowID'].iloc[0].split('_'))
         if num_parts == 2:
-            split = count_data_df['row_name'].str.split('_', expand=True)
-            count_data_df['row_name'] = split[1]
+            split = count_data_df['rowID'].str.split('_', expand=True)
+            count_data_df['rowID'] = split[1]
     
     if "prc" in score_data_df.columns:
         num_parts = len(score_data_df['prc'].iloc[0].split('_'))
         if num_parts == 3:
             split = score_data_df['prc'].str.split('_', expand=True)
-            score_data_df['plate'] = settings['plate']
-            score_data_df['prc'] = score_data_df['plate'] + '_' + split[1] + '_' + split[2]
+            score_data_df['plateID'] = settings['plateID']
+            score_data_df['prc'] = score_data_df['plateID'] + '_' + split[1] + '_' + split[2]
         
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
     save_settings(settings, name='regression', show=True)
@@ -1043,38 +924,47 @@ def perform_regression(settings):
         filter_column = settings['filter_column']
     
     score_data_df = clean_controls(score_data_df, settings['filter_value'], settings['filter_column'])
-    print(f"Dependent variable after clean_controls: {len(score_data_df)}")
-
-    if settings['min_cell_count'] is None:
-        settings['min_cell_count'] = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
     
-    print(f"Minimum cell count: {settings['min_cell_count']}")
-    print(f"Dependent variable after minimum cell count filter: {len(score_data_df)}")
-    display(score_data_df)
+    if settings['verbose']:
+        print(f"Dependent variable after clean_controls: {len(score_data_df)}")
+
+    sim_min_count = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
+    
+    if settings['min_cell_count'] is None:
+        settings['min_cell_count'] = sim_min_count
+        
+    if settings['verbose']:
+        print(f"Minimum cell count: {settings['min_cell_count']}")
+        print(f"Dependent variable after minimum cell count filter: {len(score_data_df)}")
+        display(score_data_df)
 
     orig_dv = settings['dependent_variable']
 
-    dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plate'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
-    print(f"Dependent variable after process_scores: {len(dependent_df)}")
-    display(dependent_df)
+    dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plateID'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
+    
+    if settings['verbose']:
+        print(f"Dependent variable after process_scores: {len(dependent_df)}")
+        display(dependent_df)
     
     if settings['fraction_threshold'] is None:
         settings['fraction_threshold'] = graph_sequencing_stats(settings)
 
-    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plate'], filter_column=filter_column, filter_value=filter_value)
+    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plateID'], filter_column=filter_column, filter_value=filter_value)
+        
     independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
     
-    print(f"Independent variable after process_reads: {len(independent_df)}")
+    if settings['verbose']:
+        print(f"Independent variable after process_reads: {len(independent_df)}")
     
     merged_df = pd.merge(independent_df, dependent_df, on='prc')
     
-    display(independent_df)
-    display(dependent_df)
-
-    display(merged_df)
+    if settings['verbose']:
+        display(independent_df)
+        display(dependent_df)
+        display(merged_df)
     
     
-    merged_df[['plate', 'row_name', 'column']] = merged_df['prc'].str.split('_', expand=True)
+    merged_df[['plateID', 'rowID', 'columnID']] = merged_df['prc'].str.split('_', expand=True)
         
     try:
         os.makedirs(res_folder, exist_ok=True)
@@ -1085,7 +975,7 @@ def perform_regression(settings):
         cell_settings = {'src':data_path,
                         'graph_name':'cell_count',
                         'data_column':['cell_count'],
-                        'grouping_column':'plate',
+                        'grouping_column':'plateID',
                         'graph_type':'jitter_bar',
                         'theme':'bright',
                         'save':True,
@@ -1114,7 +1004,7 @@ def perform_regression(settings):
         wells_per_gene_settings = {'src':grna_data_path,
                     'graph_name':'wells_per_gene',
                     'data_column':['grna_well_count'],
-                    'grouping_column':'plate',
+                    'grouping_column':'plateID',
                     'graph_type':'jitter_bar',
                     'theme':'bright',
                     'save':True,
@@ -1133,7 +1023,7 @@ def perform_regression(settings):
         grna_per_well_settings = {'src':grna_well_data_path,
                                 'graph_name':'gene_per_well',
                                 'data_column':['gene_count'],
-                                'grouping_column':'plate',
+                                'grouping_column':'plateID',
                                 'graph_type':'jitter_bar',
                                 'theme':'bright',
                                 'save':True,
@@ -1169,7 +1059,9 @@ def perform_regression(settings):
         mean_coef = control_coef_df['coefficient'].mean()
         significant_c = control_coef_df[control_coef_df['p_value']<= 0.05]
         mean_coef_c = significant_c['coefficient'].mean()
-        print(mean_coef, mean_coef_c)
+        
+        if settings['verbose']:
+            print(mean_coef, mean_coef_c)
         
         if settings['threshold_method'] in ['var','variance']:
             coef_mes = control_coef_df['coefficient'].var()
@@ -1197,8 +1089,9 @@ def perform_regression(settings):
         significant = significant[~significant['feature'].str.contains('row|column')]
         
     if regression_type in ['ols', 'beta']:
-        print(model.summary())
-        save_summary_to_file(model, file_path=f'{res_folder}/mode_summary.csv')
+        if settings['verbose']:
+            print(model.summary())
+            save_summary_to_file(model, file_path=f'{res_folder}/mode_summary.csv')
     
     significant.to_csv(hits_path, index=False)
     significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
@@ -1225,8 +1118,6 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
-        
-        
         if settings['volcano'] == 'all':
             print('all')
             gene_list = custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
@@ -1246,7 +1137,7 @@ def perform_regression(settings):
         data_ME49 = pd.read_csv(settings['metadata_files'][0], low_memory=False)
         
         columns = ['sense - Tachyzoites', 'sense - Tissue cysts', 'sense - EES1', 'sense - EES2', 'sense - EES3', 'sense - EES4', 'sense - EES5']
-
+        
         print('Plotting gene phenotypes and heatmaps')
         print(gene_list)
 
@@ -1269,6 +1160,8 @@ def perform_regression(settings):
     return output
 
 def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
+    
+    from .utils import correct_metadata
 
     if isinstance(csv_path, pd.DataFrame):
         csv_df = csv_path
@@ -1276,47 +1169,41 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
         # Read the CSV file into a DataFrame
         csv_df = pd.read_csv(csv_path)
 
-    if 'plate_name' in csv_df.columns:
-        csv_df = csv_df.rename(columns={'plate_name': 'plate'})
-    if 'column_name' in csv_df.columns:
-        csv_df = csv_df.rename(columns={'column_name': 'column'})
-    if 'column_name' in csv_df.columns:
-        csv_df = csv_df.rename(columns={'column_name': 'column'})
-    if 'row_name' in csv_df.columns:
-        csv_df = csv_df.rename(columns={'row_name': 'row_name'})
+    csv_df = correct_metadata(csv_df)    
+    
     if 'grna_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in csv_df.columns:
-        csv_df[['plate', 'row_name']] = csv_df['plate_row'].str.split('_', expand=True)
+        csv_df[['plateID', 'rowID']] = csv_df['plate_row'].str.split('_', expand=True)
 
-    if not 'plate' in csv_df.columns:
+    if not 'plateID' in csv_df.columns:
         if not plate is None:
-            csv_df['plate'] = plate
+            csv_df['plateID'] = plate
         else:
-            csv_df['plate'] = 'plate1'
+            csv_df['plateID'] = 'plate1'
             
     if 'prcfo' in csv_df.columns:
         #csv_df = csv_df.loc[:, ~csv_df.columns.duplicated()].copy()
-        csv_df[['plate_name', 'row_name', 'column_name', 'field_name', 'object_name']] = csv_df['prcfo'].str.split('_', expand=True)
-        csv_df['prc'] = csv_df['plate_name'].astype(str) + '_' + csv_df['row_name'].astype(str) + '_' + csv_df['column_name'].astype(str)
+        csv_df[['plateID', 'rowID', 'columnID', 'fieldID', 'objectID']] = csv_df['prcfo'].str.split('_', expand=True)
+        csv_df['prc'] = csv_df['plateID'].astype(str) + '_' + csv_df['rowID'].astype(str) + '_' + csv_df['columnID'].astype(str)
 
     if isinstance(filter_column, str):
         filter_column = [filter_column]
 
     if isinstance(filter_value, str):
         filter_value = [filter_value]
-
+            
     if isinstance(filter_column, list):            
         for filter_col in filter_column:
             for value in filter_value:
                 csv_df = csv_df[csv_df[filter_col] != value]
-    
+
     # Ensure the necessary columns are present
-    if not all(col in csv_df.columns for col in ['row_name','column','grna','count']):
-        raise ValueError("The CSV file must contain 'grna', 'count', 'row_name', and 'column' columns.")
+    if not all(col in csv_df.columns for col in ['rowID','columnID','grna','count']):
+        raise ValueError("The CSV file must contain 'grna', 'count', 'rowID', and 'columnID' columns.")
 
     # Create the prc column
-    csv_df['prc'] = csv_df['plate'] + '_' + csv_df['row_name'] + '_' + csv_df['column']
+    csv_df['prc'] = csv_df['plateID'] + '_' + csv_df['rowID'] + '_' + csv_df['columnID']
 
     # Group by prc and calculate the sum of counts
     grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
@@ -1378,44 +1265,34 @@ def clean_controls(df,values, column):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
-    from .utils import calculate_shortest_distance
+    from .utils import calculate_shortest_distance, correct_metadata
     df = df.reset_index(drop=True)
-    
     if 'prcfo' in df.columns:
         df = df.loc[:, ~df.columns.duplicated()].copy()
-        if not all(col in df.columns for col in ['plate_name', 'row_name', 'column_name']):
-            df[['plate_name', 'row_name', 'column_name', 'field_name', 'object_name']] = df['prcfo'].str.split('_', expand=True)
-        if all(col in df.columns for col in ['plate_name', 'row_name', 'column_name']):
-            df['prc'] = df['plate_name'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+        if not all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df[['plateID', 'rowID', 'columnID', 'fieldID', 'objectID']] = df['prcfo'].str.split('_', expand=True)
+        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     else:
-        if 'plate_name' in df.columns:
-            df.drop(columns=['plate'], inplace=True)
-            #df = df.rename(columns={'plate_name': 'plate'})
-            
-        if 'plate' in df.columns:
-            df['plate_name'] = df['plate']
-            
-        if plate is not None:
-            df['plate_name'] = plate
         
-        if 'row' in df.columns:
-            df = df.rename(columns={'row': 'row_name'})
+         
+        df = correct_metadata(df)
+        
             
-        if 'col' in df.columns:
-            df = df.rename(columns={'col': 'column_name'})
-            
-        if 'column' in df.columns:
-            df = df.rename(columns={'column': 'column_name'})
+        if not plate is None:
+            df['plateID'] = plate
     
         df = df.loc[:, ~df.columns.duplicated()].copy()
-        df['prc'] = df['plate_name'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+        
+        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+        else:
+            raise ValueError("The DataFrame must contain 'plateID', 'rowID', and 'columnID' columns.")
 
     df = df[['prc', dependent_variable]]
     # Group by prc and calculate the mean and count of the dependent_variable
     grouped = df.groupby('prc')[dependent_variable]
-    
-    display(grouped)
-    
+        
     if regression_type != 'poisson':
     
         print(f'Using agg_type: {agg_type}')
@@ -1600,7 +1477,7 @@ def generate_ml_scores(settings):
 
     return [output, plate_heatmap]
 
-def ml_analysis(df, channel_of_interest=3, location_column='column_name', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
+def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
     
     """
     Calculates permutation importance for numerical features in the dataframe,
@@ -1829,8 +1706,8 @@ def ml_analysis(df, channel_of_interest=3, location_column='column_name', positi
     df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
     df['prcfo'] = df.index.astype(str)
-    df[['plate', 'row_name', 'column_name', 'field', 'object']] = df['prcfo'].str.split('_', expand=True)
-    df['prc'] = df['plate'] + '_' + df['row_name'] + '_' + df['column_name']
+    df[['plateID', 'rowID', 'columnID', 'fieldID', 'object']] = df['prcfo'].str.split('_', expand=True)
+    df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
     
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
@@ -2004,11 +1881,17 @@ def interperate_vision_model(settings={}):
         # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')
 
-        if 'row_name' not in scores_df.columns:
-            scores_df['row_name'] = scores_df['row']
+        if 'rowID' not in scores_df.columns:
+            if 'row' in scores_df.columns:
+                scores_df['rowID'] = scores_df['row']
+            if 'row_name' in scores_df.columns:
+                scores_df['rowID'] = scores_df['row_name']
 
-        if 'column_name' not in scores_df.columns:
-            scores_df['column_name'] = scores_df['col']
+        if 'columnID' not in scores_df.columns:
+            if 'col' in scores_df.columns:
+                scores_df['columnID'] = scores_df['col']
+            if 'column' in scores_df.columns:
+                scores_df['columnID'] = scores_df['column']
 
         if 'object_label' not in scores_df.columns:
             scores_df['object_label'] = scores_df['object']
@@ -2020,14 +1903,14 @@ def interperate_vision_model(settings={}):
         scores_df['object_label'] = scores_df['object'].astype(str)
 
         # Ensure all join columns have the same data type in both DataFrames
-        df[['plate', 'row_name', 'column_name', 'field', 'object_label']] = df[['plate', 'row_name', 'column_name', 'field', 'object_label']].astype(str)
-        scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label']] = scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label']].astype(str)
+        df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
+        scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
 
         # Select only the necessary columns from scores_df for merging
-        scores_df = scores_df[['plate', 'row_name', 'column_name', 'field', 'object_label', settings['score_column']]]
+        scores_df = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label', settings['score_column']]]
 
         # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=['plate', 'row_name', 'column_name', 'field', 'object_label'], how='inner')
+        merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'columnID', 'fieldID', 'object_label'], how='inner')
 
         # Separate numerical features and the score column
         X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])
