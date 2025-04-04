@@ -726,8 +726,8 @@ class spacrProgressBar(ttk.Progressbar):
 
     def set_label_position(self):
         if self.label and self.progress_label:
-            row_info = self.grid_info().get('row_name', 0)
-            col_info = self.grid_info().get('column', 0)
+            row_info = self.grid_info().get('rowID', 0)
+            col_info = self.grid_info().get('columnID', 0)
             col_span = self.grid_info().get('columnspan', 1)
             self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
 

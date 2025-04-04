@@ -176,36 +176,6 @@ def display_figure(fig):
         elif event.num == 5: # Scroll down
             print("zoom out")
         
-    def zoom_v1(event):
-        # Fixed zoom factors (adjust these if you want faster or slower zoom)
-        zoom_in_factor = 0.9   # When zooming in, ranges shrink by 10%
-        zoom_out_factor = 1.1  # When zooming out, ranges increase by 10%
-
-        # Determine the zoom direction based on the scroll event
-        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):  # Scroll up = zoom in
-            factor = zoom_in_factor
-        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0): # Scroll down = zoom out
-            factor = zoom_out_factor
-        else:
-            return  # No recognized scroll direction
-
-        for ax in canvas.figure.get_axes():
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
-
-            x_center = (xlim[1] + xlim[0]) / 2
-            y_center = (ylim[1] + ylim[0]) / 2
-
-            x_range = (xlim[1] - xlim[0]) * factor
-            y_range = (ylim[1] - ylim[0]) * factor
-
-            # Set the new limits
-            ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
-            ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
-
-        # Redraw the figure efficiently
-        canvas.draw_idle()
-        
     def zoom(event):
         # Fixed zoom factors (adjust these if you want faster or slower zoom)
         zoom_in_factor = 0.9   # When zooming in, ranges shrink by 10%
@@ -1186,75 +1156,6 @@ def process_console_queue_v2():
             console_output.see(tk.END)
 
     # **Continue processing if no error was detected**
-    after_id = console_output.after(uppdate_frequency, process_console_queue)
-    parent_frame.after_tasks.append(after_id)
-
-def process_console_queue_v1():
-    global q, console_output, parent_frame, progress_bar, process_console_queue
-
-    # Initialize function attribute if it doesn't exist
-    if not hasattr(process_console_queue, "completed_tasks"):
-        process_console_queue.completed_tasks = []
-    if not hasattr(process_console_queue, "current_maximum"):
-        process_console_queue.current_maximum = None
-
-    ansi_escape_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-
-    while not q.empty():
-        message = q.get_nowait()
-        clean_message = ansi_escape_pattern.sub('', message)
-        #console_output.insert(tk.END, clean_message + "\n")
-        #console_output.see(tk.END)
-        
-        # Check if the message contains progress information
-        if clean_message.startswith("Progress:"):
-            try:
-                # Extract the progress information
-                match = re.search(r'Progress: (\d+)/(\d+), operation_type: ([\w\s]*),(.*)', clean_message)
-
-                if match:
-                    current_progress = int(match.group(1))
-                    total_progress = int(match.group(2))
-                    operation_type = match.group(3).strip()
-                    additional_info = match.group(4).strip()  # Capture everything after operation_type
-                    
-                    # Check if the maximum value has changed
-                    if process_console_queue.current_maximum != total_progress:
-                        process_console_queue.current_maximum = total_progress
-                        process_console_queue.completed_tasks = []
-
-                    # Add the task to the completed set
-                    process_console_queue.completed_tasks.append(current_progress)
-                    
-                    # Calculate the unique progress count
-                    unique_progress_count = len(np.unique(process_console_queue.completed_tasks))
-
-                    # Update the progress bar
-                    if progress_bar:
-                        progress_bar['maximum'] = total_progress
-                        progress_bar['value'] = unique_progress_count
-                        #print("Current progress bar value:", progress_bar['value']) # Debugg
-                        
-                    # Store operation type and additional info
-                    if operation_type:
-                        progress_bar.operation_type = operation_type
-                        progress_bar.additional_info = additional_info
-
-                    # Update the progress label
-                    if progress_bar.progress_label:
-                        progress_bar.update_label()
-
-                    # Clear completed tasks when progress is complete
-                    if unique_progress_count >= total_progress:
-                        process_console_queue.completed_tasks.clear()
-
-            except Exception as e:
-                print(f"Error parsing progress message: {e}")
-        else:
-            # Only insert messages that do not start with "Progress:"
-            console_output.insert(tk.END, clean_message + "\n")
-            console_output.see(tk.END)
-        
     after_id = console_output.after(uppdate_frequency, process_console_queue)
     parent_frame.after_tasks.append(after_id)
 

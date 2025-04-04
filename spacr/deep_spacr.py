@@ -1144,7 +1144,7 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
 
 def annotate_filter_vision(settings):
     
-    from .utils import annotate_conditions
+    from .utils import annotate_conditions, correct_metadata
     
     def filter_csv_by_png(csv_file):
         """
@@ -1188,8 +1188,7 @@ def annotate_filter_vision(settings):
 
         df = pd.read_csv(src)
         
-        if 'column_name' not in df.columns:
-            df['column_name'] = df['column']
+        df = correct_metadata(df)
             
         df = annotate_conditions(df, 
                             cells=settings['cells'],
