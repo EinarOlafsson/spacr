@@ -26,6 +26,7 @@ def set_default_plot_merge_settings():
 
 def set_default_settings_preprocess_generate_masks(settings={}):
     
+    settings.setdefault('denoise', False)
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
     settings.setdefault('segmentation_mode', 'cellpose')
@@ -220,7 +221,7 @@ def set_default_umap_image_settings(settings={}):
     settings.setdefault('smooth_lines', True)
     settings.setdefault('clustering', 'dbscan')
     settings.setdefault('exclude', None)
-    settings.setdefault('col_to_compare', 'column_name')
+    settings.setdefault('col_to_compare', 'columnID')
     settings.setdefault('pos', 'c1')
     settings.setdefault('neg', 'c2')
     settings.setdefault('mix', 'c3')
@@ -319,7 +320,7 @@ def set_default_analyze_screen(settings):
     settings.setdefault('learning_rate',0.001)
     settings.setdefault('n_estimators',1000)
     settings.setdefault('test_size',0.2)
-    settings.setdefault('location_column','column_name')
+    settings.setdefault('location_column','columnID')
     settings.setdefault('positive_control','c2')
     settings.setdefault('negative_control','c1')
     settings.setdefault('exclude',None)
@@ -382,7 +383,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    settings.setdefault('metadata_type_by','column_name')
+    settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
@@ -404,7 +405,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    settings.setdefault('metadata_type_by','column_name')
+    settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
     settings.setdefault('tables',None)
@@ -488,7 +489,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('pathogen_plate_metadata',[['c1', 'c2', 'c3'],['c4','c5', 'c6']])
     settings.setdefault('treatments',['cm', 'lovastatin'])
     settings.setdefault('treatment_plate_metadata',[['r1', 'r2','r3'], ['r4', 'r5','r6']])
-    #settings.setdefault('metadata_types',['column_name', 'column_name', 'row_name'])
+    #settings.setdefault('metadata_types',['columnID', 'columnID', 'rowID'])
     settings.setdefault('channel_dims',[0,1,2,3])
     settings.setdefault('cell_chann_dim',3)
     settings.setdefault('cell_mask_dim',4)
@@ -511,6 +512,31 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('nucleus_intensity_range',[0,100000])
     settings.setdefault('cell_intensity_range',[0,100000])
     settings.setdefault('target_intensity_min',1)
+    return settings
+
+def get_default_test_cellpose_model_settings(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('model_path','path')
+    settings.setdefault('save',True)
+    settings.setdefault('normalize',True)
+    settings.setdefault('percentiles',(2,98))
+    settings.setdefault('batch_size',50)
+    settings.setdefault('CP_probability',0)
+    settings.setdefault('FT',100)
+    settings.setdefault('target_size',1000)
+    return settings
+
+def get_default_apply_cellpose_model_settings(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('model_path','path')
+    settings.setdefault('save',True)
+    settings.setdefault('normalize',True)
+    settings.setdefault('percentiles',(2,98))
+    settings.setdefault('batch_size',50)
+    settings.setdefault('CP_probability',0)
+    settings.setdefault('FT',100)
+    settings.setdefault('circularize',False)
+    settings.setdefault('target_size',1000)
     return settings
 
 def default_settings_analyze_percent_positive(settings):
@@ -593,9 +619,8 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('cov_type',None)
     settings.setdefault('alpha',1)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
-    settings.setdefault('filter_column','column')
-    settings.setdefault('plate','plate1')
-    settings.setdefault('class_1_threshold',None)
+    settings.setdefault('filter_column','columnID')
+    settings.setdefault('plateID','plate1')
     settings.setdefault('metadata_files',['/home/carruthers/Documents/TGGT1_Summary.csv','/home/carruthers/Documents/TGME49_Summary.csv'])
     settings.setdefault('volcano','gene')
     settings.setdefault('toxo', True)
@@ -864,6 +889,7 @@ expected_types = {
     "agg_type": str,
     "min_cell_count": int,
     "resize": bool,
+    "denoise":bool,
     "target_height": (int, type(None)),
     "target_width": (int, type(None)),
     "rescale": bool,
@@ -962,7 +988,7 @@ expected_types = {
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode", "delete_intermediate", "uninfected", ],
-             "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+             "Cellpose":["denoise","fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
              "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
@@ -973,7 +999,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
              "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
-             "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "class_1_threshold", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
+             "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
              "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
@@ -1105,100 +1131,6 @@ def check_settings(vars_dict, expected_types, q=None):
     
 
     return settings, errors
-
-def check_settings_v1(vars_dict, expected_types, q=None):
-    from .gui_utils import parse_list
-
-    if q is None:
-        from multiprocessing import Queue
-        q = Queue()
-
-    settings = {}
-
-    for key, (label, widget, var, _) in vars_dict.items():
-        if key not in expected_types:
-            if key not in category_keys:
-                q.put(f"Key {key} not found in expected types.")
-                continue
-
-        value = var.get()            
-        if value in ['None', '']:
-            value = None
-
-        expected_type = expected_types.get(key, str)
-
-        try:
-            #if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "pathogen_loc", "treatment_loc", "pathogen_plate_metadata", "treatment_plate_metadata", "barcode_coordinates", "class_metadata"]:
-            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "class_metadata", "crop_mode"]:
-
-                if value is None:
-                        parsed_value = None
-                else:
-                    parsed_value = ast.literal_eval(value) if isinstance(value, str) and value.strip() else None
-                                        
-                if isinstance(parsed_value, list):
-                    if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
-                        settings[key] = parsed_value
-                    else:
-                        raise ValueError("Invalid format: Mixed list and list of lists")
-                else:
-                    raise ValueError("Invalid format for list or list of lists")
-                
-            elif expected_type == list:
-                settings[key] = parse_list(value) if value else None
-
-                if isinstance(settings[key], list) and len(settings[key]) == 1:
-                    settings[key] = settings[key][0]
-
-            elif expected_type == bool:
-                settings[key] = value if isinstance(value, bool) else value.lower() in ['true', '1', 't', 'y', 'yes']
-            elif expected_type == (int, type(None)):
-                settings[key] = settings[key] = int(value) if isinstance(value, int) or str(value).isdigit() else None
-            elif expected_type == (float, type(None)):
-                settings[key] = float(value) if isinstance(value, float) or (isinstance(value, str) and value.replace(".", "", 1).isdigit()) else None
-            elif expected_type == (int, float):
-                settings[key] = float(value) if '.' in value else int(value)
-            elif expected_type == (str, type(None)):
-                settings[key] = str(value) if value else None
-            elif expected_type == (str, type(None), list):
-                if isinstance(value, list):
-                    settings[key] = parse_list(value) if value else None
-                elif isinstance(value, str):
-                    settings[key] = str(value) 
-                else:
-                    settings[key] = None
-            
-            elif expected_type == dict:
-                try:
-                    # Ensure that the value is a string that can be converted to a dictionary
-                    if isinstance(value, str):
-                        settings[key] = ast.literal_eval(value)
-                    else:
-                        raise ValueError("Expected a string representation of a dictionary.")
-                    
-                    # Check if the result is actually a dictionary
-                    if not isinstance(settings[key], dict):
-                        raise ValueError("Value is not a valid dictionary.")
-                except (ValueError, SyntaxError) as e:
-                    settings[key] = {}
-                    q.put(f"Error: Invalid format for {key}. Expected type: dict. Error: {e}")
-            elif isinstance(expected_type, tuple):
-                for typ in expected_type:
-                    try:
-                        settings[key] = typ(value) if value else None
-                        break
-                    except (ValueError, TypeError):
-                        continue
-                else:
-                    raise ValueError
-            else:
-                settings[key] = expected_type(value) if value else None
-        except (ValueError, SyntaxError) as e:
-            expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
-            q.put(f"Error: Invalid format for {key}. Expected type: {expected_type_name}. Error: {e}, Value entered: {value}")
-            return
-
-    return settings
 
 def generate_fields(variables, scrollable_frame):
     from .gui_utils import create_input_field
@@ -1540,6 +1472,7 @@ def set_default_generate_barecode_mapping(settings={}):
     settings.setdefault('mode', 'paired')
     settings.setdefault('single_direction', 'R1')
     settings.setdefault('test', False)
+    settings.setdefault('fill_na', False)
     return settings
 
 def get_default_generate_activation_map_settings(settings):

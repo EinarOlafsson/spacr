@@ -1658,36 +1658,36 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     num_parts = len(df['prc'].iloc[0].split('_'))
     if num_parts == 4:
         split = df['prc'].str.split('_', expand=True)
-        df['row_name'] = split[2]
+        df['rowID'] = split[2]
         df['prc'] = f"{plate_number}" + '_' + split[2] + '_' + split[3]
         
-    # Construct 'prc' based on 'plate', 'row_name', and 'column' columns
-    #df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column'].astype(str)
+    # Construct 'prc' based on 'plateID', 'rowID', and 'columnID' columns
+    #df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
 
     if 'column_name' not in df.columns:
         if 'column' in df.columns:
-            df['column_name'] = df['column']
+            df['columnID'] = df['column']
         if 'column_name' in df.columns:
-            df['column_name'] = df['column_name']
+            df['columnID'] = df['column_name']
                 
-    df['plate'], df['row_name'], df['column_name'] = zip(*df['prc'].str.split('_'))
+    df['plateID'], df['rowID'], df['columnID'] = zip(*df['prc'].str.split('_'))
     
     # Filtering the dataframe based on the plate_number
-    df = df[df['plate'] == plate_number].copy()  # Create another copy after filtering
+    df = df[df['plateID'] == plate_number].copy()  # Create another copy after filtering
     
     # Ensure proper ordering
     row_order = [f'r{i}' for i in range(1, 17)]
     col_order = [f'c{i}' for i in range(1, 28)]  # Exclude c15 as per your earlier code
     
-    df['row_name'] = pd.Categorical(df['row_name'], categories=row_order, ordered=True)
-    df['column_name'] = pd.Categorical(df['column_name'], categories=col_order, ordered=True)
-    df['count'] = df.groupby(['row_name', 'column_name'])['row_name'].transform('count')
+    df['rowID'] = pd.Categorical(df['rowID'], categories=row_order, ordered=True)
+    df['columnID'] = pd.Categorical(df['columnID'], categories=col_order, ordered=True)
+    df['count'] = df.groupby(['rowID', 'columnID'])['rowID'].transform('count')
 
     if min_count > 0:
         df = df[df['count'] >= min_count]
 
     # Explicitly set observed=True to avoid FutureWarning
-    grouped = df.groupby(['row_name', 'column_name'], observed=True) # Group by row and column
+    grouped = df.groupby(['rowID', 'columnID'], observed=True) # Group by row and column
     
     if grouping == 'mean':
         plate = grouped[variable].mean().reset_index()
@@ -1699,7 +1699,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     else:
         raise ValueError(f"Unsupported grouping: {grouping}")
         
-    plate_map = pd.pivot_table(plate, values=variable, index='row_name', columns='column_name').fillna(0)
+    plate_map = pd.pivot_table(plate, values=variable, index='rowID', columns='columnID').fillna(0)
     
     if min_max == 'all':
         min_max = [plate_map.min().min(), plate_map.max().max()]
@@ -2571,8 +2571,8 @@ class spacrGraph:
     #    # Group by 'prc' column if representation is 'well'
     #    if self.representation == 'well':
     #        df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-    #    if self.representation == 'plate':
-    #        df = df.groupby(['plate', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
+    #    if self.representation == 'plateID':
+    #        df = df.groupby(['plateID', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
     #    if self.order:
     #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
     #    else:
@@ -2581,8 +2581,8 @@ class spacrGraph:
   
     def preprocess_data(self):
         """
-        Preprocess the data: remove NaNs, optionally ensure 'plate' column is created,
-        then group by either 'prc', 'plate', or do no grouping at all if representation == 'object'.
+        Preprocess the data: remove NaNs, optionally ensure 'plateID' column is created,
+        then group by either 'prc', 'plateID', or do no grouping at all if representation == 'object'.
         """
         # 1) Remove NaNs in both the grouping column and each data column
         df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
@@ -2597,21 +2597,21 @@ class spacrGraph:
             # Group by ['prc', grouping_column]
             group_cols = ['prc', self.grouping_column]
 
-        elif self.representation == 'plate':
-            # Make sure 'plate' exists (split from 'prc' if needed)
-            if 'plate' not in df.columns:
+        elif self.representation == 'plateID':
+            # Make sure 'plateID' exists (split from 'prc' if needed)
+            if 'plateID' not in df.columns:
                 if 'prc' in df.columns:
-                    df[['plate', 'row', 'column']] = df['prc'].str.split('_', expand=True)
+                    df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
                 else:
                     raise KeyError(
-                        "Representation is 'plate', but no 'plate' column found. "
+                        "Representation is 'plateID', but no 'plateID' column found. "
                         "Also cannot split from 'prc' because 'prc' column is missing."
                     )
-            # If the grouping column IS 'plate', only group by ['plate'] once
-            if self.grouping_column == 'plate':
-                group_cols = ['plate']
+            # If the grouping column IS 'plateID', only group by ['plateID'] once
+            if self.grouping_column == 'plateID':
+                group_cols = ['plateID']
             else:
-                group_cols = ['plate', self.grouping_column]
+                group_cols = ['plateID', self.grouping_column]
 
         else:
             raise ValueError(f"Unknown representation: {self.representation}")
@@ -3426,7 +3426,7 @@ def plot_data_from_db(settings):
         dfs.append(dft)
         
     df = pd.concat(dfs, axis=0)
-    df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str)
+    df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     
     if settings['cell_plate_metadata'] !=  None:
         df = df.dropna(subset='host_cell')
@@ -3503,19 +3503,19 @@ def plot_data_from_csv(settings):
     dfs = []
     for i, src in enumerate(srcs):
         dft = pd.read_csv(src)
-        if 'plate' not in dft.columns:
-            dft['plate'] = f"plate{i+1}"
+        if 'plateID' not in dft.columns:
+            dft['plateID'] = f"plate{i+1}"
             dft['common'] = 'spacr'
         dfs.append(dft)
 
     df = pd.concat(dfs, axis=0)
     
     if 'prc' in df.columns:
-        # Check if 'plate', 'row', and 'column' are all missing from df.columns
-        if not all(col in df.columns for col in ['plate', 'row_name', 'column_name']):
+        # Check if 'plateID', 'rowID', and 'columnID' are all missing from df.columns
+        if not all(col in df.columns for col in ['plate', 'rowID', 'columnID']):
             try:
-                # Split 'prc' into 'plate', 'row', and 'column'
-                df[['plate', 'row_name', 'column_name']] = df['prc'].str.split('_', expand=True)
+                # Split 'prc' into 'plateID', 'rowID', and 'columnID'
+                df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
             except Exception as e:
                 print(f"Could not split the prc column: {e}")
 
@@ -3869,7 +3869,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
 
     # Plot based on level setting
-    if level in ['well', 'plate']:
+    if level in ['well', 'plateID']:
         # Aggregate by well for mean ± SD visualization
         well_proportions = (
             df.groupby([group_column, prc_column, bin_column])

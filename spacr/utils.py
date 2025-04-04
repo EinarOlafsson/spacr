@@ -78,7 +78,7 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
 
     parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=settings['timelapse'])))
 
-    columns = ['plate', 'row_name', 'column_name', 'field']
+    columns = ['plateID', 'rowID', 'columnID', 'fieldID']
 
     if settings['timelapse']:
         columns = columns + ['time_id']
@@ -113,7 +113,7 @@ def activation_maps_to_database(img_paths, source_folder, settings):
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
     png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
     parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=False)))
-    columns = ['plate', 'row_name', 'column_name', 'field', 'prcfo', 'object']
+    columns = ['plateID', 'rowID', 'columnID', 'fieldID', 'prcfo', 'object']
     png_df[columns] = parts
 
     dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]
@@ -136,7 +136,7 @@ def activation_correlations_to_database(df, img_paths, source_folder, settings):
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
     png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
     parts = png_df['file_name'].apply(lambda x: pd.Series(_map_wells_png(x, timelapse=False)))
-    columns = ['plate', 'row_name', 'column_name', 'field', 'prcfo', 'object']
+    columns = ['plateID', 'rowID', 'columnID', 'fieldID', 'prcfo', 'object']
     png_df[columns] = parts
 
     # Align both DataFrames by file_name
@@ -642,11 +642,11 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=['p
     if 'prcfo' not in df.columns:
         print(f'generating prcfo columns')
         try:
-            df['prcfo'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str) + '_o' + df['object_label'].astype(int).astype(str)
+            df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['object_label'].astype(int).astype(str)
         except Exception as e:
             print('Merging on cell failed, trying with cell_id')
         try:
-            df['prcfo'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
+            df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
         except Exception as e:
             print(e)
         
@@ -738,7 +738,7 @@ def _map_values(row, values, locs):
     if locs:
         value_dict = {loc: value for value, loc_list in zip(values, locs) for loc in loc_list}
         # Determine if we're dealing with row or column based on first location identifier
-        type_ = 'row_name' if locs[0][0][0] == 'r' else 'column_name'
+        type_ = 'rowID' if locs[0][0][0] == 'r' else 'columnID'
         return value_dict.get(row[type_], None)
     return values[0] if values else None
 
@@ -923,21 +923,21 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             merged_df['file_name'] = file_name
             merged_df['path_name'] = os.path.join(source_folder, file_name + '.npy')
             if timelapse:
-                merged_df[['plate', 'row_name', 'column_name', 'field', 'timeid', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+                merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeid', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
             else:
-                merged_df[['plate', 'row_name', 'column_name', 'field', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+                merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
             cols = merged_df.columns.tolist()  # get the list of all columns
             if table_type == 'cell' or table_type == 'cytoplasm':
-                column_list = ['object_label', 'plate', 'row_name', 'column_name', 'field', 'prcf', 'file_name', 'path_name']
+                column_list = ['object_label', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
             elif table_type == 'nucleus' or table_type == 'pathogen':
-                column_list = ['object_label', 'cell_id', 'plate', 'row_name', 'column_name', 'field', 'prcf', 'file_name', 'path_name']
+                column_list = ['object_label', 'cell_id', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
             else:
                 raise ValueError(f"Invalid table_type: {table_type}")
             # Check if all columns in column_list are in cols
             missing_columns = [col for col in column_list if col not in cols]
             if len(missing_columns) == 1 and missing_columns[0] == 'cell_id':
                 missing_columns = False
-                column_list = ['object_label', 'plate', 'row_name', 'column_name', 'field', 'prcf', 'file_name', 'path_name']
+                column_list = ['object_label', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
             if missing_columns:
                 raise ValueError(f"Columns missing in DataFrame: {missing_columns}")
             for i, col in enumerate(column_list):
@@ -1151,43 +1151,6 @@ def _masks_to_masks_stack(masks):
     for idx, mask in enumerate(masks):
         mask_stack.append(mask)
     return mask_stack
-    
-def _get_diam_v1(mag, obj):
-
-    if mag == 20:
-        if obj == 'cell':
-            diamiter = 120
-        elif obj == 'nucleus':
-            diamiter = 60
-        elif obj == 'pathogen':
-            diamiter = 20
-        else:
-            raise ValueError("Invalid magnification: Use 20, 40 or 60")
-
-    elif mag == 40:
-        if obj == 'cell':
-            diamiter = 160
-        elif obj == 'nucleus':
-            diamiter = 80
-        elif obj == 'pathogen':
-            diamiter = 40
-        else:
-            raise ValueError("Invalid magnification: Use 20, 40 or 60")
-
-    elif mag == 60:
-        if obj == 'cell':
-            diamiter = 200
-        if obj == 'nucleus':
-            diamiter = 90
-        if obj == 'pathogen':
-            diamiter = 60
-        else:
-            raise ValueError("Invalid magnification: Use 20, 40 or 60")
-
-    else:
-        raise ValueError("Invalid magnification: Use 20, 40 or 60")
-    
-    return diamiter
 
 def _get_diam(mag, obj):
 
@@ -1347,11 +1310,11 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
     """
     
     def _get_type(val):
-        """Determine if a value maps to 'row_name' or 'column_name'."""
+        """Determine if a value maps to 'rowID' or 'columnID'."""
         if isinstance(val, str) and val.startswith('c'):
-            return 'column_name'
+            return 'columnID'
         elif isinstance(val, str) and val.startswith('r'):
-            return 'row_name'
+            return 'rowID'
         return None
 
     def _map_or_default(column_name, values, loc, df):
@@ -1419,7 +1382,7 @@ def _split_data(df, group_by, object_type):
     # Ensure 'prcf' column exists by concatenating specific columns
     if 'prcf' not in df.columns:
         try:
-            df['prcf'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column_name'].astype(str) + '_' + df['field'].astype(str)
+            df['prcf'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str)
         except Exception as e:
             print(e)    
     
@@ -1516,7 +1479,7 @@ def _group_by_well(df):
     non_numeric_cols = df.select_dtypes(include=['object']).columns
 
     # Apply mean function to numeric columns and first to non-numeric
-    df_grouped = df.groupby(['plate', 'row_name', 'column_name']).agg({**{col: np.mean for col in numeric_cols}, **{col: 'first' for col in non_numeric_cols}})
+    df_grouped = df.groupby(['plateID', 'rowID', 'columnID']).agg({**{col: np.mean for col in numeric_cols}, **{col: 'first' for col in non_numeric_cols}})
     return df_grouped
 
 ###################################################
@@ -2195,11 +2158,11 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
 def annotate_predictions(csv_loc):
     df = pd.read_csv(csv_loc)
     df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
-    df[['plate', 'well', 'field', 'object']] = df['filename'].str.split('_', expand=True)
+    df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
     df['object'] = df['object'].str.replace('.png', '')
     
     def assign_condition(row):
-        plate = int(row['plate'])
+        plate = int(row['plateID'])
         col = int(row['well'][1:])
         
         if col > 3:
@@ -2350,7 +2313,7 @@ def check_multicollinearity(x):
 
 def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     # Separate predictors and response
-    X = merged_df[['gene', 'grna', 'plate', 'row_name', 'column']]
+    X = merged_df[['gene', 'grna', 'plateID', 'rowID', 'columnID']]
     y = merged_df['pred']
 
     # One-hot encode the categorical predictors
@@ -3189,7 +3152,6 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
             model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
             print(model_path)
             model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=model_path, diam_mean=diameter, device=device)
-            #model = cp_models.Cellpose(gpu=torch.cuda.is_available(), model_type='cyto', device=device)
             print(f'Using Toxoplasma PV lumen model to generate pathogen masks')
             return model
     
@@ -4718,12 +4680,12 @@ def process_vision_results(df, threshold=0.5):
     # Split the 'path' column using _map_wells function
     mapped_values = df['path'].apply(lambda x: _map_wells(x))
     
-    df['plate'] = mapped_values.apply(lambda x: x[0])
-    df['row_name'] = mapped_values.apply(lambda x: x[1])
-    df['column'] = mapped_values.apply(lambda x: x[2])
-    df['field'] = mapped_values.apply(lambda x: x[3])
+    df['plateID'] = mapped_values.apply(lambda x: x[0])
+    df['rowID'] = mapped_values.apply(lambda x: x[1])
+    df['columnID'] = mapped_values.apply(lambda x: x[2])
+    df['fieldID'] = mapped_values.apply(lambda x: x[3])
     df['object'] = df['path'].str.split('_').str[3].str.split('.').str[0]
-    df['prc'] = df['plate'].astype(str) + '_' + df['row_name'].astype(str) + '_' + df['column'].astype(str)
+    df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
     return df
@@ -5138,24 +5100,24 @@ def fill_holes_in_mask(mask):
 
 def correct_metadata_column_names(df):
     if 'plate_name' in df.columns:
-        df = df.rename(columns={'plate_name': 'plate'})
+        df = df.rename(columns={'plate_name': 'plateID'})
     if 'column_name' in df.columns:
-        df = df.rename(columns={'column_name': 'column'})
+        df = df.rename(columns={'column_name': 'columnID'})
     if 'col' in df.columns:
-        df = df.rename(columns={'col': 'column'})
+        df = df.rename(columns={'col': 'columnID'})
     if 'row_name' in df.columns:
-        df = df.rename(columns={'row_name': 'row_name'})
+        df = df.rename(columns={'row_name': 'rowID'})
     if 'grna_name' in df.columns:
         df = df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in df.columns:
-        df[['plate', 'row_name']] = df['plate_row'].str.split('_', expand=True)
+        df[['plateID', 'rowID']] = df['plate_row'].str.split('_', expand=True)
     return df
 
-def control_filelist(folder, mode='column', values=['01','02']):
+def control_filelist(folder, mode='columnID', values=['01','02']):
     files = os.listdir(folder)
-    if mode is 'column':
+    if mode is 'columnID':
         filtered_files = [file for file in files if file.split('_')[1][1:] in values]
-    if mode is 'row_name':
+    if mode is 'rowID':
         filtered_files = [file for file in files if file.split('_')[1][:1] in values]
     return filtered_files
     
@@ -5173,12 +5135,12 @@ def rename_columns_in_db(db_path):
             columns_info = cursor.fetchall()
             column_names = [col[1] for col in columns_info]
 
-            # Check if columns 'row' or 'col' exist
+            # Check if columns 'rowID' or 'columnID' exist
             columns_to_rename = {}
             if 'row' in column_names:
-                columns_to_rename['row'] = 'row_name'
+                columns_to_rename['row'] = 'rowID'
             if 'col' in column_names:
-                columns_to_rename['col'] = 'column_name'
+                columns_to_rename['col'] = 'columnID'
             
             # Rename columns if necessary
             if columns_to_rename:
@@ -5489,3 +5451,43 @@ def copy_images_to_consolidated(image_path_map, root_folder):
         
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'Consolidating images')
         #print(f"Copied: {original_path} -> {new_file_path}")
+        
+def correct_metadata(df):
+    
+    #if 'object' in df.columns:
+    #    df['objectID'] = df['object']
+        
+    if 'object_name' in df.columns:
+        df['objectID'] = df['object_name']
+    
+    if 'field_name' in df.columns:
+        df['fieldID'] = df['field_name']
+    
+    if 'plate' in df.columns:
+        df['plateID'] = df['plate']
+    
+    if 'plate_name' in df.columns:
+        df['plateID'] = df['plate_name']
+    
+    if 'row' in df.columns:
+        df = df.rename(columns={'row': 'rowID'})
+        
+    if 'row_name' in df.columns:
+        df = df.rename(columns={'row_name': 'rowID'})
+        
+    if 'col' in df.columns:
+        df = df.rename(columns={'col': 'columnID'})
+        
+    if 'column' in df.columns:
+        df = df.rename(columns={'column': 'columnID'})
+        
+    if 'column_name' in df.columns:
+        df = df.rename(columns={'column_name': 'columnID'})
+        
+    if 'field' in df.columns:
+        df = df.rename(columns={'field': 'fieldID'})
+
+    if 'field_name' in df.columns:
+        df = df.rename(columns={'field_name': 'fieldID'})
+    
+    return df
