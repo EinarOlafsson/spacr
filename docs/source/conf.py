@@ -10,8 +10,8 @@ project = 'spacr'
 copyright = '2025, Einar Olafsson'
 author = 'Einar Olafsson'
 
-version = 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.4.0'
-release = 'Models already downloaded to: /home/olafsson/anaconda3/envs/spacr/lib/python3.9/site-packages/spacr/resources/models\n0.4.0'
+version = '0.4.60'
+release = '0.4.60'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -38,8 +38,7 @@ html_static_path = ['_static']
 
 todo_include_todos = True
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+# -- Additional Sphinx Extensions --------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
@@ -48,11 +47,17 @@ extensions = [
     'sphinx_autodoc_typehints'
 ]
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
+# -- Mock out big imports if you're having import failures --------------------
+#   Remove items from this list if you want the real docstrings from them.
+autodoc_mock_imports = [
+    "numpy",
+    "scipy",
+    "seaborn",
+    "pandas",   # if you use it
+    "sklearn",  # if you use it
+    # add more if needed
+]
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# -- Theme --------------------------------------------------------------------
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
