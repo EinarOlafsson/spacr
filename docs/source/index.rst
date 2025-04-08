@@ -1,5 +1,5 @@
 .. spacr documentation master file, created by
-   sphinx-quickstart on Fri Feb 21 01:21:55 PM EST 2025.
+   sphinx-quickstart on Tue Apr  8 04:36:34 PM EDT 2025.
 
 Welcome to spacr's documentation!
 =================================
@@ -8,7 +8,7 @@ Welcome to spacr's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   spacr
 
 Indices and tables
 ==================
