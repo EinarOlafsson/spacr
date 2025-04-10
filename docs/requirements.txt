@@ -1,7 +1,2 @@
-sphinx
+sphinx>=7.0
 sphinx_rtd_theme
-tables
-h5py
-numpy
-matplotlib
-# (only list the pure‑Python deps you actually need in your docs build)
