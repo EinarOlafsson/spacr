@@ -3,9 +3,13 @@ version: 2
 build:
   os: ubuntu-22.04
   commands:
-    # 1) Install your package
+    # 0) Bootstrap pip
+    - python3 -m ensurepip --upgrade
+    # 1) Upgrade pip itself
+    - python3 -m pip install --upgrade pip
+    # 2) Install your package
     - python3 -m pip install .
-    # 2) Install Sphinx & the RTD theme
+    # 3) Install Sphinx & RTD theme
     - python3 -m pip install sphinx sphinx_rtd_theme
-    # 3) Build the docs
+    # 4) Build the docs
     - python3 -m sphinx -b html docs/source docs/build/html
