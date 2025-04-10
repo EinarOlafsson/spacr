@@ -4,8 +4,8 @@ build:
   os: ubuntu-22.04
   commands:
     # 1) Install your package
-    - pip install .
+    - python3 -m pip install .
     # 2) Install Sphinx & the RTD theme
-    - pip install sphinx sphinx_rtd_theme
+    - python3 -m pip install sphinx sphinx_rtd_theme
     # 3) Build the docs
-    - sphinx-build -b html docs/source docs/build/html
+    - python3 -m sphinx -b html docs/source docs/build/html
