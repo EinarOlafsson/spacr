@@ -19,3 +19,10 @@ cd "$PROJECT_ROOT/docs"
 make html
 
 echo "Docs built successfully in: $PROJECT_ROOT/docs/build/html"
+
+# run script
+# Go to: https://readthedocs.org/
+# Sign in with GitHub
+# Click "Import a Project"
+# Choose spacr
+# Confirm project settings

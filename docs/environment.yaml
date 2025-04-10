@@ -5,6 +5,18 @@ dependencies:
   - python=3.9
   - pip
   - sphinx
-  - tables  # <- comes with HDF5 prebuilt
+  - tables
+  - h5py
+  - numpy
+  - matplotlib
   - pip:
-      - -r docs/requirements.txt
+      - huggingface-hub>=0.24,<0.25
+      - wandb>=0.16.2
+      - openai>=1.50.2,<2.0
+      - tqdm>=4.65.0
+      - ipywidgets
+      - ipykernel
+      - screeninfo
+      - brokenaxes
+      - gdown
+      - rapidfuzz>=3.9,<4.0
