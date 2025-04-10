@@ -1,0 +1,10 @@
+name: spacr-docs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - sphinx
+  - tables  # <- comes with HDF5 prebuilt
+  - pip:
+      - -r docs/requirements.txt

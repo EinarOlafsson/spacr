@@ -10,5 +10,7 @@ sphinx:
 
 python:
   install:
-    - method: setuptools
-      path: .
+    - requirements: docs/requirements.txt
+
+conda:
+  environment: docs/environment.yml
