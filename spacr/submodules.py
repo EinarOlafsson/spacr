@@ -681,7 +681,7 @@ def analyze_recruitment(settings):
 
 def analyze_plaques(settings):
 
-    from .cellpose import identify_masks_finetune
+    from .spacr_cellpose import identify_masks_finetune
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
     from spacr import __file__ as spacr_path

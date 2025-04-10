@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../spacr'))
+
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -7,57 +12,23 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'spacr'
-copyright = '2025, Einar Olafsson'
-author = 'Einar Olafsson'
-
-version = '0.4.60'
+copyright = '2025, Einar Birnir Olafsson'
+author = 'Einar Birnir Olafsson'
 release = '0.4.60'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.todo',
-]
+extensions = []
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
-
+language = 'English'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
-html_static_path = ['_static']
-
-# -- Options for todo extension ----------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/todo.html#configuration
-
-todo_include_todos = True
-
-# -- Additional Sphinx Extensions --------------------------------------------
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.todo',
-    'sphinx_autodoc_typehints'
-]
-
-# -- Mock out big imports if you're having import failures --------------------
-#   Remove items from this list if you want the real docstrings from them.
-autodoc_mock_imports = [
-    "numpy",
-    "scipy",
-    "seaborn",
-    "pandas",   # if you use it
-    "sklearn",  # if you use it
-    # add more if needed
-]
-
-# -- Theme --------------------------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
+extensions = ['sphinx.ext.autodoc']
 html_static_path = ['_static']

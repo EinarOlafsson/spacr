@@ -26,7 +26,7 @@ from . import submodules
 from . import openai
 from . import ml
 from . import toxo
-from . import cellpose
+from . import spacr_cellpose
 from . import sp_stats
 from . import logger
 
@@ -57,7 +57,7 @@ __all__ = [
     "openai",
     "ml",
     "toxo",
-    "cellpose",
+    "spacr_cellpose",
     "sp_stats",
     "logger"
 ]
