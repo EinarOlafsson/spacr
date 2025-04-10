@@ -3279,15 +3279,6 @@ class SaliencyMapGenerator:
         return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
-        """
-        Normalize each channel of the image to the given percentiles.
-        Args:
-            img: Input image as numpy array with shape (H, W, C)
-            lower_percentile: Lower percentile for normalization (default 2)
-            upper_percentile: Upper percentile for normalization (default 98)
-        Returns:
-            img: Normalized image
-        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -3296,7 +3287,6 @@ class SaliencyMapGenerator:
             img_normalized[:, :, c] = np.clip((img[:, :, c] - low) / (high - low), 0, 1)
 
         return img_normalized
-
 
 class GradCAMGenerator:
     def __init__(self, model, target_layer, cam_type='gradcam'):
@@ -3402,15 +3392,6 @@ class GradCAMGenerator:
         return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
-        """
-        Normalize each channel of the image to the given percentiles.
-        Args:
-            img: Input image as numpy array with shape (H, W, C)
-            lower_percentile: Lower percentile for normalization (default 2)
-            upper_percentile: Upper percentile for normalization (default 98)
-        Returns:
-            img: Normalized image
-        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel

@@ -470,7 +470,7 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .core import generate_image_umap, preprocess_generate_masks
-    from .cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
+    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
     from .submodules import analyze_recruitment
     from .ml import generate_ml_scores, perform_regression
     from .submodules import train_cellpose, analyze_plaques
@@ -939,8 +939,10 @@ def convert_to_number(value):
     
     """
     Converts a string value to an integer if possible, otherwise converts to a float.
+
     Args:
         value (str): The string representation of the number.
+
     Returns:
         int or float: The converted number.
     """

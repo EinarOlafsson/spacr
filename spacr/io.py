@@ -679,6 +679,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
     if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
         all_filenames = [filename for filename in os.listdir(src) if any(filename.endswith(ext) for ext in img_format)]
         print(f'All files: {len(all_filenames)} in {src}')
+        all_filenames = [f for f in all_filenames if not f.startswith('.')] #Exclude hidden files
         time_ls = []
         image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type, pick_slice, skip_mode)
         # Convert dictionary keys to a list for batching
@@ -1243,7 +1244,11 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
         files_processed = 0
         for i, path in enumerate(paths):
             start = time.time()
-            array = np.load(path)
+            try:
+                array = np.load(path)
+            except Exception as e:
+                print(f"Error loading file {path}: {e}")
+                continue
             stack_ls.append(array)
             filenames_batch.append(os.path.basename(path))
             stop = time.time()
