@@ -1,24 +1,20 @@
-# -- Project information -----------------------------------------------------
+# docs/source/conf.py
+import sys, os
+sys.path.insert(0, os.path.abspath('../../spacr'))
+
 project = 'spacr'
 author  = 'Einar Birnir Olafsson'
 release = '0.4.60'
 
-# -- General configuration ---------------------------------------------------
 extensions = [
-    'sphinx.ext.autodoc',    # core autodoc
-    'sphinx.ext.napoleon',   # Google/NumPy docstrings
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
 ]
 
-# Mock out heavy 3rd‑party modules so autodoc won't try to import them
 autodoc_mock_imports = [
-    'tables', 'h5py', 'wandb', 'huggingface_hub', 'openai',
-    'tqdm', 'ipywidgets', 'ipykernel', 'screeninfo',
-    'brokenaxes', 'gdown', 'rapidfuzz',
+    'tables','h5py','wandb','huggingface_hub','openai',
+    'tqdm','ipywidgets','ipykernel','screeninfo',
+    'brokenaxes','gdown','rapidfuzz',
 ]
 
-templates_path = ['_templates']
-exclude_patterns = []
-
-# -- Options for HTML output -------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
