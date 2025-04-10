@@ -1,0 +1,37 @@
+name: 📚 Build & Deploy Docs
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out your code
+      - uses: actions/checkout@v4
+
+      # 2. Set up Python (you already have pdoc working locally)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # 3. Install pdoc and generate docs into docs/site
+      - name: Generate docs with pdoc
+        run: |
+          python -m pip install --upgrade pip
+          pip install pdoc
+          rm -rf docs/site
+          pdoc -o docs/site spacr
+
+      # 4. Publish the contents of docs/site to gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/site
+          # optional: set user/email for the commit:
+          # commit_message: "Auto‑deploy docs: ${{ github.sha }}"
+

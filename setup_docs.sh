@@ -1,28 +1,13 @@
-#!/bin/bash
-
-# Set script to exit on error
+#!/usr/bin/env bash
 set -e
 
-# Define paths
-PROJECT_ROOT="/home/carruthers/Documents/repo/spacr"
-DOCS_SOURCE="$PROJECT_ROOT/docs/source"
-MODULE_PATH="$PROJECT_ROOT/spacr"
+# 1) Ensure pdoc is installed
+pip install --upgrade pdoc
 
-# Clean old autodoc files
-rm -f "$DOCS_SOURCE"/spacr*.rst
+# 2) Remove any old generated docs
+rm -rf docs/site
 
-# Generate .rst files for all modules
-sphinx-apidoc -o "$DOCS_SOURCE" "$MODULE_PATH" --force
+# 3) Generate new HTML docs for the `spacr` package
+pdoc -o docs/site spacr
 
-# Build HTML docs
-cd "$PROJECT_ROOT/docs"
-make html
-
-echo "Docs built successfully in: $PROJECT_ROOT/docs/build/html"
-
-# run script
-# Go to: https://readthedocs.org/
-# Sign in with GitHub
-# Click "Import a Project"
-# Choose spacr
-# Confirm project settings
+echo "✅ Docs generated in docs/site"
