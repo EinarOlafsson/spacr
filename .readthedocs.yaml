@@ -2,6 +2,8 @@ version: 2
 
 build:
   os: ubuntu-22.04
+  commands:
+    - sphinx-build -b html docs/source docs/build/html
 
 sphinx:
   configuration: docs/source/conf.py
