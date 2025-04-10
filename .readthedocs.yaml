@@ -5,7 +5,7 @@ build:
   commands:
     # 1) Install your package
     - pip install .
-    # 2) Install Sphinx & theme
+    # 2) Install Sphinx & the RTD theme
     - pip install sphinx sphinx_rtd_theme
     # 3) Build the docs
     - sphinx-build -b html docs/source docs/build/html
