@@ -1,9 +1,18 @@
 version: 2
 
+build:
+  os: ubuntu-22.04
+  commands:
+    # After RTD installs your package and docs requirements,
+    # run Sphinx yourself:
+    - sphinx-build -b html docs/source docs/build/html
+
 python:
   install:
+    # 1) Install your package
     - method: pip
       path: .
+    # 2) Install Sphinx and theme (from docs/requirements.txt)
     - requirements: docs/requirements.txt
 
 sphinx:
