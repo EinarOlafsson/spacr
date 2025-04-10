@@ -1,8 +1,5 @@
 version: 2
 
-build:
-  commands: []
-
 python:
   install:
     - method: pip
