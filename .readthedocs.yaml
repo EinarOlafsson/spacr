@@ -2,6 +2,8 @@ version: 2
 
 build:
   os: ubuntu-22.04
+  tools:
+    conda: "mambaforge"  # Optional but preferred for faster env creation
   commands:
     - sphinx-build -b html docs/source docs/build/html
 
