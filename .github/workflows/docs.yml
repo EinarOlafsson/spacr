@@ -5,36 +5,31 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write   # allow committing back to main/docs
+  contents: write
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Check out code with credentials so we can push
       - uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
 
-      # 2) Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      # 3) Install pdoc
       - name: Install pdoc
         run: python -m pip install --upgrade pip pdoc
 
-      # 4) Generate HTML docs directly into docs/
       - name: Generate docs with pdoc
         run: |
           rm -rf docs
-          pdoc --html spacr --output-dir docs
+          pdoc -o docs spacr
 
-      # 5) Commit the generated docs back to main/docs
       - name: Commit & push docs
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
