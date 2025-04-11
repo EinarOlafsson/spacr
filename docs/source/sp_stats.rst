@@ -1,7 +1,7 @@
-${mod} module
+sp_stats module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.sp_stats
    :members:
    :undoc-members:
    :show-inheritance:

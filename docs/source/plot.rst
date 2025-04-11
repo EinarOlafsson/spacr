@@ -1,7 +1,7 @@
-${mod} module
+plot module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.plot
    :members:
    :undoc-members:
    :show-inheritance:

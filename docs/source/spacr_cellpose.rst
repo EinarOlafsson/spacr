@@ -1,7 +1,7 @@
-${mod} module
+spacr_cellpose module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.spacr_cellpose
    :members:
    :undoc-members:
    :show-inheritance:
