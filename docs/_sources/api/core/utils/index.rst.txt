@@ -1,0 +1,26 @@
+core.utils
+==========
+
+.. py:module:: core.utils
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: print_learning_device(device)
+
+   Get and print the learning device information.
+
+
+.. py:function:: print_with_logging(results, step)
+
+   Print and log on the W&B server.
+
+   :param results: results dictionary
+   :type results: dict
+   :param step: epoch index
+   :type step: int
+
+
