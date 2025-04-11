@@ -1,7 +1,7 @@
-app_annotate module
+${mod} module
 =============
 
-.. automodule:: spacr.app_annotate
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

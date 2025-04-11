@@ -1,7 +1,7 @@
-app_sequencing module
+${mod} module
 =============
 
-.. automodule:: spacr.app_sequencing
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

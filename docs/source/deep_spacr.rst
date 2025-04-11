@@ -1,7 +1,7 @@
-deep_spacr module
+${mod} module
 =============
 
-.. automodule:: spacr.deep_spacr
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

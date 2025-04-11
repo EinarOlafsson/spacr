@@ -1,7 +1,7 @@
-app_mask module
+${mod} module
 =============
 
-.. automodule:: spacr.app_mask
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

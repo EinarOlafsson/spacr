@@ -1,7 +1,7 @@
-logger module
+${mod} module
 =============
 
-.. automodule:: spacr.logger
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:
