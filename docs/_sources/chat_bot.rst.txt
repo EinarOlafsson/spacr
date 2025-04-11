@@ -1,7 +1,7 @@
-${mod} module
+chat_bot module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.chat_bot
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
-${mod} module
+core module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.core
    :members:
    :undoc-members:
    :show-inheritance:
