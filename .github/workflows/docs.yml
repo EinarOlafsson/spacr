@@ -31,7 +31,7 @@ jobs:
           python -m pip install . --no-deps
           python -m pip install sphinx sphinx_rtd_theme
 
-      # 4) Build HTML into docs/ (keeping docs/source/)
+      # 4) Build HTML into docs/ (keeping docs/source/) test
       - name: Build Sphinx HTML into docs/
         run: |
           # remove everything in docs/ except docs/source and .git
