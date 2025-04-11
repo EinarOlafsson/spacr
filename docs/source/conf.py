@@ -1,13 +1,24 @@
-import os, sys
-import importlib.machinery, importlib.util
+import os, sys, types, importlib.machinery, importlib.util
 
-# — stub out the spacr package so its __init__.py never runs —
-srcdir = os.path.abspath(os.path.join(__file__, '..', '..', 'spacr'))
-# Create a ModuleSpec for 'spacr' with no loader, but with the right search path:
-spec = importlib.machinery.ModuleSpec('spacr', loader=None, is_package=True)
-spec.submodule_search_locations = [srcdir]
-pkg = importlib.util.module_from_spec(spec)
+# — locate your real sp‍acr package root —
+HERE     = os.path.dirname(__file__)
+PKG_ROOT = os.path.abspath(os.path.join(HERE, '..', '..', 'spacr'))
+
+# — stub torch so any `import torch` just gives an empty module —
+sys.modules['torch'] = types.ModuleType('torch')
+
+# — stub the top‑level `spacr` package so its __init__.py never runs —
+pkg = types.ModuleType('spacr')
+pkg.__path__ = [PKG_ROOT]
 sys.modules['spacr'] = pkg
+
+# — manually load only core.py as sp‍acr.core —
+core_path = os.path.join(PKG_ROOT, 'core.py')
+loader    = importlib.machinery.SourceFileLoader('spacr.core', core_path)
+spec      = importlib.util.spec_from_loader(loader.name, loader)
+mod       = importlib.util.module_from_spec(spec)
+sys.modules['spacr.core'] = mod
+loader.exec_module(mod)
 
 # -- Project information -----------------------------------------------------
 project = 'spacr'
@@ -25,16 +36,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
-
-# mock out all the heavy dependencies so autodoc never actually loads them
-autodoc_mock_imports = [
-    'torch',
-    'torchvision',
-    'monai',
-    'itk',
-    'train_tools',
-    'zarr',
-]
+# no need for autodoc_mock_imports now
 
 # -- HTML output options -----------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
