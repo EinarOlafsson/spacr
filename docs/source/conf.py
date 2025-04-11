@@ -1,83 +1,70 @@
 # docs/source/conf.py
 
-import os
-import sys
-import re
+import os, sys, re
 
-# 1) Tell Sphinx where to find your spacr package
-#    docs/source → ../../spacr
-sys.path.insert(
-    0,
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..', '..', 'spacr')
-    )
-)
+# 1) Make sure Sphinx can import your package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'spacr')))
 
-# 2) Tell Sphinx where to find deps_list.py
-#    docs/source → ../ (which is docs/)
-sys.path.insert(
-    0,
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    )
-)
+# 2) Make sure Sphinx can import deps_list.py
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# 3) Import your raw dependency lists (pure data, no side‑effects)
+# 3) Pull in the raw dependency lists
 from deps_list import dependencies, extra_gui
 
 def strip_version_specifiers(deps):
-    """
-    Strip off everything from the first '<' or '>' (inclusive) in each string.
-    """
     cleaned = []
     for dep in deps:
-        # find earliest '<' or '>' and cut there
         idxs = [dep.find(c) for c in ('<', '>') if c in dep]
         if idxs:
             dep = dep[:min(idxs)]
         cleaned.append(dep.strip())
     return cleaned
 
-# 4) Build the list of module names to mock
+# 4) Build and normalize mock list
 base_names = strip_version_specifiers(dependencies + extra_gui)
 mods = [name.replace('-', '_') for name in base_names]
-
-# 5) Special‑case imports whose name differs from the PyPI package
 overrides = {
     'scikit_image': 'skimage',
     'opencv_python_headless': 'cv2',
     'biopython': 'Bio',
-    # add more overrides here if needed
+    'pillow': 'PIL',
+    'huggingface_hub': 'huggingface_hub',
 }
 for pkg, mod in overrides.items():
     if pkg in mods:
         mods[mods.index(pkg)] = mod
 
 # -- Project information -----------------------------------------------------
-# You can also pull VERSION from importlib.metadata if you like
-project = 'spacr'
-author  = 'Einar Birnir Olafsson'
+project   = 'spacr'
+author    = 'Einar Birnir Olafsson'
 try:
     from importlib.metadata import version as _ver
 except ImportError:
     from importlib_metadata import version as _ver
-release = _ver('spacr')
+release   = _ver('spacr')
 
 # -- General configuration ---------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary',   # generate summary tables + stub pages
-    'sphinx.ext.viewcode',      # add “view source” links
- ]
+    'sphinx.ext.autosummary',
+    'sphinx.ext.viewcode',
+]
 
-# Automatically generate the stub .rst files for autosummary directives
-autosummary_generate = True
+autosummary_generate         = True
 autosummary_imported_members = False
 
-# This tells Sphinx to mock these modules instead of trying to import them
 autodoc_mock_imports = mods
 
+templates_path   = ['_templates']
+exclude_patterns = []
+
 # -- Options for HTML output -------------------------------------------------
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme           = 'sphinx_rtd_theme'
+html_theme_options   = {
+    'collapse_navigation': False,
+    'navigation_depth':    4,
+    'style_nav_header_background': '#2980B9',
+}
+html_logo            = '_static/logo_spacr.png'
+html_static_path     = ['_static']

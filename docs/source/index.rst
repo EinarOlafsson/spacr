@@ -1,6 +1,3 @@
-.. spaCr documentation master file, created by
-   sphinx-quickstart on ...
-
 Welcome to SpaCr’s documentation!
 =================================
 
