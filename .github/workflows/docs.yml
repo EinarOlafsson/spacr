@@ -1,4 +1,5 @@
-name: Build & Publish Sphinx Docs to main/docs
+# .github/workflows/docs.yml
+name: Build & Publish Docs
 
 on:
   push:
@@ -8,48 +9,31 @@ permissions:
   contents: write
 
 jobs:
-  build-and-publish:
+  docs:
     runs-on: ubuntu-latest
-
     steps:
-      # 1) Check out with push creds & full history
       - uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
 
-      # 2) Set up Python
-      - name: Set up Python 3.9
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # 3) Install your package (no deps) + Sphinx + theme
       - name: Install docs builder
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install . --no-deps
           python -m pip install sphinx sphinx_rtd_theme sphinx-autoapi
 
-      # 4) Build into docs/ (preserving docs/source and deps_list.py)
-      - name: Build Sphinx HTML into docs/
+      - name: Build with Sphinx
         run: |
-          # remove everything in docs/ except docs/source, docs/deps_list.py, and .git
-          find docs -mindepth 1 -maxdepth 1 \
-               ! -name source \
-               ! -name deps_list.py \
-               ! -name .git \
-               -exec rm -rf {} +
-          # generate the HTML
-          python -m sphinx -b html docs/source docs
-          echo "---- docs/ now contains ----"
-          ls -R docs
+          sphinx-build -b html docs/source docs
 
-      # 5) Commit & push the updated docs/
-      - name: Commit & push generated docs
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Deploy to Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          commit_message: "📚 Auto‑build docs"
-          commit_user_name: github-actions
-          commit_user_email: github-actions@github.com
-          file_pattern: docs/**
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
