@@ -1,7 +1,7 @@
-toxo module
+${mod} module
 =============
 
-.. automodule:: spacr.toxo
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:
