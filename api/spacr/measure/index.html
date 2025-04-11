@@ -10,9 +10,10 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
 
   
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=063a25df"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -31,9 +32,8 @@
 
           
           
-          <a href="../../../index.html">
-            
-              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          <a href="../../../index.html" class="icon icon-home">
+            spacr
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -114,12 +114,12 @@
            <div itemprop="articleBody">
              
   <section id="module-spacr.measure">
-<span id="spacr-measure"></span><h1>spacr.measure<a class="headerlink" href="#module-spacr.measure" title="Link to this heading">¶</a></h1>
+<span id="spacr-measure"></span><h1>spacr.measure<a class="headerlink" href="#module-spacr.measure" title="Link to this heading"></a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.get_components">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.get_components" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.get_components" title="Link to this definition"></a></dt>
 <dd><p>Get the components (nucleus and pathogens) for each cell in the given masks.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>cell_mask (ndarray): Binary mask of cell labels.
@@ -141,7 +141,7 @@ pathogen_mask (ndarray): Binary mask of pathogen labels.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.save_and_add_image_to_grid">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">save_and_add_image_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">png_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.save_and_add_image_to_grid" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">save_and_add_image_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">png_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.save_and_add_image_to_grid" title="Link to this definition"></a></dt>
 <dd><p>Add an image to a grid and save it as PNG.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>png_channels (ndarray): The array representing the image channels.
@@ -155,7 +155,7 @@ grid (list): The grid of images to be plotted later.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.img_list_to_grid">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">img_list_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.img_list_to_grid" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">img_list_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.img_list_to_grid" title="Link to this definition"></a></dt>
 <dd><p>Plot a grid of images with optional titles.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>grid (list): List of images to be plotted.
@@ -168,7 +168,7 @@ titles (list): List of titles for the images.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.measure_crop">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">measure_crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.measure_crop" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">measure_crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.measure_crop" title="Link to this definition"></a></dt>
 <dd><p>Measure the crop of an image based on the provided settings.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>settings (dict): The settings for measuring the crop.</p>
@@ -180,7 +180,7 @@ titles (list): List of titles for the images.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.process_meassure_crop_results">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">process_meassure_crop_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.process_meassure_crop_results" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">process_meassure_crop_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.process_meassure_crop_results" title="Link to this definition"></a></dt>
 <dd><p>Process the results, display, and optionally save the figures.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>partial_results (list): List of partial results.
@@ -192,12 +192,12 @@ save_figures (bool): Flag to save figures or not.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.generate_cellpose_train_set">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.generate_cellpose_train_set" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.generate_cellpose_train_set" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.get_object_counts">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_object_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.get_object_counts" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_object_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.measure.get_object_counts" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
