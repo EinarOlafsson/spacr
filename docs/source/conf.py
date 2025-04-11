@@ -21,6 +21,9 @@ extensions = [
     'autoapi.extension',       # parse your code via AST
 ]
 
+# suppress “Missing matching underline for section title overline” errors
+suppress_warnings = ['misc.section']
+
 # -- AutoAPI settings --------------------------------------------------------
 autoapi_type               = 'python'
 autoapi_dirs               = [os.path.abspath(
