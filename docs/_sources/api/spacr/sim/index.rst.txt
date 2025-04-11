@@ -1,0 +1,673 @@
+spacr.sim
+=========
+
+.. py:module:: spacr.sim
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: generate_gene_list(number_of_genes, number_of_all_genes)
+
+   Generates a list of randomly selected genes.
+
+   :param number_of_genes: The number of genes to be selected.
+   :type number_of_genes: int
+   :param number_of_all_genes: The total number of genes available.
+   :type number_of_all_genes: int
+
+   :returns: A list of randomly selected genes.
+   :rtype: list
+
+
+.. py:function:: generate_plate_map(nr_plates)
+
+   Generate a plate map based on the number of plates.
+
+   Parameters:
+   nr_plates (int): The number of plates to generate the map for.
+
+   Returns:
+   pandas.DataFrame: The generated plate map dataframe.
+
+
+.. py:function:: gini_coefficient(x)
+
+   Compute Gini coefficient of array of values.
+
+   Parameters:
+   x (array-like): Array of values.
+
+   Returns:
+   float: Gini coefficient.
+
+
+
+.. py:function:: gini(x)
+
+   Calculate the Gini coefficient for a given array of values.
+
+   Parameters:
+   x (array-like): Input array of values.
+
+   Returns:
+   float: The Gini coefficient.
+
+   Notes:
+   This implementation has a time and memory complexity of O(n**2), where n is the length of x.
+   Avoid passing in large samples to prevent performance issues.
+
+
+.. py:function:: gini_gene_well(x)
+
+   Calculate the Gini coefficient for a given income distribution.
+
+   The Gini coefficient measures income inequality in a population.
+   A value of 0 represents perfect income equality (everyone has the same income),
+   while a value of 1 represents perfect income inequality (one individual has all the income).
+
+   Parameters:
+   x (array-like): An array-like object representing the income distribution.
+
+   Returns:
+   float: The Gini coefficient for the given income distribution.
+
+
+.. py:function:: gini(x)
+
+   Calculate the Gini coefficient for a given array of values.
+
+   Parameters:
+   x (array-like): The input array of values.
+
+   Returns:
+   float: The Gini coefficient.
+
+   References:
+   - Based on bottom eq: http://www.statsdirect.com/help/content/image/stat0206_wmf.gif
+   - From: http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
+   - All values are treated equally, arrays must be 1d.
+
+
+.. py:function:: dist_gen(mean, sd, df)
+
+   Generate a Poisson distribution based on a gamma distribution.
+
+   Parameters:
+   mean (float): Mean of the gamma distribution.
+   sd (float): Standard deviation of the gamma distribution.
+   df (pandas.DataFrame): Input data.
+
+   Returns:
+   tuple: A tuple containing the generated Poisson distribution and the length of the input data.
+
+
+.. py:function:: generate_gene_weights(positive_mean, positive_variance, df)
+
+   Generate gene weights using a beta distribution.
+
+   Parameters:
+   - positive_mean (float): The mean value for the positive distribution.
+   - positive_variance (float): The variance value for the positive distribution.
+   - df (pandas.DataFrame): The DataFrame containing the data.
+
+   Returns:
+   - weights (numpy.ndarray): An array of gene weights generated using a beta distribution.
+
+
+.. py:function:: normalize_array(arr)
+
+   Normalize an array by scaling its values between 0 and 1.
+
+   Parameters:
+   arr (numpy.ndarray): The input array to be normalized.
+
+   Returns:
+   numpy.ndarray: The normalized array.
+
+
+
+.. py:function:: generate_power_law_distribution(num_elements, coeff)
+
+   Generate a power law distribution.
+
+   Parameters:
+   - num_elements (int): The number of elements in the distribution.
+   - coeff (float): The coefficient of the power law.
+
+   Returns:
+   - normalized_distribution (ndarray): The normalized power law distribution.
+
+
+.. py:function:: power_law_dist_gen(df, avg, well_ineq_coeff)
+
+   Generate a power-law distribution for wells.
+
+   Parameters:
+   - df: DataFrame: The input DataFrame containing the wells.
+   - avg: float: The average value for the distribution.
+   - well_ineq_coeff: float: The inequality coefficient for the power-law distribution.
+
+   Returns:
+   - dist: ndarray: The generated power-law distribution for the wells.
+
+
+.. py:function:: run_experiment(plate_map, number_of_genes, active_gene_list, avg_genes_per_well, sd_genes_per_well, avg_cells_per_well, sd_cells_per_well, well_ineq_coeff, gene_ineq_coeff)
+
+   Run a simulation experiment.
+
+   :param plate_map: The plate map containing information about the wells.
+   :type plate_map: DataFrame
+   :param number_of_genes: The total number of genes.
+   :type number_of_genes: int
+   :param active_gene_list: The list of active genes.
+   :type active_gene_list: list
+   :param avg_genes_per_well: The average number of genes per well.
+   :type avg_genes_per_well: float
+   :param sd_genes_per_well: The standard deviation of genes per well.
+   :type sd_genes_per_well: float
+   :param avg_cells_per_well: The average number of cells per well.
+   :type avg_cells_per_well: float
+   :param sd_cells_per_well: The standard deviation of cells per well.
+   :type sd_cells_per_well: float
+   :param well_ineq_coeff: The coefficient for well inequality.
+   :type well_ineq_coeff: float
+   :param gene_ineq_coeff: The coefficient for gene inequality.
+   :type gene_ineq_coeff: float
+
+   :returns:
+
+             A tuple containing the following:
+                 - cell_df (DataFrame): The DataFrame containing information about the cells.
+                 - genes_per_well_df (DataFrame): The DataFrame containing gene counts per well.
+                 - wells_per_gene_df (DataFrame): The DataFrame containing well counts per gene.
+                 - df_ls (list): A list containing gene counts per well, well counts per gene, Gini coefficients for wells,
+                   Gini coefficients for genes, gene weights array, and well weights.
+   :rtype: tuple
+
+
+.. py:function:: classifier(positive_mean, positive_variance, negative_mean, negative_variance, classifier_accuracy, df)
+
+   Classifies the data in the DataFrame based on the given parameters and a classifier error rate.
+
+   :param positive_mean: The mean of the positive distribution.
+   :type positive_mean: float
+   :param positive_variance: The variance of the positive distribution.
+   :type positive_variance: float
+   :param negative_mean: The mean of the negative distribution.
+   :type negative_mean: float
+   :param negative_variance: The variance of the negative distribution.
+   :type negative_variance: float
+   :param classifier_accuracy: The likelihood (0 to 1) that a gene is correctly classified according to its true label.
+   :type classifier_accuracy: float
+   :param df: The DataFrame containing the data to be classified.
+   :type df: pandas.DataFrame
+
+   :returns: The DataFrame with an additional 'score' column containing the classification scores.
+   :rtype: pandas.DataFrame
+
+
+.. py:function:: classifier_v2(positive_mean, positive_variance, negative_mean, negative_variance, df)
+
+   Classifies the data in the DataFrame based on the given parameters.
+
+   :param positive_mean: The mean of the positive distribution.
+   :type positive_mean: float
+   :param positive_variance: The variance of the positive distribution.
+   :type positive_variance: float
+   :param negative_mean: The mean of the negative distribution.
+   :type negative_mean: float
+   :param negative_variance: The variance of the negative distribution.
+   :type negative_variance: float
+   :param df: The DataFrame containing the data to be classified.
+   :type df: pandas.DataFrame
+
+   :returns: The DataFrame with an additional 'score' column containing the classification scores.
+   :rtype: pandas.DataFrame
+
+
+.. py:function:: compute_roc_auc(cell_scores)
+
+   Compute the Receiver Operating Characteristic (ROC) Area Under the Curve (AUC) for cell scores.
+
+   Parameters:
+   - cell_scores (DataFrame): DataFrame containing cell scores with columns 'is_active' and 'score'.
+
+   Returns:
+   - cell_roc_dict (dict): Dictionary containing the ROC curve information, including the threshold, true positive rate (TPR), false positive rate (FPR), and ROC AUC.
+
+
+
+.. py:function:: compute_precision_recall(cell_scores)
+
+   Compute precision, recall, F1 score, and PR AUC for a given set of cell scores.
+
+   Parameters:
+   - cell_scores (DataFrame): A DataFrame containing the cell scores with columns 'is_active' and 'score'.
+
+   Returns:
+   - cell_pr_dict (dict): A dictionary containing the computed precision, recall, F1 score, PR AUC, and threshold values.
+
+
+.. py:function:: get_optimum_threshold(cell_pr_dict)
+
+   Calculates the optimum threshold based on the f1_score in the given cell_pr_dict.
+
+   Parameters:
+   cell_pr_dict (dict): A dictionary containing precision, recall, and f1_score values for different thresholds.
+
+   Returns:
+   float: The optimum threshold value.
+
+
+.. py:function:: update_scores_and_get_cm(cell_scores, optimum)
+
+   Update the cell scores based on the given optimum value and calculate the confusion matrix.
+
+   :param cell_scores: The DataFrame containing the cell scores.
+   :type cell_scores: DataFrame
+   :param optimum: The optimum value used for updating the scores.
+   :type optimum: float
+
+   :returns: A tuple containing the updated cell scores DataFrame and the confusion matrix.
+   :rtype: tuple
+
+
+.. py:function:: cell_level_roc_auc(cell_scores)
+
+   Compute the ROC AUC and precision-recall metrics at the cell level.
+
+   :param cell_scores: List of scores for each cell.
+   :type cell_scores: list
+
+   :returns: DataFrame containing the ROC AUC metrics for each cell.
+             cell_pr_dict_df (DataFrame): DataFrame containing the precision-recall metrics for each cell.
+             cell_scores (list): Updated list of scores after applying the optimum threshold.
+             cell_cm (array): Confusion matrix for the cell-level classification.
+   :rtype: cell_roc_dict_df (DataFrame)
+
+
+.. py:function:: generate_well_score(cell_scores)
+
+   Generate well scores based on cell scores.
+
+   :param cell_scores: DataFrame containing cell scores.
+   :type cell_scores: DataFrame
+
+   :returns: DataFrame containing well scores with average active score, gene list, and score.
+   :rtype: DataFrame
+
+
+.. py:function:: sequence_plates(well_score, number_of_genes, avg_reads_per_gene, sd_reads_per_gene, sequencing_error=0.01)
+
+   Simulates the sequencing of plates and calculates gene fractions and metadata.
+
+   Parameters:
+   well_score (pd.DataFrame): DataFrame containing well scores and gene lists.
+   number_of_genes (int): Number of genes.
+   avg_reads_per_gene (float): Average number of reads per gene.
+   sd_reads_per_gene (float): Standard deviation of reads per gene.
+   sequencing_error (float, optional): Probability of introducing sequencing error. Defaults to 0.01.
+
+   Returns:
+   gene_fraction_map (pd.DataFrame): DataFrame containing gene fractions for each well.
+   metadata (pd.DataFrame): DataFrame containing metadata for each well.
+
+
+.. py:function:: regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha=0.05, optimal=False)
+
+   Calculate regression ROC AUC and other statistics.
+
+   Parameters:
+   results_df (DataFrame): DataFrame containing the results of regression analysis.
+   active_gene_list (list): List of active gene IDs.
+   control_gene_list (list): List of control gene IDs.
+   alpha (float, optional): Significance level for determining hits. Default is 0.05.
+   optimal (bool, optional): Whether to use the optimal threshold for classification. Default is False.
+
+   Returns:
+   tuple: A tuple containing the following:
+   - results_df (DataFrame): Updated DataFrame with additional columns.
+   - reg_roc_dict_df (DataFrame): DataFrame containing regression ROC curve data.
+   - reg_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data.
+   - reg_cm (ndarray): Confusion matrix.
+   - sim_stats (DataFrame): DataFrame containing simulation statistics.
+
+
+.. py:function:: plot_histogram(data, x_label, ax, color, title, binwidth=0.01, log=False)
+
+   Plots a histogram of the given data.
+
+   Parameters:
+   - data: The data to be plotted.
+   - x_label: The label for the x-axis.
+   - ax: The matplotlib axis object to plot on.
+   - color: The color of the histogram bars.
+   - title: The title of the plot.
+   - binwidth: The width of each histogram bin.
+   - log: Whether to use a logarithmic scale for the y-axis.
+
+   Returns:
+   None
+
+
+.. py:function:: plot_roc_pr(data, ax, title, x_label, y_label)
+
+   Plot the ROC (Receiver Operating Characteristic) and PR (Precision-Recall) curves.
+
+   Parameters:
+   - data: DataFrame containing the data to be plotted.
+   - ax: The matplotlib axes object to plot on.
+   - title: The title of the plot.
+   - x_label: The label for the x-axis.
+   - y_label: The label for the y-axis.
+
+
+.. py:function:: plot_confusion_matrix(data, ax, title)
+
+   Plots a confusion matrix using a heatmap.
+
+   Parameters:
+   data (numpy.ndarray): The confusion matrix data.
+   ax (matplotlib.axes.Axes): The axes object to plot the heatmap on.
+   title (str): The title of the plot.
+
+   Returns:
+   None
+
+
+.. py:function:: run_simulation(settings)
+
+   Run the simulation based on the given settings.
+
+   :param settings: A dictionary containing the simulation settings.
+   :type settings: dict
+
+   :returns: A tuple containing the simulation results and distances.
+             - cell_scores (DataFrame): Scores for each cell.
+             - cell_roc_dict_df (DataFrame): ROC AUC scores for each cell.
+             - cell_pr_dict_df (DataFrame): Precision-Recall AUC scores for each cell.
+             - cell_cm (DataFrame): Confusion matrix for each cell.
+             - well_score (DataFrame): Scores for each well.
+             - gene_fraction_map (DataFrame): Fraction of genes for each well.
+             - metadata (DataFrame): Metadata for each well.
+             - results_df (DataFrame): Results of the regression analysis.
+             - reg_roc_dict_df (DataFrame): ROC AUC scores for each gene.
+             - reg_pr_dict_df (DataFrame): Precision-Recall AUC scores for each gene.
+             - reg_cm (DataFrame): Confusion matrix for each gene.
+             - sim_stats (dict): Additional simulation statistics.
+             - genes_per_well_df (DataFrame): Number of genes per well.
+             - wells_per_gene_df (DataFrame): Number of wells per gene.
+             dists (list): List of distances.
+   :rtype: tuple
+
+
+.. py:function:: vis_dists(dists, src, v, i)
+
+   Visualizes the distributions of given distances.
+
+   :param dists: List of distance arrays.
+   :type dists: list
+   :param src: Source directory for saving the plot.
+   :type src: str
+   :param v: Number of vertices.
+   :type v: int
+   :param i: Index of the plot.
+   :type i: int
+
+   :returns: None
+
+
+.. py:function:: visualize_all(output)
+
+   Visualizes various plots based on the given output data.
+
+   :param output: A list containing the following elements:
+                  - cell_scores (DataFrame): DataFrame containing cell scores.
+                  - cell_roc_dict_df (DataFrame): DataFrame containing ROC curve data for cell classification.
+                  - cell_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data for cell classification.
+                  - cell_cm (array-like): Confusion matrix for cell classification.
+                  - well_score (DataFrame): DataFrame containing well scores.
+                  - gene_fraction_map (dict): Dictionary mapping genes to fractions.
+                  - metadata (dict): Dictionary containing metadata.
+                  - results_df (DataFrame): DataFrame containing results.
+                  - reg_roc_dict_df (DataFrame): DataFrame containing ROC curve data for gene regression.
+                  - reg_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data for gene regression.
+                  - reg_cm (array-like): Confusion matrix for gene regression.
+                  - sim_stats (dict): Dictionary containing simulation statistics.
+                  - genes_per_well_df (DataFrame): DataFrame containing genes per well data.
+                  - wells_per_gene_df (DataFrame): DataFrame containing wells per gene data.
+   :type output: list
+
+   :returns: The generated figure object.
+   :rtype: fig (matplotlib.figure.Figure)
+
+
+.. py:function:: create_database(db_path)
+
+   Creates a SQLite database at the specified path.
+
+   :param db_path: The path where the database should be created.
+   :type db_path: str
+
+   :returns: None
+
+
+.. py:function:: append_database(src, table, table_name)
+
+   Append a pandas DataFrame to an SQLite database table.
+
+   Parameters:
+   src (str): The source directory where the database file is located.
+   table (pandas.DataFrame): The DataFrame to be appended to the database table.
+   table_name (str): The name of the database table.
+
+   Returns:
+   None
+
+
+.. py:function:: save_data(src, output, settings, save_all=False, i=0, variable='all')
+
+   Save simulation data to specified location.
+
+   :param src: The directory path where the data will be saved.
+   :type src: str
+   :param output: A list of dataframes containing simulation output.
+   :type output: list
+   :param settings: A dictionary containing simulation settings.
+   :type settings: dict
+   :param save_all: Flag indicating whether to save all tables or only a subset. Defaults to False.
+   :type save_all: bool, optional
+   :param i: The simulation number. Defaults to 0.
+   :type i: int, optional
+   :param variable: The variable name. Defaults to 'all'.
+   :type variable: str, optional
+
+   :returns: None
+
+
+.. py:function:: save_plot(fig, src, variable, i)
+
+   Save a matplotlib figure as a PDF file.
+
+   Parameters:
+   - fig: The matplotlib figure to be saved.
+   - src: The directory where the file will be saved.
+   - variable: The name of the variable being plotted.
+   - i: The index of the figure.
+
+   Returns:
+   None
+
+
+.. py:function:: run_and_save(i, settings, time_ls, total_sims)
+
+   Run the simulation and save the results.
+
+   :param i: The simulation index.
+   :type i: int
+   :param settings: The simulation settings.
+   :type settings: dict
+   :param time_ls: The list to store simulation times.
+   :type time_ls: list
+   :param total_sims: The total number of simulations.
+   :type total_sims: int
+
+   :returns: A tuple containing the simulation index, simulation time, and None.
+   :rtype: tuple
+
+
+.. py:function:: validate_and_adjust_beta_params(sim_params)
+
+   Validates and adjusts Beta distribution parameters in simulation settings to ensure they are possible.
+
+   Args:
+   sim_params (list of dict): List of dictionaries, each containing the simulation parameters.
+
+   Returns:
+   list of dict: The adjusted list of simulation parameter sets.
+
+
+.. py:function:: generate_paramiters(settings)
+
+   Generate a list of parameter sets for simulation based on the given settings.
+
+   :param settings: A dictionary containing the simulation settings.
+   :type settings: dict
+
+   :returns: A list of parameter sets for simulation.
+   :rtype: list
+
+
+.. py:function:: run_multiple_simulations(settings)
+
+   Run multiple simulations in parallel using the provided settings.
+
+   :param settings: A dictionary containing the simulation settings.
+   :type settings: dict
+
+   :returns: None
+
+
+.. py:function:: generate_integers(start, stop, step)
+
+.. py:function:: generate_floats(start, stop, step)
+
+.. py:function:: remove_columns_with_single_value(df)
+
+   Removes columns from the DataFrame that have the same value in all rows.
+
+   Args:
+   df (pandas.DataFrame): The original DataFrame.
+
+   Returns:
+   pandas.DataFrame: A DataFrame with the columns removed that contained only one unique value.
+
+
+.. py:function:: read_simulations_table(db_path)
+
+   Reads the 'simulations' table from an SQLite database into a pandas DataFrame.
+
+   Args:
+   db_path (str): The file path to the SQLite database.
+
+   Returns:
+   pandas.DataFrame: DataFrame containing the 'simulations' table data.
+
+
+.. py:function:: plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, clean=True, verbose=False)
+
+   Creates separate line plots for 'prauc' against a specified 'variable',
+   for each unique combination of conditions defined by 'grouping_vars', displayed on a grid.
+
+   Args:
+   df (pandas.DataFrame): DataFrame containing the necessary columns.
+   variable (str): Name of the column to use as the x-axis for grouping and plotting.
+   x_rotation (int, optional): Degrees to rotate the x-axis labels.
+   legend (bool, optional): Whether to display a legend.
+   grid (bool, optional): Whether to display grid lines.
+   verbose (bool, optional): Whether to print the filter conditions.
+
+   Returns:
+   None
+
+
+.. py:function:: plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True)
+
+   Plots a correlation matrix for the specified variables and the target variable.
+
+   Args:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   variables (list): List of column names to include in the correlation matrix.
+   target_variable (str): The target variable column name.
+
+   Returns:
+   None
+
+
+.. py:function:: plot_feature_importance(df, target='prauc', exclude=None, clean=True)
+
+   Trains a RandomForestRegressor to determine the importance of each feature in predicting the target.
+
+   Args:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   target (str): The target variable column name.
+   exclude (list or str, optional): Column names to exclude from features.
+
+   Returns:
+   matplotlib.figure.Figure: The figure object containing the feature importance plot.
+
+
+.. py:function:: calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10, clean=True)
+
+   Calculates permutation importance for the given features in the dataframe.
+
+   Args:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   features (list): List of column names to include as features.
+   target (str): The name of the target variable column.
+
+   Returns:
+   dict: Dictionary containing the importances and standard deviations.
+
+
+.. py:function:: plot_partial_dependences(df, target='prauc', clean=True)
+
+   Creates partial dependence plots for the specified features, with improved layout to avoid text overlap.
+
+   Args:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   target (str): The target variable.
+
+   Returns:
+   None
+
+
+.. py:function:: save_shap_plot(fig, src, variable, i)
+
+.. py:function:: generate_shap_summary_plot(df, target='prauc', clean=True)
+
+   Generates a SHAP summary plot for the given features in the dataframe.
+
+   Args:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   features (list): List of column names to include as features.
+   target (str): The name of the target variable column.
+
+   Returns:
+   None
+
+
+.. py:function:: remove_constant_columns(df)
+
+   Removes columns in the DataFrame where all entries have the same value.
+
+   Parameters:
+   df (pd.DataFrame): The input DataFrame from which to remove constant columns.
+
+   Returns:
+   pd.DataFrame: A DataFrame with the constant columns removed.
+
+
