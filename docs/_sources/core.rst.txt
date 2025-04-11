@@ -1,5 +1,5 @@
-Core Module
-===========
+core module
+=============
 
 .. automodule:: spacr.core
    :members:
