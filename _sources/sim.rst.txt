@@ -1,7 +1,7 @@
-sim module
+${mod} module
 =============
 
-.. automodule:: spacr.sim
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:
