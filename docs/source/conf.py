@@ -1,7 +1,11 @@
-import os, sys
+import os, sys, types
 
-# so Sphinx can import your package
-sys.path.insert(0, os.path.abspath(os.path.join(__file__, '..', '..', 'spacr')))
+# —— stub out the spacr package so its __init__.py never runs ——————
+srcdir = os.path.abspath(os.path.join(__file__, '..', '..', 'spacr'))
+sys.path.insert(0, srcdir)
+_spacr_pkg = types.ModuleType('spacr')
+_spacr_pkg.__path__ = [srcdir]
+sys.modules['spacr'] = _spacr_pkg
 
 # -- Project information -----------------------------------------------------
 project = 'spacr'
@@ -20,11 +24,14 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-# mock out heavy dependencies so autodoc never actually loads them
+# mock out heavy deps so autodoc never actually loads them
 autodoc_mock_imports = [
     'torch',
     'torchvision',
     'monai',
+    'itk',
+    'train_tools',
+    'zarr',
 ]
 
 # -- HTML output options -----------------------------------------------------
