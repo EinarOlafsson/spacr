@@ -1,6 +1,8 @@
 import os, sys
+import sphinx_rtd_theme
 
-# so Sphinx can import your package
+# -- Path setup --------------------------------------------------------------
+# (not used for imports, but needed for viewcode linking)
 sys.path.insert(0, os.path.abspath(os.path.join(__file__, '..', '..', 'spacr')))
 
 # -- Project information -----------------------------------------------------
@@ -14,20 +16,28 @@ release = _ver('spacr')
 
 # -- General configuration ---------------------------------------------------
 extensions = [
-    'sphinx_rtd_theme',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-]
-# mock out heavy imports so they never have to be installed
-autodoc_mock_imports = [
-    'torch','torchvision','torch_geometric','torchcam',
-    'monai','itk','GPUtil','train_tools','skimage','cv2',
-    'pyautogui','pyscreeze'
+    'sphinx.ext.napoleon',     # for Google/NumPy style docstrings
+    'sphinx.ext.viewcode',     # link to source
+    'autoapi.extension',       # parse your code via AST
 ]
 
-# -- HTML output options -----------------------------------------------------
-html_theme = 'sphinx_rtd_theme'
+# -- AutoAPI settings --------------------------------------------------------
+autoapi_type               = 'python'
+autoapi_dirs               = [os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', 'spacr')
+)]
+autoapi_root               = 'api'
+autoapi_add_toctree_entry  = True
+autoapi_options            = [
+    'members',
+    'undoc-members',
+    'show-inheritance',
+]
+autoapi_ignore             = ['*/tests/*']
+
+# -- Options for HTML output -------------------------------------------------
+html_theme      = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {
     'logo_only': True,
     'collapse_navigation': False,

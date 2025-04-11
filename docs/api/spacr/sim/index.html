@@ -1,0 +1,928 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.sim &mdash; spacr 0.4.60 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/documentation_options.js?v=063a25df"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="spacr.sp_stats" href="../sp_stats/index.html" />
+    <link rel="prev" title="spacr.settings" href="../settings/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../main/index.html">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../main/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../core/index.html">core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../core/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../core/BasePredictor/index.html">core.BasePredictor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/BaseTrainer/index.html">core.BaseTrainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/Baseline/index.html">core.Baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/MEDIAR/index.html">core.MEDIAR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/utils/index.html">core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../chat_bot/index.html">spacr.chat_bot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mediar/index.html">spacr.mediar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openai/index.html">spacr.openai</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../predict/index.html">predict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../predict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../evaluate/index.html">evaluate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../evaluate/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../evaluate/index.html#evaluate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../SetupDict/index.html">SetupDict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../SetupDict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.TRAINER"><code class="docutils literal notranslate"><span class="pre">TRAINER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.OPTIMIZER"><code class="docutils literal notranslate"><span class="pre">OPTIMIZER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.SCHEDULER"><code class="docutils literal notranslate"><span class="pre">SCHEDULER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../train_tools/index.html">train_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../train_tools/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/data_utils/index.html">train_tools.data_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/measures/index.html">train_tools.measures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/models/index.html">train_tools.models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/utils/index.html">train_tools.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../generate_mapping/index.html">generate_mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../generate_mapping/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.public_paths_labeled"><code class="docutils literal notranslate"><span class="pre">public_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.official_paths_labeled"><code class="docutils literal notranslate"><span class="pre">official_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.official_paths_tuning"><code class="docutils literal notranslate"><span class="pre">official_paths_tuning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.add_mapping_to_json"><code class="docutils literal notranslate"><span class="pre">add_mapping_to_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">spacr</a></li>
+      <li class="breadcrumb-item active">spacr.sim</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/spacr/sim/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-spacr.sim">
+<span id="spacr-sim"></span><h1>spacr.sim<a class="headerlink" href="#module-spacr.sim" title="Link to this heading">¶</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_gene_list">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_gene_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_of_genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_all_genes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_gene_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_gene_list" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a list of randomly selected genes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number_of_genes</strong> (<em>int</em>) – The number of genes to be selected.</p></li>
+<li><p><strong>number_of_all_genes</strong> (<em>int</em>) – The total number of genes available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of randomly selected genes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_plate_map">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_plate_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nr_plates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_plate_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_plate_map" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a plate map based on the number of plates.</p>
+<p>Parameters:
+nr_plates (int): The number of plates to generate the map for.</p>
+<p>Returns:
+pandas.DataFrame: The generated plate map dataframe.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.gini_coefficient">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">gini_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#gini_coefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.gini_coefficient" title="Link to this definition">¶</a></dt>
+<dd><p>Compute Gini coefficient of array of values.</p>
+<p>Parameters:
+x (array-like): Array of values.</p>
+<p>Returns:
+float: Gini coefficient.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.gini">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">gini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#gini"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.gini" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the Gini coefficient for a given array of values.</p>
+<p>Parameters:
+x (array-like): Input array of values.</p>
+<p>Returns:
+float: The Gini coefficient.</p>
+<p>Notes:
+This implementation has a time and memory complexity of O(n**2), where n is the length of x.
+Avoid passing in large samples to prevent performance issues.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.gini_gene_well">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">gini_gene_well</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#gini_gene_well"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.gini_gene_well" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the Gini coefficient for a given income distribution.</p>
+<p>The Gini coefficient measures income inequality in a population.
+A value of 0 represents perfect income equality (everyone has the same income),
+while a value of 1 represents perfect income inequality (one individual has all the income).</p>
+<p>Parameters:
+x (array-like): An array-like object representing the income distribution.</p>
+<p>Returns:
+float: The Gini coefficient for the given income distribution.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">gini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#gini"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the Gini coefficient for a given array of values.</p>
+<p>Parameters:
+x (array-like): The input array of values.</p>
+<p>Returns:
+float: The Gini coefficient.</p>
+<p>References:
+- Based on bottom eq: <a class="reference external" href="http://www.statsdirect.com/help/content/image/stat0206_wmf.gif">http://www.statsdirect.com/help/content/image/stat0206_wmf.gif</a>
+- From: <a class="reference external" href="http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm">http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm</a>
+- All values are treated equally, arrays must be 1d.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.dist_gen">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">dist_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#dist_gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.dist_gen" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a Poisson distribution based on a gamma distribution.</p>
+<p>Parameters:
+mean (float): Mean of the gamma distribution.
+sd (float): Standard deviation of the gamma distribution.
+df (pandas.DataFrame): Input data.</p>
+<p>Returns:
+tuple: A tuple containing the generated Poisson distribution and the length of the input data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_gene_weights">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_gene_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_gene_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_gene_weights" title="Link to this definition">¶</a></dt>
+<dd><p>Generate gene weights using a beta distribution.</p>
+<p>Parameters:
+- positive_mean (float): The mean value for the positive distribution.
+- positive_variance (float): The variance value for the positive distribution.
+- df (pandas.DataFrame): The DataFrame containing the data.</p>
+<p>Returns:
+- weights (numpy.ndarray): An array of gene weights generated using a beta distribution.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.normalize_array">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">normalize_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#normalize_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.normalize_array" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize an array by scaling its values between 0 and 1.</p>
+<p>Parameters:
+arr (numpy.ndarray): The input array to be normalized.</p>
+<p>Returns:
+numpy.ndarray: The normalized array.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_power_law_distribution">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_power_law_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_power_law_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_power_law_distribution" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a power law distribution.</p>
+<p>Parameters:
+- num_elements (int): The number of elements in the distribution.
+- coeff (float): The coefficient of the power law.</p>
+<p>Returns:
+- normalized_distribution (ndarray): The normalized power law distribution.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.power_law_dist_gen">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">power_law_dist_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">well_ineq_coeff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#power_law_dist_gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.power_law_dist_gen" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a power-law distribution for wells.</p>
+<p>Parameters:
+- df: DataFrame: The input DataFrame containing the wells.
+- avg: float: The average value for the distribution.
+- well_ineq_coeff: float: The inequality coefficient for the power-law distribution.</p>
+<p>Returns:
+- dist: ndarray: The generated power-law distribution for the wells.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.run_experiment">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plate_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_genes_per_well</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd_genes_per_well</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_cells_per_well</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd_cells_per_well</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">well_ineq_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_ineq_coeff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#run_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.run_experiment" title="Link to this definition">¶</a></dt>
+<dd><p>Run a simulation experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plate_map</strong> (<em>DataFrame</em>) – The plate map containing information about the wells.</p></li>
+<li><p><strong>number_of_genes</strong> (<em>int</em>) – The total number of genes.</p></li>
+<li><p><strong>active_gene_list</strong> (<em>list</em>) – The list of active genes.</p></li>
+<li><p><strong>avg_genes_per_well</strong> (<em>float</em>) – The average number of genes per well.</p></li>
+<li><p><strong>sd_genes_per_well</strong> (<em>float</em>) – The standard deviation of genes per well.</p></li>
+<li><p><strong>avg_cells_per_well</strong> (<em>float</em>) – The average number of cells per well.</p></li>
+<li><p><strong>sd_cells_per_well</strong> (<em>float</em>) – The standard deviation of cells per well.</p></li>
+<li><p><strong>well_ineq_coeff</strong> (<em>float</em>) – The coefficient for well inequality.</p></li>
+<li><p><strong>gene_ineq_coeff</strong> (<em>float</em>) – The coefficient for gene inequality.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the following:</dt><dd><ul class="simple">
+<li><p>cell_df (DataFrame): The DataFrame containing information about the cells.</p></li>
+<li><p>genes_per_well_df (DataFrame): The DataFrame containing gene counts per well.</p></li>
+<li><p>wells_per_gene_df (DataFrame): The DataFrame containing well counts per gene.</p></li>
+<li><p>df_ls (list): A list containing gene counts per well, well counts per gene, Gini coefficients for wells,
+Gini coefficients for genes, gene weights array, and well weights.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.classifier">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier_accuracy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.classifier" title="Link to this definition">¶</a></dt>
+<dd><p>Classifies the data in the DataFrame based on the given parameters and a classifier error rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positive_mean</strong> (<em>float</em>) – The mean of the positive distribution.</p></li>
+<li><p><strong>positive_variance</strong> (<em>float</em>) – The variance of the positive distribution.</p></li>
+<li><p><strong>negative_mean</strong> (<em>float</em>) – The mean of the negative distribution.</p></li>
+<li><p><strong>negative_variance</strong> (<em>float</em>) – The variance of the negative distribution.</p></li>
+<li><p><strong>classifier_accuracy</strong> (<em>float</em>) – The likelihood (0 to 1) that a gene is correctly classified according to its true label.</p></li>
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – The DataFrame containing the data to be classified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DataFrame with an additional ‘score’ column containing the classification scores.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.classifier_v2">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">classifier_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#classifier_v2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.classifier_v2" title="Link to this definition">¶</a></dt>
+<dd><p>Classifies the data in the DataFrame based on the given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positive_mean</strong> (<em>float</em>) – The mean of the positive distribution.</p></li>
+<li><p><strong>positive_variance</strong> (<em>float</em>) – The variance of the positive distribution.</p></li>
+<li><p><strong>negative_mean</strong> (<em>float</em>) – The mean of the negative distribution.</p></li>
+<li><p><strong>negative_variance</strong> (<em>float</em>) – The variance of the negative distribution.</p></li>
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – The DataFrame containing the data to be classified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DataFrame with an additional ‘score’ column containing the classification scores.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.compute_roc_auc">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">compute_roc_auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#compute_roc_auc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.compute_roc_auc" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the Receiver Operating Characteristic (ROC) Area Under the Curve (AUC) for cell scores.</p>
+<p>Parameters:
+- cell_scores (DataFrame): DataFrame containing cell scores with columns ‘is_active’ and ‘score’.</p>
+<p>Returns:
+- cell_roc_dict (dict): Dictionary containing the ROC curve information, including the threshold, true positive rate (TPR), false positive rate (FPR), and ROC AUC.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.compute_precision_recall">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">compute_precision_recall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#compute_precision_recall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.compute_precision_recall" title="Link to this definition">¶</a></dt>
+<dd><p>Compute precision, recall, F1 score, and PR AUC for a given set of cell scores.</p>
+<p>Parameters:
+- cell_scores (DataFrame): A DataFrame containing the cell scores with columns ‘is_active’ and ‘score’.</p>
+<p>Returns:
+- cell_pr_dict (dict): A dictionary containing the computed precision, recall, F1 score, PR AUC, and threshold values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.get_optimum_threshold">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">get_optimum_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_pr_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#get_optimum_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.get_optimum_threshold" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates the optimum threshold based on the f1_score in the given cell_pr_dict.</p>
+<p>Parameters:
+cell_pr_dict (dict): A dictionary containing precision, recall, and f1_score values for different thresholds.</p>
+<p>Returns:
+float: The optimum threshold value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.update_scores_and_get_cm">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">update_scores_and_get_cm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimum</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#update_scores_and_get_cm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.update_scores_and_get_cm" title="Link to this definition">¶</a></dt>
+<dd><p>Update the cell scores based on the given optimum value and calculate the confusion matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_scores</strong> (<em>DataFrame</em>) – The DataFrame containing the cell scores.</p></li>
+<li><p><strong>optimum</strong> (<em>float</em>) – The optimum value used for updating the scores.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the updated cell scores DataFrame and the confusion matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.cell_level_roc_auc">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">cell_level_roc_auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#cell_level_roc_auc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.cell_level_roc_auc" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the ROC AUC and precision-recall metrics at the cell level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cell_scores</strong> (<em>list</em>) – List of scores for each cell.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame containing the ROC AUC metrics for each cell.
+cell_pr_dict_df (DataFrame): DataFrame containing the precision-recall metrics for each cell.
+cell_scores (list): Updated list of scores after applying the optimum threshold.
+cell_cm (array): Confusion matrix for the cell-level classification.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cell_roc_dict_df (DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_well_score">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_well_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_well_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_well_score" title="Link to this definition">¶</a></dt>
+<dd><p>Generate well scores based on cell scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cell_scores</strong> (<em>DataFrame</em>) – DataFrame containing cell scores.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame containing well scores with average active score, gene list, and score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.sequence_plates">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">sequence_plates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">well_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_reads_per_gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sd_reads_per_gene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequencing_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#sequence_plates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.sequence_plates" title="Link to this definition">¶</a></dt>
+<dd><p>Simulates the sequencing of plates and calculates gene fractions and metadata.</p>
+<p>Parameters:
+well_score (pd.DataFrame): DataFrame containing well scores and gene lists.
+number_of_genes (int): Number of genes.
+avg_reads_per_gene (float): Average number of reads per gene.
+sd_reads_per_gene (float): Standard deviation of reads per gene.
+sequencing_error (float, optional): Probability of introducing sequencing error. Defaults to 0.01.</p>
+<p>Returns:
+gene_fraction_map (pd.DataFrame): DataFrame containing gene fractions for each well.
+metadata (pd.DataFrame): DataFrame containing metadata for each well.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.regression_roc_auc">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">regression_roc_auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#regression_roc_auc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.regression_roc_auc" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate regression ROC AUC and other statistics.</p>
+<p>Parameters:
+results_df (DataFrame): DataFrame containing the results of regression analysis.
+active_gene_list (list): List of active gene IDs.
+control_gene_list (list): List of control gene IDs.
+alpha (float, optional): Significance level for determining hits. Default is 0.05.
+optimal (bool, optional): Whether to use the optimal threshold for classification. Default is False.</p>
+<p>Returns:
+tuple: A tuple containing the following:
+- results_df (DataFrame): Updated DataFrame with additional columns.
+- reg_roc_dict_df (DataFrame): DataFrame containing regression ROC curve data.
+- reg_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data.
+- reg_cm (ndarray): Confusion matrix.
+- sim_stats (DataFrame): DataFrame containing simulation statistics.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_histogram">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_histogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_histogram" title="Link to this definition">¶</a></dt>
+<dd><p>Plots a histogram of the given data.</p>
+<p>Parameters:
+- data: The data to be plotted.
+- x_label: The label for the x-axis.
+- ax: The matplotlib axis object to plot on.
+- color: The color of the histogram bars.
+- title: The title of the plot.
+- binwidth: The width of each histogram bin.
+- log: Whether to use a logarithmic scale for the y-axis.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_roc_pr">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_roc_pr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_roc_pr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_roc_pr" title="Link to this definition">¶</a></dt>
+<dd><p>Plot the ROC (Receiver Operating Characteristic) and PR (Precision-Recall) curves.</p>
+<p>Parameters:
+- data: DataFrame containing the data to be plotted.
+- ax: The matplotlib axes object to plot on.
+- title: The title of the plot.
+- x_label: The label for the x-axis.
+- y_label: The label for the y-axis.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_confusion_matrix">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_confusion_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_confusion_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_confusion_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Plots a confusion matrix using a heatmap.</p>
+<p>Parameters:
+data (numpy.ndarray): The confusion matrix data.
+ax (matplotlib.axes.Axes): The axes object to plot the heatmap on.
+title (str): The title of the plot.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.run_simulation">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#run_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.run_simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Run the simulation based on the given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the simulation settings.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the simulation results and distances.
+- cell_scores (DataFrame): Scores for each cell.
+- cell_roc_dict_df (DataFrame): ROC AUC scores for each cell.
+- cell_pr_dict_df (DataFrame): Precision-Recall AUC scores for each cell.
+- cell_cm (DataFrame): Confusion matrix for each cell.
+- well_score (DataFrame): Scores for each well.
+- gene_fraction_map (DataFrame): Fraction of genes for each well.
+- metadata (DataFrame): Metadata for each well.
+- results_df (DataFrame): Results of the regression analysis.
+- reg_roc_dict_df (DataFrame): ROC AUC scores for each gene.
+- reg_pr_dict_df (DataFrame): Precision-Recall AUC scores for each gene.
+- reg_cm (DataFrame): Confusion matrix for each gene.
+- sim_stats (dict): Additional simulation statistics.
+- genes_per_well_df (DataFrame): Number of genes per well.
+- wells_per_gene_df (DataFrame): Number of wells per gene.
+dists (list): List of distances.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.vis_dists">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">vis_dists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#vis_dists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.vis_dists" title="Link to this definition">¶</a></dt>
+<dd><p>Visualizes the distributions of given distances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dists</strong> (<em>list</em>) – List of distance arrays.</p></li>
+<li><p><strong>src</strong> (<em>str</em>) – Source directory for saving the plot.</p></li>
+<li><p><strong>v</strong> (<em>int</em>) – Number of vertices.</p></li>
+<li><p><strong>i</strong> (<em>int</em>) – Index of the plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.visualize_all">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">visualize_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#visualize_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.visualize_all" title="Link to this definition">¶</a></dt>
+<dd><p>Visualizes various plots based on the given output data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output</strong> (<em>list</em>) – A list containing the following elements:
+- cell_scores (DataFrame): DataFrame containing cell scores.
+- cell_roc_dict_df (DataFrame): DataFrame containing ROC curve data for cell classification.
+- cell_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data for cell classification.
+- cell_cm (array-like): Confusion matrix for cell classification.
+- well_score (DataFrame): DataFrame containing well scores.
+- gene_fraction_map (dict): Dictionary mapping genes to fractions.
+- metadata (dict): Dictionary containing metadata.
+- results_df (DataFrame): DataFrame containing results.
+- reg_roc_dict_df (DataFrame): DataFrame containing ROC curve data for gene regression.
+- reg_pr_dict_df (DataFrame): DataFrame containing precision-recall curve data for gene regression.
+- reg_cm (array-like): Confusion matrix for gene regression.
+- sim_stats (dict): Dictionary containing simulation statistics.
+- genes_per_well_df (DataFrame): DataFrame containing genes per well data.
+- wells_per_gene_df (DataFrame): DataFrame containing wells per gene data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generated figure object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig (matplotlib.figure.Figure)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.create_database">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">create_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#create_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.create_database" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a SQLite database at the specified path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>db_path</strong> (<em>str</em>) – The path where the database should be created.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.append_database">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">append_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#append_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.append_database" title="Link to this definition">¶</a></dt>
+<dd><p>Append a pandas DataFrame to an SQLite database table.</p>
+<p>Parameters:
+src (str): The source directory where the database file is located.
+table (pandas.DataFrame): The DataFrame to be appended to the database table.
+table_name (str): The name of the database table.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.save_data">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#save_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.save_data" title="Link to this definition">¶</a></dt>
+<dd><p>Save simulation data to specified location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em>) – The directory path where the data will be saved.</p></li>
+<li><p><strong>output</strong> (<em>list</em>) – A list of dataframes containing simulation output.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing simulation settings.</p></li>
+<li><p><strong>save_all</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating whether to save all tables or only a subset. Defaults to False.</p></li>
+<li><p><strong>i</strong> (<em>int</em><em>, </em><em>optional</em>) – The simulation number. Defaults to 0.</p></li>
+<li><p><strong>variable</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name. Defaults to ‘all’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.save_plot">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">save_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#save_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.save_plot" title="Link to this definition">¶</a></dt>
+<dd><p>Save a matplotlib figure as a PDF file.</p>
+<p>Parameters:
+- fig: The matplotlib figure to be saved.
+- src: The directory where the file will be saved.
+- variable: The name of the variable being plotted.
+- i: The index of the figure.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.run_and_save">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">run_and_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_ls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_sims</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#run_and_save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.run_and_save" title="Link to this definition">¶</a></dt>
+<dd><p>Run the simulation and save the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – The simulation index.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – The simulation settings.</p></li>
+<li><p><strong>time_ls</strong> (<em>list</em>) – The list to store simulation times.</p></li>
+<li><p><strong>total_sims</strong> (<em>int</em>) – The total number of simulations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the simulation index, simulation time, and None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.validate_and_adjust_beta_params">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">validate_and_adjust_beta_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#validate_and_adjust_beta_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.validate_and_adjust_beta_params" title="Link to this definition">¶</a></dt>
+<dd><p>Validates and adjusts Beta distribution parameters in simulation settings to ensure they are possible.</p>
+<p>Args:
+sim_params (list of dict): List of dictionaries, each containing the simulation parameters.</p>
+<p>Returns:
+list of dict: The adjusted list of simulation parameter sets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_paramiters">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_paramiters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_paramiters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_paramiters" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a list of parameter sets for simulation based on the given settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the simulation settings.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of parameter sets for simulation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.run_multiple_simulations">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">run_multiple_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#run_multiple_simulations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.run_multiple_simulations" title="Link to this definition">¶</a></dt>
+<dd><p>Run multiple simulations in parallel using the provided settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the simulation settings.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_integers">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_integers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_integers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_integers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_floats">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_floats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_floats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_floats" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.remove_columns_with_single_value">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">remove_columns_with_single_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#remove_columns_with_single_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.remove_columns_with_single_value" title="Link to this definition">¶</a></dt>
+<dd><p>Removes columns from the DataFrame that have the same value in all rows.</p>
+<p>Args:
+df (pandas.DataFrame): The original DataFrame.</p>
+<p>Returns:
+pandas.DataFrame: A DataFrame with the columns removed that contained only one unique value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.read_simulations_table">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">read_simulations_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#read_simulations_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.read_simulations_table" title="Link to this definition">¶</a></dt>
+<dd><p>Reads the ‘simulations’ table from an SQLite database into a pandas DataFrame.</p>
+<p>Args:
+db_path (str): The file path to the SQLite database.</p>
+<p>Returns:
+pandas.DataFrame: DataFrame containing the ‘simulations’ table data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_simulations">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_simulations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_simulations" title="Link to this definition">¶</a></dt>
+<dd><p>Creates separate line plots for ‘prauc’ against a specified ‘variable’,
+for each unique combination of conditions defined by ‘grouping_vars’, displayed on a grid.</p>
+<p>Args:
+df (pandas.DataFrame): DataFrame containing the necessary columns.
+variable (str): Name of the column to use as the x-axis for grouping and plotting.
+x_rotation (int, optional): Degrees to rotate the x-axis labels.
+legend (bool, optional): Whether to display a legend.
+grid (bool, optional): Whether to display grid lines.
+verbose (bool, optional): Whether to print the filter conditions.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_correlation_matrix">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_correlation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_correlation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_correlation_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Plots a correlation matrix for the specified variables and the target variable.</p>
+<p>Args:
+df (pandas.DataFrame): The DataFrame containing the data.
+variables (list): List of column names to include in the correlation matrix.
+target_variable (str): The target variable column name.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_feature_importance">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_feature_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prauc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_feature_importance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_feature_importance" title="Link to this definition">¶</a></dt>
+<dd><p>Trains a RandomForestRegressor to determine the importance of each feature in predicting the target.</p>
+<p>Args:
+df (pandas.DataFrame): The DataFrame containing the data.
+target (str): The target variable column name.
+exclude (list or str, optional): Column names to exclude from features.</p>
+<p>Returns:
+matplotlib.figure.Figure: The figure object containing the feature importance plot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.calculate_permutation_importance">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">calculate_permutation_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prauc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#calculate_permutation_importance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.calculate_permutation_importance" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates permutation importance for the given features in the dataframe.</p>
+<p>Args:
+df (pandas.DataFrame): The DataFrame containing the data.
+features (list): List of column names to include as features.
+target (str): The name of the target variable column.</p>
+<p>Returns:
+dict: Dictionary containing the importances and standard deviations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.plot_partial_dependences">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">plot_partial_dependences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prauc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#plot_partial_dependences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.plot_partial_dependences" title="Link to this definition">¶</a></dt>
+<dd><p>Creates partial dependence plots for the specified features, with improved layout to avoid text overlap.</p>
+<p>Args:
+df (pandas.DataFrame): The DataFrame containing the data.
+target (str): The target variable.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.save_shap_plot">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">save_shap_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#save_shap_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.save_shap_plot" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.generate_shap_summary_plot">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">generate_shap_summary_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prauc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#generate_shap_summary_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.generate_shap_summary_plot" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a SHAP summary plot for the given features in the dataframe.</p>
+<p>Args:
+df (pandas.DataFrame): The DataFrame containing the data.
+features (list): List of column names to include as features.
+target (str): The name of the target variable column.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.sim.remove_constant_columns">
+<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">remove_constant_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#remove_constant_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.remove_constant_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Removes columns in the DataFrame where all entries have the same value.</p>
+<p>Parameters:
+df (pd.DataFrame): The input DataFrame from which to remove constant columns.</p>
+<p>Returns:
+pd.DataFrame: A DataFrame with the constant columns removed.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../settings/index.html" class="btn btn-neutral float-left" title="spacr.settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../sp_stats/index.html" class="btn btn-neutral float-right" title="spacr.sp_stats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

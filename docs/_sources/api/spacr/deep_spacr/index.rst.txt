@@ -1,0 +1,141 @@
+spacr.deep_spacr
+================
+
+.. py:module:: spacr.deep_spacr
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10)
+
+.. py:function:: apply_model_to_tar(settings={})
+
+.. py:function:: evaluate_model_performance(model, loader, epoch, loss_type)
+
+   Evaluates the performance of a model on a given data loader.
+
+   :param model: The model to evaluate.
+   :type model: torch.nn.Module
+   :param loader: The data loader to evaluate the model on.
+   :type loader: torch.utils.data.DataLoader
+   :param loader_name: The name of the data loader.
+   :type loader_name: str
+   :param epoch: The current epoch number.
+   :type epoch: int
+   :param loss_type: The type of loss function to use.
+   :type loss_type: str
+
+   :returns: The classification metrics data as a DataFrame.
+             prediction_pos_probs (list): The positive class probabilities for each prediction.
+             all_labels (list): The true labels for each prediction.
+   :rtype: data_df (pandas.DataFrame)
+
+
+.. py:function:: test_model_core(model, loader, loader_name, epoch, loss_type)
+
+.. py:function:: test_model_performance(loaders, model, loader_name_list, epoch, loss_type)
+
+   Test the performance of a model on given data loaders.
+
+   :param loaders: List of data loaders.
+   :type loaders: list
+   :param model: The model to be tested.
+   :param loader_name_list: List of names for the data loaders.
+   :type loader_name_list: list
+   :param epoch: The current epoch.
+   :type epoch: int
+   :param loss_type: The type of loss function.
+
+   :returns: A tuple containing the test results and the results dataframe.
+   :rtype: tuple
+
+
+.. py:function:: train_test_model(settings)
+
+.. py:function:: train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule=None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r', 'g', 'b'], verbose=False)
+
+   Trains a model using the specified parameters.
+
+   :param dst: The destination path to save the model and results.
+   :type dst: str
+   :param model_type: The type of model to train.
+   :type model_type: str
+   :param train_loaders: A list of training data loaders.
+   :type train_loaders: list
+   :param epochs: The number of training epochs. Defaults to 100.
+   :type epochs: int, optional
+   :param learning_rate: The learning rate for the optimizer. Defaults to 0.0001.
+   :type learning_rate: float, optional
+   :param weight_decay: The weight decay for the optimizer. Defaults to 0.05.
+   :type weight_decay: float, optional
+   :param amsgrad: Whether to use AMSGrad for the optimizer. Defaults to False.
+   :type amsgrad: bool, optional
+   :param optimizer_type: The type of optimizer to use. Defaults to 'adamw'.
+   :type optimizer_type: str, optional
+   :param use_checkpoint: Whether to use checkpointing during training. Defaults to False.
+   :type use_checkpoint: bool, optional
+   :param dropout_rate: The dropout rate for the model. Defaults to 0.
+   :type dropout_rate: float, optional
+   :param n_jobs: The number of n_jobs for data loading. Defaults to 20.
+   :type n_jobs: int, optional
+   :param val_loaders: A list of validation data loaders. Defaults to None.
+   :type val_loaders: list, optional
+   :param test_loaders: A list of test data loaders. Defaults to None.
+   :type test_loaders: list, optional
+   :param init_weights: The initialization weights for the model. Defaults to 'imagenet'.
+   :type init_weights: str, optional
+   :param intermedeate_save: The intermediate save thresholds. Defaults to None.
+   :type intermedeate_save: list, optional
+   :param chan_dict: The channel dictionary. Defaults to None.
+   :type chan_dict: dict, optional
+   :param schedule: The learning rate schedule. Defaults to None.
+   :type schedule: str, optional
+   :param loss_type: The loss function type. Defaults to 'binary_cross_entropy_with_logits'.
+   :type loss_type: str, optional
+   :param gradient_accumulation: Whether to use gradient accumulation. Defaults to False.
+   :type gradient_accumulation: bool, optional
+   :param gradient_accumulation_steps: The number of steps for gradient accumulation. Defaults to 4.
+   :type gradient_accumulation_steps: int, optional
+
+   :returns: None
+
+
+.. py:function:: generate_activation_map(settings)
+
+.. py:function:: visualize_classes(model, dtype, class_names, **kwargs)
+
+.. py:function:: visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=[1, 2, 3], normalize=True, save_integrated_grads=False, save_dir='integrated_grads')
+
+.. py:class:: SmoothGrad(model, n_samples=50, stdev_spread=0.15)
+
+   .. py:attribute:: model
+
+
+   .. py:attribute:: n_samples
+      :value: 50
+
+
+
+   .. py:attribute:: stdev_spread
+      :value: 0.15
+
+
+
+   .. py:method:: compute_smooth_grad(input_tensor, target_class)
+
+
+.. py:function:: visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1, 2, 3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad')
+
+.. py:function:: deep_spacr(settings={})
+
+.. py:function:: model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=0.0001, epochs=10)
+
+.. py:function:: model_fusion(model_paths, save_path, device='cpu', model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, aggregator='mean')
+
+.. py:function:: annotate_filter_vision(settings)
+
