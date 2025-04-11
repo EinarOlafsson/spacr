@@ -4678,10 +4678,10 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
     elif isinstance(channel_of_interest, int):
         feature_string = f"channel_{channel_of_interest}"
 
-    elif channel_of_interest is 'morphology':
+    elif channel_of_interest == 'morphology':
         feature_string = 'morphology'
 
-    elif channel_of_interest is None:
+    elif channel_of_interest == None:
         feature_string = 'all_features'
     else:
         raise ValueError(f"Unsupported channel_of_interest: {channel_of_interest}. Supported values are 'int', 'list', 'None', or 'morphology'.")
@@ -5095,9 +5095,9 @@ def correct_metadata_column_names(df):
 
 def control_filelist(folder, mode='columnID', values=['01','02']):
     files = os.listdir(folder)
-    if mode is 'columnID':
+    if mode == 'columnID':
         filtered_files = [file for file in files if file.split('_')[1][1:] in values]
-    if mode is 'rowID':
+    if mode == 'rowID':
         filtered_files = [file for file in files if file.split('_')[1][:1] in values]
     return filtered_files
     
