@@ -19,12 +19,12 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
-# mock out heavy deps so autodoc never actually imports them
+
+# mock out heavy dependencies so autodoc never actually loads them
 autodoc_mock_imports = [
     'torch',
     'torchvision',
-    # add more here if you see similar import errors:
-    # 'PIL', 'numpy', 'pandas', ...
+    'monai',
 ]
 
 # -- HTML output options -----------------------------------------------------
