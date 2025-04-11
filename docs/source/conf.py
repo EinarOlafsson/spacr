@@ -19,8 +19,13 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
-# mock out torch so you don't need it installed just for docs
-autodoc_mock_imports = ['torch']
+# mock out heavy deps so autodoc never actually imports them
+autodoc_mock_imports = [
+    'torch',
+    'torchvision',
+    # add more here if you see similar import errors:
+    # 'PIL', 'numpy', 'pandas', ...
+]
 
 # -- HTML output options -----------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
