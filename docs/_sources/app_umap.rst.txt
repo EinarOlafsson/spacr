@@ -1,7 +1,7 @@
-${mod} module
+app_umap module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.app_umap
    :members:
    :undoc-members:
    :show-inheritance:

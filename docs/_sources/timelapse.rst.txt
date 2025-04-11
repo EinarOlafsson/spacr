@@ -1,7 +1,7 @@
-${mod} module
+timelapse module
 =============
 
-.. automodule:: spacr.${mod}
+.. automodule:: spacr.timelapse
    :members:
    :undoc-members:
    :show-inheritance:
