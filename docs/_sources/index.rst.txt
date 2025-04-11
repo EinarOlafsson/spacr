@@ -1,15 +1,13 @@
-Welcome to SpaCr’s documentation!
-=================================
+Welcome to SpaCr
+================
+
+.. image:: _static/logo_spacr.png
+   :align: center
+   :alt: SpaCr Logo
+
+SpaCr (Spatial phenotype analysis of CRISPR screens) is a Python toolkit for quantifying and visualizing phenotypic changes in high‑throughput imaging assays.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
-   api/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   core
