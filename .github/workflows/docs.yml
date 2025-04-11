@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install . --no-deps
-          python -m pip install sphinx sphinx_rtd_theme
+          python -m pip install sphinx sphinx_rtd_theme sphinx-autoapi
 
       # 4) Build into docs/ (preserving docs/source and deps_list.py)
       - name: Build Sphinx HTML into docs/
