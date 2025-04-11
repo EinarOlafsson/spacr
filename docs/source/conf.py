@@ -24,6 +24,8 @@ def strip_version_specifiers(deps):
 base_names = strip_version_specifiers(dependencies + extra_gui)
 mods = [name.replace('-', '_') for name in base_names]
 overrides = {
+    'scikit_posthocs': 'scikit_posthocs',
+    'scikit_learn': 'sklearn',
     'scikit_image': 'skimage',
     'opencv_python_headless': 'cv2',
     'biopython': 'Bio',
@@ -66,5 +68,5 @@ html_theme_options   = {
     'navigation_depth':    4,
     'style_nav_header_background': '#2980B9',
 }
-html_logo            = '_static/logo_spacr.png'
-html_static_path     = ['_static']
+html_logo        = '_static/logo_spacr.png'
+html_static_path = ['_static']
