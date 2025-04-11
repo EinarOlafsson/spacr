@@ -69,9 +69,11 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
+VERSION = "0.4.60"
+
 setup(
     name="spacr",
-    version="0.4.60",
+    version=VERSION,
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
