@@ -1,0 +1,100 @@
+spacr.mediar
+============
+
+.. py:module:: spacr.mediar
+
+
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:data:: mediar_path
+
+.. py:data:: init_file
+
+.. py:function:: display_imgs_in_list(lists_of_imgs, cmaps=None)
+
+   Displays images from multiple lists side by side.
+   Each row will display one image from each list (lists_of_imgs[i][j] is the j-th image in the i-th list).
+
+   :param lists_of_imgs: A list of lists, where each inner list contains images.
+   :param cmaps: List of colormaps to use for each list (optional). If not provided, defaults to 'gray' for all lists.
+
+
+.. py:function:: get_weights(finetuned_weights=False)
+
+.. py:function:: normalize_image(image, lower_percentile=0.0, upper_percentile=99.5)
+
+   Normalize an image based on the 0.0 and 99.5 percentiles.
+
+   :param image: Input image (numpy array).
+   :param lower_percentile: Lower percentile (default is 0.0).
+   :param upper_percentile: Upper percentile (default is 99.5).
+   :return: Normalized image (numpy array).
+
+
+.. py:class:: MEDIARPredictor(input_path=None, output_path=None, device=None, model='ensemble', roi_size=512, overlap=0.6, finetuned_weights=False, test=False, use_tta=False, normalize=True, quantiles=[0.0, 99.5])
+
+   .. py:attribute:: device
+      :value: None
+
+
+
+   .. py:attribute:: test
+      :value: False
+
+
+
+   .. py:attribute:: model
+      :value: 'ensemble'
+
+
+
+   .. py:attribute:: normalize
+      :value: True
+
+
+
+   .. py:attribute:: quantiles
+      :value: [0.0, 99.5]
+
+
+
+   .. py:attribute:: model1
+
+
+   .. py:attribute:: model2
+
+
+   .. py:method:: load_model(model_path, device)
+
+
+   .. py:method:: display_image_and_mask(img, mask)
+
+
+   .. py:method:: predict_batch(imgs)
+
+      Predict masks for a batch of images.
+
+      :param imgs: List of input images as NumPy arrays (each in (H, W, C) format).
+      :return: List of predicted masks as NumPy arrays.
+
+
+
+   .. py:method:: run_test()
+
+      Run the model on test images if the test flag is True.
+
+
+
+   .. py:method:: preprocess_image(img)
+
+      Preprocess input image (numpy array) for compatibility with the model.
+
+
+
