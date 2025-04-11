@@ -10,37 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Check out the repo, with full history so we can push back
-      - uses: actions/checkout@v2
+      # 1. Checkout so we can push back
+      - uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
 
-      # 2) Set up Python
+      # 2. Setup Python
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # 3) Install your package and Sphinx
-      - name: Install dependencies
+      # 3. Install Sphinx + theme
+      - name: Install Sphinx
         run: |
           python -m pip install --upgrade pip
-          pip install .
           pip install sphinx sphinx_rtd_theme
 
-      # 4) Build the HTML into docs/ (overwriting index.html, _static/, etc.)
-      - name: Build Sphinx HTML
+      # 4. Build HTML **directly into** docs/
+      - name: Build HTML into docs/
         run: |
+          # remove old html but keep docs/source/
+          find docs -maxdepth 1 ! -name source ! -name .git -exec rm -rf {} +
           sphinx-build -b html docs/source docs
 
-      # 5) Commit the generated HTML back to main/docs
-      - name: Commit and push docs
+      # 5. Commit the updated docs/ back to main
+      - name: Commit & push generated docs
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "📚 Auto‑build docs"
           commit_user_name: github-actions
           commit_user_email: github-actions@github.com
-          file_pattern: docs/
-
-
+          file_pattern: docs/**
