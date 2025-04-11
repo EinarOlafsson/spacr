@@ -1,15 +1,13 @@
-Welcome to SpaCr’s documentation!
-=================================
+Welcome to SpaCr
+================
+
+.. image:: _static/logo_spacr.png
+   :align: center
+   :alt: SpaCr Logo
+
+This documentation covers **only** the core API.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
-   api/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   core

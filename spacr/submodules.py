@@ -28,10 +28,7 @@ from skimage.measure import regionprops, label as sklabel
 import matplotlib.pyplot as plt
 from natsort import natsorted
 
-import torch
 from torch.utils.data import Dataset
-from spacr.settings import get_train_cellpose_default_settings
-from spacr.utils import save_settings, invert_image
 
 class CellposeLazyDataset(Dataset):
     def __init__(self, image_files, label_files, settings, randomize=True, augment=False):
@@ -91,8 +88,8 @@ class CellposeLazyDataset(Dataset):
 
 def train_cellpose(settings):
     
-    from spacr.settings import get_train_cellpose_default_settings
-    from spacr.utils import save_settings
+    from .settings import get_train_cellpose_default_settings
+    from .utils import save_settings
     
     settings = get_train_cellpose_default_settings(settings)
     img_src = os.path.join(settings['src'], 'train', 'images')
@@ -161,11 +158,11 @@ def train_cellpose(settings):
     
 def test_cellpose_model(settings):
     
-    from spacr.utils import save_settings, print_progress
+    from .utils import save_settings, print_progress
     from .settings import get_default_test_cellpose_model_settings
     
     def plot_cellpose_resilts(i, j, results_dir, img, lbl, pred, flow):
-        from spacr. plot import generate_mask_random_cmap
+        from . plot import generate_mask_random_cmap
         fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
         cmap_lbl = generate_mask_random_cmap(lbl)
         cmap_pred = generate_mask_random_cmap(pred)
@@ -348,7 +345,7 @@ def test_cellpose_model(settings):
 def apply_cellpose_model(settings):
     
     from .settings import get_default_apply_cellpose_model_settings
-    from spacr.utils import save_settings, print_progress
+    from .utils import save_settings, print_progress
     
     def plot_cellpose_result(i, j, results_dir, img, pred, flow):
         
@@ -466,7 +463,7 @@ def apply_cellpose_model(settings):
         print("Saved object count and average area to summary.csv")
 
 def plot_cellpose_batch(images, labels):
-    from spacr.plot import generate_mask_random_cmap
+    from .plot import generate_mask_random_cmap
 
     cmap_lbl = generate_mask_random_cmap(labels)
     batch_size = len(images)
@@ -481,8 +478,8 @@ def plot_cellpose_batch(images, labels):
     plt.show()
 
 def analyze_percent_positive(settings):
-    from spacr.io import _read_and_merge_data
-    from spacr.utils import save_settings
+    from .io import _read_and_merge_data
+    from .utils import save_settings
     from .settings import default_settings_analyze_percent_positive
     
     settings = default_settings_analyze_percent_positive(settings)
@@ -1020,7 +1017,7 @@ def interperate_vision_model(settings={}):
             else:
                 return None
 
-        from spacr.plot import spacrGraph
+        from .plot import spacrGraph
 
         df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
 
