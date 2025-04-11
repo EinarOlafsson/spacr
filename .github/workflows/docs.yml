@@ -1,4 +1,4 @@
-name: 📚 Build & Deploy pdoc Docs
+name: Build & Publish Sphinx Docs to main/docs
 
 on:
   push:
@@ -12,28 +12,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Check out with full history & push creds
       - uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
 
+      # 2) Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.9'
 
-      - name: Install pdoc
-        run: python -m pip install --upgrade pip pdoc
-
-      - name: Generate docs with pdoc
+      # 3) Install *only* your package (no deps) + Sphinx + theme
+      - name: Install docs builder
         run: |
-          rm -rf docs
-          pdoc -o docs spacr
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install . --no-deps
+          python -m pip install sphinx sphinx_rtd_theme
 
-      - name: Commit & push docs
+      # 4) Build into docs/ (overwriting old HTML)
+      - name: Build Sphinx HTML into docs/
+        run: |
+          # wipe out any old HTML but keep docs/source/
+          find docs -maxdepth 1 ! -name source ! -name .git -exec rm -rf {} +
+          python -m sphinx -b html docs/source docs
+          echo "---- docs/ now contains ----"
+          ls -R docs
+
+      # 5) Commit & push back to main/docs
+      - name: Commit & push generated docs
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "📚 Auto‑generate docs via pdoc"
+          commit_message: "📚 Auto‑build docs"
           commit_user_name: github-actions
           commit_user_email: github-actions@github.com
           file_pattern: docs/**
