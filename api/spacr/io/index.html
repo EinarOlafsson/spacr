@@ -10,10 +10,9 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=063a25df"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -28,12 +27,12 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #005f73" >
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            spacr
+          <a href="../../../index.html">
+            
               <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -92,7 +91,7 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">spacr</a>
       </nav>
@@ -115,18 +114,18 @@
            <div itemprop="articleBody">
              
   <section id="module-spacr.io">
-<span id="spacr-io"></span><h1>spacr.io<a class="headerlink" href="#module-spacr.io" title="Link to this heading"></a></h1>
+<span id="spacr-io"></span><h1>spacr.io<a class="headerlink" href="#module-spacr.io" title="Link to this heading">¶</a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.process_non_tif_non_2D_images">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">process_non_tif_non_2D_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.process_non_tif_non_2D_images" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">process_non_tif_non_2D_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.process_non_tif_non_2D_images" title="Link to this definition">¶</a></dt>
 <dd><p>Processes all images in the folder and splits them into grayscale channels, preserving bit depth.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">CombineLoaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.CombineLoaders" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">CombineLoaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.CombineLoaders" title="Link to this definition">¶</a></dt>
 <dd><p>A class that combines multiple data loaders into a single iterator.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>train_loaders (list): A list of data loaders.</p>
@@ -142,19 +141,19 @@ __next__(): Returns the next batch from one of the data loaders.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders.train_loaders">
-<span class="sig-name descname"><span class="pre">train_loaders</span></span><a class="headerlink" href="#spacr.io.CombineLoaders.train_loaders" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">train_loaders</span></span><a class="headerlink" href="#spacr.io.CombineLoaders.train_loaders" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders.loader_iters">
-<span class="sig-name descname"><span class="pre">loader_iters</span></span><a class="headerlink" href="#spacr.io.CombineLoaders.loader_iters" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">loader_iters</span></span><a class="headerlink" href="#spacr.io.CombineLoaders.loader_iters" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">CombinedDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.CombinedDataset" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">CombinedDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.CombinedDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>A dataset that combines multiple datasets into one.</p>
 <dl class="simple">
@@ -164,29 +163,29 @@ shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to T
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.datasets">
-<span class="sig-name descname"><span class="pre">datasets</span></span><a class="headerlink" href="#spacr.io.CombinedDataset.datasets" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">datasets</span></span><a class="headerlink" href="#spacr.io.CombinedDataset.datasets" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.lengths">
-<span class="sig-name descname"><span class="pre">lengths</span></span><a class="headerlink" href="#spacr.io.CombinedDataset.lengths" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lengths</span></span><a class="headerlink" href="#spacr.io.CombinedDataset.lengths" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.total_length">
-<span class="sig-name descname"><span class="pre">total_length</span></span><a class="headerlink" href="#spacr.io.CombinedDataset.total_length" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">total_length</span></span><a class="headerlink" href="#spacr.io.CombinedDataset.total_length" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.shuffle">
-<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#spacr.io.CombinedDataset.shuffle" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#spacr.io.CombinedDataset.shuffle" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.NoClassDataset" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.NoClassDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>A custom dataset class for handling image data without class labels.</p>
 <dl class="simple">
@@ -205,32 +204,32 @@ images (list): A list of loaded images (if load_to_memory is True).</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.data_dir">
-<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#spacr.io.NoClassDataset.data_dir" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#spacr.io.NoClassDataset.data_dir" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.NoClassDataset.transform" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.NoClassDataset.transform" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.shuffle">
-<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#spacr.io.NoClassDataset.shuffle" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#spacr.io.NoClassDataset.shuffle" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.load_to_memory">
-<span class="sig-name descname"><span class="pre">load_to_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#spacr.io.NoClassDataset.load_to_memory" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_to_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#spacr.io.NoClassDataset.load_to_memory" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.filenames">
-<span class="sig-name descname"><span class="pre">filenames</span></span><a class="headerlink" href="#spacr.io.NoClassDataset.filenames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filenames</span></span><a class="headerlink" href="#spacr.io.NoClassDataset.filenames" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.load_image">
-<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.NoClassDataset.load_image" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.NoClassDataset.load_image" title="Link to this definition">¶</a></dt>
 <dd><p>Load an image from the given file path.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>img_path (str): The file path of the image.</p>
@@ -242,7 +241,7 @@ images (list): A list of loaded images (if load_to_memory is True).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.shuffle_dataset">
-<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.NoClassDataset.shuffle_dataset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.NoClassDataset.shuffle_dataset" title="Link to this definition">¶</a></dt>
 <dd><p>Shuffle the dataset.</p>
 </dd></dl>
 
@@ -250,166 +249,166 @@ images (list): A list of loaded images (if load_to_memory is True).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.data_dir">
-<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#spacr.io.spacrDataset.data_dir" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#spacr.io.spacrDataset.data_dir" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.classes">
-<span class="sig-name descname"><span class="pre">classes</span></span><a class="headerlink" href="#spacr.io.spacrDataset.classes" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">classes</span></span><a class="headerlink" href="#spacr.io.spacrDataset.classes" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.spacrDataset.transform" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.spacrDataset.transform" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.shuffle">
-<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#spacr.io.spacrDataset.shuffle" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#spacr.io.spacrDataset.shuffle" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.pin_memory">
-<span class="sig-name descname"><span class="pre">pin_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#spacr.io.spacrDataset.pin_memory" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pin_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#spacr.io.spacrDataset.pin_memory" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.filenames">
-<span class="sig-name descname"><span class="pre">filenames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#spacr.io.spacrDataset.filenames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filenames</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#spacr.io.spacrDataset.filenames" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.labels">
-<span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#spacr.io.spacrDataset.labels" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#spacr.io.spacrDataset.labels" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.load_image">
-<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset.load_image" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset.load_image" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.shuffle_dataset">
-<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset.shuffle_dataset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset.shuffle_dataset" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.get_plate">
-<span class="sig-name descname"><span class="pre">get_plate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset.get_plate" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_plate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataset.get_plate" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preload_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataLoader" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preload_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataLoader" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.preload_batches">
-<span class="sig-name descname"><span class="pre">preload_batches</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#spacr.io.spacrDataLoader.preload_batches" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">preload_batches</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#spacr.io.spacrDataLoader.preload_batches" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.batch_queue">
-<span class="sig-name descname"><span class="pre">batch_queue</span></span><a class="headerlink" href="#spacr.io.spacrDataLoader.batch_queue" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">batch_queue</span></span><a class="headerlink" href="#spacr.io.spacrDataLoader.batch_queue" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.process">
-<span class="sig-name descname"><span class="pre">process</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.spacrDataLoader.process" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.spacrDataLoader.process" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.current_batch_index">
-<span class="sig-name descname"><span class="pre">current_batch_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#spacr.io.spacrDataLoader.current_batch_index" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">current_batch_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#spacr.io.spacrDataLoader.current_batch_index" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.pin_memory">
-<span class="sig-name descname"><span class="pre">pin_memory</span></span><a class="headerlink" href="#spacr.io.spacrDataLoader.pin_memory" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pin_memory</span></span><a class="headerlink" href="#spacr.io.spacrDataLoader.pin_memory" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.cleanup">
-<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataLoader.cleanup" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.spacrDataLoader.cleanup" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">load_to_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_to_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#id4" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">filenames</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filenames</span></span><a class="headerlink" href="#id5" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id6" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id7" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">TarImageDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tar_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.TarImageDataset" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">TarImageDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tar_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.TarImageDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset.tar_path">
-<span class="sig-name descname"><span class="pre">tar_path</span></span><a class="headerlink" href="#spacr.io.TarImageDataset.tar_path" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">tar_path</span></span><a class="headerlink" href="#spacr.io.TarImageDataset.tar_path" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.TarImageDataset.transform" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spacr.io.TarImageDataset.transform" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.load_images_from_paths">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">load_images_from_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images_by_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.load_images_from_paths" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">load_images_from_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images_by_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.load_images_from_paths" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.concatenate_and_normalize">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">concatenate_and_normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np.float32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.concatenate_and_normalize" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">concatenate_and_normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np.float32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.concatenate_and_normalize" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.delete_empty_subdirectories">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">delete_empty_subdirectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.delete_empty_subdirectories" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">delete_empty_subdirectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.delete_empty_subdirectories" title="Link to this definition">¶</a></dt>
 <dd><p>Deletes all empty subdirectories in the specified folder.</p>
 <p>Args:
 - folder_path (str): The path to the folder in which to look for empty subdirectories.</p>
@@ -417,17 +416,17 @@ images (list): A list of loaded images (if load_to_memory is True).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.preprocess_img_data">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">preprocess_img_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.preprocess_img_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">preprocess_img_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.preprocess_img_data" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.read_plot_model_stats">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">read_plot_model_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.read_plot_model_stats" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">read_plot_model_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.read_plot_model_stats" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.convert_numpy_to_tiff">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_numpy_to_tiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.convert_numpy_to_tiff" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_numpy_to_tiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.convert_numpy_to_tiff" title="Link to this definition">¶</a></dt>
 <dd><p>Converts all numpy files in a folder to TIFF format and saves them in a subdirectory ‘tiff’.</p>
 <p>Args:
 folder_path (str): The path to the folder containing numpy files.</p>
@@ -435,12 +434,12 @@ folder_path (str): The path to the folder containing numpy files.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_cellpose_train_test">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_cellpose_train_test" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_cellpose_train_test" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.parse_gz_files">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">parse_gz_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.parse_gz_files" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">parse_gz_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.parse_gz_files" title="Link to this definition">¶</a></dt>
 <dd><p>Parses the .fastq.gz files in the specified folder path and returns a dictionary
 containing the sample names and their corresponding file paths.</p>
 <dl class="simple">
@@ -454,12 +453,12 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_dataset">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_dataset" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_dataset" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_loaders">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_loaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['nc',</span> <span class="pre">'pc']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_loaders" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_loaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['nc',</span> <span class="pre">'pc']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_loaders" title="Link to this definition">¶</a></dt>
 <dd><p>Generate data loaders for training and validation/test datasets.</p>
 <p>Parameters:
 - src (str): The source directory containing the data.
@@ -480,49 +479,49 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_training_dataset">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_training_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_training_dataset" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_training_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_training_dataset" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.training_dataset_from_annotation">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.training_dataset_from_annotation" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.training_dataset_from_annotation" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.training_dataset_from_annotation_metadata">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_type_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'columnID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['c1',</span> <span class="pre">'c2']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.training_dataset_from_annotation_metadata" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_type_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'columnID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['c1',</span> <span class="pre">'c2']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.training_dataset_from_annotation_metadata" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_dataset_from_lists">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset_from_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_dataset_from_lists" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset_from_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.generate_dataset_from_lists" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.convert_separate_files_to_yokogawa">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_separate_files_to_yokogawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.convert_separate_files_to_yokogawa" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_separate_files_to_yokogawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.convert_separate_files_to_yokogawa" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.convert_to_yokogawa">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_to_yokogawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.convert_to_yokogawa" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_to_yokogawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.convert_to_yokogawa" title="Link to this definition">¶</a></dt>
 <dd><p>Detects file type in the folder and converts them
 to Yokogawa-style naming with Maximum Intensity Projection (MIP).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.apply_augmentation">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">apply_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.apply_augmentation" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">apply_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.apply_augmentation" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.process_instruction">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">process_instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.process_instruction" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">process_instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.process_instruction" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.prepare_cellpose_dataset">
-<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">prepare_cellpose_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.prepare_cellpose_dataset" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">prepare_cellpose_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.io.prepare_cellpose_dataset" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>

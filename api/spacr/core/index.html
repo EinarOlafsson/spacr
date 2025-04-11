@@ -10,10 +10,9 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=063a25df"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -28,12 +27,12 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #005f73" >
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            spacr
+          <a href="../../../index.html">
+            
               <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -92,7 +91,7 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">spacr</a>
       </nav>
@@ -115,22 +114,22 @@
            <div itemprop="articleBody">
              
   <section id="module-spacr.core">
-<span id="spacr-core"></span><h1>spacr.core<a class="headerlink" href="#module-spacr.core" title="Link to this heading"></a></h1>
+<span id="spacr-core"></span><h1>spacr.core<a class="headerlink" href="#module-spacr.core" title="Link to this heading">¶</a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.preprocess_generate_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">preprocess_generate_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.preprocess_generate_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">preprocess_generate_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.preprocess_generate_masks" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_cellpose_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_cellpose_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_cellpose_masks" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_image_umap">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_image_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_image_umap" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_image_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_image_umap" title="Link to this definition">¶</a></dt>
 <dd><p>Generate UMAP or tSNE embedding and visualize the data with clustering.</p>
 <p>Parameters:
 settings (dict): Dictionary containing the following keys:
@@ -163,7 +162,7 @@ pd.DataFrame: DataFrame with the original data and an additional column ‘clust
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.reducer_hyperparameter_search">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">reducer_hyperparameter_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbscan_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.reducer_hyperparameter_search" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">reducer_hyperparameter_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbscan_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.reducer_hyperparameter_search" title="Link to this definition">¶</a></dt>
 <dd><p>Perform a hyperparameter search for UMAP or tSNE on the given data.</p>
 <p>Parameters:
 settings (dict): Dictionary containing the following keys:
@@ -187,7 +186,7 @@ None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_mediar_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_mediar_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_mediar_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_mediar_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_mediar_masks" title="Link to this definition">¶</a></dt>
 <dd><p>Generates masks using the MEDIARPredictor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -202,7 +201,7 @@ None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_screen_graphs">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_screen_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_screen_graphs" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_screen_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.core.generate_screen_graphs" title="Link to this definition">¶</a></dt>
 <dd><p>Generate screen graphs for different measurements in a given source directory.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>src (str or list): Path(s) to the source directory or directories.

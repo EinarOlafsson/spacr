@@ -10,10 +10,9 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=063a25df"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -28,12 +27,12 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #005f73" >
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            spacr
+          <a href="../../../index.html">
+            
               <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -92,7 +91,7 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">spacr</a>
       </nav>
@@ -115,17 +114,17 @@
            <div itemprop="articleBody">
              
   <section id="module-spacr.toxo">
-<span id="spacr-toxo"></span><h1>spacr.toxo<a class="headerlink" href="#module-spacr.toxo" title="Link to this heading"></a></h1>
+<span id="spacr-toxo"></span><h1>spacr.toxo<a class="headerlink" href="#module-spacr.toxo" title="Link to this heading">¶</a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.custom_volcano_plot">
-<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">custom_volcano_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tagm_location'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-0.5,</span> <span class="pre">0.5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[0,</span> <span class="pre">6],</span> <span class="pre">[9,</span> <span class="pre">20]]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.custom_volcano_plot" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">custom_volcano_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tagm_location'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-0.5,</span> <span class="pre">0.5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[0,</span> <span class="pre">6],</span> <span class="pre">[9,</span> <span class="pre">20]]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.custom_volcano_plot" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.go_term_enrichment_by_column">
-<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">go_term_enrichment_by_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">significant_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">go_term_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Computed</span> <span class="pre">GO</span> <span class="pre">Processes',</span> <span class="pre">'Curated</span> <span class="pre">GO</span> <span class="pre">Components',</span> <span class="pre">'Curated</span> <span class="pre">GO</span> <span class="pre">Functions',</span> <span class="pre">'Curated</span> <span class="pre">GO</span> <span class="pre">Processes']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.go_term_enrichment_by_column" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">go_term_enrichment_by_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">significant_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">go_term_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Computed</span> <span class="pre">GO</span> <span class="pre">Processes',</span> <span class="pre">'Curated</span> <span class="pre">GO</span> <span class="pre">Components',</span> <span class="pre">'Curated</span> <span class="pre">GO</span> <span class="pre">Functions',</span> <span class="pre">'Curated</span> <span class="pre">GO</span> <span class="pre">Processes']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.go_term_enrichment_by_column" title="Link to this definition">¶</a></dt>
 <dd><p>Perform GO term enrichment analysis for each GO term column and generate plots.</p>
 <p>Parameters:
 - significant_df: DataFrame containing the significant genes from the screen.
@@ -140,7 +139,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.plot_gene_phenotypes">
-<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">plot_gene_phenotypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gene</span> <span class="pre">ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T.gondii</span> <span class="pre">GT1</span> <span class="pre">CRISPR</span> <span class="pre">Phenotype</span> <span class="pre">-</span> <span class="pre">Mean</span> <span class="pre">Phenotype'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T.gondii</span> <span class="pre">GT1</span> <span class="pre">CRISPR</span> <span class="pre">Phenotype</span> <span class="pre">-</span> <span class="pre">Standard</span> <span class="pre">Error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.plot_gene_phenotypes" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">plot_gene_phenotypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gene</span> <span class="pre">ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T.gondii</span> <span class="pre">GT1</span> <span class="pre">CRISPR</span> <span class="pre">Phenotype</span> <span class="pre">-</span> <span class="pre">Mean</span> <span class="pre">Phenotype'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T.gondii</span> <span class="pre">GT1</span> <span class="pre">CRISPR</span> <span class="pre">Phenotype</span> <span class="pre">-</span> <span class="pre">Standard</span> <span class="pre">Error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.plot_gene_phenotypes" title="Link to this definition">¶</a></dt>
 <dd><p>Plot a line graph for the mean phenotype with standard error shading and highlighted genes.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>data (pd.DataFrame): The input DataFrame containing gene data.
@@ -151,7 +150,7 @@ gene_list (list): A list of gene names to highlight on the plot.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.plot_gene_heatmaps">
-<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">plot_gene_heatmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gene</span> <span class="pre">ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.plot_gene_heatmaps" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">plot_gene_heatmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gene</span> <span class="pre">ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.plot_gene_heatmaps" title="Link to this definition">¶</a></dt>
 <dd><p>Generate a teal-to-white heatmap with the specified columns and genes.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>data (pd.DataFrame): The input DataFrame containing gene data.
@@ -165,7 +164,7 @@ save_path (str): Optional. If provided, the plot will be saved to this path.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.generate_score_heatmap">
-<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">generate_score_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.generate_score_heatmap" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">generate_score_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.toxo.generate_score_heatmap" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>

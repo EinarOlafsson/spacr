@@ -10,10 +10,9 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=063a25df"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -28,12 +27,12 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #005f73" >
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            spacr
+          <a href="../../../index.html">
+            
               <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -92,7 +91,7 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">spacr</a>
       </nav>
@@ -115,37 +114,37 @@
            <div itemprop="articleBody">
              
   <section id="module-spacr.spacr_cellpose">
-<span id="spacr-spacr-cellpose"></span><h1>spacr.spacr_cellpose<a class="headerlink" href="#module-spacr.spacr_cellpose" title="Link to this heading"></a></h1>
+<span id="spacr-spacr-cellpose"></span><h1>spacr.spacr_cellpose<a class="headerlink" href="#module-spacr.spacr_cellpose" title="Link to this heading">¶</a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.identify_masks_finetune">
-<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">identify_masks_finetune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.identify_masks_finetune" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">identify_masks_finetune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.identify_masks_finetune" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.generate_masks_from_imgs">
-<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">generate_masks_from_imgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cellprob_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grayscale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Signal_to_noise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.generate_masks_from_imgs" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">generate_masks_from_imgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cellprob_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grayscale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Signal_to_noise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.generate_masks_from_imgs" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.check_cellpose_models">
-<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">check_cellpose_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.check_cellpose_models" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">check_cellpose_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.check_cellpose_models" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.save_results_and_figure">
-<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">save_results_and_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.save_results_and_figure" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">save_results_and_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.save_results_and_figure" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.compare_mask">
-<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">compare_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.compare_mask" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">compare_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.compare_mask" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.compare_cellpose_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">compare_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.compare_cellpose_masks" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">compare_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.spacr_cellpose.compare_cellpose_masks" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>

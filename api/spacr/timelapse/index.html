@@ -10,10 +10,9 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=063a25df"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -28,12 +27,12 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #005f73" >
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            spacr
+          <a href="../../../index.html">
+            
               <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -92,7 +91,7 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">spacr</a>
       </nav>
@@ -115,52 +114,52 @@
            <div itemprop="articleBody">
              
   <section id="module-spacr.timelapse">
-<span id="spacr-timelapse"></span><h1>spacr.timelapse<a class="headerlink" href="#module-spacr.timelapse" title="Link to this heading"></a></h1>
+<span id="spacr-timelapse"></span><h1>spacr.timelapse<a class="headerlink" href="#module-spacr.timelapse" title="Link to this heading">¶</a></h1>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.exponential_decay">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">exponential_decay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.exponential_decay" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">exponential_decay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.exponential_decay" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.preprocess_pathogen_data">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">preprocess_pathogen_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pathogen_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.preprocess_pathogen_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">preprocess_pathogen_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pathogen_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.preprocess_pathogen_data" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.plot_data">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">plot_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.plot_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">plot_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.plot_data" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.infected_vs_noninfected">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">infected_vs_noninfected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.infected_vs_noninfected" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">infected_vs_noninfected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.infected_vs_noninfected" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.save_figure">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">save_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.save_figure" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">save_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.save_figure" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.save_results_dataframe">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">save_results_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.save_results_dataframe" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">save_results_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.save_results_dataframe" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.summarize_per_well">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">summarize_per_well</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_details_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.summarize_per_well" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">summarize_per_well</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_details_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.summarize_per_well" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.summarize_per_well_inf_non_inf">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">summarize_per_well_inf_non_inf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_details_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.summarize_per_well_inf_non_inf" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">summarize_per_well_inf_non_inf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_details_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.summarize_per_well_inf_non_inf" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.timelapse.analyze_calcium_oscillations">
-<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">analyze_calcium_oscillations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_channel_1_mean_intensity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_area'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluctuation_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cytoplasm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_transient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transience_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.analyze_calcium_oscillations" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">analyze_calcium_oscillations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_channel_1_mean_intensity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_area'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluctuation_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cytoplasm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_transient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transience_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spacr.timelapse.analyze_calcium_oscillations" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
