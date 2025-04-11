@@ -1,11 +1,13 @@
-import os, sys, types
+import os, sys
+import importlib.machinery, importlib.util
 
-# —— stub out the spacr package so its __init__.py never runs ——————
+# — stub out the spacr package so its __init__.py never runs —
 srcdir = os.path.abspath(os.path.join(__file__, '..', '..', 'spacr'))
-sys.path.insert(0, srcdir)
-_spacr_pkg = types.ModuleType('spacr')
-_spacr_pkg.__path__ = [srcdir]
-sys.modules['spacr'] = _spacr_pkg
+# Create a ModuleSpec for 'spacr' with no loader, but with the right search path:
+spec = importlib.machinery.ModuleSpec('spacr', loader=None, is_package=True)
+spec.submodule_search_locations = [srcdir]
+pkg = importlib.util.module_from_spec(spec)
+sys.modules['spacr'] = pkg
 
 # -- Project information -----------------------------------------------------
 project = 'spacr'
@@ -24,7 +26,7 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-# mock out heavy deps so autodoc never actually loads them
+# mock out all the heavy dependencies so autodoc never actually loads them
 autodoc_mock_imports = [
     'torch',
     'torchvision',
