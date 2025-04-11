@@ -1,4 +1,3 @@
-# .github/workflows/docs.yml
 name: Build & Publish Docs
 
 on:
@@ -30,10 +29,12 @@ jobs:
 
       - name: Build with Sphinx
         run: |
-          sphinx-build -b html docs/source docs
+          # Build the docs into docs/build/html
+          sphinx-build -b html docs/source docs/build/html
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs
+          # Publish the built docs in docs/build/html
+          publish_dir: docs/build/html
