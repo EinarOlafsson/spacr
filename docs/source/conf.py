@@ -30,6 +30,7 @@ overrides = {
     'opencv_python_headless': 'cv2',
     'biopython': 'Bio',
     'pillow': 'PIL',
+    'umap_learn': 'umap',
     'huggingface_hub': 'huggingface_hub',
 }
 for pkg, mod in overrides.items():
