@@ -67,13 +67,13 @@ release = _ver('spacr')
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-+    'sphinx.ext.autosummary',   # generate summary tables + stub pages
-+    'sphinx.ext.viewcode',      # add “view source” links
+    'sphinx.ext.autosummary',   # generate summary tables + stub pages
+    'sphinx.ext.viewcode',      # add “view source” links
  ]
 
-+# Automatically generate the stub .rst files for autosummary directives
-+autosummary_generate = True
-+autosummary_imported_members = False
+# Automatically generate the stub .rst files for autosummary directives
+autosummary_generate = True
+autosummary_imported_members = False
 
 # This tells Sphinx to mock these modules instead of trying to import them
 autodoc_mock_imports = mods
