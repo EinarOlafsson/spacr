@@ -10,4 +10,4 @@ SpaCr (Spatial phenotype analysis of CRISPR screens) is a Python toolkit for qua
 .. toctree::
    :maxdepth: 1
 
-   core
+   modules
