@@ -5,21 +5,21 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: write   # allow the auto‑commit action to push back
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Checkout with full history & push credentials
+      # 1) Check out with push creds & full history
       - uses: actions/checkout@v3
         with:
           persist-credentials: true
           fetch-depth: 0
 
-      # 2) Set up Python 3.9
-      - name: Set up Python
+      # 2) Set up Python
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -31,18 +31,17 @@ jobs:
           python -m pip install . --no-deps
           python -m pip install sphinx sphinx_rtd_theme
 
-      # 4) Build into docs/ (overwriting old HTML, keeping docs/source/)
+      # 4) Build HTML into docs/
       - name: Build Sphinx HTML into docs/
         run: |
-          # Remove all children of docs/ except docs/source and .git
+          # remove all children of docs/, but keep docs/source/
           find docs -mindepth 1 -maxdepth 1 ! -name source ! -name .git -exec rm -rf {} +
-          # Run Sphinx to output HTML into docs/
+          # generate HTML
           python -m sphinx -b html docs/source docs
-          # Debug listing
           echo "---- docs/ now contains ----"
           ls -R docs
 
-      # 5) Commit & push the updated docs/ back to main
+      # 5) Commit & push the updated docs/
       - name: Commit & push generated docs
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
