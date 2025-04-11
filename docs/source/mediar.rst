@@ -1,7 +1,7 @@
-mediar module
+${mod} module
 =============
 
-.. automodule:: spacr.mediar
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

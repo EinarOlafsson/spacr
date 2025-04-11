@@ -1,7 +1,7 @@
-measure module
+${mod} module
 =============
 
-.. automodule:: spacr.measure
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

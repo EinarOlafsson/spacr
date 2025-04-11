@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>measure module &mdash; spacr 0.4.60 documentation</title>
+  <title>${mod} module &mdash; spacr 0.4.60 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -19,7 +19,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="${mod} module" href="sp_stats.html" />
+    <link rel="prev" title="${mod} module" href="app_measure.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,8 +44,42 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sequencing.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submodules.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deep_spacr.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_sequencing.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openai.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui_core.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="__main__.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_classify.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui_utils.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chat_bot.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="toxo.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spacr_cellpose.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timelapse.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_mask.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ml.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="version.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui_elements.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_umap.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_measure.html">${mod} module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sp_stats.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_annotate.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_make_masks.html">${mod} module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mediar.html">${mod} module</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -60,7 +96,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">measure module</li>
+          <li class="breadcrumb-item"><a href="modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">${mod} module</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/measure.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -70,124 +107,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="measure-module">
-<h1>measure module<a class="headerlink" href="#measure-module" title="Link to this heading"></a></h1>
-<dl class="py function" id="module-spacr.measure">
-<dt class="sig sig-object py" id="spacr.measure.generate_cellpose_train_set">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#generate_cellpose_train_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.generate_cellpose_train_set" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.measure.get_components">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen_mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#get_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.get_components" title="Link to this definition"></a></dt>
-<dd><p>Get the components (nucleus and pathogens) for each cell in the given masks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cell_mask</strong> (<em>ndarray</em>) – Binary mask of cell labels.</p></li>
-<li><p><strong>nucleus_mask</strong> (<em>ndarray</em>) – Binary mask of nucleus labels.</p></li>
-<li><p><strong>pathogen_mask</strong> (<em>ndarray</em>) – Binary mask of pathogen labels.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A tuple containing two dataframes - nucleus_df and pathogen_df.</dt><dd><dl class="simple">
-<dt>nucleus_df (DataFrame): Dataframe with columns ‘cell_id’ and ‘nucleus’,</dt><dd><p>representing the mapping of each cell to its nucleus.</p>
-</dd>
-<dt>pathogen_df (DataFrame): Dataframe with columns ‘cell_id’ and ‘pathogen’,</dt><dd><p>representing the mapping of each cell to its pathogens.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.measure.get_object_counts">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_object_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#get_object_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.get_object_counts" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.measure.img_list_to_grid">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">img_list_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#img_list_to_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.img_list_to_grid" title="Link to this definition"></a></dt>
-<dd><p>Plot a grid of images with optional titles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>grid</strong> (<em>list</em>) – List of images to be plotted.</p></li>
-<li><p><strong>titles</strong> (<em>list</em>) – List of titles for the images.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The matplotlib figure object containing the image grid.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>fig (Figure)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.measure.measure_crop">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">measure_crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#measure_crop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.measure_crop" title="Link to this definition"></a></dt>
-<dd><p>Measure the crop of an image based on the provided settings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – The settings for measuring the crop.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.measure.process_meassure_crop_results">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">process_meassure_crop_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#process_meassure_crop_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.process_meassure_crop_results" title="Link to this definition"></a></dt>
-<dd><p>Process the results, display, and optionally save the figures.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>partial_results</strong> (<em>list</em>) – List of partial results.</p></li>
-<li><p><strong>settings</strong> (<em>dict</em>) – Settings dictionary.</p></li>
-<li><p><strong>save_figures</strong> (<em>bool</em>) – Flag to save figures or not.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.measure.save_and_add_image_to_grid">
-<span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">save_and_add_image_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">png_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacr/measure.html#save_and_add_image_to_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.save_and_add_image_to_grid" title="Link to this definition"></a></dt>
-<dd><p>Add an image to a grid and save it as PNG.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>png_channels</strong> (<em>ndarray</em>) – The array representing the image channels.</p></li>
-<li><p><strong>img_path</strong> (<em>str</em>) – The path to save the image as PNG.</p></li>
-<li><p><strong>grid</strong> (<em>list</em>) – The grid of images to be plotted later.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Updated grid with the new image added.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>grid (list)</p>
-</dd>
-</dl>
-</dd></dl>
-
+  <section id="mod-module">
+<h1>${mod} module<a class="headerlink" href="#mod-module" title="Link to this heading"></a></h1>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="app_measure.html" class="btn btn-neutral float-left" title="${mod} module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sp_stats.html" class="btn btn-neutral float-right" title="${mod} module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

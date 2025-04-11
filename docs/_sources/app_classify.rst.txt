@@ -1,7 +1,7 @@
-app_classify module
+${mod} module
 =============
 
-.. automodule:: spacr.app_classify
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:
