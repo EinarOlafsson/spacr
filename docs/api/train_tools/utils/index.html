@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>train_tools.utils &mdash; spacr 0.4.60 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/documentation_options.js?v=063a25df"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="generate_mapping" href="../../generate_mapping/index.html" />
+    <link rel="prev" title="train_tools.models.MEDIARFormer" href="../models/MEDIARFormer/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../main/index.html">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../main/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../core/index.html">core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../core/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../core/BasePredictor/index.html">core.BasePredictor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/BaseTrainer/index.html">core.BaseTrainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/Baseline/index.html">core.Baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/MEDIAR/index.html">core.MEDIAR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/utils/index.html">core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../spacr/index.html">spacr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/chat_bot/index.html">spacr.chat_bot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/mediar/index.html">spacr.mediar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/openai/index.html">spacr.openai</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spacr/version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../predict/index.html">predict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../predict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../evaluate/index.html">evaluate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../evaluate/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../evaluate/index.html#evaluate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../SetupDict/index.html">SetupDict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../SetupDict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.TRAINER"><code class="docutils literal notranslate"><span class="pre">TRAINER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.OPTIMIZER"><code class="docutils literal notranslate"><span class="pre">OPTIMIZER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.SCHEDULER"><code class="docutils literal notranslate"><span class="pre">SCHEDULER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">train_tools</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../data_utils/index.html">train_tools.data_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../measures/index.html">train_tools.measures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../models/index.html">train_tools.models</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">train_tools.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../generate_mapping/index.html">generate_mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../generate_mapping/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.public_paths_labeled"><code class="docutils literal notranslate"><span class="pre">public_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.official_paths_labeled"><code class="docutils literal notranslate"><span class="pre">official_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.official_paths_tuning"><code class="docutils literal notranslate"><span class="pre">official_paths_tuning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.add_mapping_to_json"><code class="docutils literal notranslate"><span class="pre">add_mapping_to_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">train_tools</a></li>
+      <li class="breadcrumb-item active">train_tools.utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/train_tools/utils/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-train_tools.utils">
+<span id="train-tools-utils"></span><h1>train_tools.utils<a class="headerlink" href="#module-train_tools.utils" title="Link to this heading">¶</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="train_tools.utils.ConfLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">train_tools.utils.</span></span><span class="sig-name descname"><span class="pre">ConfLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/train_tools/utils.html#ConfLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.ConfLoader" title="Link to this definition">¶</a></dt>
+<dd><p>Load json config file using DictWithAttributeAccess object_hook.
+ConfLoader(conf_name).opt attribute is the result of loading json config file.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="train_tools.utils.ConfLoader.DictWithAttributeAccess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DictWithAttributeAccess</span></span><a class="reference internal" href="../../../_modules/train_tools/utils.html#ConfLoader.DictWithAttributeAccess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.ConfLoader.DictWithAttributeAccess" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>This inner class makes dict to be accessed same as class attribute.
+For example, you can use opt.key instead of the opt[‘key’].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="train_tools.utils.ConfLoader.conf_name">
+<span class="sig-name descname"><span class="pre">conf_name</span></span><a class="reference internal" href="../../../_modules/train_tools/utils.html#ConfLoader.conf_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.ConfLoader.conf_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="train_tools.utils.ConfLoader.opt">
+<span class="sig-name descname"><span class="pre">opt</span></span><a class="reference internal" href="../../../_modules/train_tools/utils.html#ConfLoader.opt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.ConfLoader.opt" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="train_tools.utils.directory_setter">
+<span class="sig-prename descclassname"><span class="pre">train_tools.utils.</span></span><span class="sig-name descname"><span class="pre">directory_setter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./results'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/train_tools/utils.html#directory_setter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.directory_setter" title="Link to this definition">¶</a></dt>
+<dd><p>Make dictionary if not exists.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="train_tools.utils.random_seeder">
+<span class="sig-prename descclassname"><span class="pre">train_tools.utils.</span></span><span class="sig-name descname"><span class="pre">random_seeder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/train_tools/utils.html#random_seeder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.random_seeder" title="Link to this definition">¶</a></dt>
+<dd><p>Fix randomness.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="train_tools.utils.pprint_config">
+<span class="sig-prename descclassname"><span class="pre">train_tools.utils.</span></span><span class="sig-name descname"><span class="pre">pprint_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/train_tools/utils.html#pprint_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#train_tools.utils.pprint_config" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../models/MEDIARFormer/index.html" class="btn btn-neutral float-left" title="train_tools.models.MEDIARFormer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../generate_mapping/index.html" class="btn btn-neutral float-right" title="generate_mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

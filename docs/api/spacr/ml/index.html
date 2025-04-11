@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.ml &mdash; spacr 0.4.60 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/documentation_options.js?v=063a25df"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="spacr.openai" href="../openai/index.html" />
+    <link rel="prev" title="spacr.mediar" href="../mediar/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../main/index.html">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../main/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../main/index.html#main.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../core/index.html">core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../core/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../core/BasePredictor/index.html">core.BasePredictor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/BaseTrainer/index.html">core.BaseTrainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/Baseline/index.html">core.Baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/MEDIAR/index.html">core.MEDIAR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../core/utils/index.html">core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../chat_bot/index.html">spacr.chat_bot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mediar/index.html">spacr.mediar</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openai/index.html">spacr.openai</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../predict/index.html">predict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../predict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predict/index.html#predict.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../evaluate/index.html">evaluate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../evaluate/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../evaluate/index.html#evaluate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../SetupDict/index.html">SetupDict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../SetupDict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.TRAINER"><code class="docutils literal notranslate"><span class="pre">TRAINER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.OPTIMIZER"><code class="docutils literal notranslate"><span class="pre">OPTIMIZER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../SetupDict/index.html#SetupDict.SCHEDULER"><code class="docutils literal notranslate"><span class="pre">SCHEDULER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../train_tools/index.html">train_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../train_tools/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/data_utils/index.html">train_tools.data_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/measures/index.html">train_tools.measures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/models/index.html">train_tools.models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../train_tools/utils/index.html">train_tools.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../generate_mapping/index.html">generate_mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../generate_mapping/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.public_paths_labeled"><code class="docutils literal notranslate"><span class="pre">public_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.official_paths_labeled"><code class="docutils literal notranslate"><span class="pre">official_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.official_paths_tuning"><code class="docutils literal notranslate"><span class="pre">official_paths_tuning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.add_mapping_to_json"><code class="docutils literal notranslate"><span class="pre">add_mapping_to_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../generate_mapping/index.html#generate_mapping.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">spacr</a></li>
+      <li class="breadcrumb-item active">spacr.ml</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/spacr/ml/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-spacr.ml">
+<span id="spacr-ml"></span><h1>spacr.ml<a class="headerlink" href="#module-spacr.ml" title="Link to this heading">¶</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spacr.ml.QuasiBinomial">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">QuasiBinomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">logit()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#QuasiBinomial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.QuasiBinomial" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">statsmodels.genmod.families.Binomial</span></code></p>
+<p>Custom Quasi-Binomial family with adjustable variance.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.ml.QuasiBinomial.dispersion">
+<span class="sig-name descname"><span class="pre">dispersion</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="reference internal" href="../../../_modules/spacr/ml.html#QuasiBinomial.dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.QuasiBinomial.dispersion" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.ml.QuasiBinomial.variance">
+<span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#QuasiBinomial.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.QuasiBinomial.variance" title="Link to this definition">¶</a></dt>
+<dd><p>Adjust the variance with the dispersion parameter.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.calculate_p_values">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">calculate_p_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#calculate_p_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.calculate_p_values" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.perform_mixed_model">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">perform_mixed_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#perform_mixed_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.perform_mixed_model" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.create_volcano_filename">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">create_volcano_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#create_volcano_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.create_volcano_filename" title="Link to this definition">¶</a></dt>
+<dd><p>Create and return the volcano plot filename based on regression type and alpha.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.scale_variables">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">scale_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#scale_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.scale_variables" title="Link to this definition">¶</a></dt>
+<dd><p>Scale independent (X) and dependent (y) variables using MinMaxScaler.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.process_model_coefficients">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">process_model_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#process_model_coefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.process_model_coefficients" title="Link to this definition">¶</a></dt>
+<dd><p>Return DataFrame of model coefficients and p-values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.check_distribution">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.check_distribution" title="Link to this definition">¶</a></dt>
+<dd><p>Check the type of distribution to recommend a model.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.select_glm_family">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">select_glm_family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#select_glm_family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.select_glm_family" title="Link to this definition">¶</a></dt>
+<dd><p>Select the appropriate GLM family based on the data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.prepare_formula">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">prepare_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dependent_variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_row_column_effects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#prepare_formula"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.prepare_formula" title="Link to this definition">¶</a></dt>
+<dd><p>Return the regression formula using random effects for plate, row, and column.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.fit_mixed_model">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">fit_mixed_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#fit_mixed_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.fit_mixed_model" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.check_and_clean_data">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_and_clean_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependent_variable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_and_clean_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.check_and_clean_data" title="Link to this definition">¶</a></dt>
+<dd><p>Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.check_normality">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_normality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_normality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.check_normality" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the data is normally distributed using the Shapiro-Wilk test.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.minimum_cell_simulation">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">minimum_cell_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#minimum_cell_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.minimum_cell_simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
+Detect and mark the elbow point (inflection) with smoothing and tolerance control.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">process_model_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#process_model_coefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Return DataFrame of model coefficients, standard errors, and p-values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd><p>Check the distribution of y and recommend an appropriate model.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.pick_glm_family_and_link">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">pick_glm_family_and_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#pick_glm_family_and_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.pick_glm_family_and_link" title="Link to this definition">¶</a></dt>
+<dd><p>Select the appropriate GLM family and link function based on data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.regression_model">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">regression_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ols'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#regression_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.regression_model" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.regression">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependent_variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'predictions'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_row_column_effects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'233460'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'220950'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#regression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.regression" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.save_summary_to_file">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">save_summary_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'summary.csv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#save_summary_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.save_summary_to_file" title="Link to this definition">¶</a></dt>
+<dd><p>Save the model’s summary output to a CSV or text file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.perform_regression">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">perform_regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#perform_regression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.perform_regression" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.process_reads">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">process_reads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fraction_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#process_reads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.process_reads" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.apply_transformation">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">apply_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#apply_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.apply_transformation" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_normality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_normality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the data is normally distributed using the Shapiro-Wilk test.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.clean_controls">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">clean_controls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#clean_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.clean_controls" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.process_scores">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">process_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependent_variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cell_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ols'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#process_scores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.process_scores" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.generate_ml_scores">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">generate_ml_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#generate_ml_scores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.generate_ml_scores" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.ml_analysis">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">ml_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'columnID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_lambda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xgboost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_low_variance_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_highly_correlated_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_validation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#ml_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.ml_analysis" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates permutation importance for numerical features in the dataframe,
+comparing groups based on specified column values and uses the model to predict
+the class for all other rows in the dataframe.</p>
+<p>Args:
+df (pandas.DataFrame): The DataFrame containing the data.
+feature_string (str): String to filter features that contain this substring.
+location_column (str): Column name to use for comparing groups.
+positive_control, negative_control (str): Values in location_column to create subsets for comparison.
+exclude (list or str, optional): Columns to exclude from features.
+n_repeats (int): Number of repeats for permutation importance.
+top_features (int): Number of top features to plot based on permutation importance.
+n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
+test_size (float): Proportion of the dataset to include in the test split.
+random_state (int): Random seed for reproducibility.
+model_type (str): Type of model to use (‘random_forest’, ‘logistic_regression’, ‘gradient_boosting’, ‘xgboost’).
+n_jobs (int): Number of jobs to run in parallel for applicable models.</p>
+<p>Returns:
+pandas.DataFrame: The original dataframe with added prediction and data usage columns.
+pandas.DataFrame: DataFrame containing the importances and standard deviations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.shap_analysis">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">shap_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#shap_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.shap_analysis" title="Link to this definition">¶</a></dt>
+<dd><p>Performs SHAP analysis on the given model and data.</p>
+<p>Args:
+model: The trained model.
+X_train (pandas.DataFrame): Training feature set.
+X_test (pandas.DataFrame): Testing feature set.
+Returns:
+fig: Matplotlib figure object containing the SHAP summary plot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.find_optimal_threshold">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">find_optimal_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_proba</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#find_optimal_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.find_optimal_threshold" title="Link to this definition">¶</a></dt>
+<dd><p>Find the optimal threshold for binary classification based on the F1-score.</p>
+<p>Args:
+y_true (array-like): True binary labels.
+y_pred_proba (array-like): Predicted probabilities for the positive class.</p>
+<p>Returns:
+float: The optimal threshold.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.ml.interperate_vision_model">
+<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">interperate_vision_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#interperate_vision_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.interperate_vision_model" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mediar/index.html" class="btn btn-neutral float-left" title="spacr.mediar" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../openai/index.html" class="btn btn-neutral float-right" title="spacr.openai" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
