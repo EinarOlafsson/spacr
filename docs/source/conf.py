@@ -1,51 +1,67 @@
 # docs/source/conf.py
+
 import os
 import sys
 import re
 
-# 0) Let Sphinx import your package (installed via --no-deps)
-sys.path.insert(0, os.path.abspath('../../spacr'))
+# 1) Tell Sphinx where to find your spacr package
+#    docs/source → ../../spacr
+sys.path.insert(
+    0,
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', '..', 'spacr')
+    )
+)
 
-# 1) Pull in your raw lists (no side-effects)
-from docs.deps_list import dependencies, extra_gui
+# 2) Tell Sphinx where to find deps_list.py
+#    docs/source → ../ (which is docs/)
+sys.path.insert(
+    0,
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..')
+    )
+)
 
-# 2) Strip off version pins
+# 3) Import your raw dependency lists (pure data, no side‑effects)
+from deps_list import dependencies, extra_gui
+
 def strip_version_specifiers(deps):
+    """
+    Strip off everything from the first '<' or '>' (inclusive) in each string.
+    """
     cleaned = []
     for dep in deps:
-        # cut at first '<' or '>' if present
+        # find earliest '<' or '>' and cut there
         idxs = [dep.find(c) for c in ('<', '>') if c in dep]
         if idxs:
             dep = dep[:min(idxs)]
         cleaned.append(dep.strip())
     return cleaned
 
+# 4) Build the list of module names to mock
 base_names = strip_version_specifiers(dependencies + extra_gui)
-
-# 3) Normalize hyphens to underscores, plus special overrides
 mods = [name.replace('-', '_') for name in base_names]
 
-# special cases where import name ≠ package name
+# 5) Special‑case imports whose name differs from the PyPI package
 overrides = {
     'scikit_image': 'skimage',
     'opencv_python_headless': 'cv2',
     'biopython': 'Bio',
-    'huggingface_hub': 'huggingface_hub',  # unchanged, but you get the idea
+    # add more overrides here if needed
 }
 for pkg, mod in overrides.items():
     if pkg in mods:
         mods[mods.index(pkg)] = mod
 
 # -- Project information -----------------------------------------------------
-# You can also grab VERSION from importlib.metadata if you installed your package:
+# You can also pull VERSION from importlib.metadata if you like
+project = 'spacr'
+author  = 'Einar Birnir Olafsson'
 try:
     from importlib.metadata import version as _ver
 except ImportError:
     from importlib_metadata import version as _ver
-
-project = 'spacr'
-author  = 'Einar Birnir Olafsson'
-release = _ver('spacr')  # e.g. "0.4.60"
+release = _ver('spacr')
 
 # -- General configuration ---------------------------------------------------
 extensions = [
@@ -53,7 +69,7 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-# Tell Sphinx to mock these imports so it never tries to load them
+# This tells Sphinx to mock these modules instead of trying to import them
 autodoc_mock_imports = mods
 
 # -- Options for HTML output -------------------------------------------------
