@@ -1,7 +1,7 @@
-openai module
+${mod} module
 =============
 
-.. automodule:: spacr.openai
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:

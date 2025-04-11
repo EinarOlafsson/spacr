@@ -3,6 +3,7 @@ Modules
 
 .. toctree::
    :maxdepth: 1
+
    sequencing
    utils
    core

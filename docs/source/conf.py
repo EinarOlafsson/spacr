@@ -22,7 +22,8 @@ extensions = [
 # mock out heavy imports so they never have to be installed
 autodoc_mock_imports = [
     'torch','torchvision','torch_geometric','torchcam',
-    'monai','itk','GPUtil','train_tools','skimage','cv2'
+    'monai','itk','GPUtil','train_tools','skimage','cv2',
+    'pyautogui','pyscreeze'
 ]
 
 # -- HTML output options -----------------------------------------------------

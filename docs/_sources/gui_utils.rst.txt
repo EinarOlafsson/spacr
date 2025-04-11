@@ -1,7 +1,7 @@
-gui_utils module
+${mod} module
 =============
 
-.. automodule:: spacr.gui_utils
+.. automodule:: spacr.${mod}
    :members:
    :undoc-members:
    :show-inheritance:
