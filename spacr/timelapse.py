@@ -7,9 +7,9 @@ from IPython.display import display
 from IPython.display import Image as ipyimage
 import trackpy as tp
 from btrack import datasets as btrack_datasets
-from skimage.measure import regionprops
+from skimage.measure import regionprops, regionprops_table
 from scipy.signal import find_peaks
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, linear_sum_assignment
 from scipy.integrate import trapz
 import matplotlib.pyplot as plt
 
@@ -255,7 +255,7 @@ def _relabel_masks_based_on_tracks(masks, tracks, mode='btrack'):
 
     return relabeled_masks
 
-def _prepare_for_tracking(mask_array):
+def _prepare_for_tracking_v1(mask_array):
     """
     Prepare the mask array for object tracking.
 
@@ -285,6 +285,87 @@ def _prepare_for_tracking(mask_array):
                 'original_label': obj.label  # Capture the original label
             })
     return pd.DataFrame(frames)
+
+def _prepare_for_tracking(mask_array):
+    frames = []
+    for t, frame in enumerate(mask_array):
+        props = regionprops_table(
+            frame,
+            properties=('label', 'centroid-0', 'centroid-1', 'area',
+                        'bbox-0', 'bbox-1', 'bbox-2', 'bbox-3',
+                        'eccentricity')
+        )
+        df = pd.DataFrame(props)
+        df = df.rename(columns={
+            'centroid-0': 'y', 'centroid-1': 'x', 'area': 'mass',
+            'label': 'original_label'
+        })
+        df['frame'] = t
+        frames.append(df[['frame','y','x','mass','original_label',
+                          'bbox-0','bbox-1','bbox-2','bbox-3','eccentricity']])
+    return pd.concat(frames, ignore_index=True)
+
+
+def _track_by_iou(masks, iou_threshold=0.1):
+    """
+    Build a track table by linking masks frame→frame via IoU.
+    Returns a DataFrame with columns [frame, original_label, track_id].
+    """
+    n_frames = masks.shape[0]
+    # 1) initialize: every label in frame 0 starts its own track
+    labels0 = np.unique(masks[0])[1:]
+    next_track = 1
+    track_map = {}  # (frame,label) -> track_id
+    for L in labels0:
+        track_map[(0, L)] = next_track
+        next_track += 1
+
+    # 2) iterate through frames
+    for t in range(1, n_frames):
+        prev, curr = masks[t-1], masks[t]
+        matches = link_by_iou(prev, curr, iou_threshold=iou_threshold)
+        used_curr = set()
+        # a) assign matched labels to existing tracks
+        for L_prev, L_curr in matches:
+            tid = track_map[(t-1, L_prev)]
+            track_map[(t, L_curr)] = tid
+            used_curr.add(L_curr)
+        # b) any label in curr not matched → new track
+        for L in np.unique(curr)[1:]:
+            if L not in used_curr:
+                track_map[(t, L)] = next_track
+                next_track += 1
+
+    # 3) flatten into DataFrame
+    records = []
+    for (frame, label), tid in track_map.items():
+        records.append({'frame': frame, 'original_label': label, 'track_id': tid})
+    return pd.DataFrame(records)
+
+def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
+    # Get labels
+    labels_prev = np.unique(mask_prev)[1:]
+    labels_next = np.unique(mask_next)[1:]
+    # Precompute masks as boolean
+    bool_prev = {L: mask_prev==L for L in labels_prev}
+    bool_next = {L: mask_next==L for L in labels_next}
+    # Cost matrix = 1 - IoU
+    cost = np.ones((len(labels_prev), len(labels_next)), dtype=float)
+    for i, L1 in enumerate(labels_prev):
+        m1 = bool_prev[L1]
+        for j, L2 in enumerate(labels_next):
+            m2 = bool_next[L2]
+            inter = np.logical_and(m1, m2).sum()
+            union = np.logical_or(m1, m2).sum()
+            if union > 0:
+                cost[i, j] = 1 - inter/union
+    # Solve assignment
+    row_ind, col_ind = linear_sum_assignment(cost)
+    matches = []
+    for i, j in zip(row_ind, col_ind):
+        if cost[i,j] <= 1 - iou_threshold:
+            matches.append((labels_prev[i], labels_next[j]))
+    return matches
 
 def _find_optimal_search_range(features, initial_search_range=500, increment=10, max_attempts=49, memory=3):
     """
@@ -336,7 +417,94 @@ def _remove_objects_from_first_frame(masks, percentage=10):
             masks[0][first_frame == label] = 0
         return masks
 
-def _facilitate_trackin_with_adaptive_removal(masks, search_range=500, max_attempts=100, memory=3):
+def _track_by_iou(masks, iou_threshold=0.1):
+    """
+    Build a track table by linking masks frame→frame via IoU.
+    Returns a DataFrame with columns [frame, original_label, track_id].
+    """
+    n_frames = masks.shape[0]
+    # 1) initialize: every label in frame 0 starts its own track
+    labels0 = np.unique(masks[0])[1:]
+    next_track = 1
+    track_map = {}  # (frame,label) -> track_id
+    for L in labels0:
+        track_map[(0, L)] = next_track
+        next_track += 1
+
+    # 2) iterate through frames
+    for t in range(1, n_frames):
+        prev, curr = masks[t-1], masks[t]
+        matches = link_by_iou(prev, curr, iou_threshold=iou_threshold)
+        used_curr = set()
+        # a) assign matched labels to existing tracks
+        for L_prev, L_curr in matches:
+            tid = track_map[(t-1, L_prev)]
+            track_map[(t, L_curr)] = tid
+            used_curr.add(L_curr)
+        # b) any label in curr not matched → new track
+        for L in np.unique(curr)[1:]:
+            if L not in used_curr:
+                track_map[(t, L)] = next_track
+                next_track += 1
+
+    # 3) flatten into DataFrame
+    records = []
+    for (frame, label), tid in track_map.items():
+        records.append({'frame': frame, 'original_label': label, 'track_id': tid})
+    return pd.DataFrame(records)
+
+
+def _facilitate_trackin_with_adaptive_removal(masks, search_range=None, max_attempts=5, memory=3, min_mass=50, track_by_iou=False):
+    """
+    Facilitates object tracking with deterministic initial filtering and
+    trackpy’s constant-velocity prediction.
+
+    Args:
+        masks (np.ndarray): integer‐labeled masks (frames × H × W).
+        search_range (int|None): max displacement; if None, auto‐computed.
+        max_attempts (int): how many times to retry with smaller search_range.
+        memory (int): trackpy memory parameter.
+        min_mass (float): drop any object in frame 0 with area < min_mass.
+
+    Returns:
+        masks, features_df, tracks_df
+
+    Raises:
+        RuntimeError if linking fails after max_attempts.
+    """
+    # 1) initial features & filter frame 0 by area
+    features = _prepare_for_tracking(masks)
+    f0 = features[features['frame'] == 0]
+    valid = f0.loc[f0['mass'] >= min_mass, 'original_label'].unique()
+    masks[0] = np.where(np.isin(masks[0], valid), masks[0], 0)
+
+    # 2) recompute features on filtered masks
+    features = _prepare_for_tracking(masks)
+
+    # 3) default search_range = 2×sqrt(99th‑pct area)
+    if search_range is None:
+        a99 = f0['mass'].quantile(0.99)
+        search_range = max(1, int(2 * np.sqrt(a99)))
+
+    # 4) attempt linking, shrinking search_range on failure
+    for attempt in range(1, max_attempts + 1):
+        try:
+            if track_by_iou:
+                tracks_df = _track_by_iou(masks, iou_threshold=0.1)
+            else:
+                tracks_df = tp.link_df(features,search_range=search_range, memory=memory, predict=True)
+                print(f"Linked on attempt {attempt} with search_range={search_range}")
+            return masks, features, tracks_df
+
+        except Exception as e:
+            search_range = max(1, int(search_range * 0.8))
+            print(f"Attempt {attempt} failed ({e}); reducing search_range to {search_range}")
+
+    raise RuntimeError(
+        f"Failed to track after {max_attempts} attempts; last search_range={search_range}"
+    )
+
+def _facilitate_trackin_with_adaptive_removal_v1(masks, search_range=500, max_attempts=100, memory=3):
     """
     Facilitates object tracking with adaptive removal.
 
