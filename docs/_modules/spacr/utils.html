@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.utils &mdash; spacr 0.4.60 documentation</title>
+  <title>spacr.utils &mdash; spacr 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
 
   
-      <script src="../../_static/documentation_options.js?v=063a25df"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -770,7 +770,7 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">8</span>
 
-<span class="k">def</span> <span class="nf">_extract_filename_metadata</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">regular_expression</span><span class="p">,</span> <span class="n">metadata_type</span><span class="o">=</span><span class="s1">&#39;cellvoyager&#39;</span><span class="p">,</span> <span class="n">pick_slice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_mode</span><span class="o">=</span><span class="s1">&#39;01&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_extract_filename_metadata</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">regular_expression</span><span class="p">,</span> <span class="n">metadata_type</span><span class="o">=</span><span class="s1">&#39;cellvoyager&#39;</span><span class="p">):</span>
     
     <span class="n">images_by_key</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
@@ -784,33 +784,38 @@
                     <span class="n">plate</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
 
                 <span class="n">well</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;wellID&#39;</span><span class="p">)</span>
-                <span class="n">field</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;fieldID&#39;</span><span class="p">)</span>
-                <span class="n">channel</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;chanID&#39;</span><span class="p">)</span>
-                <span class="n">mode</span> <span class="o">=</span> <span class="kc">None</span>
-
                 <span class="k">if</span> <span class="n">well</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
                     <span class="n">well</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_safe_int_convert</span><span class="p">(</span><span class="n">well</span><span class="p">))</span>
+                
+                <span class="n">field</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;fieldID&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">field</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
                     <span class="n">field</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_safe_int_convert</span><span class="p">(</span><span class="n">field</span><span class="p">))</span>
+                    
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;chanID&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
                     <span class="n">channel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_safe_int_convert</span><span class="p">(</span><span class="n">channel</span><span class="p">))</span>
-
+                    
+                <span class="k">if</span> <span class="s1">&#39;timeID&#39;</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">():</span>
+                    <span class="n">timeID</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;timeID&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">timeID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="n">timeID</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_safe_int_convert</span><span class="p">(</span><span class="n">timeID</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">timeID</span> <span class="o">=</span> <span class="kc">None</span>
+                        
+                <span class="k">if</span> <span class="s1">&#39;sliceID&#39;</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">():</span>
+                    <span class="n">sliceID</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;sliceID&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sliceID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="n">sliceID</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_safe_int_convert</span><span class="p">(</span><span class="n">sliceID</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sliceID</span> <span class="o">=</span> <span class="kc">None</span>
+                    
                 <span class="k">if</span> <span class="n">metadata_type</span> <span class="o">==</span><span class="s1">&#39;cq1&#39;</span><span class="p">:</span>
                     <span class="n">orig_wellID</span> <span class="o">=</span> <span class="n">wellID</span>
                     <span class="n">wellID</span> <span class="o">=</span> <span class="n">_convert_cq1_well_id</span><span class="p">(</span><span class="n">wellID</span><span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Converted Well ID: </span><span class="si">{</span><span class="n">orig_wellID</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">wellID</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">pick_slice</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">mode</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;AID&#39;</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                        <span class="n">sliceid</span> <span class="o">=</span> <span class="s1">&#39;00&#39;</span>
-
-                    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">skip_mode</span><span class="p">:</span>
-                        <span class="k">continue</span>
-                        
-                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
-                <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>  <span class="c1"># Store the full path</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">timeID</span><span class="p">,</span> <span class="n">sliceID</span><span class="p">)</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                 <span class="n">images_by_key</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
                 
             <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
