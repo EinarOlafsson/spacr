@@ -553,7 +553,7 @@ def _get_cellpose_batch_size():
     except Exception as e:
         return 8
 
-def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager', pick_slice=False, skip_mode='01'):
+def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
     
     images_by_key = defaultdict(list)
 
@@ -567,33 +567,38 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
                     plate = os.path.basename(src)
 
                 well = match.group('wellID')
-                field = match.group('fieldID')
-                channel = match.group('chanID')
-                mode = None
-
                 if well[0].isdigit():
                     well = str(_safe_int_convert(well))
+                
+                field = match.group('fieldID')
                 if field[0].isdigit():
                     field = str(_safe_int_convert(field))
+                    
+                channel = match.group('chanID')
                 if channel[0].isdigit():
                     channel = str(_safe_int_convert(channel))
-
+                    
+                if 'timeID' in match.groupdict():
+                    timeID = match.group('timeID')
+                    if timeID[0].isdigit():
+                        timeID = str(_safe_int_convert(timeID))
+                else:
+                    timeID = None
+                        
+                if 'sliceID' in match.groupdict():
+                    sliceID = match.group('sliceID')
+                    if sliceID[0].isdigit():
+                        sliceID = str(_safe_int_convert(sliceID))
+                else:
+                    sliceID = None
+                    
                 if metadata_type =='cq1':
                     orig_wellID = wellID
                     wellID = _convert_cq1_well_id(wellID)
                     print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
 
-                if pick_slice:
-                    try:
-                        mode = match.group('AID')
-                    except IndexError:
-                        sliceid = '00'
-
-                    if mode == skip_mode:
-                        continue
-                        
-                key = (plate, well, field, channel, mode)
-                file_path = os.path.join(src, filename)  # Store the full path
+                key = (plate, well, field, channel, timeID, sliceID)
+                file_path = os.path.join(src, filename)
                 images_by_key[key].append(file_path)
                 
             except IndexError:

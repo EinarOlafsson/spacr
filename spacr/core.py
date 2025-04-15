@@ -167,7 +167,6 @@ def preprocess_generate_masks(settings):
                 
                 if settings['plot']:
                     if not settings['timelapse']:
-
                         if settings['test_mode'] == True:
                             settings['examples_to_plot'] = len(os.path.join(src,'merged'))
 
