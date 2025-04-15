@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime, traceback
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -24,6 +24,7 @@ from nd2reader import ND2Reader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 import readlif
+from pylibCZIrw import czi as pyczi
 
 def process_non_tif_non_2D_images(folder):
     """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
@@ -652,7 +653,7 @@ def load_images_from_paths(images_by_key):
     return images_dict
 
 #@log_function_call 
-def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=False, skip_mode='01', metadata_type='', img_format='.tif'):
+def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False):
     """
     Convert z-stack images to maximum intensity projection (MIP) images.
 
@@ -660,8 +661,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
         batch_size (int, optional): The number of images to process in each batch. Defaults to 100.
-        pick_slice (bool, optional): Whether to pick a specific slice based on the provided skip mode. Defaults to False.
-        skip_mode (str, optional): The skip mode used to filter out specific slices. Defaults to '01'.
         metadata_type (str, optional): The type of metadata associated with the images. Defaults to ''.
 
     Returns:
@@ -681,7 +680,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
         print(f'All files: {len(all_filenames)} in {src}')
         all_filenames = [f for f in all_filenames if not f.startswith('.')] #Exclude hidden files
         time_ls = []
-        image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type, pick_slice, skip_mode)
+        image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type)
         # Convert dictionary keys to a list for batching
         batching_keys = list(image_paths_by_key.keys())
         print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
@@ -692,47 +691,34 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, pick_slice=Fals
             batch_keys = batching_keys[idx:idx+batch_size]
             batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
             images_by_key = load_images_from_paths(batch_images_by_key)
-
-            if pick_slice:
-                for i, key in enumerate(images_by_key):
-                    plate, well, field, channel, mode = key
-                    max_intensity_slice = max(images_by_key[key], key=lambda x: np.percentile(x, 90))
-                    mip_image = Image.fromarray(max_intensity_slice)
-                    output_dir = os.path.join(src, channel)
-                    os.makedirs(output_dir, exist_ok=True)
+            
+            # Process each batch of images
+            for i, (key, images) in enumerate(images_by_key.items()):
+                
+                plate, well, field, channel, timeID, sliceID = key
+                
+                if timelapse:
                     output_filename = f'{plate}_{well}_{field}.tif'
-                    output_path = os.path.join(output_dir, output_filename)
-                    files_processed += 1
-                    stop = time.time()
-                    duration = stop - start
-                    time_ls.append(duration)
-                    files_to_process = len(all_filenames)
-                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
+                else:
+                    output_filename = f'{plate}_{well}_{field}_{timeID}.tif'
+                    
+                output_dir = os.path.join(src, channel)
+                os.makedirs(output_dir, exist_ok=True)
+                output_path = os.path.join(output_dir, output_filename)
+                mip = np.max(np.stack(images), axis=0)
+                mip_image = Image.fromarray(mip)
+               
+                files_processed += 1
+                stop = time.time()
+                duration = stop - start
+                time_ls.append(duration)
+                files_to_process = len(all_filenames)
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
-                    if not os.path.exists(output_path):
-                        mip_image.save(output_path)
-                    else:
-                        print(f'WARNING: A file with the same name already exists at location {output_filename}')
-            else:
-                for i, (key, images) in enumerate(images_by_key.items()):
-                    plate, well, field, channel = key[:4]
-                    output_dir = os.path.join(src, channel)
-                    mip = np.max(np.stack(images), axis=0)
-                    mip_image = Image.fromarray(mip)
-                    os.makedirs(output_dir, exist_ok=True)
-                    output_filename = f'{plate}_{well}_{field}.tif'
-                    output_path = os.path.join(output_dir, output_filename)
-                    files_processed += 1
-                    stop = time.time()
-                    duration = stop - start
-                    time_ls.append(duration)
-                    files_to_process = len(all_filenames)
-                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
-
-                    if not os.path.exists(output_path):
-                        mip_image.save(output_path)
-                    else:
-                        print(f'WARNING: A file with the same name already exists at location {output_filename}')
+                if not os.path.exists(output_path):
+                    mip_image.save(output_path)
+                else:
+                    print(f'WARNING: A file with the same name already exists at location {output_filename}')
 
             images_by_key.clear()
 
@@ -1576,8 +1562,6 @@ def preprocess_img_data(settings):
         save_dtype (type, optional): The data type used for saving the preprocessed images. Defaults to np.float32.
         randomize (bool, optional): Whether to randomize the order of the images. Defaults to True.
         all_to_mip (bool, optional): Whether to convert all images to MIP. Defaults to False.
-        pick_slice (bool, optional): Whether to pick a specific slice based on the provided skip mode. Defaults to False.
-        skip_mode (str, optional): The skip mode used to filter out specific slices. Defaults to '01'.
         settings (dict, optional): Additional settings for preprocessing. Defaults to {}.
 
     Returns:
@@ -1585,21 +1569,27 @@ def preprocess_img_data(settings):
     """
     
     src = settings['src']
-    valid_ext = ['tif', 'tiff', 'png', 'jpeg']
-    files = os.listdir(src)
-    extensions = [file.split('.')[-1] for file in files]
-    extension_counts = Counter(extensions)
-    most_common_extension = extension_counts.most_common(1)[0][0]
-    img_format = None
-    
     delete_empty_subdirectories(src)
+    files = os.listdir(src)
+    
+    valid_ext = ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'nd2', 'czi', 'lif']
+    extensions = [file.split('.')[-1].lower() for file in files]
+    # Filter only valid extensions
+    valid_extensions = [ext for ext in extensions if ext in valid_ext]
 
-    # Check if the most common extension is one of the specified image formats
-    if most_common_extension in valid_ext:
-        img_format = f'.{most_common_extension}'
-        print(f'Found {extension_counts[most_common_extension]} {most_common_extension} files')
+    # Determine most common valid extension
+    img_format = None
+    if valid_extensions:
+        extension_counts = Counter(valid_extensions)
+        most_common_extension = Counter(valid_extensions).most_common(1)[0][0]
+        img_format = most_common_extension
+    
+        print(f"Found {extension_counts[most_common_extension]} {most_common_extension} files")
+    
     else:
-        print(f'Could not find any {valid_ext} files in {src} only found {extension_counts[0]}')
+        print(f"Could not find any {valid_ext} files in {src} only found {extension_counts[0]}")
+        print(f"{files} in {src}")
+        print(f"Please check the folder and try again")
         
         if os.path.exists(os.path.join(src,'stack')):
             print('Found existing stack folder.')
@@ -1610,15 +1600,14 @@ def preprocess_img_data(settings):
             return settings, src
         
     mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
-    backgrounds = [settings['nucleus_background'], settings['cell_background'], settings['pathogen_background']]
-    
-    settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test = set_default_settings_preprocess_img_data(settings)
-    
-    regex = _get_regex(metadata_type, img_format, custom_regex)
-    
-    if test_mode:
 
-        print(f'Running spacr in test mode')
+    settings = set_default_settings_preprocess_img_data(settings)
+
+    regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
+    
+    if settings['test_mode']:
+
+        print(f"Running spacr in test mode")
         settings['plot'] = True
         try:
             os.rmdir(os.path.join(src, 'test'))
@@ -1628,7 +1617,7 @@ def preprocess_img_data(settings):
             print(f"Delete manually before running test mode")
             pass
 
-        src = _run_test_mode(settings['src'], regex, timelapse, test_images, random_test)
+        src = _run_test_mode(settings['src'], regex, settings['timelapse'], settings['test_images'], settings['random_test'])
         settings['src'] = src
     
     stack_path = os.path.join(src, 'stack')
@@ -1639,26 +1628,23 @@ def preprocess_img_data(settings):
     if not os.path.exists(stack_path):
         try:
             if not img_format == None:
-                if timelapse:
-                    _move_to_chan_folder(src, regex, timelapse, metadata_type)
-                else:
-                    img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
-                    _rename_and_organize_image_files(src, regex, batch_size, pick_slice, skip_mode, metadata_type, img_format)
-                    
-                    #Make sure no batches will be of only one image
-                    all_imgs = len(stack_path)
-                    full_batches = all_imgs // batch_size
-                    last_batch_size = all_imgs % batch_size
-                    
-                    # Check if the last batch is of size 1
-                    if last_batch_size == 1:
-                        # If there's only one batch and its size is 1, it's also an issue
-                        if full_batches == 0:
-                            raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
-                        # If the last batch is of size 1, merge it with the second last batch
-                        elif full_batches > 0:
-                            print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
-                            raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
+                img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
+                _rename_and_organize_image_files(src, regex, settings['batch_size'], settings['metadata_type'], img_format)
+                
+                #Make sure no batches will be of only one image
+                all_imgs = len(stack_path)
+                full_batches = all_imgs // settings['batch_size']
+                last_batch_size = all_imgs % settings['batch_size']
+                
+                # Check if the last batch is of size 1
+                if last_batch_size == 1:
+                    # If there's only one batch and its size is 1, it's also an issue
+                    if full_batches == 0:
+                        raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
+                    # If the last batch is of size 1, merge it with the second last batch
+                    elif full_batches > 0:
+                        print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
+                        raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
         
                 nr_channel_folders = _merge_channels(src, plot=False)
                 
@@ -1668,18 +1654,19 @@ def preprocess_img_data(settings):
                     print(f"Changing channels from {settings['channels']} to {new_channels}")
                     settings['channels'] = new_channels
 
-                if timelapse:
-                    _create_movies_from_npy_per_channel(stack_path, fps=2)
+                if settings['timelapse']:
+                    _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
 
-                if plot:
-                    print(f'plotting {nr} images from {src}/stack')
-                    plot_arrays(stack_path, figuresize, cmap, nr=nr, normalize=normalize)
+                if settings['plot']:
+                    print(f"plotting {settings['nr']} images from {src}/stack")
+                    plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
 
-                if all_to_mip:
+                if settings['all_to_mip']:
                     _mip_all(stack_path)
-                    if plot:
-                        print(f'plotting {nr} images from {src}/stack')
-                        plot_arrays(stack_path, figuresize, cmap, nr=nr, normalize=normalize)
+                    if settings['plot']:
+                        print(f"plotting {settings['nr']} images from {src}/stack")
+                        plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
+        
         except Exception as e:
             print(f"Error: {e}")
     
@@ -1687,9 +1674,6 @@ def preprocess_img_data(settings):
                               channels=mask_channels,
                               save_dtype=np.float32,
                               settings=settings)
-
-    #if plot:
-    #    _plot_4D_arrays(src+'/norm_channel_stack', nr_npz=1, nr=nr)
 
     return settings, src
     
@@ -3213,28 +3197,13 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
-    
+
 def convert_to_yokogawa(folder):
     """
     Detects file type in the folder and converts them
     to Yokogawa-style naming with Maximum Intensity Projection (MIP).
     """
-    
-    #def _get_next_well(used_wells):
-    #    """
-    #    Determines the next available well position in a 384-well format.
-    #    Iterates wells, and after P24, switches to plate2.
-    #    """
-    #    plate = 1
-    #    for well in WELLS:
-    #        well_name = f"plate{plate}_{well}"
-    #        if well_name not in used_wells:
-    #            used_wells.add(well_name)
-    #            return well_name
-    #        if well == "P24":  
-    #            plate += 1  
-    #    raise ValueError("All wells exhausted.")
-    
+       
     def _get_next_well(used_wells):
         """
         Determines the next available well position across multiple 384-well plates.
@@ -3302,75 +3271,92 @@ def convert_to_yokogawa(folder):
                                 filepath = os.path.join(folder, filename)
 
                                 tifffile.imwrite(filepath, mip_image.astype(dtype))
-                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
+                                rename_log.append({"Original File": file, 
+                                                   "Renamed TIFF": filename,
+                                                   "ext": ext,
+                                                   "time": t_idx,
+                                                   "field": f_idx,
+                                                   "channel": channel,
+                                                   "z": z_levels})
 
                             except IndexError:
                                 print(f"Warning: ND2 file {file} has an incomplete data structure. Skipping.")
 
             except Exception as e:
                 print(f"Error processing ND2 file {file}: {e}")
-
-        ### **Process Zeiss CZI Files**
+        
         elif ext == 'czi':
-            with czifile.CziFile(path) as czi:
-                img_data = czi.asarray()  # Read the full image array
+            try:
+                # Open the CZI in streaming mode
+                with pyczi.open_czi(path) as czidoc:
 
-                # Remove singleton dimensions (if any)
-                img_data = np.squeeze(img_data)
+                    # 1) Global dimension ranges
+                    bbox    = czidoc.total_bounding_box
+                    _, tlen = bbox.get('T', (0,1))
+                    _, clen = bbox.get('C', (0,1))
+                    _, zlen = bbox.get('Z', (0,1))
 
-                # Get the actual shape of the data
-                shape = img_data.shape
-                num_dims = len(shape)
+                    # 2) Scene → list of scene indices
+                    scenes_bb = czidoc.scenes_bounding_rectangle
+                    scenes    = sorted(scenes_bb.keys()) if scenes_bb else [None]
 
-                # Default values if dimensions are missing
-                timepoints = 1
-                z_levels = 1
-                channels = 1
+                    # 3) Output folder (same as .czi)
+                    folder = os.path.dirname(path)
 
-                # Determine dimension mapping dynamically
-                if num_dims == 2:  # (Y, X) → Single 2D image
-                    y_dim, x_dim = shape
-                    img_data = img_data.reshape(1, 1, 1, y_dim, x_dim)  # Add missing dimensions
-                elif num_dims == 3:  # (C, Y, X) or (Z, Y, X)
-                    if shape[0] <= 4:  # Likely (C, Y, X)
-                        channels, y_dim, x_dim = shape
-                        img_data = img_data.reshape(1, 1, channels, y_dim, x_dim)  # Add missing dimensions
-                    else:  # Likely (Z, Y, X)
-                        z_levels, y_dim, x_dim = shape
-                        img_data = img_data.reshape(1, z_levels, 1, y_dim, x_dim)  # Add missing dimensions
-                elif num_dims == 4:  # Could be (T, C, Y, X) or (T, Z, Y, X) or (Z, C, Y, X)
-                    if shape[1] <= 4:  # Assume (T, C, Y, X)
-                        timepoints, channels, y_dim, x_dim = shape
-                        img_data = img_data.reshape(timepoints, 1, channels, y_dim, x_dim)  # Add missing Z
-                    else:  # Assume (T, Z, Y, X) or (Z, C, Y, X)
-                        timepoints, z_levels, y_dim, x_dim = shape
-                        img_data = img_data.reshape(timepoints, z_levels, 1, y_dim, x_dim)  # Add missing C
-                elif num_dims == 5:  # Standard (T, Z, C, Y, X)
-                    timepoints, z_levels, channels, y_dim, x_dim = shape
-                else:
-                    raise ValueError(f"Unexpected CZI shape: {shape}. Unable to process.")
+                    # 4) Loop scene × time × channel × Z
+                    for scene in scenes:
+                        # *** assign a unique well for this scene ***
+                        scene_well = _get_next_well(used_wells)
 
-                # Iterate over detected timepoints, channels, and perform MIP over Z
-                for t_idx in range(timepoints):
-                    for c_idx in range(channels):
-                        # Extract Z-stack or single image
-                        if z_levels > 1:
-                            z_stack = img_data[t_idx, :, c_idx, :, :]  # MIP over Z
-                            mip_image = np.max(z_stack, axis=0)
-                        else:
-                            mip_image = img_data[t_idx, 0, c_idx, :, :]  # No Z, take directly
+                        # Field index = scene+1 (or 1 if no scene)
+                        F_idx = scene + 1 if scene is not None else 1
+                        # Scene index for “A”
+                        A_idx = scene + 1 if scene is not None else 1
 
-                        # Ensure correct dtype
-                        dtype = mip_image.dtype
+                        for t in range(tlen):
+                            for c in range(clen):
+                                for z in range(zlen):
+                                    # Read exactly one 2D plane
+                                    arr = czidoc.read(
+                                        plane={'T': t, 'C': c, 'Z': z},
+                                        scene=scene
+                                    )
+                                    plane = np.squeeze(arr)
 
-                        # Generate Yokogawa-style filename
-                        filename = f"{well}_T{t_idx+1:04d}F001L01C{c_idx+1:02d}.tif"
-                        filepath = os.path.join(folder, filename)
+                                    # Build Yokogawa‐style filename:
+                                    fn = (
+                                        f"{scene_well}_"
+                                        f"T{t+1:04d}"
+                                        f"F{F_idx:03d}"
+                                        f"L01"
+                                        f"A{A_idx:02d}"
+                                        f"Z{z+1:02d}"
+                                        f"C{c+1:02d}.tif"
+                                    )
+                                    outpath = os.path.join(folder, fn)
 
-                        # Save the extracted image
-                        tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                    # Write with lossless compression
+                                    tifffile.imwrite(
+                                        outpath,
+                                        plane.astype(plane.dtype),
+                                        compression='zlib'
+                                    )
 
-                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
+                                    # Log it
+                                    rename_log.append({
+                                        "Original File": file,
+                                        "Renamed TIFF": fn,
+                                        "ext": ext,
+                                        "scene": scene,
+                                        "time": t,
+                                        "slice": z,
+                                        "field": F_idx,
+                                        "channel": c,
+                                        "well": scene_well
+                                    })
+
+            except Exception as e:
+                print(f"Error processing CZI file {file}: {e}")
 
         ### **Process Leica LIF Files**
         elif ext == 'lif':
@@ -3449,7 +3435,6 @@ def convert_to_yokogawa(folder):
 
             except Exception as e:
                 print(f"Error processing standard image file {file}: {e}")
-
 
     # Save rename log as CSV
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)

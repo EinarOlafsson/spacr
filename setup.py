@@ -37,6 +37,8 @@ dependencies = [
     'tifffile>=2023.4.12',
     'nd2reader>=3.3.0, <4.0',
     'czifile',
+    'pylibCZIrw>=5.0.0,<6.0',
+    'aicspylibczi',
     'readlif',
     'imageio>=2.34.0,<3.0',
     'pingouin>=0.5.5,<1.0',
@@ -69,7 +71,7 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "0.4.60"
+VERSION = "0.5.0"
 
 setup(
     name="spacr",
