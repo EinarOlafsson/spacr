@@ -15,6 +15,8 @@ Module Contents
 
 .. py:function:: set_default_settings_preprocess_generate_masks(settings={})
 
+.. py:function:: set_default_settings_preprocess_img_data_v1(settings)
+
 .. py:function:: set_default_settings_preprocess_img_data(settings)
 
 .. py:function:: set_default_umap_image_settings(settings={})

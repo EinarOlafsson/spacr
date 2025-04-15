@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.timelapse &mdash; spacr 0.4.60 documentation</title>
+  <title>spacr.timelapse &mdash; spacr 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
 
   
-      <script src="../../_static/documentation_options.js?v=063a25df"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -185,9 +185,9 @@
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">ipyimage</span>
 <span class="kn">import</span> <span class="nn">trackpy</span> <span class="k">as</span> <span class="nn">tp</span>
 <span class="kn">from</span> <span class="nn">btrack</span> <span class="kn">import</span> <span class="n">datasets</span> <span class="k">as</span> <span class="n">btrack_datasets</span>
-<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="kn">import</span> <span class="n">regionprops</span>
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="kn">import</span> <span class="n">regionprops</span><span class="p">,</span> <span class="n">regionprops_table</span>
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span><span class="p">,</span> <span class="n">linear_sum_assignment</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">trapz</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
@@ -433,7 +433,7 @@
 
     <span class="k">return</span> <span class="n">relabeled_masks</span>
 
-<span class="k">def</span> <span class="nf">_prepare_for_tracking</span><span class="p">(</span><span class="n">mask_array</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_prepare_for_tracking_v1</span><span class="p">(</span><span class="n">mask_array</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prepare the mask array for object tracking.</span>
 
@@ -463,6 +463,90 @@
                 <span class="s1">&#39;original_label&#39;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">label</span>  <span class="c1"># Capture the original label</span>
             <span class="p">})</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_prepare_for_tracking</span><span class="p">(</span><span class="n">mask_array</span><span class="p">):</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_array</span><span class="p">):</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">regionprops_table</span><span class="p">(</span>
+            <span class="n">frame</span><span class="p">,</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;centroid-0&#39;</span><span class="p">,</span> <span class="s1">&#39;centroid-1&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;bbox-0&#39;</span><span class="p">,</span> <span class="s1">&#39;bbox-1&#39;</span><span class="p">,</span> <span class="s1">&#39;bbox-2&#39;</span><span class="p">,</span> <span class="s1">&#39;bbox-3&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;eccentricity&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;centroid-0&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;centroid-1&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="s1">&#39;mass&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;original_label&#39;</span>
+        <span class="p">})</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;frame&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span><span class="s1">&#39;original_label&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;bbox-0&#39;</span><span class="p">,</span><span class="s1">&#39;bbox-1&#39;</span><span class="p">,</span><span class="s1">&#39;bbox-2&#39;</span><span class="p">,</span><span class="s1">&#39;bbox-3&#39;</span><span class="p">,</span><span class="s1">&#39;eccentricity&#39;</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_track_by_iou</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a track table by linking masks frame→frame via IoU.</span>
+<span class="sd">    Returns a DataFrame with columns [frame, original_label, track_id].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># 1) initialize: every label in frame 0 starts its own track</span>
+    <span class="n">labels0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">next_track</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">track_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># (frame,label) -&gt; track_id</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels0</span><span class="p">:</span>
+        <span class="n">track_map</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+        <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 2) iterate through frames</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">):</span>
+        <span class="n">prev</span><span class="p">,</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">link_by_iou</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">curr</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="n">iou_threshold</span><span class="p">)</span>
+        <span class="n">used_curr</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># a) assign matched labels to existing tracks</span>
+        <span class="k">for</span> <span class="n">L_prev</span><span class="p">,</span> <span class="n">L_curr</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">tid</span> <span class="o">=</span> <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">L_prev</span><span class="p">)]</span>
+            <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L_curr</span><span class="p">)]</span> <span class="o">=</span> <span class="n">tid</span>
+            <span class="n">used_curr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">L_curr</span><span class="p">)</span>
+        <span class="c1"># b) any label in curr not matched → new track</span>
+        <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">curr</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">L</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_curr</span><span class="p">:</span>
+                <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+                <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 3) flatten into DataFrame</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">track_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">frame</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;track_id&#39;</span><span class="p">:</span> <span class="n">tid</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+
+<div class="viewcode-block" id="link_by_iou">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.link_by_iou">[docs]</a>
+<span class="k">def</span> <span class="nf">link_by_iou</span><span class="p">(</span><span class="n">mask_prev</span><span class="p">,</span> <span class="n">mask_next</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="c1"># Get labels</span>
+    <span class="n">labels_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask_prev</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">labels_next</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask_next</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c1"># Precompute masks as boolean</span>
+    <span class="n">bool_prev</span> <span class="o">=</span> <span class="p">{</span><span class="n">L</span><span class="p">:</span> <span class="n">mask_prev</span><span class="o">==</span><span class="n">L</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels_prev</span><span class="p">}</span>
+    <span class="n">bool_next</span> <span class="o">=</span> <span class="p">{</span><span class="n">L</span><span class="p">:</span> <span class="n">mask_next</span><span class="o">==</span><span class="n">L</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels_next</span><span class="p">}</span>
+    <span class="c1"># Cost matrix = 1 - IoU</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">labels_prev</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels_next</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">L1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels_prev</span><span class="p">):</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">bool_prev</span><span class="p">[</span><span class="n">L1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">L2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels_next</span><span class="p">):</span>
+            <span class="n">m2</span> <span class="o">=</span> <span class="n">bool_next</span><span class="p">[</span><span class="n">L2</span><span class="p">]</span>
+            <span class="n">inter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">union</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">union</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">inter</span><span class="o">/</span><span class="n">union</span>
+    <span class="c1"># Solve assignment</span>
+    <span class="n">row_ind</span><span class="p">,</span> <span class="n">col_ind</span> <span class="o">=</span> <span class="n">linear_sum_assignment</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row_ind</span><span class="p">,</span> <span class="n">col_ind</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">iou_threshold</span><span class="p">:</span>
+            <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">labels_prev</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">labels_next</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">matches</span></div>
+
 
 <span class="k">def</span> <span class="nf">_find_optimal_search_range</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">initial_search_range</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">49</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -514,7 +598,94 @@
             <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">first_frame</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">masks</span>
 
-<span class="k">def</span> <span class="nf">_facilitate_trackin_with_adaptive_removal</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">search_range</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_track_by_iou</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a track table by linking masks frame→frame via IoU.</span>
+<span class="sd">    Returns a DataFrame with columns [frame, original_label, track_id].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># 1) initialize: every label in frame 0 starts its own track</span>
+    <span class="n">labels0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">next_track</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">track_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># (frame,label) -&gt; track_id</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels0</span><span class="p">:</span>
+        <span class="n">track_map</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+        <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 2) iterate through frames</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">):</span>
+        <span class="n">prev</span><span class="p">,</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">link_by_iou</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">curr</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="n">iou_threshold</span><span class="p">)</span>
+        <span class="n">used_curr</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># a) assign matched labels to existing tracks</span>
+        <span class="k">for</span> <span class="n">L_prev</span><span class="p">,</span> <span class="n">L_curr</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">tid</span> <span class="o">=</span> <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">L_prev</span><span class="p">)]</span>
+            <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L_curr</span><span class="p">)]</span> <span class="o">=</span> <span class="n">tid</span>
+            <span class="n">used_curr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">L_curr</span><span class="p">)</span>
+        <span class="c1"># b) any label in curr not matched → new track</span>
+        <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">curr</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">L</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_curr</span><span class="p">:</span>
+                <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+                <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 3) flatten into DataFrame</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">track_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">frame</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;track_id&#39;</span><span class="p">:</span> <span class="n">tid</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_facilitate_trackin_with_adaptive_removal</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">search_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_mass</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">track_by_iou</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Facilitates object tracking with deterministic initial filtering and</span>
+<span class="sd">    trackpy’s constant-velocity prediction.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        masks (np.ndarray): integer‐labeled masks (frames × H × W).</span>
+<span class="sd">        search_range (int|None): max displacement; if None, auto‐computed.</span>
+<span class="sd">        max_attempts (int): how many times to retry with smaller search_range.</span>
+<span class="sd">        memory (int): trackpy memory parameter.</span>
+<span class="sd">        min_mass (float): drop any object in frame 0 with area &lt; min_mass.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        masks, features_df, tracks_df</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError if linking fails after max_attempts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1) initial features &amp; filter frame 0 by area</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">_prepare_for_tracking</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+    <span class="n">f0</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">f0</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">f0</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_mass</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">valid</span><span class="p">),</span> <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># 2) recompute features on filtered masks</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">_prepare_for_tracking</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+
+    <span class="c1"># 3) default search_range = 2×sqrt(99th‑pct area)</span>
+    <span class="k">if</span> <span class="n">search_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">a99</span> <span class="o">=</span> <span class="n">f0</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>
+        <span class="n">search_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a99</span><span class="p">)))</span>
+
+    <span class="c1"># 4) attempt linking, shrinking search_range on failure</span>
+    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_attempts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">track_by_iou</span><span class="p">:</span>
+                <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">_track_by_iou</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">link_df</span><span class="p">(</span><span class="n">features</span><span class="p">,</span><span class="n">search_range</span><span class="o">=</span><span class="n">search_range</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span> <span class="n">predict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Linked on attempt </span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> with search_range=</span><span class="si">{</span><span class="n">search_range</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">masks</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">tracks_df</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">search_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">search_range</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt </span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> failed (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">); reducing search_range to </span><span class="si">{</span><span class="n">search_range</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Failed to track after </span><span class="si">{</span><span class="n">max_attempts</span><span class="si">}</span><span class="s2"> attempts; last search_range=</span><span class="si">{</span><span class="n">search_range</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_facilitate_trackin_with_adaptive_removal_v1</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">search_range</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Facilitates object tracking with adaptive removal.</span>
 
