@@ -95,14 +95,12 @@ def set_default_settings_preprocess_generate_masks(settings={}):
 
     # Misc settings
     settings.setdefault('all_to_mip', False)
-    settings.setdefault('pick_slice', False)
-    settings.setdefault('skip_mode', '01')
     settings.setdefault('upscale', False)
     settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
     return settings
 
-def set_default_settings_preprocess_img_data(settings):
+def set_default_settings_preprocess_img_data_v1(settings):
 
     metadata_type = settings.setdefault('metadata_type', 'cellvoyager')
     custom_regex = settings.setdefault('custom_regex', None)
@@ -126,6 +124,27 @@ def set_default_settings_preprocess_img_data(settings):
     random_test = settings.setdefault('random_test', True)
 
     return settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test
+
+def set_default_settings_preprocess_img_data(settings):
+
+    settings.setdefault('metadata_type', 'cellvoyager')
+    settings.setdefault('custom_regex', None)
+    settings.setdefault('nr', 1)
+    settings.setdefault('plot', True)
+    settings.setdefault('batch_size', 50)
+    settings.setdefault('timelapse', False)
+    settings.setdefault('lower_percentile', 2)
+    settings.setdefault('randomize', True)
+    settings.setdefault('all_to_mip', False)
+    settings.setdefault('cmap', 'inferno')
+    settings.setdefault('figuresize', 10)
+    settings.setdefault('normalize', True)
+    settings.setdefault('save_dtype', 'uint16')
+    settings.setdefault('test_mode', False)
+    settings.setdefault('test_images', 10)
+    settings.setdefault('random_test', True)
+    settings.setdefault('fps', 2)
+    return settings
 
 def _get_object_settings(object_type, settings):
 
@@ -278,7 +297,7 @@ def get_measure_crop_settings(settings={}):
 
     # Timelapsed settings
     settings.setdefault('timelapse', False)
-    settings.setdefault('timelapse_objects', 'cell')
+    settings.setdefault('timelapse_objects', ['cell'])
 
     # Operational settings
     settings.setdefault('plot',False)
@@ -715,7 +734,7 @@ expected_types = {
     #"timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
     "timelapse_remove_transient": bool,
     "timelapse_mode": str,
-    "timelapse_objects": list,
+    "timelapse_objects": (list, type(None)),
     "fps": int,
     "remove_background": bool,
     "lower_percentile": (int, float),
@@ -1005,7 +1024,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
-             "Beta": ["all_to_mip", "pick_slice", "skip_mode", "upscale", "upscale_factor", "consolidate"]
+             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate"]
              }
 
 
@@ -1033,7 +1052,7 @@ def check_settings(vars_dict, expected_types, q=None):
         expected_type = expected_types.get(key, str)
 
         try:
-            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "class_metadata", "crop_mode"]:
+            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode"]:
                 if value is None:
                     parsed_value = None
                 else:
@@ -1274,7 +1293,6 @@ def generate_fields(variables, scrollable_frame):
         "pc": "(str) - Positive control identifier.",
         "pc_loc": "(str) - Location of the positive control in the images.",
         "percentiles": "(list) - Percentiles to use for normalizing the images.",
-        "pick_slice": "(bool) - Whether to pick a single slice from the z-stack images. If False, the maximum intensity projection will be used.",
         "pin_memory": "(bool) - Whether to pin memory for the data loader.",
         "plate": "(str) - Plate identifier for the experiment.",
         "plate_dict": "(dict) - Dictionary of plate metadata.",
