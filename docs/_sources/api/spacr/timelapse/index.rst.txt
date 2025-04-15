@@ -9,6 +9,8 @@ spacr.timelapse
 Module Contents
 ---------------
 
+.. py:function:: link_by_iou(mask_prev, mask_next, iou_threshold=0.1)
+
 .. py:function:: exponential_decay(x, a, b, c)
 
 .. py:function:: preprocess_pathogen_data(pathogen_df)
