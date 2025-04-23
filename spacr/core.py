@@ -386,7 +386,13 @@ def generate_cellpose_masks(src, settings, object_type):
                                                          timelapse_remove_transient=timelapse_remove_transient,
                                                          radius=radius,
                                                          n_jobs=n_jobs)
-                    if timelapse_mode == 'trackpy':
+                    
+                    if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
+                        if timelapse_mode == 'iou':
+                            track_by_iou = True
+                        else:
+                            track_by_iou = False
+                        
                         mask_stack = _trackpy_track_cells(src=src,
                                                           name=name,
                                                           batch_filenames=batch_filenames,
@@ -397,7 +403,8 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           timelapse_remove_transient=timelapse_remove_transient,
                                                           plot=settings['plot'],
                                                           save=settings['save'],
-                                                          mode=timelapse_mode)
+                                                          mode=timelapse_mode,
+                                                          track_by_iou=track_by_iou)
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
             else:
