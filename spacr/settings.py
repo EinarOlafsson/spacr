@@ -100,6 +100,33 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('adjust_cells', False)
     return settings
 
+def set_default_plot_data_from_db(settings):
+    settings.setdefault('src', 'path')
+    settings.setdefault('database', 'measurements.db')
+    settings.setdefault('graph_name', 'Figure_1')
+    settings.setdefault('table_names', ['cell', 'cytoplasm', 'nucleus', 'pathogen'])
+    settings.setdefault('data_column', 'recruitment')
+    settings.setdefault('grouping_column', 'condition')
+    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_plate_metadata', None)
+    settings.setdefault('pathogen_types', None)
+    settings.setdefault('pathogen_plate_metadata', None)
+    settings.setdefault('treatments', None)
+    settings.setdefault('treatment_plate_metadata', None)
+    settings.setdefault('graph_type', 'jitter')
+    settings.setdefault('theme', 'deep')
+    settings.setdefault('save', True)
+    settings.setdefault('y_lim', [1,1.5])
+    settings.setdefault('verbose', False)
+    settings.setdefault('channel_of_interest', 1)
+    settings.setdefault('nuclei_limit', 2)
+    settings.setdefault('pathogen_limit', 3)
+    settings.setdefault('representation', 'well')
+    settings.setdefault('uninfected', False)
+    return settings
+
+
+
 def set_default_settings_preprocess_img_data_v1(settings):
 
     metadata_type = settings.setdefault('metadata_type', 'cellvoyager')
