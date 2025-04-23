@@ -3088,17 +3088,19 @@ def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mas
     return df
 
 def _get_regex(metadata_type, img_format, custom_regex=None):
+    
+    print(f"Image_format: {img_format}")
 
     if img_format == None:
-        img_format == '.tif'
+        img_format == 'tif'
     if metadata_type == 'cellvoyager':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
     elif metadata_type == 'cq1':
-        regex = f'W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*){img_format}'
+        regex = f"W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
     elif metadata_type == 'auto':
-        regex = f'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif'     
+        regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif"     
     elif metadata_type == 'custom':
-        regex = f'({custom_regex}){img_format}'
+        regex = f"({custom_regex}){img_format}"
         
     print(f'regex mode:{metadata_type} regex:{regex}')
     return regex
@@ -5107,6 +5109,39 @@ def control_filelist(folder, mode='columnID', values=['01','02']):
     return filtered_files
     
 def rename_columns_in_db(db_path):
+    # map old column names → new names
+    rename_map = {
+        'row':      'rowID',
+        'column':   'columnID',
+        'col':      'columnID',
+        'plate':    'plateID',
+        'field':    'fieldID',
+        'channel':  'chanID',
+    }
+
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+
+    # 1) get all user tables
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = [row[0] for row in cur.fetchall()]
+
+    for table in tables:
+        # 2) get column names only
+        cur.execute(f"PRAGMA table_info(`{table}`);")
+        cols = [row[1] for row in cur.fetchall()]
+
+        # 3) for each old→new, if the old exists and new does not, rename it
+        for old, new in rename_map.items():
+            if old in cols and new not in cols:
+                sql = f"ALTER TABLE `{table}` RENAME COLUMN `{old}` TO `{new}`;"
+                cur.execute(sql)
+                print(f"Renamed `{table}`.`{old}` → `{new}`")
+
+    con.commit()
+    con.close()    
+
+def rename_columns_in_db_v1(db_path):
     with sqlite3.connect(db_path) as conn:
         cursor = conn.cursor()
         

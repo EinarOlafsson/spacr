@@ -2597,7 +2597,7 @@ class spacrGraph:
             # Group by ['prc', grouping_column]
             group_cols = ['prc', self.grouping_column]
 
-        elif self.representation == 'plateID':
+        elif self.representation == 'plate':
             # Make sure 'plateID' exists (split from 'prc' if needed)
             if 'plateID' not in df.columns:
                 if 'prc' in df.columns:
@@ -3371,8 +3371,11 @@ class spacrGraph:
         return self.fig
 
 def plot_data_from_db(settings):
+    
     from .io import _read_db, _read_and_merge_data
     from .utils import annotate_conditions, save_settings
+    from .settings import set_default_plot_data_from_db
+    
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -3385,8 +3388,8 @@ def plot_data_from_db(settings):
         df (pd.DataFrame): The extracted table as a DataFrame.
     """
 
-
-
+    settings = set_default_plot_data_from_db(settings)
+    
     if isinstance(settings['src'], str):
         srcs = [settings['src']]
     elif isinstance(settings['src'], list):
@@ -3403,7 +3406,6 @@ def plot_data_from_db(settings):
 
     dfs = []
     for i, src in enumerate(srcs):
-
         db_loc = os.path.join(src, 'measurements', settings['database'][i])
         print(f"Database: {db_loc}")
         if settings['table_names'] in ['saliency_image_correlations']:
@@ -3415,7 +3417,7 @@ def plot_data_from_db(settings):
                                     verbose=settings['verbose'],
                                     nuclei_limit=settings['nuclei_limit'],
                                     pathogen_limit=settings['pathogen_limit'])
-     
+            
         dft = annotate_conditions(df1, 
                                 cells=settings['cell_types'], 
                                 cell_loc=settings['cell_plate_metadata'], 
@@ -3436,12 +3438,27 @@ def plot_data_from_db(settings):
 
     if settings['treatment_plate_metadata'] !=  None:
         df = df.dropna(subset='treatment')
-
+        
+    if settings['data_column'] == 'recruitment':
+        pahtogen_measurement = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]
+        cytoplasm_measurement = df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+        df['recruitment'] = pahtogen_measurement / cytoplasm_measurement
+        
+    if settings['data_column'] not in df.columns:
+        print(f"Data column {settings['data_column']} not found in DataFrame.")
+        print(f'Please use one of the following columns:')
+        for col in df.columns:
+            print(col)
+        display(df)
+        return None
+    
     df = df.dropna(subset=settings['data_column'])
         
     if settings['grouping_column'] not in df.columns:
         print(f"Grouping column {settings['grouping_column']} not found in DataFrame.")
-        print(f'Please use one of the following columns: {df.columns}')
+        print(f'Please use one of the following columns:')
+        for col in df.columns:
+            print(col)
         display(df)
         return None
     

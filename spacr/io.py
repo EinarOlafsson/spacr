@@ -2870,7 +2870,6 @@ def generate_training_dataset(settings):
 
         return class_paths_ls
     
-    from .io import _read_and_merge_data, _read_db
     from .utils import get_paths_from_db, annotate_conditions, save_settings
     from .settings import set_generate_training_dataset_defaults
     

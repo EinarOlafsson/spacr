@@ -286,7 +286,7 @@ def _prepare_for_tracking_v1(mask_array):
             })
     return pd.DataFrame(frames)
 
-def _prepare_for_tracking(mask_array):
+def _prepare_for_tracking_v1(mask_array):
     frames = []
     for t, frame in enumerate(mask_array):
         props = regionprops_table(
@@ -305,6 +305,24 @@ def _prepare_for_tracking(mask_array):
                           'bbox-0','bbox-1','bbox-2','bbox-3','eccentricity']])
     return pd.concat(frames, ignore_index=True)
 
+def _prepare_for_tracking(mask_array):
+    frames = []
+    for t, frame in enumerate(mask_array):
+        props = regionprops_table(
+            frame,
+            properties=('label', 'centroid', 'area', 'bbox', 'eccentricity')
+        )
+        df = pd.DataFrame(props)
+        df = df.rename(columns={
+            'centroid-0': 'y',
+            'centroid-1': 'x',
+            'area':       'mass',
+            'label':      'original_label'
+        })
+        df['frame'] = t
+        frames.append(df[['frame','y','x','mass','original_label',
+                          'bbox-0','bbox-1','bbox-2','bbox-3','eccentricity']])
+    return pd.concat(frames, ignore_index=True)
 
 def _track_by_iou(masks, iou_threshold=0.1):
     """
@@ -544,7 +562,7 @@ def _facilitate_trackin_with_adaptive_removal_v1(masks, search_range=500, max_at
     print(f"Failed to track objects after {max_attempts} attempts. Consider adjusting parameters.")
     return None, None, None
 
-def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelapse_displacement, timelapse_memory, timelapse_remove_transient, plot, save, mode):
+def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelapse_displacement, timelapse_memory, timelapse_remove_transient, plot, save, mode, track_by_iou):
         """
         Track cells using the Trackpy library.
 
@@ -577,7 +595,7 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
             if timelapse_displacement is None:
                 timelapse_displacement = 50
 
-        masks, features, tracks_df = _facilitate_trackin_with_adaptive_removal(masks, search_range=timelapse_displacement, max_attempts=100, memory=timelapse_memory)
+        masks, features, tracks_df = _facilitate_trackin_with_adaptive_removal(masks, search_range=timelapse_displacement, max_attempts=100, memory=timelapse_memory, track_by_iou=track_by_iou)
 
         tracks_df['particle'] += 1
 
