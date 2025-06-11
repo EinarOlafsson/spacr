@@ -5210,54 +5210,6 @@ def rename_columns_in_db(db_path):
 
     con.commit()
     con.close()    
-
-def rename_columns_in_db_v1(db_path):
-    with sqlite3.connect(db_path) as conn:
-        cursor = conn.cursor()
-        
-        # Retrieve all table names in the database
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = [table[0] for table in cursor.fetchall()]
-
-        for table in tables:
-            # Retrieve column names for each table
-            cursor.execute(f"PRAGMA table_info({table});")
-            columns_info = cursor.fetchall()
-            column_names = [col[1] for col in columns_info]
-
-            # Check if columns 'rowID' or 'columnID' exist
-            columns_to_rename = {}
-            if 'row' in column_names:
-                columns_to_rename['row'] = 'rowID'
-            if 'col' in column_names:
-                columns_to_rename['col'] = 'columnID'
-            
-            # Rename columns if necessary
-            if columns_to_rename:
-                # Rename existing table to a temporary name
-                temp_table = f"{table}_old"
-                cursor.execute(f"ALTER TABLE `{table}` RENAME TO `{temp_table}`")
-
-                # Define new columns with updated names
-                column_definitions = ", ".join(
-                    [f"`{columns_to_rename.get(col[1], col[1])}` {col[2]}" for col in columns_info]
-                )
-                cursor.execute(f"CREATE TABLE `{table}` ({column_definitions})")
-                
-                # Copy data to the new table
-                old_columns = ", ".join([f"`{col}`" for col in column_names])
-                new_columns = ", ".join(
-                    [f"`{columns_to_rename.get(col, col)}`" for col in column_names]
-                )
-                cursor.execute(f"INSERT INTO `{table}` ({new_columns}) SELECT {old_columns} FROM `{temp_table}`")
-                try:
-                    cursor.execute(f"DROP TABLE `{temp_table}`")
-                except sqlite3.Error as e:
-                    print(f"Error while dropping temporary table '{temp_table}': {e}")
-
-    # After closing the 'with' block, run VACUUM outside of any transaction
-    with sqlite3.connect(db_path) as conn:
-        conn.execute("VACUUM;")
         
 def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment'):
 
