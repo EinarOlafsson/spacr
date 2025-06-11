@@ -1241,103 +1241,6 @@ def _display_gif(path):
     """
     with open(path, 'rb') as file:
         display(ipyimage(file.read()))
-
-def _plot_recruitment_v2(df, df_type, channel_of_interest, columns=[], figuresize=10):
-    """
-    Plot recruitment data for different conditions and pathogens.
-
-    Args:
-        df (DataFrame): The input DataFrame containing the recruitment data.
-        df_type (str): The type of DataFrame (e.g., 'train', 'test').
-        channel_of_interest (str): The channel of interest for plotting.
-        target (str): The target variable for plotting.
-        columns (list, optional): Additional columns to plot. Defaults to an empty list.
-        figuresize (int, optional): The size of the figure. Defaults to 50.
-
-    Returns:
-        None
-    """
-
-    color_list = [(55/255, 155/255, 155/255), 
-                  (155/255, 55/255, 155/255), 
-                  (55/255, 155/255, 255/255), 
-                  (255/255, 55/255, 155/255)]
-
-    sns.set_palette(sns.color_palette(color_list))
-    font = figuresize/2
-    width=figuresize
-    height=figuresize/4
-
-    # Create the subplots
-    fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
-
-    # Plot for 'cell_channel' on axes[0]
-    plotter_cell = spacrGraph(df,grouping_column='condition', data_column=f'cell_channel_{channel_of_interest}_mean_intensity')
-    plotter_cell.create_plot(ax=axes[0])
-    axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
-
-    # Plot for 'nucleus_channel' on axes[1]
-    plotter_nucleus = spacrGraph(df,grouping_column='condition', data_column=f'nucleus_channel_{channel_of_interest}_mean_intensity')
-    plotter_nucleus.create_plot(ax=axes[1])
-    axes[1].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[1].set_ylabel(f'nucleus_channel_{channel_of_interest}_mean_intensity', fontsize=font)
-
-    # Plot for 'cytoplasm_channel' on axes[2]
-    plotter_cytoplasm = spacrGraph(df, grouping_column='condition', data_column=f'cytoplasm_channel_{channel_of_interest}_mean_intensity')
-    plotter_cytoplasm.create_plot(ax=axes[2])
-    axes[2].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[2].set_ylabel(f'cytoplasm_channel_{channel_of_interest}_mean_intensity', fontsize=font)
-
-    # Plot for 'pathogen_channel' on axes[3]
-    plotter_pathogen = spacrGraph(df, grouping_column='condition', data_column=f'pathogen_channel_{channel_of_interest}_mean_intensity')
-    plotter_pathogen.create_plot(ax=axes[3])
-    axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
-
-    #axes[0].legend_.remove()
-    #axes[1].legend_.remove()
-    #axes[2].legend_.remove()
-    #axes[3].legend_.remove()
-
-    handles, labels = axes[3].get_legend_handles_labels()
-    axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
-    for i in [0,1,2,3]:
-        axes[i].tick_params(axis='both', which='major', labelsize=font)
-        axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation=45)
-
-    plt.tight_layout()
-    plt.show()
-
-    columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
-    #columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
-
-    width = figuresize*2
-    columns_per_row = math.ceil(len(columns) / 2)
-    height = (figuresize*2)/columns_per_row
-
-    fig, axes = plt.subplots(nrows=2, ncols=columns_per_row, figsize=(width, height * 2))
-    axes = axes.flatten()
-
-    print(f'{columns}')
-    for i, col in enumerate(columns):
-        ax = axes[i]
-        plotter_col = spacrGraph(df, grouping_column='condition', data_column=col)
-        plotter_col.create_plot(ax=ax)
-        ax.set_xlabel(f'pathogen {df_type}', fontsize=font)
-        ax.set_ylabel(f'{col}', fontsize=int(font * 2))
-        #ax.legend_.remove()
-        ax.tick_params(axis='both', which='major', labelsize=font)
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-        if i <= 5:
-            ax.set_ylim(1, None)
-
-    # Turn off any unused axes
-    for i in range(len(columns), len(axes)):
-        axes[i].axis('off')
-
-    plt.tight_layout()
-    plt.show()
         
 def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=10):
     """
@@ -1843,31 +1746,6 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
     fig.tight_layout()
     plt.show()
     
-def plot_resize_v1(images, resized_images, labels, resized_labels):
-    # Display an example image and label before and after resizing
-    fig, ax = plt.subplots(2, 2, figsize=(20, 20))
-    
-    # Check if the image is grayscale; if so, add a colormap and keep dimensions correct
-    if images[0].ndim == 2:  # Grayscale image
-        ax[0, 0].imshow(images[0], cmap='gray')
-    else:  # RGB or RGBA image
-        ax[0, 0].imshow(images[0])
-    ax[0, 0].set_title('Original Image')
-
-    if resized_images[0].ndim == 2:  # Grayscale image
-        ax[0, 1].imshow(resized_images[0], cmap='gray')
-    else:  # RGB or RGBA image
-        ax[0, 1].imshow(resized_images[0])
-    ax[0, 1].set_title('Resized Image')
-
-    # Assuming labels are always grayscale (most common scenario)
-    ax[1, 0].imshow(labels[0], cmap='gray')
-    ax[1, 0].set_title('Original Label')
-    ax[1, 1].imshow(resized_labels[0], cmap='gray')
-    ax[1, 1].set_title('Resized Label')
-    plt.show()
-    
-
 def plot_resize(images, resized_images, labels, resized_labels):
     def prepare_image(img):
         if img.ndim == 2:
