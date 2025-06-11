@@ -29,7 +29,6 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('denoise', False)
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
-    settings.setdefault('segmentation_mode', 'cellpose')
     settings.setdefault('preprocess', True)
     settings.setdefault('masks', True)
     settings.setdefault('save', True)
@@ -982,7 +981,6 @@ expected_types = {
     "png_type":str,
     "custom_model_path":str,
     "generate_training_dataset":bool,
-    "segmentation_mode":str,
     "train_DL_model":bool,
     "normalize":bool,
     "overlay":bool,
@@ -1033,7 +1031,7 @@ expected_types = {
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "segmentation_mode", "delete_intermediate", "uninfected", ],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "delete_intermediate", "uninfected", ],
              "Cellpose":["denoise","fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
@@ -1244,7 +1242,7 @@ def generate_fields(variables, scrollable_frame):
         "nucleus_min_size": "(int) - The minimum size of nucleus objects in pixels^2.",
         "normalize_by": "(str) - Normalize cropped png images by png or by field of view.",
         "dependent_variable": "(str) - The dependent variable for the regression analysis.",
-        "delete_intermediate": "(bool) - Delete intermediate folders (stack, channel, norm_channel_stack).",
+        "delete_intermediate": "(bool) - Delete intermediate folders (stack, channel, masks).",
         "diameter": "(float) - Diameter of the objects to segment.",
         "dialate_png_ratios": "(list) - The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
         "dialate_pngs": "(bool) - Whether to dilate the PNG images before saving.",
@@ -1364,7 +1362,6 @@ def generate_fields(variables, scrollable_frame):
         "skip_mode": "(str) - The mode to use for skipping images. This will determine how to handle images that cannot be processed.",
         "smooth_lines": "(bool) - Whether to smooth lines in the plots.",
         "src": "(str, path) - Path to source directory.",
-        "segmentation_mode": "(str) - Algorithm to use for segmentation (cellpose or mediar).",
         "target": "(str) - Target variable for the analysis.",
         "target_height": "(int) - Target height for resizing the images.",
         "target_intensity_min": "(float) - Minimum intensity for the target objects.",
@@ -1403,7 +1400,6 @@ def generate_fields(variables, scrollable_frame):
         "dataset_mode": "str - How to generate train/test dataset.",
         "annotated_classes": "list - list of numbers in annotation column.",
         "um_per_pixel": "(float) - The micrometers per pixel for the images.",
-        "segmentation_model": "(str) - The segmentation model to use, either cellpose or mediar.",
         "pathogen_model": "(str) - use a custom cellpose model to detect pathogen objects.",
         "timelapse_displacement": "(int) - Displacement for timelapse tracking.",
         "timelapse_memory": "(int) - Memory for timelapse tracking.",
@@ -1623,4 +1619,20 @@ def set_analyze_class_proportion_defaults(settings):
     settings.setdefault('level','well')
     settings.setdefault('save',False)
     settings.setdefault('verbose', False)
+    return settings
+
+def get_plot_data_from_csv_default_settings(settings):
+    settings.setdefault('src','path')
+    settings.setdefault('data_column','choose column')
+    settings.setdefault('grouping_column','choose column')
+    settings.setdefault('graph_type','violin')
+    settings.setdefault('save',False)
+    settings.setdefault('y_lim',None)
+    settings.setdefault('log_y',False)
+    settings.setdefault('log_x',False)
+    settings.setdefault('keep_groups',None)
+    settings.setdefault('representation','well')
+    settings.setdefault('theme','dark')
+    settings.setdefault('remove_outliers',False)
+    settings.setdefault('verbose',False)
     return settings

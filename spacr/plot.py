@@ -1414,7 +1414,8 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=1
         sns.barplot(ax=ax, data=df, x='condition', y=f'{col}', hue='pathogen', capsize=.1, ci='sd', dodge=False)
         ax.set_xlabel(f'pathogen {df_type}', fontsize=font)
         ax.set_ylabel(f'{col}', fontsize=int(font*2))
-        ax.legend_.remove()
+        if ax.get_legend() is not None:
+            ax.legend_.remove()
         ax.tick_params(axis='both', which='major', labelsize=font)
         ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
         if i <= 5:
@@ -2031,7 +2032,7 @@ def plot_comparison_results(comparison_results):
 def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0,1,2], max_nr=10):
     
     for object_, channel in zip(objects, channels):
-        folders = [os.path.join(src, 'norm_channel_stack', f'{object_}_mask_stack'),
+        folders = [os.path.join(src, 'masks', f'{object_}_mask_stack'),
                    os.path.join(src,f'{channel+1}')]
         print(folders)
         plot_images_and_arrays(folders,
@@ -2930,6 +2931,7 @@ class spacrGraph:
         self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = self.df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
+        is_normal = True
         levene_stat, levene_p = self.perform_levene_test(unique_groups)
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
@@ -3497,7 +3499,8 @@ def plot_data_from_db(settings):
 
 def plot_data_from_csv(settings):
     from .io import _read_db, _read_and_merge_data
-    from .utils import annotate_conditions, save_settings
+    from .utils import annotate_conditions, save_settings, remove_outliers_by_group
+    from .settings import get_plot_data_from_csv_default_settings
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -3509,7 +3512,12 @@ def plot_data_from_csv(settings):
     Returns:
         df (pd.DataFrame): The extracted table as a DataFrame.
     """
+    
 
+    def filter_rows_by_column_values(df: pd.DataFrame, column: str, values: list) -> pd.DataFrame:
+        """Return a filtered DataFrame where only rows with the column value in the list are kept."""
+        return df[df[column].isin(values)].copy()
+    
     if isinstance(settings['src'], str):
         srcs = [settings['src']]
     elif isinstance(settings['src'], list):
@@ -3536,14 +3544,26 @@ def plot_data_from_csv(settings):
             except Exception as e:
                 print(f"Could not split the prc column: {e}")
 
-                
-    display(df)
-
+    if 'keep_groups' in settings.keys():
+        if isinstance(settings['keep_groups'], str):
+            settings['keep_groups'] = [settings['keep_groups']]
+        elif isinstance(settings['keep_groups'], list):
+            df = filter_rows_by_column_values(df, settings['grouping_column'], settings['keep_groups'])
+            
+    if settings['remove_outliers']:
+        df = remove_outliers_by_group(df, settings['grouping_column'], settings['data_column'], method='iqr', threshold=1.5)
+    
+    if settings['verbose']:       
+        display(df)
+    
     df = df.dropna(subset=settings['data_column'])
     df = df.dropna(subset=settings['grouping_column'])
     src = srcs[0] 
     dst = os.path.join(os.path.dirname(src), 'results', settings['graph_name'])
     os.makedirs(dst, exist_ok=True)
+    
+    #data_csv = os.path.join(dst, f"{settings['graph_name']}_data.csv")
+    #df.to_csv(data_csv, index=False)
     
     spacr_graph = spacrGraph(
         df=df,                                       # Your DataFrame

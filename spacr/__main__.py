@@ -1,6 +1,6 @@
 """
-Copyright © 2024 Something
+Copyright © 2025 Something
 """
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
