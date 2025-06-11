@@ -255,56 +255,6 @@ def _relabel_masks_based_on_tracks(masks, tracks, mode='btrack'):
 
     return relabeled_masks
 
-def _prepare_for_tracking_v1(mask_array):
-    """
-    Prepare the mask array for object tracking.
-
-    Args:
-        mask_array (ndarray): Array of binary masks representing objects.
-
-    Returns:
-        DataFrame: DataFrame containing information about each object in the mask array.
-            The DataFrame has the following columns:
-            - frame: The frame number.
-            - y: The y-coordinate of the object's centroid.
-            - x: The x-coordinate of the object's centroid.
-            - mass: The area of the object.
-            - original_label: The original label of the object.
-
-    """
-    frames = []
-    for t, frame in enumerate(mask_array):
-        props = regionprops(frame)
-        for obj in props:
-            # Include 'label' in the dictionary to capture the original label of the object
-            frames.append({
-                'frame': t, 
-                'y': obj.centroid[0], 
-                'x': obj.centroid[1], 
-                'mass': obj.area,
-                'original_label': obj.label  # Capture the original label
-            })
-    return pd.DataFrame(frames)
-
-def _prepare_for_tracking_v1(mask_array):
-    frames = []
-    for t, frame in enumerate(mask_array):
-        props = regionprops_table(
-            frame,
-            properties=('label', 'centroid-0', 'centroid-1', 'area',
-                        'bbox-0', 'bbox-1', 'bbox-2', 'bbox-3',
-                        'eccentricity')
-        )
-        df = pd.DataFrame(props)
-        df = df.rename(columns={
-            'centroid-0': 'y', 'centroid-1': 'x', 'area': 'mass',
-            'label': 'original_label'
-        })
-        df['frame'] = t
-        frames.append(df[['frame','y','x','mass','original_label',
-                          'bbox-0','bbox-1','bbox-2','bbox-3','eccentricity']])
-    return pd.concat(frames, ignore_index=True)
-
 def _prepare_for_tracking(mask_array):
     frames = []
     for t, frame in enumerate(mask_array):
@@ -521,46 +471,6 @@ def _facilitate_trackin_with_adaptive_removal(masks, search_range=None, max_atte
     raise RuntimeError(
         f"Failed to track after {max_attempts} attempts; last search_range={search_range}"
     )
-
-def _facilitate_trackin_with_adaptive_removal_v1(masks, search_range=500, max_attempts=100, memory=3):
-    """
-    Facilitates object tracking with adaptive removal.
-
-    Args:
-        masks (numpy.ndarray): Array of binary masks representing objects in each frame.
-        search_range (int, optional): Maximum distance objects can move between frames. Defaults to 500.
-        max_attempts (int, optional): Maximum number of attempts to track objects. Defaults to 100.
-        memory (int, optional): Number of frames to remember when linking tracks. Defaults to 3.
-
-    Returns:
-        tuple: A tuple containing the updated masks, features, and tracks_df.
-            masks (numpy.ndarray): Updated array of binary masks.
-            features (pandas.DataFrame): DataFrame containing features for object tracking.
-            tracks_df (pandas.DataFrame): DataFrame containing the tracked object trajectories.
-
-    Raises:
-        Exception: If tracking fails after the maximum number of attempts.
-
-    """
-    attempts = 0
-    first_frame = masks[0]
-    starting_objects = np.unique(first_frame[first_frame != 0])
-    while attempts < max_attempts:
-        try:
-            masks = _remove_objects_from_first_frame(masks, 10)
-            first_frame = masks[0]
-            objects = np.unique(first_frame[first_frame != 0])
-            print(len(objects))
-            features = _prepare_for_tracking(masks)
-            tracks_df = tp.link(features, search_range=search_range, memory=memory)
-            print(f"Success with {len(objects)} objects, started with {len(starting_objects)} objects")
-            return masks, features, tracks_df
-        except Exception as e:  # Consider catching a more specific exception if possible
-            print(f"Retrying with fewer objects. Exception: {e}", flush=True)
-        finally:
-            attempts += 1
-    print(f"Failed to track objects after {max_attempts} attempts. Consider adjusting parameters.")
-    return None, None, None
 
 def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelapse_displacement, timelapse_memory, timelapse_remove_transient, plot, save, mode, track_by_iou):
         """
