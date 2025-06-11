@@ -1175,7 +1175,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
 
     paths = []
     time_ls = []
-    output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
+    output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
 
     if settings['timelapse']:
@@ -1333,7 +1333,7 @@ def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False
         None
     """
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
-    output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
+    output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
     time_ls = []
     
@@ -1418,7 +1418,7 @@ def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
         save_dtype (numpy.dtype, optional): The data type to save the normalized stack. Defaults to np.float32.
     """
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
-    output_fldr = os.path.join(os.path.dirname(src), 'norm_channel_stack')
+    output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
 
     for file_index, path in enumerate(paths):
@@ -1567,16 +1567,16 @@ def preprocess_img_data(settings):
     Returns:
         None
     """
-    
     src = settings['src']
-    delete_empty_subdirectories(src)
-    files = os.listdir(src)
     
+    if len(os.listdir(src)) < 100:
+        delete_empty_subdirectories(src)
+    
+    files = os.listdir(src)
     valid_ext = ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'nd2', 'czi', 'lif']
     extensions = [file.split('.')[-1].lower() for file in files]
     # Filter only valid extensions
     valid_extensions = [ext for ext in extensions if ext in valid_ext]
-
     # Determine most common valid extension
     img_format = None
     if valid_extensions:
@@ -1595,10 +1595,10 @@ def preprocess_img_data(settings):
             print('Found existing stack folder.')
         if os.path.exists(os.path.join(src,'channel_stack')):
             print('Found existing channel_stack folder.')
-        if os.path.exists(os.path.join(src,'norm_channel_stack')):
-            print('Found existing norm_channel_stack folder. Skipping preprocessing')
+        if os.path.exists(os.path.join(src,'masks')):
+            print('Found existing masks folder. Skipping preprocessing')
             return settings, src
-        
+
     mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
 
     settings = set_default_settings_preprocess_img_data(settings)
@@ -1606,16 +1606,16 @@ def preprocess_img_data(settings):
     regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
     
     if settings['test_mode']:
-
         print(f"Running spacr in test mode")
         settings['plot'] = True
-        try:
-            os.rmdir(os.path.join(src, 'test'))
-            print(f"Deleted test directory: {os.path.join(src, 'test')}")
-        except OSError as e:
-            print(f"Error deleting test directory: {e}")
-            print(f"Delete manually before running test mode")
-            pass
+        if os.path.exists(os.path.join(src,'test')):
+            try:
+                os.rmdir(os.path.join(src, 'test'))
+                print(f"Deleted test directory: {os.path.join(src, 'test')}")
+            except OSError as e:
+                print(f"Error deleting test directory: {e}")
+                print(f"Delete manually before running test mode")
+                pass
 
         src = _run_test_mode(settings['src'], regex, settings['timelapse'], settings['test_images'], settings['random_test'])
         settings['src'] = src
@@ -1991,12 +1991,12 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     """
     folder_paths = [os.path.join(src+'/stack')]
 
-    if cell_chann_dim is not None or os.path.exists(os.path.join(src, 'norm_channel_stack', 'cell_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'norm_channel_stack','cell_mask_stack')]
-    if nucleus_chann_dim is not None or os.path.exists(os.path.join(src, 'norm_channel_stack', 'nucleus_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'norm_channel_stack','nucleus_mask_stack')]
-    if pathogen_chann_dim is not None or os.path.exists(os.path.join(src, 'norm_channel_stack', 'pathogen_mask_stack')):
-        folder_paths = folder_paths + [os.path.join(src, 'norm_channel_stack','pathogen_mask_stack')]
+    if cell_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'cell_mask_stack')):
+        folder_paths = folder_paths + [os.path.join(src, 'masks','cell_mask_stack')]
+    if nucleus_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'nucleus_mask_stack')):
+        folder_paths = folder_paths + [os.path.join(src, 'masks','nucleus_mask_stack')]
+    if pathogen_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'pathogen_mask_stack')):
+        folder_paths = folder_paths + [os.path.join(src, 'masks','pathogen_mask_stack')]
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]

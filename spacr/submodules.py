@@ -1,5 +1,5 @@
 import seaborn as sns
-import os, random, sqlite3, re, shap, string, time
+import os, random, sqlite3, re, shap, string, time, shutil
 import pandas as pd
 import numpy as np
 
@@ -580,6 +580,16 @@ def analyze_recruitment(settings):
     from .settings import get_analyze_recruitment_default_settings
 
     settings = get_analyze_recruitment_default_settings(settings=settings)
+    
+    if settings['src'].endswith('/measurements.db'):
+        src_orig = settings['src']
+        settings['src'] = os.path.dirname(settings['src'])
+        if not settings['src'].endswith('/measurements'):
+            src_mes = os.path.join(settings['src'], 'measurements')
+            if not os.path.exists(src_mes):
+                os.makedirs(src_mes)
+                shutil.move(src_orig, os.path.join(src_mes, 'measurements.db'))
+
     save_settings(settings, name='recruitment')
 
     print(f"Cell(s): {settings['cell_types']}, in {settings['cell_plate_metadata']}")
