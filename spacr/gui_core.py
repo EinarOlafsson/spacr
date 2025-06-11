@@ -872,7 +872,7 @@ def check_src_folders_files(settings, settings_type, q):
                 pictures_continue = _folder_has_images(path)
                 folder_chan_continue = _has_folder(path, "1")
                 folder_stack_continue = _has_folder(path, "stack")
-                folder_npz_continue = _has_folder(path, "norm_channel_stack")
+                folder_npz_continue = _has_folder(path, "masks")
             
                 if not pictures_continue:
                     if not any([folder_chan_continue, folder_stack_continue, folder_npz_continue]):
@@ -883,7 +883,7 @@ def check_src_folders_files(settings, settings_type, q):
                             q.put(f"Error: Missing stack folder in folder: {path}")
                             
                         if not folder_npz_continue:
-                            q.put(f"Error: Missing norm_channel_stack folder in folder: {path}")
+                            q.put(f"Error: Missing masks folder in folder: {path}")
                         else:
                             q.put(f"Error: No images in folder: {path}")
                 
