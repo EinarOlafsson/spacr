@@ -10,7 +10,7 @@ import skimage.measure as measure
 from skimage.transform import resize as resizescikit
 from skimage.morphology import dilation, square
 from skimage.measure import find_contours
-from skimage.segmentation import clear_border
+from skimage.segmentation import clear_border, find_boundaries
 from scipy.stats import pearsonr
 
 from collections import defaultdict, OrderedDict
@@ -431,7 +431,7 @@ def close_multiprocessing_processes():
 
 def check_mask_folder(src,mask_fldr):
     
-    mask_folder = os.path.join(src,'norm_channel_stack',mask_fldr)
+    mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
 
     if not os.path.exists(mask_folder):
@@ -1266,9 +1266,9 @@ def _pivot_counts_table(db_path):
     
 def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
 
-    cell_mask_path = os.path.join(src, 'norm_channel_stack', 'cell_mask_stack')
-    nucleus_mask_path = os.path.join(src, 'norm_channel_stack', 'nucleus_mask_stack')
-    pathogen_mask_path = os.path.join(src, 'norm_channel_stack', 'pathogen_mask_stack')
+    cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
+    nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
+    pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
 
 
     if os.path.exists(cell_mask_path) or os.path.exists(nucleus_mask_path) or os.path.exists(pathogen_mask_path):
@@ -4509,6 +4509,76 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     relabeled_cell_mask, _ = label(cell_mask, return_num=True)
     return relabeled_cell_mask.astype(np.uint16)
 
+def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndarray):
+    """
+    Relabel any cell that lacks a nucleus to the ID of an adjacent
+    cell that *does* contain a nucleus.
+
+    Parameters
+    ----------
+    adj_cell_mask : np.ndarray
+        Labelled (0 = background) cell mask after all other merging steps.
+    nuclei_mask : np.ndarray
+        Labelled (0 = background) nuclei mask.
+
+    Returns
+    -------
+    np.ndarray
+        Updated cell mask with nucleus-free cells merged into
+        neighbouring nucleus-bearing cells.
+    """
+    out = adj_cell_mask.copy()
+
+    # ----------------------------------------------------------------- #
+    # 1 — Identify which cell IDs contain a nucleus
+    nuc_labels = np.unique(nuclei_mask[nuclei_mask > 0])
+
+    cells_with_nuc = set()
+    for nuc_id in nuc_labels:
+        labels, counts = np.unique(adj_cell_mask[nuclei_mask == nuc_id],
+                                   return_counts=True)
+
+        # drop background (label 0) from *both* arrays
+        keep = labels > 0
+        labels = labels[keep]
+        counts = counts[keep]
+
+        if labels.size:                     # at least one non-zero overlap
+            cells_with_nuc.add(labels[np.argmax(counts)])
+
+    # ----------------------------------------------------------------- #
+    # 2 — Build an adjacency map between neighbouring cell IDs
+    # ----------------------------------------------------------------- #
+    boundaries = find_boundaries(adj_cell_mask, mode="thick")
+    adj_map = defaultdict(set)
+
+    ys, xs = np.where(boundaries)
+    h, w = adj_cell_mask.shape
+    for y, x in zip(ys, xs):
+        src = adj_cell_mask[y, x]
+        if src == 0:
+            continue
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < h and 0 <= nx < w:
+                    dst = adj_cell_mask[ny, nx]
+                    if dst != 0 and dst != src:
+                        adj_map[src].add(dst)
+
+    # ----------------------------------------------------------------- #
+    # 3 — Relabel nucleus-free cells that touch nucleus-bearing neighbours
+    # ----------------------------------------------------------------- #
+    cells_no_nuc = set(np.unique(adj_cell_mask)) - {0} - cells_with_nuc
+    for cell_id in cells_no_nuc:
+        neighbours = adj_map.get(cell_id, set()) & cells_with_nuc
+        if neighbours:
+            # Choose the first nucleus-bearing neighbour deterministically
+            target = sorted(neighbours)[0]
+            out[out == cell_id] = target
+
+    return out.astype(np.uint16)
+
 def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
 
     """
@@ -4543,12 +4613,12 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
         parasite_mask = np.load(parasite_path, allow_pickle=True)
         cell_mask = np.load(cell_path, allow_pickle=True)
         nuclei_mask = np.load(nuclei_path, allow_pickle=True)
+        
         # Merge and relabel cells
         merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
         
-        # Force 16 bit
-        #merged_cell_mask = merged_cell_mask.astype(np.uint16)
-        
+        #merged_cell_mask = _merge_cells_without_nucleus(merged_cell_mask, nuclei_mask)
+    
         # Overwrite the original cell mask file with the merged result
         np.save(cell_path, merged_cell_mask)
 
@@ -4838,7 +4908,7 @@ def correct_masks(src):
 
     from .io import _load_and_concatenate_arrays
 
-    cell_path = os.path.join(src,'norm_channel_stack', 'cell_mask_stack')
+    cell_path = os.path.join(src,'masks', 'cell_mask_stack')
     convert_and_relabel_masks(cell_path)
     _load_and_concatenate_arrays(src, [0,1,2,3], 1, 0, 2)
 
@@ -5224,7 +5294,7 @@ def delete_intermedeate_files(settings):
     path_orig = os.path.join(settings['src'], 'orig')
     path_stack = os.path.join(settings['src'], 'stack')
     merged_stack = os.path.join(settings['src'], 'merged')
-    path_norm_chan_stack = os.path.join(settings['src'], 'norm_channel_stack')
+    path_norm_chan_stack = os.path.join(settings['src'], 'masks')
     path_1 = os.path.join(settings['src'], '1')
     path_2 = os.path.join(settings['src'], '2')
     path_3 = os.path.join(settings['src'], '3')
@@ -5511,3 +5581,37 @@ def correct_metadata(df):
         df = df.rename(columns={'field_name': 'fieldID'})
     
     return df
+
+def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1.5):
+    """
+    Removes outliers from `value_col` within each group defined by `group_col`.
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame.
+        group_col (str): Column name to group by.
+        value_col (str): Column containing values to check for outliers.
+        method (str): 'iqr' or 'zscore'.
+        threshold (float): Threshold multiplier for IQR (default 1.5) or z-score.
+
+    Returns:
+        pd.DataFrame: A DataFrame with outliers removed.
+    """
+    def iqr_filter(subdf):
+        q1 = subdf[value_col].quantile(0.25)
+        q3 = subdf[value_col].quantile(0.75)
+        iqr = q3 - q1
+        lower = q1 - threshold * iqr
+        upper = q3 + threshold * iqr
+        return subdf[(subdf[value_col] >= lower) & (subdf[value_col] <= upper)]
+
+    def zscore_filter(subdf):
+        mean = subdf[value_col].mean()
+        std = subdf[value_col].std()
+        return subdf[(subdf[value_col] - mean).abs() <= threshold * std]
+
+    if method == 'iqr':
+        return df.groupby(group_col, group_keys=False).apply(iqr_filter)
+    elif method == 'zscore':
+        return df.groupby(group_col, group_keys=False).apply(zscore_filter)
+    else:
+        raise ValueError("method must be 'iqr' or 'zscore'")

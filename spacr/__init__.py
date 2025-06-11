@@ -21,7 +21,6 @@ from . import app_measure
 from . import app_classify
 from . import app_sequencing
 from . import app_umap
-from . import mediar
 from . import submodules
 from . import openai
 from . import ml
@@ -52,7 +51,6 @@ __all__ = [
     "app_classify",
     "app_sequencing",
     "app_umap",
-    "mediar",
     "submodules",
     "openai",
     "ml",
