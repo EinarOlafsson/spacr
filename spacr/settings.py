@@ -124,33 +124,6 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('uninfected', False)
     return settings
 
-
-
-def set_default_settings_preprocess_img_data_v1(settings):
-
-    metadata_type = settings.setdefault('metadata_type', 'cellvoyager')
-    custom_regex = settings.setdefault('custom_regex', None)
-    nr = settings.setdefault('nr', 1)
-    plot = settings.setdefault('plot', True)
-    batch_size = settings.setdefault('batch_size', 50)
-    timelapse = settings.setdefault('timelapse', False)
-    lower_percentile = settings.setdefault('lower_percentile', 2)
-    randomize = settings.setdefault('randomize', True)
-    all_to_mip = settings.setdefault('all_to_mip', False)
-    pick_slice = settings.setdefault('pick_slice', False)
-    skip_mode = settings.setdefault('skip_mode', False)
-
-    cmap = settings.setdefault('cmap', 'inferno')
-    figuresize = settings.setdefault('figuresize', 10)
-    normalize = settings.setdefault('normalize', True)
-    save_dtype = settings.setdefault('save_dtype', 'uint16')
-    
-    test_mode = settings.setdefault('test_mode', False)
-    test_images = settings.setdefault('test_images', 10)
-    random_test = settings.setdefault('random_test', True)
-
-    return settings, metadata_type, custom_regex, nr, plot, batch_size, timelapse, lower_percentile, randomize, all_to_mip, pick_slice, skip_mode, cmap, figuresize, normalize, save_dtype, test_mode, test_images, random_test
-
 def set_default_settings_preprocess_img_data(settings):
 
     settings.setdefault('metadata_type', 'cellvoyager')
