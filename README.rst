@@ -22,8 +22,6 @@ SpaCr
 
 The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understanding host clearance mechanisms and how pathogens evade them. SpaCr is a Python-based software package for generating single-cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.
 
-**[Full documentation here](https://einarolafsson.github.io/spacr/index.html)**
-
 Features
 --------
 
@@ -77,11 +75,6 @@ SpaCr GUI requires Tkinter.
 Data Availability
 -----------------
 
-- **Raw sequencing data** are available from NCBI BioProject [PRJNA1261935](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1261935) and SRA accessions:  
-  [SRR33531217](https://www.ncbi.nlm.nih.gov/sra/SRR33531217),  
-  [SRR33531218](https://www.ncbi.nlm.nih.gov/sra/SRR33531218),  
-  [SRR33531219](https://www.ncbi.nlm.nih.gov/sra/SRR33531219),  
-  [SRR33531220](https://www.ncbi.nlm.nih.gov/sra/SRR33531220)
+- **Raw sequencing data** are available from NCBI BioProject `PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1261935>`_ and SRA accessions: `SRR33531217 <https://www.ncbi.nlm.nih.gov/sra/SRR33531217>`_, `SRR33531218 <https://www.ncbi.nlm.nih.gov/sra/SRR33531218>`_, `SRR33531219 <https://www.ncbi.nlm.nih.gov/sra/SRR33531219>`_, `SRR33531220 <https://www.ncbi.nlm.nih.gov/sra/SRR33531220>`_
 
-- **Image data** is deposited at EBI BioStudies under accession:  
-  [S-BIAD2076](https://www.ebi.ac.uk/biostudies/studies/S-BIAD2076)
+- **Image data** is deposited at EBI BioStudies under accession: `S-BIAD2076 <https://www.ebi.ac.uk/biostudies/studies/S-BIAD2076>`_
