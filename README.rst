@@ -4,8 +4,8 @@
    :target: https://badge.fury.io/py/spacr
 .. |Python version| image:: https://img.shields.io/pypi/pyversions/spacr
    :target: https://pypistats.org/packages/spacr
-.. |Licence: GPL v3| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
-   :target: https://github.com/EinarOlafsson/spacr/blob/master/LICENSE
+.. |Licence: MIT| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
 .. |repo size| image:: https://img.shields.io/github/repo-size/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/
 
@@ -13,7 +13,7 @@
 
 Badges
 ------
-|Docs| |PyPI version| |Python version| |Licence: GPL v3| |repo size|
+|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size|
 
 SpaCr
 =====
@@ -112,7 +112,7 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
 
 License
 -------
-spaCR is distributed under the terms of the GNU General Public License v3.0.
+spaCR is distributed under the terms of the MIT License.
 See the `LICENSE <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ file for details.
 
 How to Cite
