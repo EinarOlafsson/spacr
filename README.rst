@@ -38,7 +38,7 @@ Features
 -  **Sequencing:** Map FASTQ reads to barcode and gRNA barcode metadata.
 -  **Misc:** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
-.. image:: spacr/resources/icons/flow_chart.png
+.. image:: spacr/resources/icons/flow_chart_v2.png
    :alt: SpaCr workflow
    :align: center
 
