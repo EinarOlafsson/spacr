@@ -4602,7 +4602,10 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
         raise ValueError("The number of files in the folders do not match.")
     
     # Match files by name
-    for file_name in parasite_files:
+    time_ls = []
+    files_to_process = len(parasite_files)
+    for files_processed, file_name in enumerate(parasite_files):
+        start = time.time()
         parasite_path = os.path.join(parasite_folder, file_name)
         cell_path = os.path.join(cell_folder, file_name)
         nuclei_path = os.path.join(nuclei_folder, file_name)
@@ -4621,6 +4624,12 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
     
         # Overwrite the original cell mask file with the merged result
         np.save(cell_path, merged_cell_mask)
+        
+        stop = time.time()
+        duration = (stop - start)
+        time_ls.append(duration)
+        files_processed += 1
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'adjust_cell_masks')
 
 def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
     
