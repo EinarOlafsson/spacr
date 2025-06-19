@@ -82,7 +82,7 @@ Data Availability
 Example Notebooks
 -----------------
 
-The following example Jupyter notebooks illustrate common workflows using spaCR. Each notebook can be viewed directly on GitHub.
+The following example Jupyter notebooks illustrate common workflows using spaCR.
 
 - `1_spacr_generate_masks.ipynb <Notebooks/1_spacr_generate_masks.ipynb>`_  
   *Generate cell, nuclei, and pathogen segmentation masks from microscopy images using Cellpose.*
