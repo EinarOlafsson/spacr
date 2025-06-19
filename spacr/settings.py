@@ -313,7 +313,9 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('pathogen_min_size',0)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
-
+    
+    settings.setdefault('distance_gaussian_sigma', 1)
+    
     if settings['test_mode']:
         settings['verbose'] = True
         settings['plot'] = True
@@ -1000,7 +1002,8 @@ expected_types = {
     "cell_diamiter":int,
     "nucleus_diamiter":int,
     "pathogen_diamiter":int,
-    "consolidate":bool
+    "consolidate":bool,
+    "distance_gaussian_sigma":int
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
@@ -1022,7 +1025,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
-             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate"]
+             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma"]
              }
 
 
