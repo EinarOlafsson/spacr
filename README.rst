@@ -73,3 +73,15 @@ SpaCr GUI requires Tkinter.
 **Run SpaCr GUI:**
 ::
    spacr
+
+Data Availability
+-----------------
+
+- **Raw sequencing data** are available from NCBI BioProject [PRJNA1261935](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1261935) and SRA accessions:  
+  [SRR33531217](https://www.ncbi.nlm.nih.gov/sra/SRR33531217),  
+  [SRR33531218](https://www.ncbi.nlm.nih.gov/sra/SRR33531218),  
+  [SRR33531219](https://www.ncbi.nlm.nih.gov/sra/SRR33531219),  
+  [SRR33531220](https://www.ncbi.nlm.nih.gov/sra/SRR33531220)
+
+- **Image data** is deposited at EBI BioStudies under accession:  
+  [S-BIAD2076](https://www.ebi.ac.uk/biostudies/studies/S-BIAD2076)
