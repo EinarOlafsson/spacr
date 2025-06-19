@@ -85,7 +85,10 @@ Data Availability
 
 - **Raw sequencing data** are available from NCBI BioProject `PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1261935>`_ and SRA accessions: `SRR33531217 <https://www.ncbi.nlm.nih.gov/sra/SRR33531217>`_, `SRR33531218 <https://www.ncbi.nlm.nih.gov/sra/SRR33531218>`_, `SRR33531219 <https://www.ncbi.nlm.nih.gov/sra/SRR33531219>`_, `SRR33531220 <https://www.ncbi.nlm.nih.gov/sra/SRR33531220>`_
 
-- **Image data** is deposited at EBI BioStudies under accession: `S-BIAD2076 <https://www.ebi.ac.uk/biostudies/studies/S-BIAD2076>`_
+- **Image data** is deposited at EBI BioStudies under accession: 
+  `S-BIAD2076 <https://www.ebi.ac.uk/biostudies/studies/S-BIAD2076>`_  
+  *(If the link redirects to the main BioStudies portal, copy and paste it directly into your browser.)*
+
 
 Example Notebooks
 -----------------
