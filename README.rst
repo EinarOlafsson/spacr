@@ -36,7 +36,7 @@ Features
 -  **Sequencing:** Map FASTQ reads to barcode and gRNA barcode metadata.
 -  **Misc:** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
-.. image:: spacr/resources/icons/flow_chart_v2.png
+.. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/flow_chart_v2.png
    :alt: SpaCr workflow
    :align: center
 
@@ -55,21 +55,29 @@ Installation
 If using Windows, switch to Linux—it's free, open-source, and better.
 
 **macOS prerequisites (before install):**
+
 ::
+
    brew install libomp
    brew install hdf5
 
 **Linux GUI requirement:**  
 SpaCr GUI requires Tkinter.  
+
 ::
+
    sudo apt-get install python3-tk
 
 **Installation:**
+
 ::
+
    pip install spacr
 
 **Run SpaCr GUI:**
+
 ::
+
    spacr
 
 Data Availability
@@ -84,21 +92,21 @@ Example Notebooks
 
 The following example Jupyter notebooks illustrate common workflows using spaCR.
 
-- `1_spacr_generate_masks.ipynb <Notebooks/1_spacr_generate_masks.ipynb>`_  
+- `Generate masks <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/1_spacr_generate_masks.ipynb>`_  
   *Generate cell, nuclei, and pathogen segmentation masks from microscopy images using Cellpose.*
 
-- `2_spacr_generate_mesurments_crop_images.ipynb <Notebooks/2_spacr_generate_mesurments_crop_images.ipynb>`_  
+- `Capture single cell images and measurements <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/2_spacr_generate_mesurments_crop_images.ipynb>`_  
   *Extract object-level measurements and crop single-cell images for downstream analysis.*
 
-- `3a_spacr_machine_learning.ipynb <Notebooks/3a_spacr_machine_learning.ipynb>`_  
+- `Machine learning based object classification <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/3a_spacr_machine_learning.ipynb>`_  
   *Train traditional machine learning models (e.g., XGBoost) to classify cell phenotypes based on extracted features.*
 
-- `3b_spacr_computer_vision.ipynb <Notebooks/3b_spacr_computer_vision.ipynb>`_  
+- `Computer vision based object classification <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/3b_spacr_computer_vision.ipynb>`_  
   *Train and evaluate deep learning models (PyTorch CNNs/Transformers) on cropped object images.*
 
-- `4_spacr_map_barecodes.ipynb <Notebooks/4_spacr_map_barecodes.ipynb>`_  
+- `Map sequencing barcodes <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/4_spacr_map_barecodes.ipynb>`_  
   *Map sequencing reads to row, column, and gRNA barcodes for CRISPR screen genotype-phenotype mapping.*
 
-- `5_spacr_train_cellpose.ipynb <Notebooks/5_spacr_train_cellpose.ipynb>`_  
+- `Finetune cellpose models <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/5_spacr_train_cellpose.ipynb>`_  
   *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
-
+  
