@@ -78,3 +78,27 @@ Data Availability
 - **Raw sequencing data** are available from NCBI BioProject `PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1261935>`_ and SRA accessions: `SRR33531217 <https://www.ncbi.nlm.nih.gov/sra/SRR33531217>`_, `SRR33531218 <https://www.ncbi.nlm.nih.gov/sra/SRR33531218>`_, `SRR33531219 <https://www.ncbi.nlm.nih.gov/sra/SRR33531219>`_, `SRR33531220 <https://www.ncbi.nlm.nih.gov/sra/SRR33531220>`_
 
 - **Image data** is deposited at EBI BioStudies under accession: `S-BIAD2076 <https://www.ebi.ac.uk/biostudies/studies/S-BIAD2076>`_
+
+Example Notebooks
+-----------------
+
+The following example Jupyter notebooks illustrate common workflows using spaCR. Each notebook can be viewed directly on GitHub.
+
+- `1_spacr_generate_masks.ipynb <Notebooks/1_spacr_generate_masks.ipynb>`_  
+  *Generate cell, nuclei, and pathogen segmentation masks from microscopy images using Cellpose.*
+
+- `2_spacr_generate_mesurments_crop_images.ipynb <Notebooks/2_spacr_generate_mesurments_crop_images.ipynb>`_  
+  *Extract object-level measurements and crop single-cell images for downstream analysis.*
+
+- `3a_spacr_machine_learning.ipynb <Notebooks/3a_spacr_machine_learning.ipynb>`_  
+  *Train traditional machine learning models (e.g., XGBoost) to classify cell phenotypes based on extracted features.*
+
+- `3b_spacr_computer_vision.ipynb <Notebooks/3b_spacr_computer_vision.ipynb>`_  
+  *Train and evaluate deep learning models (PyTorch CNNs/Transformers) on cropped object images.*
+
+- `4_spacr_map_barecodes.ipynb <Notebooks/4_spacr_map_barecodes.ipynb>`_  
+  *Map sequencing reads to row, column, and gRNA barcodes for CRISPR screen genotype-phenotype mapping.*
+
+- `5_spacr_train_cellpose.ipynb <Notebooks/5_spacr_train_cellpose.ipynb>`_  
+  *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
+
