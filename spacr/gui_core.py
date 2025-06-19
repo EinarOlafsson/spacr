@@ -361,8 +361,8 @@ def setup_plot_section(vertical_container, settings_type):
     if settings_type == 'map_barcodes':
         current_dir = os.path.dirname(__file__)
         resources_path = os.path.join(current_dir, 'resources', 'icons')
-        gif_path = os.path.join(resources_path, 'dna_matrix.mp4')
-        display_media_in_plot_frame(gif_path, plot_frame)
+        #gif_path = os.path.join(resources_path, 'dna_matrix.mp4')
+        #display_media_in_plot_frame(gif_path, plot_frame)
 
         canvas = FigureCanvasTkAgg(figure, master=plot_frame)
         canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
