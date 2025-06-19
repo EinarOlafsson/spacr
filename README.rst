@@ -109,4 +109,14 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
 
 - `Finetune cellpose models <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/5_spacr_train_cellpose.ipynb>`_  
   *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
-  
+
+License
+-------
+spaCR is distributed under the terms of the GNU General Public License v3.0.
+See the `LICENSE <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ file for details.
+
+How to Cite
+-----------
+If you use spaCR in your research, please cite:  
+Einar Olafsson, et al. SpaCr: Spatial phenotype analysis of CRISPR-Cas9 screens. *Manuscript in preparation*.
+
