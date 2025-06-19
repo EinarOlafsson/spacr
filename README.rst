@@ -1,5 +1,5 @@
-.. |Documentation Status| image:: https://readthedocs.org/projects/spacr/badge/?version=latest
-   :target: https://einarolafsson.github.io/spacr
+.. |Pages build status| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
+   :target: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment
 .. |PyPI version| image:: https://badge.fury.io/py/spacr.svg
    :target: https://badge.fury.io/py/spacr
 .. |Python version| image:: https://img.shields.io/pypi/pyversions/spacr

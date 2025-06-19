@@ -2,12 +2,11 @@ import os, cv2, time, sqlite3, traceback, shutil
 import numpy as np
 import pandas as pd
 from collections import defaultdict
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
-from scipy.ndimage import distance_transform_edt, generate_binary_structure
+from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, gaussian_filter, center_of_mass
 from skimage.measure import regionprops, regionprops_table, shannon_entropy
 from skimage.exposure import rescale_intensity
-from scipy.ndimage import binary_dilation
 from skimage.segmentation import find_boundaries
 from skimage.feature import graycomatrix, graycoprops
 from mahotas.features import zernike_moments
@@ -15,7 +14,6 @@ from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
-
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """
@@ -250,6 +248,148 @@ def _create_dataframe(radial_distributions, object_type):
         return df
 
 def _extended_regionprops_table(labels, image, intensity_props):
+    """
+    Calculate extended region properties table, adding a suite of advanced quantitative features.
+    """
+    
+    def _gini(array):
+        # Compute Gini coefficient (nan safe)
+        array = np.abs(array[~np.isnan(array)])
+        n = array.size
+        if n == 0:
+            return np.nan
+        array = np.sort(array)
+        index = np.arange(1, n + 1)
+        return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
+    
+    props = regionprops_table(labels, image, properties=intensity_props)
+    df = pd.DataFrame(props)
+
+    regions = regionprops(labels, intensity_image=image)
+    integrated_intensity = []
+    std_intensity = []
+    median_intensity = []
+    skew_intensity = []
+    kurtosis_intensity = []
+    mode_intensity = []
+    range_intensity = []
+    iqr_intensity = []
+    cv_intensity = []
+    gini_intensity = []
+    frac_high90 = []
+    frac_low10 = []
+    entropy_intensity = []
+
+    for region in regions:
+        intens = region.intensity_image[region.image]
+        intens = intens[~np.isnan(intens)]
+        if intens.size == 0:
+            integrated_intensity.append(np.nan)
+            std_intensity.append(np.nan)
+            median_intensity.append(np.nan)
+            skew_intensity.append(np.nan)
+            kurtosis_intensity.append(np.nan)
+            mode_intensity.append(np.nan)
+            range_intensity.append(np.nan)
+            iqr_intensity.append(np.nan)
+            cv_intensity.append(np.nan)
+            gini_intensity.append(np.nan)
+            frac_high90.append(np.nan)
+            frac_low10.append(np.nan)
+            entropy_intensity.append(np.nan)
+        else:
+            integrated_intensity.append(np.sum(intens))
+            std_intensity.append(np.std(intens))
+            median_intensity.append(np.median(intens))
+            skew_intensity.append(skew(intens) if intens.size > 2 else np.nan)
+            kurtosis_intensity.append(kurtosis(intens) if intens.size > 3 else np.nan)
+            # Mode (use first mode value if multimodal)
+            try:
+                mode_val = mode(intens, nan_policy='omit').mode
+                mode_intensity.append(mode_val[0] if len(mode_val) > 0 else np.nan)
+            except Exception:
+                mode_intensity.append(np.nan)
+            range_intensity.append(np.ptp(intens))
+            iqr_intensity.append(np.percentile(intens, 75) - np.percentile(intens, 25))
+            cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
+            gini_intensity.append(_gini(intens))
+            frac_high90.append(np.mean(intens > np.percentile(intens, 90)))
+            frac_low10.append(np.mean(intens < np.percentile(intens, 10)))
+            entropy_intensity.append(shannon_entropy(intens) if intens.size > 1 else 0.0)
+
+    df['integrated_intensity'] = integrated_intensity
+    df['std_intensity'] = std_intensity
+    df['median_intensity'] = median_intensity
+    df['skew_intensity'] = skew_intensity
+    df['kurtosis_intensity'] = kurtosis_intensity
+    df['mode_intensity'] = mode_intensity
+    df['range_intensity'] = range_intensity
+    df['iqr_intensity'] = iqr_intensity
+    df['cv_intensity'] = cv_intensity
+    df['gini_intensity'] = gini_intensity
+    df['frac_high90'] = frac_high90
+    df['frac_low10'] = frac_low10
+    df['entropy_intensity'] = entropy_intensity
+
+    percentiles = [5, 10, 25, 50, 75, 85, 95]
+    for p in percentiles:
+        df[f'percentile_{p}'] = [
+            np.percentile(region.intensity_image[region.image], p)
+            for region in regions
+        ]
+    return df
+
+def _extended_regionprops_table_v2(labels, image, intensity_props):
+    """
+    Calculate extended region properties table, adding integrated intensity,
+    skewness, kurtosis, std, and median intensity per region.
+    """
+    # regionprops_table gives you vectorized props, but not everything you want
+    props = regionprops_table(labels, image, properties=intensity_props)
+    df = pd.DataFrame(props)
+
+    # Compute extra features region-by-region
+    regions = regionprops(labels, intensity_image=image)
+    integrated_intensity = []
+    std_intensity = []
+    median_intensity = []
+    skew_intensity = []
+    kurtosis_intensity = []
+    for region in regions:
+        intens = region.intensity_image[region.image]
+        # Handle empty region edge-case (shouldn't happen)
+        if intens.size == 0:
+            integrated_intensity.append(np.nan)
+            std_intensity.append(np.nan)
+            median_intensity.append(np.nan)
+            skew_intensity.append(np.nan)
+            kurtosis_intensity.append(np.nan)
+        else:
+            integrated_intensity.append(np.sum(intens))
+            std_intensity.append(np.std(intens))
+            median_intensity.append(np.median(intens))
+            # Only valid for >2 pixels
+            skew_intensity.append(skew(intens) if intens.size > 2 else np.nan)
+            kurtosis_intensity.append(kurtosis(intens) if intens.size > 3 else np.nan)
+
+    df['integrated_intensity'] = integrated_intensity
+    df['std_intensity'] = std_intensity
+    df['median_intensity'] = median_intensity
+    df['skew_intensity'] = skew_intensity
+    df['kurtosis_intensity'] = kurtosis_intensity
+
+    # You can add other features here if desired
+
+    # Percentiles (your existing code—optional if you want to keep)
+    percentiles = [5, 10, 25, 50, 75, 85, 95]
+    for p in percentiles:
+        df[f'percentile_{p}'] = [
+            np.percentile(region.intensity_image[region.image], p)
+            for region in regions
+        ]
+    return df
+
+def _extended_regionprops_table_v1(labels, image, intensity_props):
     """
     Calculate extended region properties table.
 
@@ -495,8 +635,75 @@ def _estimate_blur(image):
     # Compute and return the variance of the Laplacian
     return lap.var()
 
+def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings):
+    """
+    Compute Gaussian-smoothed intensity-weighted centroid distances for each cell object.
+    """
+
+    sigma = settings.get('distance_gaussian_sigma', 1.0)
+    cell_labels = np.unique(cell_mask)
+    cell_labels = cell_labels[cell_labels > 0]
+
+    dfs = []
+    nucleus_dt = distance_transform_edt(nucleus_mask == 0)
+    pathogen_dt = distance_transform_edt(pathogen_mask == 0)
+
+    for ch in range(channel_arrays.shape[-1]):
+        channel_img = channel_arrays[:, :, ch]
+        blurred_img = gaussian_filter(channel_img, sigma=sigma)
+
+        data = []
+        for label in cell_labels:
+            cell_coords = np.argwhere(cell_mask == label)
+            if cell_coords.size == 0:
+                data.append([label, np.nan, np.nan])
+                continue
+
+            minr, minc = np.min(cell_coords, axis=0)
+            maxr, maxc = np.max(cell_coords, axis=0) + 1
+
+            cell_submask = (cell_mask[minr:maxr, minc:maxc] == label)
+            blurred_subimg = blurred_img[minr:maxr, minc:maxc]
+
+            if np.sum(cell_submask) == 0:
+                data.append([label, np.nan, np.nan])
+                continue
+
+            masked_intensity = blurred_subimg * cell_submask
+            com_local = center_of_mass(masked_intensity)
+            if np.isnan(com_local[0]):
+                data.append([label, np.nan, np.nan])
+                continue
+
+            com_global = (com_local[0] + minr, com_local[1] + minc)
+            com_global_int = tuple(np.round(com_global).astype(int))
+
+            x, y = com_global_int
+            if not (0 <= x < cell_mask.shape[0] and 0 <= y < cell_mask.shape[1]):
+                data.append([label, np.nan, np.nan])
+                continue
+
+            nucleus_dist = nucleus_dt[x, y]
+            pathogen_dist = pathogen_dt[x, y]
+
+            data.append([label, nucleus_dist, pathogen_dist])
+
+        df = pd.DataFrame(data, columns=['label',
+                                         f'cell_channel_{ch}_distance_to_nucleus',
+                                         f'cell_channel_{ch}_distance_to_pathogen'])
+        dfs.append(df)
+
+    # Merge all channel dataframes on label
+    merged_df = dfs[0]
+    for df in dfs[1:]:
+        merged_df = merged_df.merge(df, on='label', how='outer')
+
+    return merged_df
+
+
 #@log_function_call
 def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
+    
     """
     Calculate various intensity measurements for different regions in the image.
 
@@ -536,8 +743,8 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
                 df.append(empty_df)
                 continue
                 
-            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props) 
-            mask_intensity_df['shannon_entropy'] = shannon_entropy(channel, base=2)
+            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props)
+            #mask_intensity_df['shannon_entropy'] = shannon_entropy(channel, base=2)
 
             if homogeneity:
                 homogeneity_df = _calculate_homogeneity(label, channel, distances)
@@ -558,6 +765,10 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
 
             mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
             df.append(mask_intensity_df)
+            
+    if isinstance(settings['distance_gaussian_sigma'], int):
+        intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
+        cell_dfs.append(intensity_distance_df)
     
     if radial_dist:
         if np.max(nucleus_mask) != 0:
@@ -565,7 +776,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
             nucleus_df = _create_dataframe(nucleus_radial_distributions, 'nucleus')
             dfs[1].append(nucleus_df)
             
-        if np.max(nucleus_mask) != 0:
+        if np.max(pathogen_mask) != 0:
             pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6)
             pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
             dfs[2].append(pathogen_df)
@@ -785,6 +996,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                 #merge skeleton_df with cell_df here
 
             cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
+                        
             if settings['cell_mask_dim'] is not None:
                 cell_merged_df = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'])
             if settings['nucleus_mask_dim'] is not None:
