@@ -252,7 +252,7 @@ def annotate(settings):
     app.load_images()
     root.mainloop()
 
-def generate_annotate_fields(frame):
+def generate_annotate_fields_v1(frame):
     from .settings import set_annotate_default_settings
     from .gui_elements import set_dark_style
 
@@ -279,6 +279,48 @@ def generate_annotate_fields(frame):
             data['entry'].insert(0, data['value'])
         data['entry'].grid(row=row, column=1)
     
+    return vars_dict
+
+def generate_annotate_fields(frame):
+    from .settings import set_annotate_default_settings
+    from .gui_elements import set_dark_style
+
+    style_out = set_dark_style(ttk.Style())
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size'] - 2
+
+    vars_dict = {}
+    settings = set_annotate_default_settings(settings={})
+    
+    for setting in settings:
+        vars_dict[setting] = {
+            'entry': ttk.Entry(frame),
+            'value': settings[setting]
+        }
+
+    # Arrange input fields and labels
+    for row, (name, data) in enumerate(vars_dict.items()):
+        tk.Label(
+            frame,
+            text=f"{name.replace('_', ' ').capitalize()}:",
+            bg=style_out['bg_color'],
+            fg=style_out['fg_color'],
+            font=font_loader.get_font(size=font_size)
+        ).grid(row=row, column=0)
+
+        value = data['value']
+        if isinstance(value, list):
+            string_value = ','.join(map(str, value))
+        elif isinstance(value, (int, float, bool)):
+            string_value = str(value)
+        elif value is None:
+            string_value = ''
+        else:
+            string_value = value
+
+        data['entry'].insert(0, string_value)
+        data['entry'].grid(row=row, column=1)
+
     return vars_dict
 
 def run_annotate_app(vars_dict, parent_frame):
@@ -349,7 +391,7 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}")
 
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'], outline=settings['outline'], outline_threshold_factor=settings['outline_threshold_factor'], outline_sigma=settings['outline_sigma'])
 
     # Set the canvas background to black
     root.configure(bg='black')

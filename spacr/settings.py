@@ -314,7 +314,7 @@ def get_measure_crop_settings(settings={}):
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
     
-    settings.setdefault('distance_gaussian_sigma', 1)
+    settings.setdefault('distance_gaussian_sigma', 10)
     
     if settings['test_mode']:
         settings['verbose'] = True
@@ -1003,7 +1003,7 @@ expected_types = {
     "nucleus_diamiter":int,
     "pathogen_diamiter":int,
     "consolidate":bool,
-    "distance_gaussian_sigma":int
+    "distance_gaussian_sigma": (int, type(None))
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
@@ -1467,6 +1467,9 @@ def set_annotate_default_settings(settings):
     settings.setdefault('annotation_column', 'test')
     settings.setdefault('normalize', 'False')
     settings.setdefault('normalize_channels', "r,g,b")
+    settings.setdefault('outline', None)
+    settings.setdefault('outline_threshold_factor', 1)
+    settings.setdefault('outline_sigma', 1)
     settings.setdefault('percentiles', [2, 98])
     settings.setdefault('measurement', '') #'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
     settings.setdefault('threshold', '') #'2')

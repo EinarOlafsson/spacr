@@ -331,85 +331,13 @@ def _extended_regionprops_table(labels, image, intensity_props):
     df['frac_low10'] = frac_low10
     df['entropy_intensity'] = entropy_intensity
 
-    percentiles = [5, 10, 25, 50, 75, 85, 95]
+    percentiles = [5, 10, 25, 75, 85, 95]
     for p in percentiles:
         df[f'percentile_{p}'] = [
             np.percentile(region.intensity_image[region.image], p)
             for region in regions
         ]
     return df
-
-def _extended_regionprops_table_v2(labels, image, intensity_props):
-    """
-    Calculate extended region properties table, adding integrated intensity,
-    skewness, kurtosis, std, and median intensity per region.
-    """
-    # regionprops_table gives you vectorized props, but not everything you want
-    props = regionprops_table(labels, image, properties=intensity_props)
-    df = pd.DataFrame(props)
-
-    # Compute extra features region-by-region
-    regions = regionprops(labels, intensity_image=image)
-    integrated_intensity = []
-    std_intensity = []
-    median_intensity = []
-    skew_intensity = []
-    kurtosis_intensity = []
-    for region in regions:
-        intens = region.intensity_image[region.image]
-        # Handle empty region edge-case (shouldn't happen)
-        if intens.size == 0:
-            integrated_intensity.append(np.nan)
-            std_intensity.append(np.nan)
-            median_intensity.append(np.nan)
-            skew_intensity.append(np.nan)
-            kurtosis_intensity.append(np.nan)
-        else:
-            integrated_intensity.append(np.sum(intens))
-            std_intensity.append(np.std(intens))
-            median_intensity.append(np.median(intens))
-            # Only valid for >2 pixels
-            skew_intensity.append(skew(intens) if intens.size > 2 else np.nan)
-            kurtosis_intensity.append(kurtosis(intens) if intens.size > 3 else np.nan)
-
-    df['integrated_intensity'] = integrated_intensity
-    df['std_intensity'] = std_intensity
-    df['median_intensity'] = median_intensity
-    df['skew_intensity'] = skew_intensity
-    df['kurtosis_intensity'] = kurtosis_intensity
-
-    # You can add other features here if desired
-
-    # Percentiles (your existing code—optional if you want to keep)
-    percentiles = [5, 10, 25, 50, 75, 85, 95]
-    for p in percentiles:
-        df[f'percentile_{p}'] = [
-            np.percentile(region.intensity_image[region.image], p)
-            for region in regions
-        ]
-    return df
-
-def _extended_regionprops_table_v1(labels, image, intensity_props):
-    """
-    Calculate extended region properties table.
-
-    Args:
-        labels (ndarray): Labeled image.
-        image (ndarray): Input image.
-        intensity_props (list): List of intensity properties to calculate.
-
-    Returns:
-        DataFrame: Extended region properties table.
-
-    """
-    regions = regionprops(labels, image)
-    props = regionprops_table(labels, image, properties=intensity_props)
-    percentiles = [5, 10, 25, 50, 75, 85, 95]
-    for p in percentiles:
-        props[f'percentile_{p}'] = [
-            np.percentile(region.intensity_image.flatten()[~np.isnan(region.intensity_image.flatten())], p)
-            for region in regions]
-    return pd.DataFrame(props)
 
 def _calculate_homogeneity(label, channel, distances=[2,4,8,16,32,64]):
         """
@@ -767,8 +695,11 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
             df.append(mask_intensity_df)
             
     if isinstance(settings['distance_gaussian_sigma'], int):
-        intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
-        cell_dfs.append(intensity_distance_df)
+        if settings['distance_gaussian_sigma'] != 0:
+            if settings['cell_mask_dim'] != None:
+                if settings['nucleus_mask_dim'] != None or settings['pathogen_mask_dim'] != None:
+                    intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
+                    cell_dfs.append(intensity_distance_df)
     
     if radial_dist:
         if np.max(nucleus_mask) != 0:
