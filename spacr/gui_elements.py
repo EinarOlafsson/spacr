@@ -10,17 +10,22 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps, ImageTk, ImageDraw, ImageFont, ImageEnhance
 from concurrent.futures import ThreadPoolExecutor
-from skimage.exposure import rescale_intensity
 from IPython.display import display, HTML
 import imageio.v2 as imageio
 from collections import deque
+from skimage.filters import threshold_otsu
+from skimage.exposure import rescale_intensity
 from skimage.draw import polygon, line
 from skimage.transform import resize
-from scipy.ndimage import binary_fill_holes, label
+from skimage.morphology import dilation, disk
+from skimage.segmentation import find_boundaries
+from skimage.util import img_as_ubyte
+from scipy.ndimage import binary_fill_holes, label, gaussian_filter
 from tkinter import ttk, scrolledtext
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, confusion_matrix
+
 
 fig = None
 
@@ -2209,7 +2214,7 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1):
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -2237,7 +2242,10 @@ class AnnotateApp:
         self.measurement = measurement
         self.threshold = threshold
         self.normalize_channels = normalize_channels
-        print('self.normalize_channels',self.normalize_channels)
+        self.outline = outline #([s.strip().lower() for s in outline.split(',') if s.strip()]if isinstance(outline, str) and outline else None)
+        self.outline_threshold_factor = outline_threshold_factor
+        self.outline_sigma = outline_sigma
+        
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
         self.font_size = style_out['font_size']
@@ -2337,7 +2345,12 @@ class AnnotateApp:
             'percentiles': ','.join(map(str, self.percentiles)),
             'measurement': ','.join(self.measurement) if self.measurement else '',
             'threshold': str(self.threshold) if self.threshold is not None else '',
-            'normalize_channels': ','.join(self.normalize_channels) if self.normalize_channels else ''
+            'normalize_channels': ','.join(self.normalize_channels) if self.normalize_channels else '',
+            'outline': ','.join(self.outline) if self.outline else '',
+            'outline_threshold_factor': str(self.outline_threshold_factor) if hasattr(self, 'outline_threshold_factor') else '1.0',
+            'outline_sigma': str(self.outline_sigma) if hasattr(self, 'outline_sigma') else '1.0',
+            'src': self.src,
+            'db_path': self.db_path,
         }
 
         for key, data in vars_dict.items():
@@ -2354,7 +2367,10 @@ class AnnotateApp:
             settings['percentiles'] = list(map(convert_to_number, settings['percentiles'].split(','))) if settings['percentiles'] else [1, 99]
             settings['normalize'] = settings['normalize'].lower() == 'true'
             settings['normalize_channels'] = settings['normalize_channels'].split(',') if settings['normalize_channels'] else None
-
+            settings['outline'] = settings['outline'].split(',') if settings['outline'] else None
+            settings['outline_threshold_factor'] = float(settings['outline_threshold_factor'].replace(',', '.')) if settings['outline_threshold_factor'] else 1.0
+            settings['outline_sigma'] = float(settings['outline_sigma'].replace(',', '.')) if settings['outline_sigma'] else 1.0
+            
             try:
                 settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
                 settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
@@ -2379,7 +2395,12 @@ class AnnotateApp:
                 'percentiles': settings.get('percentiles'),
                 'measurement': settings.get('measurement'),
                 'threshold': settings.get('threshold'),
-                'normalize_channels': settings.get('normalize_channels')
+                'normalize_channels': settings.get('normalize_channels'),
+                'outline': settings.get('outline'),
+                'outline_threshold_factor': settings.get('outline_threshold_factor'),
+                'outline_sigma': settings.get('outline_sigma'),
+                'src': self.src,
+                'db_path': self.db_path
             })
 
             settings_window.destroy()
@@ -2389,22 +2410,32 @@ class AnnotateApp:
         
     def update_settings(self, **kwargs):
         allowed_attributes = {
-            'image_type', 'channels', 'image_size', 'annotation_column',
-            'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels'
+            'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
+            'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels', 'outline', 'outline_threshold_factor', 'outline_sigma'
         }
 
         updated = False
-
+                
         for attr, value in kwargs.items():
             if attr in allowed_attributes and value is not None:
+                if attr == 'outline':
+                    if isinstance(value, str):
+                        value = [s.strip().lower() for s in value.split(',') if s.strip()]
+                elif attr == 'outline_threshold_factor':
+                    value = float(value)
+                elif attr == 'outline_sigma':
+                    value = float(value)
                 setattr(self, attr, value)
                 updated = True
+
 
         if 'image_size' in kwargs:
             if isinstance(self.image_size, list):
                 self.image_size = (int(self.image_size[0]), int(self.image_size[0]))
             elif isinstance(self.image_size, int):
                 self.image_size = (self.image_size, self.image_size)
+            elif isinstance(self.image_size, tuple) and len(self.image_size) == 2:
+                self.image_size = tuple(map(int, self.image_size))
             else:
                 raise ValueError("Invalid image size")
 
@@ -2599,9 +2630,47 @@ class AnnotateApp:
         img = self.normalize_image(img, self.normalize, self.percentiles, self.normalize_channels)
         img = img.convert('RGB')
         img = self.filter_channels(img)
+        
+        if self.outline:
+            img = self.outline_image(img, self.outline_sigma)
+        
         img = img.resize(self.image_size)
         return img, annotation
     
+    def outline_image(self, img, edge_sigma=1, edge_thickness=1):
+        """
+        For each selected channel, compute a continuous outline from the intensity landscape
+        using Otsu threshold scaled by a correction factor. Replace only that channel.
+        """
+        arr = np.asarray(img)
+        if arr.ndim != 3 or arr.shape[2] != 3:
+            return img  # not RGB
+
+        out_img = arr.copy()
+        channel_map = {'r': 0, 'g': 1, 'b': 2}
+        factor = getattr(self, 'outline_threshold_factor', 1.0)
+
+        for ch in self.outline:
+            if ch not in channel_map:
+                continue
+            idx = channel_map[ch]
+            channel_data = arr[:, :, idx]
+
+            try:
+                channel_data = gaussian_filter(channel_data, sigma=edge_sigma) 
+                otsu_thresh = threshold_otsu(channel_data)
+                corrected_thresh = min(255, otsu_thresh * factor)
+                fg_mask = channel_data > corrected_thresh
+            except Exception:
+                continue
+            
+            edge = find_boundaries(fg_mask, mode='inner')
+            thick_edge = dilation(edge, disk(edge_thickness))
+
+            out_img[:, :, idx] = (thick_edge * 255).astype(np.uint8)
+
+        return Image.fromarray(out_img)
+
     @staticmethod
     def normalize_image(img, normalize=False, percentiles=(1, 99), normalize_channels=None):
         """
