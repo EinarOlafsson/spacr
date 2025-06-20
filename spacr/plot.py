@@ -1154,7 +1154,7 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
         for channel in range(num_channels):
             plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
         fig.tight_layout()    
-    print(f'{filename}')
+    #print(f'{filename}')
     return fig
     
 def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src, name, plot, filenames, object_type, mode='btrack', interactive=False):
