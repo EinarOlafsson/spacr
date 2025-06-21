@@ -113,73 +113,12 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
 - `Finetune cellpose models <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/5_spacr_train_cellpose.ipynb>`_  
   *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
 
-Tutorial (under construction)
---------
+Interactive Tutorial (under construction)
+--------------------
 
-Explore the spaCR pipeline step-by-step through interactive tutorials.  
-Each section includes GUI and notebook walkthroughs.
+Click the link below to explore GUI and Notebook-based tutorials for each step of the spaCR pipeline.
 
-.. raw:: html
-
-    <style>
-    .tile-gallery {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-        padding-top: 20px;
-    }
-    .tile-gallery a {
-        border-radius: 12px;
-        overflow: hidden;
-        transition: 0.3s;
-        border: 4px solid transparent;
-        display: block;
-        text-align: center;
-        text-decoration: none;
-    }
-    .tile-gallery a:hover {
-        border-color: #007BFF;
-    }
-    .tile-gallery a:active {
-        border-color: #0056b3;
-    }
-    .tile-gallery img {
-        border-radius: 8px;
-        width: 240px;
-        height: 180px;
-        object-fit: cover;
-    }
-    .tile-caption {
-        margin-top: 6px;
-        font-family: Open Sans, sans-serif;
-        font-size: 14px;
-        color: #222;
-    }
-    </style>
-
-    <div class="tile-gallery">
-        <a href="https://einarolafsson.github.io/spacr/tutorial/1_mask/">
-            <img src="https://einarolafsson.github.io/spacr/_static/tutorial/1_mask/000_placeholder.png" alt="Masking">
-            <div class="tile-caption">1. Generate segmentation masks</div>
-        </a>
-        <a href="https://einarolafsson.github.io/spacr/tutorial/2_measure/">
-            <img src="https://einarolafsson.github.io/spacr/_static/tutorial/2_measure/000_placeholder.png" alt="Measurements">
-            <div class="tile-caption">2. Measure & crop single cells</div>
-        </a>
-        <a href="https://einarolafsson.github.io/spacr/tutorial/3_classify/">
-            <img src="https://einarolafsson.github.io/spacr/_static/tutorial/3_classify/000_placeholder.png" alt="Classification">
-            <div class="tile-caption">3. Classify using ML/DL</div>
-        </a>
-        <a href="https://einarolafsson.github.io/spacr/tutorial/4_map_barcodes/">
-            <img src="https://einarolafsson.github.io/spacr/_static/tutorial/4_map_barcodes/000_placeholder.png" alt="Mapping barcodes">
-            <div class="tile-caption">4. Map barcodes from FASTQ</div>
-        </a>
-        <a href="https://einarolafsson.github.io/spacr/tutorial/5_regression/">
-            <img src="https://einarolafsson.github.io/spacr/_static/tutorial/5_regression/000_placeholder.png" alt="Regression">
-            <div class="tile-caption">5. Perform regression analysis</div>
-        </a>
-    </div>
+👉 `View the spaCR tutorial <https://einarolafsson.github.io/spacr/tutorial.html>`_
 
 License
 -------
