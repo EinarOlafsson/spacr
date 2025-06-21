@@ -116,9 +116,9 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
 Interactive Tutorial (under construction)
 --------------------
 
-Click the link below to explore GUI and Notebook-based tutorials for each step of the spaCR pipeline.
+Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 
-👉 `View the spaCR tutorial <https://einarolafsson.github.io/spacr/tutorial.html>`_
+👉 `spaCR Tutorial Page <https://einarolafsson.github.io/spacr/tutorial/>`_
 
 License
 -------
