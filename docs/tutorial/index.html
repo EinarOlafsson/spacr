@@ -1,109 +1,112 @@
-Tutorial
-========
+<!DOCTYPE html>
+<html lang="en">
 
-.. raw:: html
+<head>
+    <meta charset="UTF-8">
+    <title>Tutorial</title>
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+        }
 
-<style>
-    @font-face {
-        font-family: 'Open Sans';
-        src: url("resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
-    }
+        body {
+            background-color: #1e1e1e;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-        background-color: #1e1e1e;
-        color: white;
-        font-family: 'Open Sans', sans-serif;
-    }
+        .tutorial-title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 20px 0 0 0;
+        }
 
-    h1,
-    h2,
-    h3,
-    h4 {
-        font-family: 'Open Sans', sans-serif;
-        color: white;
-    }
+        .tutorial-description {
+            text-align: center;
+            font-size: 1em;
+            padding-bottom: 20px;
+        }
 
-    .tile-gallery {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-        padding-top: 20px;
-    }
+        .tile-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 10px 20px 40px 20px;
+        }
 
-    .tile-gallery a {
-        position: relative;
-        display: block;
-        border-radius: 12px;
-        overflow: hidden;
-        text-align: center;
-        text-decoration: none;
-        transition: transform 0.3s;
-    }
+        .tile-gallery a {
+            position: relative;
+            display: block;
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
 
-    .tile-gallery a:hover::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border: 4px solid rgba(0, 123, 255, 0.6);
-        /* semi-transparent blue */
-        border-radius: 12px;
-        pointer-events: none;
-    }
+        .tile-gallery a:hover::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 4px solid rgba(0, 123, 255, 0.6);
+            border-radius: 12px;
+            pointer-events: none;
+        }
 
-    .tile-gallery a:active::before {
-        border-color: rgba(0, 86, 179, 0.8);
-    }
+        .tile-gallery a:active::before {
+            border-color: rgba(0, 86, 179, 0.8);
+        }
 
-    .tile-gallery img {
-        border-radius: 8px;
-        width: 240px;
-        height: 180px;
-        object-fit: cover;
-        display: block;
-    }
+        .tile-gallery img {
+            border-radius: 8px;
+            width: 240px;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
 
-    .tile-caption {
-        margin-top: 6px;
-        font-size: 14px;
-        color: white;
-        font-family: 'Open Sans', sans-serif;
-    }
+        .tile-caption {
+            margin-top: 6px;
+            font-size: 14px;
+            color: white;
+        }
+    </style>
+</head>
 
-    .tutorial-title {
-        text-align: center;
-        font-size: 2em;
-        font-weight: bold;
-        padding: 20px;
-        font-family: 'Open Sans', sans-serif;
-    }
-</style>
+<body>
+    <div class="tutorial-title">Tutorial</div>
+    <div class="tutorial-description">
+        Explore the spaCR pipeline step-by-step through interactive tutorials.<br>
+        Each section includes both GUI and Notebook workflows.
+    </div>
 
-<div class="tutorial-title">Tutorial</div>
-<div style="text-align: center; margin-bottom: 20px;">
-    <p>Explore the spaCR pipeline step-by-step through interactive tutorials.<br>
-        Each section includes both GUI and Notebook workflows.</p>
-</div>
+    <div class="tile-gallery">
+        <a href="1_mask.html">
+            <img src="../resources/tutorial/1_mask/000_placeholder.png" alt="Masking">
+            <div class="tile-caption">1. Generate segmentation masks</div>
+        </a>
+        <a href="2_measure.html">
+            <img src="../resources/tutorial/2_measure/000_placeholder.png" alt="Measurement">
+            <div class="tile-caption">2. Measure & crop single cells</div>
+        </a>
+        <a href="3_classify.html">
+            <img src="../resources/tutorial/3_classify/000_placeholder.png" alt="Classify">
+            <div class="tile-caption">3. Classify using ML/DL</div>
+        </a>
+        <a href="4_map_barcodes.html">
+            <img src="../resources/tutorial/4_map_barcodes/000_placeholder.png" alt="Barcodes">
+            <div class="tile-caption">4. Map barcodes from FASTQ</div>
+        </a>
+        <a href="5_regression.html">
+            <img src="../resources/tutorial/5_regression/000_placeholder.png" alt="Regression">
+            <div class="tile-caption">5. Perform regression analysis</div>
+        </a>
+    </div>
+</body>
 
-<div class="tile-gallery">
-    <a href="1_mask.html">
-        <img src="spacr/resources/tutorial/1_mask/000_placeholder.png" alt="Masking">
-        <div class="tile-caption">1. Generate segmentation masks</div>
-    </a>
-    <a href="2_measure.html">
-        <img src="spacr/resources/tutorial/2_measure/000_placeholder.png" alt="Measurement">
-        <div class="tile-caption">2. Measure & crop single cells</div>
-    </a>
-    <a href="3_classify.html">
-        <img src="spacr/resources/tutorial/3_classify/000_placeholder.png" alt="Classify">
-        <div class="tile-caption">3. Classify using ML/DL</div>
-    </a>
-    <a href="4_map_barcodes.html">
-        <img src="spacr/resources/tutorial/4_map_barcodes/000_placeholder.png" alt="Barcodes">
-        <div class="tile-caption">4. Map barcodes from FASTQ</div>
-    </a>
-    <a href="5_regression.html">
-        <img src="spacr/resources/tutorial/5_regression/000_placeholder.png" alt="Regression">
-        <div class="tile-caption">5. Perform regression analysis</div>
-    </a>
-</div>
+</html>
