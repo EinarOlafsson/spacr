@@ -1,0 +1,67 @@
+Tutorial
+========
+
+Explore the spaCR pipeline step-by-step through interactive tutorials.  
+Each section includes both GUI and Notebook workflows.
+
+.. raw:: html
+
+    <style>
+    .tile-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        padding-top: 20px;
+    }
+    .tile-gallery a {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: 0.3s;
+        border: 4px solid transparent;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+    }
+    .tile-gallery a:hover {
+        border-color: #007BFF;
+    }
+    .tile-gallery a:active {
+        border-color: #0056b3;
+    }
+    .tile-gallery img {
+        border-radius: 8px;
+        width: 240px;
+        height: 180px;
+        object-fit: cover;
+    }
+    .tile-caption {
+        margin-top: 6px;
+        font-family: Open Sans, sans-serif;
+        font-size: 14px;
+        color: #222;
+    }
+    </style>
+
+    <div class="tile-gallery">
+        <a href="1_mask.html">
+            <img src="spacr/resources/tutorial/1_mask/000_placeholder.png" alt="Masking">
+            <div class="tile-caption">1. Generate segmentation masks</div>
+        </a>
+        <a href="2_measure.html">
+            <img src="spacr/resources/tutorial/2_measure/000_placeholder.png" alt="Measurement">
+            <div class="tile-caption">2. Measure & crop single cells</div>
+        </a>
+        <a href="3_classify.html">
+            <img src="spacr/resources/tutorial/3_classify/000_placeholder.png" alt="Classify">
+            <div class="tile-caption">3. Classify using ML/DL</div>
+        </a>
+        <a href="4_map_barcodes.html">
+            <img src="spacr/resources/tutorial/4_map_barcodes/000_placeholder.png" alt="Barcodes">
+            <div class="tile-caption">4. Map barcodes from FASTQ</div>
+        </a>
+        <a href="5_regression.html">
+            <img src="spacr/resources/tutorial/5_regression/000_placeholder.png" alt="Regression">
+            <div class="tile-caption">5. Perform regression analysis</div>
+        </a>
+    </div>
