@@ -118,7 +118,7 @@ Interactive Tutorial (under construction)
 
 Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 
-👉 `spaCR Tutorial Page <https://einarolafsson.github.io/spacr/tutorial/>`_
+`spaCR Tutorial Page <https://einarolafsson.github.io/spacr/tutorial/>`_
 
 License
 -------
