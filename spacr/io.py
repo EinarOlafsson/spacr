@@ -1587,7 +1587,7 @@ def preprocess_img_data(settings):
         print(f"Found {extension_counts[most_common_extension]} {most_common_extension} files")
     
     else:
-        print(f"Could not find any {valid_ext} files in {src} only found {extension_counts[0]}")
+        print(f"Could not find any {valid_ext} files in {src}")
         print(f"{files} in {src}")
         print(f"Please check the folder and try again")
         
