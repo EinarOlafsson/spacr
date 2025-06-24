@@ -1,0 +1,4 @@
+{'diameter': 160, 'minimum_size': 6400.0, 'maximum_size': 256000, 'merge': False, 'resample': True, 'remove_border_objects': False, 'model_name': 'cyto2', 'filter_size': False, 'filter_intensity': False, 'restore_type': None}
+{'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}
+Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
+Number of objects, : 27
