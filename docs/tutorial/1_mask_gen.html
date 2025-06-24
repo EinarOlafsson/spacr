@@ -100,10 +100,10 @@
 <body>
   <h1>1. Generate Segmentation Masks</h1>
 
-  <!-- Slide 0 -->
-  <div class="slide" id="slide-0" style="display: flex; flex-direction: column; align-items: center;">
+  <!-- Slide 1 -->
+  <div class="slide" id="slide-1" style="display: flex; flex-direction: column; align-items: center;">
     <div class="figure">
-      <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="channels">
+      <img src="../resources/tutorial/1_mask/notebook/img1.png" alt="channels">
     </div>
     <pre class="console">
 >>> Running mask generation...
@@ -117,10 +117,10 @@
     </div>
   </div>
 
-  <!-- Slide 1 -->
-  <div class="slide" id="slide-1" style="display: flex; flex-direction: column; align-items: center;">
+  <!-- Slide 2 -->
+  <div class="slide" id="slide-2" style="display: flex; flex-direction: column; align-items: center;">
     <div class="figure">
-      <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="channels">
+      <img src="../resources/tutorial/1_mask/notebook/img2.png" alt="channels">
     </div>
     <pre class="console">
 >>> Using settings:
@@ -134,10 +134,10 @@
     </div>
   </div>
 
-  <!-- Slide 2 -->
-  <div class="slide" id="slide-2" style="display: flex; flex-direction: column; align-items: center;">
+  <!-- Slide 3 -->
+  <div class="slide" id="slide-3" style="display: flex; flex-direction: column; align-items: center;">
     <div class="figure">
-      <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="channels">
+      <img src="../resources/tutorial/1_mask/notebook/img3.png" alt="channels">
     </div>
     <pre class="console">
 >>> Finished mask generation.
@@ -147,6 +147,40 @@
     <div class="comment">
       Final results show successfully saved mask outputs. You can now proceed to object classification, visualization,
       or export for downstream spatial analyses.
+    </div>
+  </div>
+
+  <!-- Slide 4 -->
+  <div class="slide" id="slide-4" style="display: flex; flex-direction: column; align-items: center;">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img4.png" alt="channels">
+    </div>
+    <pre class="console">
+>>> Using settings:
+>>>   cell_channel=3, nucleus_channel=0
+>>>   background=[100, 200], SNR=[10, 5]
+>>> Executing test mode with 10 random images.
+    </pre>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
+    </div>
+  </div>
+
+  <!-- Slide 5 -->
+  <div class="slide" id="slide-5" style="display: flex; flex-direction: column; align-items: center;">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img5.png" alt="channels">
+    </div>
+    <pre class="console">
+>>> Using settings:
+>>>   cell_channel=3, nucleus_channel=0
+>>>   background=[100, 200], SNR=[10, 5]
+>>> Executing test mode with 10 random images.
+    </pre>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
     </div>
   </div>
 
