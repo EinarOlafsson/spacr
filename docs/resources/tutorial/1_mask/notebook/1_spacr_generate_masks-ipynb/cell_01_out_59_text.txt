@@ -1,0 +1,1 @@
+Progress: 5/42, operation_type: Plot mask outlines, Time/image: 3.601sec, Time_left: 2.220 min.
