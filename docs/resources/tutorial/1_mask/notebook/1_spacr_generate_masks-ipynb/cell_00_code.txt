@@ -1,0 +1,37 @@
+from spacr.core import preprocess_generate_masks
+%matplotlib inline
+
+settings = {'src':'/home/olafsson/datasets/plate1', # (path) path to source folder (where origional images were stored)
+            'metadata_type':'cellvoyager', # (string) - type of fime name metadata (cellvoyager, cq1, Nikon)
+            'custom_regex':None, # (regex) - Regular expression if filename metadata not in metadata_type 
+            'experiment':'screen', # (string) - Name of experiment
+            'channels':[0,1,2,3], # (list) - list of integers representing available channels
+            'cell_channel':3, # (integer or NoneType) - Cell image dimension 
+            'cell_background':100, # (integer) - Background value in cell images
+            'cell_Signal_to_noise':10, # (integer) - Signal to noise ration for cell channel
+            'cell_CP_prob':-1, # (integer) - Cellpose Cell probability
+            'remove_background_cell':False, # (bool) - Set background to 0 for cell channel
+            'nucleus_channel':0, # (Optional, integer or NoneType) - Nucleus image dimension 
+            'nucleus_background':200, # (Optional, integer) - Background value in nucleus images
+            'nucleus_Signal_to_noise':5, # (Optional, integer) - Signal to noise ration for nucleus channel
+            'nucleus_CP_prob':0, # (Optional, integer) - Cellpose Nucleus probability
+            'remove_background_nucleus':False, # (Optional, bool) - Set background to 0 for nucleus channel
+            'pathogen_model':None, # (Optional, path or NoneType) - Custom cellpose model path for pathogen detection
+            'pathogen_channel':2, # (Optional, integer or NoneType) - Pathogen image dimension 
+            'pathogen_background':400, # (Optional, integer) - Background value in pathogen images
+            'pathogen_Signal_to_noise':5, # (Optional, integer) - Signal to noise ration for pathogen channel
+            'pathogen_CP_prob':-2, # (Optional, integer) - Cellpose pathogen probability
+            'remove_background_pathogen':True, # (Optional, bool) - Set background to 0 for pathogen channel
+            'consolidate':False, # (Optional, bool) - Consolidate files from multilevel folderstructure into one folder.
+            'magnification':40, # (integer) - Objective magnefication used to aquire images (40, 60, 100)
+            'save':True, # (bool) - Save masks and object data to database
+            'preprocess':True, # (bool) - Preprocess images
+            'masks':True, # (bool) - Generate masks
+            'batch_size':50, # (bool) - Number of images to be normalized together and loaded onto the GPU
+            'filter':False, # (bool) - Filter objects based on size
+            'merge_pathogens':False, # (bool) - Merge pathogens that share > 75% perimiter
+            'plot':True, # (bool) - Plot normalized intensity and object images
+            'adjust_cells':True, # (bool) - If cell, nucleus and pathogen: merge cells that share a pathogen
+            'test_mode':True, # (bool) - Test settings in test mode before analyzing entire experiment
+            'test_images':10, # (integer) - Number of images to analyze in test mode
+            'random_test':True} # (bool) - Randomize images for test mode
