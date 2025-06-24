@@ -100,50 +100,55 @@
 <body>
   <h1>1. Generate Segmentation Masks</h1>
 
-  <!-- Start of slide -->
-  name = "channels"
-  slide_figure = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png"
-  console_output = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_02_text.txt"
-  comment_text = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/comment_1.txt"
-
+  <!-- Slide 0 -->
   <div class="slide" id="slide-0" style="display: flex; flex-direction: column; align-items: center;">
     <div class="figure">
-      <img src=slide_figure alt=name=>
+      <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="channels">
     </div>
-    <pre class="console">console_output</pre>
-    <div class="comment">comment_text</div>
+    <pre class="console">
+>>> Running mask generation...
+>>> Loading model: Cellpose cyto
+>>> Processing image batch 1/3...
+>>> Completed: 10 images analyzed.
+    </pre>
+    <div class="comment">
+      This slide demonstrates the initial mask generation using the Cellpose 'cyto' model. Note the high signal-to-noise
+      ratio achieved by preprocessing with background removal and normalization enabled.
+    </div>
   </div>
-  <!-- End of slide -->
 
-  <!-- Start of slide -->
-  name = "channels"
-  slide_figure = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png"
-  console_output = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_02_text.txt"
-  comment_text = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/comment_1.txt"
-
-  <div class="slide" id="slide-0" style="display: flex; flex-direction: column; align-items: center;">
+  <!-- Slide 1 -->
+  <div class="slide" id="slide-1" style="display: flex; flex-direction: column; align-items: center;">
     <div class="figure">
-      <img src=slide_figure alt=name=>
+      <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="channels">
     </div>
-    <pre class="console">console_output</pre>
-    <div class="comment">comment_text</div>
+    <pre class="console">
+>>> Using settings:
+>>>   cell_channel=3, nucleus_channel=0
+>>>   background=[100, 200], SNR=[10, 5]
+>>> Executing test mode with 10 random images.
+    </pre>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
+    </div>
   </div>
-  <!-- End of slide -->
 
-  <!-- Start of slide -->
-  name = "channels"
-  slide_figure = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png"
-  console_output = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_02_text.txt"
-  comment_text = "../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/comment_1.txt"
-
-  <div class="slide" id="slide-0" style="display: flex; flex-direction: column; align-items: center;">
+  <!-- Slide 2 -->
+  <div class="slide" id="slide-2" style="display: flex; flex-direction: column; align-items: center;">
     <div class="figure">
-      <img src=slide_figure alt=name=>
+      <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="channels">
     </div>
-    <pre class="console">console_output</pre>
-    <div class="comment">comment_text</div>
+    <pre class="console">
+>>> Finished mask generation.
+>>> Masks saved to: /home/user/output/masks/
+>>> Object features extracted and saved to database.
+    </pre>
+    <div class="comment">
+      Final results show successfully saved mask outputs. You can now proceed to object classification, visualization,
+      or export for downstream spatial analyses.
+    </div>
   </div>
-  <!-- End of slide -->
 
   <div class="controls">
     <button onclick="prevSlide()">Previous</button>
@@ -152,7 +157,7 @@
 
   <script>
     let currentSlide = 0;
-    const totalSlides = 1;
+    const totalSlides = 3;
     function showSlide(n) {
       document.getElementById("slide-" + currentSlide).style.display = "none";
       currentSlide = (n + totalSlides) % totalSlides;
