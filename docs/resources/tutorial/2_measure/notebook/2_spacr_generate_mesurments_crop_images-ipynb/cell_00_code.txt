@@ -1,0 +1,25 @@
+from spacr.measure import measure_crop
+%matplotlib inline
+
+settings = {'src':'/home/olafsson/datasets/plate1/test/merged', # (path) path to source folder (ens in /merged)
+            'channels':[0,1,2,3],# (list) - list of integers representing available channels
+            'cell_mask_dim':4, # (integer or NoneType) - Cell mask dimension 
+            'cell_min_size':2000, # (integer) - minimum size in px2 of cell objects
+            'nucleus_mask_dim':5, # (integer or NoneType) - Nucleus mask dimension 
+            'nucleus_min_size':1000, # (integer) - minimum size in px2 of nuclei objects
+            'pathogen_mask_dim':6, # (integer or NoneType) - Pathogen mask dimension 
+            'pathogen_min_size':400, # (integer) - minimum size in px2 of pathogen objects
+            'cytoplasm_min_size':0, # (integer) - minimum size in px2 of cutoplasm (cell-(nucleus+pathogen)) objects
+            'save_png':True, # (bool) - save objects as PNGs
+            'crop_mode':['cell'], # (list) - Object(s) to be cropped into images ('cell', 'nuclei', 'pathogen')
+            'use_bounding_box':False, # (bool) - Use bounding box for cropped images instead of object area
+            'png_size':[[224,224]], # (list of lists) - size of single object pngs
+            'normalize':False, # (bool or list) - normalize PNGs to percentiles
+            'png_dims':[0,1,2], # (list) - Dimensions to include in PNG images
+            'normalize_by':'png', # (string) - If normalize, normalize to fov (field of view) or png 
+            'save_measurements':True, # (bool) - Save measurements
+            'plot':True, # (bool) - plot images during analazys
+            'plot_filtration':False, # (bool) - Plot filtration steps
+            'uninfected':False, # (bool) - Include uninfected
+            'test_mode':False, # (bool) - Activate Test mode
+            'test_nr':10} # (integer) - Number of images to analyze in test mode

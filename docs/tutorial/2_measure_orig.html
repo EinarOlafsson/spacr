@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>2. Measure & Crop Single Cells</title>
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+    }
+
+    body {
+      background-color: #1e1e1e;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 2em;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 40px;
+    }
+
+    .subsection {
+      margin-top: 40px;
+    }
+
+    .subsection h2 {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      color: white;
+    }
+
+    .img-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .img-container {
+      position: relative;
+      width: 45%;
+      max-width: 600px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .img-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+
+    .img-container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: rgba(0, 123, 255, 0.25);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      border-radius: 10px;
+    }
+
+    .img-container:hover::after {
+      opacity: 1;
+    }
+
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 10px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2em;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>2. Measure & Crop Single Cells</h1>
+
+  <div class="subsection">
+    <h2>Graphical User Interface (GUI)</h2>
+    <div class="img-row">
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/gui/001_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/gui/001_placeholder.png">
+      </div>
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/gui/002_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/gui/002_placeholder.png">
+      </div>
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/gui/003_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/gui/003_placeholder.png">
+      </div>
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/gui/004_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/gui/004_placeholder.png">
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h2>Notebook Workflow</h2>
+    <div class="img-row">
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/notebook/001_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/notebook/001_placeholder.png">
+      </div>
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/notebook/002_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/notebook/002_placeholder.png">
+      </div>
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/notebook/003_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/notebook/003_placeholder.png">
+      </div>
+      <div class="img-container" onclick="openLightbox('../resources/tutorial/2_measure/notebook/004_placeholder.png')">
+        <img src="../resources/tutorial/2_measure/notebook/004_placeholder.png">
+      </div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close" onclick="closeLightbox()">×</span>
+    <img id="lightbox-img" src="">
+  </div>
+
+  <script>
+    function openLightbox(src) {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      lightboxImg.src = src;
+      lightbox.style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      lightbox.style.display = 'none';
+    }
+  </script>
+</body>
+
+</html>
