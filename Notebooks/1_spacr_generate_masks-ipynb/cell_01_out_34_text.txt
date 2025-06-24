@@ -1,0 +1,1 @@
+Progress: 2/3, operation_type: nucleus_mask_gen, Time/image: 23.892sec, Time_left: 0.398 min.
