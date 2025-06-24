@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>1. Generate Segmentation Masks</title>
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 2em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1em;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .figure {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            border: 1px solid #555;
+            padding: 0.5em;
+            box-sizing: border-box;
+        }
+
+        .figure img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .console {
+            background-color: #111;
+            color: #0f0;
+            padding: 1em;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            border: 1px solid #444;
+            box-sizing: border-box;
+        }
+
+        .comment {
+            background-color: #222;
+            color: #ccc;
+            padding: 1em;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid #555;
+            box-sizing: border-box;
+        }
+
+        .controls {
+            margin-top: 2em;
+        }
+
+        button {
+            slide_figure font-size: 1em;
+            margin: 0 1em;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>1. Generate Segmentation Masks</h1>
+
+    <div class="slide" id="slide-0" style="display: flex; flex-direction: column; align-items: center;">
+        <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png"
+            class="slide-img">
+        <pre class="console"># cell_00_code.txt
+from spacr.core import preprocess_generate_masks
+%matplotlib inline
+
+settings = {&#x27;src&#x27;:&#x27;/home/olafsson/datasets/plate1&#x27;, # (path) path to source folder (where origional images were stored)
+            &#x27;metadata_type&#x27;:&#x27;cellvoyager&#x27;, # (string) - type of fime name metadata (cellvoyager, cq1, Nikon)
+            &#x27;custom_regex&#x27;:None, # (regex) - Regular expression if filename metadata not in metadata_type 
+            &#x27;experiment&#x27;:&#x27;screen&#x27;, # (string) - Name of experiment
+            &#x27;channels&#x27;:[0,1,2,3], # (list) - list of integers representing available channels
+            &#x27;cell_channel&#x27;:3, # (integer or NoneType) - Cell image dimension 
+            &#x27;cell_background&#x27;:100, # (integer) - Background value in cell images
+            &#x27;cell_Signal_to_noise&#x27;:10, # (integer) - Signal to noise ration for cell channel
+            &#x27;cell_CP_prob&#x27;:-1, # (integer) - Cellpose Cell probability
+            &#x27;remove_background_cell&#x27;:False, # (bool) - Set background to 0 for cell channel
+            &#x27;nucleus_channel&#x27;:0, # (Optional, integer or NoneType) - Nucleus image dimension 
+            &#x27;nucleus_background&#x27;:200, # (Optional, integer) - Background value in nucleus images
+            &#x27;nucleus_Signal_to_noise&#x27;:5, # (Optional, integer) - Signal to noise ration for nucleus channel
+            &#x27;nucleus_CP_prob&#x27;:0, # (Optional, integer) - Cellpose Nucleus probability
+            &#x27;remove_background_nucleus&#x27;:False, # (Optional, bool) - Set background to 0 for nucleus channel
+            &#x27;pathogen_model&#x27;:None, # (Optional, path or NoneType) - Custom cellpose model path for pathogen detection
+            &#x27;pathogen_channel&#x27;:2, # (Optional, integer or NoneType) - Pathogen image dimension 
+            &#x27;pathogen_background&#x27;:400, # (Optional, integer) - Background value in pathogen images
+            &#x27;pathogen_Signal_to_noise&#x27;:5, # (Optional, integer) - Signal to noise ration for pathogen channel
+            &#x27;pathogen_CP_prob&#x27;:-2, # (Optional, integer) - Cellpose pathogen probability
+            &#x27;remove_background_pathogen&#x27;:True, # (Optional, bool) - Set background to 0 for pathogen channel
+            &#x27;consolidate&#x27;:False, # (Optional, bool) - Consolidate files from multilevel folderstructure into one folder.
+            &#x27;magnification&#x27;:40, # (integer) - Objective magnefication used to aquire images (40, 60, 100)
+            &#x27;save&#x27;:True, # (bool) - Save masks and object data to database
+            &#x27;preprocess&#x27;:True, # (bool) - Preprocess images
+            &#x27;masks&#x27;:True, # (bool) - Generate masks
+            &#x27;batch_size&#x27;:50, # (bool) - Number of images to be normalized together and loaded onto the GPU
+            &#x27;filter&#x27;:False, # (bool) - Filter objects based on size
+            &#x27;merge_pathogens&#x27;:False, # (bool) - Merge pathogens that share &gt; 75% perimiter
+            &#x27;plot&#x27;:True, # (bool) - Plot normalized intensity and object images
+            &#x27;adjust_cells&#x27;:True, # (bool) - If cell, nucleus and pathogen: merge cells that share a pathogen
+            &#x27;test_mode&#x27;:True, # (bool) - Test settings in test mode before analyzing entire experiment
+            &#x27;test_images&#x27;:10, # (integer) - Number of images to analyze in test mode
+            &#x27;random_test&#x27;:True} # (bool) - Randomize images for test mode
+
+Processing folder: /home/olafsson/datasets/plate1
+Found path: /home/olafsson/datasets/plate1
+Saving settings to /home/olafsson/datasets/plate1/settings/gen_mask_settings.csv
+
+Found 208 tif files
+Image_format: tif
+
+regex mode:cellvoyager regex:(?P&lt;plateID&gt;.*)_(?P&lt;wellID&gt;.*)_T(?P&lt;timeID&gt;.*)F(?P&lt;fieldID&gt;.*)L(?P&lt;laserID&gt;..)A(?P&lt;AID&gt;..)Z(?P&lt;sliceID&gt;.*)C(?P&lt;chanID&gt;.*).tif
+
+Found 208 files
+Using 10 random image set(s) for test model
+All files: 40 in /home/olafsson/datasets/plate1/test
+All unique FOV: 40 in /home/olafsson/datasets/plate1/test
+
+Progress: 1/40, operation_type: Preprocessing filenames, Time/batch: 0.434sec, Time/image: 0.009sec, Time_left: 0.282 min.
+Progress: 40/40, operation_type: Preprocessing filenames, Time/batch: 0.553sec, Time/image: 0.011sec, Time_left: 0.000 min.
+
+List of folders in src: [&#x27;1&#x27;, &#x27;2&#x27;, &#x27;3&#x27;, &#x27;4&#x27;]. Single channel folders.
+Generated folder with merged arrays: /home/olafsson/datasets/plate1/test/stack
+
+Progress: 1/10, operation_type: Merging channels into npy stacks, Time/image: 0.220sec, Time_left: 0.033 min.
+Progress: 10/10, operation_type: Merging channels into npy stacks, Time/image: 0.196sec, Time_left: 0.000 min.
+
+plotting 1 images from /home/olafsson/datasets/plate1/test/stack
+Image path:/home/olafsson/datasets/plate1/test/stack/plate1_E02_21_1.npy
+</pre>
+        <div class="comment">Commentary for slide 1 goes here.</div>
+    </div>
+
+    <div class="slide" id="slide-1" style="display: none; flex-direction: column; align-items: center;">
+        <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_07.png"
+            class="slide-img">
+        <pre class="console"># cell_01_out_04_text.txt
+
+Progress: 1/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
+Progress: 10/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+
+Processing channel 0: background=200, signal_threshold=1000, remove_background=False
+Channel 0: global_lower=12.0, global_upper=3825.0, Signal-to-noise=318.75
+Progress: 1/3, operation_type: Normalizing, Time/image: 0.697sec, Time_left: 0.023 min.
+Processing channel 3: background=100, signal_threshold=1000, remove_background=False
+Channel 3: global_lower=113.0, global_upper=2195.0, Signal-to-noise=19.424778761061948
+Progress: 2/3, operation_type: Normalizing, Time/image: 0.636sec, Time_left: 0.011 min.
+Processing channel 2: background=400, signal_threshold=2000, remove_background=True
+Channel 2: global_lower=423.0, global_upper=6262.0, Signal-to-noise=14.803782505910165
+Progress: 3/3, operation_type: Normalizing, Time/image: 0.518sec, Time_left: 0.000 min.
+All files concatenated and normalized. Saved to: /home/olafsson/datasets/plate1/test/masks
+
+# cell_01_out_06_text.txt
+{&#x27;diameter&#x27;: 160, &#x27;minimum_size&#x27;: 6400.0, &#x27;maximum_size&#x27;: 256000, &#x27;merge&#x27;: False, &#x27;resample&#x27;: True, &#x27;remove_border_objects&#x27;: False, &#x27;model_name&#x27;: &#x27;cyto2&#x27;, &#x27;filter_size&#x27;: False, &#x27;filter_intensity&#x27;: False, &#x27;restore_type&#x27;: None}
+{&#x27;nucleus&#x27;: [0, 0], &#x27;pathogen&#x27;: [0, 2], &#x27;cell&#x27;: [0, 1]}
+Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
+Number of objects, : 27
+</pre>
+        <div class="comment">Commentary for slide 2 goes here.</div>
+    </div>
+
+    <div class="slide" id="slide-2" style="display: none; flex-direction: column; align-items: center;">
+        <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_10.png"
+            class="slide-img">
+        <pre class="console">
+</pre>
+        <div class="comment">Commentary for slide 25 goes here.</div>
+    </div>slide_figure
+
+    Progress: 1/3, operation_type: cell_mask_gen, Time/image: 35.657sec, Time_left: 1.189 min.
+
+    {&#x27;diameter&#x27;: 75, &#x27;minimum_size&#x27;: 1406.25, &#x27;maximum_size&#x27;: 56250, &#x27;merge&#x27;:
+    False, &#x27;resample&#x27;: True, &#x27;remove_border_objects&#x27;: False, &#x27;model_name&#x27;:
+    &#x27;nuclei&#x27;, &#x27;filter_size&#x27;: False, &#x27;filter_intensity&#x27;: False, &#x27;restore_type&#x27;:
+    None}
+    {&#x27;nucleus&#x27;: [0, 0], &#x27;pathogen&#x27;: [0, 2], &#x27;cell&#x27;: [0, 1]}
+    Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
+
+    </pre>
+    <div class="comment">Commentary for slide 13 goes here.</div>
+    </div>
+
+    <div class="slide" id="slide-13" style="display: none; flex-direction: column; align-items: center;">
+        <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_24.png"
+            class="slide-img">
+        <pre class="console">
+            </pre>
+        <div class="comment">Commentary for slide 25 goes here.</div>
+    </div>
+
+    Progress: 2/3, operation_type: nucleus_mask_gen, Time/image: 23.892sec, Time_left: 0.398 min.
+
+    {&#x27;diameter&#x27;: 40, &#x27;minimum_size&#x27;: 400.0, &#x27;maximum_size&#x27;: 16000, &#x27;merge&#x27;:
+    False, &#x27;resample&#x27;: False, &#x27;remove_border_objects&#x27;: False, &#x27;model_name&#x27;:
+    &#x27;cyto&#x27;, &#x27;filter_size&#x27;: False, &#x27;filter_intensity&#x27;: False, &#x27;restore_type&#x27;:
+    None}
+    {&#x27;nucleus&#x27;: [0, 0], &#x27;pathogen&#x27;: [0, 2], &#x27;cell&#x27;: [0, 1]}
+    Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
+
+    </pre>
+    <div class="comment">Commentary for slide 24 goes here.</div>
+    </div>
+
+    <div class="slide" id="slide-24" style="display: none; flex-direction: column; align-items: center;">
+        <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_39.png"
+            class="slide-img">
+        <pre class="console">
+
+</pre>
+        <div class="comment">Commentary for slide 25 goes here.</div>
+
+        Progress: 3/3, operation_type: pathogen_mask_gen, Time/image: 19.432sec, Time_left: 0.000 min.
+        Adjusting cell masks with nuclei and pathogen masks
+
+        Progress: 1/10, operation_type: adjust_cell_masks, Time/image: 0.422sec, Time_left: 0.063 min.
+        Progress: 10/10, operation_type: adjust_cell_masks, Time/image: 0.577sec, Time_left: 0.000 min.
+        Cell mask adjustment: 0.09624974330266317 min.
+        Progress: 1/10, operation_tslide_figureype: Merging Arrays, Time/image: 0.076sec, Time_left: 0.011 min.
+        Progress: 10/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.000 min.
+
+        </pre>
+        <div class="comment">Commentary for slide 35 goes here.</div>
+    </div>
+
+    <div class="slide" id="slide-35" style="display: none; flex-direction: column; align-items: center;">
+        <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_52.png"
+            class="slide-img">
+        <pre class="console"># cell_01_out_51_text.txt
+</pre>
+        <div class="comment">Commentary for slide 36 goes here.</div>
+    </div>
+
+    Progress: 1/42, operation_type: Plot mask outlines, Time/image: 3.719sec, Time_left: 2.541 min.
+    Progress: 10/42, operation_type: Plot mask outlines, Time/image: 3.597sec, Time_left: 1.919 min.
+    Successfully completed run
+
+    <div class="controls">
+        <button onclick="prevSlide()">Previous</button>
+        <button onclick="nextSlide()">Next</button>
+    </div>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 45;
+        function showSlide(n) {
+            document.getElementById("slide-" + currentSlide).style.display = "none";
+            currentSlide = (n + totalSlides) % totalSlides;
+            document.getElementById("slide-" + currentSlide).style.display = "flex";
+        }
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            showSlide(0);
+        });
+    </script>
+</body>
+
+</html>
