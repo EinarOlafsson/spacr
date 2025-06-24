@@ -1,82 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>1. Generate Segmentation Masks</title>
-  <style>
-    @font-face {
-      font-family: 'Open Sans';
-      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
-    }
-    body {
-      background-color: #1e1e1e;
-      color: white;
-      font-family: 'Open Sans', sans-serif;
-      margin: 0;
-      padding: 2em;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2em;
-      margin-bottom: 40px;
-    }
-    .output-block {
-      margin-bottom: 60px;
-    }
-    .img-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .img-container img {
-      max-width: 90%;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .console {
-      background-color: #2d2d2d;
-      padding: 1em;
-      border-radius: 10px;
-      overflow-x: auto;
-      margin-bottom: 10px;
-    }
-    .comment-box {
-      background-color: #333;
-      padding: 0.8em;
-      border-left: 5px solid #007bff;
-      border-radius: 6px;
-      color: #ccc;
-    }
-    .lightbox {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-    }
-    .lightbox img {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 10px;
-    }
-    .lightbox-close {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 2em;
-      color: white;
-      text-decoration: none;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>1. Generate Segmentation Masks</title>
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 2em;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 40px;
+        }
+
+        .output-block {
+            margin-bottom: 60px;
+        }
+
+        .img-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .img-container img {
+            max-width: 90%;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .console {
+            background-color: #2d2d2d;
+            padding: 1em;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin-bottom: 10px;
+        }
+
+        .comment-box {
+            background-color: #333;
+            padding: 0.8em;
+            border-left: 5px solid #007bff;
+            border-radius: 6px;
+            color: #ccc;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 10px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2em;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>1. Generate Segmentation Masks</h1>
-  <div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png" alt="Notebook output 1">
-        </div><div class='console'><pre><code>Processing folder: /home/olafsson/datasets/plate1
+    <h1>1. Generate Segmentation Masks</h1>
+    <div class='output-block'>
+        <div class="img-container"
+            onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png')">
+            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_03.png"
+                alt="Notebook output 1">
+        </div>
+        <div class='console'>
+            <pre><code>Processing folder: /home/olafsson/datasets/plate1
 Found path: /home/olafsson/datasets/plate1
 Saving settings to /home/olafsson/datasets/plate1/settings/gen_mask_settings.csv
 Starting Test mode ...
@@ -89,71 +105,29 @@ Using 10 random image set(s) for test model
 All files: 40 in /home/olafsson/datasets/plate1/test
 All unique FOV: 40 in /home/olafsson/datasets/plate1/test
 Progress: 1/40, operation_type: Preprocessing filenames, Time/batch: 0.434sec, Time/image: 0.009sec, Time_left: 0.282 min.
-Progress: 2/40, operation_type: Preprocessing filenames, Time/batch: 0.440sec, Time/image: 0.009sec, Time_left: 0.279 min.
-Progress: 3/40, operation_type: Preprocessing filenames, Time/batch: 0.444sec, Time/image: 0.009sec, Time_left: 0.274 min.
-Progress: 4/40, operation_type: Preprocessing filenames, Time/batch: 0.448sec, Time/image: 0.009sec, Time_left: 0.269 min.
-Progress: 5/40, operation_type: Preprocessing filenames, Time/batch: 0.451sec, Time/image: 0.009sec, Time_left: 0.263 min.
-Progress: 6/40, operation_type: Preprocessing filenames, Time/batch: 0.454sec, Time/image: 0.009sec, Time_left: 0.257 min.
-Progress: 7/40, operation_type: Preprocessing filenames, Time/batch: 0.457sec, Time/image: 0.009sec, Time_left: 0.251 min.
-Progress: 8/40, operation_type: Preprocessing filenames, Time/batch: 0.460sec, Time/image: 0.009sec, Time_left: 0.245 min.
-Progress: 9/40, operation_type: Preprocessing filenames, Time/batch: 0.463sec, Time/image: 0.009sec, Time_left: 0.239 min.
-Progress: 10/40, operation_type: Preprocessing filenames, Time/batch: 0.466sec, Time/image: 0.009sec, Time_left: 0.233 min.
-Progress: 11/40, operation_type: Preprocessing filenames, Time/batch: 0.469sec, Time/image: 0.009sec, Time_left: 0.227 min.
-Progress: 12/40, operation_type: Preprocessing filenames, Time/batch: 0.472sec, Time/image: 0.009sec, Time_left: 0.220 min.
-Progress: 13/40, operation_type: Preprocessing filenames, Time/batch: 0.475sec, Time/image: 0.010sec, Time_left: 0.214 min.
-Progress: 14/40, operation_type: Preprocessing filenames, Time/batch: 0.478sec, Time/image: 0.010sec, Time_left: 0.207 min.
-Progress: 15/40, operation_type: Preprocessing filenames, Time/batch: 0.481sec, Time/image: 0.010sec, Time_left: 0.200 min.
-Progress: 16/40, operation_type: Preprocessing filenames, Time/batch: 0.484sec, Time/image: 0.010sec, Time_left: 0.194 min.
-Progress: 17/40, operation_type: Preprocessing filenames, Time/batch: 0.487sec, Time/image: 0.010sec, Time_left: 0.187 min.
-Progress: 18/40, operation_type: Preprocessing filenames, Time/batch: 0.490sec, Time/image: 0.010sec, Time_left: 0.180 min.
-Progress: 19/40, operation_type: Preprocessing filenames, Time/batch: 0.493sec, Time/image: 0.010sec, Time_left: 0.172 min.
-Progress: 20/40, operation_type: Preprocessing filenames, Time/batch: 0.495sec, Time/image: 0.010sec, Time_left: 0.165 min.
-Progress: 21/40, operation_type: Preprocessing filenames, Time/batch: 0.498sec, Time/image: 0.010sec, Time_left: 0.158 min.
-Progress: 22/40, operation_type: Preprocessing filenames, Time/batch: 0.501sec, Time/image: 0.010sec, Time_left: 0.150 min.
-Progress: 23/40, operation_type: Preprocessing filenames, Time/batch: 0.504sec, Time/image: 0.010sec, Time_left: 0.143 min.
-Progress: 24/40, operation_type: Preprocessing filenames, Time/batch: 0.507sec, Time/image: 0.010sec, Time_left: 0.135 min.
-Progress: 25/40, operation_type: Preprocessing filenames, Time/batch: 0.510sec, Time/image: 0.010sec, Time_left: 0.127 min.
-Progress: 26/40, operation_type: Preprocessing filenames, Time/batch: 0.513sec, Time/image: 0.010sec, Time_left: 0.120 min.
-Progress: 27/40, operation_type: Preprocessing filenames, Time/batch: 0.516sec, Time/image: 0.010sec, Time_left: 0.112 min.
-Progress: 28/40, operation_type: Preprocessing filenames, Time/batch: 0.518sec, Time/image: 0.010sec, Time_left: 0.104 min.
-Progress: 29/40, operation_type: Preprocessing filenames, Time/batch: 0.521sec, Time/image: 0.010sec, Time_left: 0.096 min.
-Progress: 30/40, operation_type: Preprocessing filenames, Time/batch: 0.524sec, Time/image: 0.010sec, Time_left: 0.087 min.
-Progress: 31/40, operation_type: Preprocessing filenames, Time/batch: 0.527sec, Time/image: 0.011sec, Time_left: 0.079 min.
-Progress: 32/40, operation_type: Preprocessing filenames, Time/batch: 0.530sec, Time/image: 0.011sec, Time_left: 0.071 min.
-Progress: 33/40, operation_type: Preprocessing filenames, Time/batch: 0.533sec, Time/image: 0.011sec, Time_left: 0.062 min.
-Progress: 34/40, operation_type: Preprocessing filenames, Time/batch: 0.536sec, Time/image: 0.011sec, Time_left: 0.054 min.
-Progress: 35/40, operation_type: Preprocessing filenames, Time/batch: 0.538sec, Time/image: 0.011sec, Time_left: 0.045 min.
-Progress: 36/40, operation_type: Preprocessing filenames, Time/batch: 0.541sec, Time/image: 0.011sec, Time_left: 0.036 min.
-Progress: 37/40, operation_type: Preprocessing filenames, Time/batch: 0.544sec, Time/image: 0.011sec, Time_left: 0.027 min.
-Progress: 38/40, operation_type: Preprocessing filenames, Time/batch: 0.547sec, Time/image: 0.011sec, Time_left: 0.018 min.
-Progress: 39/40, operation_type: Preprocessing filenames, Time/batch: 0.550sec, Time/image: 0.011sec, Time_left: 0.009 min.
+...
 Progress: 40/40, operation_type: Preprocessing filenames, Time/batch: 0.553sec, Time/image: 0.011sec, Time_left: 0.000 min.
 List of folders in src: ['1', '2', '3', '4']. Single channel folders.
 Generated folder with merged arrays: /home/olafsson/datasets/plate1/test/stack
 Progress: 1/10, operation_type: Merging channels into npy stacks, Time/image: 0.220sec, Time_left: 0.033 min.
-Progress: 2/10, operation_type: Merging channels into npy stacks, Time/image: 0.209sec, Time_left: 0.028 min.
-Progress: 3/10, operation_type: Merging channels into npy stacks, Time/image: 0.205sec, Time_left: 0.024 min.
-Progress: 4/10, operation_type: Merging channels into npy stacks, Time/image: 0.201sec, Time_left: 0.020 min.
-Progress: 5/10, operation_type: Merging channels into npy stacks, Time/image: 0.197sec, Time_left: 0.016 min.
-Progress: 6/10, operation_type: Merging channels into npy stacks, Time/image: 0.198sec, Time_left: 0.013 min.
-Progress: 7/10, operation_type: Merging channels into npy stacks, Time/image: 0.196sec, Time_left: 0.010 min.
-Progress: 8/10, operation_type: Merging channels into npy stacks, Time/image: 0.196sec, Time_left: 0.007 min.
-Progress: 9/10, operation_type: Merging channels into npy stacks, Time/image: 0.195sec, Time_left: 0.003 min.
+...
 Progress: 10/10, operation_type: Merging channels into npy stacks, Time/image: 0.196sec, Time_left: 0.000 min.
 plotting 1 images from /home/olafsson/datasets/plate1/test/stack
 Image path:/home/olafsson/datasets/plate1/test/stack/plate1_E02_21_1.npy
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_07.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_07.png" alt="Notebook output 2">
-        </div><div class='console'><pre><code>Progress: 1/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
-Progress: 2/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
-Progress: 3/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
-Progress: 4/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
-Progress: 5/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
-Progress: 6/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
-Progress: 7/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
-Progress: 8/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
-Progress: 9/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+</code></pre>
+        </div>
+        <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        <div class="img-container"
+            onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_07.png')">
+            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_07.png"
+                alt="Notebook output 2">
+        </div>
+        <div class='console'>
+            <pre><code>Progress: 1/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
+Progress: 1/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
+...
 Progress: 10/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
 Processing channel 0: background=200, signal_threshold=1000, remove_background=False
 Channel 0: global_lower=12.0, global_upper=3825.0, Signal-to-noise=318.75
@@ -169,193 +143,113 @@ All files concatenated and normalized. Saved to: /home/olafsson/datasets/plate1/
 {'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}
 Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
 Number of objects, : 27
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_09.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_09.png" alt="Notebook output 3">
-        </div><div class='console'><pre><code>object_size:cell: 17147.916 px2
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_10.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_10.png" alt="Notebook output 4">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_11.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_11.png" alt="Notebook output 5">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_12.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_12.png" alt="Notebook output 6">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_13.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_13.png" alt="Notebook output 7">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_14.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_14.png" alt="Notebook output 8">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_15.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_15.png" alt="Notebook output 9">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_16.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_16.png" alt="Notebook output 10">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_17.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_17.png" alt="Notebook output 11">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_18.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_18.png" alt="Notebook output 12">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_22.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_22.png" alt="Notebook output 13">
-        </div><div class='console'><pre><code>Progress: 1/3, operation_type: cell_mask_gen, Time/image: 35.657sec, Time_left: 1.189 min.
-{'diameter': 75, 'minimum_size': 1406.25, 'maximum_size': 56250, 'merge': False, 'resample': True, 'remove_border_objects': False, 'model_name': 'nuclei', 'filter_size': False, 'filter_intensity': False, 'restore_type': None}
-{'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}
-Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
-Number of objects, : 34
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_24.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_24.png" alt="Notebook output 14">
-        </div><div class='console'><pre><code>object_size:nucleus: 6683.251 px2
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_25.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_25.png" alt="Notebook output 15">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_26.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_26.png" alt="Notebook output 16">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_27.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_27.png" alt="Notebook output 17">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_28.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_28.png" alt="Notebook output 18">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_29.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_29.png" alt="Notebook output 19">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_30.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_30.png" alt="Notebook output 20">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_31.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_31.png" alt="Notebook output 21">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_32.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_32.png" alt="Notebook output 22">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_33.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_33.png" alt="Notebook output 23">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_37.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_37.png" alt="Notebook output 24">
-        </div><div class='console'><pre><code>Progress: 2/3, operation_type: nucleus_mask_gen, Time/image: 23.892sec, Time_left: 0.398 min.
-{'diameter': 40, 'minimum_size': 400.0, 'maximum_size': 16000, 'merge': False, 'resample': False, 'remove_border_objects': False, 'model_name': 'cyto', 'filter_size': False, 'filter_intensity': False, 'restore_type': None}
-{'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}
-Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
-Number of objects, : 22
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_39.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_39.png" alt="Notebook output 25">
-        </div><div class='console'><pre><code>object_size:pathogen: 1697.431 px2
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_40.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_40.png" alt="Notebook output 26">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_41.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_41.png" alt="Notebook output 27">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_42.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_42.png" alt="Notebook output 28">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_43.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_43.png" alt="Notebook output 29">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_44.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_44.png" alt="Notebook output 30">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_45.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_45.png" alt="Notebook output 31">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_46.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_46.png" alt="Notebook output 32">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_47.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_47.png" alt="Notebook output 33">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_48.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_48.png" alt="Notebook output 34">
-        </div><div class='console'><pre><code></code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_50.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_50.png" alt="Notebook output 35">
-        </div><div class='console'><pre><code>Progress: 3/3, operation_type: pathogen_mask_gen, Time/image: 19.432sec, Time_left: 0.000 min.
-Adjusting cell masks with nuclei and pathogen masks
-Progress: 1/10, operation_type: adjust_cell_masks, Time/image: 0.422sec, Time_left: 0.063 min.
-Progress: 2/10, operation_type: adjust_cell_masks, Time/image: 0.581sec, Time_left: 0.077 min.
-Progress: 3/10, operation_type: adjust_cell_masks, Time/image: 0.486sec, Time_left: 0.057 min.
-Progress: 4/10, operation_type: adjust_cell_masks, Time/image: 0.601sec, Time_left: 0.060 min.
-Progress: 5/10, operation_type: adjust_cell_masks, Time/image: 0.532sec, Time_left: 0.044 min.
-Progress: 6/10, operation_type: adjust_cell_masks, Time/image: 0.566sec, Time_left: 0.038 min.
-Progress: 7/10, operation_type: adjust_cell_masks, Time/image: 0.577sec, Time_left: 0.029 min.
-Progress: 8/10, operation_type: adjust_cell_masks, Time/image: 0.575sec, Time_left: 0.019 min.
-Progress: 9/10, operation_type: adjust_cell_masks, Time/image: 0.569sec, Time_left: 0.009 min.
-Progress: 10/10, operation_type: adjust_cell_masks, Time/image: 0.577sec, Time_left: 0.000 min.
-Cell mask adjustment: 0.09624974330266317 min.
-Progress: 1/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.011 min.
-Progress: 2/10, operation_type: Merging Arrays, Time/image: 0.077sec, Time_left: 0.010 min.
-Progress: 3/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.009 min.
-Progress: 4/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.008 min.
-Progress: 5/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.006 min.
-Progress: 6/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.005 min.
-Progress: 7/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.004 min.
-Progress: 8/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.003 min.
-Progress: 9/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.001 min.
-Progress: 10/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.000 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_52.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_52.png" alt="Notebook output 36">
-        </div><div class='console'><pre><code>Progress: 1/42, operation_type: Plot mask outlines, Time/image: 3.719sec, Time_left: 2.541 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_54.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_54.png" alt="Notebook output 37">
-        </div><div class='console'><pre><code>Progress: 2/42, operation_type: Plot mask outlines, Time/image: 3.673sec, Time_left: 2.448 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_56.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_56.png" alt="Notebook output 38">
-        </div><div class='console'><pre><code>Progress: 3/42, operation_type: Plot mask outlines, Time/image: 3.658sec, Time_left: 2.378 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_58.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_58.png" alt="Notebook output 39">
-        </div><div class='console'><pre><code>Progress: 4/42, operation_type: Plot mask outlines, Time/image: 3.621sec, Time_left: 2.294 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_60.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_60.png" alt="Notebook output 40">
-        </div><div class='console'><pre><code>Progress: 5/42, operation_type: Plot mask outlines, Time/image: 3.601sec, Time_left: 2.220 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_62.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_62.png" alt="Notebook output 41">
-        </div><div class='console'><pre><code>Progress: 6/42, operation_type: Plot mask outlines, Time/image: 3.599sec, Time_left: 2.160 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_64.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_64.png" alt="Notebook output 42">
-        </div><div class='console'><pre><code>Progress: 7/42, operation_type: Plot mask outlines, Time/image: 3.620sec, Time_left: 2.112 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_66.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_66.png" alt="Notebook output 43">
-        </div><div class='console'><pre><code>Progress: 8/42, operation_type: Plot mask outlines, Time/image: 3.613sec, Time_left: 2.047 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div><div class='output-block'>
-        <div class="img-container" onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_68.png')">
-            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_68.png" alt="Notebook output 44">
-        </div><div class='console'><pre><code>Progress: 9/42, operation_type: Plot mask outlines, Time/image: 3.600sec, Time_left: 1.980 min.
-</code></pre></div><div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div></div>
-  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-    <span class="lightbox-close" onclick="closeLightbox()">×</span>
-    <img id="lightbox-img" src="">
-  </div>
-  <script>
-    function openLightbox(src) {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      lightboxImg.src = src;
-      lightbox.style.display = 'flex';
-    }
-    function closeLightbox() {
-      const lightbox = document.getElementById('lightbox');
-      lightbox.style.display = 'none';
-    }
-  </script>
+</code></pre>
+        </div>
+        <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        <div class="img-container"
+            onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_09.png')">
+            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_09.png"
+                alt="Notebook output 3">
+        </div>
+        <div class='console'>
+            <pre><code>object_size:cell: 17147.916 px2
+</code></pre>
+        </div>
+        <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        Progress: 1/3, operation_type: cell_mask_gen, Time/image: 35.657sec, Time_left: 1.189 min.
+        {'diameter': 75, 'minimum_size': 1406.25, 'maximum_size': 56250, 'merge': False, 'resample': True,
+        'remove_border_objects': False, 'model_name': 'nuclei', 'filter_size': False, 'filter_intensity': False,
+        'restore_type': None}
+        {'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}
+        Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
+        Number of objects, : 34
+        </code></pre>
+    </div>
+    <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        <div class="img-container"
+            onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_24.png')">
+            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_24.png"
+                alt="Notebook output 14">
+        </div>
+        <div class='console'>
+            <pre><code>object_size:nucleus: 6683.251 px2
+</code></pre>
+        </div>
+        <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        Progress: 2/3, operation_type: nucleus_mask_gen, Time/image: 23.892sec, Time_left: 0.398 min.
+        {'diameter': 40, 'minimum_size': 400.0, 'maximum_size': 16000, 'merge': False, 'resample': False,
+        'remove_border_objects': False, 'model_name': 'cyto', 'filter_size': False, 'filter_intensity': False,
+        'restore_type': None}
+        {'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}
+        Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48
+        Number of objects, : 22
+        </code></pre>
+    </div>
+    <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        <div class="img-container"
+            onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_39.png')">
+            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_39.png"
+                alt="Notebook output 25">
+        </div>
+        <div class='console'>
+            <pre><code>object_size:pathogen: 1697.431 px2
+</code></pre>
+        </div>
+        <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        Progress: 3/3, operation_type: pathogen_mask_gen, Time/image: 19.432sec, Time_left: 0.000 min.
+        Adjusting cell masks with nuclei and pathogen masks
+        Progress: 1/10, operation_type: adjust_cell_masks, Time/image: 0.422sec, Time_left: 0.063 min.
+        ...
+        Progress: 10/10, operation_type: adjust_cell_masks, Time/image: 0.577sec, Time_left: 0.000 min.
+        Cell mask adjustment: 0.09624974330266317 min.
+        Progress: 1/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.011 min.
+        ...
+        Progress: 10/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.000 min.
+        </code></pre>
+    </div>
+    <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        <div class="img-container"
+            onclick="openLightbox('../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_52.png')">
+            <img src="../resources/tutorial/1_mask/notebook/1_spacr_generate_masks-ipynb/cell_01_out_52.png"
+                alt="Notebook output 36">
+        </div>
+        <div class='console'>
+            <pre><code>Progress: 1/42, operation_type: Plot mask outlines, Time/image: 3.719sec, Time_left: 2.541 min.
+</code></pre>
+        </div>
+        <div class='comment-box'><strong>Comment:</strong> <em>[Add your commentary here]</em></div>
+    </div>
+    <div class='output-block'>
+        <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+            <span class="lightbox-close" onclick="closeLightbox()">×</span>
+            <img id="lightbox-img" src="">
+        </div>
+        <script>
+            function openLightbox(src) {
+                const lightbox = document.getElementById('lightbox');
+                const lightboxImg = document.getElementById('lightbox-img');
+                lightboxImg.src = src;
+                lightbox.style.display = 'flex';
+            }
+            function closeLightbox() {
+                const lightbox = document.getElementById('lightbox');
+                lightbox.style.display = 'none';
+            }
+        </script>
 </body>
+
 </html>
