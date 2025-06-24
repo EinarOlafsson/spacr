@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>1. Measure and Crop single cells</title>
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+    }
+    body {
+      background-color: #1e1e1e;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+    .slide {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+      width: 100%;
+      max-width: 900px;
+    }
+    .figure {
+      width: 100%;
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      border: 1px solid #555;
+      padding: 0.5em;
+      box-sizing: border-box;
+    }
+    .figure img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .console {
+      background-color: #111;
+      color: #0f0;
+      padding: 1em;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      border: 1px solid #444;
+      box-sizing: border-box;
+    }
+    .comment {
+      background-color: #222;
+      color: #ccc;
+      padding: 1em;
+      width: 100%;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid #555;
+      box-sizing: border-box;
+    }
+    .controls {
+      margin-top: 2em;
+    }
+    button {
+      font-size: 1em;
+      margin: 0 1em;
+      padding: 0.5em 1em;
+      border-radius: 5px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>1. Measure and Crop single cells</h1>
+  
+        <div class="slide" id="slide-0" style="display: flex; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_05.png" class="slide-img">
+            <pre class="console"># cell_00_code.txt
+from spacr.measure import measure_crop
+%matplotlib inline
+
+settings = {&#x27;src&#x27;:&#x27;/home/olafsson/datasets/plate1/test/merged&#x27;, # (path) path to source folder (ens in /merged)
+            &#x27;channels&#x27;:[0,1,2,3],# (list) - list of integers representing available channels
+            &#x27;cell_mask_dim&#x27;:4, # (integer or NoneType) - Cell mask dimension 
+            &#x27;cell_min_size&#x27;:2000, # (integer) - minimum size in px2 of cell objects
+            &#x27;nucleus_mask_dim&#x27;:5, # (integer or NoneType) - Nucleus mask dimension 
+            &#x27;nucleus_min_size&#x27;:1000, # (integer) - minimum size in px2 of nuclei objects
+            &#x27;pathogen_mask_dim&#x27;:6, # (integer or NoneType) - Pathogen mask dimension 
+            &#x27;pathogen_min_size&#x27;:400, # (integer) - minimum size in px2 of pathogen objects
+            &#x27;cytoplasm_min_size&#x27;:0, # (integer) - minimum size in px2 of cutoplasm (cell-(nucleus+pathogen)) objects
+            &#x27;save_png&#x27;:True, # (bool) - save objects as PNGs
+            &#x27;crop_mode&#x27;:[&#x27;cell&#x27;], # (list) - Object(s) to be cropped into images (&#x27;cell&#x27;, &#x27;nuclei&#x27;, &#x27;pathogen&#x27;)
+            &#x27;use_bounding_box&#x27;:False, # (bool) - Use bounding box for cropped images instead of object area
+            &#x27;png_size&#x27;:[[224,224]], # (list of lists) - size of single object pngs
+            &#x27;normalize&#x27;:False, # (bool or list) - normalize PNGs to percentiles
+            &#x27;png_dims&#x27;:[0,1,2], # (list) - Dimensions to include in PNG images
+            &#x27;normalize_by&#x27;:&#x27;png&#x27;, # (string) - If normalize, normalize to fov (field of view) or png 
+            &#x27;save_measurements&#x27;:True, # (bool) - Save measurements
+            &#x27;plot&#x27;:True, # (bool) - plot images during analazys
+            &#x27;plot_filtration&#x27;:False, # (bool) - Plot filtration steps
+            &#x27;uninfected&#x27;:False, # (bool) - Include uninfected
+            &#x27;test_mode&#x27;:False, # (bool) - Activate Test mode
+            &#x27;test_nr&#x27;:10} # (integer) - Number of images to analyze in test mode
+# cell_01_out_00_text.txt
+Processing folder: /home/olafsson/datasets/plate1/test/merged
+Found path: /home/olafsson/datasets/plate1/test/merged
+Warning reserving 6 CPU cores for other processes, setting n_jobs to 26
+
+# cell_01_out_02_text.txt
+Saving settings to /home/olafsson/datasets/plate1/test/settings/measure_crop_settings.csv
+
+# cell_01_out_04_text.txt
+using 26 cpu cores
+Progress: 0/10, operation_type: Measure and Crop, Time/image: 0.000sec, Time_left: 0.000 min.
+</pre>
+            <div class="comment">Commentary for slide 1 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-1" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_06.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 2 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-2" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_07.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 3 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-3" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_11.png" class="slide-img">
+            <pre class="console"># cell_01_out_10_text.txt
+Progress: 1/10, operation_type: Measure and Crop, Time/image: 38.097sec, Time_left: 0.220 min.
+</pre>
+            <div class="comment">Commentary for slide 4 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-4" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_12.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 5 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-5" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_13.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 6 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-6" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_17.png" class="slide-img">
+            <pre class="console"># cell_01_out_16_text.txt
+Progress: 2/10, operation_type: Measure and Crop, Time/image: 43.107sec, Time_left: 0.221 min.
+</pre>
+            <div class="comment">Commentary for slide 7 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-7" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_18.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 8 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-8" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_19.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 9 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-9" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_23.png" class="slide-img">
+            <pre class="console"># cell_01_out_22_text.txt
+Progress: 3/10, operation_type: Measure and Crop, Time/image: 43.107sec, Time_left: 0.193 min.
+</pre>
+            <div class="comment">Commentary for slide 10 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-10" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_24.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 11 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-11" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_25.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 12 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-12" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_29.png" class="slide-img">
+            <pre class="console"># cell_01_out_28_text.txt
+Progress: 4/10, operation_type: Measure and Crop, Time/image: 47.621sec, Time_left: 0.183 min.
+</pre>
+            <div class="comment">Commentary for slide 13 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-13" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_30.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 14 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-14" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_31.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 15 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-15" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_35.png" class="slide-img">
+            <pre class="console"># cell_01_out_34_text.txt
+Progress: 5/10, operation_type: Measure and Crop, Time/image: 59.437sec, Time_left: 0.191 min.
+</pre>
+            <div class="comment">Commentary for slide 16 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-16" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_36.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 17 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-17" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_37.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 18 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-18" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_41.png" class="slide-img">
+            <pre class="console"># cell_01_out_40_text.txt
+Progress: 6/10, operation_type: Measure and Crop, Time/image: 59.437sec, Time_left: 0.152 min.
+</pre>
+            <div class="comment">Commentary for slide 19 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-19" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_42.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 20 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-20" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_43.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 21 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-21" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_47.png" class="slide-img">
+            <pre class="console"># cell_01_out_46_text.txt
+Progress: 7/10, operation_type: Measure and Crop, Time/image: 59.437sec, Time_left: 0.114 min.
+</pre>
+            <div class="comment">Commentary for slide 22 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-22" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_48.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 23 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-23" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_49.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 24 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-24" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_53.png" class="slide-img">
+            <pre class="console"># cell_01_out_52_text.txt
+Progress: 8/10, operation_type: Measure and Crop, Time/image: 59.437sec, Time_left: 0.076 min.
+</pre>
+            <div class="comment">Commentary for slide 25 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-25" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_54.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 26 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-26" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_55.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 27 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-27" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_59.png" class="slide-img">
+            <pre class="console"># cell_01_out_58_text.txt
+Progress: 9/10, operation_type: Measure and Crop, Time/image: 59.437sec, Time_left: 0.038 min.
+</pre>
+            <div class="comment">Commentary for slide 28 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-28" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_60.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 29 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-29" style="display: none; flex-direction: column; align-items: center;">
+            <img src="../resources/tutorial/2_measure/notebook/2_spacr_generate_mesurments_crop_images-ipynb/cell_01_out_61.png" class="slide-img">
+            <pre class="console"></pre>
+            <div class="comment">Commentary for slide 30 goes here.</div>
+        </div>
+        
+        <div class="slide" id="slide-30" style="display: none; flex-direction: column; align-items: center;">
+            
+            <pre class="console"># cell_01_out_64_text.txt
+Progress: 10/10, operation_type: Measure and Crop, Time/image: 59.437sec, Time_left: 0.000 min.
+Successfully completed run
+
+# cell_01_code.txt
+measure_crop(settings)
+# cell_02_code.txt
+</pre>
+            <div class="comment">Commentary for slide 31 goes here.</div>
+        </div>
+        
+  <div class="controls">
+    <button onclick="prevSlide()">Previous</button>
+    <button onclick="nextSlide()">Next</button>
+  </div>
+  <script>
+    let currentSlide = 0;
+    const totalSlides = 31;
+    function showSlide(n) {
+      document.getElementById("slide-" + currentSlide).style.display = "none";
+      currentSlide = (n + totalSlides) % totalSlides;
+      document.getElementById("slide-" + currentSlide).style.display = "flex";
+    }
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      showSlide(0);
+    });
+  </script>
+</body>
+</html>
