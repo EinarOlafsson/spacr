@@ -1,0 +1,3 @@
+Processing folder: /home/olafsson/datasets/plate1/test/merged
+Found path: /home/olafsson/datasets/plate1/test/merged
+Warning reserving 6 CPU cores for other processes, setting n_jobs to 26
