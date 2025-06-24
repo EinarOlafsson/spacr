@@ -1,0 +1,20 @@
+Progress: 1/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
+Progress: 2/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
+Progress: 3/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.001 min.
+Progress: 4/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Progress: 5/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Progress: 6/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Progress: 7/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Progress: 8/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Progress: 9/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Progress: 10/10, operation_type: Concatinating, Time/image: 0.005sec, Time_left: 0.000 min.
+Processing channel 0: background=200, signal_threshold=1000, remove_background=False
+Channel 0: global_lower=12.0, global_upper=3825.0, Signal-to-noise=318.75
+Progress: 1/3, operation_type: Normalizing, Time/image: 0.697sec, Time_left: 0.023 min.
+Processing channel 3: background=100, signal_threshold=1000, remove_background=False
+Channel 3: global_lower=113.0, global_upper=2195.0, Signal-to-noise=19.424778761061948
+Progress: 2/3, operation_type: Normalizing, Time/image: 0.636sec, Time_left: 0.011 min.
+Processing channel 2: background=400, signal_threshold=2000, remove_background=True
+Channel 2: global_lower=423.0, global_upper=6262.0, Signal-to-noise=14.803782505910165
+Progress: 3/3, operation_type: Normalizing, Time/image: 0.518sec, Time_left: 0.000 min.
+All files concatenated and normalized. Saved to: /home/olafsson/datasets/plate1/test/masks
