@@ -1,0 +1,23 @@
+Progress: 3/3, operation_type: pathogen_mask_gen, Time/image: 19.432sec, Time_left: 0.000 min.
+Adjusting cell masks with nuclei and pathogen masks
+Progress: 1/10, operation_type: adjust_cell_masks, Time/image: 0.422sec, Time_left: 0.063 min.
+Progress: 2/10, operation_type: adjust_cell_masks, Time/image: 0.581sec, Time_left: 0.077 min.
+Progress: 3/10, operation_type: adjust_cell_masks, Time/image: 0.486sec, Time_left: 0.057 min.
+Progress: 4/10, operation_type: adjust_cell_masks, Time/image: 0.601sec, Time_left: 0.060 min.
+Progress: 5/10, operation_type: adjust_cell_masks, Time/image: 0.532sec, Time_left: 0.044 min.
+Progress: 6/10, operation_type: adjust_cell_masks, Time/image: 0.566sec, Time_left: 0.038 min.
+Progress: 7/10, operation_type: adjust_cell_masks, Time/image: 0.577sec, Time_left: 0.029 min.
+Progress: 8/10, operation_type: adjust_cell_masks, Time/image: 0.575sec, Time_left: 0.019 min.
+Progress: 9/10, operation_type: adjust_cell_masks, Time/image: 0.569sec, Time_left: 0.009 min.
+Progress: 10/10, operation_type: adjust_cell_masks, Time/image: 0.577sec, Time_left: 0.000 min.
+Cell mask adjustment: 0.09624974330266317 min.
+Progress: 1/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.011 min.
+Progress: 2/10, operation_type: Merging Arrays, Time/image: 0.077sec, Time_left: 0.010 min.
+Progress: 3/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.009 min.
+Progress: 4/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.008 min.
+Progress: 5/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.006 min.
+Progress: 6/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.005 min.
+Progress: 7/10, operation_type: Merging Arrays, Time/image: 0.076sec, Time_left: 0.004 min.
+Progress: 8/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.003 min.
+Progress: 9/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.001 min.
+Progress: 10/10, operation_type: Merging Arrays, Time/image: 0.075sec, Time_left: 0.000 min.

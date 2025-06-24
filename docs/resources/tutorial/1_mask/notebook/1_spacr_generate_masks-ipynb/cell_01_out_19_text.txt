@@ -1,0 +1,1 @@
+Progress: 1/3, operation_type: cell_mask_gen, Time/image: 35.657sec, Time_left: 1.189 min.
