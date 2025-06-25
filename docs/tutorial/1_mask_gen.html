@@ -190,11 +190,11 @@
   </div>
 
   <script>
-    let currentSlide = 0;
-    const totalSlides = 3;
+    let currentSlide = 1;
+    const totalSlides = 5;
     function showSlide(n) {
       document.getElementById("slide-" + currentSlide).style.display = "none";
-      currentSlide = (n + totalSlides) % totalSlides;
+      currentSlide = (n + totalSlides - 1) % totalSlides + 1;
       document.getElementById("slide-" + currentSlide).style.display = "flex";
     }
     function nextSlide() {
@@ -203,9 +203,6 @@
     function prevSlide() {
       showSlide(currentSlide - 1);
     }
-    document.addEventListener("DOMContentLoaded", () => {
-      showSlide(0);
-    });
   </script>
 </body>
 
