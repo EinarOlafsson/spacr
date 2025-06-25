@@ -101,7 +101,7 @@
   <h1>1. Generate Segmentation Masks</h1>
 
   <!-- Slide 1 -->
-  <div class="slide" id="slide-1" style="display: flex; flex-direction: column; align-items: center;">
+  <div class="slide" id="slide-1">
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img1.png" alt="channels">
     </div>
@@ -118,7 +118,7 @@
   </div>
 
   <!-- Slide 2 -->
-  <div class="slide" id="slide-2" style="display: flex; flex-direction: column; align-items: center;">
+  <div class="slide" id="slide-2">
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img2.png" alt="channels">
     </div>
@@ -135,7 +135,7 @@
   </div>
 
   <!-- Slide 3 -->
-  <div class="slide" id="slide-3" style="display: flex; flex-direction: column; align-items: center;">
+  <div class="slide" id="slide-3">
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img3.png" alt="channels">
     </div>
@@ -151,7 +151,7 @@
   </div>
 
   <!-- Slide 4 -->
-  <div class="slide" id="slide-4" style="display: flex; flex-direction: column; align-items: center;">
+  <div class="slide" id="slide-4">
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img4.png" alt="channels">
     </div>
@@ -168,7 +168,7 @@
   </div>
 
   <!-- Slide 5 -->
-  <div class="slide" id="slide-5" style="display: flex; flex-direction: column; align-items: center;">
+  <div class="slide" id="slide-5">
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img5.png" alt="channels">
     </div>
@@ -192,17 +192,27 @@
   <script>
     let currentSlide = 1;
     const totalSlides = 5;
+
     function showSlide(n) {
-      document.getElementById("slide-" + currentSlide).style.display = "none";
+      for (let i = 1; i <= totalSlides; i++) {
+        document.getElementById("slide-" + i).style.display = "none";
+      }
       currentSlide = (n + totalSlides - 1) % totalSlides + 1;
       document.getElementById("slide-" + currentSlide).style.display = "flex";
     }
+
     function nextSlide() {
       showSlide(currentSlide + 1);
     }
+
     function prevSlide() {
       showSlide(currentSlide - 1);
     }
+
+    // ✅ Hide all and show the first one when DOM loads
+    document.addEventListener("DOMContentLoaded", () => {
+      showSlide(currentSlide);
+    });
   </script>
 </body>
 
