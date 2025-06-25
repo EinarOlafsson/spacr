@@ -100,6 +100,57 @@
 <body>
   <h1>1. Generate Segmentation Masks</h1>
 
+  <!-- Slide 0 -->
+  <div class="slide" id="slide-0">
+    <pre class="console" style="white-space: pre-wrap; position: relative;">
+      <code>
+  <span title="Import function for preprocessing and mask generation">from spacr.core import preprocess_generate_masks</span>
+  <span title="Jupyter magic to render matplotlib inline">%matplotlib inline</span>
+
+  <span title="Define settings dictionary">settings = {</span>
+  <span title="Path to source folder (where original images are stored)">'src':'/home/olafsson/datasets/plate1',</span>
+  <span title="Type of filename metadata (cellvoyager, cq1, Nikon)">'metadata_type':'cellvoyager',</span>
+  <span title="Regular expression if filename metadata not in metadata_type">'custom_regex':None,</span>
+  <span title="Name of experiment">'experiment':'screen',</span>
+  <span title="List of integers representing available channels">'channels':[0,1,2,3],</span>
+  <span title="Cell image dimension">'cell_channel':3,</span>
+  <span title="Background value in cell images">'cell_background':100,</span>
+  <span title="Signal to noise ratio for cell channel">'cell_Signal_to_noise':10,</span>
+  <span title="Cellpose Cell probability">'cell_CP_prob':-1,</span>
+  <span title="Set background to 0 for cell channel">'remove_background_cell':False,</span>
+  <span title="Nucleus image dimension">'nucleus_channel':0,</span>
+  <span title="Background value in nucleus images">'nucleus_background':200,</span>
+  <span title="Signal to noise ratio for nucleus channel">'nucleus_Signal_to_noise':5,</span>
+  <span title="Cellpose Nucleus probability">'nucleus_CP_prob':0,</span>
+  <span title="Set background to 0 for nucleus channel">'remove_background_nucleus':False,</span>
+  <span title="Custom cellpose model path for pathogen detection">'pathogen_model':None,</span>
+  <span title="Pathogen image dimension">'pathogen_channel':2,</span>
+  <span title="Background value in pathogen images">'pathogen_background':400,</span>
+  <span title="Signal to noise ratio for pathogen channel">'pathogen_Signal_to_noise':5,</span>
+  <span title="Cellpose pathogen probability">'pathogen_CP_prob':-2,</span>
+  <span title="Set background to 0 for pathogen channel">'remove_background_pathogen':True,</span>
+  <span title="Consolidate files from multilevel folder structure into one folder">'consolidate':False,</span>
+  <span title="Objective magnification used to acquire images (40, 60, 100)">'magnification':40,</span>
+  <span title="Save masks and object data to database">'save':True,</span>
+  <span title="Preprocess images">'preprocess':True,</span>
+  <span title="Generate masks">'masks':True,</span>
+  <span title="Number of images to normalize together and load onto the GPU">'batch_size':50,</span>
+  <span title="Filter objects based on size">'filter':False,</span>
+  <span title="Merge pathogens that share > 75% perimeter">'merge_pathogens':False,</span>
+  <span title="Plot normalized intensity and object images">'plot':True,</span>
+  <span title="If cell, nucleus and pathogen: merge cells that share a pathogen">'adjust_cells':True,</span>
+  <span title="Test settings in test mode before analyzing entire experiment">'test_mode':True,</span>
+  <span title="Number of images to analyze in test mode">'test_images':10,</span>
+  <span title="Randomize images for test mode">'random_test':True</span>
+  <span title="End dictionary">}</span>
+      </code>
+    </pre>
+    <div class="comment">
+      This code block sets up and launches the mask generation process in test mode using spaCR.
+      Hover over each line to learn what it does.
+    </div>
+  </div>
+
   <!-- Slide 1 -->
   <div class="slide" id="slide-1">
     <div class="figure">
@@ -190,14 +241,14 @@
   </div>
 
   <script>
-    let currentSlide = 1;
-    const totalSlides = 5;
+    let currentSlide = 0;
+    const totalSlides = 6;
 
     function showSlide(n) {
-      for (let i = 1; i <= totalSlides; i++) {
+      for (let i = 0; i < totalSlides; i++) {
         document.getElementById("slide-" + i).style.display = "none";
       }
-      currentSlide = (n + totalSlides - 1) % totalSlides + 1;
+      currentSlide = (n + totalSlides) % totalSlides;
       document.getElementById("slide-" + currentSlide).style.display = "flex";
     }
 
