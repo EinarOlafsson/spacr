@@ -39,13 +39,12 @@
             padding: 10px 20px 40px 20px;
         }
 
-        .tile-gallery a {
+        .tile {
             display: flex;
             flex-direction: column;
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            font-family: 'Open Sans', sans-serif;
+            align-items: center;
+            width: 240px;
+            gap: 8px;
         }
 
         .tile-img-container {
@@ -71,10 +70,32 @@
             margin-top: 8px;
             font-size: 14px;
             color: white;
+            text-align: center;
         }
 
         .tile-img-container:hover img {
             transform: scale(1.05);
+        }
+
+        .tile-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .tile-buttons a {
+            background-color: #007bff;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: background-color 0.2s;
+        }
+
+        .tile-buttons a:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -87,36 +108,60 @@
     </div>
 
     <div class="tile-gallery">
-        <a href="1_mask_gen.html">
+        <div class="tile">
             <div class="tile-img-container">
                 <img src="../resources/icons/mask.png" alt="Masking">
             </div>
             <div class="tile-caption">1. Generate segmentation masks</div>
-        </a>
-        <a href="2_measure.html">
+            <div class="tile-buttons">
+                <a href="1_mask_gen_gui.html">GUI</a>
+                <a href="1_mask_gen.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
             <div class="tile-img-container">
                 <img src="../resources/icons/measure.png" alt="Measurement">
             </div>
             <div class="tile-caption">2. Measure & crop single cells</div>
-        </a>
-        <a href="3_classify.html">
+            <div class="tile-buttons">
+                <a href="2_measure_gui.html">GUI</a>
+                <a href="2_measure.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
             <div class="tile-img-container">
                 <img src="../resources/icons/classify.png" alt="Classify">
             </div>
             <div class="tile-caption">3. Classify using ML/DL</div>
-        </a>
-        <a href="4_map_barcodes.html">
+            <div class="tile-buttons">
+                <a href="3_classify_gui.html">GUI</a>
+                <a href="3_classify.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
             <div class="tile-img-container">
                 <img src="../resources/icons/map_barcodes.png" alt="Barcodes">
             </div>
             <div class="tile-caption">4. Map barcodes from FASTQ</div>
-        </a>
-        <a href="5_regression.html">
+            <div class="tile-buttons">
+                <a href="4_map_barcodes_gui.html">GUI</a>
+                <a href="4_map_barcodes.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
             <div class="tile-img-container">
                 <img src="../resources/icons/regression.png" alt="Regression">
             </div>
             <div class="tile-caption">5. Perform regression analysis</div>
-        </a>
+            <div class="tile-buttons">
+                <a href="5_regression_gui.html">GUI</a>
+                <a href="5_regression.html">Notebook</a>
+            </div>
+        </div>
     </div>
 </body>
 
