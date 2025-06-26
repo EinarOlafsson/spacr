@@ -5,6 +5,11 @@
   <meta charset="UTF-8">
   <title>spaCR Simplified GUI</title>
   <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+    }
+
     html,
     body {
       margin: 0;
@@ -21,10 +26,12 @@
     }
 
     .left-panel {
-      width: 33.3%;
+      width: 30%;
       background-color: #2a2a2a;
       padding: 20px;
       box-sizing: border-box;
+      border-right: 1px solid #444;
+      overflow-y: auto;
     }
 
     .right-panel {
@@ -37,86 +44,317 @@
 
     .top-right,
     .bottom-right {
-      flex: 1;
       background-color: #333;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+    }
+
+    .top-right {
+      flex: 1;
       margin-bottom: 10px;
       position: relative;
-      display: flex;
       justify-content: center;
+    }
+
+    #tutorial-image {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .middle-slider {
+      height: 50px;
+      display: flex;
       align-items: center;
+      justify-content: center;
     }
 
     .bottom-right {
-      margin-bottom: 0;
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-bottom: 10px;
+    }
+
+    .bottom-row {
+      display: flex;
+      flex: 1;
+      gap: 20px;
     }
 
     .button-bar {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
       display: flex;
-      align-items: center;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: flex-start;
       gap: 10px;
+      padding: 10px 0 0 0;
+      margin-top: auto;
+    }
+
+    .console-output {
+      flex: 1;
+      padding: 10px;
+      background: #222;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 8px;
+      white-space: pre-wrap;
     }
 
     .gui-button {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 160px;
+      height: 160px;
+      border-radius: 20px;
       background-color: #444;
       border: none;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s, transform 0.1s;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative;
     }
 
     .gui-button:hover {
       background-color: #007bff;
+      transform: scale(1.05);
+    }
+
+    .gui-button[title]:hover::after {
+      content: attr(title) " \000a Help";
+      white-space: pre;
+      text-decoration: underline;
+      position: absolute;
+      background: #000a;
+      color: #fff;
+      padding: 8px;
+      border-radius: 10px;
+      top: -60px;
+      left: 0;
+      width: 200px;
+    }
+
+    .help-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 15px;
+      color: white;
+      display: none;
+      z-index: 1000;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .slider {
+      width: 100%;
     }
 
     .settings-button {
-      height: 20px;
-      padding: 0 12px;
-      border-radius: 10px;
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 12px;
       background-color: #444;
       border: none;
       color: white;
-      font-size: 12px;
+      font-size: 14px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s, transform 0.1s;
+      position: relative;
+      z-index: 2;
     }
 
     .settings-button:hover {
       background-color: #007bff;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      left: 0;
+      bottom: 60px;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 3;
+    }
+
+    .dropdown label {
+      display: block;
+      margin: 4px 0;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .dropdown label.active {
+      background-color: #007bff;
+    }
+
+    .category-settings {
+      margin-top: 10px;
+    }
+
+    .setting-entry {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    .setting-entry label {
+      margin-right: 10px;
+      position: relative;
+      cursor: help;
+    }
+
+    .setting-entry label:hover::after {
+      content: attr(title);
+      position: absolute;
+      background: #555;
+      color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      left: 100%;
+      white-space: nowrap;
+      margin-left: 10px;
+      z-index: 10;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <!-- Left panel -->
     <div class="left-panel">
-      <h2>Console / Logs</h2>
+      <h2>Settings</h2>
+      <div id="settings-fields"></div>
     </div>
-
-    <!-- Right panel -->
     <div class="right-panel">
-      <!-- Top section -->
       <div class="top-right">
-        <p>Top Output Area</p>
+        <img id="tutorial-image" src="" style="max-height: 100%; max-width: 100%; display: none;" />
+        <h2 id="figure-title">Figure</h2>
       </div>
-
-      <!-- Bottom section with buttons -->
+      <div class="middle-slider" id="slider-container">
+        <input id="slider" class="slider" type="range" min="0" max="3" value="0" oninput="updateImage(this.value)" />
+      </div>
       <div class="bottom-right">
+        <div class="console-output" id="console-output"></div>
         <div class="button-bar">
-          <button class="gui-button" title="Start"></button>
-          <button class="gui-button" title="Pause"></button>
-          <button class="gui-button" title="Stop"></button>
-          <button class="gui-button" title="Reset"></button>
-          <button class="settings-button" title="Open Settings">Settings</button>
+          <button class="gui-button" title="Run tutorial sequence.\000aHelp" onclick="runTutorial()"
+            style="background-image: url('../resources/icons/run.png');"></button>
+          <button class="gui-button" title="Stop current process.\000aHelp"
+            onclick="showHelp('Stop button stops all running processes.')"
+            style="background-image: url('../resources/icons/abort.png');"></button>
+          <button class="gui-button" title="Download files.\000aHelp"
+            onclick="showHelp('Download the processed files.')"
+            style="background-image: url('../resources/icons/download.png');"></button>
+          <button class="gui-button" title="Import saved settings.\000aHelp"
+            onclick="showHelp('Import previous settings from file.')"
+            style="background-image: url('../resources/icons/settings.png');"></button>
+          <div style="position: relative;">
+            <button class="settings-button" onclick="toggleDropdown()">Settings</button>
+            <div class="dropdown" id="dropdown-menu"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <div id="help-overlay" class="help-box"></div>
+  <script>
+    const imagePaths = [
+      '../resources/tutorial/1_mask/notebook/img1.png',
+      '../resources/tutorial/1_mask/notebook/img2.png',
+      '../resources/tutorial/1_mask/notebook/img3.png',
+      '../resources/tutorial/1_mask/notebook/img4.png'
+    ];
+
+    const categories = { "Paths": ["src", "grna", "barcodes", "custom_model_path", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"], "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "delete_intermediate", "uninfected"], "Cellpose": ["denoise"], "Cell": ["cell_diamiter", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell"], "Nucleus": ["nucleus_diamiter", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus"], "Pathogen": ["pathogen_diamiter", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "remove_background_pathogen", "pathogen_model"], "Plot": ["figuresize", "cmap", "normalize", "normalize_plots", "examples_to_plot"], "Advanced": ["test_images", "batch_size", "save", "preprocess", "masks", "delete_intermediate", "verbose", "randomize", "consolidate", "lower_percentile"], "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects"], "Beta": ["all_to_mip", "upscale", "upscale_factor", "adjust_cells"] };
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown-menu');
+      if (dropdown.innerHTML === '') {
+        for (const cat in categories) {
+          const label = document.createElement('label');
+          label.innerText = cat;
+          label.onclick = () => toggleCategory(label, cat);
+          dropdown.appendChild(label);
+        }
+      }
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleCategory(label, cat) {
+      const container = document.getElementById('settings-fields');
+      const existing = document.getElementById('category-' + cat);
+      if (existing) {
+        existing.remove();
+        label.classList.remove('active');
+        return;
+      }
+      label.classList.add('active');
+      const div = document.createElement('div');
+      div.id = 'category-' + cat;
+      div.className = 'category-settings';
+      div.innerHTML = `<h3>${cat}</h3>`;
+      for (const setting of categories[cat]) {
+        const settingDiv = document.createElement('div');
+        settingDiv.className = 'setting-entry';
+        const labelEl = document.createElement('label');
+        labelEl.innerText = setting + ':';
+        labelEl.title = `Tooltip for ${setting}`;
+        const valueEl = document.createElement('span');
+        valueEl.innerText = '[value]';
+        settingDiv.appendChild(labelEl);
+        settingDiv.appendChild(valueEl);
+        div.appendChild(settingDiv);
+      }
+      container.appendChild(div);
+    }
+
+    function runTutorial() {
+      document.getElementById('slider-container').style.display = 'flex';
+      document.getElementById('tutorial-image').style.display = 'block';
+      document.getElementById('figure-title').style.display = 'none';
+      updateImage(0);
+      fetch('resources/tutorial/1_mask/notebook/console_output.txt')
+        .then(r => r.text())
+        .then(text => {
+          const lines = text.split('\n');
+          let i = 0;
+          const output = document.getElementById('console-output');
+          output.innerText = '';
+          const interval = setInterval(() => {
+            if (i >= lines.length) return clearInterval(interval);
+            output.innerText += lines[i] + '\n';
+            output.scrollTop = output.scrollHeight;
+            i++;
+          }, 500);
+        });
+    }
+
+    function updateImage(index) {
+      const img = document.getElementById('tutorial-image');
+      img.src = imagePaths[index];
+    }
+
+    function showHelp(text) {
+      const box = document.getElementById('help-overlay');
+      box.innerText = text;
+      box.style.display = 'block';
+      setTimeout(() => box.style.display = 'none', 5000);
+    }
+  </script>
 </body>
 
 </html>
