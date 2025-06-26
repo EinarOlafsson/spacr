@@ -3,91 +3,120 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>spaCR GUI Interactive Slide</title>
+  <title>spaCR Simplified GUI</title>
   <style>
+    html,
     body {
-      background-color: #1e1e1e;
       margin: 0;
       padding: 0;
+      height: 100%;
+      background-color: #1e1e1e;
       font-family: 'Open Sans', sans-serif;
+      color: white;
     }
 
-    .gui-slide {
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left-panel {
+      width: 33.3%;
+      background-color: #2a2a2a;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .top-right,
+    .bottom-right {
+      flex: 1;
+      background-color: #333;
+      margin-bottom: 10px;
       position: relative;
-      width: 100%;
-      max-width: 1482px;
-      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    .gui-image {
-      width: 100%;
-      display: block;
+    .bottom-right {
+      margin-bottom: 0;
     }
 
-    .overlay {
+    .button-bar {
       position: absolute;
-      background-color: rgba(0, 123, 255, 0.2);
-      border: 1px solid #00aaff;
-      border-radius: 5px;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gui-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: #444;
+      border: none;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
 
-    .overlay:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      left: 100%;
-      top: 0;
-      white-space: nowrap;
-      background: #333;
+    .gui-button:hover {
+      background-color: #007bff;
+    }
+
+    .settings-button {
+      height: 20px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background-color: #444;
+      border: none;
       color: white;
-      padding: 4px 8px;
-      font-size: 14px;
-      border-radius: 4px;
-      margin-left: 5px;
-      z-index: 10;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
     }
 
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      background: #222;
-      color: white;
-      padding: 8px;
-      border: 1px solid #555;
-      z-index: 100;
-    }
-
-    .overlay.settings:hover+.dropdown-menu {
-      display: block;
+    .settings-button:hover {
+      background-color: #007bff;
     }
   </style>
 </head>
 
 <body>
-
-  <div class="gui-slide">
-    <img src="../resources/tutorial/1_mask/gui/gui.png" alt="spaCR GUI" class="gui-image">
-
-    <!-- Example Button Overlays (adjust positions/size) -->
-    <div class="overlay" style="top: 660px; left: 40px; width: 40px; height: 40px;" data-tooltip="Start processing">
+  <div class="container">
+    <!-- Left panel -->
+    <div class="left-panel">
+      <h2>Console / Logs</h2>
     </div>
-    <div class="overlay" style="top: 660px; left: 90px; width: 40px; height: 40px;" data-tooltip="Pause processing">
-    </div>
-    <div class="overlay" style="top: 660px; left: 140px; width: 40px; height: 40px;" data-tooltip="Reset run"></div>
-    <div class="overlay" style="top: 660px; left: 190px; width: 40px; height: 40px;" data-tooltip="Open Settings"
-      class="settings"></div>
 
-    <!-- Dropdown Menu -->
-    <div class="dropdown-menu" style="top: 660px; left: 240px;">
-      <p><strong>Settings Menu</strong></p>
-      <ul>
-        <li>Load Settings</li>
-        <li>Save Settings</li>
-        <li>Import CSV</li>
-      </ul>
+    <!-- Right panel -->
+    <div class="right-panel">
+      <!-- Top section -->
+      <div class="top-right">
+        <p>Top Output Area</p>
+      </div>
+
+      <!-- Bottom section with buttons -->
+      <div class="bottom-right">
+        <div class="button-bar">
+          <button class="gui-button" title="Start"></button>
+          <button class="gui-button" title="Pause"></button>
+          <button class="gui-button" title="Stop"></button>
+          <button class="gui-button" title="Reset"></button>
+          <button class="settings-button" title="Open Settings">Settings</button>
+        </div>
+      </div>
     </div>
   </div>
-
 </body>
 
 </html>
