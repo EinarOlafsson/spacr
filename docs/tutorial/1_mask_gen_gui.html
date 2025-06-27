@@ -76,7 +76,6 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       padding-bottom: 10px;
     }
 
@@ -87,24 +86,48 @@
     }
 
     .button-bar {
+      position: absolute;
+      bottom: 10px;
+      /* distance from bottom edge */
+      left: 10px;
+      /* distance from left edge */
       display: flex;
       flex-direction: row;
-      align-items: flex-end;
-      justify-content: flex-start;
       gap: 10px;
-      padding: 10px 0 0 0;
-      margin-top: auto;
+    }
+
+    .console-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      overflow: hidden;
+      margin-bottom: 180px;
+      /* keeps space clear for button bar */
+    }
+
+    .console-label {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 5px 10px;
+      background-color: #222;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
     }
 
     .console-output {
       flex: 1;
+      width: 100%;
       padding: 10px;
       background: #222;
       overflow-y: auto;
       font-family: monospace;
       font-size: 14px;
-      border-radius: 8px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
       white-space: pre-wrap;
+      box-sizing: border-box;
     }
 
     .gui-button {
@@ -249,7 +272,10 @@
         <input id="slider" class="slider" type="range" min="0" max="3" value="0" oninput="updateImage(this.value)" />
       </div>
       <div class="bottom-right">
-        <div class="console-output" id="console-output"></div>
+        <div class="console-wrapper">
+          <div class="console-label">Console</div>
+          <div class="console-output" id="console-output"></div>
+        </div>
         <div class="button-bar">
           <button class="gui-button" title="Run tutorial sequence.\000aHelp" onclick="runTutorial()"
             style="background-image: url('../resources/icons/run.png');"></button>
