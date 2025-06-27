@@ -88,11 +88,10 @@
     .button-bar {
       position: absolute;
       bottom: 10px;
-      /* distance from bottom edge */
       left: 10px;
-      /* distance from left edge */
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 10px;
     }
 
@@ -203,7 +202,7 @@
     .dropdown {
       display: none;
       position: absolute;
-      left: 0;
+      left: 100%;
       bottom: 60px;
       background-color: #2a2a2a;
       border: 1px solid #444;
@@ -288,17 +287,26 @@
           <button class="gui-button" title="Import saved settings.\000aHelp"
             onclick="showHelp('Import previous settings from file.')"
             style="background-image: url('../resources/icons/settings.png');"></button>
-          <div style="position: relative;">
-            <button class="settings-button" onclick="toggleDropdown()">Settings</button>
-            <div class="dropdown" id="dropdown-menu"></div>
-          </div>
+          <button class="settings-button" onclick="toggleDropdown()">Settings</button>
+          <div class="dropdown" id="dropdown-menu"></div>
         </div>
       </div>
     </div>
   </div>
   <div id="help-overlay" class="help-box"></div>
-  <script src="../resources/tutorial/1_mask/notebook/console_output.js"></script>
   <script>
+    const consoleOutputText = `Placeholder line 1
+  Placeholder line 2
+  Placeholder line 3
+  Placeholder line 4
+  Placeholder line 5
+  Placeholder line 6
+  Placeholder line 7
+  Placeholder line 8
+  Placeholder line 9
+  Placeholder line 10
+  Placeholder line 11`;
+
     const imagePaths = [
       '../resources/tutorial/1_mask/notebook/img1.png',
       '../resources/tutorial/1_mask/notebook/img2.png',
