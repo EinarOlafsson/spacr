@@ -271,6 +271,7 @@
     </div>
   </div>
   <div id="help-overlay" class="help-box"></div>
+  <script src="../resources/tutorial/1_mask/notebook/console_output.js"></script>
   <script>
     const imagePaths = [
       '../resources/tutorial/1_mask/notebook/img1.png',
@@ -327,20 +328,17 @@
       document.getElementById('tutorial-image').style.display = 'block';
       document.getElementById('figure-title').style.display = 'none';
       updateImage(0);
-      fetch('resources/tutorial/1_mask/notebook/console_output.txt')
-        .then(r => r.text())
-        .then(text => {
-          const lines = text.split('\n');
-          let i = 0;
-          const output = document.getElementById('console-output');
-          output.innerText = '';
-          const interval = setInterval(() => {
-            if (i >= lines.length) return clearInterval(interval);
-            output.innerText += lines[i] + '\n';
-            output.scrollTop = output.scrollHeight;
-            i++;
-          }, 500);
-        });
+
+      const lines = consoleOutputText.split('\n');
+      let i = 0;
+      const output = document.getElementById('console-output');
+      output.innerText = '';
+      const interval = setInterval(() => {
+        if (i >= lines.length) return clearInterval(interval);
+        output.innerText += lines[i] + '\n';
+        output.scrollTop = output.scrollHeight;
+        i++;
+      }, 500);
     }
 
     function updateImage(index) {
