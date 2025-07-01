@@ -1053,7 +1053,7 @@ def check_settings(vars_dict, expected_types, q=None):
         expected_type = expected_types.get(key, str)
 
         try:
-            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode"]:
+            if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
                 if value is None:
                     parsed_value = None
                 else:
