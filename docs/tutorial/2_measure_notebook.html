@@ -64,9 +64,14 @@
       overflow-y: auto;
       overflow-x: hidden;
       border-radius: 10px;
-      white-space: pre-wrap;
       border: 1px solid #444;
       box-sizing: border-box;
+    }
+
+    .console>div {
+      font-family: monospace;
+      margin-bottom: 0.5em;
+      cursor: help;
     }
 
     .comment {
@@ -161,23 +166,17 @@
     </div>
 
     <div class="comment">
-      This code block launches object measurement and cropping using spaCR.
-      Hover over each line to understand what each setting controls.
+      This code block sets up and launches the mask generation process in test mode using spaCR.
+      Hover over each line to learn what it does.
     </div>
   </div>
-
 
   <!-- Slide 1 -->
   <div class="slide" id="slide-1">
     <div class="figure">
       <img src="../resources/tutorial/2_measure/notebook/img1.png" alt="channels">
     </div>
-    <pre class="console">
->>> Running mask generation...
->>> Loading model: Cellpose cyto
->>> Processing image batch 1/3...
->>> Completed: 10 images analyzed.
-    </pre>
+    <div class="console" id="console-slide-1"></div>
     <div class="comment">
       This slide demonstrates the initial mask generation using the Cellpose 'cyto' model. Note the high signal-to-noise
       ratio achieved by preprocessing with background removal and normalization enabled.
@@ -189,12 +188,7 @@
     <div class="figure">
       <img src="../resources/tutorial/2_measure/notebook/img2.png" alt="channels">
     </div>
-    <pre class="console">
->>> Using settings:
->>>   cell_channel=3, nucleus_channel=0
->>>   background=[100, 200], SNR=[10, 5]
->>> Executing test mode with 10 random images.
-    </pre>
+    <div class="console" id="console-slide-2"></div>
     <div class="comment">
       Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
       optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
@@ -206,48 +200,10 @@
     <div class="figure">
       <img src="../resources/tutorial/2_measure/notebook/img3.png" alt="channels">
     </div>
-    <pre class="console">
->>> Finished mask generation.
->>> Masks saved to: /home/user/output/masks/
->>> Object features extracted and saved to database.
-    </pre>
+    <div class="console" id="console-slide-3"></div>
     <div class="comment">
       Final results show successfully saved mask outputs. You can now proceed to object classification, visualization,
       or export for downstream spatial analyses.
-    </div>
-  </div>
-
-  <!-- Slide 4 -->
-  <div class="slide" id="slide-4">
-    <div class="figure">
-      <img src="../resources/tutorial/2_measure/notebook/img4.png" alt="channels">
-    </div>
-    <pre class="console">
->>> Using settings:
->>>   cell_channel=3, nucleus_channel=0
->>>   background=[100, 200], SNR=[10, 5]
->>> Executing test mode with 10 random images.
-    </pre>
-    <div class="comment">
-      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
-      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
-    </div>
-  </div>
-
-  <!-- Slide 5 -->
-  <div class="slide" id="slide-5">
-    <div class="figure">
-      <img src="../resources/tutorial/2_measure/notebook/img5.png" alt="channels">
-    </div>
-    <pre class="console">
->>> Using settings:
->>>   cell_channel=3, nucleus_channel=0
->>>   background=[100, 200], SNR=[10, 5]
->>> Executing test mode with 10 random images.
-    </pre>
-    <div class="comment">
-      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
-      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
     </div>
   </div>
 
@@ -257,8 +213,48 @@
   </div>
 
   <script>
-    let currentSlide = 0;
-    const totalSlides = 6;
+    const consoleData = {
+      1: [
+        { text: ">>> run_function settings_type: measure", tooltip: "Starts the measure function with selected settings." },
+        { text: ">>> Processing folder: src/merged", tooltip: "Indicates the folder currently being processed." },
+        { text: ">>> Saving settings to src/settings/measure.csv", tooltip: "Saves the current settings to a CSV file for reproducibility." },
+        { text: ">>> using 26 cpu cores", tooltip: "each FOV is passed to a CPU core for processing" },
+      ],
+      2: [
+        { text: ">>> Capturing object measurements", tooltip: "Capture intensity and morphological measurements for each object class. If nucleus and/or pathogen object are present a cytoplasm tertery object is generated" }
+      ],
+      3: [
+        { text: ">>> Generating single cell images", tooltip: "generate single object images" }
+      ],
+      4: [
+        { text: ">>> Successfully completed run", tooltip: "Successfully completed run" }
+      ],
+    };
+
+    async function animateConsole(slideId) {
+      const container = document.getElementById(`console-slide-${slideId}`);
+      if (!container || !consoleData[slideId]) return;
+
+      container.innerHTML = '';
+
+      for (const entry of consoleData[slideId]) {
+        // Add actual line
+        const lineDiv = document.createElement('div');
+        lineDiv.textContent = entry.text;
+        lineDiv.title = entry.tooltip;
+        container.appendChild(lineDiv);
+
+        // Add blank spacer
+        const spacer = document.createElement('div');
+        spacer.innerHTML = '&nbsp;';
+        container.appendChild(spacer);
+
+        // Wait 0.5 seconds
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    const totalSlides = 4;
 
     function showSlide(n) {
       for (let i = 0; i < totalSlides; i++) {
@@ -266,7 +262,11 @@
       }
       currentSlide = (n + totalSlides) % totalSlides;
       document.getElementById("slide-" + currentSlide).style.display = "flex";
+
+      animateConsole(currentSlide);
     }
+
+    let currentSlide = 0;
 
     function nextSlide() {
       showSlide(currentSlide + 1);
@@ -276,7 +276,6 @@
       showSlide(currentSlide - 1);
     }
 
-    // ✅ Hide all and show the first one when DOM loads
     document.addEventListener("DOMContentLoaded", () => {
       showSlide(currentSlide);
     });
