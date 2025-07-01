@@ -64,9 +64,14 @@
       overflow-y: auto;
       overflow-x: hidden;
       border-radius: 10px;
-      white-space: pre-wrap;
       border: 1px solid #444;
       box-sizing: border-box;
+    }
+
+    .console>div {
+      font-family: monospace;
+      margin-bottom: 0.5em;
+      cursor: help;
     }
 
     .comment {
@@ -183,12 +188,7 @@
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img1.png" alt="channels">
     </div>
-    <pre class="console">
->>> Running mask generation...
->>> Loading model: Cellpose cyto
->>> Processing image batch 1/3...
->>> Completed: 10 images analyzed.
-    </pre>
+    <div class="console" id="console-slide-1"></div>
     <div class="comment">
       This slide demonstrates the initial mask generation using the Cellpose 'cyto' model. Note the high signal-to-noise
       ratio achieved by preprocessing with background removal and normalization enabled.
@@ -200,12 +200,7 @@
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img2.png" alt="channels">
     </div>
-    <pre class="console">
->>> Using settings:
->>>   cell_channel=3, nucleus_channel=0
->>>   background=[100, 200], SNR=[10, 5]
->>> Executing test mode with 10 random images.
-    </pre>
+    <div class="console" id="console-slide-2"></div>
     <div class="comment">
       Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
       optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
@@ -217,11 +212,7 @@
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img3.png" alt="channels">
     </div>
-    <pre class="console">
->>> Finished mask generation.
->>> Masks saved to: /home/user/output/masks/
->>> Object features extracted and saved to database.
-    </pre>
+    <div class="console" id="console-slide-3"></div>
     <div class="comment">
       Final results show successfully saved mask outputs. You can now proceed to object classification, visualization,
       or export for downstream spatial analyses.
@@ -233,12 +224,7 @@
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img4.png" alt="channels">
     </div>
-    <pre class="console">
->>> Using settings:
->>>   cell_channel=3, nucleus_channel=0
->>>   background=[100, 200], SNR=[10, 5]
->>> Executing test mode with 10 random images.
-    </pre>
+    <div class="console" id="console-slide-4"></div>
     <div class="comment">
       Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
       optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
@@ -250,12 +236,7 @@
     <div class="figure">
       <img src="../resources/tutorial/1_mask/notebook/img5.png" alt="channels">
     </div>
-    <pre class="console">
->>> Using settings:
->>>   cell_channel=3, nucleus_channel=0
->>>   background=[100, 200], SNR=[10, 5]
->>> Executing test mode with 10 random images.
-    </pre>
+    <div class="console" id="console-slide-5"></div>
     <div class="comment">
       Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
       optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
@@ -268,7 +249,71 @@
   </div>
 
   <script>
-    let currentSlide = 0;
+    const consoleData = {
+      1: [
+        { text: ">>> run_function_gui settings_type: mask", tooltip: "Starts the mask generation function with selected settings." },
+        { text: ">>> Processing folder: src", tooltip: "Indicates the folder currently being processed." },
+        { text: ">>> Found path: src", tooltip: "Confirms the input path exists and is accessible." },
+        { text: ">>> Saving settings to src/settings/gen_mask_settings.csv", tooltip: "Saves the current settings to a CSV file for reproducibility." },
+        { text: ">>> Found 208 tif files", tooltip: "Number of TIFF image files detected in the source folder." },
+        { text: ">>> Image_format: tif", tooltip: "Specifies the detected image format for processing." },
+        { text: ">>> regex mode:cellvoyager regex:(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif", tooltip: "Displays the regex pattern used to parse filenames into metadata fields." },
+        { text: ">>> All files: 208 in src", tooltip: "Total number of files found in the dataset path." },
+        { text: ">>> All unique FOV: 208 in src/plate1", tooltip: "Reports the number of unique fields of view in the dataset." },
+        { text: ">>> List of folders in src: ['1', '2', '3', '4']. Single channel folders.", tooltip: "Lists detected single-channel folders in the source directory." },
+        { text: ">>> Generated folder with merged arrays: src/stack", tooltip: "Indicates where the merged array data has been saved." },
+        { text: ">>> All files concatenated and normalized. Saved to: src/masks", tooltip: "Confirms saving of normalized, concatenated mask arrays." }
+      ],
+      2: [
+        { text: ">>> {'diameter': 160, 'minimum_size': 6400.0, 'maximum_size': 256000, 'merge': False, 'resample': True, 'remove_border_objects': False, 'model_name': 'cyto2', 'filter_size': False, 'filter_intensity': False, 'restore_type': None}", tooltip: "Displays Cellpose model and segmentation parameters used for this run." },
+        { text: ">>> {'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}", tooltip: "Specifies channel mappings for nucleus, pathogen, and cell." },
+        { text: ">>> Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48", tooltip: "Details of the GPU device used for batch processing." },
+        { text: ">>> Number of objects, : 55", tooltip: "Reports number of segmented cell objects before filtering." },
+        { text: ">>> object_size:cell: 24494.792 px2", tooltip: "Average area of segmented cell objects in pixels squared." }
+      ],
+      3: [
+        { text: ">>> Number of objects, : 53", tooltip: "Reports number of segmented nucleus objects before filtering." },
+        { text: ">>> object_size:nucleus: 6594.860 px2", tooltip: "Average area of segmented nucleus objects in pixels squared." }
+      ],
+      4: [
+        { text: ">>> Number of objects before filtration: 50", tooltip: "Number of pathogen objects before applying filtration steps." },
+        { text: ">>> Number of objects after merging adjacent objects, : 46", tooltip: "Number of pathogen objects after merging adjacent detections." },
+        { text: ">>> Number of objects, : 46", tooltip: "Final count of pathogen objects after all filtering." },
+        { text: ">>> object_size:pathogen: 1652.630 px2", tooltip: "Average area of pathogen objects in pixels squared." },
+        { text: ">>> Number of objects before filtration: 91", tooltip: "Alternate count of pathogen objects before merging." },
+        { text: ">>> Number of objects after merging adjacent objects, : 87", tooltip: "Count of pathogen objects after merging in this step." },
+        { text: ">>> Number of objects, : 87", tooltip: "Final pathogen object count for this step." },
+        { text: ">>> object_size:pathogen: 1652.860 px2", tooltip: "Alternate average area for pathogen objects in pixels squared." },
+      ],
+      5: [
+        { text: ">>> Adjusting cell masks with nuclei and pathogen masks", tooltip: "Aligns and adjusts cell masks using nucleus and pathogen data." },
+        { text: ">>> Successfully completed run function: gen_mask", tooltip: "Confirms the entire mask generation function ran successfully." }
+      ]
+    };
+
+    async function animateConsole(slideId) {
+      const container = document.getElementById(`console-slide-${slideId}`);
+      if (!container || !consoleData[slideId]) return;
+
+      container.innerHTML = '';
+
+      for (const entry of consoleData[slideId]) {
+        // Add actual line
+        const lineDiv = document.createElement('div');
+        lineDiv.textContent = entry.text;
+        lineDiv.title = entry.tooltip;
+        container.appendChild(lineDiv);
+
+        // Add blank spacer
+        const spacer = document.createElement('div');
+        spacer.innerHTML = '&nbsp;';
+        container.appendChild(spacer);
+
+        // Wait 0.5 seconds
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
     const totalSlides = 6;
 
     function showSlide(n) {
@@ -277,7 +322,11 @@
       }
       currentSlide = (n + totalSlides) % totalSlides;
       document.getElementById("slide-" + currentSlide).style.display = "flex";
+
+      animateConsole(currentSlide);
     }
+
+    let currentSlide = 0;
 
     function nextSlide() {
       showSlide(currentSlide + 1);
@@ -287,7 +336,6 @@
       showSlide(currentSlide - 1);
     }
 
-    // ✅ Hide all and show the first one when DOM loads
     document.addEventListener("DOMContentLoaded", () => {
       showSlide(currentSlide);
     });
