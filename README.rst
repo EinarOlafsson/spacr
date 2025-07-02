@@ -114,7 +114,7 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
   *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
 
 Interactive Tutorial (under construction)
---------------------
+-----------------------------------------
 
 Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 

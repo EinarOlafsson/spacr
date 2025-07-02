@@ -34,7 +34,6 @@ from collections import defaultdict
 from matplotlib.gridspec import GridSpec
 from matplotlib_venn import venn2
 
-#filter_dict={'cell':[(0,100000), (0, 65000)],'nucleus':[(3000,100000), (1500, 65000)],'pathogen':[(500,100000), (0, 65000)]}
 def plot_image_mask_overlay(
     file,
     channels,
@@ -366,6 +365,54 @@ def plot_image_mask_overlay(
     )
 
     return fig
+
+def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, print_object_number=True):
+    """
+    Plot the masks and flows for a given batch of images.
+
+    Args:
+        batch (numpy.ndarray): The batch of images.
+        masks (list or numpy.ndarray): The masks corresponding to the images.
+        flows (list or numpy.ndarray): The flows corresponding to the images.
+        cmap (str, optional): The colormap to use for displaying the images. Defaults to 'inferno'.
+        figuresize (int, optional): The size of the figure. Defaults to 20.
+        nr (int, optional): The maximum number of images to plot. Defaults to 1.
+        file_type (str, optional): The file type of the flows. Defaults to '.npz'.
+        print_object_number (bool, optional): Whether to print the object number on the mask. Defaults to True.
+
+    Returns:
+        None
+    """
+    
+    from .utils import _generate_mask_random_cmap, mask_object_count
+    
+    font = figuresize/2
+    index = 0
+    
+    for image, mask, flow in zip(batch, masks, flows):
+        #if print_object_number:
+        #    num_objects = mask_object_count(mask)
+        #    print(f'Number of objects: {num_objects}')
+        random_cmap = _generate_mask_random_cmap(mask)
+        
+        if index < nr:
+            index += 1
+            chans = image.shape[-1]
+            fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
+            for v in range(0, image.shape[-1]):
+                ax[v].imshow(image[..., v], cmap=cmap, interpolation='nearest')
+                ax[v].set_title('Image - Channel'+str(v))
+            ax[chans].imshow(mask, cmap=random_cmap, interpolation='nearest')
+            ax[chans].set_title('Mask')
+            if print_object_number:
+                unique_objects = np.unique(mask)[1:]
+                for obj in unique_objects:
+                    cy, cx = ndi.center_of_mass(mask == obj)
+                    ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
+            ax[chans+1].imshow(flow, cmap='viridis', interpolation='nearest')
+            ax[chans+1].set_title('Flow')
+            plt.show()
+    return
 
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True):
     """

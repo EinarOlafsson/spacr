@@ -1700,6 +1700,50 @@ def _check_masks(batch, batch_filenames, output_folder):
 
 def _get_avg_object_size(masks):
     """
+    Calculate:
+    - average number of objects per image
+    - average object size over all objects
+
+    Parameters:
+    masks (list): A list of 2D or 3D masks with labeled objects.
+
+    Returns:
+    tuple:
+        avg_num_objects_per_image (float)
+        avg_object_size (float)
+    """
+    per_image_counts = []
+    all_areas = []
+
+    for idx, mask in enumerate(masks):
+        if mask.ndim in [2, 3] and np.any(mask):
+            props = measure.regionprops(mask)
+            areas = [prop.area for prop in props]
+            per_image_counts.append(len(areas))
+            all_areas.extend(areas)
+        else:
+            per_image_counts.append(0)
+            if not np.any(mask):
+                print(f"Warning: Mask {idx} is empty.")
+            elif mask.ndim not in [2, 3]:
+                print(f"Warning: Mask {idx} has invalid dimension: {mask.ndim}")
+
+    # Average number of objects per image
+    if per_image_counts:
+        avg_num_objects_per_image = sum(per_image_counts) / len(per_image_counts)
+    else:
+        avg_num_objects_per_image = 0
+
+    # Average object size over all objects
+    if all_areas:
+        avg_object_size = sum(all_areas) / len(all_areas)
+    else:
+        avg_object_size = 0
+
+    return avg_num_objects_per_image, avg_object_size
+
+def _get_avg_object_size_v1(masks):
+    """
     Calculate the average size of objects in a list of masks.
 
     Parameters:
