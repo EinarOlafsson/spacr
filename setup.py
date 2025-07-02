@@ -9,7 +9,8 @@ dependencies = [
     'numpy>=1.26.4,<2.0',
     'pandas>=2.2.1,<3.0',
     'scipy>=1.12.0,<2.0',
-    'cellpose>=3.0.6,<4.0',
+    'cellpose>=4.0,<5.0', # changed max to 5 from 4 3.0.6
+    'segment-anything',
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
     'scikit-posthocs>=0.10.0, <0.20',
@@ -71,7 +72,7 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "0.9.3"
+VERSION = "0.9.7"
 
 setup(
     name="spacr",
@@ -84,7 +85,7 @@ setup(
     url="https://github.com/EinarOlafsson/spacr",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/MEDIAR/**/*', 'resources/MEDIAR_weights/*', 'resources/images/*'],},
+    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/images/*'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [

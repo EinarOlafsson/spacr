@@ -64,9 +64,9 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('nucleus_background', 100)
     settings.setdefault('nucleus_Signal_to_noise', 10)
     settings.setdefault('nucleus_CP_prob', 0)
-    settings.setdefault('nucleus_FT', 100)
-    settings.setdefault('cell_FT', 100)
-    settings.setdefault('pathogen_FT', 100)
+    settings.setdefault('nucleus_FT', 1.0)
+    settings.setdefault('cell_FT', 1.0)
+    settings.setdefault('pathogen_FT', 1.0)
     
     # Plot settings
     settings.setdefault('plot', False)
@@ -97,6 +97,10 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('upscale', False)
     settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
+    settings.setdefault('use_sam_cell', False)
+    settings.setdefault('use_sam_nucleus', False)
+    settings.setdefault('use_sam_pathogen', False)
+    
     return settings
 
 def set_default_plot_data_from_db(settings):
@@ -173,6 +177,8 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
                 print(f'Cell diameter must be an integer or float, got {settings["cell_diamiter"]}')
+        if settings['use_sam_cell']:
+            object_settings['model_name'] = 'sam'
 
     elif object_type == 'nucleus':
         object_settings['model_name'] = 'nuclei'
@@ -187,6 +193,8 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
                 print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diamiter"]}')
+        if settings['use_sam_nucleus']:
+            object_settings['model_name'] = 'sam'
 
     elif object_type == 'pathogen':
         object_settings['model_name'] = 'cyto'
@@ -203,10 +211,13 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
                 print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diamiter"]}')
+                
+        if settings['use_sam_pathogen']:
+            object_settings['model_name'] = 'sam'
         
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
-
+        
     if settings['verbose']:
         print(object_settings)
         
@@ -712,7 +723,7 @@ expected_types = {
     "nucleus_background": int,
     "nucleus_Signal_to_noise": float,
     "nucleus_CP_prob": float,
-    "nucleus_FT": float,
+    "nucleus_FT": (int, float),
     "cell_channel": (int, type(None)),
     "cell_background": (int, float),
     "cell_Signal_to_noise": (int, float),
@@ -1003,11 +1014,14 @@ expected_types = {
     "nucleus_diamiter":int,
     "pathogen_diamiter":int,
     "consolidate":bool,
+    'use_sam_cell':bool,
+    'use_sam_nucleus':bool,
+    'use_sam_pathogen':bool,
     "distance_gaussian_sigma": (int, type(None))
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "delete_intermediate", "uninfected", ],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "delete_intermediate", "uninfected", ],
              "Cellpose":["denoise","fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
@@ -1025,7 +1039,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
-             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma"]
+             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell"]
              }
 
 
@@ -1415,6 +1429,9 @@ def generate_fields(variables, scrollable_frame):
         "overlay": "(bool) - Overlay activation maps on the images.",
         "shuffle": "(bool) - Shuffle the dataset bufore generating the activation maps",
         "correlation": "(bool) - Calculate correlation between image channels and activation maps. Data is saved to .db.",
+        "use_sam_cell": "(bool) - Whether to use SAM for cell segmentation.",
+        "use_sam_nucleus": "(bool) - Whether to use SAM for nucleus segmentation.",
+        "use_sam_pathogen": "(bool) - Whether to use SAM for pathogen segmentation.",
         "normalize_input": "(bool) - Normalize the input images before passing them to the model.",
         "normalize_plots": "(bool) - Normalize images before plotting.",
     }

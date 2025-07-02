@@ -42,6 +42,7 @@ from torchvision.utils import make_grid
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import matplotlib as mpl
 
 from scipy import stats
 import scipy.ndimage as ndi
@@ -68,6 +69,24 @@ from spacr import __file__ as spacr_path
 
 import umap.umap_ as umap
 #import umap
+
+def _generate_mask_random_cmap(mask):
+    """
+    Generate a random colormap based on the unique labels in the given mask.
+
+    Parameters:
+    mask (ndarray): The mask array containing unique labels.
+
+    Returns:
+    ListedColormap: A random colormap generated based on the unique labels in the mask.
+    """
+    unique_labels = np.unique(mask)
+    num_objects = len(unique_labels[unique_labels != 0])
+    random_colors = np.random.rand(num_objects+1, 4)
+    random_colors[:, 3] = 1
+    random_colors[0, :] = [0, 0, 0, 1]
+    random_cmap = mpl.colors.ListedColormap(random_colors)
+    return random_cmap
 
 def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
 
@@ -1265,6 +1284,34 @@ def _pivot_counts_table(db_path):
     conn.close()
     
 def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+    cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
+    nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
+    pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
+
+    if any(os.path.exists(p) for p in [cell_mask_path, nucleus_mask_path, pathogen_mask_path]):
+        if any(c is None for c in [nucleus_channel, pathogen_channel, cell_channel]):
+            print('Warning: Cellpose masks already exist. Unexpected behaviour if any channel is None while masks exist.')
+
+    cellpose_channels = {}
+
+    # Nucleus: always duplicated single channel
+    if nucleus_channel is not None:
+        cellpose_channels['nucleus'] = [nucleus_channel, nucleus_channel]
+
+    # Pathogen: always duplicated single channel
+    if pathogen_channel is not None:
+        cellpose_channels['pathogen'] = [pathogen_channel, pathogen_channel]
+
+    # Cell: prefer nucleus as second if available
+    if cell_channel is not None:
+        if nucleus_channel is not None:
+            cellpose_channels['cell'] = [nucleus_channel, cell_channel]
+        else:
+            cellpose_channels['cell'] = [cell_channel, cell_channel]
+
+    return cellpose_channels
+    
+def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_channel):
 
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
@@ -3150,6 +3197,58 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     return test_folder_path
 
 def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings={}):
+    if object_type == 'pathogen':
+        if model_name == 'toxo_pv_lumen':
+            diameter = object_settings['diameter']
+            current_dir = os.path.dirname(__file__)
+            model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
+            print(model_path)
+            model = cp_models.CellposeModel(
+                gpu=torch.cuda.is_available(),
+                model_type=None,
+                pretrained_model=model_path,
+                diam_mean=diameter,
+                device=device
+            )
+            print('Using Toxoplasma PV lumen model to generate pathogen masks')
+            return model
+
+    restore_list = ['denoise', 'deblur', 'upsample', None]
+    if restore_type not in restore_list:
+        print(f"Invalid restore type. Choose from {restore_list}, defaulting to None")
+        restore_type = None
+
+    if restore_type is None:
+        if model_name == 'sam':
+            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), device=device, pretrained_model='cpsam',)
+            return model
+        if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
+            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
+            return model
+    else:
+        if object_type == 'nucleus':
+            restore = f'{restore_type}_nuclei'
+            model = denoise.CellposeDenoiseModel(
+                gpu=torch.cuda.is_available(),
+                model_type="nuclei",
+                restore_type=restore,
+                chan2_restore=False,
+                device=device
+            )
+            return model
+        else:
+            restore = f'{restore_type}_cyto3'
+            chan2_restore = (model_name == 'cyto2')
+            model = denoise.CellposeDenoiseModel(
+                gpu=torch.cuda.is_available(),
+                model_type="cyto3",
+                restore_type=restore,
+                chan2_restore=chan2_restore,
+                device=device
+            )
+            return model
+
+def _choose_model_v1(model_name, device, object_type='cell', restore_type=None, object_settings={}):
     
     if object_type == 'pathogen':
         if model_name == 'toxo_pv_lumen':
@@ -3168,16 +3267,16 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
 
     if restore_type == None:
         if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
-            model = cp_models.Cellpose(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
+            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
             return model
     else:
         if object_type == 'nucleus':
-            restore = f'{type}_nuclei'
+            restore = f'{restore_type}_nuclei'
             model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
             return model
 
         else:
-            restore = f'{type}_cyto3'
+            restore = f'{restore_type}_cyto3'
             if model_name =='cyto2':
                 chan2_restore = True
             if model_name =='cyto':
