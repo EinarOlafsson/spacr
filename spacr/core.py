@@ -196,11 +196,12 @@ def preprocess_generate_masks(settings):
 
 def generate_cellpose_masks(src, settings, object_type):
     
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_cellpose_channels, _choose_model, mask_object_count, all_elements_match, prepare_batch_for_segmentation
+    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
-    from .plot import plot_masks
+    from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
+    from .spacr_cellpose import parse_cellpose4_output
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -239,9 +240,12 @@ def generate_cellpose_masks(src, settings, object_type):
     cellpose_channels = _get_cellpose_channels(src, settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel'])
     if settings['verbose']:
         print(cellpose_channels)
-
+        
+    if object_type not in cellpose_channels:
+        raise ValueError(f"Error: No channels were specified for object_type '{object_type}'. Check your settings.")
     channels = cellpose_channels[object_type]
-    cellpose_batch_size = _get_cellpose_batch_size()
+
+    #cellpose_batch_size = _get_cellpose_batch_size()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
@@ -249,7 +253,8 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
-    chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
+    #chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
+    
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
@@ -257,6 +262,7 @@ def generate_cellpose_masks(src, settings, object_type):
     _create_database(count_loc)
     
     average_sizes = []
+    average_count = []
     time_ls = []
     
     for file_index, path in enumerate(paths):
@@ -310,49 +316,30 @@ def generate_cellpose_masks(src, settings, object_type):
                 continue
             
             batch = prepare_batch_for_segmentation(batch)
-            
-            
-            #if settings['denoise']:
-            #    if object_type == 'cell':
-            #        model_type = "denoise_cyto3"
-            #    elif object_type == 'nucleus':
-            #        model_type = "denoise_nucleus"
-            #    else:
-            #        raise ValueError(f"No denoise model for object_type: {object_type}")
-            #    dn = denoise.DenoiseModel(model_type=model_type, gpu=device)
-            #    batch = dn.eval(imgs=batch, channels=chans, diameter=object_settings['diameter'])
+            batch_list = [batch[i] for i in range(batch.shape[0])]
 
             if timelapse:
                 movie_path = os.path.join(os.path.dirname(src), 'movies')
                 os.makedirs(movie_path, exist_ok=True)
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
-            
-            output = model.eval(x=batch,
-                                batch_size=cellpose_batch_size,
+                        
+            output = model.eval(x=batch_list,
+                                batch_size=batch_size,
                                 normalize=False,
-                                channels=chans,
-                                channel_axis=3,
+                                channel_axis=-1,
+                                channels=channels,
                                 diameter=object_settings['diameter'],
                                 flow_threshold=flow_threshold,
                                 cellprob_threshold=cellprob_threshold,
                                 rescale=None,
                                 resample=object_settings['resample'])
-            
-            if len(output) == 4:
-                masks, flows, _, _ = output
-            elif len(output) == 3:
-                masks, flows, _ = output
-            else:
-                raise ValueError(f"Unexpected number of return values from model.eval(). Expected 3 or 4, got {len(output)}")
+                        
+            masks, flows, _, _, _ = parse_cellpose4_output(output)
 
             if timelapse:
                 if settings['plot']:
-                    for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
-                        if idx == 0:
-                            num_objects = mask_object_count(mask)
-                            print(f'Number of objects: {num_objects}')
-                            plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+                    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
 
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
                 if object_type in timelapse_objects:
@@ -431,24 +418,23 @@ def generate_cellpose_masks(src, settings, object_type):
                     mask_stack = _masks_to_masks_stack(masks)
 
                     if settings['plot']:
-                        for idx, (mask, flow, image) in enumerate(zip(masks, flows[0], batch)):
-                            if idx == 0:
-                                num_objects = mask_object_count(mask)
-                                print(f'Number of objects, : {num_objects}')
-                                plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
+                        plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
         
             if not np.any(mask_stack):
-                average_obj_size = 0
+                avg_num_objects_per_image, average_obj_size = 0, 0
             else:
-                average_obj_size = _get_avg_object_size(mask_stack)
-
+                avg_num_objects_per_image, average_obj_size = _get_avg_object_size(mask_stack)
+            
+            average_count.append(avg_num_objects_per_image)
             average_sizes.append(average_obj_size) 
             overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
-            print(f'object_size:{object_type}: {overall_average_size:.3f} px2')
+            overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
+            print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
 
         if not timelapse:
             if settings['plot']:
-                plot_masks(batch, mask_stack, flows, figuresize=figuresize, cmap='inferno', nr=batch_size)
+                plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
+                
         if settings['save']:
             for mask_index, mask in enumerate(mask_stack):
                 output_filename = os.path.join(output_folder, batch_filenames[mask_index])

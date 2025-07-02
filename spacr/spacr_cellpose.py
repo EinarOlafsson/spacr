@@ -7,6 +7,65 @@ from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
 from scipy.ndimage import binary_fill_holes
 
+def parse_cellpose4_output(output):
+    """
+    General parser for Cellpose eval output.
+    Handles:
+    - batched format (list of 4 arrays)
+    - per-image list of flows
+    Returns:
+        masks, flows0, flows1, flows2, flows3
+    """
+
+    masks = output[0]
+    flows = output[1]
+
+    if not isinstance(flows, (list, tuple)):
+        raise ValueError(f"Unrecognized Cellpose flows type: {type(flows)}")
+
+    # Determine number of images
+    try:
+        num_images = len(masks)
+    except TypeError:
+        raise ValueError(f"Cannot determine number of images in masks (type={type(masks)})")
+
+    # Case A: batched format (4 arrays stacked over batch)
+    if len(flows) == 4 and all(isinstance(f, np.ndarray) for f in flows):
+        flow0_array, flow1_array, flow2_array, flow3_array = flows
+
+        flows0 = [flow0_array[i] for i in range(num_images)]
+        flows1 = [flow1_array[:, i] for i in range(num_images)]
+        flows2 = [flow2_array[i] for i in range(num_images)]
+        flows3 = [flow3_array[i] for i in range(num_images)]
+
+        return masks, flows0, flows1, flows2, flows3
+
+    # Case B: per-image format
+    elif len(flows) == num_images:
+        flows0, flows1, flows2, flows3 = [], [], [], []
+
+        for item in flows:
+            if isinstance(item, (list, tuple)):
+                n = len(item)
+                f0 = item[0] if n > 0 else None
+                f1 = item[1] if n > 1 else None
+                f2 = item[2] if n > 2 else None
+                f3 = item[3] if n > 3 else None
+            elif isinstance(item, np.ndarray):
+                f0, f1, f2, f3 = item, None, None, None
+            else:
+                f0 = f1 = f2 = f3 = None
+
+            flows0.append(f0)
+            flows1.append(f1)
+            flows2.append(f2)
+            flows3.append(f3)
+
+        return masks, flows0, flows1, flows2, flows3
+
+    # Unrecognized structure
+    raise ValueError(f"Unrecognized Cellpose flows format: type={type(flows)}, len={len(flows) if hasattr(flows,'__len__') else 'unknown'}")
+
 def identify_masks_finetune(settings):
     
     from .plot import print_mask_and_flows

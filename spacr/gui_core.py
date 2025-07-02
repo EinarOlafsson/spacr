@@ -103,6 +103,11 @@ def display_figure(fig):
     new_canvas = FigureCanvasTkAgg(fig, master=canvas_widget.master)
     new_canvas.draw()
     new_canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+    
+    # Store existing text labels on each axis for zoom visibility control (new feature)
+    for ax in fig.get_axes():
+        texts = ax.texts
+        ax._label_annotations = texts
 
     # Update the global canvas and canvas_widget references
     canvas = new_canvas
@@ -169,14 +174,100 @@ def display_figure(fig):
         else:
             #flash_feedback("right")
             show_next_figure()
-
-    def zoom_test(event):
-        if event.num == 4:  # Scroll up
-            print("zoom in")
-        elif event.num == 5: # Scroll down
-            print("zoom out")
-        
+            
     def zoom(event):
+        # Define zoom factors
+        zoom_in_factor = 1 / 1.2
+        zoom_out_factor = 1.2
+
+        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):
+            factor = zoom_in_factor
+        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0):
+            factor = zoom_out_factor
+        else:
+            return
+
+        for ax in canvas.figure.get_axes():
+            # Convert canvas pixel (event.x, event.y) to axis data coordinates
+            # EVEN IF the mouse is over a different axis, we use the same pixel to data mapping for each
+            inv = ax.transData.inverted()
+            try:
+                data_x, data_y = inv.transform((event.x, event.y))
+            except ValueError:
+                continue  # e.g. axis has no data
+
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            # Zoom around (data_x, data_y) in *that axis's* data space
+            new_xlim = [data_x - (data_x - xlim[0]) * factor,
+                        data_x + (xlim[1] - data_x) * factor]
+            new_ylim = [data_y - (data_y - ylim[0]) * factor,
+                        data_y + (ylim[1] - data_y) * factor]
+
+            ax.set_xlim(new_xlim)
+            ax.set_ylim(new_ylim)
+
+            # Clip text labels
+            for label in ax.texts:
+                label.set_clip_on(True)
+
+            # Update label visibility
+            if hasattr(ax, '_label_annotations'):
+                for label in ax._label_annotations:
+                    x, y = label.get_position()
+                    is_visible = (new_xlim[0] <= x <= new_xlim[1]) and (new_ylim[0] <= y <= new_ylim[1])
+                    label.set_visible(is_visible)
+
+        canvas.draw_idle()
+
+    def zoom_v2(event):
+        # Define zoom factors
+        zoom_in_factor = 1 / 1.2
+        zoom_out_factor = 1.2
+
+        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):
+            factor = zoom_in_factor
+        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0):
+            factor = zoom_out_factor
+        else:
+            return
+
+        for ax in canvas.figure.get_axes():
+            # Translate mouse position to figure coordinates
+            mouse_x, mouse_y = event.x, event.y
+            inv = ax.transData.inverted()
+            data_x, data_y = inv.transform((mouse_x, mouse_y))
+
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            # Compute new limits centered on the mouse data position
+            new_width = (xlim[1] - xlim[0]) * factor
+            new_height = (ylim[1] - ylim[0]) * factor
+
+            new_xlim = [data_x - (data_x - xlim[0]) * factor,
+                        data_x + (xlim[1] - data_x) * factor]
+            new_ylim = [data_y - (data_y - ylim[0]) * factor,
+                        data_y + (ylim[1] - data_y) * factor]
+
+            ax.set_xlim(new_xlim)
+            ax.set_ylim(new_ylim)
+
+            # Clip all text labels to the axes area
+            for label in ax.texts:
+                label.set_clip_on(True)
+
+            # Update label visibility based on new limits
+            if hasattr(ax, '_label_annotations'):
+                for label in ax._label_annotations:
+                    x, y = label.get_position()
+                    is_visible = (new_xlim[0] <= x <= new_xlim[1]) and (new_ylim[0] <= y <= new_ylim[1])
+                    label.set_visible(is_visible)
+
+        canvas.draw_idle()
+        
+    def zoom_v1(event):
         # Fixed zoom factors (adjust these if you want faster or slower zoom)
         zoom_in_factor = 0.9   # When zooming in, ranges shrink by 10%
         zoom_out_factor = 1.1  # When zooming out, ranges increase by 10%
