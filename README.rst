@@ -58,10 +58,7 @@ If using Windows, switch to Linux—it's free, open-source, and better.
 
 ::
 
-   brew install libomp
-   brew install hdf5
-   brew install cmake
-   brew install openssl
+   brew install libomp hdf5 cmake openssl
 
 **Linux GUI requirement:**  
 SpaCr GUI requires Tkinter.  
