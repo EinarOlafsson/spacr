@@ -242,44 +242,8 @@ def annotate(settings):
                       threshold=settings['threshold'],
                       normalize_channels=settings['normalize_channels'])
     
-    #next_button = tk.Button(root, text="Next", command=app.next_page)
-    #next_button.grid(row=app.grid_rows, column=app.grid_cols - 1)
-    #back_button = tk.Button(root, text="Back", command=app.previous_page)
-    #back_button.grid(row=app.grid_rows, column=app.grid_cols - 2)
-    #exit_button = tk.Button(root, text="Exit", command=app.shutdown)
-    #exit_button.grid(row=app.grid_rows, column=app.grid_cols - 3)
-    
     app.load_images()
     root.mainloop()
-
-def generate_annotate_fields_v1(frame):
-    from .settings import set_annotate_default_settings
-    from .gui_elements import set_dark_style
-
-    style_out = set_dark_style(ttk.Style())
-    font_loader = style_out['font_loader']
-    font_size = style_out['font_size'] - 2
-
-    vars_dict = {}
-    settings = set_annotate_default_settings(settings={})
-    
-    for setting in settings:
-        vars_dict[setting] = {
-            'entry': ttk.Entry(frame),
-            'value': settings[setting]
-        }
-
-    # Arrange input fields and labels
-    for row, (name, data) in enumerate(vars_dict.items()):
-        tk.Label(frame, text=f"{name.replace('_', ' ').capitalize()}:", bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size)).grid(row=row, column=0)
-        if isinstance(data['value'], list):
-            # Convert lists to comma-separated strings
-            data['entry'].insert(0, ','.join(map(str, data['value'])))
-        else:
-            data['entry'].insert(0, data['value'])
-        data['entry'].grid(row=row, column=1)
-    
-    return vars_dict
 
 def generate_annotate_fields(frame):
     from .settings import set_annotate_default_settings
@@ -496,8 +460,6 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
         # Restore the original plt.show function
         plt.show = original_show
         
-
-                    
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .core import generate_image_umap, preprocess_generate_masks
