@@ -8,6 +8,9 @@
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
 .. |repo size| image:: https://img.shields.io/github/repo-size/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/
+.. |Tutorial| image:: https://img.shields.io/badge/Tutorial-Click%20Here-brightgreen
+   :target: https://einarolafsson.github.io/spacr/tutorial/
+
 
 .. _docs: https://einarolafsson.github.io/spacr/index.html
 
@@ -117,7 +120,7 @@ Interactive Tutorial (under construction)
 
 Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 
-`spaCR Tutorial Page <https://einarolafsson.github.io/spacr/tutorial/>`_
+|Tutorial|
 
 License
 -------
