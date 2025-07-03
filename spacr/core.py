@@ -417,8 +417,8 @@ def generate_cellpose_masks(src, settings, object_type):
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
 
-                    if settings['plot']:
-                        plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
+                    #if settings['plot']:
+                    #    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
         
             if not np.any(mask_stack):
                 avg_num_objects_per_image, average_obj_size = 0, 0
