@@ -16,7 +16,7 @@
 
 Badges
 ------
-|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size|
+|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial|
 
 SpaCr
 =====
@@ -132,3 +132,10 @@ How to Cite
 If you use spaCR in your research, please cite:  
 Olafsson EB, et al. SpaCr: Spatial phenotype analysis of CRISPR-Cas9 screens. *Manuscript in preparation*.
 
+Papers Using spaCR
+-------------------
+Below are selected publications that have used or cited spaCR:
+
+- Olafsson EB, et al. *SpaCr: Spatial phenotype analysis of CRISPR-Cas9 screens.* Manuscript in preparation.
+- `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity  <https://doi.org/10.1016/j.celrep.2025.115694>`_
+- `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants  <https://doi.org/10.1128/msphere.01011-24>`_
