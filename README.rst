@@ -43,7 +43,6 @@ Features
    :alt: SpaCr workflow
    :align: center
 
-
 **Overview and data organization of spaCR.**
 
 **a.** Schematic workflow of the spaCR pipeline for pooled image-based CRISPR screens. Microscopy images (TIFF, LIF, CZI, NDI) and sequencing reads (FASTQ) are used as inputs (black). The main modules (teal) are: (1) Mask: generates object masks for cells, nuclei, pathogens, and cytoplasm; (2) Measure: extracts object-level features and crops object images, storing quantitative data in an SQL database; (3) Classify—applies machine learning (ML, e.g., XGBoost) or deep learning (DL, e.g., PyTorch) models to classify objects, summarizing results as well-level classification scores; (4) Map Barcodes: extracts and maps row, column, and gRNA barcodes from sequencing data to corresponding wells; (5) Regression: estimates gRNA effect sizes and gene scores via multiple linear regression using well-level summary statistics.
