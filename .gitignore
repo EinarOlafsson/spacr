@@ -159,3 +159,6 @@ cython_debug/
 spacr.log
 
 .ipynb_checkpoints
+spacr_tutorial_doc.ipynb
+tutorial.ipynb
+tutorial_colab.ipynb
