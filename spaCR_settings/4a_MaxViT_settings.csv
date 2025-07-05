@@ -1,0 +1,31 @@
+setting_key,setting_value
+src,path
+train,True
+test,False
+custom_model,False
+custom_model_path,
+classes,"['nc', 'pc']"
+model_type,maxvit_t
+optimizer_type,adamw
+schedule,reduce_lr_on_plateau
+loss_type,focal_loss
+normalize,True
+image_size,224
+batch_size,64
+epochs,100
+val_split,0.1
+learning_rate,0.0001
+weight_decay,0.00001
+dropout_rate,0.1
+init_weights,True
+amsgrad,True
+use_checkpoint,True
+gradient_accumulation,True
+gradient_accumulation_steps,4
+intermedeate_save,True
+pin_memory,True
+n_jobs,30
+train_channels,"['r', 'g', 'b']"
+augment,True
+verbose,True
+dst,path
