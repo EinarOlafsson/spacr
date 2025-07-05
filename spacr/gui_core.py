@@ -549,10 +549,11 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     from .gui_elements import set_element_size
 
     size_dict = set_element_size()
+    
     settings_width = size_dict['settings_width']
-
+    
     # Create a PanedWindow for the settings panel
-    settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, width=size_dict['settings_width'])
+    settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, width=settings_width)
     vertical_container.add(settings_paned_window, stretch="always")
 
     settings_frame = tk.Frame(settings_paned_window, width=settings_width)
