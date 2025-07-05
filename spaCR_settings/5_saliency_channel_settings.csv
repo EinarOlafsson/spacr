@@ -1,0 +1,20 @@
+Key,Value
+dataset,path
+model_type,maxvit
+model_path,path
+image_size,224
+batch_size,64
+normalize,True
+n_jobs,
+cam_type,saliency_channel
+correlation,True
+manders_thresholds,"[15, 50, 75]"
+shuffle,True
+overlay,True
+noramlize,True
+normalize_input,True
+channels,"[1, 2, 3]"
+plot,False
+save,True
+src,path
+target_layer,
