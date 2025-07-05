@@ -157,3 +157,5 @@ cython_debug/
 
 # User-specific files
 spacr.log
+
+.ipynb_checkpoints
