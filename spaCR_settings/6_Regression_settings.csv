@@ -1,0 +1,36 @@
+Key,Value
+count_data,"[path_1, path_2, ...]"
+score_data,[path]
+metadata_files,[path]
+positive_control,239740
+negative_control,233460
+min_n,0
+fraction_threshold,
+target_unique_count,5
+tolerance,5
+log_x,False
+log_y,False
+x_lim,
+outlier_detection,True
+control_wells,"['c1', 'c2', 'c3']"
+dependent_variable,MaxViT_scores
+threshold_method,var
+threshold_multiplier,10
+transform,log
+agg_type,mean
+score_column,MaxViT_scores
+min_cell_count,100
+regression_type,ols
+random_row_column_effects,False
+y_lims,"[[0, 5], [5, 20]]"
+plateID,
+cov_type,
+volcano,gene
+alpha,0.8
+verbose,True
+controls,"['000000_1', '000000_10', '000000_11', '000000_12', '000000_13', '000000_14', '000000_15', '000000_16', '000000_17', '000000_18', '000000_19', '000000_20', '000000_21', '000000_22', '000000_23', '000000_24', '000000_25', '000000_26', '000000_27', '000000_28', '000000_29', '000000_3', '000000_30', '000000_31', '000000_32', '000000_4', '000000_5', '000000_6', '000000_8', '000000_9']"
+split_axis_lims,
+filter_value,"['c1', 'c2', 'c3']"
+filter_column,columnID
+toxo,True
+src,path

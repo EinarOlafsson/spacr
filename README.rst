@@ -128,6 +128,18 @@ Power analasys of pooled perterbation spaCR screens.
 
 `spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
+Data Availability
+-----------------
+
+- **Full microscopy image dataset:**  
+  `EMBL-EBI BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
+
+- **Testing dataset:**  
+  `Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
+
+- **Sequencing data:**  
+  `NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
+
 License
 -------
 spaCR is distributed under the terms of the MIT License.
