@@ -121,6 +121,13 @@ Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 
 |Tutorial|
 
+spaCRPower
+----------
+
+Power analasys of pooled perterbation spaCR screens.
+
+`spaCRPower <https://github.com/maomlab/spaCRPower>`_
+
 License
 -------
 spaCR is distributed under the terms of the MIT License.
