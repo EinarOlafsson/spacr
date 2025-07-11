@@ -838,7 +838,8 @@
     <span class="kn">from</span> <span class="nn">.spacr_cellpose</span> <span class="kn">import</span> <span class="n">identify_masks_finetune</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_analyze_plaque_settings</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">download_models</span>
-    <span class="kn">from</span> <span class="nn">spacr</span> <span class="kn">import</span> <span class="vm">__file__</span> <span class="k">as</span> <span class="n">spacr_path</span>
+    <span class="c1">#from spacr import __file__ as spacr_path</span>
+    <span class="n">spacr_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;__init__.py&#39;</span><span class="p">)</span>
 
     <span class="n">download_models</span><span class="p">()</span>
     <span class="n">package_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">spacr_path</span><span class="p">)</span>
