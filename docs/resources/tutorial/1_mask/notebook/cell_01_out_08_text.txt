@@ -1,1 +1,0 @@
-object_size:cell: 17147.916 px2
