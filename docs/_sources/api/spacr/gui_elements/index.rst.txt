@@ -1125,7 +1125,7 @@ Module Contents
    .. py:method:: remove_small_objects()
 
 
-.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None)
+.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1)
 
    .. py:attribute:: root
 
@@ -1205,6 +1205,21 @@ Module Contents
 
    .. py:attribute:: normalize_channels
       :value: None
+
+
+
+   .. py:attribute:: outline
+      :value: None
+
+
+
+   .. py:attribute:: outline_threshold_factor
+      :value: 1
+
+
+
+   .. py:attribute:: outline_sigma
+      :value: 1
 
 
 
@@ -1290,6 +1305,13 @@ Module Contents
 
 
    .. py:method:: load_single_image(path_annotation_tuple)
+
+
+   .. py:method:: outline_image(img, edge_sigma=1, edge_thickness=1)
+
+      For each selected channel, compute a continuous outline from the intensity landscape
+      using Otsu threshold scaled by a correction factor. Replace only that channel.
+
 
 
    .. py:method:: normalize_image(img, normalize=False, percentiles=(1, 99), normalize_channels=None)
