@@ -552,14 +552,18 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     
     settings_width = size_dict['settings_width']
     
+    print(settings_width)
+    
     # Create a PanedWindow for the settings panel
     settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, width=settings_width)
     vertical_container.add(settings_paned_window, stretch="always")
 
     settings_frame = tk.Frame(settings_paned_window, width=settings_width)
-    settings_frame.pack_propagate(False)  # Prevent the frame from resizing based on its children
+    settings_frame.pack_propagate(False)
 
     settings_paned_window.add(settings_frame)
+    #settings_paned_window.add(settings_frame, width=settings_width)
+    
 
     scrollable_frame = spacrFrame(settings_frame)
     scrollable_frame.grid(row=1, column=0, sticky="nsew")
@@ -1210,7 +1214,7 @@ def cleanup_previous_instance():
         canvas = None
 
     print("Previous instance cleaned up successfully.")
-
+    
 def initiate_root(parent, settings_type='mask'):
     """
     Initializes the root window and sets up the GUI components based on the specified settings type.
@@ -1224,6 +1228,7 @@ def initiate_root(parent, settings_type='mask'):
     """
     
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
+    from .gui_elements import set_element_size
     
     # Clean up any previous instance
     cleanup_previous_instance()
@@ -1235,8 +1240,6 @@ def initiate_root(parent, settings_type='mask'):
 
     uppdate_frequency = 500
     num_cores = os.cpu_count()
-
-    #chatbot = Chatbot(api_key="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")
 
     # Start tracemalloc and initialize global variables
     tracemalloc.start()

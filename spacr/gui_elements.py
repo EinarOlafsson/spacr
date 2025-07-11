@@ -39,7 +39,7 @@ def restart_gui_app(root):
         root.destroy()
         
         # Import and launch a new instance of the application
-        from spacr.gui import gui_app
+        from .gui import gui_app
         new_root = tk.Tk()  # Create a fresh Tkinter root instance
         gui_app()
     except Exception as e:
@@ -81,7 +81,7 @@ def create_menu_bar(root):
     # Add a separator and an exit option
     app_menu.add_separator()
     #app_menu.add_command(label="Home",command=lambda: restart_gui_app(root))
-    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://spacr.readthedocs.io/en/latest/?badge=latest"))
+    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://einarolafsson.github.io/spacr/index.html"))
     app_menu.add_command(label="Exit", command=root.quit)
 
     # Configure the menu for the root window
@@ -2851,7 +2851,7 @@ class AnnotateApp:
         # Optionally, update your GUI status label
         self.update_gui_text("Merging data...")
 
-        from spacr.io import _read_and_merge_data  # Adapt to your actual import
+        from .io import _read_and_merge_data
 
         # (1) Merge data
         merged_df, obj_df_ls = _read_and_merge_data(

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>1. Generate Segmentation Masks</title>
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+    }
+
+    body {
+      background-color: #1e1e1e;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .figure {
+      width: 100%;
+      height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      border: 1px solid #555;
+      padding: 0.5em;
+      box-sizing: border-box;
+    }
+
+    .figure img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .console {
+      background-color: #111;
+      color: #0f0;
+      padding: 1em;
+      width: 100%;
+      height: 500px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 10px;
+      border: 1px solid #444;
+      box-sizing: border-box;
+    }
+
+    .console>div {
+      font-family: monospace;
+      margin-bottom: 0.5em;
+      cursor: help;
+    }
+
+    .comment {
+      background-color: #222;
+      color: #ccc;
+      padding: 1em;
+      width: 100%;
+      height: 100px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 10px;
+      border: 1px solid #555;
+      box-sizing: border-box;
+    }
+
+    .controls {
+      margin-top: 2em;
+    }
+
+    button {
+      font-size: 1em;
+      margin: 0 1em;
+      padding: 0.5em 1em;
+      border-radius: 5px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    .notebook-cell {
+      background-color: #1e1e1e;
+      border-left: 4px solid #4CAF50;
+      padding: 10px 15px;
+      margin: 1em 0;
+      border-radius: 5px;
+      font-family: monospace;
+      color: #dcdcdc;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+
+    .cell-header {
+      font-weight: bold;
+      color: #8be9fd;
+      margin-bottom: 0.3em;
+    }
+
+    .code-area {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>1. Measure and crop objects</h1>
+
+  <!-- Slide 0 -->
+  <div class="slide" id="slide-0">
+    <div class="notebook-cell">
+      <div class="cell-header">In&nbsp;[1]:</div>
+      <pre class="code-area"><code>
+  <span title="Import function to measure and crop objects from images">from spacr.measure import measure_crop</span>
+  <span title="Jupyter magic to render matplotlib inline">%matplotlib inline</span>
+
+  <span title="Define settings dictionary">settings = {</span>
+    <span title="Path to folder containing merged image and mask TIFFs">'src':'/home/olafsson/datasets/plate1/test/merged',</span>
+    <span title="List of channel indices used for visualization">'channels':[0,1,2,3],</span>
+    <span title="Dimension index of cell mask">'cell_mask_dim':4,</span>
+    <span title="Minimum area threshold for valid cell objects (px²)">'cell_min_size':2000,</span>
+    <span title="Dimension index of nucleus mask">'nucleus_mask_dim':5,</span>
+    <span title="Minimum area threshold for valid nucleus objects (px²)">'nucleus_min_size':1000,</span>
+    <span title="Dimension index of pathogen mask">'pathogen_mask_dim':6,</span>
+    <span title="Minimum area threshold for valid pathogen objects (px²)">'pathogen_min_size':400,</span>
+    <span title="Minimum cytoplasm area (cell - nucleus - pathogen)">'cytoplasm_min_size':0,</span>
+    <span title="Save cropped objects as PNGs">'save_png':True,</span>
+    <span title="Object types to crop (cell, nuclei, pathogen)">'crop_mode':['cell'],</span>
+    <span title="Use bounding box instead of object area for cropping">'use_bounding_box':False,</span>
+    <span title="Size of output PNGs for cropped objects">'png_size':[[224,224]],</span>
+    <span title="Apply percentile normalization to PNGs">'normalize':False,</span>
+    <span title="Channels to include in output PNGs">'png_dims':[0,1,2],</span>
+    <span title="Normalization method: 'png' or 'fov'">'normalize_by':'png',</span>
+    <span title="Save measurement features to CSV or DB">'save_measurements':True,</span>
+    <span title="Show plots of cropped objects during analysis">'plot':True,</span>
+    <span title="Plot intermediate steps for object filtration">'plot_filtration':False,</span>
+    <span title="Include objects that appear uninfected">'uninfected':False,</span>
+    <span title="Enable test mode to analyze limited number of images">'test_mode':False,</span>
+    <span title="Number of images to process in test mode">'test_nr':10</span>
+  <span title="End dictionary">}</span>
+  </code></pre>
+    </div>
+
+    <div class="comment">
+      This code block sets up and launches the mask generation process in test mode using spaCR.
+      Hover over each line to learn what it does.
+    </div>
+  </div>
+
+  <!-- Slide 1 -->
+  <div class="slide" id="slide-1">
+    <div class="figure">
+      <img src="../resources/tutorial/2_measure/notebook/img1.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-1"></div>
+    <div class="comment">
+      This slide demonstrates the initial mask generation using the Cellpose 'cyto' model. Note the high signal-to-noise
+      ratio achieved by preprocessing with background removal and normalization enabled.
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="slide" id="slide-2">
+    <div class="figure">
+      <img src="../resources/tutorial/2_measure/notebook/img2.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-2"></div>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="slide" id="slide-3">
+    <div class="figure">
+      <img src="../resources/tutorial/2_measure/notebook/img3.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-3"></div>
+    <div class="comment">
+      Final results show successfully saved mask outputs. You can now proceed to object classification, visualization,
+      or export for downstream spatial analyses.
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevSlide()">Previous</button>
+    <button onclick="nextSlide()">Next</button>
+  </div>
+
+  <script>
+    const consoleData = {
+      1: [
+        { text: ">>> run_function settings_type: measure", tooltip: "Starts the measure function with selected settings." },
+        { text: ">>> Processing folder: src/merged", tooltip: "Indicates the folder currently being processed." },
+        { text: ">>> Saving settings to src/settings/measure.csv", tooltip: "Saves the current settings to a CSV file for reproducibility." },
+        { text: ">>> using 26 cpu cores", tooltip: "each FOV is passed to a CPU core for processing" },
+      ],
+      2: [
+        { text: ">>> Capturing object measurements", tooltip: "Capture intensity and morphological measurements for each object class. If nucleus and/or pathogen object are present a cytoplasm tertery object is generated" }
+      ],
+      3: [
+        { text: ">>> Generating single cell images", tooltip: "generate single object images" }
+      ],
+      4: [
+        { text: ">>> Successfully completed run", tooltip: "Successfully completed run" }
+      ],
+    };
+
+    async function animateConsole(slideId) {
+      const container = document.getElementById(`console-slide-${slideId}`);
+      if (!container || !consoleData[slideId]) return;
+
+      container.innerHTML = '';
+
+      for (const entry of consoleData[slideId]) {
+        // Add actual line
+        const lineDiv = document.createElement('div');
+        lineDiv.textContent = entry.text;
+        lineDiv.title = entry.tooltip;
+        container.appendChild(lineDiv);
+
+        // Add blank spacer
+        const spacer = document.createElement('div');
+        spacer.innerHTML = '&nbsp;';
+        container.appendChild(spacer);
+
+        // Wait 0.5 seconds
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    const totalSlides = 4;
+
+    function showSlide(n) {
+      for (let i = 0; i < totalSlides; i++) {
+        document.getElementById("slide-" + i).style.display = "none";
+      }
+      currentSlide = (n + totalSlides) % totalSlides;
+      document.getElementById("slide-" + currentSlide).style.display = "flex";
+
+      animateConsole(currentSlide);
+    }
+
+    let currentSlide = 0;
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      showSlide(currentSlide);
+    });
+  </script>
+</body>
+
+</html>

@@ -326,7 +326,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     Detect and mark the elbow point (inflection) with smoothing and tolerance control.
     """
 
-    from spacr.utils import correct_metadata_column_names
+    from .utils import correct_metadata_column_names
 
     # Load and process data
     if isinstance(settings['score_data'], str):

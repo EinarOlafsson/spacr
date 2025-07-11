@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>1. Generate Segmentation Masks</title>
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+    }
+
+    body {
+      background-color: #1e1e1e;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .figure {
+      width: 100%;
+      height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      border: 1px solid #555;
+      padding: 0.5em;
+      box-sizing: border-box;
+    }
+
+    .figure img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .console {
+      background-color: #111;
+      color: #0f0;
+      padding: 1em;
+      width: 100%;
+      height: 500px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 10px;
+      border: 1px solid #444;
+      box-sizing: border-box;
+    }
+
+    .console>div {
+      font-family: monospace;
+      margin-bottom: 0.5em;
+      cursor: help;
+    }
+
+    .comment {
+      background-color: #222;
+      color: #ccc;
+      padding: 1em;
+      width: 100%;
+      height: 100px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 10px;
+      border: 1px solid #555;
+      box-sizing: border-box;
+    }
+
+    .controls {
+      margin-top: 2em;
+    }
+
+    button {
+      font-size: 1em;
+      margin: 0 1em;
+      padding: 0.5em 1em;
+      border-radius: 5px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    .notebook-cell {
+      background-color: #1e1e1e;
+      border-left: 4px solid #4CAF50;
+      padding: 10px 15px;
+      margin: 1em 0;
+      border-radius: 5px;
+      font-family: monospace;
+      color: #dcdcdc;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+
+    .cell-header {
+      font-weight: bold;
+      color: #8be9fd;
+      margin-bottom: 0.3em;
+    }
+
+    .code-area {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>1. Generate Segmentation Masks</h1>
+
+  <!-- Slide 0 -->
+  <div class="slide" id="slide-0">
+    <div class="notebook-cell">
+      <div class="cell-header">In&nbsp;[1]:</div>
+      <pre class="code-area"><code>
+  <span title="Import function for preprocessing and mask generation">from spacr.core import preprocess_generate_masks</span>
+  <span title="Jupyter magic to render matplotlib inline">%matplotlib inline</span>
+
+  <span title="Define settings dictionary">settings = {</span>
+    <span title="Path to source folder (where original images are stored)">'src':'/home/olafsson/datasets/plate1',</span>
+    <span title="Type of filename metadata (cellvoyager, cq1, Nikon)">'metadata_type':'cellvoyager',</span>
+    <span title="Regular expression if filename metadata not in metadata_type">'custom_regex':None,</span>
+    <span title="Name of experiment">'experiment':'screen',</span>
+    <span title="List of integers representing available channels">'channels':[0,1,2,3],</span>
+    <span title="Cell image dimension">'cell_channel':3,</span>
+    <span title="Background value in cell images">'cell_background':100,</span>
+    <span title="Signal to noise ratio for cell channel">'cell_Signal_to_noise':10,</span>
+    <span title="Cellpose Cell probability">'cell_CP_prob':-1,</span>
+    <span title="Set background to 0 for cell channel">'remove_background_cell':False,</span>
+    <span title="Nucleus image dimension">'nucleus_channel':0,</span>
+    <span title="Background value in nucleus images">'nucleus_background':200,</span>
+    <span title="Signal to noise ratio for nucleus channel">'nucleus_Signal_to_noise':5,</span>
+    <span title="Cellpose Nucleus probability">'nucleus_CP_prob':0,</span>
+    <span title="Set background to 0 for nucleus channel">'remove_background_nucleus':False,</span>
+    <span title="Custom cellpose model path for pathogen detection">'pathogen_model':None,</span>
+    <span title="Pathogen image dimension">'pathogen_channel':2,</span>
+    <span title="Background value in pathogen images">'pathogen_background':400,</span>
+    <span title="Signal to noise ratio for pathogen channel">'pathogen_Signal_to_noise':5,</span>
+    <span title="Cellpose pathogen probability">'pathogen_CP_prob':-2,</span>
+    <span title="Set background to 0 for pathogen channel">'remove_background_pathogen':True,</span>
+    <span title="Consolidate files from multilevel folder structure into one folder">'consolidate':False,</span>
+    <span title="Objective magnification used to acquire images (40, 60, 100)">'magnification':40,</span>
+    <span title="Save masks and object data to database">'save':True,</span>
+    <span title="Preprocess images">'preprocess':True,</span>
+    <span title="Generate masks">'masks':True,</span>
+    <span title="Number of images to normalize together and load onto the GPU">'batch_size':50,</span>
+    <span title="Filter objects based on size">'filter':False,</span>
+    <span title="Merge pathogens that share > 75% perimeter">'merge_pathogens':False,</span>
+    <span title="Plot normalized intensity and object images">'plot':True,</span>
+    <span title="If cell, nucleus and pathogen: merge cells that share a pathogen">'adjust_cells':True,</span>
+    <span title="Test settings in test mode before analyzing entire experiment">'test_mode':True,</span>
+    <span title="Number of images to analyze in test mode">'test_images':10,</span>
+    <span title="Randomize images for test mode">'random_test':True</span>
+  <span title="End dictionary">}</span>
+  </code></pre>
+    </div>
+
+    <div class="comment">
+      This code block sets up and launches the mask generation process in test mode using spaCR.
+      Hover over each line to learn what it does.
+    </div>
+  </div>
+
+  <!-- Slide 1 -->
+  <div class="slide" id="slide-1">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img1.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-1"></div>
+    <div class="comment">
+      This slide demonstrates the initial mask generation using the Cellpose 'cyto' model. Note the high signal-to-noise
+      ratio achieved by preprocessing with background removal and normalization enabled.
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="slide" id="slide-2">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img2.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-2"></div>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="slide" id="slide-3">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img3.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-3"></div>
+    <div class="comment">
+      Final results show successfully saved mask outputs. You can now proceed to object classification, visualization,
+      or export for downstream spatial analyses.
+    </div>
+  </div>
+
+  <!-- Slide 4 -->
+  <div class="slide" id="slide-4">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img4.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-4"></div>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
+    </div>
+  </div>
+
+  <!-- Slide 5 -->
+  <div class="slide" id="slide-5">
+    <div class="figure">
+      <img src="../resources/tutorial/1_mask/notebook/img5.png" alt="channels">
+    </div>
+    <div class="console" id="console-slide-5"></div>
+    <div class="comment">
+      Test mode is useful for validating segmentation settings before processing the entire dataset. This helps identify
+      optimal Cellpose parameters like diameter, probability threshold, and SNR settings.
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevSlide()">Previous</button>
+    <button onclick="nextSlide()">Next</button>
+  </div>
+
+  <script>
+    const consoleData = {
+      1: [
+        { text: ">>> run_function_gui settings_type: mask", tooltip: "Starts the mask generation function with selected settings." },
+        { text: ">>> Processing folder: src", tooltip: "Indicates the folder currently being processed." },
+        { text: ">>> Found path: src", tooltip: "Confirms the input path exists and is accessible." },
+        { text: ">>> Saving settings to src/settings/gen_mask_settings.csv", tooltip: "Saves the current settings to a CSV file for reproducibility." },
+        { text: ">>> Found 208 tif files", tooltip: "Number of TIFF image files detected in the source folder." },
+        { text: ">>> Image_format: tif", tooltip: "Specifies the detected image format for processing." },
+        { text: ">>> regex mode:cellvoyager regex:(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif", tooltip: "Displays the regex pattern used to parse filenames into metadata fields." },
+        { text: ">>> All files: 208 in src", tooltip: "Total number of files found in the dataset path." },
+        { text: ">>> All unique FOV: 208 in src/plate1", tooltip: "Reports the number of unique fields of view in the dataset." },
+        { text: ">>> List of folders in src: ['1', '2', '3', '4']. Single channel folders.", tooltip: "Lists detected single-channel folders in the source directory." },
+        { text: ">>> Generated folder with merged arrays: src/stack", tooltip: "Indicates where the merged array data has been saved." },
+        { text: ">>> All files concatenated and normalized. Saved to: src/masks", tooltip: "Confirms saving of normalized, concatenated mask arrays." }
+      ],
+      2: [
+        { text: ">>> {'diameter': 160, 'minimum_size': 6400.0, 'maximum_size': 256000, 'merge': False, 'resample': True, 'remove_border_objects': False, 'model_name': 'cyto2', 'filter_size': False, 'filter_intensity': False, 'restore_type': None}", tooltip: "Displays Cellpose model and segmentation parameters used for this run." },
+        { text: ">>> {'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}", tooltip: "Specifies channel mappings for nucleus, pathogen, and cell." },
+        { text: ">>> Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48", tooltip: "Details of the GPU device used for batch processing." },
+        { text: ">>> Number of objects, : 55", tooltip: "Reports number of segmented cell objects before filtering." },
+        { text: ">>> object_size:cell: 24494.792 px2", tooltip: "Average area of segmented cell objects in pixels squared." }
+      ],
+      3: [
+        { text: ">>> Number of objects, : 53", tooltip: "Reports number of segmented nucleus objects before filtering." },
+        { text: ">>> object_size:nucleus: 6594.860 px2", tooltip: "Average area of segmented nucleus objects in pixels squared." }
+      ],
+      4: [
+        { text: ">>> Number of objects before filtration: 50", tooltip: "Number of pathogen objects before applying filtration steps." },
+        { text: ">>> Number of objects after merging adjacent objects, : 46", tooltip: "Number of pathogen objects after merging adjacent detections." },
+        { text: ">>> Number of objects, : 46", tooltip: "Final count of pathogen objects after all filtering." },
+        { text: ">>> object_size:pathogen: 1652.630 px2", tooltip: "Average area of pathogen objects in pixels squared." },
+        { text: ">>> Number of objects before filtration: 91", tooltip: "Alternate count of pathogen objects before merging." },
+        { text: ">>> Number of objects after merging adjacent objects, : 87", tooltip: "Count of pathogen objects after merging in this step." },
+        { text: ">>> Number of objects, : 87", tooltip: "Final pathogen object count for this step." },
+        { text: ">>> object_size:pathogen: 1652.860 px2", tooltip: "Alternate average area for pathogen objects in pixels squared." },
+      ],
+      5: [
+        { text: ">>> Adjusting cell masks with nuclei and pathogen masks", tooltip: "Aligns and adjusts cell masks using nucleus and pathogen data." },
+        { text: ">>> Successfully completed run function: gen_mask", tooltip: "Confirms the entire mask generation function ran successfully." }
+      ]
+    };
+
+    async function animateConsole(slideId) {
+      const container = document.getElementById(`console-slide-${slideId}`);
+      if (!container || !consoleData[slideId]) return;
+
+      container.innerHTML = '';
+
+      for (const entry of consoleData[slideId]) {
+        // Add actual line
+        const lineDiv = document.createElement('div');
+        lineDiv.textContent = entry.text;
+        lineDiv.title = entry.tooltip;
+        container.appendChild(lineDiv);
+
+        // Add blank spacer
+        const spacer = document.createElement('div');
+        spacer.innerHTML = '&nbsp;';
+        container.appendChild(spacer);
+
+        // Wait 0.5 seconds
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    const totalSlides = 6;
+
+    function showSlide(n) {
+      for (let i = 0; i < totalSlides; i++) {
+        document.getElementById("slide-" + i).style.display = "none";
+      }
+      currentSlide = (n + totalSlides) % totalSlides;
+      document.getElementById("slide-" + currentSlide).style.display = "flex";
+
+      animateConsole(currentSlide);
+    }
+
+    let currentSlide = 0;
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      showSlide(currentSlide);
+    });
+  </script>
+</body>
+
+</html>

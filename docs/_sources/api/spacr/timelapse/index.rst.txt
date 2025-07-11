@@ -1,0 +1,31 @@
+spacr.timelapse
+===============
+
+.. py:module:: spacr.timelapse
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: link_by_iou(mask_prev, mask_next, iou_threshold=0.1)
+
+.. py:function:: exponential_decay(x, a, b, c)
+
+.. py:function:: preprocess_pathogen_data(pathogen_df)
+
+.. py:function:: plot_data(measurement, group, ax, label, marker='o', linestyle='-')
+
+.. py:function:: infected_vs_noninfected(result_df, measurement)
+
+.. py:function:: save_figure(fig, src, figure_number)
+
+.. py:function:: save_results_dataframe(df, src, results_name)
+
+.. py:function:: summarize_per_well(peak_details_df)
+
+.. py:function:: summarize_per_well_inf_non_inf(peak_details_df)
+
+.. py:function:: analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9)
+

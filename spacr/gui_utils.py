@@ -594,6 +594,12 @@ def setup_frame(parent_frame):
     tk.Label(settings_container, text="Settings Container", bg=style_out['bg_color']).pack(fill=tk.BOTH, expand=True)
 
     set_dark_style(style, parent_frame, [settings_container, vertical_container, horizontal_container, main_paned])
+    
+    # Set initial sash position for main_paned (left/right split)
+    parent_frame.update_idletasks()
+    screen_width = parent_frame.winfo_screenwidth()
+    target_width = int(screen_width / 4)
+    main_paned.sash_place(0, target_width, 0)
 
     return parent_frame, vertical_container, horizontal_container, settings_container
 

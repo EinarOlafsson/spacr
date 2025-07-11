@@ -1,0 +1,2 @@
+using 26 cpu cores
+Progress: 0/10, operation_type: Measure and Crop, Time/image: 0.000sec, Time_left: 0.000 min.
