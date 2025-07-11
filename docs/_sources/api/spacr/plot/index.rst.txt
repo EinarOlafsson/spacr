@@ -16,6 +16,30 @@ Module Contents
    Plot image and mask overlays.
 
 
+.. py:function:: plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, print_object_number=True)
+
+   Plot the masks and flows for a given batch of images.
+
+   :param batch: The batch of images.
+   :type batch: numpy.ndarray
+   :param masks: The masks corresponding to the images.
+   :type masks: list or numpy.ndarray
+   :param flows: The flows corresponding to the images.
+   :type flows: list or numpy.ndarray
+   :param cmap: The colormap to use for displaying the images. Defaults to 'inferno'.
+   :type cmap: str, optional
+   :param figuresize: The size of the figure. Defaults to 20.
+   :type figuresize: int, optional
+   :param nr: The maximum number of images to plot. Defaults to 1.
+   :type nr: int, optional
+   :param file_type: The file type of the flows. Defaults to '.npz'.
+   :type file_type: str, optional
+   :param print_object_number: Whether to print the object number on the mask. Defaults to True.
+   :type print_object_number: bool, optional
+
+   :returns: None
+
+
 .. py:function:: plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True)
 
    Plot the masks and flows for a given batch of images.
@@ -130,8 +154,6 @@ Module Contents
    :param thickness: Thickness of the contour outlines.
    :type thickness: int
 
-
-.. py:function:: plot_resize_v1(images, resized_images, labels, resized_labels)
 
 .. py:function:: plot_resize(images, resized_images, labels, resized_labels)
 
