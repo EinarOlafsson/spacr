@@ -1,0 +1,31 @@
+train_tools.data_utils.utils
+============================
+
+.. py:module:: train_tools.data_utils.utils
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: split_train_valid(data_dicts, valid_portion=0.1)
+
+   Split train/validata data according to the given proportion
+
+
+.. py:function:: path_decoder(root, mapping_file, no_label=False, unlabeled=False)
+
+   Decode img/label file paths from root & mapping directory.
+
+   :param root:
+   :type root: str
+   :param mapping_file: json file containing image & label file paths.
+   :type mapping_file: str
+   :param no_label: whether to include "label" key. Defaults to False.
+   :type no_label: bool, optional
+
+   :returns: list of dictionary. (ex. [{"img": img_path, "label": label_path}, ...])
+   :rtype: list
+
+

@@ -1,0 +1,623 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.mediar &mdash; spacr 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/main/index.html">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/main/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/core/index.html">core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/core/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/core/BasePredictor/index.html">core.BasePredictor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/core/BaseTrainer/index.html">core.BaseTrainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/core/Baseline/index.html">core.Baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/core/MEDIAR/index.html">core.MEDIAR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/core/utils/index.html">core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/chat_bot/index.html">spacr.chat_bot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/mediar/index.html">spacr.mediar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/openai/index.html">spacr.openai</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/predict/index.html">predict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/predict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/evaluate/index.html">evaluate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/evaluate/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/evaluate/index.html#evaluate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/SetupDict/index.html">SetupDict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/SetupDict/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/SetupDict/index.html#SetupDict.TRAINER"><code class="docutils literal notranslate"><span class="pre">TRAINER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/SetupDict/index.html#SetupDict.OPTIMIZER"><code class="docutils literal notranslate"><span class="pre">OPTIMIZER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/SetupDict/index.html#SetupDict.SCHEDULER"><code class="docutils literal notranslate"><span class="pre">SCHEDULER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/train_tools/index.html">train_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/train_tools/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/data_utils/index.html">train_tools.data_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/measures/index.html">train_tools.measures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/models/index.html">train_tools.models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/utils/index.html">train_tools.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/generate_mapping/index.html">generate_mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generate_mapping/index.html#module-contents">Module Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.public_paths_labeled"><code class="docutils literal notranslate"><span class="pre">public_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.official_paths_labeled"><code class="docutils literal notranslate"><span class="pre">official_paths_labeled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.official_paths_tuning"><code class="docutils literal notranslate"><span class="pre">official_paths_tuning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.add_mapping_to_json"><code class="docutils literal notranslate"><span class="pre">add_mapping_to_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.mediar</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.mediar</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">gdown</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">skimage.io</span> <span class="k">as</span> <span class="nn">io</span>
+
+<span class="c1"># Path to the MEDIAR directory</span>
+<div class="viewcode-block" id="mediar_path">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.mediar_path">[docs]</a>
+<span class="n">mediar_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;MEDIAR&#39;</span><span class="p">)</span></div>
+
+
+<span class="c1"># Temporarily create __init__.py to make MEDIAR a package</span>
+<div class="viewcode-block" id="init_file">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.init_file">[docs]</a>
+<span class="n">init_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mediar_path</span><span class="p">,</span> <span class="s1">&#39;__init__.py&#39;</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">init_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">init_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">):</span>  <span class="c1"># Create the __init__.py file</span>
+        <span class="k">pass</span>
+
+<span class="c1"># Add MEDIAR to sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">mediar_path</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Now import the dependencies from MEDIAR</span>
+    <span class="kn">from</span> <span class="nn">core.MEDIAR</span> <span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">EnsemblePredictor</span>
+    <span class="kn">from</span> <span class="nn">train_tools.models</span> <span class="kn">import</span> <span class="n">MEDIARFormer</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="c1"># Remove the temporary __init__.py file after the import</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">init_file</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">init_file</span><span class="p">)</span>  <span class="c1"># Remove the __init__.py file</span>
+
+<div class="viewcode-block" id="display_imgs_in_list">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.display_imgs_in_list">[docs]</a>
+<span class="k">def</span> <span class="nf">display_imgs_in_list</span><span class="p">(</span><span class="n">lists_of_imgs</span><span class="p">,</span> <span class="n">cmaps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays images from multiple lists side by side. </span>
+<span class="sd">    Each row will display one image from each list (lists_of_imgs[i][j] is the j-th image in the i-th list).</span>
+<span class="sd">    </span>
+<span class="sd">    :param lists_of_imgs: A list of lists, where each inner list contains images.</span>
+<span class="sd">    :param cmaps: List of colormaps to use for each list (optional). If not provided, defaults to &#39;gray&#39; for all lists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_lists</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lists_of_imgs</span><span class="p">)</span>
+    <span class="n">num_images</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lists_of_imgs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># Ensure that all lists have the same number of images</span>
+    <span class="k">for</span> <span class="n">img_list</span> <span class="ow">in</span> <span class="n">lists_of_imgs</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_list</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_images</span><span class="p">,</span> <span class="s2">&quot;All inner lists must have the same number of images&quot;</span>
+
+    <span class="c1"># Use &#39;gray&#39; as the default colormap if cmaps are not provided</span>
+    <span class="k">if</span> <span class="n">cmaps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cmaps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gray&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_lists</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmaps</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_lists</span><span class="p">,</span> <span class="s2">&quot;The number of colormaps must match the number of lists&quot;</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">num_images</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_images</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">img_list</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lists_of_imgs</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">img_list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">num_images</span><span class="p">,</span> <span class="n">num_lists</span><span class="p">,</span> <span class="n">j</span> <span class="o">*</span> <span class="n">num_lists</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Grayscale image</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># 3-channel image (C, H, W)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>  <span class="c1"># Change shape to (H, W, C) for displaying</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Image </span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1"> from list </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_weights">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.get_weights">[docs]</a>
+<span class="k">def</span> <span class="nf">get_weights</span><span class="p">(</span><span class="n">finetuned_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">finetuned_weights</span><span class="p">:</span>
+        <span class="n">model_path1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;MEDIAR_weights&#39;</span><span class="p">,</span> <span class="s1">&#39;from_phase1.pth&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path1</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading finetuned model 1...&quot;</span><span class="p">)</span>
+            <span class="n">gdown</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;https://drive.google.com/uc?id=1JJ2-QKTCk-G7sp5ddkqcifMxgnyOrXjx&#39;</span><span class="p">,</span> <span class="n">model_path1</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model_path1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;MEDIAR_weights&#39;</span><span class="p">,</span> <span class="s1">&#39;phase1.pth&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path1</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading model 1...&quot;</span><span class="p">)</span>
+            <span class="n">gdown</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;https://drive.google.com/uc?id=1v5tYYJDqiwTn_mV0KyX5UEonlViSNx4i&#39;</span><span class="p">,</span> <span class="n">model_path1</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            
+    <span class="k">if</span> <span class="n">finetuned_weights</span><span class="p">:</span>
+        <span class="n">model_path2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;MEDIAR_weights&#39;</span><span class="p">,</span> <span class="s1">&#39;from_phase2.pth&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path2</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading finetuned model 2...&quot;</span><span class="p">)</span>
+            <span class="n">gdown</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;https://drive.google.com/uc?id=168MtudjTMLoq9YGTyoD2Rjl_d3Gy6c_L&#39;</span><span class="p">,</span> <span class="n">model_path2</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model_path2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;MEDIAR_weights&#39;</span><span class="p">,</span> <span class="s1">&#39;phase2.pth&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path2</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading model 2...&quot;</span><span class="p">)</span>
+            <span class="n">gdown</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;https://drive.google.com/uc?id=1NHDaYvsYz3G0OCqzegT-bkNcly2clPGR&#39;</span><span class="p">,</span> <span class="n">model_path2</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">model_path1</span><span class="p">,</span> <span class="n">model_path2</span></div>
+
+
+<div class="viewcode-block" id="normalize_image">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.normalize_image">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">lower_percentile</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">upper_percentile</span><span class="o">=</span><span class="mf">99.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize an image based on the 0.0 and 99.5 percentiles.</span>
+<span class="sd">    </span>
+<span class="sd">    :param image: Input image (numpy array).</span>
+<span class="sd">    :param lower_percentile: Lower percentile (default is 0.0).</span>
+<span class="sd">    :param upper_percentile: Upper percentile (default is 99.5).</span>
+<span class="sd">    :return: Normalized image (numpy array).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">lower_percentile</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">upper_percentile</span><span class="p">)</span>
+    
+    <span class="c1"># Clip image values to the calculated percentiles</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)</span>
+    
+    <span class="c1"># Normalize to [0, 1]</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">)</span>  <span class="c1"># Add small epsilon to avoid division by zero</span>
+    
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="MEDIARPredictor">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor">[docs]</a>
+<span class="k">class</span> <span class="nc">MEDIARPredictor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;ensemble&quot;</span><span class="p">,</span> <span class="n">roi_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">finetuned_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_tta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">99.5</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cuda:0&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>
+<div class="viewcode-block" id="MEDIARPredictor.device">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.device">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span></div>
+
+<div class="viewcode-block" id="MEDIARPredictor.test">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.test">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span></div>
+
+<div class="viewcode-block" id="MEDIARPredictor.model">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.model">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="MEDIARPredictor.normalize">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.normalize">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span> <span class="o">=</span> <span class="n">normalize</span></div>
+
+<div class="viewcode-block" id="MEDIARPredictor.quantiles">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.quantiles">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="o">=</span> <span class="n">quantiles</span></div>
+
+
+        <span class="c1"># Paths to model weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model1_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model2_path</span> <span class="o">=</span> <span class="n">get_weights</span><span class="p">(</span><span class="n">finetuned_weights</span><span class="p">)</span>
+
+        <span class="c1"># Load main models</span>
+<div class="viewcode-block" id="MEDIARPredictor.model1">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.model1">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model1_path</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MEDIARPredictor.model2">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.model2">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model2_path</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;ensemble&quot;</span> <span class="ow">or</span> <span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;model2&quot;</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+            <span class="c1"># Define input and output paths for running test</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources/images&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources/MEDIAR/results&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span> <span class="o">=</span> <span class="n">input_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
+
+        <span class="c1"># If using a single model</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;model1&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span> <span class="o">=</span> <span class="n">Predictor</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model1</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                <span class="n">input_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                <span class="n">output_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                <span class="n">algo_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;use_tta&quot;</span><span class="p">:</span> <span class="n">use_tta</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If using a single model</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;model2&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span> <span class="o">=</span> <span class="n">Predictor</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model2</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                <span class="n">input_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                <span class="n">output_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                <span class="n">algo_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;use_tta&quot;</span><span class="p">:</span> <span class="n">use_tta</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If using two models</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;ensemble&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span> <span class="o">=</span> <span class="n">EnsemblePredictor</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model1</span><span class="p">,</span>  <span class="c1"># Pass model1 as model</span>
+                <span class="n">model_aux</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model2</span><span class="p">,</span>  <span class="c1"># Pass model2 as model_aux</span>
+                <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                <span class="n">input_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                <span class="n">output_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                <span class="n">algo_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;use_tta&quot;</span><span class="p">:</span> <span class="n">use_tta</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;model1&quot;</span><span class="p">,</span> <span class="s2">&quot;model2&quot;</span><span class="p">,</span> <span class="s2">&quot;ensemble&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid model type. Choose from &#39;model1&#39;, &#39;model2&#39;, or &#39;ensemble&#39;.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MEDIARPredictor.load_model">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.load_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+        <span class="n">model_args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;decoder_channels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+            <span class="s2">&quot;decoder_pab_channels&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+            <span class="s2">&quot;encoder_name&quot;</span><span class="p">:</span> <span class="s1">&#39;mit_b5&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;in_channels&quot;</span><span class="p">:</span> <span class="mi">3</span>
+        <span class="p">}</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MEDIARFormer</span><span class="p">(</span><span class="o">**</span><span class="n">model_args</span><span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+    
+<div class="viewcode-block" id="MEDIARPredictor.display_image_and_mask">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.display_image_and_mask">[docs]</a>
+    <span class="k">def</span> <span class="nf">display_image_and_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">generate_mask_random_cmap</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the normalized input image and the predicted mask side by side.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If img is a tensor, convert it to NumPy for display</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="c1"># If mask is a tensor, convert it to NumPy for display</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="c1"># Transpose the image to have (H, W, C) format for display if needed</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Scale the normalized image back to [0, 255] for proper display</span>
+        <span class="n">img_display</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="c1"># Display normalized image</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_display</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Normalized Image&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+        <span class="n">r_cmap</span> <span class="o">=</span> <span class="n">generate_mask_random_cmap</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+        <span class="c1"># Display predicted mask</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">r_cmap</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Predicted Mask&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MEDIARPredictor.predict_batch">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.predict_batch">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict masks for a batch of images.</span>
+<span class="sd">        </span>
+<span class="sd">        :param imgs: List of input images as NumPy arrays (each in (H, W, C) format).</span>
+<span class="sd">        :return: List of predicted masks as NumPy arrays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">processed_imgs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Preprocess and normalize each image</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">imgs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">:</span>
+                <span class="c1"># Normalize the image using the specified quantiles</span>
+                <span class="n">img_normalized</span> <span class="o">=</span> <span class="n">normalize_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">lower_percentile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper_percentile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">img_normalized</span> <span class="o">=</span> <span class="n">img</span>
+
+            <span class="c1"># Convert image to tensor and send to device</span>
+            <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">img_normalized</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># (C, H, W)</span>
+            <span class="n">processed_imgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">)</span>
+
+        <span class="c1"># Stack all processed images into a batch tensor</span>
+        <span class="n">batch_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">processed_imgs</span><span class="p">)</span>
+
+        <span class="c1"># Run inference to get predicted masks</span>
+        <span class="n">pred_masks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">_inference</span><span class="p">(</span><span class="n">batch_tensor</span><span class="p">)</span>
+
+        <span class="c1"># Ensure pred_masks is always treated as a batch</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred_masks</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># If single image, add batch dimension</span>
+            <span class="n">pred_masks</span> <span class="o">=</span> <span class="n">pred_masks</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Convert predictions to NumPy arrays and post-process each mask</span>
+        <span class="n">predicted_masks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pred_mask</span> <span class="ow">in</span> <span class="n">pred_masks</span><span class="p">:</span>
+            <span class="n">pred_mask_np</span> <span class="o">=</span> <span class="n">pred_mask</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+            <span class="c1"># Extract dP and cellprob from pred_mask</span>
+            <span class="n">dP</span> <span class="o">=</span> <span class="n">pred_mask_np</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># First two channels as dP (displacement field)</span>
+            <span class="n">cellprob</span> <span class="o">=</span> <span class="n">pred_mask_np</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Third channel as cell probability</span>
+
+            <span class="c1"># Concatenate dP and cellprob along axis 0 to pass a single array</span>
+            <span class="n">combined_pred_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">dP</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">cellprob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Post-process the predicted mask</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">_post_process</span><span class="p">(</span><span class="n">combined_pred_mask</span><span class="p">)</span>
+
+            <span class="c1"># Append the processed mask to the list</span>
+            <span class="n">predicted_masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">predicted_masks</span></div>
+
+
+<div class="viewcode-block" id="MEDIARPredictor.run_test">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.run_test">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the model on test images if the test flag is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># List of input images</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">img_names</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">img_file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">):</span>
+            <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span> <span class="n">img_file</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+            
+            <span class="c1"># Check if the image is grayscale (2D) or RGB (3D), and convert grayscale to RGB</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Grayscale image (H, W)</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Convert grayscale to RGB</span>
+
+            <span class="c1"># Normalize the image if the normalize flag is True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">:</span>
+                <span class="n">img_normalized</span> <span class="o">=</span> <span class="n">normalize_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">lower_percentile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper_percentile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">img_normalized</span> <span class="o">=</span> <span class="n">img</span>
+            
+            <span class="c1"># Convert image to tensor and send directly to device</span>
+            <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">img_normalized</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># (C, H, W)</span>
+
+            <span class="n">imgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">)</span>
+            <span class="n">img_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">img_file</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Stack all images into a batch (ensure it&#39;s always treated as a batch)</span>
+        <span class="n">batch_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+
+        <span class="c1"># Predict using the predictor (or ensemble predictor)</span>
+        <span class="n">pred_masks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">_inference</span><span class="p">(</span><span class="n">batch_tensor</span><span class="p">)</span>
+
+        <span class="c1"># Ensure pred_masks is always treated as a batch</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred_masks</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># If single image, add batch dimension</span>
+            <span class="n">pred_masks</span> <span class="o">=</span> <span class="n">pred_masks</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Convert predictions to NumPy arrays and post-process each mask</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pred_mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pred_masks</span><span class="p">):</span>
+            <span class="c1"># Ensure the dimensions of pred_mask remain consistent</span>
+            <span class="n">pred_mask_np</span> <span class="o">=</span> <span class="n">pred_mask</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+            <span class="c1"># Extract dP and cellprob from pred_mask</span>
+            <span class="n">dP</span> <span class="o">=</span> <span class="n">pred_mask_np</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># First two channels as dP (displacement field)</span>
+            <span class="n">cellprob</span> <span class="o">=</span> <span class="n">pred_mask_np</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Third channel as cell probability</span>
+
+            <span class="c1"># Concatenate dP and cellprob along axis 0 to pass a single array</span>
+            <span class="n">combined_pred_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">dP</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">cellprob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Post-process the predicted mask</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">_post_process</span><span class="p">(</span><span class="n">combined_pred_mask</span><span class="p">)</span>
+
+            <span class="c1"># Convert the mask to 16-bit format (ensure values fit into 16-bit range)</span>
+            <span class="n">mask_to_save</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+
+            <span class="c1"># Save the post-processed mask as a .tif file using cv2</span>
+            <span class="n">mask_output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">img_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_mask.tiff&quot;</span><span class="p">)</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">mask_output_path</span><span class="p">,</span> <span class="n">mask_to_save</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predicted mask saved at: </span><span class="si">{</span><span class="n">mask_output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">display_image_and_mask</span><span class="p">(</span><span class="n">imgs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">mask</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test predictions saved in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MEDIARPredictor.preprocess_image">
+<a class="viewcode-back" href="../../api/spacr/mediar/index.html#spacr.mediar.MEDIARPredictor.preprocess_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preprocess input image (numpy array) for compatibility with the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>  <span class="c1"># Check if the input is a numpy array</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Grayscale image (H, W)</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Single channel grayscale (H, W, 1)</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Convert to 3-channel RGB</span>
+
+            <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># Change shape to (C, H, W)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">img</span>  <span class="c1"># If it&#39;s already a tensor, assume it&#39;s in (C, H, W) format</span>
+
+        <span class="k">return</span> <span class="n">img_tensor</span><span class="o">.</span><span class="n">float</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

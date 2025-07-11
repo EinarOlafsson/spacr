@@ -1,0 +1,56 @@
+train_tools.data_utils.datasetter
+=================================
+
+.. py:module:: train_tools.data_utils.datasetter
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: get_dataloaders_labeled(root, mapping_file, mapping_file_tuning, join_mapping_file=None, valid_portion=0.0, batch_size=8, amplified=False, relabel=False)
+
+   Set DataLoaders for labeled datasets.
+
+   :param root: root directory
+   :type root: str
+   :param mapping_file: json file for mapping dataset
+   :type mapping_file: str
+   :param valid_portion: portion of valid datasets. Defaults to 0.1.
+   :type valid_portion: float, optional
+   :param batch_size: batch size. Defaults to 8.
+   :type batch_size: int, optional
+   :param shuffle: shuffles dataloader. Defaults to True.
+   :type shuffle: bool, optional
+   :param num_workers: number of workers for each datalaoder. Defaults to 5.
+   :type num_workers: int, optional
+
+   :returns: dictionary of data loaders.
+   :rtype: dict
+
+
+.. py:function:: get_dataloaders_public(root, mapping_file, valid_portion=0.0, batch_size=8)
+
+   Set DataLoaders for labeled datasets.
+
+   :param root: root directory
+   :type root: str
+   :param mapping_file: json file for mapping dataset
+   :type mapping_file: str
+   :param valid_portion: portion of valid datasets. Defaults to 0.1.
+   :type valid_portion: float, optional
+   :param batch_size: batch size. Defaults to 8.
+   :type batch_size: int, optional
+   :param shuffle: shuffles dataloader. Defaults to True.
+   :type shuffle: bool, optional
+
+   :returns: dictionary of data loaders.
+   :rtype: dict
+
+
+.. py:function:: get_dataloaders_unlabeled(root, mapping_file, batch_size=8, shuffle=True, num_workers=5)
+
+   Set dataloaders for unlabeled dataset.
+
+

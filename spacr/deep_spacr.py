@@ -940,7 +940,7 @@ def deep_spacr(settings={}):
             
 def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=1e-4, epochs=10):
 
-    from spacr.utils import TorchModel  # Adapt if needed
+    from .utils import TorchModel
 
     # Adjust filename to reflect knowledge-distillation if desired
     if student_save_path.endswith('.pth'):
@@ -1044,7 +1044,7 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
             
 def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretrained=True,dropout_rate=None,use_checkpoint=False,aggregator='mean'):
 
-    from spacr.utils import TorchModel
+    from .utils import TorchModel
     
     if save_path.endswith('.pth'):
         save_path_part1, ext = os.path.splitext(save_path)
