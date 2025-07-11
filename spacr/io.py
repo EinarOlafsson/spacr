@@ -306,6 +306,7 @@ class CombineLoaders:
         train_loaders (list): A list of data loaders.
 
     Attributes:
+        :no-index:
         train_loaders (list): A list of data loaders.
         loader_iters (list): A list of iterator objects for each data loader.
 
@@ -315,9 +316,8 @@ class CombineLoaders:
 
     Raises:
         StopIteration: If all data loaders have been exhausted.
-
     """
-
+    
     def __init__(self, train_loaders):
         self.train_loaders = train_loaders
         self.loader_iters = [iter(loader) for loader in train_loaders]
@@ -327,7 +327,7 @@ class CombineLoaders:
 
     def __next__(self):
         while self.loader_iters:
-            random.shuffle(self.loader_iters)  # Shuffle the loader_iters list
+            random.shuffle(self.loader_iters)
             for i, loader_iter in enumerate(self.loader_iters):
                 try:
                     batch = next(loader_iter)
@@ -579,7 +579,7 @@ class spacrDataLoader(DataLoader):
     def __del__(self):
         self.cleanup()
 
-class NoClassDataset(Dataset):
+class NoClassDataset_v1(Dataset):
     def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
         self.data_dir = data_dir
         self.transform = transform
@@ -614,7 +614,6 @@ class NoClassDataset(Dataset):
             img = ToTensor()(img)
         return img, self.filenames[index]
 
-    
 class TarImageDataset(Dataset):
     def __init__(self, tar_path, transform=None):
         self.tar_path = tar_path

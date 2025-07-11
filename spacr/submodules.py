@@ -691,7 +691,8 @@ def analyze_plaques(settings):
     from .spacr_cellpose import identify_masks_finetune
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
-    from spacr import __file__ as spacr_path
+    #from spacr import __file__ as spacr_path
+    spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
     download_models()
     package_dir = os.path.dirname(spacr_path)

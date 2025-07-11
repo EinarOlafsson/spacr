@@ -99,7 +99,7 @@ setup(
         ],
     },
     extras_require={
-        'dev': ['pytest>=3.9,<3.11'],
+        'dev': ['pytest>=3.9,<3.12'],
         'headless': ['opencv-python-headless'],
         'full': ['opencv-python'],
     },

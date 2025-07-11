@@ -1,0 +1,46 @@
+spacr.version
+=============
+
+.. py:module:: spacr.version
+
+.. autoapi-nested-parse::
+
+   Copyright © 2024 Something
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:data:: version
+
+.. py:data:: version_str
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """
+      spacr version: 	FunctionDef.version(name='version',
+                          position=Position(lineno=562, col_offset=0, end_lineno=562, end_col_offset=11),
+                          decorators=None,
+                          args=<Arguments l.562 at 0x7aba5f14f9d0>,
+                          returns=None,
+                          type_params=[],
+                          doc_node=<Const.str l.563 at 0x7aba5f169e80>,
+                          body=[<Return l.569 at 0x7aba5f1699a0>]) 
+      platform:       	linux 
+      python version: 	Uninferable 
+      torch version:  	torch-deploy-1.8"""
+
+   .. raw:: html
+
+      </details>
+
+
+
