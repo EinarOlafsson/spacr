@@ -1,0 +1,14 @@
+/* custom.css */
+body {
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+.wy-nav-side {
+  background-color: #f7f7f7;
+}
+.highlight {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  padding: 0.5em;
+  border-radius: 4px;
+}

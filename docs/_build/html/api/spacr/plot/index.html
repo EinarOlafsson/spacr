@@ -1,0 +1,689 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.plot &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="spacr.sequencing" href="../sequencing/index.html" />
+    <link rel="prev" title="spacr.ml" href="../ml/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">spacr</a></li>
+      <li class="breadcrumb-item active">spacr.plot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/spacr/plot/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-spacr.plot">
+<span id="spacr-plot"></span><h1>spacr.plot<a class="headerlink" href="#module-spacr.plot" title="Link to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_image_mask_overlay">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_image_mask_overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(2,</span> <span class="pre">98)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_pdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'outlines'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_tiffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_on_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_outlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_image_mask_overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_image_mask_overlay" title="Link to this definition"></a></dt>
+<dd><p>Plot image and mask overlays.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_cellpose4_output">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_cellpose4_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_object_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_cellpose4_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_cellpose4_output" title="Link to this definition"></a></dt>
+<dd><p>Plot the masks and flows for a given batch of images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> (<em>numpy.ndarray</em>) – The batch of images.</p></li>
+<li><p><strong>masks</strong> (<em>list</em><em> or </em><em>numpy.ndarray</em>) – The masks corresponding to the images.</p></li>
+<li><p><strong>flows</strong> (<em>list</em><em> or </em><em>numpy.ndarray</em>) – The flows corresponding to the images.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – The colormap to use for displaying the images. Defaults to ‘inferno’.</p></li>
+<li><p><strong>figuresize</strong> (<em>int</em><em>, </em><em>optional</em>) – The size of the figure. Defaults to 20.</p></li>
+<li><p><strong>nr</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of images to plot. Defaults to 1.</p></li>
+<li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The file type of the flows. Defaults to ‘.npz’.</p></li>
+<li><p><strong>print_object_number</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print the object number on the mask. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_masks">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.npz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_object_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_masks" title="Link to this definition"></a></dt>
+<dd><p>Plot the masks and flows for a given batch of images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> (<em>numpy.ndarray</em>) – The batch of images.</p></li>
+<li><p><strong>masks</strong> (<em>list</em><em> or </em><em>numpy.ndarray</em>) – The masks corresponding to the images.</p></li>
+<li><p><strong>flows</strong> (<em>list</em><em> or </em><em>numpy.ndarray</em>) – The flows corresponding to the images.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – The colormap to use for displaying the images. Defaults to ‘inferno’.</p></li>
+<li><p><strong>figuresize</strong> (<em>int</em><em>, </em><em>optional</em>) – The size of the figure. Defaults to 20.</p></li>
+<li><p><strong>nr</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of images to plot. Defaults to 1.</p></li>
+<li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The file type of the flows. Defaults to ‘.npz’.</p></li>
+<li><p><strong>print_object_number</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print the object number on the mask. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.generate_mask_random_cmap">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">generate_mask_random_cmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#generate_mask_random_cmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.generate_mask_random_cmap" title="Link to this definition"></a></dt>
+<dd><p>Generate a random colormap based on the unique labels in the given mask.</p>
+<p>Parameters:
+mask (numpy.ndarray): The input mask array.</p>
+<p>Returns:
+matplotlib.colors.ListedColormap: The random colormap.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.random_cmap">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">random_cmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#random_cmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.random_cmap" title="Link to this definition"></a></dt>
+<dd><p>Generate a random colormap.</p>
+<p>Parameters:
+num_objects (int): The number of objects to generate colors for. Default is 100.</p>
+<p>Returns:
+random_cmap (matplotlib.colors.ListedColormap): A random colormap.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_images_and_arrays">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_images_and_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['.npy',</span> <span class="pre">'.tif',</span> <span class="pre">'.tiff',</span> <span class="pre">'.png']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_images_and_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_images_and_arrays" title="Link to this definition"></a></dt>
+<dd><p>Plot images and arrays from the given folders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folders</strong> (<em>list</em>) – A list of folder paths containing the images and arrays.</p></li>
+<li><p><strong>lower_percentile</strong> (<em>int</em><em>, </em><em>optional</em>) – The lower percentile for image normalization. Defaults to 1.</p></li>
+<li><p><strong>upper_percentile</strong> (<em>int</em><em>, </em><em>optional</em>) – The upper percentile for image normalization. Defaults to 99.</p></li>
+<li><p><strong>threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.</p></li>
+<li><p><strong>extensions</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of file extensions to consider. Defaults to [‘.npy’, ‘.tif’, ‘.tiff’, ‘.png’].</p></li>
+<li><p><strong>overlay</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, overlay the outlines of the objects on the image. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_arrays">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_arrays" title="Link to this definition"></a></dt>
+<dd><p>Plot randomly selected arrays from a given directory.</p>
+<p>Parameters:
+- src (str): The directory path containing the arrays.
+- figuresize (int): The size of the figure (default: 50).
+- cmap (str): The colormap to use for displaying the arrays (default: ‘inferno’).
+- nr (int): The number of arrays to plot (default: 1).
+- normalize (bool): Whether to normalize the arrays (default: True).
+- q1 (int): The lower percentile for normalization (default: 1).
+- q2 (int): The upper percentile for normalization (default: 99).</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_merged">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_merged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_merged"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_merged" title="Link to this definition"></a></dt>
+<dd><p>Plot the merged images after applying various filters and modifications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>path</em>) – Path to folder with images.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – The settings for the plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.generate_plate_heatmap">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">generate_plate_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plate_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#generate_plate_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.generate_plate_heatmap" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_plates">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_plates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_plates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_plates" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.print_mask_and_flows">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">print_mask_and_flows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#print_mask_and_flows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.print_mask_and_flows" title="Link to this definition"></a></dt>
+<dd><p>Display the original image, mask with outlines, and flow images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stack</strong> (<em>np.array</em>) – Original image or stack.</p></li>
+<li><p><strong>mask</strong> (<em>np.array</em>) – Mask image.</p></li>
+<li><p><strong>flows</strong> (<em>list</em>) – List of flow images.</p></li>
+<li><p><strong>overlay</strong> (<em>bool</em>) – Whether to overlay the mask outlines on the original image.</p></li>
+<li><p><strong>max_size</strong> (<em>int</em>) – Maximum allowed size for any dimension of the images.</p></li>
+<li><p><strong>thickness</strong> (<em>int</em>) – Thickness of the contour outlines.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_resize">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resized_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resized_labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_resize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.normalize_and_visualize">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">normalize_and_visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#normalize_and_visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.normalize_and_visualize" title="Link to this definition"></a></dt>
+<dd><p>Utility function for visualization</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.visualize_masks">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">visualize_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Masks</span> <span class="pre">Comparison'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#visualize_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.visualize_masks" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.visualize_cellpose_masks">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">visualize_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#visualize_cellpose_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.visualize_cellpose_masks" title="Link to this definition"></a></dt>
+<dd><p>Visualize multiple masks with optional titles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>masks</strong> (<em>list</em><em> of </em><em>np.ndarray</em>) – A list of masks to visualize.</p></li>
+<li><p><strong>titles</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – A list of titles for the masks. If None, default titles will be used.</p></li>
+<li><p><strong>comparison_title</strong> (<em>str</em>) – Title for the entire figure.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_comparison_results">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_comparison_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comparison_results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_comparison_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_comparison_results" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_object_outlines">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_object_outlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['nucleus',</span> <span class="pre">'cell',</span> <span class="pre">'pathogen']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_object_outlines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_object_outlines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.volcano_plot">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">volcano_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coef_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'volcano_plot.pdf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#volcano_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.volcano_plot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_histogram">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_histogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_histogram" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_lorenz_curves">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_lorenz_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grna_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'count'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_outliers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_lorenz_curves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_lorenz_curves" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_permutation">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_permutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">permutation_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_permutation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_permutation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_feature_importance">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_feature_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_importance_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_feature_importance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_feature_importance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.read_and_plot__vision_results">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">read_and_plot__vision_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'accuracy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.8,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#read_and_plot__vision_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.read_and_plot__vision_results" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.jitterplot_by_annotation">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">jitterplot_by_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Jitter</span> <span class="pre">Plot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#jitterplot_by_annotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.jitterplot_by_annotation" title="Link to this definition"></a></dt>
+<dd><p>Reads a CSV file and creates a jitter plot of one column grouped by another column.</p>
+<p>Args:
+src (str): Path to the source data.
+x_column (str): Name of the column to be used for the x-axis.
+y_column (str): Name of the column to be used for the y-axis.
+plot_title (str): Title of the plot. Default is ‘Jitter Plot’.
+output_path (str): Path to save the plot image. If None, the plot will be displayed. Default is None.</p>
+<p>Returns:
+pd.DataFrame: The filtered and balanced DataFrame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.create_grouped_plot">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">create_grouped_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_bar_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'std'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#create_grouped_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.create_grouped_plot" title="Link to this definition"></a></dt>
+<dd><p>Create a grouped plot, perform statistical tests, and optionally export the results along with the plot.</p>
+<p>Parameters:
+- df: DataFrame containing the data.
+- grouping_column: Column name for the categorical grouping.
+- data_column: Column name for the data to be grouped and plotted.
+- graph_type: Type of plot (‘bar’, ‘violin’, ‘jitter’, ‘box’, ‘jitter_box’).
+- summary_func: Summary function to apply to each group (‘mean’, ‘median’, etc.).
+- order: List specifying the order of the groups. If None, groups will be ordered alphabetically.
+- colors: List of colors for each group.
+- output_dir: Directory where the figure and test results will be saved if <cite>save=True</cite>.
+- save: Boolean flag indicating whether to save the plot and results to files.
+- y_lim: Optional y-axis min and max.
+- error_bar_type: Type of error bars to plot, either ‘std’ for standard deviation or ‘sem’ for standard error of the mean.</p>
+<p>Outputs:
+- Figure of the plot.
+- DataFrame with full statistical test results, including normality tests.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">spacrGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_bar_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'std'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_outliers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pastel'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'object'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paired</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_to_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.df">
+<span class="sig-name descname"><span class="pre">df</span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.grouping_column">
+<span class="sig-name descname"><span class="pre">grouping_column</span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.grouping_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.grouping_column" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.order">
+<span class="sig-name descname"><span class="pre">order</span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.order" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.data_column">
+<span class="sig-name descname"><span class="pre">data_column</span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.data_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.data_column" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.graph_type">
+<span class="sig-name descname"><span class="pre">graph_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bar'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.graph_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.graph_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.summary_func">
+<span class="sig-name descname"><span class="pre">summary_func</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mean'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.summary_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.summary_func" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.colors">
+<span class="sig-name descname"><span class="pre">colors</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.colors" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.output_dir">
+<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'./output'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.output_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.output_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.save">
+<span class="sig-name descname"><span class="pre">save</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.save" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.error_bar_type">
+<span class="sig-name descname"><span class="pre">error_bar_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'std'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.error_bar_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.error_bar_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.remove_outliers">
+<span class="sig-name descname"><span class="pre">remove_outliers</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.remove_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.remove_outliers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.theme">
+<span class="sig-name descname"><span class="pre">theme</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pastel'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.theme"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.theme" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.representation">
+<span class="sig-name descname"><span class="pre">representation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'object'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.representation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.paired">
+<span class="sig-name descname"><span class="pre">paired</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.paired"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.paired" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.all_to_all">
+<span class="sig-name descname"><span class="pre">all_to_all</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.all_to_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.all_to_all" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.compare_group">
+<span class="sig-name descname"><span class="pre">compare_group</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.compare_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.compare_group" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.y_lim">
+<span class="sig-name descname"><span class="pre">y_lim</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.y_lim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.y_lim" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.graph_name">
+<span class="sig-name descname"><span class="pre">graph_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.graph_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.graph_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.log_x">
+<span class="sig-name descname"><span class="pre">log_x</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.log_x"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.log_x" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.log_y">
+<span class="sig-name descname"><span class="pre">log_y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.log_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.log_y" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.results_df">
+<span class="sig-name descname"><span class="pre">results_df</span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.results_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.results_df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.sns_palette">
+<span class="sig-name descname"><span class="pre">sns_palette</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.sns_palette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.sns_palette" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.fig">
+<span class="sig-name descname"><span class="pre">fig</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.fig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.fig" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.results_name">
+<span class="sig-name descname"><span class="pre">results_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'___'</span></em><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.results_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.results_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.raw_df">
+<span class="sig-name descname"><span class="pre">raw_df</span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.raw_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.raw_df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.preprocess_data">
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.preprocess_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.preprocess_data" title="Link to this definition"></a></dt>
+<dd><p>Preprocess the data: remove NaNs, optionally ensure ‘plateID’ column is created,
+then group by either ‘prc’, ‘plateID’, or do no grouping at all if representation == ‘object’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.remove_outliers_from_plot">
+<span class="sig-name descname"><span class="pre">remove_outliers_from_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.remove_outliers_from_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.remove_outliers_from_plot" title="Link to this definition"></a></dt>
+<dd><p>Remove outliers from the plot but keep them in the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.perform_normality_tests">
+<span class="sig-name descname"><span class="pre">perform_normality_tests</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.perform_normality_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.perform_normality_tests" title="Link to this definition"></a></dt>
+<dd><p>Perform normality tests for each group and data column.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.perform_levene_test">
+<span class="sig-name descname"><span class="pre">perform_levene_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unique_groups</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.perform_levene_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.perform_levene_test" title="Link to this definition"></a></dt>
+<dd><p>Perform Levene’s test for equal variance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.perform_statistical_tests">
+<span class="sig-name descname"><span class="pre">perform_statistical_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unique_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_normal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.perform_statistical_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.perform_statistical_tests" title="Link to this definition"></a></dt>
+<dd><p>Perform statistical tests separately for each data column.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.perform_posthoc_tests">
+<span class="sig-name descname"><span class="pre">perform_posthoc_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_groups</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.perform_posthoc_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.perform_posthoc_tests" title="Link to this definition"></a></dt>
+<dd><p>Perform post-hoc tests for multiple groups based on all_to_all flag.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.create_plot">
+<span class="sig-name descname"><span class="pre">create_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.create_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.create_plot" title="Link to this definition"></a></dt>
+<dd><p>Create and display the plot based on the chosen graph type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.get_results">
+<span class="sig-name descname"><span class="pre">get_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.get_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.get_results" title="Link to this definition"></a></dt>
+<dd><p>Return the results dataframe.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.plot.spacrGraph.get_figure">
+<span class="sig-name descname"><span class="pre">get_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.get_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.get_figure" title="Link to this definition"></a></dt>
+<dd><p>Return the generated figure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_data_from_db">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_data_from_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_data_from_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_data_from_db" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_data_from_csv">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_data_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_data_from_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_data_from_csv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_region">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_region" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_image_grid">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_image_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_image_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_image_grid" title="Link to this definition"></a></dt>
+<dd><p>Plots a square grid of images from a list of image paths.
+Unused subplots are filled with black, and padding is minimized.</p>
+<p>Parameters:
+- image_paths: List of paths to images to be displayed.</p>
+<p>Returns:
+- fig: The generated matplotlib figure.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.overlay_masks_on_images">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">overlay_masks_on_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#overlay_masks_on_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.overlay_masks_on_images" title="Link to this definition"></a></dt>
+<dd><p>Load images and masks from folders, overlay mask contours on images, and optionally normalize, resize, and save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_folder</strong> (<em>str</em>) – Path to the folder containing images.</p></li>
+<li><p><strong>mask_folder</strong> (<em>str</em>) – Path to the folder containing masks.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – If True, normalize images to the 1st and 99th percentiles.</p></li>
+<li><p><strong>resize</strong> (<em>bool</em>) – If True, resize the final overlay to 500x500.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – If True, save the final overlay in an ‘overlay’ folder within the image folder.</p></li>
+<li><p><strong>thickness</strong> (<em>int</em>) – Thickness of the contour lines.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.graph_importance">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">graph_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#graph_importance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.graph_importance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_proportion_stacked_bars">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_proportion_stacked_bars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prc_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'object'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_proportion_stacked_bars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_proportion_stacked_bars" title="Link to this definition"></a></dt>
+<dd><p>Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.</p>
+<p>Parameters:
+- settings (dict): Analysis settings.
+- df (DataFrame): Input data.
+- group_column (str): Column indicating the groups.
+- bin_column (str): Column indicating the categories.
+- prc_column (str): Optional; column for additional stratification.
+- level (str): Level of aggregation (‘well’ or ‘object’).</p>
+<p>Returns:
+- chi2 (float): Chi-squared statistic for the overall test.
+- p (float): p-value for the overall chi-squared test.
+- dof (int): Degrees of freedom for the overall chi-squared test.
+- expected (ndarray): Expected frequencies for the overall chi-squared test.
+- raw_counts (DataFrame): Contingency table of observed counts.
+- fig (Figure): The generated plot.
+- pairwise_results (list): Pairwise test results from <cite>chi_pairwise</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.create_venn_diagram">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">create_venn_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gene'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#create_venn_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.create_venn_diagram" title="Link to this definition"></a></dt>
+<dd><p>Reads two CSV files, extracts the <cite>gene</cite> column, and creates a Venn diagram
+to show overlapping and non-overlapping genes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file1</strong> (<em>str</em>) – Path to the first CSV file.</p></li>
+<li><p><strong>file2</strong> (<em>str</em>) – Path to the second CSV file.</p></li>
+<li><p><strong>gene_column</strong> (<em>str</em>) – Name of the column containing gene data (default: “gene”).</p></li>
+<li><p><strong>filter_coeff</strong> (<em>float</em>) – Coefficient threshold for filtering genes.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save the plot.</p></li>
+<li><p><strong>save_path</strong> (<em>str</em>) – Path to save the Venn diagram figure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Overlapping and non-overlapping genes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../ml/index.html" class="btn btn-neutral float-left" title="spacr.ml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../sequencing/index.html" class="btn btn-neutral float-right" title="spacr.sequencing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

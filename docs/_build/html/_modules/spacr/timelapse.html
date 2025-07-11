@@ -1,0 +1,1132 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.timelapse &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.timelapse</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.timelapse</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">btrack</span><span class="o">,</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">ipyimage</span>
+<span class="kn">import</span> <span class="nn">trackpy</span> <span class="k">as</span> <span class="nn">tp</span>
+<span class="kn">from</span> <span class="nn">btrack</span> <span class="kn">import</span> <span class="n">datasets</span> <span class="k">as</span> <span class="n">btrack_datasets</span>
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="kn">import</span> <span class="n">regionprops</span><span class="p">,</span> <span class="n">regionprops_table</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span><span class="p">,</span> <span class="n">linear_sum_assignment</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">trapz</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">trapz</span>
+    
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<span class="k">def</span> <span class="nf">_npz_to_movie</span><span class="p">(</span><span class="n">arrays</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a list of numpy arrays to a movie file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        arrays (List[np.ndarray]): List of numpy arrays representing frames of the movie.</span>
+<span class="sd">        filenames (List[str]): List of filenames corresponding to each frame.</span>
+<span class="sd">        save_path (str): Path to save the movie file.</span>
+<span class="sd">        fps (int, optional): Frames per second of the movie. Defaults to 10.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define the codec and create VideoWriter object</span>
+    <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s1">&#39;XVID&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.mp4&#39;</span><span class="p">):</span>
+        <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s1">&#39;mp4v&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Initialize VideoWriter with the size of the first image</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">arrays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">fourcc</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arrays</span><span class="p">):</span>
+        <span class="c1"># Handle float32 images by scaling or normalizing</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">frame</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+        <span class="c1"># Convert 16-bit image to 8-bit</span>
+        <span class="k">elif</span> <span class="n">frame</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">:</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">convertScaleAbs</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="p">(</span><span class="mf">255.0</span><span class="o">/</span><span class="mf">65535.0</span><span class="p">))</span>
+
+        <span class="c1"># Handling 1-channel (grayscale) or 2-channel images</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Convert grayscale to RGB</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># Create an RGB image with the first channel as red, second as green, blue set to zero</span>
+                <span class="n">rgb_frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+                <span class="n">rgb_frame</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Red channel</span>
+                <span class="n">rgb_frame</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># Green channel</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">rgb_frame</span>
+
+        <span class="c1"># For 3-channel images, ensure it&#39;s in BGR format for OpenCV</span>
+        <span class="k">elif</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+
+        <span class="c1"># Add filenames as text on frames</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">filenames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="mi">20</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Movie saved to </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">_scmovie</span><span class="p">(</span><span class="n">folder_paths</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate movies from a collection of PNG images in the given folder paths.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            folder_paths (list): List of folder paths containing PNG images.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">folder_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">folder_paths</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">folder_path</span> <span class="ow">in</span> <span class="n">folder_paths</span><span class="p">:</span>
+            <span class="n">movie_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;movies&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">movie_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Regular expression to parse the filename</span>
+            <span class="n">filename_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\w+)_(\w+)_(\w+)_(\d+)_(\d+).png&#39;</span><span class="p">)</span>
+            <span class="c1"># Dictionary to hold lists of images by plate, well, field, and object number</span>
+            <span class="n">grouped_images</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="c1"># Iterate over all PNG files in the folder</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">):</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">filename_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                        <span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">object_number</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">object_number</span><span class="p">)</span>
+                        <span class="n">grouped_images</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="n">grouped_images</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Sort images by time using sorted and lambda function for custom sort key</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">image_paths</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">images</span><span class="p">)</span>
+                <span class="c1"># Determine the size to which all images should be padded</span>
+                <span class="n">max_height</span> <span class="o">=</span> <span class="n">max_width</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">image_path</span> <span class="ow">in</span> <span class="n">image_paths</span><span class="p">:</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+                    <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+                    <span class="n">max_height</span><span class="p">,</span> <span class="n">max_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_height</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_width</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+                <span class="c1"># Initialize VideoWriter</span>
+                <span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">object_number</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="n">output_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plate</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">well</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">object_number</span><span class="si">}</span><span class="s2">.mp4&quot;</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">movie_path</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+                <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s1">&#39;mp4v&#39;</span><span class="p">)</span>
+                <span class="n">video</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">fourcc</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">(</span><span class="n">max_width</span><span class="p">,</span> <span class="n">max_height</span><span class="p">))</span>
+                <span class="c1"># Process each image</span>
+                <span class="k">for</span> <span class="n">image_path</span> <span class="ow">in</span> <span class="n">image_paths</span><span class="p">:</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+                    <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+                    <span class="n">padded_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_height</span><span class="p">,</span> <span class="n">max_width</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+                    <span class="n">padded_image</span><span class="p">[:</span><span class="n">h</span><span class="p">,</span> <span class="p">:</span><span class="n">w</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">image</span>
+                    <span class="n">video</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">padded_image</span><span class="p">)</span>
+                <span class="n">video</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                
+                
+<span class="k">def</span> <span class="nf">_sort_key</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a sort key for the given file path based on the pattern &#39;(\d+)_([A-Z]\d+)_(\d+)_(\d+).npy&#39;.</span>
+<span class="sd">    The sort key is a tuple containing the plate, well, field, and time values extracted from the file path.</span>
+<span class="sd">    If the file path does not match the pattern, a default sort key is returned to sort the file as &quot;earliest&quot; or &quot;lowest&quot;.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (str): The file path to extract the sort key from.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: The sort key tuple containing the plate, well, field, and time values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)_([A-Z]\d+)_(\d+)_(\d+).npy&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="c1"># Assuming plate, well, and field are to be returned as is and time converted to int for sorting</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Return a tuple that sorts this file as &quot;earliest&quot; or &quot;lowest&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_masks_to_gif</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">gif_folder</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a sequence of masks into a GIF file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        masks (list): List of masks representing the sequence.</span>
+<span class="sd">        gif_folder (str): Path to the folder where the GIF file will be saved.</span>
+<span class="sd">        name (str): Name of the GIF file.</span>
+<span class="sd">        filenames (list): List of filenames corresponding to each mask in the sequence.</span>
+<span class="sd">        object_type (str): Type of object represented by the masks.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_save_mask_timelapse_as_gif</span>
+
+    <span class="k">def</span> <span class="nf">_display_gif</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">ipyimage</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+
+    <span class="n">highest_label</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">)</span>
+    <span class="n">random_colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">highest_label</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">random_colors</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Full opacity</span>
+    <span class="n">random_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># Background color</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">(</span><span class="n">random_colors</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">highest_label</span><span class="p">)</span>
+
+    <span class="n">save_path_gif</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gif_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;timelapse_masks_</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.gif&#39;</span><span class="p">)</span>
+    <span class="n">_save_mask_timelapse_as_gif</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save_path_gif</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span>
+    <span class="c1">#_display_gif(save_path_gif)</span>
+    
+<span class="k">def</span> <span class="nf">_timelapse_masks_to_gif</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">mask_channels</span><span class="p">,</span> <span class="n">object_types</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a sequence of masks into a timelapse GIF file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        folder_path (str): The path to the folder containing the mask files.</span>
+<span class="sd">        mask_channels (list): List of channel indices to extract masks from.</span>
+<span class="sd">        object_types (list): List of object types corresponding to each mask channel.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">master_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span>
+    <span class="n">gif_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">master_folder</span><span class="p">,</span> <span class="s1">&#39;movies&#39;</span><span class="p">,</span> <span class="s1">&#39;gif&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">gif_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;*.npy&#39;</span><span class="p">))</span>
+    <span class="n">paths</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">_sort_key</span><span class="p">)</span>
+
+    <span class="n">organized_files</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)_([A-Z]\d+)_(\d+)_\d+.npy&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">well</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">organized_files</span><span class="p">:</span>
+                <span class="n">organized_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">organized_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">file_list</span> <span class="ow">in</span> <span class="n">organized_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Generate the name for the GIF based on plate, well, field</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">save_path_gif</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gif_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;timelapse_masks_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.gif&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask_channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_channels</span><span class="p">):</span>
+            <span class="n">object_type</span> <span class="o">=</span> <span class="n">object_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># Initialize an empty list to store masks for the current object type</span>
+            <span class="n">mask_arrays</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+                <span class="c1"># Load only the current time series array</span>
+                <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="c1"># Append the specific channel mask to the mask_arrays list</span>
+                <span class="n">mask_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">mask_channel</span><span class="p">])</span>
+
+            <span class="c1"># Convert mask_arrays list to a numpy array for processing</span>
+            <span class="n">mask_arrays_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mask_arrays</span><span class="p">)</span>
+            <span class="c1"># Generate filenames for each frame in the time series</span>
+            <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">]</span>
+            <span class="c1"># Create the GIF for the current time series and object type</span>
+            <span class="n">_masks_to_gif</span><span class="p">(</span><span class="n">mask_arrays_np</span><span class="p">,</span> <span class="n">gif_folder</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span>
+            
+<span class="k">def</span> <span class="nf">_relabel_masks_based_on_tracks</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">tracks</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;btrack&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Relabels the masks based on the tracks DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        masks (ndarray): Input masks array with shape (num_frames, height, width).</span>
+<span class="sd">        tracks (DataFrame): DataFrame containing track information.</span>
+<span class="sd">        mode (str, optional): Mode for relabeling. Defaults to &#39;btrack&#39;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ndarray: Relabeled masks array with the same shape and dtype as the input masks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialize an array to hold the relabeled masks with the same shape and dtype as the input masks</span>
+    <span class="n">relabeled_masks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">masks</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="c1"># Iterate through each frame</span>
+    <span class="k">for</span> <span class="n">frame_number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="c1"># Extract the mapping for the current frame from the tracks DataFrame</span>
+        <span class="n">frame_tracks</span> <span class="o">=</span> <span class="n">tracks</span><span class="p">[</span><span class="n">tracks</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">frame_number</span><span class="p">]</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">frame_tracks</span><span class="p">[</span><span class="s1">&#39;original_label&#39;</span><span class="p">],</span> <span class="n">frame_tracks</span><span class="p">[</span><span class="s1">&#39;track_id&#39;</span><span class="p">]))</span>
+        <span class="n">current_mask</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">frame_number</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="c1"># Apply the mapping to the current mask</span>
+        <span class="k">for</span> <span class="n">original_label</span><span class="p">,</span> <span class="n">new_label</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Where the current mask equals the original label, set it to the new label value</span>
+            <span class="n">relabeled_masks</span><span class="p">[</span><span class="n">frame_number</span><span class="p">][</span><span class="n">current_mask</span> <span class="o">==</span> <span class="n">original_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_label</span>
+
+    <span class="k">return</span> <span class="n">relabeled_masks</span>
+
+<span class="k">def</span> <span class="nf">_prepare_for_tracking</span><span class="p">(</span><span class="n">mask_array</span><span class="p">):</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_array</span><span class="p">):</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">regionprops_table</span><span class="p">(</span>
+            <span class="n">frame</span><span class="p">,</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;centroid&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;bbox&#39;</span><span class="p">,</span> <span class="s1">&#39;eccentricity&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;centroid-0&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;centroid-1&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;area&#39;</span><span class="p">:</span>       <span class="s1">&#39;mass&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span>      <span class="s1">&#39;original_label&#39;</span>
+        <span class="p">})</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;frame&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span><span class="s1">&#39;original_label&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;bbox-0&#39;</span><span class="p">,</span><span class="s1">&#39;bbox-1&#39;</span><span class="p">,</span><span class="s1">&#39;bbox-2&#39;</span><span class="p">,</span><span class="s1">&#39;bbox-3&#39;</span><span class="p">,</span><span class="s1">&#39;eccentricity&#39;</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_track_by_iou</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a track table by linking masks frame→frame via IoU.</span>
+<span class="sd">    Returns a DataFrame with columns [frame, original_label, track_id].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># 1) initialize: every label in frame 0 starts its own track</span>
+    <span class="n">labels0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">next_track</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">track_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># (frame,label) -&gt; track_id</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels0</span><span class="p">:</span>
+        <span class="n">track_map</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+        <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 2) iterate through frames</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">):</span>
+        <span class="n">prev</span><span class="p">,</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">link_by_iou</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">curr</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="n">iou_threshold</span><span class="p">)</span>
+        <span class="n">used_curr</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># a) assign matched labels to existing tracks</span>
+        <span class="k">for</span> <span class="n">L_prev</span><span class="p">,</span> <span class="n">L_curr</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">tid</span> <span class="o">=</span> <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">L_prev</span><span class="p">)]</span>
+            <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L_curr</span><span class="p">)]</span> <span class="o">=</span> <span class="n">tid</span>
+            <span class="n">used_curr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">L_curr</span><span class="p">)</span>
+        <span class="c1"># b) any label in curr not matched → new track</span>
+        <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">curr</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">L</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_curr</span><span class="p">:</span>
+                <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+                <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 3) flatten into DataFrame</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">track_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">frame</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;track_id&#39;</span><span class="p">:</span> <span class="n">tid</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+
+<div class="viewcode-block" id="link_by_iou">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.link_by_iou">[docs]</a>
+<span class="k">def</span> <span class="nf">link_by_iou</span><span class="p">(</span><span class="n">mask_prev</span><span class="p">,</span> <span class="n">mask_next</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="c1"># Get labels</span>
+    <span class="n">labels_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask_prev</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">labels_next</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask_next</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c1"># Precompute masks as boolean</span>
+    <span class="n">bool_prev</span> <span class="o">=</span> <span class="p">{</span><span class="n">L</span><span class="p">:</span> <span class="n">mask_prev</span><span class="o">==</span><span class="n">L</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels_prev</span><span class="p">}</span>
+    <span class="n">bool_next</span> <span class="o">=</span> <span class="p">{</span><span class="n">L</span><span class="p">:</span> <span class="n">mask_next</span><span class="o">==</span><span class="n">L</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels_next</span><span class="p">}</span>
+    <span class="c1"># Cost matrix = 1 - IoU</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">labels_prev</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels_next</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">L1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels_prev</span><span class="p">):</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">bool_prev</span><span class="p">[</span><span class="n">L1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">L2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels_next</span><span class="p">):</span>
+            <span class="n">m2</span> <span class="o">=</span> <span class="n">bool_next</span><span class="p">[</span><span class="n">L2</span><span class="p">]</span>
+            <span class="n">inter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">union</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">union</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">inter</span><span class="o">/</span><span class="n">union</span>
+    <span class="c1"># Solve assignment</span>
+    <span class="n">row_ind</span><span class="p">,</span> <span class="n">col_ind</span> <span class="o">=</span> <span class="n">linear_sum_assignment</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row_ind</span><span class="p">,</span> <span class="n">col_ind</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">iou_threshold</span><span class="p">:</span>
+            <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">labels_prev</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">labels_next</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">matches</span></div>
+
+
+<span class="k">def</span> <span class="nf">_find_optimal_search_range</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">initial_search_range</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">49</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the optimal search range for linking features.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        features (list): List of features to be linked.</span>
+<span class="sd">        initial_search_range (int, optional): Initial search range. Defaults to 500.</span>
+<span class="sd">        increment (int, optional): Increment value for reducing the search range. Defaults to 10.</span>
+<span class="sd">        max_attempts (int, optional): Maximum number of attempts to find the optimal search range. Defaults to 49.</span>
+<span class="sd">        memory (int, optional): Memory parameter for linking features. Defaults to 3.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: The optimal search range for linking features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">optimal_search_range</span> <span class="o">=</span> <span class="n">initial_search_range</span>
+    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_attempts</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Attempt to link features with the current search range</span>
+            <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">search_range</span><span class="o">=</span><span class="n">optimal_search_range</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success with search_range=</span><span class="si">{</span><span class="n">optimal_search_range</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">optimal_search_range</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1">#print(f&quot;SubnetOversizeException with search_range={optimal_search_range}: {e}&quot;)</span>
+            <span class="n">optimal_search_range</span> <span class="o">-=</span> <span class="n">increment</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Retrying with displacement value: </span><span class="si">{</span><span class="n">optimal_search_range</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">min_range</span> <span class="o">=</span> <span class="n">initial_search_range</span><span class="o">-</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">*</span><span class="n">increment</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">optimal_search_range</span> <span class="o">&lt;=</span> <span class="n">min_range</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timelapse_displacement=</span><span class="si">{</span><span class="n">optimal_search_range</span><span class="si">}</span><span class="s1"> is too high. Lower timelapse_displacement or set to None for automatic thresholding.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">optimal_search_range</span>
+
+<span class="k">def</span> <span class="nf">_remove_objects_from_first_frame</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a specified percentage of objects from the first frame of a sequence of masks.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        masks (ndarray): Sequence of masks representing the frames.</span>
+<span class="sd">        percentage (int): Percentage of objects to remove from the first frame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        ndarray: Sequence of masks with objects removed from the first frame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">first_frame</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">first_frame</span><span class="p">[</span><span class="n">first_frame</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">num_labels_to_remove</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">percentage</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)))</span>
+        <span class="n">labels_to_remove</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">),</span> <span class="n">num_labels_to_remove</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels_to_remove</span><span class="p">:</span>
+            <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">first_frame</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">masks</span>
+
+<span class="k">def</span> <span class="nf">_track_by_iou</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a track table by linking masks frame→frame via IoU.</span>
+<span class="sd">    Returns a DataFrame with columns [frame, original_label, track_id].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># 1) initialize: every label in frame 0 starts its own track</span>
+    <span class="n">labels0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">next_track</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">track_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># (frame,label) -&gt; track_id</span>
+    <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">labels0</span><span class="p">:</span>
+        <span class="n">track_map</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+        <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 2) iterate through frames</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">):</span>
+        <span class="n">prev</span><span class="p">,</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">masks</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">link_by_iou</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">curr</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="n">iou_threshold</span><span class="p">)</span>
+        <span class="n">used_curr</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># a) assign matched labels to existing tracks</span>
+        <span class="k">for</span> <span class="n">L_prev</span><span class="p">,</span> <span class="n">L_curr</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">tid</span> <span class="o">=</span> <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">L_prev</span><span class="p">)]</span>
+            <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L_curr</span><span class="p">)]</span> <span class="o">=</span> <span class="n">tid</span>
+            <span class="n">used_curr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">L_curr</span><span class="p">)</span>
+        <span class="c1"># b) any label in curr not matched → new track</span>
+        <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">curr</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">L</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_curr</span><span class="p">:</span>
+                <span class="n">track_map</span><span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">L</span><span class="p">)]</span> <span class="o">=</span> <span class="n">next_track</span>
+                <span class="n">next_track</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 3) flatten into DataFrame</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">track_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">frame</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;track_id&#39;</span><span class="p">:</span> <span class="n">tid</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_facilitate_trackin_with_adaptive_removal</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">search_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_mass</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">track_by_iou</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Facilitates object tracking with deterministic initial filtering and</span>
+<span class="sd">    trackpy’s constant-velocity prediction.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        masks (np.ndarray): integer‐labeled masks (frames × H × W).</span>
+<span class="sd">        search_range (int|None): max displacement; if None, auto‐computed.</span>
+<span class="sd">        max_attempts (int): how many times to retry with smaller search_range.</span>
+<span class="sd">        memory (int): trackpy memory parameter.</span>
+<span class="sd">        min_mass (float): drop any object in frame 0 with area &lt; min_mass.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        masks, features_df, tracks_df</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError if linking fails after max_attempts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1) initial features &amp; filter frame 0 by area</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">_prepare_for_tracking</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+    <span class="n">f0</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">f0</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">f0</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_mass</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">valid</span><span class="p">),</span> <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># 2) recompute features on filtered masks</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">_prepare_for_tracking</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+
+    <span class="c1"># 3) default search_range = 2×sqrt(99th‑pct area)</span>
+    <span class="k">if</span> <span class="n">search_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">a99</span> <span class="o">=</span> <span class="n">f0</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>
+        <span class="n">search_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a99</span><span class="p">)))</span>
+
+    <span class="c1"># 4) attempt linking, shrinking search_range on failure</span>
+    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_attempts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">track_by_iou</span><span class="p">:</span>
+                <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">_track_by_iou</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">link_df</span><span class="p">(</span><span class="n">features</span><span class="p">,</span><span class="n">search_range</span><span class="o">=</span><span class="n">search_range</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span> <span class="n">predict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Linked on attempt </span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> with search_range=</span><span class="si">{</span><span class="n">search_range</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">masks</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">tracks_df</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">search_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">search_range</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt </span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> failed (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">); reducing search_range to </span><span class="si">{</span><span class="n">search_range</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Failed to track after </span><span class="si">{</span><span class="n">max_attempts</span><span class="si">}</span><span class="s2"> attempts; last search_range=</span><span class="si">{</span><span class="n">search_range</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_trackpy_track_cells</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">masks</span><span class="p">,</span> <span class="n">timelapse_displacement</span><span class="p">,</span> <span class="n">timelapse_memory</span><span class="p">,</span> <span class="n">timelapse_remove_transient</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">track_by_iou</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Track cells using the Trackpy library.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            src (str): The source file path.</span>
+<span class="sd">            name (str): The name of the track.</span>
+<span class="sd">            batch_filenames (list): List of batch filenames.</span>
+<span class="sd">            object_type (str): The type of object to track.</span>
+<span class="sd">            masks (list): List of masks.</span>
+<span class="sd">            timelapse_displacement (int): The displacement for timelapse tracking.</span>
+<span class="sd">            timelapse_memory (int): The memory for timelapse tracking.</span>
+<span class="sd">            timelapse_remove_transient (bool): Whether to remove transient objects in timelapse tracking.</span>
+<span class="sd">            plot (bool): Whether to plot the tracks.</span>
+<span class="sd">            save (bool): Whether to save the tracks.</span>
+<span class="sd">            mode (str): The mode of tracking.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: The mask stack.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_visualize_and_save_timelapse_stack_with_tracks</span>
+        <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_masks_to_masks_stack</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Tracking objects with trackpy&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">timelapse_displacement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">_prepare_for_tracking</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+            <span class="n">timelapse_displacement</span> <span class="o">=</span> <span class="n">_find_optimal_search_range</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">initial_search_range</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">49</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">timelapse_displacement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">timelapse_displacement</span> <span class="o">=</span> <span class="mi">50</span>
+
+        <span class="n">masks</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">_facilitate_trackin_with_adaptive_removal</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">search_range</span><span class="o">=</span><span class="n">timelapse_displacement</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">timelapse_memory</span><span class="p">,</span> <span class="n">track_by_iou</span><span class="o">=</span><span class="n">track_by_iou</span><span class="p">)</span>
+
+        <span class="n">tracks_df</span><span class="p">[</span><span class="s1">&#39;particle&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">timelapse_remove_transient</span><span class="p">:</span>
+            <span class="n">tracks_df_filter</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">filter_stubs</span><span class="p">(</span><span class="n">tracks_df</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">masks</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tracks_df_filter</span> <span class="o">=</span> <span class="n">tracks_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">tracks_df_filter</span> <span class="o">=</span> <span class="n">tracks_df_filter</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;particle&#39;</span><span class="p">:</span> <span class="s1">&#39;track_id&#39;</span><span class="p">})</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tracks_df</span><span class="p">)</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">tracks_df_filter</span><span class="p">)</span><span class="si">}</span><span class="s1"> objects that were not present in all frames&#39;</span><span class="p">)</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="n">_relabel_masks_based_on_tracks</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">tracks_df_filter</span><span class="p">)</span>
+        <span class="n">tracks_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="s1">&#39;tracks&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tracks_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tracks_df_filter</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tracks_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;trackpy_tracks_</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot</span> <span class="ow">or</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">_visualize_and_save_timelapse_stack_with_tracks</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">tracks_df_filter</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+        <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_masks_to_masks_stack</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mask_stack</span>
+
+<span class="k">def</span> <span class="nf">_filter_short_tracks</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter out tracks that are shorter than min_length.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pandas.DataFrame): The input DataFrame containing track information.</span>
+<span class="sd">        min_length (int, optional): The minimum length of tracks to keep. Defaults to 5.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: The filtered DataFrame with only tracks longer than min_length.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">track_lengths</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;track_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+    <span class="n">long_tracks</span> <span class="o">=</span> <span class="n">track_lengths</span><span class="p">[</span><span class="n">track_lengths</span> <span class="o">&gt;=</span> <span class="n">min_length</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;track_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">long_tracks</span><span class="p">)]</span>
+
+<span class="k">def</span> <span class="nf">_btrack_track_cells</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">masks_3D</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">timelapse_remove_transient</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Track cells using the btrack library.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): The source file path.</span>
+<span class="sd">        name (str): The name of the track.</span>
+<span class="sd">        batch_filenames (list): List of batch filenames.</span>
+<span class="sd">        object_type (str): The type of object to track.</span>
+<span class="sd">        plot (bool): Whether to plot the tracks.</span>
+<span class="sd">        save (bool): Whether to save the tracks.</span>
+<span class="sd">        masks_3D (ndarray): 3D array of masks.</span>
+<span class="sd">        mode (str): The tracking mode.</span>
+<span class="sd">        timelapse_remove_transient (bool): Whether to remove transient tracks.</span>
+<span class="sd">        radius (int, optional): The maximum search radius. Defaults to 100.</span>
+<span class="sd">        workers (int, optional): The number of workers. Defaults to 10.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ndarray: The mask stack.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_visualize_and_save_timelapse_stack_with_tracks</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_masks_to_masks_stack</span>
+    
+    <span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="n">btrack_datasets</span><span class="o">.</span><span class="n">cell_config</span><span class="p">()</span>
+    <span class="n">frame</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">masks_3D</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="s2">&quot;major_axis_length&quot;</span><span class="p">,</span> <span class="s2">&quot;minor_axis_length&quot;</span><span class="p">,</span> <span class="s2">&quot;orientation&quot;</span><span class="p">,</span> <span class="s2">&quot;solidity&quot;</span><span class="p">]</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">btrack</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">segmentation_to_objects</span><span class="p">(</span><span class="n">masks_3D</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">FEATURES</span><span class="p">),</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
+
+    <span class="c1"># initialise a tracker session using a context manager</span>
+    <span class="k">with</span> <span class="n">btrack</span><span class="o">.</span><span class="n">BayesianTracker</span><span class="p">()</span> <span class="k">as</span> <span class="n">tracker</span><span class="p">:</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">CONFIG_FILE</span><span class="p">)</span> <span class="c1"># configure the tracker using a config file</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">max_search_radius</span> <span class="o">=</span> <span class="n">radius</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">tracking_updates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MOTION&quot;</span><span class="p">,</span> <span class="s2">&quot;VISUAL&quot;</span><span class="p">]</span>
+        <span class="c1">#tracker.tracking_updates = [&quot;MOTION&quot;]</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">FEATURES</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="c1"># append the objects to be tracked</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">volume</span><span class="o">=</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span> <span class="c1"># set the tracking volume</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">step_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># track them (in interactive mode)</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span> <span class="c1"># generate hypotheses and run the global optimizer</span>
+        <span class="c1">#data, properties, graph = tracker.to_napari() # get the tracks in a format for napari visualization</span>
+        <span class="n">tracks</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">tracks</span> <span class="c1"># store the tracks</span>
+        <span class="c1">#cfg = tracker.configuration # store the configuration</span>
+
+    <span class="c1"># Process the track data to create a DataFrame</span>
+    <span class="n">track_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">track</span> <span class="ow">in</span> <span class="n">tracks</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">track</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">track</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">track</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">track</span><span class="o">.</span><span class="n">z</span><span class="p">):</span>
+            <span class="n">track_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;track_id&#39;</span><span class="p">:</span> <span class="n">track</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+                <span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">t</span><span class="p">,</span>
+                <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+                <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+                <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span>
+            <span class="p">})</span>
+    <span class="c1"># Convert track data to a DataFrame</span>
+    <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">track_data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">timelapse_remove_transient</span><span class="p">:</span>
+        <span class="n">tracks_df</span> <span class="o">=</span> <span class="n">_filter_short_tracks</span><span class="p">(</span><span class="n">tracks_df</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">masks_3D</span><span class="p">))</span>
+
+    <span class="n">objects_df</span> <span class="o">=</span> <span class="n">_prepare_for_tracking</span><span class="p">(</span><span class="n">masks_3D</span><span class="p">)</span>
+
+    <span class="c1"># Optional: If necessary, round &#39;x&#39; and &#39;y&#39; to ensure matching precision</span>
+    <span class="n">tracks_df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tracks_df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">tracks_df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tracks_df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">objects_df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objects_df</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">objects_df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objects_df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Merge the DataFrames on &#39;frame&#39;, &#39;x&#39;, and &#39;y&#39;</span>
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">tracks_df</span><span class="p">,</span> <span class="n">objects_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="n">final_df</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[[</span><span class="s1">&#39;track_id&#39;</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;original_label&#39;</span><span class="p">]]</span>
+
+    <span class="n">masks</span> <span class="o">=</span> <span class="n">_relabel_masks_based_on_tracks</span><span class="p">(</span><span class="n">masks_3D</span><span class="p">,</span> <span class="n">final_df</span><span class="p">)</span>
+    <span class="n">tracks_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="s1">&#39;tracks&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tracks_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">final_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tracks_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;btrack_tracks_</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot</span> <span class="ow">or</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">_visualize_and_save_timelapse_stack_with_tracks</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">final_df</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+    <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_masks_to_masks_stack</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask_stack</span>
+
+<div class="viewcode-block" id="exponential_decay">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.exponential_decay">[docs]</a>
+<span class="k">def</span> <span class="nf">exponential_decay</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span></div>
+
+
+<div class="viewcode-block" id="preprocess_pathogen_data">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.preprocess_pathogen_data">[docs]</a>
+<span class="k">def</span> <span class="nf">preprocess_pathogen_data</span><span class="p">(</span><span class="n">pathogen_df</span><span class="p">):</span>
+    <span class="c1"># Group by identifiers and count the number of parasites</span>
+    <span class="n">parasite_counts</span> <span class="o">=</span> <span class="n">pathogen_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;timeid&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Aggregate numerical columns and take the first of object columns</span>
+    <span class="n">agg_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">pathogen_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;first&#39;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pathogen_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;timeid&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">,</span> <span class="s1">&#39;parasite_count&#39;</span><span class="p">]}</span>
+    <span class="n">pathogen_agg</span> <span class="o">=</span> <span class="n">pathogen_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;timeid&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_funcs</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="c1"># Merge the counts back into the aggregated data</span>
+    <span class="n">pathogen_agg</span> <span class="o">=</span> <span class="n">pathogen_agg</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">parasite_counts</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;timeid&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Remove the object_label column as it corresponds to the pathogen ID not the cell ID</span>
+    <span class="k">if</span> <span class="s1">&#39;object_label&#39;</span> <span class="ow">in</span> <span class="n">pathogen_agg</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">pathogen_agg</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;object_label&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># Change the name of pathogen_cell_id to object_label</span>
+    <span class="n">pathogen_agg</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">:</span> <span class="s1">&#39;object_label&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pathogen_agg</span></div>
+
+
+<div class="viewcode-block" id="plot_data">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.plot_data">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">measurement</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyle</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="infected_vs_noninfected">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.infected_vs_noninfected">[docs]</a>
+<span class="k">def</span> <span class="nf">infected_vs_noninfected</span><span class="p">(</span><span class="n">result_df</span><span class="p">,</span> <span class="n">measurement</span><span class="p">):</span>
+    <span class="c1"># Separate the merged dataframe into two groups based on pathogen_count</span>
+    <span class="n">infected_cells_df</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">)[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">uninfected_cells_df</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">)[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Plotting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Plot for cells that were infected at some time</span>
+    <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="n">infected_cells_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">infected_cells_df</span><span class="p">[</span><span class="n">infected_cells_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">group_id</span><span class="p">]</span>
+        <span class="n">plot_data</span><span class="p">(</span><span class="n">measurement</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;Infected&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot for cells that were never infected</span>
+    <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="n">uninfected_cells_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">uninfected_cells_df</span><span class="p">[</span><span class="n">uninfected_cells_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">group_id</span><span class="p">]</span>
+        <span class="n">plot_data</span><span class="p">(</span><span class="n">measurement</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;Uninfected&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Set the titles and labels</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Cells Infected at Some Time&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Cells Never Infected&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Normalized Delta &#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">)</span>
+        <span class="n">all_timepoints</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">all_timepoints</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">all_timepoints</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="save_figure">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.save_figure">[docs]</a>
+<span class="k">def</span> <span class="nf">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">figure_number</span><span class="p">):</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="n">results_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="s1">&#39;results&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_fldr</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_fldr</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;figure_</span><span class="si">{</span><span class="n">figure_number</span><span class="si">}</span><span class="s1">.pdf&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig_loc</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved figure:</span><span class="si">{</span><span class="n">fig_loc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_results_dataframe">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.save_results_dataframe">[docs]</a>
+<span class="k">def</span> <span class="nf">save_results_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">results_name</span><span class="p">):</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="n">results_fldr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="s1">&#39;results&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_fldr</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">csv_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_fldr</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">results_name</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_loc</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved results:</span><span class="si">{</span><span class="n">csv_loc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="summarize_per_well">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.summarize_per_well">[docs]</a>
+<span class="k">def</span> <span class="nf">summarize_per_well</span><span class="p">(</span><span class="n">peak_details_df</span><span class="p">):</span>
+    <span class="c1"># Step 1: Split the &#39;ID&#39; column</span>
+    <span class="n">split_columns</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">peak_details_df</span><span class="p">[[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;object_number&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">split_columns</span>
+
+    <span class="c1"># Step 2: Create &#39;well_ID&#39; by combining &#39;rowID&#39; and &#39;columnID&#39;</span>
+    <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;well_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Filter entries where &#39;amplitude&#39; is not null</span>
+    <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+
+    <span class="c1"># Preparation for Step 3: Identify numeric columns for averaging from the filtered dataframe</span>
+    <span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="c1"># Step 3: Calculate summary statistics</span>
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;well_ID&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="n">peaks_per_well</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">),</span>
+        <span class="n">unique_IDs_with_amplitude</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;nunique&#39;</span><span class="p">),</span>  <span class="c1"># Count unique IDs per well with non-null amplitude</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span><span class="p">}</span>  <span class="c1"># exclude &#39;amplitude&#39; from averaging if it&#39;s numeric</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="c1"># Step 3: Calculate summary statistics</span>
+    <span class="n">summary_df_2</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;well_ID&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="n">cells_per_well</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;object_number&#39;</span><span class="p">,</span> <span class="s1">&#39;nunique&#39;</span><span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;cells_per_well&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary_df_2</span><span class="p">[</span><span class="s1">&#39;cells_per_well&#39;</span><span class="p">]</span>
+    <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;peaks_per_cell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;peaks_per_well&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;cells_per_well&#39;</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">summary_df</span></div>
+
+
+<div class="viewcode-block" id="summarize_per_well_inf_non_inf">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.summarize_per_well_inf_non_inf">[docs]</a>
+<span class="k">def</span> <span class="nf">summarize_per_well_inf_non_inf</span><span class="p">(</span><span class="n">peak_details_df</span><span class="p">):</span>
+    <span class="c1"># Step 1: Split the &#39;ID&#39; column</span>
+    <span class="n">split_columns</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">peak_details_df</span><span class="p">[[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;object_number&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">split_columns</span>
+
+    <span class="c1"># Step 2: Create &#39;well_ID&#39; by combining &#39;rowID&#39; and &#39;columnID&#39;</span>
+    <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;well_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Assume &#39;pathogen_count&#39; indicates infection if &gt; 0</span>
+    <span class="c1"># Add an &#39;infected_status&#39; column to classify cells</span>
+    <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;infected_status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;infected&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;infected&#39;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;non_infected&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Preparation for Step 3: Identify numeric columns for averaging</span>
+    <span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="c1"># Step 3: Calculate summary statistics</span>
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;well_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;infected_status&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="n">cells_per_well</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;object_number&#39;</span><span class="p">,</span> <span class="s1">&#39;nunique&#39;</span><span class="p">),</span>
+        <span class="n">peaks_per_well</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">),</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span><span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="c1"># Calculate peaks per cell</span>
+    <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;peaks_per_cell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;peaks_per_well&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">summary_df</span><span class="p">[</span><span class="s1">&#39;cells_per_well&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">summary_df</span></div>
+
+
+<div class="viewcode-block" id="analyze_calcium_oscillations">
+<a class="viewcode-back" href="../../api/spacr/timelapse/index.html#spacr.timelapse.analyze_calcium_oscillations">[docs]</a>
+<span class="k">def</span> <span class="nf">analyze_calcium_oscillations</span><span class="p">(</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">measurement</span><span class="o">=</span><span class="s1">&#39;cell_channel_1_mean_intensity&#39;</span><span class="p">,</span> <span class="n">size_filter</span><span class="o">=</span><span class="s1">&#39;cell_area&#39;</span><span class="p">,</span> <span class="n">fluctuation_threshold</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">num_lines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peak_height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">pathogen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cytoplasm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_transient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transience_threshold</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="c1"># Load data</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_loc</span><span class="p">)</span>
+    <span class="c1"># Load cell table</span>
+    <span class="n">cell_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT * FROM </span><span class="si">{</span><span class="s1">&#39;cell&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">pathogen</span><span class="p">:</span>
+        <span class="n">pathogen_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM pathogen&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+        <span class="n">pathogen_df</span><span class="p">[</span><span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pathogen_df</span><span class="p">[</span><span class="s1">&#39;pathogen_cell_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;Int64&#39;</span><span class="p">)</span>
+        <span class="n">pathogen_df</span> <span class="o">=</span> <span class="n">preprocess_pathogen_data</span><span class="p">(</span><span class="n">pathogen_df</span><span class="p">)</span>
+        <span class="n">cell_df</span> <span class="o">=</span> <span class="n">cell_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pathogen_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;timeid&#39;</span><span class="p">,</span> <span class="s1">&#39;object_label&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_pathogen&#39;</span><span class="p">))</span>
+        <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;After pathogen merge: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cell_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> objects&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Optionally load cytoplasm table and merge</span>
+    <span class="k">if</span> <span class="n">cytoplasm</span><span class="p">:</span>
+        <span class="n">cytoplasm_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT * FROM </span><span class="si">{</span><span class="s1">&#39;cytoplasm&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+        <span class="c1"># Merge on specified columns</span>
+        <span class="n">cell_df</span> <span class="o">=</span> <span class="n">cell_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">cytoplasm_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fieldID&#39;</span><span class="p">,</span> <span class="s1">&#39;timeid&#39;</span><span class="p">,</span> <span class="s1">&#39;object_label&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_cytoplasm&#39;</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;After cytoplasm merge: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cell_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> objects&#39;</span><span class="p">)</span>
+    
+    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># Continue with your existing processing on cell_df now containing merged data...</span>
+    <span class="c1"># Prepare DataFrame (use cell_df instead of df)</span>
+    <span class="n">prcf_components</span> <span class="o">=</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;prcf&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prcf_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prcf_components</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prcf_components</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;fieldID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prcf_components</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prcf_components</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s1">&#39;t(\d+)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;object_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;object_label&#39;</span><span class="p">]</span>
+    <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;fieldID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">cell_df</span><span class="p">[</span><span class="s1">&#39;object_label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cell_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Fit exponential decay model to all scaled fluorescence data</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">exponential_decay</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">measurement</span><span class="p">],</span> <span class="n">p0</span><span class="o">=</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">measurement</span><span class="p">]),</span> <span class="mf">0.01</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">measurement</span><span class="p">])],</span> <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;corrected_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">measurement</span><span class="p">]</span> <span class="o">/</span> <span class="n">exponential_decay</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Curve fitting failed for the entire dataset with error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Analyzing: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> objects&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Normalizing corrected fluorescence for each cell</span>
+    <span class="n">corrected_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">peak_details_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">total_timepoints</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+    <span class="n">size_filter_removed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">transience_removed</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">unique_id</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">):</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">remove_transient</span><span class="p">:</span>
+
+            <span class="n">threshold</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">transience_threshold</span> <span class="o">*</span> <span class="n">total_timepoints</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Group length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span><span class="si">}</span><span class="s1"> Timelapse length: </span><span class="si">{</span><span class="n">total_timepoints</span><span class="si">}</span><span class="s1">, threshold:</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="n">transience_removed</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;removed group </span><span class="si">{</span><span class="n">unique_id</span><span class="si">}</span><span class="s1"> due to transience&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
+        
+        <span class="n">size_diff</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">size_filter</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">group</span><span class="p">[</span><span class="n">size_filter</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">size_diff</span> <span class="o">&lt;=</span> <span class="n">fluctuation_threshold</span><span class="p">:</span>
+            <span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;corrected_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">corrected_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            
+            <span class="c1"># Detect peaks</span>
+            <span class="n">peaks</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">peak_height</span><span class="p">)</span>
+
+            <span class="c1"># Set values &lt; 0 to 0</span>
+            <span class="n">group_filtered</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">group_filtered</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">above_zero_auc</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">group_filtered</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">group_filtered</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+            <span class="n">auc</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">group_filtered</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+            <span class="n">is_infected</span> <span class="o">=</span> <span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">is_infected</span><span class="p">:</span>
+                <span class="n">is_infected</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_infected</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">peak_details_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="n">unique_id</span><span class="p">,</span>
+                    <span class="s1">&#39;plateID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;rowID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;columnID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;fieldID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;fieldID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;object_number&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;object_number&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="c1"># The time of the peak</span>
+                    <span class="s1">&#39;amplitude&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                    <span class="s1">&#39;delta&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                    <span class="s1">&#39;AUC&#39;</span><span class="p">:</span> <span class="n">auc</span><span class="p">,</span>
+                    <span class="s1">&#39;AUC_positive&#39;</span><span class="p">:</span> <span class="n">above_zero_auc</span><span class="p">,</span>
+                    <span class="s1">&#39;AUC_peak&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                    <span class="s1">&#39;infected&#39;</span><span class="p">:</span> <span class="n">is_infected</span>  
+                <span class="p">})</span>
+
+            <span class="c1"># Inside the for loop where peaks are detected</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">peak</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">):</span>
+
+                <span class="n">amplitude</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s1">&#39;peak_heights&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">peak_time</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">peak</span><span class="p">]</span>
+                <span class="n">pathogen_count_at_peak</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">peak</span><span class="p">]</span>
+
+                <span class="n">start_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">peak</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">peak</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Using indices to slice for AUC calculation</span>
+                <span class="n">peak_segment_y</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">peak_segment_x</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">peak_auc</span> <span class="o">=</span> <span class="n">trapz</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">peak_segment_y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">peak_segment_x</span><span class="p">)</span>
+
+                <span class="n">peak_details_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="n">unique_id</span><span class="p">,</span>
+                    <span class="s1">&#39;plateID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;rowID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;columnID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;fieldID&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;fieldID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;object_number&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;object_number&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">peak_time</span><span class="p">,</span>  <span class="c1"># The time of the peak</span>
+                    <span class="s1">&#39;amplitude&#39;</span><span class="p">:</span> <span class="n">amplitude</span><span class="p">,</span>
+                    <span class="s1">&#39;delta&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">peak</span><span class="p">],</span>
+                    <span class="s1">&#39;AUC&#39;</span><span class="p">:</span> <span class="n">auc</span><span class="p">,</span>
+                    <span class="s1">&#39;AUC_positive&#39;</span><span class="p">:</span> <span class="n">above_zero_auc</span><span class="p">,</span>
+                    <span class="s1">&#39;AUC_peak&#39;</span><span class="p">:</span> <span class="n">peak_auc</span><span class="p">,</span>
+                    <span class="s1">&#39;infected&#39;</span><span class="p">:</span> <span class="n">pathogen_count_at_peak</span>  
+                <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">size_filter_removed</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removed </span><span class="si">{</span><span class="n">size_filter_removed</span><span class="si">}</span><span class="s1"> objects due to size filter fluctuation&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removed </span><span class="si">{</span><span class="n">transience_removed</span><span class="si">}</span><span class="s1"> objects due to transience&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">corrected_dfs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">corrected_dfs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No suitable cells found for analysis&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="n">peak_details_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">peak_details_list</span><span class="p">)</span>
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summarize_per_well</span><span class="p">(</span><span class="n">peak_details_df</span><span class="p">)</span>
+    <span class="n">summary_df_inf_non_inf</span> <span class="o">=</span> <span class="n">summarize_per_well_inf_non_inf</span><span class="p">(</span><span class="n">peak_details_df</span><span class="p">)</span>
+
+    <span class="n">save_results_dataframe</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">peak_details_df</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">results_name</span><span class="o">=</span><span class="s1">&#39;peak_details&#39;</span><span class="p">)</span>
+    <span class="n">save_results_dataframe</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">result_df</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">results_name</span><span class="o">=</span><span class="s1">&#39;results&#39;</span><span class="p">)</span>
+    <span class="n">save_results_dataframe</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">results_name</span><span class="o">=</span><span class="s1">&#39;well_results&#39;</span><span class="p">)</span>
+    <span class="n">save_results_dataframe</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">summary_df_inf_non_inf</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">results_name</span><span class="o">=</span><span class="s1">&#39;well_results_inf_non_inf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plotting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">sampled_groups</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">num_lines</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">num_lines</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sampled_groups</span><span class="p">):</span>
+        <span class="n">sampled_groups</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">sampled_groups</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">num_lines</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="n">sampled_groups</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">result_df</span><span class="p">[</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">group_id</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;delta_&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Normalized Delta of </span><span class="si">{</span><span class="n">measurement</span><span class="si">}</span><span class="s1"> Over Time (Corrected for Photobleaching)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Normalized Delta &#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">figure_number</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">pathogen</span><span class="p">:</span>
+        <span class="n">infected_vs_noninfected</span><span class="p">(</span><span class="n">result_df</span><span class="p">,</span> <span class="n">measurement</span><span class="p">)</span>
+        <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">figure_number</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Identify cells with and without pathogens</span>
+        <span class="n">infected_cells</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">)[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">noninfected_cells</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">)[</span><span class="s1">&#39;parasite_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;plate_row_column_field_object&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+        <span class="c1"># Peaks in infected and noninfected cells</span>
+        <span class="n">infected_peaks</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">infected_cells</span><span class="p">)]</span>
+        <span class="n">noninfected_peaks</span> <span class="o">=</span> <span class="n">peak_details_df</span><span class="p">[</span><span class="n">peak_details_df</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">noninfected_cells</span><span class="p">)]</span>
+
+        <span class="c1"># Calculate the average number of peaks per cell</span>
+        <span class="n">avg_inf_peaks_per_cell</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">infected_peaks</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">infected_cells</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">infected_cells</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">avg_non_inf_peaks_per_cell</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">noninfected_peaks</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">noninfected_cells</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">noninfected_cells</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Average number of peaks per infected cell: </span><span class="si">{</span><span class="n">avg_inf_peaks_per_cell</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Average number of peaks per non-infected cell: </span><span class="si">{</span><span class="n">avg_non_inf_peaks_per_cell</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;done&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result_df</span><span class="p">,</span> <span class="n">peak_details_df</span><span class="p">,</span> <span class="n">fig</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1411 @@
+spacr.gui_elements
+==================
+
+.. py:module:: spacr.gui_elements
+
+
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:data:: fig
+   :value: None
+
+
+.. py:function:: restart_gui_app(root)
+
+   Restarts the GUI application by destroying the current instance
+   and launching a fresh one.
+
+
+.. py:function:: create_menu_bar(root)
+
+.. py:function:: set_element_size()
+
+.. py:function:: set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family='OpenSans', font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray')
+
+.. py:class:: spacrFont(font_name, font_style, font_size=12)
+
+   .. py:attribute:: font_name
+
+
+   .. py:attribute:: font_style
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_path
+
+
+   .. py:method:: get_font_path(font_name, font_style)
+
+      Returns the font path based on the font name and style.
+
+      Parameters:
+      - font_name: str, the name of the font.
+      - font_style: str, the style of the font.
+
+      Returns:
+      - str, the path to the font file.
+
+
+
+   .. py:method:: load_font()
+
+      Loads the font into Tkinter.
+
+
+
+   .. py:method:: get_font(size=None)
+
+      Returns the font in the specified size.
+
+      Parameters:
+      - size: int, the size of the font (optional).
+
+      Returns:
+      - tkFont.Font object.
+
+
+
+.. py:class:: spacrContainer(parent, orient=tk.VERTICAL, bg=None, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: orient
+      :value: 'vertical'
+
+
+
+   .. py:attribute:: bg
+      :value: 'lightgrey'
+
+
+
+   .. py:attribute:: sash_thickness
+      :value: 10
+
+
+
+   .. py:attribute:: panes
+      :value: []
+
+
+
+   .. py:attribute:: sashes
+      :value: []
+
+
+
+   .. py:method:: add(widget, stretch='always')
+
+
+   .. py:method:: create_sash()
+
+
+   .. py:method:: reposition_panes()
+
+
+   .. py:method:: on_configure(event)
+
+
+   .. py:method:: on_enter_sash(event)
+
+
+   .. py:method:: on_leave_sash(event)
+
+
+   .. py:method:: start_resize(event)
+
+
+   .. py:method:: perform_resize(event)
+
+
+.. py:class:: spacrEntry(parent, textvariable=None, outline=False, width=None, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: bg_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: outline
+      :value: False
+
+
+
+   .. py:attribute:: font_family
+      :value: 'OpenSans'
+
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: canvas_height
+      :value: 40
+
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:method:: draw_rounded_rectangle(color)
+
+
+   .. py:method:: on_focus_in(event)
+
+
+   .. py:method:: on_focus_out(event)
+
+
+.. py:class:: spacrCheck(parent, text='', variable=None, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: bg_color
+      :value: 'black'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: variable
+      :value: None
+
+
+
+   .. py:attribute:: canvas_width
+      :value: 20
+
+
+
+   .. py:attribute:: canvas_height
+      :value: 20
+
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:method:: draw_rounded_square(color)
+
+
+   .. py:method:: update_check(*args)
+
+
+   .. py:method:: toggle_variable(event)
+
+
+.. py:class:: spacrCombo(parent, textvariable=None, values=None, width=None, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: bg_color
+      :value: 'black'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: font_family
+      :value: 'OpenSans'
+
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: values
+      :value: []
+
+
+
+   .. py:attribute:: canvas_width
+      :value: None
+
+
+
+   .. py:attribute:: canvas_height
+      :value: 40
+
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:attribute:: var
+
+
+   .. py:attribute:: selected_value
+
+
+   .. py:attribute:: dropdown_menu
+      :value: None
+
+
+
+   .. py:method:: draw_rounded_rectangle(color)
+
+
+   .. py:method:: on_click(event)
+
+
+   .. py:method:: open_dropdown()
+
+
+   .. py:method:: close_dropdown()
+
+
+   .. py:method:: on_select(value)
+
+
+   .. py:method:: set(value)
+
+
+.. py:class:: spacrDropdownMenu(parent, variable, options, command=None, font=None, size=50, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: variable
+
+
+   .. py:attribute:: options
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:attribute:: text
+      :value: 'Settings'
+
+
+
+   .. py:attribute:: size
+      :value: 50
+
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: button_width
+      :value: 150
+
+
+
+   .. py:attribute:: canvas_width
+      :value: 154
+
+
+
+   .. py:attribute:: canvas_height
+      :value: 54
+
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: bg_color
+      :value: 'black'
+
+
+
+   .. py:attribute:: button_bg
+
+
+   .. py:attribute:: button_text
+
+
+   .. py:attribute:: menu
+
+
+   .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=20, **kwargs)
+
+
+   .. py:method:: on_enter(event=None)
+
+
+   .. py:method:: on_leave(event=None)
+
+
+   .. py:method:: on_click(event=None)
+
+
+   .. py:method:: post_menu()
+
+
+   .. py:method:: on_select(option)
+
+
+   .. py:method:: update_styles(active_categories=None)
+
+
+.. py:class:: spacrCheckbutton(parent, text='', variable=None, command=None, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.ttk.Checkbutton`
+
+
+   Ttk Checkbutton widget which is either in on- or off-state.
+
+
+   .. py:attribute:: text
+      :value: ''
+
+
+
+   .. py:attribute:: variable
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+.. py:class:: spacrProgressBar(parent, label=True, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.ttk.Progressbar`
+
+
+   Ttk Progressbar widget shows the status of a long-running
+   operation. They can operate in two modes: determinate mode shows the
+   amount completed relative to the total amount of work to be done, and
+   indeterminate mode provides an animated display to let the user know
+   that something is happening.
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: bg_color
+      :value: 'black'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: style
+
+
+   .. py:attribute:: label
+      :value: True
+
+
+
+   .. py:attribute:: operation_type
+      :value: None
+
+
+
+   .. py:attribute:: additional_info
+      :value: None
+
+
+
+   .. py:method:: set_label_position()
+
+
+   .. py:method:: update_label()
+
+
+.. py:class:: spacrSlider(master=None, length=None, thickness=2, knob_radius=10, position='center', from_=0, to=100, value=None, show_index=False, command=None, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: specified_length
+      :value: None
+
+
+
+   .. py:attribute:: knob_radius
+      :value: 10
+
+
+
+   .. py:attribute:: thickness
+      :value: 2
+
+
+
+   .. py:attribute:: knob_position
+      :value: 10
+
+
+
+   .. py:attribute:: slider_line
+      :value: None
+
+
+
+   .. py:attribute:: knob
+      :value: None
+
+
+
+   .. py:attribute:: position
+      :value: ''
+
+
+
+   .. py:attribute:: offset
+      :value: 0
+
+
+
+   .. py:attribute:: from_
+      :value: 0
+
+
+
+   .. py:attribute:: to
+      :value: 100
+
+
+
+   .. py:attribute:: value
+      :value: None
+
+
+
+   .. py:attribute:: show_index
+      :value: False
+
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: bg_color
+      :value: 'black'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:attribute:: length
+      :value: None
+
+
+
+   .. py:method:: resize_slider(event)
+
+
+   .. py:method:: value_to_position(value)
+
+
+   .. py:method:: position_to_value(position)
+
+
+   .. py:method:: draw_slider(inactive=False)
+
+
+   .. py:method:: move_knob(event)
+
+
+   .. py:method:: activate_knob(event)
+
+
+   .. py:method:: release_knob(event)
+
+
+   .. py:method:: set_to(new_to)
+
+
+   .. py:method:: get()
+
+
+   .. py:method:: set(value)
+
+      Set the slider's value and update the knob position.
+
+
+
+   .. py:method:: jump_to_click(event)
+
+
+   .. py:method:: update_slider_from_entry(event)
+
+      Update the slider's value from the entry.
+
+
+
+.. py:function:: spacrScrollbarStyle(style, inactive_color, active_color)
+
+.. py:class:: spacrFrame(container, width=None, *args, bg='black', radius=20, scrollbar=True, textbox=False, **kwargs)
+
+   Bases: :py:obj:`tkinter.ttk.Frame`
+
+
+   Ttk Frame widget is a container, used to group other widgets
+   together.
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:method:: rounded_rectangle(canvas, x1, y1, x2, y2, radius=20, **kwargs)
+
+
+.. py:class:: spacrLabel(parent, text='', font=None, style=None, align='right', height=None, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: text
+      :value: ''
+
+
+
+   .. py:attribute:: align
+      :value: 'right'
+
+
+
+   .. py:attribute:: style_out
+
+
+   .. py:attribute:: font_style
+      :value: 'OpenSans'
+
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_family
+      :value: 'OpenSans'
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:attribute:: style
+      :value: None
+
+
+
+   .. py:method:: set_text(text)
+
+
+.. py:class:: spacrButton(parent, text='', command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, animation=True, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Frame widget which may contain other widgets and can have a 3D border.
+
+
+   .. py:attribute:: text
+      :value: ''
+
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:attribute:: icon_name
+      :value: ''
+
+
+
+   .. py:attribute:: size
+      :value: 50
+
+
+
+   .. py:attribute:: show_text
+      :value: True
+
+
+
+   .. py:attribute:: outline
+      :value: False
+
+
+
+   .. py:attribute:: animation
+      :value: True
+
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: bg_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: is_zoomed_in
+      :value: False
+
+
+
+   .. py:method:: load_icon()
+
+
+   .. py:method:: get_icon_path(icon_name)
+
+
+   .. py:method:: on_enter(event=None)
+
+
+   .. py:method:: on_leave(event=None)
+
+
+   .. py:method:: on_click(event=None)
+
+
+   .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=20, **kwargs)
+
+
+   .. py:method:: update_description(event)
+
+
+   .. py:method:: clear_description(event)
+
+
+   .. py:method:: animate_zoom(target_scale, steps=10, delay=10)
+
+
+   .. py:method:: zoom_icon(scale_factor)
+
+
+.. py:class:: spacrSwitch(parent, text='', variable=None, command=None, *args, **kwargs)
+
+   Bases: :py:obj:`tkinter.ttk.Frame`
+
+
+   Ttk Frame widget is a container, used to group other widgets
+   together.
+
+
+   .. py:attribute:: text
+      :value: ''
+
+
+
+   .. py:attribute:: variable
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:attribute:: canvas
+
+
+   .. py:attribute:: switch_bg
+
+
+   .. py:attribute:: switch
+
+
+   .. py:attribute:: label
+
+
+   .. py:method:: toggle(event=None)
+
+
+   .. py:method:: update_switch()
+
+
+   .. py:method:: animate_switch()
+
+
+   .. py:method:: animate_movement(start_x, end_x, final_color)
+
+
+   .. py:method:: get()
+
+
+   .. py:method:: set(value)
+
+
+   .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=9, **kwargs)
+
+
+.. py:class:: spacrToolTip(widget, text)
+
+   .. py:attribute:: widget
+
+
+   .. py:attribute:: text
+
+
+   .. py:attribute:: tooltip_window
+      :value: None
+
+
+
+   .. py:method:: show_tooltip(event)
+
+
+   .. py:method:: hide_tooltip(event)
+
+
+.. py:class:: ModifyMaskApp(root, folder_path, scale_factor)
+
+   .. py:attribute:: root
+
+
+   .. py:attribute:: folder_path
+
+
+   .. py:attribute:: scale_factor
+
+
+   .. py:attribute:: image_filenames
+
+
+   .. py:attribute:: masks_folder
+
+
+   .. py:attribute:: current_image_index
+      :value: 0
+
+
+
+   .. py:attribute:: canvas_width
+
+
+   .. py:attribute:: canvas_height
+
+
+   .. py:method:: update_display()
+
+
+   .. py:method:: update_original_mask_from_zoom()
+
+
+   .. py:method:: update_original_mask(zoomed_mask, x0, x1, y0, y1)
+
+
+   .. py:method:: get_scaling_factors(img_width, img_height, canvas_width, canvas_height)
+
+
+   .. py:method:: canvas_to_image(x_canvas, y_canvas)
+
+
+   .. py:method:: apply_zoom_on_enter(event)
+
+
+   .. py:method:: normalize_image(image, lower_quantile, upper_quantile)
+
+
+   .. py:method:: resize_arrays(img, mask)
+
+
+   .. py:method:: load_first_image()
+
+
+   .. py:method:: setup_canvas()
+
+
+   .. py:method:: initialize_flags()
+
+
+   .. py:method:: update_mouse_info(event)
+
+
+   .. py:method:: setup_navigation_toolbar()
+
+
+   .. py:method:: setup_mode_toolbar()
+
+
+   .. py:method:: setup_function_toolbar()
+
+
+   .. py:method:: setup_zoom_toolbar()
+
+
+   .. py:method:: load_image_and_mask(index)
+
+
+   .. py:method:: display_image()
+
+
+   .. py:method:: display_zoomed_image()
+
+
+   .. py:method:: overlay_mask_on_image(image, mask, alpha=0.5)
+
+
+   .. py:method:: previous_image()
+
+
+   .. py:method:: next_image()
+
+
+   .. py:method:: save_mask()
+
+
+   .. py:method:: set_zoom_rectangle_start(event)
+
+
+   .. py:method:: set_zoom_rectangle_end(event)
+
+
+   .. py:method:: update_zoom_box(event)
+
+
+   .. py:method:: toggle_zoom_mode()
+
+
+   .. py:method:: toggle_brush_mode()
+
+
+   .. py:method:: image_to_canvas(x_image, y_image)
+
+
+   .. py:method:: toggle_dividing_line_mode()
+
+
+   .. py:method:: start_dividing_line(event)
+
+
+   .. py:method:: finish_dividing_line(event)
+
+
+   .. py:method:: update_dividing_line_preview(event)
+
+
+   .. py:method:: apply_dividing_line()
+
+
+   .. py:method:: toggle_draw_mode()
+
+
+   .. py:method:: toggle_magic_wand_mode()
+
+
+   .. py:method:: toggle_erase_mode()
+
+
+   .. py:method:: apply_brush_release(event)
+
+
+   .. py:method:: erase_brush_release(event)
+
+
+   .. py:method:: apply_brush(event)
+
+
+   .. py:method:: erase_brush(event)
+
+
+   .. py:method:: erase_object(event)
+
+
+   .. py:method:: use_magic_wand(event)
+
+
+   .. py:method:: apply_magic_wand(image, mask, seed_point, tolerance, maximum, action='add')
+
+
+   .. py:method:: magic_wand_normal(seed_point, tolerance, action)
+
+
+   .. py:method:: magic_wand_zoomed(seed_point, tolerance, action)
+
+
+   .. py:method:: draw(event)
+
+
+   .. py:method:: draw_on_zoomed_mask(draw_coordinates)
+
+
+   .. py:method:: finish_drawing(event)
+
+
+   .. py:method:: finish_drawing_if_active(event)
+
+
+   .. py:method:: apply_normalization()
+
+
+   .. py:method:: fill_objects()
+
+
+   .. py:method:: relabel_objects()
+
+
+   .. py:method:: clear_objects()
+
+
+   .. py:method:: invert_mask()
+
+
+   .. py:method:: remove_small_objects()
+
+
+.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1)
+
+   .. py:attribute:: root
+
+
+   .. py:attribute:: db_path
+
+
+   .. py:attribute:: src
+
+
+   .. py:attribute:: index
+      :value: 0
+
+
+
+   .. py:attribute:: orig_annotation_columns
+      :value: 'annotate'
+
+
+
+   .. py:attribute:: annotation_column
+      :value: 'annotate'
+
+
+
+   .. py:attribute:: image_type
+      :value: None
+
+
+
+   .. py:attribute:: channels
+      :value: None
+
+
+
+   .. py:attribute:: normalize
+      :value: False
+
+
+
+   .. py:attribute:: percentiles
+      :value: (1, 99)
+
+
+
+   .. py:attribute:: images
+
+
+   .. py:attribute:: pending_updates
+
+
+   .. py:attribute:: labels
+      :value: []
+
+
+
+   .. py:attribute:: adjusted_to_original_paths
+
+
+   .. py:attribute:: terminate
+      :value: False
+
+
+
+   .. py:attribute:: update_queue
+
+
+   .. py:attribute:: measurement
+      :value: None
+
+
+
+   .. py:attribute:: threshold
+      :value: None
+
+
+
+   .. py:attribute:: normalize_channels
+      :value: None
+
+
+
+   .. py:attribute:: outline
+      :value: None
+
+
+
+   .. py:attribute:: outline_threshold_factor
+      :value: 1
+
+
+
+   .. py:attribute:: outline_sigma
+      :value: 1
+
+
+
+   .. py:attribute:: font_loader
+
+
+   .. py:attribute:: font_size
+      :value: 12
+
+
+
+   .. py:attribute:: bg_color
+      :value: 'black'
+
+
+
+   .. py:attribute:: fg_color
+      :value: 'white'
+
+
+
+   .. py:attribute:: active_color
+      :value: 'blue'
+
+
+
+   .. py:attribute:: inactive_color
+      :value: 'dark_gray'
+
+
+
+   .. py:attribute:: filtered_paths_annotations
+      :value: []
+
+
+
+   .. py:attribute:: db_update_thread
+
+
+   .. py:attribute:: status_label
+
+
+   .. py:attribute:: button_frame
+
+
+   .. py:attribute:: next_button
+
+
+   .. py:attribute:: previous_button
+
+
+   .. py:attribute:: exit_button
+
+
+   .. py:attribute:: train_button
+
+
+   .. py:attribute:: settings_button
+
+
+   .. py:attribute:: grid_frame
+
+
+   .. py:method:: open_settings_window()
+
+
+   .. py:method:: update_settings(**kwargs)
+
+
+   .. py:method:: recreate_image_grid()
+
+
+   .. py:method:: swich_back_annotation_column()
+
+
+   .. py:method:: calculate_grid_dimensions()
+
+
+   .. py:method:: prefilter_paths_annotations()
+
+
+   .. py:method:: load_images()
+
+
+   .. py:method:: load_single_image(path_annotation_tuple)
+
+
+   .. py:method:: outline_image(img, edge_sigma=1, edge_thickness=1)
+
+      For each selected channel, compute a continuous outline from the intensity landscape
+      using Otsu threshold scaled by a correction factor. Replace only that channel.
+
+
+
+   .. py:method:: normalize_image(img, normalize=False, percentiles=(1, 99), normalize_channels=None)
+      :staticmethod:
+
+
+      Normalize an image based on specific channels (R, G, B).
+
+      :param img: Input image.
+      :type img: PIL.Image or np.array
+      :param normalize: Whether to normalize the image or not.
+      :type normalize: bool
+      :param percentiles: Percentiles to use for intensity rescaling.
+      :type percentiles: tuple
+      :param normalize_channels: List of channels to normalize. E.g., ['r', 'g', 'b'], ['r'], ['g'], etc.
+      :type normalize_channels: list
+
+      :returns: Normalized image.
+      :rtype: PIL.Image
+
+
+
+   .. py:method:: add_colored_border(img, border_width, border_color)
+
+
+   .. py:method:: filter_channels(img)
+
+
+   .. py:method:: get_on_image_click(path, label, img)
+
+
+   .. py:method:: update_html(text)
+      :staticmethod:
+
+
+
+   .. py:method:: update_database_worker()
+
+
+   .. py:method:: update_gui_text(text)
+
+
+   .. py:method:: next_page()
+
+
+   .. py:method:: previous_page()
+
+
+   .. py:method:: shutdown()
+
+
+   .. py:method:: train_and_classify()
+
+      1) Merge data from the relevant DB tables (including png_list).
+      2) Collect manual annotations from png_list.<annotation_column> => 'manual_annotation'.
+         - 1 => class=1, 2 => class=0 (for training).
+      3) If only one class is present, randomly sample unannotated images as the other class.
+      4) Train an XGBoost model.
+      5) Classify *all* rows -> fill XGboost_score (prob of class=1) & XGboost_annotation (1 or 2 if high confidence).
+      6) Write those columns back to sqlite, so every row in png_list has a score (and possibly an annotation).
+      7) Refresh the UI (prefilter_paths_annotations + load_images).
+
+
+
+.. py:function:: standardize_figure(fig)
+
+.. py:function:: modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, font_size=None, x_lim=None, y_lim=None, grid=False, legend=None, title=None, x_label_rotation=None, remove_axes=False, bg_color=None, text_color=None, line_color=None)
+
+   Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.
+
+   Parameters:
+   - fig: The Matplotlib figure object to modify.
+   - scale_x: Scaling factor for the width of subplots (optional).
+   - scale_y: Scaling factor for the height of subplots (optional).
+   - line_width: Desired line width for all lines (optional).
+   - font_size: Desired font size for all text (optional).
+   - x_lim: Tuple specifying the x-axis limits (min, max) (optional).
+   - y_lim: Tuple specifying the y-axis limits (min, max) (optional).
+   - grid: Boolean to add grid lines to the plot (optional).
+   - legend: Boolean to show/hide the legend (optional).
+   - title: String to set as the title of the plot (optional).
+   - x_label_rotation: Angle to rotate the x-axis labels (optional).
+   - remove_axes: Boolean to remove or show the axes labels (optional).
+   - bg_color: Color for the figure and subplot background (optional).
+   - text_color: Color for all text in the figure (optional).
+   - line_color: Color for all lines in the figure (optional).
+
+
+.. py:function:: save_figure_as_format(fig, file_format)
+
+.. py:function:: modify_figure(fig)
+
+.. py:function:: generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=[1.1, 1.5, 1.2, 1.5], lowercase_prob=0.3)
+
+   Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.
+
+
