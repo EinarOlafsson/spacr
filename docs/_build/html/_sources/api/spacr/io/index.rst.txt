@@ -23,6 +23,10 @@ Module Contents
    :param train_loaders: A list of data loaders.
    :type train_loaders: list
 
+   .. attribute:: 
+
+      no-index:
+
    .. attribute:: train_loaders
 
       A list of data loaders.
@@ -366,7 +370,7 @@ Module Contents
    .. py:method:: cleanup()
 
 
-.. py:class:: NoClassDataset(data_dir, transform=None, shuffle=True, load_to_memory=False)
+.. py:class:: NoClassDataset_v1(data_dir, transform=None, shuffle=True, load_to_memory=False)
 
    Bases: :py:obj:`torch.utils.data.Dataset`
 
