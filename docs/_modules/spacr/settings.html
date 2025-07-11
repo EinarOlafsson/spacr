@@ -5,14 +5,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.settings &mdash; spacr 0.5.0 documentation</title>
+  <title>spacr.settings &mdash; spacr 1.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=45a07ac9" />
 
   
-      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=292eb321"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -42,27 +44,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../api/main/index.html">main</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/main/index.html#module-contents">Module Contents</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/main/index.html#main.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/core/index.html">core</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/core/index.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/core/BasePredictor/index.html">core.BasePredictor</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/core/BaseTrainer/index.html">core.BaseTrainer</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/core/Baseline/index.html">core.Baseline</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/core/MEDIAR/index.html">core.MEDIAR</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/core/utils/index.html">core.utils</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
@@ -72,7 +53,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/chat_bot/index.html">spacr.chat_bot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
@@ -82,9 +62,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/io/index.html">spacr.io</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/mediar/index.html">spacr.mediar</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/openai/index.html">spacr.openai</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
@@ -96,53 +74,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html">spacr.utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/version/index.html">spacr.version</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/predict/index.html">predict</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/predict/index.html#module-contents">Module Contents</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.args"><code class="docutils literal notranslate"><span class="pre">args</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/predict/index.html#predict.opt"><code class="docutils literal notranslate"><span class="pre">opt</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/evaluate/index.html">evaluate</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/evaluate/index.html#module-contents">Module Contents</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/evaluate/index.html#evaluate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/SetupDict/index.html">SetupDict</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/SetupDict/index.html#module-contents">Module Contents</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/SetupDict/index.html#SetupDict.TRAINER"><code class="docutils literal notranslate"><span class="pre">TRAINER</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/SetupDict/index.html#SetupDict.OPTIMIZER"><code class="docutils literal notranslate"><span class="pre">OPTIMIZER</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/SetupDict/index.html#SetupDict.SCHEDULER"><code class="docutils literal notranslate"><span class="pre">SCHEDULER</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/train_tools/index.html">train_tools</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/train_tools/index.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/data_utils/index.html">train_tools.data_utils</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/measures/index.html">train_tools.measures</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/models/index.html">train_tools.models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/train_tools/utils/index.html">train_tools.utils</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/generate_mapping/index.html">generate_mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generate_mapping/index.html#module-contents">Module Contents</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.public_paths_labeled"><code class="docutils literal notranslate"><span class="pre">public_paths_labeled()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.official_paths_labeled"><code class="docutils literal notranslate"><span class="pre">official_paths_labeled()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.official_paths_tuning"><code class="docutils literal notranslate"><span class="pre">official_paths_tuning()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.add_mapping_to_json"><code class="docutils literal notranslate"><span class="pre">add_mapping_to_json()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/generate_mapping/index.html#generate_mapping.parser"><code class="docutils literal notranslate"><span class="pre">parser</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -212,7 +143,6 @@
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;denoise&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;delete_intermediate&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;segmentation_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;cellpose&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;preprocess&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;masks&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -248,9 +178,9 @@
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_background&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_Signal_to_noise&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_CP_prob&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_FT&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_FT&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_FT&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nucleus_FT&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_FT&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_FT&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
     
     <span class="c1"># Plot settings</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -281,35 +211,39 @@
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;upscale&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;upscale_factor&#39;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;adjust_cells&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_sam_cell&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_sam_nucleus&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_sam_pathogen&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    
     <span class="k">return</span> <span class="n">settings</span></div>
 
 
-<div class="viewcode-block" id="set_default_settings_preprocess_img_data_v1">
-<a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_settings_preprocess_img_data_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">set_default_settings_preprocess_img_data_v1</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-
-    <span class="n">metadata_type</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;metadata_type&#39;</span><span class="p">,</span> <span class="s1">&#39;cellvoyager&#39;</span><span class="p">)</span>
-    <span class="n">custom_regex</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">nr</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nr&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">plot</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="n">timelapse</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;timelapse&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">lower_percentile</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;lower_percentile&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">randomize</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;randomize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">all_to_mip</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;all_to_mip&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">pick_slice</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pick_slice&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">skip_mode</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;skip_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-
-    <span class="n">cmap</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span><span class="p">,</span> <span class="s1">&#39;inferno&#39;</span><span class="p">)</span>
-    <span class="n">figuresize</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;figuresize&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">normalize</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">save_dtype</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_dtype&#39;</span><span class="p">,</span> <span class="s1">&#39;uint16&#39;</span><span class="p">)</span>
-    
-    <span class="n">test_mode</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">test_images</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test_images&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">random_test</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;random_test&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">settings</span><span class="p">,</span> <span class="n">metadata_type</span><span class="p">,</span> <span class="n">custom_regex</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">timelapse</span><span class="p">,</span> <span class="n">lower_percentile</span><span class="p">,</span> <span class="n">randomize</span><span class="p">,</span> <span class="n">all_to_mip</span><span class="p">,</span> <span class="n">pick_slice</span><span class="p">,</span> <span class="n">skip_mode</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">,</span> <span class="n">normalize</span><span class="p">,</span> <span class="n">save_dtype</span><span class="p">,</span> <span class="n">test_mode</span><span class="p">,</span> <span class="n">test_images</span><span class="p">,</span> <span class="n">random_test</span></div>
+<div class="viewcode-block" id="set_default_plot_data_from_db">
+<a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_plot_data_from_db">[docs]</a>
+<span class="k">def</span> <span class="nf">set_default_plot_data_from_db</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">,</span> <span class="s1">&#39;measurements.db&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;graph_name&#39;</span><span class="p">,</span> <span class="s1">&#39;Figure_1&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;table_names&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;data_column&#39;</span><span class="p">,</span> <span class="s1">&#39;recruitment&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;grouping_column&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_types&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Hela&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_plate_metadata&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_types&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_plate_metadata&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;treatments&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;treatment_plate_metadata&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;graph_type&#39;</span><span class="p">,</span> <span class="s1">&#39;jitter&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;theme&#39;</span><span class="p">,</span> <span class="s1">&#39;deep&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;y_lim&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.5</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;channel_of_interest&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nuclei_limit&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_limit&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;representation&#39;</span><span class="p">,</span> <span class="s1">&#39;well&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;uninfected&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">settings</span></div>
 
 
 <div class="viewcode-block" id="set_default_settings_preprocess_img_data">
@@ -364,6 +298,8 @@
                 <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;maximum_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cell diameter must be an integer or float, got </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;cell_diamiter&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;use_sam_cell&#39;</span><span class="p">]:</span>
+            <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sam&#39;</span>
 
     <span class="k">elif</span> <span class="n">object_type</span> <span class="o">==</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">:</span>
         <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nuclei&#39;</span>
@@ -378,6 +314,8 @@
                 <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;maximum_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Nucleus diameter must be an integer or float, got </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;nucleus_diamiter&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;use_sam_nucleus&#39;</span><span class="p">]:</span>
+            <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sam&#39;</span>
 
     <span class="k">elif</span> <span class="n">object_type</span> <span class="o">==</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">:</span>
         <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cyto&#39;</span>
@@ -394,10 +332,13 @@
                 <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;maximum_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pathogen diameter must be an integer or float, got </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;pathogen_diamiter&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;use_sam_pathogen&#39;</span><span class="p">]:</span>
+            <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sam&#39;</span>
         
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Object type: </span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1"> not supported. Supported object types are : cell, nucleus and pathogen&#39;</span><span class="p">)</span>
-
+        
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">object_settings</span><span class="p">)</span>
         
@@ -509,7 +450,9 @@
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cytoplasm_min_size&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;merge_edge_pathogen_cells&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
+    
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;distance_gaussian_sigma&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    
     <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]:</span>
         <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -960,7 +903,7 @@
     <span class="s2">&quot;nucleus_background&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="s2">&quot;nucleus_Signal_to_noise&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="s2">&quot;nucleus_CP_prob&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="s2">&quot;nucleus_FT&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;nucleus_FT&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
     <span class="s2">&quot;cell_channel&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span>
     <span class="s2">&quot;cell_background&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
     <span class="s2">&quot;cell_Signal_to_noise&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
@@ -1204,7 +1147,6 @@
     <span class="s2">&quot;png_type&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;custom_model_path&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;generate_training_dataset&quot;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
-    <span class="s2">&quot;segmentation_mode&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span>
     <span class="s2">&quot;train_DL_model&quot;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
     <span class="s2">&quot;normalize&quot;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
     <span class="s2">&quot;overlay&quot;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
@@ -1251,14 +1193,18 @@
     <span class="s2">&quot;cell_diamiter&quot;</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
     <span class="s2">&quot;nucleus_diamiter&quot;</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
     <span class="s2">&quot;pathogen_diamiter&quot;</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
-    <span class="s2">&quot;consolidate&quot;</span><span class="p">:</span><span class="nb">bool</span>
+    <span class="s2">&quot;consolidate&quot;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="s1">&#39;use_sam_cell&#39;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="s1">&#39;use_sam_nucleus&#39;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="s1">&#39;use_sam_pathogen&#39;</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="s2">&quot;distance_gaussian_sigma&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
 <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="categories">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.categories">[docs]</a>
 <span class="n">categories</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Paths&quot;</span><span class="p">:[</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;grna&quot;</span><span class="p">,</span> <span class="s2">&quot;barcodes&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_model_path&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">,</span><span class="s2">&quot;model_path&quot;</span><span class="p">,</span><span class="s2">&quot;grna_csv&quot;</span><span class="p">,</span><span class="s2">&quot;row_csv&quot;</span><span class="p">,</span><span class="s2">&quot;column_csv&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata_files&quot;</span><span class="p">,</span> <span class="s2">&quot;score_data&quot;</span><span class="p">,</span><span class="s2">&quot;count_data&quot;</span><span class="p">],</span>
-             <span class="s2">&quot;General&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cell_mask_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;cytoplasm&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_chann_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_channel&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_chann_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_channel&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_mask_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_mask_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_chann_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_channel&quot;</span><span class="p">,</span> <span class="s2">&quot;test_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata_type&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_regex&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="s2">&quot;magnification&quot;</span><span class="p">,</span> <span class="s2">&quot;channel_dims&quot;</span><span class="p">,</span> <span class="s2">&quot;apply_model_to_dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;generate_training_dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;train_DL_model&quot;</span><span class="p">,</span> <span class="s2">&quot;segmentation_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;delete_intermediate&quot;</span><span class="p">,</span> <span class="s2">&quot;uninfected&quot;</span><span class="p">,</span> <span class="p">],</span>
+             <span class="s2">&quot;General&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cell_mask_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;cytoplasm&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_chann_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_channel&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_chann_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_channel&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_mask_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_mask_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_chann_dim&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_channel&quot;</span><span class="p">,</span>  <span class="s2">&quot;test_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata_type&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_regex&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="s2">&quot;magnification&quot;</span><span class="p">,</span> <span class="s2">&quot;channel_dims&quot;</span><span class="p">,</span> <span class="s2">&quot;apply_model_to_dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;generate_training_dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;train_DL_model&quot;</span><span class="p">,</span> <span class="s2">&quot;delete_intermediate&quot;</span><span class="p">,</span> <span class="s2">&quot;uninfected&quot;</span><span class="p">,</span> <span class="p">],</span>
              <span class="s2">&quot;Cellpose&quot;</span><span class="p">:[</span><span class="s2">&quot;denoise&quot;</span><span class="p">,</span><span class="s2">&quot;fill_in&quot;</span><span class="p">,</span><span class="s2">&quot;from_scratch&quot;</span><span class="p">,</span> <span class="s2">&quot;n_epochs&quot;</span><span class="p">,</span> <span class="s2">&quot;width_height&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_model&quot;</span><span class="p">,</span> <span class="s2">&quot;resample&quot;</span><span class="p">,</span> <span class="s2">&quot;rescale&quot;</span><span class="p">,</span> <span class="s2">&quot;CP_prob&quot;</span><span class="p">,</span> <span class="s2">&quot;flow_threshold&quot;</span><span class="p">,</span> <span class="s2">&quot;percentiles&quot;</span><span class="p">,</span> <span class="s2">&quot;invert&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">,</span> <span class="s2">&quot;grayscale&quot;</span><span class="p">,</span> <span class="s2">&quot;Signal_to_noise&quot;</span><span class="p">,</span> <span class="s2">&quot;resize&quot;</span><span class="p">,</span> <span class="s2">&quot;target_height&quot;</span><span class="p">,</span> <span class="s2">&quot;target_width&quot;</span><span class="p">],</span>
              <span class="s2">&quot;Cell&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cell_diamiter&quot;</span><span class="p">,</span><span class="s2">&quot;cell_intensity_range&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_size_range&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_background&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_Signal_to_noise&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_CP_prob&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_FT&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_background_cell&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_min_size&quot;</span><span class="p">,</span> <span class="s2">&quot;cytoplasm_min_size&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust_cells&quot;</span><span class="p">,</span> <span class="s2">&quot;cells&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_loc&quot;</span><span class="p">],</span>
              <span class="s2">&quot;Nucleus&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nucleus_diamiter&quot;</span><span class="p">,</span><span class="s2">&quot;nucleus_intensity_range&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_size_range&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_background&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_Signal_to_noise&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_CP_prob&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_FT&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_background_nucleus&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_min_size&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_loc&quot;</span><span class="p">],</span>
@@ -1276,7 +1222,7 @@
              <span class="s2">&quot;Plot&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;split_axis_lims&quot;</span><span class="p">,</span> <span class="s2">&quot;x_lim&quot;</span><span class="p">,</span><span class="s2">&quot;log_x&quot;</span><span class="p">,</span><span class="s2">&quot;log_y&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_control&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_nr&quot;</span><span class="p">,</span> <span class="s2">&quot;examples_to_plot&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize_plots&quot;</span><span class="p">,</span> <span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;figuresize&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_cluster_grids&quot;</span><span class="p">,</span> <span class="s2">&quot;img_zoom&quot;</span><span class="p">,</span> <span class="s2">&quot;row_limit&quot;</span><span class="p">,</span> <span class="s2">&quot;color_by&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_images&quot;</span><span class="p">,</span> <span class="s2">&quot;smooth_lines&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_points&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_outlines&quot;</span><span class="p">,</span> <span class="s2">&quot;black_background&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_by_cluster&quot;</span><span class="p">,</span> <span class="s2">&quot;heatmap_feature&quot;</span><span class="p">,</span><span class="s2">&quot;grouping&quot;</span><span class="p">,</span><span class="s2">&quot;min_max&quot;</span><span class="p">,</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span><span class="s2">&quot;save_figure&quot;</span><span class="p">],</span>
              <span class="s2">&quot;Timelapse&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;timelapse&quot;</span><span class="p">,</span> <span class="s2">&quot;fps&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_displacement&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_memory&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_frame_limits&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_remove_transient&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_objects&quot;</span><span class="p">,</span> <span class="s2">&quot;compartments&quot;</span><span class="p">],</span>
              <span class="s2">&quot;Advanced&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;merge_edge_pathogen_cells&quot;</span><span class="p">,</span> <span class="s2">&quot;test_images&quot;</span><span class="p">,</span> <span class="s2">&quot;random_test&quot;</span><span class="p">,</span> <span class="s2">&quot;test_nr&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;test_split&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span><span class="p">,</span> <span class="s2">&quot;target_unique_count&quot;</span><span class="p">,</span><span class="s2">&quot;threshold_multiplier&quot;</span><span class="p">,</span> <span class="s2">&quot;threshold_method&quot;</span><span class="p">,</span> <span class="s2">&quot;min_n&quot;</span><span class="p">,</span><span class="s2">&quot;shuffle&quot;</span><span class="p">,</span> <span class="s2">&quot;target_intensity_min&quot;</span><span class="p">,</span> <span class="s2">&quot;cells_per_well&quot;</span><span class="p">,</span> <span class="s2">&quot;nuclei_limit&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_limit&quot;</span><span class="p">,</span> <span class="s2">&quot;background&quot;</span><span class="p">,</span> <span class="s2">&quot;backgrounds&quot;</span><span class="p">,</span> <span class="s2">&quot;schedule&quot;</span><span class="p">,</span> <span class="s2">&quot;test_size&quot;</span><span class="p">,</span><span class="s2">&quot;exclude&quot;</span><span class="p">,</span><span class="s2">&quot;n_repeats&quot;</span><span class="p">,</span><span class="s2">&quot;top_features&quot;</span><span class="p">,</span> <span class="s2">&quot;model_type_ml&quot;</span><span class="p">,</span> <span class="s2">&quot;model_type&quot;</span><span class="p">,</span><span class="s2">&quot;minimum_cell_count&quot;</span><span class="p">,</span><span class="s2">&quot;n_estimators&quot;</span><span class="p">,</span><span class="s2">&quot;preprocess&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_background&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span><span class="p">,</span> <span class="s2">&quot;lower_percentile&quot;</span><span class="p">,</span> <span class="s2">&quot;merge_pathogens&quot;</span><span class="p">,</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;masks&quot;</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;randomize&quot;</span><span class="p">,</span> <span class="s2">&quot;n_jobs&quot;</span><span class="p">],</span>
-             <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;all_to_mip&quot;</span><span class="p">,</span> <span class="s2">&quot;upscale&quot;</span><span class="p">,</span> <span class="s2">&quot;upscale_factor&quot;</span><span class="p">,</span> <span class="s2">&quot;consolidate&quot;</span><span class="p">]</span>
+             <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;all_to_mip&quot;</span><span class="p">,</span> <span class="s2">&quot;upscale&quot;</span><span class="p">,</span> <span class="s2">&quot;upscale_factor&quot;</span><span class="p">,</span> <span class="s2">&quot;consolidate&quot;</span><span class="p">,</span> <span class="s2">&quot;distance_gaussian_sigma&quot;</span><span class="p">,</span><span class="s2">&quot;use_sam_pathogen&quot;</span><span class="p">,</span><span class="s2">&quot;use_sam_nucleus&quot;</span><span class="p">,</span> <span class="s2">&quot;use_sam_cell&quot;</span><span class="p">]</span>
              <span class="p">}</span></div>
 
 
@@ -1310,7 +1256,7 @@
         <span class="n">expected_type</span> <span class="o">=</span> <span class="n">expected_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cell_plate_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_frame_limits&quot;</span><span class="p">,</span> <span class="s2">&quot;png_size&quot;</span><span class="p">,</span> <span class="s2">&quot;png_dims&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_plate_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;treatment_plate_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_objects&quot;</span><span class="p">,</span> <span class="s2">&quot;class_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;crop_mode&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cell_plate_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_frame_limits&quot;</span><span class="p">,</span> <span class="s2">&quot;png_size&quot;</span><span class="p">,</span> <span class="s2">&quot;png_dims&quot;</span><span class="p">,</span> <span class="s2">&quot;pathogen_plate_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;treatment_plate_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;timelapse_objects&quot;</span><span class="p">,</span> <span class="s2">&quot;class_metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;crop_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;dialate_png_ratios&quot;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">parsed_value</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1478,7 +1424,7 @@
         <span class="s2">&quot;nucleus_min_size&quot;</span><span class="p">:</span> <span class="s2">&quot;(int) - The minimum size of nucleus objects in pixels^2.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;normalize_by&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - Normalize cropped png images by png or by field of view.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;dependent_variable&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - The dependent variable for the regression analysis.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;delete_intermediate&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Delete intermediate folders (stack, channel, norm_channel_stack).&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;delete_intermediate&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Delete intermediate folders (stack, channel, masks).&quot;</span><span class="p">,</span>
         <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;(float) - Diameter of the objects to segment.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;dialate_png_ratios&quot;</span><span class="p">:</span> <span class="s2">&quot;(list) - The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;dialate_pngs&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Whether to dilate the PNG images before saving.&quot;</span><span class="p">,</span>
@@ -1598,7 +1544,6 @@
         <span class="s2">&quot;skip_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - The mode to use for skipping images. This will determine how to handle images that cannot be processed.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;smooth_lines&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Whether to smooth lines in the plots.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;src&quot;</span><span class="p">:</span> <span class="s2">&quot;(str, path) - Path to source directory.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;segmentation_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - Algorithm to use for segmentation (cellpose or mediar).&quot;</span><span class="p">,</span>
         <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - Target variable for the analysis.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;target_height&quot;</span><span class="p">:</span> <span class="s2">&quot;(int) - Target height for resizing the images.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;target_intensity_min&quot;</span><span class="p">:</span> <span class="s2">&quot;(float) - Minimum intensity for the target objects.&quot;</span><span class="p">,</span>
@@ -1637,7 +1582,6 @@
         <span class="s2">&quot;dataset_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;str - How to generate train/test dataset.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;annotated_classes&quot;</span><span class="p">:</span> <span class="s2">&quot;list - list of numbers in annotation column.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;um_per_pixel&quot;</span><span class="p">:</span> <span class="s2">&quot;(float) - The micrometers per pixel for the images.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;segmentation_model&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - The segmentation model to use, either cellpose or mediar.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;pathogen_model&quot;</span><span class="p">:</span> <span class="s2">&quot;(str) - use a custom cellpose model to detect pathogen objects.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;timelapse_displacement&quot;</span><span class="p">:</span> <span class="s2">&quot;(int) - Displacement for timelapse tracking.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;timelapse_memory&quot;</span><span class="p">:</span> <span class="s2">&quot;(int) - Memory for timelapse tracking.&quot;</span><span class="p">,</span>
@@ -1677,6 +1621,9 @@
         <span class="s2">&quot;overlay&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Overlay activation maps on the images.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;shuffle&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Shuffle the dataset bufore generating the activation maps&quot;</span><span class="p">,</span>
         <span class="s2">&quot;correlation&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Calculate correlation between image channels and activation maps. Data is saved to .db.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_sam_cell&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Whether to use SAM for cell segmentation.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_sam_nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Whether to use SAM for nucleus segmentation.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_sam_pathogen&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Whether to use SAM for pathogen segmentation.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;normalize_input&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Normalize the input images before passing them to the model.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;normalize_plots&quot;</span><span class="p">:</span> <span class="s2">&quot;(bool) - Normalize images before plotting.&quot;</span><span class="p">,</span>
     <span class="p">}</span>
@@ -1735,6 +1682,9 @@
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize_channels&#39;</span><span class="p">,</span> <span class="s2">&quot;r,g,b&quot;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;outline&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;outline_threshold_factor&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;outline_sigma&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;percentiles&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">98</span><span class="p">])</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;measurement&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="c1">#&#39;cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity&#39;)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;threshold&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="c1">#&#39;2&#39;)</span>
@@ -1884,6 +1834,25 @@
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;level&#39;</span><span class="p">,</span><span class="s1">&#39;well&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">settings</span></div>
+
+
+<div class="viewcode-block" id="get_plot_data_from_csv_default_settings">
+<a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_plot_data_from_csv_default_settings">[docs]</a>
+<span class="k">def</span> <span class="nf">get_plot_data_from_csv_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;data_column&#39;</span><span class="p">,</span><span class="s1">&#39;choose column&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;grouping_column&#39;</span><span class="p">,</span><span class="s1">&#39;choose column&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;graph_type&#39;</span><span class="p">,</span><span class="s1">&#39;violin&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;y_lim&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;log_y&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;log_x&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;keep_groups&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;representation&#39;</span><span class="p">,</span><span class="s1">&#39;well&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;theme&#39;</span><span class="p">,</span><span class="s1">&#39;dark&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;remove_outliers&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">settings</span></div>
 
 </pre></div>

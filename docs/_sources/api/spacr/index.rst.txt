@@ -17,7 +17,6 @@ Submodules
    /api/spacr/app_measure/index
    /api/spacr/app_sequencing/index
    /api/spacr/app_umap/index
-   /api/spacr/chat_bot/index
    /api/spacr/core/index
    /api/spacr/deep_spacr/index
    /api/spacr/gui/index
@@ -27,9 +26,7 @@ Submodules
    /api/spacr/io/index
    /api/spacr/logger/index
    /api/spacr/measure/index
-   /api/spacr/mediar/index
    /api/spacr/ml/index
-   /api/spacr/openai/index
    /api/spacr/plot/index
    /api/spacr/sequencing/index
    /api/spacr/settings/index
