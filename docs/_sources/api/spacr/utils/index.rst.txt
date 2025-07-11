@@ -1393,3 +1393,22 @@ Module Contents
 
 .. py:function:: correct_metadata(df)
 
+.. py:function:: remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1.5)
+
+   Removes outliers from `value_col` within each group defined by `group_col`.
+
+   :param df: The input DataFrame.
+   :type df: pd.DataFrame
+   :param group_col: Column name to group by.
+   :type group_col: str
+   :param value_col: Column containing values to check for outliers.
+   :type value_col: str
+   :param method: 'iqr' or 'zscore'.
+   :type method: str
+   :param threshold: Threshold multiplier for IQR (default 1.5) or z-score.
+   :type threshold: float
+
+   :returns: A DataFrame with outliers removed.
+   :rtype: pd.DataFrame
+
+

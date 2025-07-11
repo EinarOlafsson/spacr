@@ -72,15 +72,6 @@ Module Contents
    None
 
 
-.. py:function:: generate_mediar_masks(src, settings, object_type)
-
-   Generates masks using the MEDIARPredictor.
-
-   :param src: Source folder containing images or npz files.
-   :param settings: Dictionary of settings for generating masks.
-   :param object_type: Type of object to detect (e.g., 'cell', 'nucleus', etc.).
-
-
 .. py:function:: generate_screen_graphs(settings)
 
    Generate screen graphs for different measurements in a given source directory.

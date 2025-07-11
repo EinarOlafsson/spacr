@@ -1,3 +1,0 @@
-Processing folder: /home/olafsson/datasets/plate1
-Found path: /home/olafsson/datasets/plate1
-Saving settings to /home/olafsson/datasets/plate1/settings/gen_mask_settings.csv
