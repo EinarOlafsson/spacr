@@ -1,0 +1,809 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.toxo &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.toxo</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.toxo</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">matplotlib.legend</span> <span class="kn">import</span> <span class="n">Legend</span>
+<span class="kn">from</span> <span class="nn">matplotlib.transforms</span> <span class="kn">import</span> <span class="n">Bbox</span>
+<span class="kn">from</span> <span class="nn">brokenaxes</span> <span class="kn">import</span> <span class="n">brokenaxes</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cosine</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">pearsonr</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
+
+
+<span class="kn">from</span> <span class="nn">matplotlib.gridspec</span> <span class="kn">import</span> <span class="n">GridSpec</span>
+
+<div class="viewcode-block" id="custom_volcano_plot">
+<a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.custom_volcano_plot">[docs]</a>
+<span class="k">def</span> <span class="nf">custom_volcano_plot</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">metadata_path</span><span class="p">,</span> <span class="n">metadata_column</span><span class="o">=</span><span class="s1">&#39;tagm_location&#39;</span><span class="p">,</span><span class="n">point_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_lim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">y_lims</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">20</span><span class="p">]]):</span>
+
+    <span class="c1"># Dictionary mapping compartment to color</span>
+    
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;micronemes&#39;</span><span class="p">:</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;rhoptries 1&#39;</span><span class="p">:</span><span class="s1">&#39;darkviolet&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;rhoptries 2&#39;</span><span class="p">:</span><span class="s1">&#39;darkviolet&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;nucleus - chromatin&#39;</span><span class="p">:</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;nucleus - non-chromatin&#39;</span><span class="p">:</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;dense granules&#39;</span><span class="p">:</span><span class="s1">&#39;teal&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;ER 1&#39;</span><span class="p">:</span><span class="s1">&#39;pink&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;ER 2&#39;</span><span class="p">:</span><span class="s1">&#39;pink&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;unknown&#39;</span><span class="p">:</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;tubulin cytoskeleton&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;IMC&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;PM - peripheral 1&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;PM - peripheral 2&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;cytosol&#39;</span><span class="p">:</span><span class="s1">&#39;turquoise&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;mitochondrion - soluble&#39;</span><span class="p">:</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;mitochondrion - membranes&#39;</span><span class="p">:</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;apicoplast&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;Golgi&#39;</span><span class="p">:</span><span class="s1">&#39;green&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;PM - integral&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;apical 1&#39;</span><span class="p">:</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;apical 2&#39;</span><span class="p">:</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;19S proteasome&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;20S proteasome&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;60S ribosome&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;40S ribosome&#39;</span><span class="p">:</span><span class="s1">&#39;slategray&#39;</span><span class="p">,</span>
+              <span class="p">}</span>
+
+    <span class="c1"># Increase font size for better readability</span>
+    <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">})</span>
+    
+    <span class="c1"># --- Load data ---</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_path</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        
+    <span class="c1"># Extract ‘variable’ and ‘gene_nr’ from your feature notation</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[(.*?)\]&#39;</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Intercept&#39;</span><span class="p">]</span>
+
+    <span class="c1"># --- Load metadata ---</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata_path</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">)</span>
+
+    <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Merge data and metadata</span>
+    <span class="n">merged_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">metadata</span><span class="p">[[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">,</span> <span class="n">metadata_column</span><span class="p">]],</span> 
+                           <span class="n">on</span><span class="o">=</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">merged_data</span><span class="p">[</span><span class="n">metadata_column</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># --- Create figure with &quot;upper&quot; and &quot;lower&quot; subplots sharing the x-axis ---</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">figsize</span><span class="p">,</span> <span class="n">figsize</span><span class="p">))</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">ax_upper</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax_lower</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax_upper</span><span class="p">)</span>
+
+    <span class="c1"># Hide x-axis labels on the upper plot</span>
+    <span class="n">ax_upper</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labelbottom</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># List to collect the variables (hits) that meet threshold criteria</span>
+    <span class="n">hit_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># --- Scatter plot on both axes ---</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">merged_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">y_val</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">])</span>
+        
+        <span class="c1"># Decide which axis to draw on based on the p-value</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_upper</span> <span class="k">if</span> <span class="n">y_val</span> <span class="o">&gt;</span> <span class="n">y_lims</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">ax_lower</span>
+
+        <span class="c1"># Here is the main change: color by the colors dict</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;coefficient&#39;</span><span class="p">],</span> 
+            <span class="n">y_val</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">metadata_column</span><span class="p">],</span> <span class="s1">&#39;gray&#39;</span><span class="p">),</span>  <span class="c1"># &lt;-- Use your color dict</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>  <span class="c1"># You can fix a single marker if desired</span>
+            <span class="n">s</span><span class="o">=</span><span class="n">point_size</span><span class="p">,</span> 
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> 
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Check significance thresholds</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;coefficient&#39;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">threshold</span><span class="p">)):</span>
+            <span class="n">hit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">])</span>
+
+    <span class="c1"># --- Adjust axis limits ---</span>
+    <span class="n">ax_upper</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lims</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lims</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
+
+    <span class="c1"># Hide top spines</span>
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax_upper</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax_upper</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Set x-axis and y-axis labels</span>
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Coefficient&#39;</span><span class="p">)</span>  
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+    <span class="n">ax_upper</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ax_upper</span><span class="p">,</span> <span class="n">ax_lower</span><span class="p">]:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># --- Add threshold lines to both axes ---</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ax_upper</span><span class="p">,</span> <span class="n">ax_lower</span><span class="p">]:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=-</span><span class="nb">abs</span><span class="p">(</span><span class="n">threshold</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="n">threshold</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">0.05</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+    <span class="c1"># --- Annotate significant points ---</span>
+    <span class="n">texts_upper</span><span class="p">,</span> <span class="n">texts_lower</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">merged_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">y_val</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.05</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;coefficient&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">threshold</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_upper</span> <span class="k">if</span> <span class="n">y_val</span> <span class="o">&gt;</span> <span class="n">y_lims</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">ax_lower</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;coefficient&#39;</span><span class="p">],</span>
+            <span class="n">y_val</span><span class="p">,</span>
+            <span class="n">row</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">],</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="n">ax_upper</span><span class="p">:</span>
+            <span class="n">texts_upper</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">texts_lower</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="c1"># Attempt to keep text labels from overlapping</span>
+    <span class="n">adjust_text</span><span class="p">(</span><span class="n">texts_upper</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_upper</span><span class="p">,</span> <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">))</span>
+    <span class="n">adjust_text</span><span class="p">(</span><span class="n">texts_lower</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_lower</span><span class="p">,</span> <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">))</span>
+
+    <span class="c1"># --- Add a legend keyed by color (optional) ---</span>
+    <span class="c1"># If you&#39;d like a legend that shows what each compartment color represents:</span>
+    <span class="n">legend_handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_color</span> <span class="ow">in</span> <span class="n">colors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Create a “dummy” scatter for legend</span>
+        <span class="n">legend_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">comp_color</span><span class="p">,</span> 
+                       <span class="n">label</span><span class="o">=</span><span class="n">comp</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="c1"># You can adjust the location and styling of the legend to taste:</span>
+    <span class="n">ax_lower</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="o">=</span><span class="n">legend_handles</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span>
+        <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+        <span class="n">labelspacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+        <span class="n">markerscale</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+        <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- Save and show ---</span>
+    <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">hit_list</span></div>
+
+
+<div class="viewcode-block" id="go_term_enrichment_by_column">
+<a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.go_term_enrichment_by_column">[docs]</a>
+<span class="k">def</span> <span class="nf">go_term_enrichment_by_column</span><span class="p">(</span><span class="n">significant_df</span><span class="p">,</span> <span class="n">metadata_path</span><span class="p">,</span> <span class="n">go_term_columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Computed GO Processes&#39;</span><span class="p">,</span> <span class="s1">&#39;Curated GO Components&#39;</span><span class="p">,</span> <span class="s1">&#39;Curated GO Functions&#39;</span><span class="p">,</span> <span class="s1">&#39;Curated GO Processes&#39;</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform GO term enrichment analysis for each GO term column and generate plots.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - significant_df: DataFrame containing the significant genes from the screen.</span>
+<span class="sd">    - metadata_path: Path to the metadata file containing GO terms.</span>
+<span class="sd">    - go_term_columns: List of columns in the metadata corresponding to GO terms.</span>
+
+<span class="sd">    For each GO term column, this function will:</span>
+<span class="sd">    - Split the GO terms by semicolons.</span>
+<span class="sd">    - Count the occurrences of GO terms in the hits and in the background.</span>
+<span class="sd">    - Perform Fisher&#39;s exact test for enrichment.</span>
+<span class="sd">    - Plot the enrichment score vs -log10(p-value).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#significant_df[&#39;variable&#39;].fillna(significant_df[&#39;feature&#39;], inplace=True)</span>
+    <span class="c1">#split_columns = significant_df[&#39;variable&#39;].str.split(&#39;_&#39;, expand=True)</span>
+    <span class="c1">#significant_df[&#39;gene_nr&#39;] = split_columns[0]</span>
+    <span class="c1">#gene_list = significant_df[&#39;gene_nr&#39;].to_list()</span>
+
+    <span class="n">significant_df</span> <span class="o">=</span> <span class="n">significant_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;n_gene&#39;</span><span class="p">])</span>
+    <span class="n">significant_df</span> <span class="o">=</span> <span class="n">significant_df</span><span class="p">[</span><span class="n">significant_df</span><span class="p">[</span><span class="s1">&#39;n_gene&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="n">gene_list</span> <span class="o">=</span> <span class="n">significant_df</span><span class="p">[</span><span class="s1">&#39;n_gene&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+    <span class="c1"># Load metadata</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">)</span>
+    <span class="n">split_columns</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;Gene ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Create a subset of metadata with only the rows that contain genes in gene_list (hits)</span>
+    <span class="n">hits_metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;gene_nr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gene_list</span><span class="p">)]</span>
+
+    <span class="c1"># Create a list to hold results from all columns</span>
+    <span class="n">combined_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">go_term_column</span> <span class="ow">in</span> <span class="n">go_term_columns</span><span class="p">:</span>
+        <span class="c1"># Initialize lists to store results</span>
+        <span class="n">go_terms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">enrichment_scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">p_values</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Split the GO terms in the entire metadata and hits</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="n">go_term_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">go_term_column</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">hits_metadata</span><span class="p">[</span><span class="n">go_term_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">hits_metadata</span><span class="p">[</span><span class="n">go_term_column</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="n">all_go_terms</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">go_term_column</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">explode</span><span class="p">()</span>
+        <span class="n">hit_go_terms</span> <span class="o">=</span> <span class="n">hits_metadata</span><span class="p">[</span><span class="n">go_term_column</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">explode</span><span class="p">()</span>
+
+        <span class="c1"># Count occurrences of each GO term in hits and total metadata</span>
+        <span class="n">all_go_term_counts</span> <span class="o">=</span> <span class="n">all_go_terms</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="n">hit_go_term_counts</span> <span class="o">=</span> <span class="n">hit_go_terms</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+
+        <span class="c1"># Perform enrichment analysis for each GO term</span>
+        <span class="k">for</span> <span class="n">go_term</span> <span class="ow">in</span> <span class="n">all_go_term_counts</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">total_with_go_term</span> <span class="o">=</span> <span class="n">all_go_term_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">go_term</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">hits_with_go_term</span> <span class="o">=</span> <span class="n">hit_go_term_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">go_term</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Calculate the total number of genes and hits</span>
+            <span class="n">total_genes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+            <span class="n">total_hits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hits_metadata</span><span class="p">)</span>
+
+            <span class="c1"># Perform Fisher&#39;s exact test</span>
+            <span class="n">contingency_table</span> <span class="o">=</span> <span class="p">[[</span><span class="n">hits_with_go_term</span><span class="p">,</span> <span class="n">total_hits</span> <span class="o">-</span> <span class="n">hits_with_go_term</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">total_with_go_term</span> <span class="o">-</span> <span class="n">hits_with_go_term</span><span class="p">,</span> <span class="n">total_genes</span> <span class="o">-</span> <span class="n">total_hits</span> <span class="o">-</span> <span class="p">(</span><span class="n">total_with_go_term</span> <span class="o">-</span> <span class="n">hits_with_go_term</span><span class="p">)]]</span>
+            
+            <span class="n">_</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">contingency_table</span><span class="p">)</span>
+            
+            <span class="c1"># Calculate enrichment score (hits with GO term / total hits with GO term)</span>
+            <span class="k">if</span> <span class="n">total_with_go_term</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">total_hits</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">enrichment_score</span> <span class="o">=</span> <span class="p">(</span><span class="n">hits_with_go_term</span> <span class="o">/</span> <span class="n">total_hits</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">total_with_go_term</span> <span class="o">/</span> <span class="n">total_genes</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">enrichment_score</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="c1"># Store the results only if enrichment score is non-zero</span>
+            <span class="k">if</span> <span class="n">enrichment_score</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">go_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go_term</span><span class="p">)</span>
+                <span class="n">enrichment_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">enrichment_score</span><span class="p">)</span>
+                <span class="n">p_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_value</span><span class="p">)</span>
+
+        <span class="c1"># Create a results DataFrame for this GO term column</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s1">&#39;GO Term&#39;</span><span class="p">:</span> <span class="n">go_terms</span><span class="p">,</span>
+            <span class="s1">&#39;Enrichment Score&#39;</span><span class="p">:</span> <span class="n">enrichment_scores</span><span class="p">,</span>
+            <span class="s1">&#39;P-value&#39;</span><span class="p">:</span> <span class="n">p_values</span><span class="p">,</span>
+            <span class="s1">&#39;GO Column&#39;</span><span class="p">:</span> <span class="n">go_term_column</span>  <span class="c1"># Track the GO term column for final combined plot</span>
+        <span class="p">})</span>
+
+        <span class="c1"># Sort by enrichment score</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">results_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Append this DataFrame to the combined list</span>
+        <span class="n">combined_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">results_df</span><span class="p">)</span>
+
+        <span class="c1"># Plot the enrichment results for each individual column</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        
+        <span class="c1"># Create a scatter plot of Enrichment Score vs -log10(p-value)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">results_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;P-value&#39;</span><span class="p">]),</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;GO Term&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+        
+        <span class="c1"># Set plot labels and title</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;GO Term Enrichment Analysis for </span><span class="si">{</span><span class="n">go_term_column</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;-log10(P-value)&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Move the legend to the right of the plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+        
+        <span class="c1"># Show the plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>  <span class="c1"># Ensure everything fits in the figure area</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="c1"># Optionally return or save the results for each column</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Results for </span><span class="si">{</span><span class="n">go_term_column</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Combine results from all columns into a single DataFrame</span>
+    <span class="n">combined_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">combined_results</span><span class="p">)</span>
+
+    <span class="c1"># Plot the combined results with text labels</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">combined_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">combined_df</span><span class="p">[</span><span class="s1">&#39;P-value&#39;</span><span class="p">]),</span>
+                    <span class="n">style</span><span class="o">=</span><span class="s1">&#39;GO Column&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+
+    <span class="c1"># Set plot labels and title for the combined graph</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Combined GO Term Enrichment Analysis&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;-log10(P-value)&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Annotate the points with labels and connecting lines</span>
+    <span class="n">texts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">combined_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Enrichment Score&#39;</span><span class="p">],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;P-value&#39;</span><span class="p">]),</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;GO Term&#39;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">))</span>
+    
+    <span class="c1"># Adjust text to avoid overlap</span>
+    <span class="n">adjust_text</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">))</span>
+    
+    <span class="c1"># Show the combined plot</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_gene_phenotypes">
+<a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.plot_gene_phenotypes">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_gene_phenotypes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">gene_list</span><span class="p">,</span> <span class="n">x_column</span><span class="o">=</span><span class="s1">&#39;Gene ID&#39;</span><span class="p">,</span> <span class="n">data_column</span><span class="o">=</span><span class="s1">&#39;T.gondii GT1 CRISPR Phenotype - Mean Phenotype&#39;</span><span class="p">,</span><span class="n">error_column</span><span class="o">=</span><span class="s1">&#39;T.gondii GT1 CRISPR Phenotype - Standard Error&#39;</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a line graph for the mean phenotype with standard error shading and highlighted genes.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        data (pd.DataFrame): The input DataFrame containing gene data.</span>
+<span class="sd">        gene_list (list): A list of gene names to highlight on the plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure x_column is properly processed</span>
+    <span class="k">def</span> <span class="nf">extract_gene_id</span><span class="p">(</span><span class="n">gene</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gene</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">gene</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gene</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">data_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data_column</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">data_column</span><span class="p">])</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">error_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">error_column</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">error_column</span><span class="p">])</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">x_column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">extract_gene_id</span><span class="p">)</span>
+    
+    <span class="c1"># Sort by the data_column and assign ranks</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">data_column</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Prepare the x, y, and error values for plotting</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data_column</span><span class="p">]</span>
+    <span class="n">yerr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">error_column</span><span class="p">]</span>
+
+    <span class="c1"># Create the plot</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+    <span class="c1"># Plot the mean phenotype with standard error shading</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean Phenotype&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">yerr</span><span class="p">,</span> 
+        <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Standard Error&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Prepare for adjustText</span>
+    <span class="n">texts</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Store text objects for adjustment</span>
+
+    <span class="c1"># Highlight the genes in the gene_list</span>
+    <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">gene_list</span><span class="p">:</span>
+        <span class="n">gene_id</span> <span class="o">=</span> <span class="n">extract_gene_id</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span>
+        <span class="n">gene_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gene_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gene_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="c1"># Scatter the highlighted points in purple and add labels for adjustment</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">gene_data</span><span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">],</span> 
+                <span class="n">gene_data</span><span class="p">[</span><span class="n">data_column</span><span class="p">],</span> 
+                <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">55</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span> 
+                <span class="n">s</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Highlighted Gene: </span><span class="si">{</span><span class="n">gene</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span>  <span class="c1"># Ensure the points are on top</span>
+            <span class="p">)</span>
+            <span class="c1"># Add the text label next to the highlighted gene</span>
+            <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="n">gene_data</span><span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                    <span class="n">gene_data</span><span class="p">[</span><span class="n">data_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                    <span class="n">gene</span><span class="p">,</span> 
+                    <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> 
+                    <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Adjust text to avoid overlap with lines drawn from points to text</span>
+    <span class="n">adjust_text</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Label the plot</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Rank&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Mean Phenotype&#39;</span><span class="p">)</span>
+    <span class="c1">#plt.xticks(rotation=90)  # Rotate x-axis labels for readability</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>  <span class="c1"># Remove the legend if not needed</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="c1"># Save the plot if a path is provided</span>
+    <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure saved to </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_gene_heatmaps">
+<a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.plot_gene_heatmaps">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_gene_heatmaps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">gene_list</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">x_column</span><span class="o">=</span><span class="s1">&#39;Gene ID&#39;</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a teal-to-white heatmap with the specified columns and genes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (pd.DataFrame): The input DataFrame containing gene data.</span>
+<span class="sd">        gene_list (list): A list of genes to include in the heatmap.</span>
+<span class="sd">        columns (list): A list of column names to visualize as heatmaps.</span>
+<span class="sd">        normalize (bool): If True, normalize the values for each gene between 0 and 1.</span>
+<span class="sd">        save_path (str): Optional. If provided, the plot will be saved to this path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure x_column is properly processed</span>
+    <span class="k">def</span> <span class="nf">extract_gene_id</span><span class="p">(</span><span class="n">gene</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gene</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">gene</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gene</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">x_column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">extract_gene_id</span><span class="p">)</span>
+
+    <span class="c1"># Filter the data to only include the specified genes</span>
+    <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gene_list</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)[</span><span class="n">columns</span><span class="p">]</span>
+
+    <span class="c1"># Normalize each gene&#39;s values between 0 and 1 if normalize=True</span>
+    <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+        <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Define the figure size dynamically based on the number of genes and columns</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_list</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span>
+
+    <span class="c1"># Create the heatmap</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span> <span class="n">as_cmap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Plot the heatmap with genes on the y-axis and columns on the x-axis</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span>
+        <span class="n">filtered_data</span><span class="p">,</span> 
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> 
+        <span class="n">cbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+        <span class="n">annot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+        <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> 
+        <span class="n">square</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Set the labels</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>  <span class="c1"># Rotate x-axis labels for better readability</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Keep y-axis labels horizontal</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Adjust layout to ensure the plot fits well</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="c1"># Save the plot if a path is provided</span>
+    <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure saved to </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="generate_score_heatmap">
+<a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.generate_score_heatmap">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_score_heatmap</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">group_cv_score</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">plate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="n">data_column</span><span class="o">=</span><span class="s1">&#39;pred&#39;</span><span class="p">):</span>
+        
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;column_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">column</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s1">&#39;column&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column&#39;</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">column</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">plate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;plate</span><span class="si">{</span><span class="n">plate</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">])[</span><span class="n">data_column</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">grouped_df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grouped_df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">grouped_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">grouped_df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grouped_df</span>
+
+    <span class="k">def</span> <span class="nf">calculate_fraction_mixed_condition</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">plate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="n">control_sgrnas</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TGGT1_220950_1&#39;</span><span class="p">,</span> <span class="s1">&#39;TGGT1_233460_4&#39;</span><span class="p">]):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>  
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">column</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;plate</span><span class="si">{</span><span class="n">plate</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;grna_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;^</span><span class="si">{</span><span class="n">control_sgrnas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">$|^</span><span class="si">{</span><span class="n">control_sgrnas</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)]</span>
+        <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">])[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">grouped_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="s1">&#39;total_count&#39;</span><span class="p">})</span>
+        <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">grouped_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">])</span>
+        <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;total_count&#39;</span><span class="p">]</span>
+        <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">merged_df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">merged_df</span>
+
+    <span class="k">def</span> <span class="nf">plot_multi_channel_heatmap</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a heatmap with multiple channels as columns.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - df: DataFrame with scores for different channels.</span>
+<span class="sd">        - column: Column to filter by (default is &#39;c3&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract row number and convert to integer for sorting</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;row_num&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Filter and sort by plate, row, and column</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">column</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;row_num&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Drop temporary &#39;row_num&#39; column after sorting</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;row_num&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create a new column combining plate, row, and column for the index</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plate_row_col&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Set &#39;plate_row_col&#39; as the index</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;plate_row_col&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Extract only numeric data for the heatmap</span>
+        <span class="n">heatmap_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span>
+
+        <span class="c1"># Plot heatmap with square boxes, no annotations, and &#39;viridis&#39; colormap</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span>
+            <span class="n">heatmap_data</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+            <span class="n">cbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">square</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">annot</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Heatmap of Prediction Scores for All Channels&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Channels&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Plate-Row-Column&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="c1"># Save the figure object and return it</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">fig</span>
+
+
+    <span class="k">def</span> <span class="nf">combine_classification_scores</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">,</span> <span class="n">data_column</span><span class="p">,</span> <span class="n">plate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">):</span>
+        <span class="c1"># Ensure `folders` is a list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="n">folders</span><span class="p">]</span>
+
+        <span class="n">ls</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Initialize ls to store found CSV file paths</span>
+
+        <span class="c1"># Iterate over the provided folders</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
+            <span class="n">sub_folders</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>  <span class="c1"># Get sub-folder list</span>
+            <span class="k">for</span> <span class="n">sub_folder</span> <span class="ow">in</span> <span class="n">sub_folders</span><span class="p">:</span>  <span class="c1"># Iterate through sub-folders</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">sub_folder</span><span class="p">)</span>  <span class="c1"># Join the full path</span>
+
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>  <span class="c1"># Check if it’s a directory</span>
+                    <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">)</span>  <span class="c1"># Join path to the CSV file</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv</span><span class="p">):</span>  <span class="c1"># If CSV exists, add to list</span>
+                        <span class="n">ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No such file: </span><span class="si">{</span><span class="n">csv</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Initialize combined DataFrame</span>
+        <span class="n">combined_df</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="si">}</span><span class="s1"> CSV files&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Loop through all collected CSV files and process them</span>
+        <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>  <span class="c1"># Read CSV into DataFrame</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">column</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">plate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;plate</span><span class="si">{</span><span class="n">plate</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># Group the data by &#39;plateID&#39;, &#39;rowID&#39;, and &#39;column_name&#39;</span>
+            <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">])[</span><span class="n">data_column</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="c1"># Use the CSV filename to create a new column name</span>
+            <span class="n">folder_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">new_column_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">data_column</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">new_column_name</span><span class="p">)</span>
+            <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">grouped_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">data_column</span><span class="p">:</span> <span class="n">new_column_name</span><span class="p">})</span>
+
+            <span class="c1"># Merge into the combined DataFrame</span>
+            <span class="k">if</span> <span class="n">combined_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">combined_df</span> <span class="o">=</span> <span class="n">grouped_df</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">combined_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">combined_df</span><span class="p">,</span> <span class="n">grouped_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+        <span class="n">combined_df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined_df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">combined_df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">combined_df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">combined_df</span>
+    
+    <span class="k">def</span> <span class="nf">calculate_mae</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the MAE between each channel&#39;s predictions and the fraction column for all rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract numeric columns excluding &#39;fraction&#39; and &#39;prc&#39;</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;prc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span>
+
+        <span class="n">mae_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Compute MAE for each channel with &#39;fraction&#39; for all rows</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">channels</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                <span class="n">mae</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">]],</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]])</span>
+                <span class="n">mae_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;Channel&#39;</span><span class="p">:</span> <span class="n">column</span><span class="p">,</span> <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span> <span class="s1">&#39;Row&#39;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]})</span>
+
+        <span class="c1"># Convert the list of dictionaries to a DataFrame</span>
+        <span class="n">mae_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">mae_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mae_df</span>
+
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">combine_classification_scores</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;folders&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;csv_name&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;data_column&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">],</span> <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">calculate_fraction_mixed_condition</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;control_sgrnas&#39;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;grna_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;fraction_grna&#39;</span><span class="p">]]</span>
+    <span class="n">fraction_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;prc&#39;</span><span class="p">]]</span>
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fraction_df</span><span class="p">,</span> <span class="n">result_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">])</span>
+    <span class="n">cv_df</span> <span class="o">=</span> <span class="n">group_cv_score</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cv_csv&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;data_column_cv&#39;</span><span class="p">])</span>
+    <span class="n">cv_df</span> <span class="o">=</span> <span class="n">cv_df</span><span class="p">[[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;data_column_cv&#39;</span><span class="p">],</span> <span class="s1">&#39;prc&#39;</span><span class="p">]]</span>
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">merged_df</span><span class="p">,</span> <span class="n">cv_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">])</span>
+    
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_multi_channel_heatmap</span><span class="p">(</span><span class="n">merged_df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s1">&#39;row_number&#39;</span> <span class="ow">in</span> <span class="n">merged_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">merged_df</span> <span class="o">=</span> <span class="n">merged_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;row_num&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mae_df</span> <span class="o">=</span> <span class="n">calculate_mae</span><span class="p">(</span><span class="n">merged_df</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;row_number&#39;</span> <span class="ow">in</span> <span class="n">mae_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">mae_df</span> <span class="o">=</span> <span class="n">mae_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;row_num&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dst&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mae_dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dst&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;mae_scores_comparison_plate_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+        <span class="n">merged_dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dst&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;scores_comparison_plate_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_data.csv&quot;</span><span class="p">)</span>
+        <span class="n">heatmap_save</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dst&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;scores_comparison_plate_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">)</span>
+        <span class="n">mae_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">mae_dst</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">merged_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">merged_dst</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">heatmap_save</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged_df</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
