@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.gui_utils &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="spacr.io" href="../io/index.html" />
+    <link rel="prev" title="spacr.gui_elements" href="../gui_elements/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">spacr</a></li>
+      <li class="breadcrumb-item active">spacr.gui_utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/spacr/gui_utils/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-spacr.gui_utils">
+<span id="spacr-gui-utils"></span><h1>spacr.gui_utils<a class="headerlink" href="#module-spacr.gui_utils" title="Link to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.initialize_cuda">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">initialize_cuda</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#initialize_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.initialize_cuda" title="Link to this definition"></a></dt>
+<dd><p>Initializes CUDA in the main process by performing a simple GPU operation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.set_high_priority">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">set_high_priority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#set_high_priority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.set_high_priority" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.set_cpu_affinity">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">set_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#set_cpu_affinity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.set_cpu_affinity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.proceed_with_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">proceed_with_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#proceed_with_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.proceed_with_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.load_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">load_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#load_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.load_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.parse_list">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">parse_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#parse_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.parse_list" title="Link to this definition"></a></dt>
+<dd><p>Parses a string representation of a list and returns the parsed list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – The string representation of the list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed list, which can contain integers, floats, or strings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the input value is not a valid list format or contains mixed types or unsupported types.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.create_input_field">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">create_input_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'entry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#create_input_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.create_input_field" title="Link to this definition"></a></dt>
+<dd><p>Create an input field in the specified frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>tk.Frame</em>) – The frame in which the input field will be created.</p></li>
+<li><p><strong>label_text</strong> (<em>str</em>) – The text to be displayed as the label for the input field.</p></li>
+<li><p><strong>row</strong> (<em>int</em>) – The row in which the input field will be placed.</p></li>
+<li><p><strong>var_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of input field to create. Defaults to ‘entry’.</p></li>
+<li><p><strong>options</strong> (<em>list</em><em>, </em><em>optional</em>) – The list of options for a combo box input field. Defaults to None.</p></li>
+<li><p><strong>default_value</strong> (<em>str</em><em>, </em><em>optional</em>) – The default value for the input field. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the label, input widget, variable, and custom frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If an error occurs while creating the input field.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.process_stdout_stderr">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">process_stdout_stderr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#process_stdout_stderr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.process_stdout_stderr" title="Link to this definition"></a></dt>
+<dd><p>Redirect stdout and stderr to the queue q.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spacr.gui_utils.WriteToQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">WriteToQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#WriteToQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.WriteToQueue" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">io.TextIOBase</span></code></p>
+<p>A custom file-like class that writes any output to a given queue.
+This can be used to redirect stdout and stderr.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_utils.WriteToQueue.q">
+<span class="sig-name descname"><span class="pre">q</span></span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#WriteToQueue.q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.WriteToQueue.q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_utils.WriteToQueue.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#WriteToQueue.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.WriteToQueue.write" title="Link to this definition"></a></dt>
+<dd><p>Write string to stream.
+Returns the number of characters written (which is always equal to
+the length of the string).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_utils.WriteToQueue.flush">
+<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#WriteToQueue.flush"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.WriteToQueue.flush" title="Link to this definition"></a></dt>
+<dd><p>Flush write buffers, if applicable.</p>
+<p>This is not implemented for read-only and non-blocking streams.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.cancel_after_tasks">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">cancel_after_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#cancel_after_tasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.cancel_after_tasks" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.annotate">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#annotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.annotate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.generate_annotate_fields">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">generate_annotate_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#generate_annotate_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.generate_annotate_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.run_annotate_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">run_annotate_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#run_annotate_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.run_annotate_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="spacr.gui_utils.global_image_refs">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">global_image_refs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#global_image_refs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.global_image_refs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.annotate_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">annotate_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#annotate_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.annotate_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.load_next_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">load_next_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#load_next_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.load_next_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.annotate_with_image_refs">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">annotate_with_image_refs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shutdown_callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#annotate_with_image_refs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.annotate_with_image_refs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.convert_settings_dict_for_gui">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">convert_settings_dict_for_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#convert_settings_dict_for_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.convert_settings_dict_for_gui" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.spacrFigShow">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">spacrFigShow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#spacrFigShow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.spacrFigShow" title="Link to this definition"></a></dt>
+<dd><p>Replacement for plt.show() that queues figures instead of displaying them.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.function_gui_wrapper">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">function_gui_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#function_gui_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.function_gui_wrapper" title="Link to this definition"></a></dt>
+<dd><p>Wraps the run_multiple_simulations function to integrate with GUI processes.</p>
+<p>Parameters:
+- settings: dict, The settings for the run_multiple_simulations function.
+- q: multiprocessing.Queue, Queue for logging messages to the GUI.
+- fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.run_function_gui">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">run_function_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_requested</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#run_function_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.run_function_gui" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.hide_all_settings">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">hide_all_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#hide_all_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.hide_all_settings" title="Link to this definition"></a></dt>
+<dd><p>Function to initially hide all settings in the GUI.</p>
+<p>Parameters:
+- categories: dict, The categories of settings with their corresponding settings.
+- vars_dict: dict, The dictionary containing the settings and their corresponding widgets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.setup_frame">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">setup_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#setup_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.setup_frame" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.download_hug_dataset">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">download_hug_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#download_hug_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.download_hug_dataset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.download_dataset">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">download_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#download_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.download_dataset" title="Link to this definition"></a></dt>
+<dd><p>Downloads a dataset or settings files from Hugging Face and returns the local path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repo_id</strong> (<em>str</em>) – The repository ID (e.g., ‘einarolafsson/toxo_mito’ or ‘einarolafsson/spacr_settings’).</p></li>
+<li><p><strong>subfolder</strong> (<em>str</em>) – The subfolder path within the repository (e.g., ‘plate1’ or the settings subfolder).</p></li>
+<li><p><strong>local_dir</strong> (<em>str</em>) – The local directory where the files will be saved. Defaults to the user’s home directory.</p></li>
+<li><p><strong>retries</strong> (<em>int</em>) – Number of retry attempts in case of failure.</p></li>
+<li><p><strong>delay</strong> (<em>int</em>) – Delay in seconds between retries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local path to the downloaded files.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.ensure_after_tasks">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">ensure_after_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#ensure_after_tasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.ensure_after_tasks" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.display_gif_in_plot_frame">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">display_gif_in_plot_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gif_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#display_gif_in_plot_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.display_gif_in_plot_frame" title="Link to this definition"></a></dt>
+<dd><p>Display and zoom a GIF to fill the entire parent_frame, maintaining aspect ratio, with lazy resizing and caching.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.display_media_in_plot_frame">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">display_media_in_plot_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#display_media_in_plot_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.display_media_in_plot_frame" title="Link to this definition"></a></dt>
+<dd><p>Display an MP4, AVI, or GIF and play it on repeat in the parent_frame, fully filling the frame while maintaining aspect ratio.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.print_widget_structure">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">print_widget_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#print_widget_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.print_widget_structure" title="Link to this definition"></a></dt>
+<dd><p>Recursively print the widget structure.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.get_screen_dimensions">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">get_screen_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#get_screen_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.get_screen_dimensions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui_utils.convert_to_number">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">convert_to_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#convert_to_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.convert_to_number" title="Link to this definition"></a></dt>
+<dd><p>Converts a string value to an integer if possible, otherwise converts to a float.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – The string representation of the number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted number.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int or float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../gui_elements/index.html" class="btn btn-neutral float-left" title="spacr.gui_elements" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../io/index.html" class="btn btn-neutral float-right" title="spacr.io" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

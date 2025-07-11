@@ -110,8 +110,6 @@ Module Contents
 
 .. py:function:: process_console_queue()
 
-.. py:function:: process_console_queue_v2()
-
 .. py:function:: main_thread_update_function(root, q, fig_queue, canvas_widget)
 
 .. py:function:: cleanup_previous_instance()

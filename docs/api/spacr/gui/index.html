@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.gui &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="spacr.gui_core" href="../gui_core/index.html" />
+    <link rel="prev" title="spacr.deep_spacr" href="../deep_spacr/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">spacr</a></li>
+      <li class="breadcrumb-item active">spacr.gui</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/spacr/gui/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-spacr.gui">
+<span id="spacr-gui"></span><h1>spacr.gui<a class="headerlink" href="#module-spacr.gui" title="Link to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spacr.gui.MainApp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui.</span></span><span class="sig-name descname"><span class="pre">MainApp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_app</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Tk</span></code></p>
+<p>Toplevel widget of Tk which represents mostly the main window
+of an application. It has an associated Tcl interpreter.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.color_settings">
+<span class="sig-name descname"><span class="pre">color_settings</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.color_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.color_settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.main_buttons">
+<span class="sig-name descname"><span class="pre">main_buttons</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.main_buttons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.main_buttons" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.additional_buttons">
+<span class="sig-name descname"><span class="pre">additional_buttons</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.additional_buttons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.additional_buttons" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.main_gui_apps">
+<span class="sig-name descname"><span class="pre">main_gui_apps</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.main_gui_apps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.main_gui_apps" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.additional_gui_apps">
+<span class="sig-name descname"><span class="pre">additional_gui_apps</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.additional_gui_apps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.additional_gui_apps" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.selected_app">
+<span class="sig-name descname"><span class="pre">selected_app</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.selected_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.selected_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.create_widgets">
+<span class="sig-name descname"><span class="pre">create_widgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.create_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.create_widgets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.create_startup_screen">
+<span class="sig-name descname"><span class="pre">create_startup_screen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.create_startup_screen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.create_startup_screen" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.update_description">
+<span class="sig-name descname"><span class="pre">update_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.update_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.update_description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.show_description">
+<span class="sig-name descname"><span class="pre">show_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.show_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.show_description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.clear_description">
+<span class="sig-name descname"><span class="pre">clear_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.clear_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.clear_description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.load_app">
+<span class="sig-name descname"><span class="pre">load_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.load_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.load_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui.MainApp.clear_frame">
+<span class="sig-name descname"><span class="pre">clear_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.clear_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.clear_frame" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.gui.gui_app">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui.</span></span><span class="sig-name descname"><span class="pre">gui_app</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#gui_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.gui_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../deep_spacr/index.html" class="btn btn-neutral float-left" title="spacr.deep_spacr" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../gui_core/index.html" class="btn btn-neutral float-right" title="spacr.gui_core" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
