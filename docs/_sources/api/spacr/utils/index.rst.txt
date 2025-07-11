@@ -8,8 +8,12 @@ spacr.utils
 
 
 
+
+
 Module Contents
 ---------------
+
+.. py:data:: spacr_path
 
 .. py:function:: filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
