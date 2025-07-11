@@ -1,0 +1,132 @@
+spacr.gui_core
+==============
+
+.. py:module:: spacr.gui_core
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:data:: q
+   :value: None
+
+
+.. py:data:: console_output
+   :value: None
+
+
+.. py:data:: parent_frame
+   :value: None
+
+
+.. py:data:: vars_dict
+   :value: None
+
+
+.. py:data:: canvas
+   :value: None
+
+
+.. py:data:: canvas_widget
+   :value: None
+
+
+.. py:data:: scrollable_frame
+   :value: None
+
+
+.. py:data:: progress_label
+   :value: None
+
+
+.. py:data:: fig_queue
+   :value: None
+
+
+.. py:data:: figures
+   :value: None
+
+
+.. py:data:: figure_index
+   :value: None
+
+
+.. py:data:: progress_bar
+   :value: None
+
+
+.. py:data:: usage_bars
+   :value: None
+
+
+.. py:data:: index_control
+   :value: None
+
+
+.. py:data:: thread_control
+
+.. py:function:: toggle_settings(button_scrollable_frame)
+
+.. py:function:: display_figure(fig)
+
+.. py:function:: clear_unused_figures()
+
+.. py:function:: show_previous_figure()
+
+.. py:function:: show_next_figure()
+
+.. py:function:: process_fig_queue()
+
+.. py:function:: update_figure(value)
+
+.. py:function:: setup_plot_section(vertical_container, settings_type)
+
+.. py:function:: set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var)
+
+.. py:function:: import_settings(settings_type='mask')
+
+.. py:function:: setup_settings_panel(vertical_container, settings_type='mask')
+
+.. py:function:: setup_console(vertical_container)
+
+.. py:function:: setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True)
+
+.. py:function:: setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
+
+.. py:function:: initiate_abort()
+
+.. py:function:: check_src_folders_files(settings, settings_type, q)
+
+   Checks if 'src' is a key in the settings dictionary and if it exists as a valid path.
+   If 'src' is a list, iterates through the list and checks each path.
+   If any path is missing, prompts the user to edit or remove invalid paths.
+
+
+.. py:function:: start_process(q=None, fig_queue=None, settings_type='mask')
+
+.. py:function:: process_console_queue()
+
+.. py:function:: main_thread_update_function(root, q, fig_queue, canvas_widget)
+
+.. py:function:: cleanup_previous_instance()
+
+   Cleans up resources from the previous application instance.
+
+
+.. py:function:: initiate_root(parent, settings_type='mask')
+
+   Initializes the root window and sets up the GUI components based on the specified settings type.
+
+   :param parent: The parent window for the GUI.
+   :type parent: tkinter.Tk or tkinter.Toplevel
+   :param settings_type: The type of settings to be displayed in the GUI. Defaults to 'mask'.
+   :type settings_type: str, optional
+
+   :returns: A tuple containing the parent frame and the dictionary of variables used in the GUI.
+   :rtype: tuple
+
+

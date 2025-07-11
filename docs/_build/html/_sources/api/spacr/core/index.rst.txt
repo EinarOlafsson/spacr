@@ -1,0 +1,100 @@
+spacr.core
+==========
+
+.. py:module:: spacr.core
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: preprocess_generate_masks(settings)
+
+.. py:function:: generate_cellpose_masks(src, settings, object_type)
+
+.. py:function:: generate_image_umap(settings={})
+
+   Generate UMAP or tSNE embedding and visualize the data with clustering.
+
+   Parameters:
+   settings (dict): Dictionary containing the following keys:
+   src (str): Source directory containing the data.
+   row_limit (int): Limit the number of rows to process.
+   tables (list): List of table names to read from the database.
+   visualize (str): Visualization type.
+   image_nr (int): Number of images to display.
+   dot_size (int): Size of dots in the scatter plot.
+   n_neighbors (int): Number of neighbors for UMAP.
+   figuresize (int): Size of the figure.
+   black_background (bool): Whether to use a black background.
+   remove_image_canvas (bool): Whether to remove the image canvas.
+   plot_outlines (bool): Whether to plot outlines.
+   plot_points (bool): Whether to plot points.
+   smooth_lines (bool): Whether to smooth lines.
+   verbose (bool): Whether to print verbose output.
+   embedding_by_controls (bool): Whether to use embedding from controls.
+   col_to_compare (str): Column to compare for control-based embedding.
+   pos (str): Positive control value.
+   neg (str): Negative control value.
+   clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+   exclude (list): List of columns to exclude from the analysis.
+   plot_images (bool): Whether to plot images.
+   reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+   save_figure (bool): Whether to save the figure as a PDF.
+
+   Returns:
+   pd.DataFrame: DataFrame with the original data and an additional column 'cluster' containing the cluster identity.
+
+
+.. py:function:: reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False)
+
+   Perform a hyperparameter search for UMAP or tSNE on the given data.
+
+   Parameters:
+   settings (dict): Dictionary containing the following keys:
+   src (str): Source directory containing the data.
+   row_limit (int): Limit the number of rows to process.
+   tables (list): List of table names to read from the database.
+   filter_by (str): Column to filter the data.
+   sample_size (int): Number of samples to use for the hyperparameter search.
+   remove_highly_correlated (bool): Whether to remove highly correlated columns.
+   log_data (bool): Whether to log transform the data.
+   verbose (bool): Whether to print verbose output.
+   reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+   reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.
+   dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.
+   kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.
+   pointsize (int): Size of the points in the scatter plot.
+   save (bool): Whether to save the resulting plot as a file.
+
+   Returns:
+   None
+
+
+.. py:function:: generate_screen_graphs(settings)
+
+   Generate screen graphs for different measurements in a given source directory.
+
+   :param src: Path(s) to the source directory or directories.
+   :type src: str or list
+   :param tables: List of tables to include in the analysis (default: ['cell', 'nucleus', 'pathogen', 'cytoplasm']).
+   :type tables: list
+   :param graph_type: Type of graph to generate (default: 'bar').
+   :type graph_type: str
+   :param summary_func: Function to summarize data (default: 'mean').
+   :type summary_func: str or function
+   :param y_axis_start: Starting value for the y-axis (default: 0).
+   :type y_axis_start: float
+   :param error_bar_type: Type of error bar to use ('std' or 'sem') (default: 'std').
+   :type error_bar_type: str
+   :param theme: Theme for the graph (default: 'pastel').
+   :type theme: str
+   :param representation: Representation for grouping (default: 'well').
+   :type representation: str
+
+   :returns: List of generated figures.
+             results (list): List of corresponding result DataFrames.
+   :rtype: figs (list)
+
+

@@ -1,0 +1,1062 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.core &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">gc</span><span class="o">,</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="preprocess_generate_masks">
+<a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.preprocess_generate_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">preprocess_img_data</span><span class="p">,</span> <span class="n">_load_and_concatenate_arrays</span><span class="p">,</span> <span class="n">convert_to_yokogawa</span><span class="p">,</span> <span class="n">convert_separate_files_to_yokogawa</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_image_mask_overlay</span><span class="p">,</span> <span class="n">plot_arrays</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_pivot_counts_table</span><span class="p">,</span> <span class="n">check_mask_folder</span><span class="p">,</span> <span class="n">adjust_cell_masks</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">delete_intermedeate_files</span><span class="p">,</span> <span class="n">format_path_for_system</span><span class="p">,</span> <span class="n">normalize_src_path</span><span class="p">,</span> <span class="n">generate_image_path_map</span><span class="p">,</span> <span class="n">copy_images_to_consolidated</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_settings_preprocess_generate_masks</span>
+        
+    <span class="k">if</span> <span class="s1">&#39;src&#39;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;src must be a string or a list of strings&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;src is a required parameter&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_src_path</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+    
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;consolidate&#39;</span><span class="p">]:</span>
+        <span class="n">image_map</span> <span class="o">=</span> <span class="n">generate_image_path_map</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+        <span class="n">copy_images_to_consolidated</span><span class="p">(</span><span class="n">image_map</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;consolidated&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">source_folders</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">source_folder</span> <span class="ow">in</span> <span class="n">source_folders</span><span class="p">:</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Processing folder: </span><span class="si">{</span><span class="n">source_folder</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            
+            <span class="n">source_folder</span> <span class="o">=</span> <span class="n">format_path_for_system</span><span class="p">(</span><span class="n">source_folder</span><span class="p">)</span>   
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_folder</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">source_folder</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metadata_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;using regex: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">convert_separate_files_to_yokogawa</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">source_folder</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">])</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">convert_to_yokogawa</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">source_folder</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Tried to convert image files and image file name metadata with regex </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> then without regex but failed both.&quot;</span><span class="p">)</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">convert_to_yokogawa</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">source_folder</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Tried to convert image files and image file name metadata without regex but failed.&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="k">return</span>
+            
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: At least one of cell_channel, nucleus_channel or pathogen_channel must be defined&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+            
+            <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;gen_mask_settings&#39;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">custom_model_ls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;toxo_pv_lumen&#39;</span><span class="p">,</span><span class="s1">&#39;toxo_cyto&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_model&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">custom_model_ls</span><span class="p">:</span>
+                    <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pathogen model must be </span><span class="si">{</span><span class="n">custom_model_ls</span><span class="si">}</span><span class="s1"> or None&#39;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;randomize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;preprocess&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;masks&#39;</span><span class="p">]:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: channels for mask generation are defined when preprocess = True&#39;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span>
+
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
+                <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;setting_key&#39;</span><span class="p">,</span> <span class="s1">&#39;setting_value&#39;</span><span class="p">])</span>
+                <span class="n">settings_df</span><span class="p">[</span><span class="s1">&#39;setting_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings_df</span><span class="p">[</span><span class="s1">&#39;setting_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="n">display</span><span class="p">(</span><span class="n">settings_df</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Starting Test mode ...&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;preprocess&#39;</span><span class="p">]:</span>
+                <span class="n">settings</span><span class="p">,</span> <span class="n">src</span> <span class="o">=</span> <span class="n">preprocess_img_data</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+            <span class="n">files_to_process</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">files_processed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;masks&#39;</span><span class="p">]:</span>
+                <span class="n">mask_src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;masks&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">time_ls</span><span class="o">=</span><span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">check_mask_folder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;cell_mask_stack&#39;</span><span class="p">):</span>
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">generate_cellpose_masks</span><span class="p">(</span><span class="n">mask_src</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">)</span>
+                        <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+                        <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+                        <span class="n">files_processed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;cell_mask_gen&#39;</span><span class="p">)</span>
+                    
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">time_ls</span><span class="o">=</span><span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">check_mask_folder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;nucleus_mask_stack&#39;</span><span class="p">):</span>
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">generate_cellpose_masks</span><span class="p">(</span><span class="n">mask_src</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">)</span>
+                        <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+                        <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+                        <span class="n">files_processed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;nucleus_mask_gen&#39;</span><span class="p">)</span>
+                    
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">time_ls</span><span class="o">=</span><span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">check_mask_folder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;pathogen_mask_stack&#39;</span><span class="p">):</span>
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">generate_cellpose_masks</span><span class="p">(</span><span class="n">mask_src</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">)</span>
+                        <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+                        <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+                        <span class="n">files_processed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;pathogen_mask_gen&#39;</span><span class="p">)</span>
+
+                <span class="c1">#if settings[&#39;organelle&#39;] != None:</span>
+                <span class="c1">#    if check_mask_folder(src, &#39;organelle_mask_stack&#39;):</span>
+                <span class="c1">#        generate_cellpose_masks(mask_src, settings, &#39;organelle&#39;)</span>
+
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;adjust_cells&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">cell_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_src</span><span class="p">,</span> <span class="s1">&#39;cell_mask_stack&#39;</span><span class="p">)</span>
+                        <span class="n">nuclei_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_src</span><span class="p">,</span> <span class="s1">&#39;nucleus_mask_stack&#39;</span><span class="p">)</span>
+                        <span class="n">parasite_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mask_src</span><span class="p">,</span> <span class="s1">&#39;pathogen_mask_stack&#39;</span><span class="p">)</span>
+                        <span class="c1">#organelle_folder = os.path.join(mask_src, &#39;organelle_mask_stack&#39;)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Adjusting cell masks with nuclei and pathogen masks&#39;</span><span class="p">)</span>
+                        <span class="n">adjust_cell_masks</span><span class="p">(</span><span class="n">parasite_folder</span><span class="p">,</span> <span class="n">cell_folder</span><span class="p">,</span> <span class="n">nuclei_folder</span><span class="p">,</span> <span class="n">overlap_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">perimeter_threshold</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+                        <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">adjust_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="mi">60</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cell mask adjustment: </span><span class="si">{</span><span class="n">adjust_time</span><span class="si">}</span><span class="s1"> min.&#39;</span><span class="p">)</span>
+                    
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;measurements&#39;</span><span class="p">)):</span>
+                    <span class="n">_pivot_counts_table</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;measurements&#39;</span><span class="p">,</span> <span class="s1">&#39;measurements.db&#39;</span><span class="p">))</span>
+
+                <span class="c1">#Concatenate stack with masks</span>
+                <span class="n">_load_and_concatenate_arrays</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">])</span>
+                
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test_mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;examples_to_plot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;merged&#39;</span><span class="p">))</span>
+
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">merged_src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;merged&#39;</span><span class="p">)</span>
+                            <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">merged_src</span><span class="p">)</span>
+                            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+                            <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>
+                            
+                            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+                                <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                                <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;examples_to_plot&#39;</span><span class="p">]:</span>
+                                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">merged_src</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                                    <span class="n">plot_image_mask_overlay</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">],</span> <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">99</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                    <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                                    <span class="n">duration</span> <span class="o">=</span> <span class="n">stop</span><span class="o">-</span><span class="n">start</span>
+                                    <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+                                    <span class="n">files_processed</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+                                    <span class="n">files_to_process</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;examples_to_plot&#39;</span><span class="p">]</span>
+                                    <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;Plot mask outlines&quot;</span><span class="p">)</span>
+                                    
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to plot image mask overly. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">plot_arrays</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;merged&#39;</span><span class="p">),</span> <span class="n">figuresize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">],</span> <span class="n">nr</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;examples_to_plot&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;normalize&#39;</span><span class="p">],</span> <span class="n">q1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">q2</span><span class="o">=</span><span class="mi">99</span><span class="p">)</span>
+                    
+            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;delete_intermediate&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;deleting intermediate files&quot;</span><span class="p">)</span>
+                <span class="n">delete_intermedeate_files</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully completed run&quot;</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="generate_cellpose_masks">
+<a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.generate_cellpose_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_cellpose_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+    
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_masks_to_masks_stack</span><span class="p">,</span> <span class="n">_filter_cp_masks</span><span class="p">,</span> <span class="n">_get_cellpose_batch_size</span><span class="p">,</span> <span class="n">_get_cellpose_channels</span><span class="p">,</span> <span class="n">_choose_model</span><span class="p">,</span> <span class="n">all_elements_match</span><span class="p">,</span> <span class="n">prepare_batch_for_segmentation</span>
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span><span class="p">,</span> <span class="n">_save_object_counts_to_database</span><span class="p">,</span> <span class="n">_check_masks</span><span class="p">,</span> <span class="n">_get_avg_object_size</span>
+    <span class="kn">from</span> <span class="nn">.timelapse</span> <span class="kn">import</span> <span class="n">_npz_to_movie</span><span class="p">,</span> <span class="n">_btrack_track_cells</span><span class="p">,</span> <span class="n">_trackpy_track_cells</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_cellpose4_output</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">_get_object_settings</span>
+    <span class="kn">from</span> <span class="nn">.spacr_cellpose</span> <span class="kn">import</span> <span class="n">parse_cellpose4_output</span>
+    
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Torch CUDA is not available, using CPU&#39;</span><span class="p">)</span>
+        
+    <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span>
+    
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
+        <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;setting_key&#39;</span><span class="p">,</span> <span class="s1">&#39;setting_value&#39;</span><span class="p">])</span>
+        <span class="n">settings_df</span><span class="p">[</span><span class="s1">&#39;setting_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings_df</span><span class="p">[</span><span class="s1">&#39;setting_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">settings_df</span><span class="p">)</span>
+        
+    <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span>
+    <span class="n">timelapse</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">timelapse</span><span class="p">:</span>
+        <span class="n">timelapse_displacement</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_displacement&#39;</span><span class="p">]</span>
+        <span class="n">timelapse_frame_limits</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_frame_limits&#39;</span><span class="p">]</span>
+        <span class="n">timelapse_memory</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_memory&#39;</span><span class="p">]</span>
+        <span class="n">timelapse_remove_transient</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_remove_transient&#39;</span><span class="p">]</span>
+        <span class="n">timelapse_mode</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_mode&#39;</span><span class="p">]</span>
+        <span class="n">timelapse_objects</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">]</span>
+    
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+    
+    <span class="n">cellprob_threshold</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_CP_prob&#39;</span><span class="p">]</span>
+
+    <span class="n">flow_threshold</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_FT&#39;</span><span class="p">]</span>
+
+    <span class="n">object_settings</span> <span class="o">=</span> <span class="n">_get_object_settings</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+    
+    <span class="n">model_name</span> <span class="o">=</span> <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span>
+    
+    <span class="n">cellpose_channels</span> <span class="o">=</span> <span class="n">_get_cellpose_channels</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nucleus_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_channel&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cell_channel&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cellpose_channels</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">object_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cellpose_channels</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: No channels were specified for object_type &#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s2">&#39;. Check your settings.&quot;</span><span class="p">)</span>
+    <span class="n">channels</span> <span class="o">=</span> <span class="n">cellpose_channels</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
+
+    <span class="c1">#cellpose_batch_size = _get_cellpose_batch_size()</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">object_type</span> <span class="o">==</span> <span class="s1">&#39;pathogen&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_model&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_model&#39;</span><span class="p">]</span>
+    
+    <span class="n">model</span> <span class="o">=</span> <span class="n">_choose_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span> <span class="n">restore_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">object_settings</span><span class="o">=</span><span class="n">object_settings</span><span class="p">)</span>
+
+    <span class="c1">#chans = [2, 1] if model_name == &#39;cyto2&#39; else [0,0] if model_name == &#39;nucleus&#39; else [2,0] if model_name == &#39;cyto&#39; else [2, 0] if model_name == &#39;cyto3&#39; else [2, 0]</span>
+    
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.npz&#39;</span><span class="p">)]</span>    
+    
+    <span class="n">count_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;/measurements/measurements.db&#39;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;/measurements&#39;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">_create_database</span><span class="p">(</span><span class="n">count_loc</span><span class="p">)</span>
+    
+    <span class="n">average_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">average_count</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">output_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">object_type</span><span class="o">+</span><span class="s1">&#39;_mask_stack&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">overall_average_size</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+            <span class="n">filenames</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;filenames&#39;</span><span class="p">]</span>
+            
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> already exists in the output folder. Skipping...&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+        
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse&#39;</span><span class="p">]:</span>
+
+            <span class="n">trackable_objects</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span><span class="s1">&#39;nucleus&#39;</span><span class="p">,</span><span class="s1">&#39;pathogen&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_elements_match</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_objects&#39;</span><span class="p">],</span> <span class="n">trackable_objects</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timelapse_objects </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;timelapse_objects&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> must be a subset of </span><span class="si">{</span><span class="n">trackable_objects</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">!=</span> <span class="n">batch_size</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Changed batch_size:</span><span class="si">{</span><span class="n">batch_size</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="si">}</span><span class="s1">, data length:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;timelapse_batch_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
+                <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timelapse_frame_limits</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">timelapse_frame_limits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="n">timelapse_frame_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">timelapse_frame_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                        <span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">[</span><span class="n">timelapse_frame_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">timelapse_frame_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cut batch at indecies: </span><span class="si">{</span><span class="n">timelapse_frame_limits</span><span class="si">}</span><span class="s1">, New batch_size: </span><span class="si">{</span><span class="n">batch_size</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stack</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">mask_stack</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">stack</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">+</span><span class="n">batch_size</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">+</span><span class="n">batch_size</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">channels</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+            <span class="n">batch_filenames</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">[</span><span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">+</span><span class="n">batch_size</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]:</span>
+                <span class="n">batch</span><span class="p">,</span> <span class="n">batch_filenames</span> <span class="o">=</span> <span class="n">_check_masks</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">batch</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">prepare_batch_for_segmentation</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">batch_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+
+            <span class="k">if</span> <span class="n">timelapse</span><span class="p">:</span>
+                <span class="n">movie_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="s1">&#39;movies&#39;</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">movie_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">movie_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;timelapse_</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.mp4&#39;</span><span class="p">)</span>
+                <span class="n">_npz_to_movie</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                        
+            <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">batch_list</span><span class="p">,</span>
+                                <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+                                <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">channel_axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                                <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+                                <span class="n">diameter</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">],</span>
+                                <span class="n">flow_threshold</span><span class="o">=</span><span class="n">flow_threshold</span><span class="p">,</span>
+                                <span class="n">cellprob_threshold</span><span class="o">=</span><span class="n">cellprob_threshold</span><span class="p">,</span>
+                                <span class="n">rescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">resample</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;resample&#39;</span><span class="p">])</span>
+                        
+            <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parse_cellpose4_output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">timelapse</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]:</span>
+                    <span class="n">plot_cellpose4_output</span><span class="p">(</span><span class="n">batch_list</span><span class="p">,</span> <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;inferno&#39;</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="n">figuresize</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">print_object_number</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">_save_object_counts_to_database</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">count_loc</span><span class="p">,</span> <span class="n">added_string</span><span class="o">=</span><span class="s1">&#39;_timelapse&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">object_type</span> <span class="ow">in</span> <span class="n">timelapse_objects</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">timelapse_mode</span> <span class="o">==</span> <span class="s1">&#39;btrack&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">timelapse_displacement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">radius</span> <span class="o">=</span> <span class="n">timelapse_displacement</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">radius</span> <span class="o">=</span> <span class="mi">100</span>
+
+                        <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span>
+                        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">n_jobs</span> <span class="o">=</span> <span class="mi">1</span>
+
+                        <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_btrack_track_cells</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span>
+                                                         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                                                         <span class="n">batch_filenames</span><span class="o">=</span><span class="n">batch_filenames</span><span class="p">,</span>
+                                                         <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span>
+                                                         <span class="n">plot</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">],</span>
+                                                         <span class="n">save</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">],</span>
+                                                         <span class="n">masks_3D</span><span class="o">=</span><span class="n">masks</span><span class="p">,</span>
+                                                         <span class="n">mode</span><span class="o">=</span><span class="n">timelapse_mode</span><span class="p">,</span>
+                                                         <span class="n">timelapse_remove_transient</span><span class="o">=</span><span class="n">timelapse_remove_transient</span><span class="p">,</span>
+                                                         <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+                                                         <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">timelapse_mode</span> <span class="o">==</span> <span class="s1">&#39;trackpy&#39;</span> <span class="ow">or</span> <span class="n">timelapse_mode</span> <span class="o">==</span> <span class="s1">&#39;iou&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">timelapse_mode</span> <span class="o">==</span> <span class="s1">&#39;iou&#39;</span><span class="p">:</span>
+                            <span class="n">track_by_iou</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">track_by_iou</span> <span class="o">=</span> <span class="kc">False</span>
+                        
+                        <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_trackpy_track_cells</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span>
+                                                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                                                          <span class="n">batch_filenames</span><span class="o">=</span><span class="n">batch_filenames</span><span class="p">,</span>
+                                                          <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span>
+                                                          <span class="n">masks</span><span class="o">=</span><span class="n">masks</span><span class="p">,</span>
+                                                          <span class="n">timelapse_displacement</span><span class="o">=</span><span class="n">timelapse_displacement</span><span class="p">,</span>
+                                                          <span class="n">timelapse_memory</span><span class="o">=</span><span class="n">timelapse_memory</span><span class="p">,</span>
+                                                          <span class="n">timelapse_remove_transient</span><span class="o">=</span><span class="n">timelapse_remove_transient</span><span class="p">,</span>
+                                                          <span class="n">plot</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">],</span>
+                                                          <span class="n">save</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">],</span>
+                                                          <span class="n">mode</span><span class="o">=</span><span class="n">timelapse_mode</span><span class="p">,</span>
+                                                          <span class="n">track_by_iou</span><span class="o">=</span><span class="n">track_by_iou</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_masks_to_masks_stack</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_save_object_counts_to_database</span><span class="p">(</span><span class="n">masks</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">count_loc</span><span class="p">,</span> <span class="n">added_string</span><span class="o">=</span><span class="s1">&#39;_before_filtration&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;merge&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]:</span>
+                    <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_filter_cp_masks</span><span class="p">(</span><span class="n">masks</span><span class="o">=</span><span class="n">masks</span><span class="p">,</span>
+                                                <span class="n">flows</span><span class="o">=</span><span class="n">flows</span><span class="p">,</span>
+                                                <span class="n">filter_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                <span class="n">filter_intensity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                <span class="n">minimum_size</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;minimum_size&#39;</span><span class="p">],</span>
+                                                <span class="n">maximum_size</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;maximum_size&#39;</span><span class="p">],</span>
+                                                <span class="n">remove_border_objects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                <span class="n">merge</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;merge&#39;</span><span class="p">],</span>
+                                                <span class="n">batch</span><span class="o">=</span><span class="n">batch</span><span class="p">,</span>
+                                                <span class="n">plot</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">],</span>
+                                                <span class="n">figuresize</span><span class="o">=</span><span class="n">figuresize</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]:</span>
+                    <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_filter_cp_masks</span><span class="p">(</span><span class="n">masks</span><span class="o">=</span><span class="n">masks</span><span class="p">,</span>
+                                                <span class="n">flows</span><span class="o">=</span><span class="n">flows</span><span class="p">,</span>
+                                                <span class="n">filter_size</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;filter_size&#39;</span><span class="p">],</span>
+                                                <span class="n">filter_intensity</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;filter_intensity&#39;</span><span class="p">],</span>
+                                                <span class="n">minimum_size</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;minimum_size&#39;</span><span class="p">],</span>
+                                                <span class="n">maximum_size</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;maximum_size&#39;</span><span class="p">],</span>
+                                                <span class="n">remove_border_objects</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;remove_border_objects&#39;</span><span class="p">],</span>
+                                                <span class="n">merge</span><span class="o">=</span><span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;merge&#39;</span><span class="p">],</span>
+                                                <span class="n">batch</span><span class="o">=</span><span class="n">batch</span><span class="p">,</span>
+                                                <span class="n">plot</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">],</span>
+                                                <span class="n">figuresize</span><span class="o">=</span><span class="n">figuresize</span><span class="p">)</span>
+                    
+                    <span class="n">_save_object_counts_to_database</span><span class="p">(</span><span class="n">mask_stack</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">,</span> <span class="n">count_loc</span><span class="p">,</span> <span class="n">added_string</span><span class="o">=</span><span class="s1">&#39;_after_filtration&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mask_stack</span> <span class="o">=</span> <span class="n">_masks_to_masks_stack</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+
+                    <span class="c1">#if settings[&#39;plot&#39;]:</span>
+                    <span class="c1">#    plot_cellpose4_output(batch_list, masks, flows, cmap=&#39;inferno&#39;, figuresize=figuresize, nr=1, print_object_number=True)</span>
+        
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask_stack</span><span class="p">):</span>
+                <span class="n">avg_num_objects_per_image</span><span class="p">,</span> <span class="n">average_obj_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">avg_num_objects_per_image</span><span class="p">,</span> <span class="n">average_obj_size</span> <span class="o">=</span> <span class="n">_get_avg_object_size</span><span class="p">(</span><span class="n">mask_stack</span><span class="p">)</span>
+            
+            <span class="n">average_count</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avg_num_objects_per_image</span><span class="p">)</span>
+            <span class="n">average_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">average_obj_size</span><span class="p">)</span> 
+            <span class="n">overall_average_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">average_sizes</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">average_sizes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">overall_average_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">average_count</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">average_count</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="n">overall_average_count</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s1">/FOV. average size: </span><span class="si">{</span><span class="n">overall_average_size</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> px2&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">timelapse</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">]:</span>
+                <span class="n">plot_cellpose4_output</span><span class="p">(</span><span class="n">batch_list</span><span class="p">,</span> <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;inferno&#39;</span><span class="p">,</span> <span class="n">figuresize</span><span class="o">=</span><span class="n">figuresize</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">mask_index</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_stack</span><span class="p">):</span>
+                <span class="n">output_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">batch_filenames</span><span class="p">[</span><span class="n">mask_index</span><span class="p">])</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+            <span class="n">mask_stack</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">batch_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="generate_image_umap">
+<a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.generate_image_umap">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_image_umap</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate UMAP or tSNE embedding and visualize the data with clustering.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    settings (dict): Dictionary containing the following keys:</span>
+<span class="sd">    src (str): Source directory containing the data.</span>
+<span class="sd">    row_limit (int): Limit the number of rows to process.</span>
+<span class="sd">    tables (list): List of table names to read from the database.</span>
+<span class="sd">    visualize (str): Visualization type.</span>
+<span class="sd">    image_nr (int): Number of images to display.</span>
+<span class="sd">    dot_size (int): Size of dots in the scatter plot.</span>
+<span class="sd">    n_neighbors (int): Number of neighbors for UMAP.</span>
+<span class="sd">    figuresize (int): Size of the figure.</span>
+<span class="sd">    black_background (bool): Whether to use a black background.</span>
+<span class="sd">    remove_image_canvas (bool): Whether to remove the image canvas.</span>
+<span class="sd">    plot_outlines (bool): Whether to plot outlines.</span>
+<span class="sd">    plot_points (bool): Whether to plot points.</span>
+<span class="sd">    smooth_lines (bool): Whether to smooth lines.</span>
+<span class="sd">    verbose (bool): Whether to print verbose output.</span>
+<span class="sd">    embedding_by_controls (bool): Whether to use embedding from controls.</span>
+<span class="sd">    col_to_compare (str): Column to compare for control-based embedding.</span>
+<span class="sd">    pos (str): Positive control value.</span>
+<span class="sd">    neg (str): Negative control value.</span>
+<span class="sd">    clustering (str): Clustering method (&#39;DBSCAN&#39; or &#39;KMeans&#39;).</span>
+<span class="sd">    exclude (list): List of columns to exclude from the analysis.</span>
+<span class="sd">    plot_images (bool): Whether to plot images.</span>
+<span class="sd">    reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
+<span class="sd">    save_figure (bool): Whether to save the figure as a PDF.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    pd.DataFrame: DataFrame with the original data and an additional column &#39;cluster&#39; containing the cluster identity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+ 
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_join_tables</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_db_paths</span><span class="p">,</span> <span class="n">preprocess_data</span><span class="p">,</span> <span class="n">reduction_and_clustering</span><span class="p">,</span> <span class="n">remove_noise</span><span class="p">,</span> <span class="n">generate_colors</span><span class="p">,</span> <span class="n">correct_paths</span><span class="p">,</span> <span class="n">plot_embedding</span><span class="p">,</span> <span class="n">plot_clusters_grid</span><span class="p">,</span> <span class="n">cluster_feature_analysis</span><span class="p">,</span> <span class="n">map_condition</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_umap_image_settings</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]]</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_images&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;black_background&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]:</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_cluster_noise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_outlines&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;smooth_lines&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generating Image UMAP ...&#39;</span><span class="p">)</span>
+    <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
+    <span class="n">settings_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="s1">&#39;settings&#39;</span><span class="p">)</span>
+    <span class="n">settings_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings_dir</span><span class="p">,</span><span class="s1">&#39;embedding_settings.csv&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">settings_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">settings_df</span><span class="p">)</span>
+
+    <span class="n">db_paths</span> <span class="o">=</span> <span class="n">get_db_paths</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;tables&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;png_list&#39;</span><span class="p">]</span>
+    <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">db_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">db_paths</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">_read_and_join_tables</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">table_names</span><span class="o">=</span><span class="n">tables</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">image_paths_tmp</span> <span class="o">=</span> <span class="n">correct_paths</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1">#image_paths.extend(image_paths_tmp)</span>
+        
+    <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">map_condition</span><span class="p">,</span> <span class="n">neg</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;neg&#39;</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">],</span> <span class="n">mix</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mix&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]]</span>
+        <span class="n">row_count_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="o">~</span><span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cond&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">])]</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Excluded </span><span class="si">{</span><span class="n">row_count_before</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> rows after excluding: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;exclude_conditions&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, rows left: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;row_limit&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">all_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;row_limit&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+    <span class="n">image_paths</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;embedding_by_controls&#39;</span><span class="p">]:</span>
+        
+        <span class="c1"># Extract and reset the index for the column to compare</span>
+        <span class="n">col_to_compare</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">col_to_compare</span><span class="p">)</span>
+        <span class="c1">#if settings[&#39;only_top_features&#39;]:</span>
+        <span class="c1">#    column_list = None</span>
+            
+        <span class="c1"># Preprocess the data to obtain numeric data</span>
+        <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_by&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_highly_correlated&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;log_data&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Convert numeric_data back to a DataFrame to align with col_to_compare</span>
+        <span class="n">numeric_data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">)</span>
+
+        <span class="c1"># Ensure numeric_data_df and col_to_compare are properly aligned</span>
+        <span class="n">numeric_data_df</span> <span class="o">=</span> <span class="n">numeric_data_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Assign the column back to numeric_data_df</span>
+        <span class="n">numeric_data_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">col_to_compare</span>
+
+        <span class="c1"># Subset the dataframe based on specified column values for controls</span>
+        <span class="n">positive_control_df</span> <span class="o">=</span> <span class="n">numeric_data_df</span><span class="p">[</span><span class="n">numeric_data_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]]</span> <span class="o">==</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">negative_control_df</span> <span class="o">=</span> <span class="n">numeric_data_df</span><span class="p">[</span><span class="n">numeric_data_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]]</span> <span class="o">==</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;neg&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">control_numeric_data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">positive_control_df</span><span class="p">,</span> <span class="n">negative_control_df</span><span class="p">])</span>
+
+        <span class="c1"># Drop the comparison column from numeric_data_df and control_numeric_data_df</span>
+        <span class="n">numeric_data_df</span> <span class="o">=</span> <span class="n">numeric_data_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]])</span>
+        <span class="n">control_numeric_data_df</span> <span class="o">=</span> <span class="n">control_numeric_data_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;col_to_compare&#39;</span><span class="p">]])</span>
+
+        <span class="c1"># Convert numeric_data_df and control_numeric_data_df back to numpy arrays</span>
+        <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">numeric_data_df</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">control_numeric_data</span> <span class="o">=</span> <span class="n">control_numeric_data_df</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># Train the reducer on control data</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">reducer</span> <span class="o">=</span> <span class="n">reduction_and_clustering</span><span class="p">(</span><span class="n">control_numeric_data</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;min_dist&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;eps&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;min_samples&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;clustering&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="c1"># Apply the trained reducer to the entire dataset</span>
+        <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_by&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_highly_correlated&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;log_data&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude&#39;</span><span class="p">])</span>
+        <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reduction_and_clustering</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;min_dist&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;eps&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;min_samples&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;clustering&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;resnet_features&#39;</span><span class="p">]:</span>
+            <span class="c1"># placeholder for resnet features, not implemented yet</span>
+            <span class="k">pass</span>
+            <span class="c1">#numeric_data, embedding, labels = generate_umap_from_images(image_paths, settings[&#39;n_neighbors&#39;], settings[&#39;min_dist&#39;], settings[&#39;metric&#39;], settings[&#39;clustering&#39;], settings[&#39;eps&#39;], settings[&#39;min_samples&#39;], settings[&#39;n_jobs&#39;], settings[&#39;verbose&#39;])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Apply the trained reducer to the entire dataset</span>
+            <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_by&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_highly_correlated&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;log_data&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude&#39;</span><span class="p">])</span>
+            <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reduction_and_clustering</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;min_dist&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;eps&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;min_samples&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;clustering&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+    
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_cluster_noise&#39;</span><span class="p">]:</span>
+        <span class="c1"># Remove noise from the clusters (removes -1 labels from DBSCAN)</span>
+        <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">remove_noise</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+    <span class="c1"># Plot the results</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;embedding_by_controls&#39;</span><span class="p">]:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]]</span>
+    
+    <span class="c1"># Generate colors for the clusters</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">generate_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)),</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;black_background&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Plot the embedding</span>
+    <span class="n">umap_plt</span> <span class="o">=</span> <span class="n">plot_embedding</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">image_paths</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_nr&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;img_zoom&#39;</span><span class="p">],</span> <span class="n">colors</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_by_cluster&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_outlines&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_points&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_images&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;smooth_lines&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;black_background&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dot_size&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_image_canvas&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_cluster_grids&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_images&#39;</span><span class="p">]:</span>
+        <span class="n">grid_plt</span> <span class="o">=</span> <span class="n">plot_clusters_grid</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;image_nr&#39;</span><span class="p">],</span> <span class="n">image_paths</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;black_background&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">])</span>
+    
+    <span class="c1"># Save figure as PDF if required</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save_figure&#39;</span><span class="p">]:</span>
+        <span class="n">results_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">reduction_method</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">embedding_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">reduction_method</span><span class="si">}</span><span class="s1">_embedding.pdf&#39;</span><span class="p">)</span>
+        <span class="n">umap_plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">embedding_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved </span><span class="si">{</span><span class="n">reduction_method</span><span class="si">}</span><span class="s1"> embedding to </span><span class="si">{</span><span class="n">embedding_path</span><span class="si">}</span><span class="s1"> and grid to </span><span class="si">{</span><span class="n">embedding_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_cluster_grids&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;plot_images&#39;</span><span class="p">]:</span>
+            <span class="n">grid_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">reduction_method</span><span class="si">}</span><span class="s1">_grid.pdf&#39;</span><span class="p">)</span>
+            <span class="n">grid_plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">grid_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved </span><span class="si">{</span><span class="n">reduction_method</span><span class="si">}</span><span class="s1"> embedding to </span><span class="si">{</span><span class="n">embedding_path</span><span class="si">}</span><span class="s1"> and grid to </span><span class="si">{</span><span class="n">grid_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add cluster labels to the dataframe</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Assign a default cluster label</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No clusters found. Consider reducing &#39;min_samples&#39; or increasing &#39;eps&#39; for DBSCAN.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save the results to a CSV file</span>
+    <span class="n">results_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+    <span class="n">results_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span><span class="s1">&#39;embedding_results.csv&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">all_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">results_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Results saved to </span><span class="si">{</span><span class="n">results_csv</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;analyze_clusters&#39;</span><span class="p">]:</span>
+        <span class="n">combined_results</span> <span class="o">=</span> <span class="n">cluster_feature_analysis</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span>
+        <span class="n">results_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+        <span class="n">cluster_results_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span><span class="s1">&#39;cluster_results.csv&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">combined_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">cluster_results_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cluster results saved to </span><span class="si">{</span><span class="n">cluster_results_csv</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">all_df</span></div>
+
+
+<div class="viewcode-block" id="reducer_hyperparameter_search">
+<a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.reducer_hyperparameter_search">[docs]</a>
+<span class="k">def</span> <span class="nf">reducer_hyperparameter_search</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{},</span> <span class="n">reduction_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbscan_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmeans_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a hyperparameter search for UMAP or tSNE on the given data.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    settings (dict): Dictionary containing the following keys:</span>
+<span class="sd">    src (str): Source directory containing the data.</span>
+<span class="sd">    row_limit (int): Limit the number of rows to process.</span>
+<span class="sd">    tables (list): List of table names to read from the database.</span>
+<span class="sd">    filter_by (str): Column to filter the data.</span>
+<span class="sd">    sample_size (int): Number of samples to use for the hyperparameter search.</span>
+<span class="sd">    remove_highly_correlated (bool): Whether to remove highly correlated columns.</span>
+<span class="sd">    log_data (bool): Whether to log transform the data.</span>
+<span class="sd">    verbose (bool): Whether to print verbose output.</span>
+<span class="sd">    reduction_method (str): Dimensionality reduction method (&#39;UMAP&#39; or &#39;tSNE&#39;).</span>
+<span class="sd">    reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.</span>
+<span class="sd">    dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.</span>
+<span class="sd">    kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.</span>
+<span class="sd">    pointsize (int): Size of the points in the scatter plot.</span>
+<span class="sd">    save (bool): Whether to save the resulting plot as a file.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_join_tables</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_db_paths</span><span class="p">,</span> <span class="n">preprocess_data</span><span class="p">,</span> <span class="n">search_reduction_and_clustering</span><span class="p">,</span> <span class="n">generate_colors</span><span class="p">,</span> <span class="n">map_condition</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_umap_image_settings</span>
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+    <span class="n">pointsize</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dot_size&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dbscan_params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">dbscan_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">dbscan_params</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kmeans_params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">kmeans_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">kmeans_params</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reduction_params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">reduction_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">reduction_params</span><span class="p">]</span>
+
+    <span class="c1"># Determine reduction method based on the keys in reduction_param</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s1">&#39;n_neighbors&#39;</span> <span class="ow">in</span> <span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">reduction_params</span><span class="p">):</span>
+        <span class="n">reduction_method</span> <span class="o">=</span> <span class="s1">&#39;umap&#39;</span>
+    <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="s1">&#39;perplexity&#39;</span> <span class="ow">in</span> <span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">reduction_params</span><span class="p">):</span>
+        <span class="n">reduction_method</span> <span class="o">=</span> <span class="s1">&#39;tsne&#39;</span>
+    <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="s1">&#39;perplexity&#39;</span> <span class="ow">in</span> <span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">reduction_params</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="s1">&#39;n_neighbors&#39;</span> <span class="ow">in</span> <span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">reduction_params</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reduction parameters must include &#39;n_neighbors&#39; for UMAP or &#39;perplexity&#39; for tSNE, not both.&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">reduction_method</span><span class="p">:</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reduction_method</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Changed reduction method to </span><span class="si">{</span><span class="n">reduction_method</span><span class="si">}</span><span class="s1"> based on the provided parameters.&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">]))</span>
+
+    <span class="n">db_paths</span> <span class="o">=</span> <span class="n">get_db_paths</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+    
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;tables&#39;</span><span class="p">]</span>
+    <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">db_path</span> <span class="ow">in</span> <span class="n">db_paths</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">_read_and_join_tables</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">table_names</span><span class="o">=</span><span class="n">tables</span><span class="p">)</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">map_condition</span><span class="p">,</span> <span class="n">neg</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;neg&#39;</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">],</span> <span class="n">mix</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mix&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">]]</span>
+        <span class="n">row_count_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="o">~</span><span class="n">all_df</span><span class="p">[</span><span class="s1">&#39;cond&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude_conditions&#39;</span><span class="p">])]</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Excluded </span><span class="si">{</span><span class="n">row_count_before</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span><span class="si">}</span><span class="s1"> rows after excluding: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;exclude_conditions&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, rows left: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_df</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;row_limit&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">all_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;row_limit&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+    <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_by&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;remove_highly_correlated&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;log_data&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;exclude&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Combine DBSCAN and KMeans parameters</span>
+    <span class="n">clustering_params</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">dbscan_params</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">dbscan_params</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;dbscan&#39;</span>
+            <span class="n">clustering_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kmeans_params</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">kmeans_params</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span>
+            <span class="n">clustering_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Testing paramiters:&#39;</span><span class="p">,</span> <span class="n">reduction_params</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Testing clustering paramiters:&#39;</span><span class="p">,</span> <span class="n">clustering_params</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the grid size</span>
+    <span class="n">grid_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reduction_params</span><span class="p">)</span>
+    <span class="n">grid_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clustering_params</span><span class="p">)</span>
+
+    <span class="n">fig_width</span> <span class="o">=</span> <span class="n">grid_cols</span><span class="o">*</span><span class="mi">10</span>
+    <span class="n">fig_height</span> <span class="o">=</span> <span class="n">grid_rows</span><span class="o">*</span><span class="mi">10</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">grid_rows</span><span class="p">,</span> <span class="n">grid_cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">))</span>
+
+    <span class="c1"># Make sure axs is always an array of axes</span>
+    <span class="n">axs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">axs</span><span class="p">)</span>
+    
+    <span class="c1"># Iterate through the Cartesian product of reduction and clustering hyperparameters</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">reduction_param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reduction_params</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">clustering_param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clustering_params</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">clustering_params</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">reduction_params</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+            <span class="c1"># Perform dimensionality reduction and clustering</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;umap&#39;</span><span class="p">:</span>
+                <span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">reduction_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_neighbors</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                    <span class="n">n_neighbors</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_neighbors</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">))</span>
+
+                <span class="n">min_dist</span> <span class="o">=</span> <span class="n">reduction_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_dist&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+                <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">search_reduction_and_clustering</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="p">,</span> <span class="n">min_dist</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> 
+                                                                    <span class="n">clustering_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">clustering_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_samples&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> 
+                                                                    <span class="n">clustering_param</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span> <span class="n">reduction_param</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+                
+            <span class="k">elif</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;tsne&#39;</span><span class="p">:</span>
+                <span class="n">perplexity</span> <span class="o">=</span> <span class="n">reduction_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;perplexity&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">perplexity</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                    <span class="n">perplexity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">perplexity</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">))</span>
+
+                <span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">search_reduction_and_clustering</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">,</span> <span class="n">perplexity</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> 
+                                                                    <span class="n">clustering_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">clustering_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_samples&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> 
+                                                                    <span class="n">clustering_param</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span> <span class="n">reduction_param</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported reduction method: </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">. Supported methods are &#39;UMAP&#39; and &#39;tSNE&#39;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Plot the results</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]:</span>
+                <span class="n">unique_groups</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="n">colors</span> <span class="o">=</span> <span class="n">generate_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_groups</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">unique_groups</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
+                    <span class="n">indices</span> <span class="o">=</span> <span class="n">all_df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;color_by&#39;</span><span class="p">]]</span> <span class="o">==</span> <span class="n">group</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embedding</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embedding</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">pointsize</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+                <span class="n">colors</span> <span class="o">=</span> <span class="n">generate_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embedding</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embedding</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">pointsize</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cluster </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;reduction_method&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">reduction_param</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">clustering_param</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">clustering_param</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">results_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="s1">&#39;hyperparameter_search.pdf&#39;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="generate_screen_graphs">
+<a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.generate_screen_graphs">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_screen_graphs</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate screen graphs for different measurements in a given source directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str or list): Path(s) to the source directory or directories.</span>
+<span class="sd">        tables (list): List of tables to include in the analysis (default: [&#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;, &#39;cytoplasm&#39;]).</span>
+<span class="sd">        graph_type (str): Type of graph to generate (default: &#39;bar&#39;).</span>
+<span class="sd">        summary_func (str or function): Function to summarize data (default: &#39;mean&#39;).</span>
+<span class="sd">        y_axis_start (float): Starting value for the y-axis (default: 0).</span>
+<span class="sd">        error_bar_type (str): Type of error bar to use (&#39;std&#39; or &#39;sem&#39;) (default: &#39;std&#39;).</span>
+<span class="sd">        theme (str): Theme for the graph (default: &#39;pastel&#39;).</span>
+<span class="sd">        representation (str): Representation for grouping (default: &#39;well&#39;).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        figs (list): List of generated figures.</span>
+<span class="sd">        results (list): List of corresponding result DataFrames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">spacrGraph</span>
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_merge_data</span>
+    <span class="n">from</span><span class="o">.</span><span class="n">utils</span> <span class="kn">import</span> <span class="nn">annotate_conditions</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">srcs</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+
+    <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">figs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">srcs</span><span class="p">:</span>
+        <span class="n">db_loc</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;measurements&#39;</span><span class="p">,</span> <span class="s1">&#39;measurements.db&#39;</span><span class="p">)]</span>
+        
+        <span class="c1"># Read and merge data from the database</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_read_and_merge_data</span><span class="p">(</span><span class="n">db_loc</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;tables&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nuclei_limit</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nuclei_limit&#39;</span><span class="p">],</span> <span class="n">pathogen_limit</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pathogen_limit&#39;</span><span class="p">])</span>
+        
+        <span class="c1"># Annotate the data</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">annotate_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cells</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cells&#39;</span><span class="p">],</span> <span class="n">cell_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pathogens</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;controls&#39;</span><span class="p">],</span> <span class="n">pathogen_loc</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;controls_loc&#39;</span><span class="p">],</span> <span class="n">treatments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">treatment_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        
+        <span class="c1"># Calculate recruitment metric</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recruitment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;pathogen_channel_1_mean_intensity&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;cytoplasm_channel_1_mean_intensity&#39;</span><span class="p">]</span>
+                
+        <span class="c1"># Combine with the overall DataFrame</span>
+        <span class="n">all_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+        <span class="c1"># Generate individual plot</span>
+        <span class="n">plotter</span> <span class="o">=</span> <span class="n">spacrGraph</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
+                             <span class="n">grouping_column</span><span class="o">=</span><span class="s1">&#39;pathogen&#39;</span><span class="p">,</span>
+                             <span class="n">data_column</span><span class="o">=</span><span class="s1">&#39;recruitment&#39;</span><span class="p">,</span>
+                             <span class="n">graph_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;graph_type&#39;</span><span class="p">],</span>
+                             <span class="n">summary_func</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;summary_func&#39;</span><span class="p">],</span>
+                             <span class="n">y_axis_start</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;y_axis_start&#39;</span><span class="p">],</span>
+                             <span class="n">error_bar_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;error_bar_type&#39;</span><span class="p">],</span>
+                             <span class="n">theme</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;theme&#39;</span><span class="p">],</span>
+                             <span class="n">representation</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;representation&#39;</span><span class="p">])</span>
+
+        <span class="n">plotter</span><span class="o">.</span><span class="n">create_plot</span><span class="p">()</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+        
+        <span class="c1"># Append to the lists</span>
+        <span class="n">figs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">results_df</span><span class="p">)</span>
+    
+    <span class="c1"># Generate plot for the combined data (all_df)</span>
+    <span class="n">plotter</span> <span class="o">=</span> <span class="n">spacrGraph</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span>
+                         <span class="n">grouping_column</span><span class="o">=</span><span class="s1">&#39;pathogen&#39;</span><span class="p">,</span>
+                         <span class="n">data_column</span><span class="o">=</span><span class="s1">&#39;recruitment&#39;</span><span class="p">,</span>
+                         <span class="n">graph_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;graph_type&#39;</span><span class="p">],</span>
+                         <span class="n">summary_func</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;summary_func&#39;</span><span class="p">],</span>
+                         <span class="n">y_axis_start</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;y_axis_start&#39;</span><span class="p">],</span>
+                         <span class="n">error_bar_type</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;error_bar_type&#39;</span><span class="p">],</span>
+                         <span class="n">theme</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;theme&#39;</span><span class="p">],</span>
+                         <span class="n">representation</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;representation&#39;</span><span class="p">])</span>
+
+    <span class="n">plotter</span><span class="o">.</span><span class="n">create_plot</span><span class="p">()</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+    <span class="n">results_df</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+    
+    <span class="n">figs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">results_df</span><span class="p">)</span>
+    
+    <span class="c1"># Save figures and results</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fig</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">figs</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">srcs</span><span class="p">):</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Ensure the destination folder exists</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Savings results to </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Save the figure and results DataFrame</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;figure_controls_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;representation&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;summary_func&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;graph_type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;results_controls_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;representation&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;summary_func&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;graph_type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spacr.sequencing &mdash; spacr 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=45a07ac9" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #005f73" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_spacr.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_core/index.html">spacr.gui_core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html">spacr.gui_elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_utils/index.html">spacr.gui_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/io/index.html">spacr.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html">spacr.utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/version/index.html">spacr.version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #005f73" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">spacr</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spacr.sequencing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spacr.sequencing</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">gzip</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">,</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">Bio.Seq</span> <span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_plates</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+
+<span class="c1"># Function to map sequences to names (same as your original)</span>
+<div class="viewcode-block" id="map_sequences_to_names">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.map_sequences_to_names">[docs]</a>
+<span class="k">def</span> <span class="nf">map_sequences_to_names</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">rc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">rev_comp</span><span class="p">(</span><span class="n">dna_sequence</span><span class="p">):</span>
+        <span class="n">complement_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">}</span>
+        <span class="n">reverse_seq</span> <span class="o">=</span> <span class="n">dna_sequence</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">complement_dict</span><span class="p">[</span><span class="n">base</span><span class="p">]</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">reverse_seq</span><span class="p">])</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rc</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rev_comp</span><span class="p">)</span>
+    
+    <span class="n">csv_sequences</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">csv_sequences</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span> <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">]</span></div>
+
+
+<span class="c1"># Functions to save data (same as your original)</span>
+<div class="viewcode-block" id="save_df_to_hdf5">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.save_df_to_hdf5">[docs]</a>
+<span class="k">def</span> <span class="nf">save_df_to_hdf5</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">comp_type</span><span class="o">=</span><span class="s1">&#39;zlib&#39;</span><span class="p">,</span> <span class="n">comp_level</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">hdf5_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">complib</span><span class="o">=</span><span class="n">comp_type</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">comp_level</span><span class="p">)</span> <span class="k">as</span> <span class="n">store</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">store</span><span class="p">:</span>
+                <span class="n">existing_df</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">existing_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">store</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;table&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while saving DataFrame to HDF5: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_unique_combinations_to_csv">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.save_unique_combinations_to_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">save_unique_combinations_to_csv</span><span class="p">(</span><span class="n">unique_combinations</span><span class="p">,</span> <span class="n">csv_file</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">existing_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">existing_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">unique_combinations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">existing_df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">])</span>
+            <span class="n">unique_combinations</span> <span class="o">=</span> <span class="n">unique_combinations</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="s1">&#39;grna_name&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">unique_combinations</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while saving unique combinations to CSV: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_qc_df_to_csv">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.save_qc_df_to_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">save_qc_df_to_csv</span><span class="p">(</span><span class="n">qc_df</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">existing_qc_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">qc_csv_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">existing_qc_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_qc_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">qc_df</span> <span class="o">=</span> <span class="n">qc_df</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">existing_qc_df</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">qc_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while saving QC DataFrame to CSV: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_sequence_and_quality">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.extract_sequence_and_quality">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_sequence_and_quality</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">sequence</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">quality</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="create_consensus">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.create_consensus">[docs]</a>
+<span class="k">def</span> <span class="nf">create_consensus</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">qual1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="n">qual2</span><span class="p">):</span>
+    <span class="n">consensus_seq</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq1</span><span class="p">)):</span>
+        <span class="n">bases</span> <span class="o">=</span> <span class="p">[(</span><span class="n">seq1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qual1</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="p">(</span><span class="n">seq2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qual2</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
+        <span class="n">consensus_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_consensus_base</span><span class="p">(</span><span class="n">bases</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_consensus_base">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.get_consensus_base">[docs]</a>
+<span class="k">def</span> <span class="nf">get_consensus_base</span><span class="p">(</span><span class="n">bases</span><span class="p">):</span>
+    <span class="c1"># Prefer non-&#39;N&#39; bases, if &#39;N&#39; exists, pick the other one.</span>
+    <span class="k">if</span> <span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bases</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">bases</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Return the base with the highest quality score</span>
+        <span class="k">return</span> <span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">bases</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">bases</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="reverse_complement">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.reverse_complement">[docs]</a>
+<span class="k">def</span> <span class="nf">reverse_complement</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">())</span></div>
+
+
+<span class="c1"># Core logic for processing a chunk (same as your original)</span>
+<div class="viewcode-block" id="process_chunk">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.process_chunk">[docs]</a>
+<span class="k">def</span> <span class="nf">process_chunk</span><span class="p">(</span><span class="n">chunk_data</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">paired_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">):</span>
+
+        <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">consensus_seq</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">for</span> <span class="n">r1_lines</span><span class="p">,</span> <span class="n">r2_lines</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">):</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">r1_sequence</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r1_quality</span> <span class="o">=</span> <span class="n">r1_lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">r2_sequence</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r2_quality</span> <span class="o">=</span> <span class="n">r2_lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">r2_sequence</span> <span class="o">=</span> <span class="n">reverse_complement</span><span class="p">(</span><span class="n">r2_sequence</span><span class="p">)</span>
+
+            <span class="n">r1_pos</span> <span class="o">=</span> <span class="n">r1_sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">target_sequence</span><span class="p">)</span>
+            <span class="n">r2_pos</span> <span class="o">=</span> <span class="n">r2_sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">target_sequence</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">r1_pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">r2_pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">r1_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r1_pos</span> <span class="o">+</span> <span class="n">offset_start</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">r1_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r1_start</span> <span class="o">+</span> <span class="n">expected_end</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_sequence</span><span class="p">))</span>
+                <span class="n">r2_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r2_pos</span> <span class="o">+</span> <span class="n">offset_start</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">r2_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r2_start</span> <span class="o">+</span> <span class="n">expected_end</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r2_sequence</span><span class="p">))</span>
+
+                <span class="n">r1_seq</span><span class="p">,</span> <span class="n">r1_qual</span> <span class="o">=</span> <span class="n">extract_sequence_and_quality</span><span class="p">(</span><span class="n">r1_sequence</span><span class="p">,</span> <span class="n">r1_quality</span><span class="p">,</span> <span class="n">r1_start</span><span class="p">,</span> <span class="n">r1_end</span><span class="p">)</span>
+                <span class="n">r2_seq</span><span class="p">,</span> <span class="n">r2_qual</span> <span class="o">=</span> <span class="n">extract_sequence_and_quality</span><span class="p">(</span><span class="n">r2_sequence</span><span class="p">,</span> <span class="n">r2_quality</span><span class="p">,</span> <span class="n">r2_start</span><span class="p">,</span> <span class="n">r2_end</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_seq</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">expected_end</span><span class="p">:</span>
+                    <span class="n">r1_seq</span> <span class="o">+=</span> <span class="s1">&#39;N&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_end</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_seq</span><span class="p">))</span>
+                    <span class="n">r1_qual</span> <span class="o">+=</span> <span class="s1">&#39;!&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_end</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_qual</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r2_seq</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">expected_end</span><span class="p">:</span>
+                    <span class="n">r2_seq</span> <span class="o">+=</span> <span class="s1">&#39;N&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_end</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r2_seq</span><span class="p">))</span>
+                    <span class="n">r2_qual</span> <span class="o">+=</span> <span class="s1">&#39;!&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_end</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r2_qual</span><span class="p">))</span>
+
+                <span class="n">consensus_seq</span> <span class="o">=</span> <span class="n">create_consensus</span><span class="p">(</span><span class="n">r1_seq</span><span class="p">,</span> <span class="n">r1_qual</span><span class="p">,</span> <span class="n">r2_seq</span><span class="p">,</span> <span class="n">r2_qual</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">expected_end</span><span class="p">:</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">consensus_seq</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                        <span class="n">consensus_sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span>
+                        
+                        <span class="c1">#print(f&quot;r1_seq: {r1_seq}&quot;)</span>
+                        <span class="c1">#print(f&quot;r2_seq: {r2_seq}&quot;)</span>
+                        <span class="c1">#print(f&quot;consensus_sequences: {consensus_sequences}&quot;)</span>
+                        
+                        <span class="n">column_sequence</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;columnID&#39;</span><span class="p">)</span>
+                        <span class="n">grna_sequence</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;grna&#39;</span><span class="p">)</span>
+                        <span class="n">row_sequence</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;rowID&#39;</span><span class="p">)</span>
+                        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column_sequence</span><span class="p">)</span>
+                        <span class="n">grnas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grna_sequence</span><span class="p">)</span>
+                        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_sequence</span><span class="p">)</span>
+                        
+                        <span class="c1">#print(f&quot;row bc: {row_sequence} col bc: {column_sequence} grna bc: {grna_sequence}&quot;)</span>
+                        <span class="c1">#print(f&quot;row bc: {rows} col bc: {columns} grna bc: {grnas}&quot;)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">consensus_sequences</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: No sequences matched </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s2"> in chunk&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Are bacode sequences in the correct orientation?&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Is </span><span class="si">{</span><span class="n">consensus_seq</span><span class="si">}</span><span class="s2"> compatible with </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s2"> ?&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">consensus_seq</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">expected_end</span><span class="p">:</span>
+                    <span class="n">consensus_seq_rc</span> <span class="o">=</span> <span class="n">reverse_complement</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">consensus_seq_rc</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reverse complement of last sequence in chunk matched </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span>
+    
+    <span class="k">def</span> <span class="nf">single_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">):</span>
+
+        <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">r1_lines</span> <span class="ow">in</span> <span class="n">r1_chunk</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">r1_sequence</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r1_quality</span> <span class="o">=</span> <span class="n">r1_lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Find the target sequence in R1</span>
+            <span class="n">r1_pos</span> <span class="o">=</span> <span class="n">r1_sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">target_sequence</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">r1_pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Adjust start and end positions based on the offset and expected length</span>
+                <span class="n">r1_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r1_pos</span> <span class="o">+</span> <span class="n">offset_start</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">r1_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r1_start</span> <span class="o">+</span> <span class="n">expected_end</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_sequence</span><span class="p">))</span>
+
+                <span class="c1"># Extract the sequence and quality within the defined region</span>
+                <span class="n">r1_seq</span><span class="p">,</span> <span class="n">r1_qual</span> <span class="o">=</span> <span class="n">extract_sequence_and_quality</span><span class="p">(</span><span class="n">r1_sequence</span><span class="p">,</span> <span class="n">r1_quality</span><span class="p">,</span> <span class="n">r1_start</span><span class="p">,</span> <span class="n">r1_end</span><span class="p">)</span>
+
+                <span class="c1"># If the sequence is shorter than expected, pad with &#39;N&#39;s and &#39;!&#39; for quality</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_seq</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">expected_end</span><span class="p">:</span>
+                    <span class="n">r1_seq</span> <span class="o">+=</span> <span class="s1">&#39;N&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_end</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_seq</span><span class="p">))</span>
+                    <span class="n">r1_qual</span> <span class="o">+=</span> <span class="s1">&#39;!&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_end</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r1_qual</span><span class="p">))</span>
+
+                <span class="c1"># Use the R1 sequence as the &quot;consensus&quot;</span>
+                <span class="n">consensus_seq</span> <span class="o">=</span> <span class="n">r1_seq</span>
+
+                <span class="c1"># Check if the consensus sequence matches the regex</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">expected_end</span><span class="p">:</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">consensus_seq</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                        <span class="n">consensus_sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span>
+                        <span class="n">column_sequence</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;columnID&#39;</span><span class="p">)</span>
+                        <span class="n">grna_sequence</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;grna&#39;</span><span class="p">)</span>
+                        <span class="n">row_sequence</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;rowID&#39;</span><span class="p">)</span>
+                        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column_sequence</span><span class="p">)</span>
+                        <span class="n">grnas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grna_sequence</span><span class="p">)</span>
+                        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_sequence</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">consensus_sequences</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: No sequences matched </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s2"> in chunk&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Are bacode sequences in the correct orientation?&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Is </span><span class="si">{</span><span class="n">consensus_seq</span><span class="si">}</span><span class="s2"> compatible with </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s2"> ?&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">expected_end</span><span class="p">:</span>
+                <span class="n">consensus_seq_rc</span> <span class="o">=</span> <span class="n">reverse_complement</span><span class="p">(</span><span class="n">consensus_seq</span><span class="p">)</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">consensus_seq_rc</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reverse complement of last sequence in chunk matched </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">fill_na</span> <span class="o">=</span> <span class="n">chunk_data</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+        <span class="n">r1_chunk</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">fill_na</span> <span class="o">=</span> <span class="n">chunk_data</span>
+        <span class="n">r2_chunk</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">r2_chunk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">single_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">paired_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">)</span>
+    
+    <span class="n">column_names</span> <span class="o">=</span> <span class="n">map_sequences_to_names</span><span class="p">(</span><span class="n">column_csv</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">rc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">grna_names</span> <span class="o">=</span> <span class="n">map_sequences_to_names</span><span class="p">(</span><span class="n">grna_csv</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">row_names</span> <span class="o">=</span> <span class="n">map_sequences_to_names</span><span class="p">(</span><span class="n">row_csv</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">rc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;read&#39;</span><span class="p">:</span> <span class="n">consensus_sequences</span><span class="p">,</span>
+        <span class="s1">&#39;column_sequence&#39;</span><span class="p">:</span> <span class="n">columns</span><span class="p">,</span>
+        <span class="s1">&#39;columnID&#39;</span><span class="p">:</span> <span class="n">column_names</span><span class="p">,</span>
+        <span class="s1">&#39;row_sequence&#39;</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
+        <span class="s1">&#39;rowID&#39;</span><span class="p">:</span> <span class="n">row_names</span><span class="p">,</span>
+        <span class="s1">&#39;grna_sequence&#39;</span><span class="p">:</span> <span class="n">grnas</span><span class="p">,</span>
+        <span class="s1">&#39;grna_name&#39;</span><span class="p">:</span> <span class="n">grna_names</span>
+    <span class="p">})</span>
+
+    <span class="n">qc_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">qc_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+    <span class="n">qc_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NaN_Counts&quot;</span><span class="p">]</span>
+    <span class="n">qc_df</span><span class="p">[</span><span class="s1">&#39;total_reads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">fill_na</span><span class="p">:</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;columnID&#39;</span> <span class="ow">in</span> <span class="n">df2</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df2</span><span class="p">[</span><span class="s1">&#39;column_sequence&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;rowID&#39;</span> <span class="ow">in</span> <span class="n">df2</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df2</span><span class="p">[</span><span class="s1">&#39;row_sequence&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;grna_name&#39;</span> <span class="ow">in</span> <span class="n">df2</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;grna_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;grna_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df2</span><span class="p">[</span><span class="s1">&#39;grna_sequence&#39;</span><span class="p">])</span>
+        
+        <span class="n">unique_combinations</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="s1">&#39;grna_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">unique_combinations</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="s1">&#39;grna_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">,</span> <span class="n">qc_df</span></div>
+
+
+<span class="c1"># Function to save data from the queue</span>
+<div class="viewcode-block" id="saver_process">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.saver_process">[docs]</a>
+<span class="k">def</span> <span class="nf">saver_process</span><span class="p">(</span><span class="n">save_queue</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">):</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">save_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;STOP&quot;</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">,</span> <span class="n">qc_df</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">if</span> <span class="n">save_h5</span><span class="p">:</span>
+            <span class="n">save_df_to_hdf5</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">comp_type</span><span class="o">=</span><span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="o">=</span><span class="n">comp_level</span><span class="p">)</span>
+        <span class="n">save_unique_combinations_to_csv</span><span class="p">(</span><span class="n">unique_combinations</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">)</span>
+        <span class="n">save_qc_df_to_csv</span><span class="p">(</span><span class="n">qc_df</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="paired_read_chunked_processing">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.paired_read_chunked_processing">[docs]</a>
+<span class="k">def</span> <span class="nf">paired_read_chunked_processing</span><span class="p">(</span><span class="n">r1_file</span><span class="p">,</span> <span class="n">r2_file</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">count_reads_in_fastq</span><span class="p">,</span> <span class="n">print_progress</span>
+
+    <span class="c1"># Use cpu_count minus 3 cores if n_jobs isn&#39;t specified</span>
+    <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">3</span>
+
+    <span class="n">chunk_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Calculating read count for </span><span class="si">{</span><span class="n">r1_file</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="n">total_reads</span> <span class="o">=</span> <span class="n">count_reads_in_fastq</span><span class="p">(</span><span class="n">r1_file</span><span class="p">)</span>
+        <span class="n">chunks_nr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_reads</span> <span class="o">/</span> <span class="n">chunk_size</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">total_reads</span> <span class="o">=</span> <span class="n">chunk_size</span>
+        <span class="n">chunks_nr</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mapping barcodes for </span><span class="si">{</span><span class="n">total_reads</span><span class="si">}</span><span class="s1"> reads in </span><span class="si">{</span><span class="n">chunks_nr</span><span class="si">}</span><span class="s1"> batches for </span><span class="si">{</span><span class="n">r1_file</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Queue for saving</span>
+    <span class="n">save_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+    <span class="c1"># Start the saving process</span>
+    <span class="n">save_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">saver_process</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">save_queue</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">))</span>
+    <span class="n">save_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Chunk size: </span><span class="si">{</span><span class="n">chunk_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">r1_file</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">r1</span><span class="p">,</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">r2_file</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">r2</span><span class="p">:</span>
+        <span class="n">fastq_iter</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">r1_chunk</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">r2_chunk</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">):</span>
+                <span class="c1"># Read the next 4 lines for both R1 and R2 files</span>
+                <span class="n">r1_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">r1</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+                <span class="n">r2_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">r2</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+
+                <span class="c1"># Break if we&#39;ve reached the end of either file</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">r1_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">r2_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">break</span>
+
+                <span class="n">r1_chunk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r1_lines</span><span class="p">))</span>
+                <span class="n">r2_chunk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r2_lines</span><span class="p">))</span>
+            
+            <span class="c1"># If the chunks are empty, break the outer while loop</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">r1_chunk</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">chunk_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">chunk_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">fill_na</span><span class="p">)</span>
+
+            <span class="c1"># Process chunks in parallel-</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">process_chunk</span><span class="p">,</span> <span class="p">(</span><span class="n">chunk_data</span><span class="p">,))</span>
+
+            <span class="n">df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">,</span> <span class="n">qc_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">save_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">,</span> <span class="n">qc_df</span><span class="p">))</span>
+
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">chunk_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk_time</span><span class="p">)</span>
+            <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="o">=</span><span class="n">chunk_count</span><span class="p">,</span> <span class="n">files_to_process</span><span class="o">=</span><span class="n">chunks_nr</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;Mapping Barcodes&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">test</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;First 1000 lines in chunk 1&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[:</span><span class="mi">100</span><span class="p">])</span>
+                <span class="k">break</span>
+
+    <span class="c1"># Cleanup the pool</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="c1"># Send stop signal to saver process</span>
+    <span class="n">save_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;STOP&quot;</span><span class="p">)</span>
+    <span class="n">save_process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="single_read_chunked_processing">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.single_read_chunked_processing">[docs]</a>
+<span class="k">def</span> <span class="nf">single_read_chunked_processing</span><span class="p">(</span><span class="n">r1_file</span><span class="p">,</span> <span class="n">r2_file</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">count_reads_in_fastq</span><span class="p">,</span> <span class="n">print_progress</span>
+
+    <span class="c1"># Use cpu_count minus 3 cores if n_jobs isn&#39;t specified</span>
+    <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">3</span>
+
+    <span class="n">chunk_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Calculating read count for </span><span class="si">{</span><span class="n">r1_file</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="n">total_reads</span> <span class="o">=</span> <span class="n">count_reads_in_fastq</span><span class="p">(</span><span class="n">r1_file</span><span class="p">)</span>
+        <span class="n">chunks_nr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_reads</span> <span class="o">/</span> <span class="n">chunk_size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">total_reads</span> <span class="o">=</span> <span class="n">chunk_size</span>
+        <span class="n">chunks_nr</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mapping barcodes for </span><span class="si">{</span><span class="n">total_reads</span><span class="si">}</span><span class="s1"> reads in </span><span class="si">{</span><span class="n">chunks_nr</span><span class="si">}</span><span class="s1"> batches for </span><span class="si">{</span><span class="n">r1_file</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Queue for saving</span>
+    <span class="n">save_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+    <span class="c1"># Start the saving process</span>
+    <span class="n">save_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">saver_process</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">save_queue</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">))</span>
+    <span class="n">save_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">r1_file</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">r1</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">r1_chunk</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">):</span>
+                <span class="c1"># Read the next 4 lines for both R1 and R2 files</span>
+                <span class="n">r1_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">r1</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+
+                <span class="c1"># Break if we&#39;ve reached the end of either file</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">r1_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">break</span>
+
+                <span class="n">r1_chunk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r1_lines</span><span class="p">))</span>
+
+            <span class="c1"># If the chunks are empty, break the outer while loop</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">r1_chunk</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">chunk_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">chunk_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">fill_na</span><span class="p">)</span>
+
+            <span class="c1"># Process chunks in parallel</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">process_chunk</span><span class="p">,</span> <span class="p">(</span><span class="n">chunk_data</span><span class="p">,))</span>
+            
+            <span class="n">df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">,</span> <span class="n">qc_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+            <span class="c1"># Queue the results for saving</span>
+            <span class="n">save_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">df</span><span class="p">,</span> <span class="n">unique_combinations</span><span class="p">,</span> <span class="n">qc_df</span><span class="p">))</span>
+
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">chunk_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk_time</span><span class="p">)</span>
+            <span class="n">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="o">=</span><span class="n">chunk_count</span><span class="p">,</span> <span class="n">files_to_process</span><span class="o">=</span><span class="n">chunks_nr</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="n">time_ls</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;Mapping Barcodes&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">test</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;First 1000 lines in chunk 1&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[:</span><span class="mi">100</span><span class="p">])</span>
+                <span class="k">break</span>
+
+    <span class="c1"># Cleanup the pool</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="c1"># Send stop signal to saver process</span>
+    <span class="n">save_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;STOP&quot;</span><span class="p">)</span>
+    <span class="n">save_process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="generate_barecode_mapping">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.generate_barecode_mapping">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_barecode_mapping</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_generate_barecode_mapping</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span>
+    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">parse_gz_files</span>
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+    <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sequencing_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;single_direction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">regex</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;regex&#39;</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Using regex: </span><span class="si">{</span><span class="n">regex</span><span class="si">}</span><span class="s1"> to extract barcode information&#39;</span><span class="p">)</span>
+
+    <span class="n">samples_dict</span> <span class="o">=</span> <span class="n">parse_gz_files</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">])</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="n">samples_dict</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;If compression is low and save_h5 is True, saving might take longer than processing.&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">samples_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;paired&#39;</span> <span class="ow">and</span> <span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R2&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;single&#39;</span> <span class="ow">and</span> <span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;single&#39;</span> <span class="ow">and</span> <span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R2&#39;</span><span class="p">]:</span>            
+            <span class="n">key_mode</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;single&#39;</span><span class="p">:</span>
+                <span class="n">key_mode</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key_mode</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;single_direction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="n">key_mode</span><span class="p">)</span>
+            <span class="n">hdf5_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;annotated_reads.h5&#39;</span><span class="p">)</span>
+            <span class="n">unique_combinations_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;unique_combinations.csv&#39;</span><span class="p">)</span>
+            <span class="n">qc_csv_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;qc.csv&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Analyzing reads from sample </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;paired&#39;</span><span class="p">:</span>
+                <span class="n">function</span> <span class="o">=</span> <span class="n">paired_read_chunked_processing</span>
+                <span class="n">R1</span><span class="o">=</span><span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span>
+                <span class="n">R2</span><span class="o">=</span><span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R2&#39;</span><span class="p">]</span>
+
+            <span class="k">elif</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;single&#39;</span><span class="p">:</span>
+                <span class="n">function</span> <span class="o">=</span> <span class="n">single_read_chunked_processing</span>
+
+                <span class="k">if</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;single_direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;R1&#39;</span><span class="p">:</span>
+                    <span class="n">R1</span><span class="o">=</span><span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R1&#39;</span><span class="p">]</span>
+                    <span class="n">R2</span><span class="o">=</span><span class="kc">None</span>
+                <span class="k">elif</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;single_direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;R2&#39;</span><span class="p">:</span>
+                    <span class="n">R1</span><span class="o">=</span><span class="n">samples_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;R2&#39;</span><span class="p">]</span>
+                    <span class="n">R2</span><span class="o">=</span><span class="kc">None</span>
+
+            <span class="n">function</span><span class="p">(</span><span class="n">r1_file</span><span class="o">=</span><span class="n">R1</span><span class="p">,</span>
+                     <span class="n">r2_file</span><span class="o">=</span><span class="n">R2</span><span class="p">,</span>
+                     <span class="n">regex</span><span class="o">=</span><span class="n">regex</span><span class="p">,</span>
+                     <span class="n">target_sequence</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;target_sequence&#39;</span><span class="p">],</span>
+                     <span class="n">offset_start</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;offset_start&#39;</span><span class="p">],</span>
+                     <span class="n">expected_end</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;expected_end&#39;</span><span class="p">],</span>
+                     <span class="n">column_csv</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;column_csv&#39;</span><span class="p">],</span>
+                     <span class="n">grna_csv</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;grna_csv&#39;</span><span class="p">],</span>
+                     <span class="n">row_csv</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;row_csv&#39;</span><span class="p">],</span>
+                     <span class="n">save_h5</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;save_h5&#39;</span><span class="p">],</span>
+                     <span class="n">comp_type</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;comp_type&#39;</span><span class="p">],</span>
+                     <span class="n">comp_level</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;comp_level&#39;</span><span class="p">],</span>
+                     <span class="n">hdf5_file</span><span class="o">=</span><span class="n">hdf5_file</span><span class="p">,</span>
+                     <span class="n">unique_combinations_csv</span><span class="o">=</span><span class="n">unique_combinations_csv</span><span class="p">,</span>
+                     <span class="n">qc_csv_file</span><span class="o">=</span><span class="n">qc_csv_file</span><span class="p">,</span>
+                     <span class="n">chunk_size</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;chunk_size&#39;</span><span class="p">],</span>
+                     <span class="n">n_jobs</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">],</span>
+                     <span class="n">test</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span>
+                     <span class="n">fill_na</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;fill_na&#39;</span><span class="p">])</span></div>
+
+
+<span class="c1"># Function to read the CSV, compute reverse complement, and save it</span>
+<div class="viewcode-block" id="barecodes_reverse_complement">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.barecodes_reverse_complement">[docs]</a>
+<span class="k">def</span> <span class="nf">barecodes_reverse_complement</span><span class="p">(</span><span class="n">csv_file</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">reverse_complement</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+        <span class="n">complement</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">complement</span><span class="p">[</span><span class="n">base</span><span class="p">]</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">sequence</span><span class="p">))</span>
+
+    <span class="c1"># Read the CSV file</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+
+    <span class="c1"># Compute reverse complement for each sequence</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">reverse_complement</span><span class="p">)</span>
+
+    <span class="c1"># Create the new filename</span>
+    <span class="n">file_dir</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+    <span class="n">file_name_no_ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">new_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name_no_ext</span><span class="si">}</span><span class="s2">_RC.csv&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save the DataFrame with the reverse complement sequences</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">new_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reverse complement file saved as </span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="graph_sequencing_stats">
+<a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.graph_sequencing_stats">[docs]</a>
+<span class="k">def</span> <span class="nf">graph_sequencing_stats</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">correct_metadata_column_names</span><span class="p">,</span> <span class="n">correct_metadata</span>
+
+    <span class="k">def</span> <span class="nf">_plot_density</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dependent_variable</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a density plot of the dependent variable.&quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">dependent_variable</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Density Plot of </span><span class="si">{</span><span class="n">dependent_variable</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">dependent_variable</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;dependent_variable_density.pdf&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saved density plot to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">find_and_visualize_fraction_threshold</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">target_unique_count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">log_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the fraction threshold where the recalculated unique count matches the target value,</span>
+<span class="sd">        and visualize the relationship between fraction thresholds and unique counts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_line_plot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;unique_count&#39;</span><span class="p">,</span> <span class="n">log_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="n">y</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns &#39;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&#39; and/or &#39;</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">&#39; not found in the DataFrame.&quot;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">155</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">155</span> <span class="o">/</span> <span class="mi">255</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s1"> vs </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">log_x</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log_y</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+
+        <span class="n">fraction_thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Iterate through the fraction thresholds</span>
+        <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">fraction_thresholds</span><span class="p">:</span>
+            <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span>
+            <span class="n">unique_count</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">])[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">threshold</span><span class="p">,</span> <span class="n">unique_count</span><span class="p">))</span>
+
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">,</span> <span class="s1">&#39;unique_count&#39;</span><span class="p">])</span>
+        <span class="n">closest_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;unique_count&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_unique_count</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+        <span class="n">closest_threshold</span> <span class="o">=</span> <span class="n">results_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">closest_index</span><span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Closest Fraction Threshold: </span><span class="si">{</span><span class="n">closest_threshold</span><span class="p">[</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unique Count at Threshold: </span><span class="si">{</span><span class="n">closest_threshold</span><span class="p">[</span><span class="s1">&#39;unique_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_line_plot</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">results_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;unique_count&#39;</span><span class="p">,</span> <span class="n">log_x</span><span class="o">=</span><span class="n">log_x</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="n">log_y</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">closest_threshold</span><span class="p">[</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Closest Threshold (</span><span class="si">{</span><span class="n">closest_threshold</span><span class="p">[</span><span class="s2">&quot;fraction_threshold&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">target_unique_count</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Target Unique Count (</span><span class="si">{</span><span class="n">target_unique_count</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">fig_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;fraction_threshold.pdf&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig_file_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="n">fig_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">closest_threshold</span><span class="p">[</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;count_data&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;count_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;count_data&#39;</span><span class="p">]]</span>
+
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">count_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;count_data&#39;</span><span class="p">]):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">count_data</span><span class="p">)</span>
+        
+        <span class="n">df</span> <span class="o">=</span> <span class="n">correct_metadata</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;plateID&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;plate</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span>
+            
+        <span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">]):</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;columnID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The DataFrame must contain &#39;plateID&#39;, &#39;rowID&#39;, and &#39;columnID&#39; columns.&quot;</span><span class="p">)</span>
+        
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;total_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;prc&#39;</span><span class="p">])[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;total_count&#39;</span><span class="p">]</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">correct_metadata_column_names</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;control_wells&#39;</span><span class="p">]:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;filter_column&#39;</span><span class="p">]]</span> <span class="o">!=</span> <span class="n">c</span><span class="p">]</span>
+
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;count_data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">closest_threshold</span> <span class="o">=</span> <span class="n">find_and_visualize_fraction_threshold</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;target_unique_count&#39;</span><span class="p">],</span> <span class="n">log_x</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;log_x&#39;</span><span class="p">],</span> <span class="n">log_y</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;log_y&#39;</span><span class="p">],</span> <span class="n">dst</span><span class="o">=</span><span class="n">dst</span><span class="p">)</span>
+
+    <span class="c1"># Apply the closest threshold to the DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">closest_threshold</span><span class="p">]</span>
+
+    <span class="c1"># Group by &#39;plateID&#39;, &#39;rowID&#39;, &#39;columnID&#39; and compute unique counts of &#39;grna&#39;</span>
+    <span class="n">unique_counts</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">])[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;unique_counts&#39;</span><span class="p">)</span>
+    <span class="n">unique_count_mean</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">])[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">unique_count_std</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">])[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+    <span class="c1"># Merge the unique counts back into the original DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">unique_counts</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unique_count mean: </span><span class="si">{</span><span class="n">unique_count_mean</span><span class="si">}</span><span class="s2"> std: </span><span class="si">{</span><span class="n">unique_count_std</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1">#_plot_density(df, dependent_variable=&#39;unique_counts&#39;)</span>
+    
+    <span class="n">has_underscore</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">has_underscore</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="n">plot_plates</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s1">&#39;unique_counts&#39;</span><span class="p">,</span> <span class="n">grouping</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">min_max</span><span class="o">=</span><span class="s1">&#39;allq&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span><span class="n">min_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="n">dst</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">closest_threshold</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

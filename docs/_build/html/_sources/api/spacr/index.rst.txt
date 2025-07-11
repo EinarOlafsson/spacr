@@ -1,0 +1,42 @@
+spacr
+=====
+
+.. py:module:: spacr
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /api/spacr/app_annotate/index
+   /api/spacr/app_classify/index
+   /api/spacr/app_make_masks/index
+   /api/spacr/app_mask/index
+   /api/spacr/app_measure/index
+   /api/spacr/app_sequencing/index
+   /api/spacr/app_umap/index
+   /api/spacr/core/index
+   /api/spacr/deep_spacr/index
+   /api/spacr/gui/index
+   /api/spacr/gui_core/index
+   /api/spacr/gui_elements/index
+   /api/spacr/gui_utils/index
+   /api/spacr/io/index
+   /api/spacr/logger/index
+   /api/spacr/measure/index
+   /api/spacr/ml/index
+   /api/spacr/plot/index
+   /api/spacr/sequencing/index
+   /api/spacr/settings/index
+   /api/spacr/sim/index
+   /api/spacr/sp_stats/index
+   /api/spacr/spacr_cellpose/index
+   /api/spacr/submodules/index
+   /api/spacr/timelapse/index
+   /api/spacr/toxo/index
+   /api/spacr/utils/index
+   /api/spacr/version/index
+
+

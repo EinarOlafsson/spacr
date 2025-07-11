@@ -1,0 +1,93 @@
+spacr.settings
+==============
+
+.. py:module:: spacr.settings
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: set_default_plot_merge_settings()
+
+.. py:function:: set_default_settings_preprocess_generate_masks(settings={})
+
+.. py:function:: set_default_plot_data_from_db(settings)
+
+.. py:function:: set_default_settings_preprocess_img_data(settings)
+
+.. py:function:: set_default_umap_image_settings(settings={})
+
+.. py:function:: get_measure_crop_settings(settings={})
+
+.. py:function:: set_default_analyze_screen(settings)
+
+.. py:function:: set_default_train_test_model(settings)
+
+.. py:function:: set_generate_training_dataset_defaults(settings)
+
+.. py:function:: deep_spacr_defaults(settings)
+
+.. py:function:: get_train_test_model_settings(settings)
+
+.. py:function:: get_analyze_recruitment_default_settings(settings)
+
+.. py:function:: get_default_test_cellpose_model_settings(settings)
+
+.. py:function:: get_default_apply_cellpose_model_settings(settings)
+
+.. py:function:: default_settings_analyze_percent_positive(settings)
+
+.. py:function:: get_analyze_reads_default_settings(settings)
+
+.. py:function:: get_map_barcodes_default_settings(settings)
+
+.. py:function:: get_train_cellpose_default_settings(settings)
+
+.. py:function:: set_generate_dataset_defaults(settings)
+
+.. py:function:: get_perform_regression_default_settings(settings)
+
+.. py:function:: get_check_cellpose_models_default_settings(settings)
+
+.. py:function:: get_identify_masks_finetune_default_settings(settings)
+
+.. py:data:: q
+   :value: None
+
+
+.. py:data:: expected_types
+
+.. py:data:: categories
+
+.. py:data:: category_keys
+   :value: ['Paths', 'General', 'Cellpose', 'Cell', 'Nucleus', 'Pathogen', 'Measurements', 'Object Image',...
+
+
+.. py:function:: check_settings(vars_dict, expected_types, q=None)
+
+.. py:function:: generate_fields(variables, scrollable_frame)
+
+.. py:data:: descriptions
+
+.. py:function:: set_annotate_default_settings(settings)
+
+.. py:function:: set_default_generate_barecode_mapping(settings={})
+
+.. py:function:: get_default_generate_activation_map_settings(settings)
+
+.. py:function:: get_analyze_plaque_settings(settings)
+
+.. py:function:: set_graph_importance_defaults(settings)
+
+.. py:function:: set_interperate_vision_model_defaults(settings)
+
+.. py:function:: set_analyze_endodyogeny_defaults(settings)
+
+.. py:function:: set_analyze_class_proportion_defaults(settings)
+
+.. py:function:: get_plot_data_from_csv_default_settings(settings)
+
