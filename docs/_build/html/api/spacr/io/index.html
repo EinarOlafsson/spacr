@@ -502,9 +502,9 @@ this estimate can still be inaccurate, because (1) an otherwise complete batch c
 be broken into multiple ones and (2) more than one batch worth of samples can be
 dropped when <code class="xref py py-attr docutils literal notranslate"><span class="pre">drop_last</span></code> is set. Unfortunately, PyTorch can not detect such
 cases in general.</p>
-<p>See <a href="#id15"><span class="problematic" id="id16">`Dataset Types`_</span></a> for more details on these two types of datasets and how
+<p>See <a href="#id7"><span class="problematic" id="id8">`Dataset Types`_</span></a> for more details on these two types of datasets and how
 <code class="xref py py-class docutils literal notranslate"><span class="pre">IterableDataset</span></code> interacts with
-<a href="#id17"><span class="problematic" id="id18">`Multi-process data loading`_</span></a>.</p>
+<a href="#id9"><span class="problematic" id="id10">`Multi-process data loading`_</span></a>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -544,8 +544,8 @@ cases in general.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id7">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">NoClassDataset_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_to_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>An abstract class representing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>.</p>
 <p>All datasets that represent a map from keys to data samples should subclass
@@ -564,38 +564,38 @@ sampler that yields integral indices.  To make it work with a map-style
 dataset with non-integral indices/keys, a custom sampler must be provided.</p>
 </div>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.data_dir">
+<span class="sig-name descname"><span class="pre">data_dir</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.data_dir" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id9">
-<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.transform" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id10">
-<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.shuffle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.shuffle">
+<span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.shuffle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.shuffle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id11">
-<span class="sig-name descname"><span class="pre">load_to_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.load_to_memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.load_to_memory">
+<span class="sig-name descname"><span class="pre">load_to_memory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.load_to_memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.load_to_memory" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id12">
-<span class="sig-name descname"><span class="pre">filenames</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.filenames">
+<span class="sig-name descname"><span class="pre">filenames</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.filenames" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id13">
-<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.load_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.load_image">
+<span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.load_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.load_image" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id14">
-<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id14" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset_v1.shuffle_dataset">
+<span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset_v1.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset_v1.shuffle_dataset" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
