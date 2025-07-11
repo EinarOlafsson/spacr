@@ -10,8 +10,14 @@ from btrack import datasets as btrack_datasets
 from skimage.measure import regionprops, regionprops_table
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit, linear_sum_assignment
-from scipy.integrate import trapz
+
+try:
+    from numpy import trapz
+except ImportError:
+    from scipy.integrate import trapz
+    
 import matplotlib.pyplot as plt
+
 
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
     """

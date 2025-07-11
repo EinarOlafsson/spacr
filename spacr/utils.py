@@ -65,7 +65,9 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 
 from huggingface_hub import list_repo_files
-from spacr import __file__ as spacr_path
+
+spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
+
 
 import umap.umap_ as umap
 #import umap

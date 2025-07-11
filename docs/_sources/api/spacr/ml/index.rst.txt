@@ -1,0 +1,176 @@
+spacr.ml
+========
+
+.. py:module:: spacr.ml
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: QuasiBinomial(link=logit(), dispersion=1.0)
+
+   Bases: :py:obj:`statsmodels.genmod.families.Binomial`
+
+
+   Custom Quasi-Binomial family with adjustable variance.
+
+
+   .. py:attribute:: dispersion
+      :value: 1.0
+
+
+
+   .. py:method:: variance(mu)
+
+      Adjust the variance with the dispersion parameter.
+
+
+
+.. py:function:: calculate_p_values(X, y, model)
+
+.. py:function:: perform_mixed_model(y, X, groups, alpha=1.0)
+
+.. py:function:: create_volcano_filename(csv_path, regression_type, alpha, dst)
+
+   Create and return the volcano plot filename based on regression type and alpha.
+
+
+.. py:function:: scale_variables(X, y)
+
+   Scale independent (X) and dependent (y) variables using MinMaxScaler.
+
+
+.. py:function:: process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
+
+   Return DataFrame of model coefficients and p-values.
+
+
+.. py:function:: check_distribution(y)
+
+   Check the type of distribution to recommend a model.
+
+
+.. py:function:: select_glm_family(y)
+
+   Select the appropriate GLM family based on the data.
+
+
+.. py:function:: prepare_formula(dependent_variable, random_row_column_effects=False)
+
+   Return the regression formula using random effects for plate, row, and column.
+
+
+.. py:function:: fit_mixed_model(df, formula, dst)
+
+.. py:function:: check_and_clean_data(df, dependent_variable)
+
+   Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly.
+
+
+.. py:function:: check_normality(y, variable_name)
+
+   Check if the data is normally distributed using the Shapiro-Wilk test.
+
+
+.. py:function:: minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10)
+
+   Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
+   Detect and mark the elbow point (inflection) with smoothing and tolerance control.
+
+
+.. py:function:: process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
+
+   Return DataFrame of model coefficients, standard errors, and p-values.
+
+
+.. py:function:: check_distribution(y, epsilon=1e-06)
+
+   Check the distribution of y and recommend an appropriate model.
+
+
+.. py:function:: pick_glm_family_and_link(y)
+
+   Select the appropriate GLM family and link function based on data.
+
+
+.. py:function:: regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None)
+
+.. py:function:: regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False)
+
+.. py:function:: save_summary_to_file(model, file_path='summary.csv')
+
+   Save the model's summary output to a CSV or text file.
+
+
+.. py:function:: perform_regression(settings)
+
+.. py:function:: process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None)
+
+.. py:function:: apply_transformation(X, transform)
+
+.. py:function:: check_normality(data, variable_name, verbose=False)
+
+   Check if the data is normally distributed using the Shapiro-Wilk test.
+
+
+.. py:function:: clean_controls(df, values, column)
+
+.. py:function:: process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols')
+
+.. py:function:: generate_ml_scores(settings)
+
+.. py:function:: ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=1e-05, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False)
+
+   Calculates permutation importance for numerical features in the dataframe,
+   comparing groups based on specified column values and uses the model to predict
+   the class for all other rows in the dataframe.
+
+   Args:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   feature_string (str): String to filter features that contain this substring.
+   location_column (str): Column name to use for comparing groups.
+   positive_control, negative_control (str): Values in location_column to create subsets for comparison.
+   exclude (list or str, optional): Columns to exclude from features.
+   n_repeats (int): Number of repeats for permutation importance.
+   top_features (int): Number of top features to plot based on permutation importance.
+   n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
+   test_size (float): Proportion of the dataset to include in the test split.
+   random_state (int): Random seed for reproducibility.
+   model_type (str): Type of model to use ('random_forest', 'logistic_regression', 'gradient_boosting', 'xgboost').
+   n_jobs (int): Number of jobs to run in parallel for applicable models.
+
+   Returns:
+   pandas.DataFrame: The original dataframe with added prediction and data usage columns.
+   pandas.DataFrame: DataFrame containing the importances and standard deviations.
+
+
+.. py:function:: shap_analysis(model, X_train, X_test)
+
+   Performs SHAP analysis on the given model and data.
+
+   Args:
+   model: The trained model.
+   X_train (pandas.DataFrame): Training feature set.
+   X_test (pandas.DataFrame): Testing feature set.
+   Returns:
+   fig: Matplotlib figure object containing the SHAP summary plot.
+
+
+.. py:function:: find_optimal_threshold(y_true, y_pred_proba)
+
+   Find the optimal threshold for binary classification based on the F1-score.
+
+   Args:
+   y_true (array-like): True binary labels.
+   y_pred_proba (array-like): Predicted probabilities for the positive class.
+
+   Returns:
+   float: The optimal threshold.
+
+
+.. py:function:: interperate_vision_model(settings={})
+

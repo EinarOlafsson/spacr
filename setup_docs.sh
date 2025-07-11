@@ -4,12 +4,14 @@ set -euo pipefail
 # ——— 0) Your custom landing‑page blurb —————————————————————————————
 DESCRIPTION="SpaCr (Spatial phenotype analysis of CRISPR screens) is a Python toolkit for quantifying and visualizing phenotypic changes in high‑throughput imaging assays."
 
-# ——— 1) Wipe out any old docs/ ————————————————————————————————
-rm -rf docs/
+# ——— 1) Wipe only generated artifacts ——————————————————————————
+rm -rf docs/_build docs/api
 
 # ——— 2) Create the Sphinx source tree ——————————————————————————
 mkdir -p docs/source/_static
-touch docs/.nojekyll   # prevent Jekyll from stripping _static
+#touch docs/.nojekyll   # prevent Jekyll from stripping _static
+rm -rf docs/source/api/
+
 
 # ——— 3) Write docs/source/conf.py —————————————————————————————
 cat > docs/source/conf.py << 'EOF'
@@ -55,7 +57,7 @@ autoapi_ignore             = ['*/tests/*']
 
 # -- Options for HTML output -------------------------------------------------
 html_theme      = 'sphinx_rtd_theme'
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+#html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {
     'logo_only': True,
     'collapse_navigation': False,
@@ -121,7 +123,9 @@ fi
 
 # ——— 8) Build HTML directly into docs/ —————————————————————————
 echo "🛠  Building HTML docs into docs/ …"
-sphinx-build -b html docs/source docs
+#sphinx-build -b html docs/source docs
+sphinx-build -E -b html docs/source docs/_build/html
+
 
 # ——— 9) Commit & push back to main ————————————————————————————
 echo "💾  Committing generated docs…"

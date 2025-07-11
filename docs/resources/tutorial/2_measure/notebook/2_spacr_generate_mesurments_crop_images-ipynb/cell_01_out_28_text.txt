@@ -1,0 +1,1 @@
+Progress: 4/10, operation_type: Measure and Crop, Time/image: 47.621sec, Time_left: 0.183 min.

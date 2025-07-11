@@ -1,0 +1,1395 @@
+spacr.utils
+===========
+
+.. py:module:: spacr.utils
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: filepaths_to_database(img_paths, settings, source_folder, crop_mode)
+
+.. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
+
+.. py:function:: activation_correlations_to_database(df, img_paths, source_folder, settings)
+
+.. py:function:: calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=[15, 50, 75])
+
+   Calculates Pearson and Manders correlations between input image channels and activation map channels.
+
+   :param inputs: A batch of input images, Tensor of shape (batch_size, channels, height, width)
+   :param activation_maps: A batch of activation maps, Tensor of shape (batch_size, channels, height, width)
+   :param file_names: List of file names corresponding to each image in the batch.
+   :param manders_thresholds: List of intensity percentiles to calculate Manders correlation.
+
+   :returns:
+
+             A DataFrame with columns for pairwise correlations (Pearson and Manders)
+                              between input channels and activation map channels.
+   :rtype: df_correlations
+
+
+.. py:function:: load_settings(csv_file_path, show=False, setting_key='setting_key', setting_value='setting_value')
+
+   Convert a CSV file with 'settings_key' and 'settings_value' columns into a dictionary.
+   Handles special cases where values are lists, tuples, booleans, None, integers, floats, and nested dictionaries.
+
+   :param csv_file_path: The path to the CSV file.
+   :type csv_file_path: str
+   :param show: Whether to display the dataframe (for debugging).
+   :type show: bool
+   :param setting_key: The name of the column that contains the setting keys.
+   :type setting_key: str
+   :param setting_value: The name of the column that contains the setting values.
+   :type setting_value: str
+
+   :returns: A dictionary where 'settings_key' are the keys and 'settings_value' are the values.
+   :rtype: dict
+
+
+.. py:function:: save_settings(settings, name='settings', show=False)
+
+.. py:function:: print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type='')
+
+.. py:function:: reset_mp()
+
+.. py:function:: is_multiprocessing_process(process)
+
+   Check if the process is a multiprocessing process.
+
+
+.. py:function:: close_file_descriptors()
+
+   Close file descriptors and shared memory objects.
+
+
+.. py:function:: close_multiprocessing_processes()
+
+   Close all multiprocessing processes.
+
+
+.. py:function:: check_mask_folder(src, mask_fldr)
+
+.. py:function:: smooth_hull_lines(cluster_data)
+
+.. py:function:: mask_object_count(mask)
+
+   Counts the number of objects in a given mask.
+
+   Parameters:
+   - mask: numpy.ndarray. The mask containing object labels.
+
+   Returns:
+   - int. The number of objects in the mask.
+
+
+.. py:function:: is_list_of_lists(var)
+
+.. py:function:: normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None)
+
+   Normalize each image in the stack to its own percentiles.
+
+   Parameters:
+   - array: numpy array
+   The input stack to be normalized.
+   - p1: int, optional
+   The lower percentile value for normalization. Default is 2.
+   - p2: int, optional
+   The upper percentile value for normalization. Default is 98.
+   - percentile_list: list, optional
+   A list of pre-calculated percentiles for each image in the stack. Default is None.
+
+   Returns:
+   - new_stack: numpy array
+   The normalized stack with the same shape as the input stack.
+
+
+.. py:function:: annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None)
+
+   Annotates conditions in a DataFrame based on specified criteria and combines them into a 'condition' column.
+   NaN is used for missing values, and they are excluded from the 'condition' column.
+
+   :param df: The DataFrame to annotate.
+   :type df: pandas.DataFrame
+   :param cells: Host cell types. Defaults to None.
+   :type cells: list/str, optional
+   :param cell_loc: Values for each host cell type. Defaults to None.
+   :type cell_loc: list of lists, optional
+   :param pathogens: Pathogens. Defaults to None.
+   :type pathogens: list/str, optional
+   :param pathogen_loc: Values for each pathogen. Defaults to None.
+   :type pathogen_loc: list of lists, optional
+   :param treatments: Treatments. Defaults to None.
+   :type treatments: list/str, optional
+   :param treatment_loc: Values for each treatment. Defaults to None.
+   :type treatment_loc: list of lists, optional
+
+   :returns: Annotated DataFrame with a combined 'condition' column.
+   :rtype: pandas.DataFrame
+
+
+.. py:class:: Cache(max_size)
+
+   A class representing a cache with a maximum size.
+
+   .. attribute:: max_size
+
+      The maximum size of the cache.
+
+      :type: int
+
+   .. attribute:: cache
+
+      The cache data structure.
+
+      :type: OrderedDict
+
+
+   .. py:attribute:: cache
+
+
+   .. py:attribute:: max_size
+
+
+   .. py:method:: get(key)
+
+
+   .. py:method:: put(key, value)
+
+
+.. py:class:: ScaledDotProductAttention(d_k)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Scaled Dot-Product Attention module.
+
+   :param d_k: The dimension of the key and query vectors.
+   :type d_k: int
+
+   .. attribute:: d_k
+
+      The dimension of the key and query vectors.
+
+      :type: int
+
+   .. method:: forward(Q, K, V)
+
+      Performs the forward pass of the attention mechanism.
+      
+      
+
+
+   .. py:attribute:: d_k
+
+
+   .. py:method:: forward(Q, K, V)
+
+      Performs the forward pass of the attention mechanism.
+
+      :param Q: The query tensor of shape (batch_size, seq_len_q, d_k).
+      :type Q: torch.Tensor
+      :param K: The key tensor of shape (batch_size, seq_len_k, d_k).
+      :type K: torch.Tensor
+      :param V: The value tensor of shape (batch_size, seq_len_v, d_k).
+      :type V: torch.Tensor
+
+      :returns: The output tensor of shape (batch_size, seq_len_q, d_k).
+      :rtype: torch.Tensor
+
+
+
+.. py:class:: SelfAttention(in_channels, d_k)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Self-Attention module that applies scaled dot-product attention mechanism.
+
+   :param in_channels: Number of input channels.
+   :type in_channels: int
+   :param d_k: Dimensionality of the key and query vectors.
+   :type d_k: int
+
+
+   .. py:attribute:: W_q
+
+
+   .. py:attribute:: W_k
+
+
+   .. py:attribute:: W_v
+
+
+   .. py:attribute:: attention
+
+
+   .. py:method:: forward(x)
+
+      Forward pass of the SelfAttention module.
+
+      :param x: Input tensor of shape (batch_size, in_channels).
+      :type x: torch.Tensor
+
+      :returns: Output tensor of shape (batch_size, d_k).
+      :rtype: torch.Tensor
+
+
+
+.. py:class:: ScaledDotProductAttention(d_k)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:attribute:: d_k
+
+
+   .. py:method:: forward(Q, K, V)
+
+      Performs the forward pass of the ScaledDotProductAttention module.
+
+      :param Q: The query tensor.
+      :type Q: torch.Tensor
+      :param K: The key tensor.
+      :type K: torch.Tensor
+      :param V: The value tensor.
+      :type V: torch.Tensor
+
+      :returns: The output tensor.
+      :rtype: torch.Tensor
+
+
+
+.. py:class:: SelfAttention(in_channels, d_k)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Self-Attention module that applies scaled dot-product attention mechanism.
+
+   :param in_channels: Number of input channels.
+   :type in_channels: int
+   :param d_k: Dimensionality of the key and query vectors.
+   :type d_k: int
+
+
+   .. py:attribute:: W_q
+
+
+   .. py:attribute:: W_k
+
+
+   .. py:attribute:: W_v
+
+
+   .. py:attribute:: attention
+
+
+   .. py:method:: forward(x)
+
+      Forward pass of the SelfAttention module.
+
+      :param x: Input tensor of shape (batch_size, in_channels).
+      :type x: torch.Tensor
+
+      :returns: Output tensor after applying self-attention mechanism.
+      :rtype: torch.Tensor
+
+
+
+.. py:class:: EarlyFusion(in_channels)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Early Fusion module for image classification.
+
+   :param in_channels: Number of input channels.
+   :type in_channels: int
+
+
+   .. py:attribute:: conv1
+
+
+   .. py:method:: forward(x)
+
+      Forward pass of the Early Fusion module.
+
+      :param x: Input tensor of shape (batch_size, in_channels, height, width).
+      :type x: torch.Tensor
+
+      :returns: Output tensor of shape (batch_size, 64, height, width).
+      :rtype: torch.Tensor
+
+
+
+.. py:class:: SpatialAttention(kernel_size=7)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:attribute:: conv1
+
+
+   .. py:attribute:: sigmoid
+
+
+   .. py:method:: forward(x)
+
+      Performs forward pass of the SpatialAttention module.
+
+      :param x: The input tensor.
+      :type x: torch.Tensor
+
+      :returns: The output tensor after applying spatial attention.
+      :rtype: torch.Tensor
+
+
+
+.. py:class:: MultiScaleBlockWithAttention(in_channels, out_channels)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:attribute:: dilated_conv1
+
+
+   .. py:attribute:: spatial_attention
+
+
+   .. py:method:: custom_forward(x)
+
+
+   .. py:method:: forward(x)
+
+
+.. py:class:: CustomCellClassifier(num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:attribute:: early_fusion
+
+
+   .. py:attribute:: multi_scale_block_1
+
+
+   .. py:attribute:: fc1
+
+
+   .. py:attribute:: use_checkpoint
+
+
+   .. py:method:: custom_forward(x)
+
+
+   .. py:method:: forward(x)
+
+
+.. py:class:: TorchModel(model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:attribute:: model_name
+      :value: 'resnet50'
+
+
+
+   .. py:attribute:: use_checkpoint
+      :value: False
+
+
+
+   .. py:attribute:: base_model
+
+
+   .. py:attribute:: num_ftrs
+
+
+   .. py:method:: apply_dropout_rate(model, dropout_rate)
+
+      Apply dropout rate to all dropout layers in the model.
+
+
+
+   .. py:method:: init_base_model(pretrained)
+
+      Initialize the base model from torchvision.models.
+
+
+
+   .. py:method:: get_weight_choice()
+
+      Get weight choice if it exists for the model.
+
+
+
+   .. py:method:: get_num_ftrs()
+
+      Determine the number of features output by the base model.
+
+
+
+   .. py:method:: init_spacr_classifier(dropout_rate)
+
+      Initialize the SPACR classifier.
+
+
+
+   .. py:method:: forward(x)
+
+      Define the forward pass of the model.
+
+
+
+.. py:class:: FocalLossWithLogits(alpha=1, gamma=2)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:attribute:: alpha
+      :value: 1
+
+
+
+   .. py:attribute:: gamma
+      :value: 2
+
+
+
+   .. py:method:: forward(logits, target)
+
+
+.. py:class:: ResNet(resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet')
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+
+   .. py:method:: initialize_base(base_model_dict, dropout_rate, use_checkpoint, init_weights)
+
+
+   .. py:method:: forward(x)
+
+
+.. py:function:: split_my_dataset(dataset, split_ratio=0.1)
+
+   Splits a dataset into training and validation subsets.
+
+   :param dataset: The dataset to be split.
+   :type dataset: torch.utils.data.Dataset
+   :param split_ratio: The ratio of validation samples to total samples. Defaults to 0.1.
+   :type split_ratio: float, optional
+
+   :returns: A tuple containing the training dataset and validation dataset.
+   :rtype: tuple
+
+
+.. py:function:: classification_metrics(all_labels, prediction_pos_probs, loss, epoch)
+
+   Calculate classification metrics for binary classification.
+
+   Parameters:
+   - all_labels (list): List of true labels.
+   - prediction_pos_probs (list): List of predicted positive probabilities.
+   - loader_name (str): Name of the data loader.
+   - loss (float): Loss value.
+   - epoch (int): Epoch number.
+
+   Returns:
+   - data_df (DataFrame): DataFrame containing the calculated metrics.
+
+
+.. py:function:: compute_irm_penalty(losses, dummy_w, device)
+
+   Computes the Invariant Risk Minimization (IRM) penalty.
+
+   :param losses: A list of losses.
+   :type losses: list
+   :param dummy_w: A dummy weight tensor.
+   :type dummy_w: torch.Tensor
+   :param device: The device to perform computations on.
+   :type device: torch.device
+
+   :returns: The computed IRM penalty.
+   :rtype: float
+
+
+.. py:function:: choose_model(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False)
+
+   Choose a model for classification.
+
+   :param model_type: The type of model to choose. Can be one of the pre-defined TorchVision models or 'custom' for a custom model.
+   :type model_type: str
+   :param device: The device to use for model inference.
+   :type device: str
+   :param init_weights: Whether to initialize the model with pre-trained weights. Defaults to True.
+   :type init_weights: bool, optional
+   :param dropout_rate: The dropout rate to use in the model. Defaults to 0.
+   :type dropout_rate: float, optional
+   :param use_checkpoint: Whether to use checkpointing during model training. Defaults to False.
+   :type use_checkpoint: bool, optional
+   :param channels: The number of input channels for the model. Defaults to 3.
+   :type channels: int, optional
+   :param height: The height of the input images for the model. Defaults to 224.
+   :type height: int, optional
+   :param width: The width of the input images for the model. Defaults to 224.
+   :type width: int, optional
+   :param chan_dict: A dictionary containing channel information for custom models. Defaults to None.
+   :type chan_dict: dict, optional
+   :param num_classes: The number of output classes for the model. Defaults to 2.
+   :type num_classes: int, optional
+
+   :returns: The chosen model.
+   :rtype: torch.nn.Module
+
+
+.. py:function:: calculate_loss(output, target, loss_type='binary_cross_entropy_with_logits')
+
+.. py:function:: pick_best_model(src)
+
+.. py:function:: get_paths_from_db(df, png_df, image_type='cell_png')
+
+.. py:function:: save_file_lists(dst, data_set, ls)
+
+.. py:function:: augment_single_image(args)
+
+.. py:function:: augment_images(file_paths, dst)
+
+.. py:function:: augment_classes(dst, nc, pc, generate=True, move=True)
+
+.. py:function:: annotate_predictions(csv_loc)
+
+.. py:function:: initiate_counter(counter_, lock_)
+
+.. py:function:: add_images_to_tar(paths_chunk, tar_path, total_images)
+
+.. py:function:: generate_fraction_map(df, gene_column, min_frequency=0.0)
+
+.. py:function:: fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred')
+
+.. py:function:: model_metrics(model)
+
+.. py:function:: check_multicollinearity(x)
+
+   Checks multicollinearity of the predictors by computing the VIF.
+
+
+.. py:function:: lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso')
+
+.. py:function:: MLR(merged_df, refine_model)
+
+.. py:function:: get_files_from_dir(dir_path, file_extension='*')
+
+.. py:function:: create_circular_mask(h, w, center=None, radius=None)
+
+.. py:function:: apply_mask(image, output_value=0)
+
+.. py:function:: invert_image(image)
+
+.. py:function:: resize_images_and_labels(images, labels, target_height, target_width, show_example=True)
+
+.. py:function:: resize_labels_back(labels, orig_dims)
+
+.. py:function:: calculate_iou(mask1, mask2)
+
+.. py:function:: match_masks(true_masks, pred_masks, iou_threshold)
+
+.. py:function:: compute_average_precision(matches, num_true_masks, num_pred_masks)
+
+.. py:function:: pad_to_same_shape(mask1, mask2)
+
+.. py:function:: compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds)
+
+.. py:function:: compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0.5, 0.95, 10))
+
+.. py:function:: jaccard_index(mask1, mask2)
+
+.. py:function:: dice_coefficient(mask1, mask2)
+
+.. py:function:: extract_boundaries(mask, dilation_radius=1)
+
+.. py:function:: boundary_f1_score(mask_true, mask_pred, dilation_radius=1)
+
+.. py:function:: merge_touching_objects(mask, threshold=0.25)
+
+   Merges touching objects in a binary mask based on the percentage of their shared boundary.
+
+   :param mask: Binary mask representing objects.
+   :type mask: ndarray
+   :param threshold: Threshold value for merging objects. Defaults to 0.25.
+   :type threshold: float, optional
+
+   :returns: Merged mask.
+   :rtype: ndarray
+
+
+.. py:function:: remove_intensity_objects(image, mask, intensity_threshold, mode)
+
+   Removes objects from the mask based on their mean intensity in the original image.
+
+   :param image: The original image.
+   :type image: ndarray
+   :param mask: The mask containing labeled objects.
+   :type mask: ndarray
+   :param intensity_threshold: The threshold value for mean intensity.
+   :type intensity_threshold: float
+   :param mode: The mode for intensity comparison. Can be 'low' or 'high'.
+   :type mode: str
+
+   :returns: The updated mask with objects removed.
+   :rtype: ndarray
+
+
+.. py:class:: SelectChannels(channels)
+
+   .. py:attribute:: channels
+
+
+.. py:function:: preprocess_image(image_path, image_size=224, channels=[1, 2, 3], normalize=True)
+
+.. py:class:: SaliencyMapGenerator(model)
+
+   .. py:attribute:: model
+
+
+   .. py:method:: compute_saliency_maps(X, y)
+
+
+   .. py:method:: compute_saliency_and_predictions(X)
+
+
+   .. py:method:: plot_activation_grid(X, saliency, predictions, overlay=True, normalize=False)
+
+
+   .. py:method:: percentile_normalize(img, lower_percentile=2, upper_percentile=98)
+
+
+.. py:class:: GradCAMGenerator(model, target_layer, cam_type='gradcam')
+
+   .. py:attribute:: model
+
+
+   .. py:attribute:: target_layer
+
+
+   .. py:attribute:: cam_type
+      :value: 'gradcam'
+
+
+
+   .. py:attribute:: gradients
+      :value: None
+
+
+
+   .. py:attribute:: activations
+      :value: None
+
+
+
+   .. py:attribute:: target_layer_module
+
+
+   .. py:method:: hook_layers()
+
+
+   .. py:method:: get_layer(model, target_layer)
+
+
+   .. py:method:: compute_gradcam_maps(X, y)
+
+
+   .. py:method:: compute_gradcam_and_predictions(X)
+
+
+   .. py:method:: plot_activation_grid(X, gradcam, predictions, overlay=True, normalize=False)
+
+
+   .. py:method:: percentile_normalize(img, lower_percentile=2, upper_percentile=98)
+
+
+.. py:function:: preprocess_image(image_path, normalize=True, image_size=224, channels=[1, 2, 3])
+
+.. py:function:: class_visualization(target_y, model_path, dtype, img_size=224, channels=[0, 1, 2], l2_reg=0.001, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names=['nc', 'pc'])
+
+.. py:function:: get_submodules(model, prefix='')
+
+.. py:class:: GradCAM(model, target_layers=None, use_cuda=True)
+
+   .. py:attribute:: model
+
+
+   .. py:attribute:: target_layers
+      :value: None
+
+
+
+   .. py:attribute:: cuda
+      :value: True
+
+
+
+   .. py:method:: forward(input)
+
+
+.. py:function:: show_cam_on_image(img, mask)
+
+.. py:function:: recommend_target_layers(model)
+
+.. py:class:: IntegratedGradients(model)
+
+   .. py:attribute:: model
+
+
+   .. py:method:: generate_integrated_gradients(input_tensor, target_label_idx, baseline=None, num_steps=50)
+
+
+.. py:function:: get_db_paths(src)
+
+.. py:function:: get_sequencing_paths(src)
+
+.. py:function:: load_image_paths(c, visualize)
+
+.. py:function:: merge_dataframes(df, image_paths_df, verbose)
+
+.. py:function:: remove_highly_correlated_columns(df, threshold)
+
+.. py:function:: filter_columns(df, filter_by)
+
+.. py:function:: reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1, mode='fit', model=False)
+
+   Perform dimensionality reduction and clustering on the given data.
+
+   Parameters:
+   numeric_data (np.ndarray): Numeric data for embedding and clustering.
+   n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
+   min_dist (float): Minimum distance for UMAP.
+   metric (str): Metric for UMAP and DBSCAN.
+   eps (float): Epsilon for DBSCAN.
+   min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
+   clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+   reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+   verbose (bool): Whether to print verbose output.
+   embedding (np.ndarray, optional): Precomputed embedding. Default is None.
+   return_model (bool): Whether to return the reducer model. Default is False.
+
+   Returns:
+   tuple: embedding, labels (and optionally the reducer model)
+
+
+.. py:function:: remove_noise(embedding, labels)
+
+.. py:function:: plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose)
+
+.. py:function:: generate_colors(num_clusters, black_background)
+
+.. py:function:: assign_colors(unique_labels, random_colors)
+
+.. py:function:: setup_plot(figuresize, black_background)
+
+.. py:function:: plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=10, dot_size=50, verbose=False)
+
+.. py:function:: plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
+
+.. py:function:: plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose)
+
+.. py:function:: plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True)
+
+.. py:function:: remove_canvas(img)
+
+.. py:function:: plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose)
+
+.. py:function:: plot_grid(cluster_images, colors, figuresize, black_background, verbose)
+
+.. py:function:: generate_path_list_from_db(db_path, file_metadata)
+
+.. py:function:: correct_paths(df, base_path, folder='data')
+
+.. py:function:: delete_folder(folder_path)
+
+.. py:function:: measure_test_mode(settings)
+
+.. py:function:: preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, column_list=False)
+
+   Preprocesses the given dataframe by applying filtering, removing highly correlated columns,
+   applying log transformation, filling NaN values, and scaling the numeric data.
+
+   Args:
+   df (pandas.DataFrame): The input dataframe.
+   filter_by (str or None): The channel of interest to filter the dataframe by.
+   remove_highly_correlated (bool or float): Whether to remove highly correlated columns.
+   If a float is provided, it represents the correlation threshold.
+   log_data (bool): Whether to apply log transformation to the numeric data.
+   exclude (list or None): List of features to exclude from the filtering process.
+   verbose (bool): Whether to print verbose output during preprocessing.
+
+   Returns:
+   numpy.ndarray: The preprocessed numeric data.
+
+   Raises:
+   ValueError: If no numeric columns are available after filtering.
+
+
+
+.. py:function:: remove_low_variance_columns(df, threshold=0.01, verbose=False)
+
+   Removes columns from the dataframe that have low variance.
+
+   Parameters:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   threshold (float): The variance threshold below which columns will be removed.
+
+   Returns:
+   pandas.DataFrame: The DataFrame with low variance columns removed.
+
+
+.. py:function:: remove_highly_correlated_columns(df, threshold=0.95, verbose=False)
+
+   Removes columns from the dataframe that are highly correlated with one another.
+
+   Parameters:
+   df (pandas.DataFrame): The DataFrame containing the data.
+   threshold (float): The correlation threshold above which columns will be removed.
+
+   Returns:
+   pandas.DataFrame: The DataFrame with highly correlated columns removed.
+
+
+.. py:function:: filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False)
+
+   Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.
+
+   Parameters:
+   - df (pandas.DataFrame): The input dataframe to be filtered.
+   - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If 'morphology', only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.
+   - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.
+
+   Returns:
+   - filtered_df (pandas.DataFrame): The filtered dataframe based on the specified parameters.
+   - features (list): The list of selected features after filtering.
+
+
+
+.. py:function:: check_overlap(current_position, other_positions, threshold)
+
+.. py:function:: find_non_overlapping_position(x, y, image_positions, threshold, max_attempts=100)
+
+.. py:function:: search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method, verbose, reduction_param=None, embedding=None, n_jobs=-1)
+
+   Perform dimensionality reduction and clustering on the given data.
+
+   Parameters:
+   numeric_data (np.array): Numeric data to process.
+   n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.
+   min_dist (float): Minimum distance for UMAP.
+   metric (str): Metric for UMAP, tSNE, and DBSCAN.
+   eps (float): Epsilon for DBSCAN clustering.
+   min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
+   clustering (str): Clustering method ('DBSCAN' or 'KMeans').
+   reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
+   verbose (bool): Whether to print verbose output.
+   reduction_param (dict): Additional parameters for the reduction method.
+   embedding (np.array): Precomputed embedding (optional).
+   n_jobs (int): Number of parallel jobs to run.
+
+   Returns:
+   embedding (np.array): Embedding of the data.
+   labels (np.array): Cluster labels.
+
+
+.. py:function:: load_image(image_path)
+
+   Load and preprocess an image.
+
+
+.. py:function:: extract_features(image_paths, resnet=resnet50)
+
+   Extract features from images using a pre-trained ResNet model.
+
+
+.. py:function:: check_normality(series)
+
+   Helper function to check if a feature is normally distributed.
+
+
+.. py:function:: random_forest_feature_importance(all_df, cluster_col='cluster')
+
+   Random Forest feature importance.
+
+
+.. py:function:: perform_statistical_tests(all_df, cluster_col='cluster')
+
+   Perform ANOVA or Kruskal-Wallis tests depending on normality of features.
+
+
+.. py:function:: combine_results(rf_df, anova_df, kruskal_df)
+
+   Combine the results into a single DataFrame.
+
+
+.. py:function:: cluster_feature_analysis(all_df, cluster_col='cluster')
+
+   Perform Random Forest feature importance, ANOVA for normally distributed features,
+   and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
+
+
+.. py:function:: adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
+
+   Process all npy files in the given folders. Merge and relabel cells in cell masks
+   based on parasite overlap and cell perimeter sharing conditions.
+
+   :param parasite_folder: Path to the folder containing parasite masks.
+   :type parasite_folder: str
+   :param cell_folder: Path to the folder containing cell masks.
+   :type cell_folder: str
+   :param nuclei_folder: Path to the folder containing nuclei masks.
+   :type nuclei_folder: str
+   :param overlap_threshold: The percentage threshold for merging cells based on parasite overlap.
+   :type overlap_threshold: float
+   :param perimeter_threshold: The percentage threshold for merging cells based on shared perimeter.
+   :type perimeter_threshold: float
+
+
+.. py:function:: process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False)
+
+.. py:function:: merge_regression_res_with_metadata(results_file, metadata_file, name='_metadata')
+
+.. py:function:: process_vision_results(df, threshold=0.5)
+
+.. py:function:: get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1)
+
+.. py:function:: augment_image(image)
+
+   Perform data augmentation by rotating and reflecting the image.
+
+   Parameters:
+   - image (PIL Image or numpy array): The input image.
+
+   Returns:
+   - augmented_images (list): A list of augmented images.
+
+
+.. py:function:: augment_dataset(dataset, is_grayscale=False)
+
+   Perform data augmentation on the entire dataset by rotating and reflecting the images.
+
+   Parameters:
+   - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).
+   - is_grayscale (bool): Flag indicating if the images are grayscale.
+
+   Returns:
+   - augmented_dataset (list of tuples): A dataset with augmented (image, label, filename) tuples.
+
+
+.. py:function:: convert_and_relabel_masks(folder_path)
+
+   Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.
+
+   Parameters:
+   - folder_path (str): The path to the folder containing int64 npy mask files.
+
+   Returns:
+   - None
+
+
+.. py:function:: correct_masks(src)
+
+.. py:function:: count_reads_in_fastq(fastq_file)
+
+.. py:function:: get_cuda_version()
+
+.. py:function:: all_elements_match(list1, list2)
+
+.. py:function:: prepare_batch_for_segmentation(batch)
+
+.. py:function:: check_index(df, elements=5, split_char='_')
+
+.. py:function:: map_condition(col_value, neg='c1', pos='c2', mix='c3')
+
+.. py:function:: download_models(repo_id='einarolafsson/models', retries=5, delay=5)
+
+   Downloads all model files from Hugging Face and stores them in the `resources/models` directory
+   within the installed `spacr` package.
+
+   :param repo_id: The repository ID on Hugging Face (default is 'einarolafsson/models').
+   :type repo_id: str
+   :param retries: Number of retry attempts in case of failure.
+   :type retries: int
+   :param delay: Delay in seconds between retries.
+   :type delay: int
+
+   :returns: The local path to the downloaded models.
+   :rtype: str
+
+
+.. py:function:: generate_cytoplasm_mask(nucleus_mask, cell_mask)
+
+   Generates a cytoplasm mask from nucleus and cell masks.
+
+   Parameters:
+   - nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).
+   - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).
+
+   Returns:
+   - cytoplasm_mask (np.array): Mask for the cytoplasm (1 for cytoplasm, 0 for nucleus and pathogens).
+
+
+.. py:function:: add_column_to_database(settings)
+
+   Adds a new column to the database table by matching on a common column from the DataFrame.
+   If the column already exists in the database, it adds the column with a suffix.
+   NaN values will remain as NULL in the database.
+
+   :param settings: A dictionary containing the following keys:
+                    csv_path (str): Path to the CSV file with the data to be added.
+                    db_path (str): Path to the SQLite database (or connection string for other databases).
+                    table_name (str): The name of the table in the database.
+                    update_column (str): The name of the new column in the DataFrame to add to the database.
+                    match_column (str): The common column used to match rows.
+   :type settings: dict
+
+   :returns: None
+
+
+.. py:function:: fill_holes_in_mask(mask)
+
+   Fill holes in each object in the mask while keeping objects separated.
+
+   :param mask: A labeled mask where each object has a unique integer value.
+   :type mask: np.ndarray
+
+   :returns: A mask with holes filled and original labels preserved.
+   :rtype: np.ndarray
+
+
+.. py:function:: correct_metadata_column_names(df)
+
+.. py:function:: control_filelist(folder, mode='columnID', values=['01', '02'])
+
+.. py:function:: rename_columns_in_db(db_path)
+
+.. py:function:: group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment')
+
+.. py:function:: delete_intermedeate_files(settings)
+
+.. py:function:: filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold)
+
+   Reads a CSV into a DataFrame, filters rows based on a column for values > upper_threshold and < lower_threshold,
+   and saves the filtered DataFrame to a new CSV file.
+
+   :param input_csv: Path to the input CSV file.
+   :type input_csv: str
+   :param output_csv: Path to save the filtered CSV file.
+   :type output_csv: str
+   :param column_name: Column name to apply the filters on.
+   :type column_name: str
+   :param upper_threshold: Upper threshold for filtering (values greater than this are retained).
+   :type upper_threshold: float
+   :param lower_threshold: Lower threshold for filtering (values less than this are retained).
+   :type lower_threshold: float
+
+   :returns: None
+
+
+.. py:function:: extract_tar_bz2_files(folder_path)
+
+   Extracts all .tar.bz2 files in the given folder into subfolders with the same name as the tar file.
+
+   :param folder_path: Path to the folder containing .tar.bz2 files.
+   :type folder_path: str
+
+
+.. py:function:: calculate_shortest_distance(df, object1, object2)
+
+   Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).
+
+   Parameters:
+   - df: Pandas DataFrame containing measurements
+   - object1: String, name of the first object (e.g., "pathogen")
+   - object2: String, name of the second object (e.g., "nucleus")
+
+   Returns:
+   - df: Pandas DataFrame with a new column for shortest edge-to-edge distance.
+
+
+.. py:function:: format_path_for_system(path)
+
+   Takes a file path and reformats it to be compatible with the current operating system.
+
+   :param path: The file path to be formatted.
+   :type path: str
+
+   :returns: The formatted path for the current operating system.
+   :rtype: str
+
+
+.. py:function:: normalize_src_path(src)
+
+   Ensures that the 'src' value is properly formatted as either a list of strings or a single string.
+
+   :param src: The input source path(s).
+   :type src: str or list
+
+   :returns:
+
+             A correctly formatted list if the input was a list (or string representation of a list),
+                          otherwise a single string.
+   :rtype: list or str
+
+
+.. py:function:: generate_image_path_map(root_folder, valid_extensions=('tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'czi', 'nd2', 'lif'))
+
+   Recursively scans a folder and its subfolders for images, then creates a mapping of:
+   {original_image_path: new_image_path}, where the new path includes all subfolder names.
+
+   :param root_folder: The root directory to scan for images.
+   :type root_folder: str
+   :param valid_extensions: Tuple of valid image file extensions.
+   :type valid_extensions: tuple
+
+   :returns: A dictionary mapping original image paths to their new paths.
+   :rtype: dict
+
+
+.. py:function:: copy_images_to_consolidated(image_path_map, root_folder)
+
+   Copies images from their original locations to a 'consolidated' folder,
+   renaming them according to the generated dictionary.
+
+   :param image_path_map: Dictionary mapping {original_path: new_path}.
+   :type image_path_map: dict
+   :param root_folder: The root directory where the 'consolidated' folder will be created.
+   :type root_folder: str
+
+
+.. py:function:: correct_metadata(df)
+
