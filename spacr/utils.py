@@ -1544,9 +1544,8 @@ class Cache:
     """
     A class representing a cache with a maximum size.
 
-    Attributes:
+    Args:
         max_size (int): The maximum size of the cache.
-        cache (OrderedDict): The cache data structure.
     """
 
     def __init__(self, max_size):
@@ -1565,23 +1564,15 @@ class Cache:
             self.cache.popitem(last=False)
         self.cache[key] = value
 
-class ScaledDotProductAttention(nn.Module):
+class ScaledDotProductAttention_v1(nn.Module):
     """
     Scaled Dot-Product Attention module.
 
     Args:
         d_k (int): The dimension of the key and query vectors.
-
-    Attributes:
-        d_k (int): The dimension of the key and query vectors.
-
-    Methods:
-        forward(Q, K, V): Performs the forward pass of the attention mechanism.
-
     """
-
     def __init__(self, d_k):
-        super(ScaledDotProductAttention, self).__init__()
+        super(ScaledDotProductAttention_v1, self).__init__()
         self.d_k = d_k
 
     def forward(self, Q, K, V):
@@ -1595,24 +1586,23 @@ class ScaledDotProductAttention(nn.Module):
 
         Returns:
             torch.Tensor: The output tensor of shape (batch_size, seq_len_q, d_k).
-
         """
         scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=torch.float32))
         attention_probs = F.softmax(scores, dim=-1)
         output = torch.matmul(attention_probs, V)
         return output
 
-class SelfAttention(nn.Module):
+class SelfAttention_v1(nn.Module):
     """
     Self-Attention module that applies scaled dot-product attention mechanism.
-    
+
     Args:
         in_channels (int): Number of input channels.
         d_k (int): Dimensionality of the key and query vectors.
     """
 
     def __init__(self, in_channels, d_k):
-        super(SelfAttention, self).__init__()
+        super(SelfAttention_v1, self).__init__()
         self.W_q = nn.Linear(in_channels, d_k)
         self.W_k = nn.Linear(in_channels, d_k)
         self.W_v = nn.Linear(in_channels, d_k)
@@ -1621,10 +1611,10 @@ class SelfAttention(nn.Module):
     def forward(self, x):
         """
         Forward pass of the SelfAttention module.
-        
+
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, in_channels).
-        
+
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, d_k).
         """
@@ -3301,7 +3291,7 @@ class SelectChannels:
             img[2, :, :] = 0  # Zero out the blue channel
         return img
     
-def preprocess_image(image_path, image_size=224, channels=[1,2,3], normalize=True):
+def preprocess_image_v1(image_path, image_size=224, channels=[1,2,3], normalize=True):
 
     if normalize:
         transform = transforms.Compose([
@@ -3742,7 +3732,7 @@ def merge_dataframes(df, image_paths_df, verbose):
         display(df)
     return df
 
-def remove_highly_correlated_columns(df, threshold):
+def remove_highly_correlated_columns_v1(df, threshold):
     corr_matrix = df.corr().abs()
     upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
     to_drop = [column for column in upper_tri.columns if any(upper_tri[column] > threshold)]
