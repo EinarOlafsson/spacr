@@ -100,42 +100,6 @@ Module Contents
    :param load_to_memory: Whether to load all images into memory. Default is False.
    :type load_to_memory: bool, optional
 
-   .. attribute:: data_dir
-
-      The directory path where the image files are located.
-
-      :type: str
-
-   .. attribute:: transform
-
-      A function/transform to apply to the image data.
-
-      :type: callable
-
-   .. attribute:: shuffle
-
-      Whether to shuffle the dataset.
-
-      :type: bool
-
-   .. attribute:: load_to_memory
-
-      Whether to load all images into memory.
-
-      :type: bool
-
-   .. attribute:: filenames
-
-      A list of file paths for the image files.
-
-      :type: list
-
-   .. attribute:: images
-
-      A list of loaded images (if load_to_memory is True).
-
-      :type: list
-
 
    .. py:attribute:: data_dir
 

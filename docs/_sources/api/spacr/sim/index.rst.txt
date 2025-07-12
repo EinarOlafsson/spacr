@@ -45,7 +45,7 @@ Module Contents
 
 
 
-.. py:function:: gini(x)
+.. py:function:: gini_V1(x)
 
    Calculate the Gini coefficient for a given array of values.
 
