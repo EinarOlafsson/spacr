@@ -120,7 +120,7 @@ def scale_variables(X, y):
     
     return X_scaled, y_scaled
 
-def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
+def process_model_coefficients_v1(model, regression_type, X, y, nc, pc, controls):
     """Return DataFrame of model coefficients and p-values."""
     if regression_type in ['ols', 'gls', 'wls', 'rlm', 'glm', 'mixed', 'quantile', 'logit', 'probit', 'poisson']:
         coefs = model.params
@@ -159,7 +159,7 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
-def check_distribution(y):
+def check_distribution_v1(y):
     """Check the type of distribution to recommend a model."""
     if np.all((y == 0) | (y == 1)):
         print("Detected binary data.")
@@ -307,7 +307,7 @@ def check_and_clean_data(df, dependent_variable):
     print("Data is ready for model fitting.")
     return df_cleaned
 
-def check_normality(y, variable_name):
+def check_normality_v1(y, variable_name):
     """Check if the data is normally distributed using the Shapiro-Wilk test."""
     from scipy.stats import shapiro
 
