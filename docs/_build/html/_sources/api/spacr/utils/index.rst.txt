@@ -156,7 +156,7 @@ Module Contents
    .. py:method:: put(key, value)
 
 
-.. py:class:: ScaledDotProductAttention(d_k)
+.. py:class:: ScaledDotProductAttention_v1(d_k)
 
    Bases: :py:obj:`torch.nn.Module`
 
@@ -186,7 +186,7 @@ Module Contents
 
 
 
-.. py:class:: SelfAttention(in_channels, d_k)
+.. py:class:: SelfAttention_v1(in_channels, d_k)
 
    Bases: :py:obj:`torch.nn.Module`
 
