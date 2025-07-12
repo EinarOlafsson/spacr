@@ -183,7 +183,9 @@
     <span class="k">return</span> <span class="n">diffsum</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
 
-<span class="k">def</span> <span class="nf">gini</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="gini_V1">
+<a class="viewcode-back" href="../../api/spacr/sim/index.html#spacr.sim.gini_V1">[docs]</a>
+<span class="k">def</span> <span class="nf">gini_V1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the Gini coefficient for a given array of values.</span>
 
@@ -203,7 +205,8 @@
     <span class="n">rmad</span> <span class="o">=</span> <span class="n">mad</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="c1"># Gini coefficient</span>
     <span class="n">g</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">rmad</span>
-    <span class="k">return</span> <span class="n">g</span>
+    <span class="k">return</span> <span class="n">g</span></div>
+
 
 <div class="viewcode-block" id="gini_gene_well">
 <a class="viewcode-back" href="../../api/spacr/sim/index.html#spacr.sim.gini_gene_well">[docs]</a>
