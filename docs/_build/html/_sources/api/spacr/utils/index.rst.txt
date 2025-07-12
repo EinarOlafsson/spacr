@@ -140,17 +140,8 @@ Module Contents
 
    A class representing a cache with a maximum size.
 
-   .. attribute:: max_size
-
-      The maximum size of the cache.
-
-      :type: int
-
-   .. attribute:: cache
-
-      The cache data structure.
-
-      :type: OrderedDict
+   :param max_size: The maximum size of the cache.
+   :type max_size: int
 
 
    .. py:attribute:: cache
@@ -174,18 +165,6 @@ Module Contents
 
    :param d_k: The dimension of the key and query vectors.
    :type d_k: int
-
-   .. attribute:: d_k
-
-      The dimension of the key and query vectors.
-
-      :type: int
-
-   .. method:: forward(Q, K, V)
-
-      Performs the forward pass of the attention mechanism.
-      
-      
 
 
    .. py:attribute:: d_k
@@ -878,7 +857,7 @@ Module Contents
    .. py:attribute:: channels
 
 
-.. py:function:: preprocess_image(image_path, image_size=224, channels=[1, 2, 3], normalize=True)
+.. py:function:: preprocess_image_v1(image_path, image_size=224, channels=[1, 2, 3], normalize=True)
 
 .. py:class:: SaliencyMapGenerator(model)
 
@@ -985,7 +964,7 @@ Module Contents
 
 .. py:function:: merge_dataframes(df, image_paths_df, verbose)
 
-.. py:function:: remove_highly_correlated_columns(df, threshold)
+.. py:function:: remove_highly_correlated_columns_v1(df, threshold)
 
 .. py:function:: filter_columns(df, filter_by)
 

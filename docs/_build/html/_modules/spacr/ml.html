@@ -250,7 +250,9 @@
     <span class="k">return</span> <span class="n">X_scaled</span><span class="p">,</span> <span class="n">y_scaled</span></div>
 
 
-<span class="k">def</span> <span class="nf">process_model_coefficients</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">regression_type</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">controls</span><span class="p">):</span>
+<div class="viewcode-block" id="process_model_coefficients_v1">
+<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.process_model_coefficients_v1">[docs]</a>
+<span class="k">def</span> <span class="nf">process_model_coefficients_v1</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">regression_type</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">controls</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return DataFrame of model coefficients and p-values.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">regression_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ols&#39;</span><span class="p">,</span> <span class="s1">&#39;gls&#39;</span><span class="p">,</span> <span class="s1">&#39;wls&#39;</span><span class="p">,</span> <span class="s1">&#39;rlm&#39;</span><span class="p">,</span> <span class="s1">&#39;glm&#39;</span><span class="p">,</span> <span class="s1">&#39;mixed&#39;</span><span class="p">,</span> <span class="s1">&#39;quantile&#39;</span><span class="p">,</span> <span class="s1">&#39;logit&#39;</span><span class="p">,</span> <span class="s1">&#39;probit&#39;</span><span class="p">,</span> <span class="s1">&#39;poisson&#39;</span><span class="p">]:</span>
         <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span>
@@ -287,9 +289,12 @@
     <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;-log10(p_value)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">])</span>
     <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[(.*?)\]&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="s1">&#39;nc&#39;</span> <span class="k">if</span> <span class="n">nc</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;pc&#39;</span> <span class="k">if</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="p">(</span><span class="s1">&#39;control&#39;</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">controls</span> <span class="k">else</span> <span class="s1">&#39;other&#39;</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">coef_df</span><span class="p">[</span><span class="o">~</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;row|column&#39;</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">coef_df</span><span class="p">[</span><span class="o">~</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;row|column&#39;</span><span class="p">)]</span></div>
 
-<span class="k">def</span> <span class="nf">check_distribution</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+
+<div class="viewcode-block" id="check_distribution_v1">
+<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_distribution_v1">[docs]</a>
+<span class="k">def</span> <span class="nf">check_distribution_v1</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the type of distribution to recommend a model.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected binary data.&quot;</span><span class="p">)</span>
@@ -303,7 +308,8 @@
         <span class="k">return</span> <span class="s1">&#39;quasi_binomial&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using OLS as a fallback.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;ols&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;ols&#39;</span></div>
+
 
 <div class="viewcode-block" id="select_glm_family">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.select_glm_family">[docs]</a>
@@ -449,7 +455,9 @@
     <span class="k">return</span> <span class="n">df_cleaned</span></div>
 
 
-<span class="k">def</span> <span class="nf">check_normality</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
+<div class="viewcode-block" id="check_normality_v1">
+<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_normality_v1">[docs]</a>
+<span class="k">def</span> <span class="nf">check_normality_v1</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the data is normally distributed using the Shapiro-Wilk test.&quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">shapiro</span>
 
@@ -460,7 +468,8 @@
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> is not normally distributed (reject H0)&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
 
 <div class="viewcode-block" id="minimum_cell_simulation">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.minimum_cell_simulation">[docs]</a>
