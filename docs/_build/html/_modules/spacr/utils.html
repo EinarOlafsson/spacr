@@ -1742,7 +1742,9 @@
 </div>
 
 
-<span class="k">class</span> <span class="nc">ScaledDotProductAttention</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="ScaledDotProductAttention_v1">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention_v1">[docs]</a>
+<span class="k">class</span> <span class="nc">ScaledDotProductAttention_v1</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Scaled Dot-Product Attention module.</span>
 
@@ -1750,9 +1752,14 @@
 <span class="sd">        d_k (int): The dimension of the key and query vectors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_k</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ScaledDotProductAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d_k</span> <span class="o">=</span> <span class="n">d_k</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ScaledDotProductAttention_v1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<div class="viewcode-block" id="ScaledDotProductAttention_v1.d_k">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention_v1.d_k">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_k</span> <span class="o">=</span> <span class="n">d_k</span></div>
 
+
+<div class="viewcode-block" id="ScaledDotProductAttention_v1.forward">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention_v1.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs the forward pass of the attention mechanism.</span>
@@ -1768,9 +1775,13 @@
         <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
         <span class="n">attention_probs</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+</div>
 
-<span class="k">class</span> <span class="nc">SelfAttention</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SelfAttention_v1">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelfAttention_v1">[docs]</a>
+<span class="k">class</span> <span class="nc">SelfAttention_v1</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Self-Attention module that applies scaled dot-product attention mechanism.</span>
 
@@ -1780,12 +1791,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">W_q</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">W_k</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">W_v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">attention</span> <span class="o">=</span> <span class="n">ScaledDotProductAttention</span><span class="p">(</span><span class="n">d_k</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttention_v1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<div class="viewcode-block" id="SelfAttention_v1.W_q">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.W_q">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_q</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="SelfAttention_v1.W_k">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.W_k">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_k</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SelfAttention_v1.W_v">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.W_v">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SelfAttention_v1.attention">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.attention">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention</span> <span class="o">=</span> <span class="n">ScaledDotProductAttention</span><span class="p">(</span><span class="n">d_k</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SelfAttention_v1.forward">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Forward pass of the SelfAttention module.</span>
@@ -1800,7 +1825,9 @@
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_k</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_v</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+</div>
+
 
 <div class="viewcode-block" id="ScaledDotProductAttention">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention">[docs]</a>
