@@ -65,7 +65,7 @@ def gini_coefficient(x):
     diffsum = np.sum(np.abs(np.subtract.outer(x, x)))
     return diffsum / (2 * len(x) ** 2 * np.mean(x))
 
-def gini(x):
+def gini_V1(x):
     """
     Calculate the Gini coefficient for a given array of values.
 

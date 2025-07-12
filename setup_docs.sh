@@ -121,14 +121,13 @@ if ! command -v sphinx-build &>/dev/null; then
   pip install sphinx sphinx_rtd_theme sphinx-autoapi
 fi
 
-# ——— 8) Build HTML directly into docs/ —————————————————————————
-echo "🛠  Building HTML docs into docs/ …"
-#sphinx-build -b html docs/source docs
+# ——— 8) Build HTML into _build —————————————————————————
+echo "🛠  Building HTML into _build …"
 sphinx-build -E -b html docs/source docs/_build/html
 
-
-# ——— 9) Commit & push back to main ————————————————————————————
-echo "💾  Committing generated docs…"
+# ——— 9) Copy built HTML back into docs/ —————————————————————————
+echo "📂  Copying built HTML into docs/ …"
+cp -r docs/_build/html/* docs/
 git add docs
 git commit -m "📚 Rebuild docs (autoapi)"
 git push origin main

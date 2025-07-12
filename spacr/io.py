@@ -298,21 +298,11 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     return normalized_images, labels, image_names, label_names, orig_dims
 
 class CombineLoaders:
-
     """
     A class that combines multiple data loaders into a single iterator.
 
     Args:
         train_loaders (list): A list of data loaders.
-
-    Attributes:
-        :no-index:
-        train_loaders (list): A list of data loaders.
-        loader_iters (list): A list of iterator objects for each data loader.
-
-    Methods:
-        __iter__(): Returns the iterator object itself.
-        __next__(): Returns the next batch from one of the data loaders.
 
     Raises:
         StopIteration: If all data loaders have been exhausted.
@@ -377,14 +367,6 @@ class NoClassDataset(Dataset):
         transform (callable, optional): A function/transform to apply to the image data. Default is None.
         shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
         load_to_memory (bool, optional): Whether to load all images into memory. Default is False.
-    
-    Attributes:
-        data_dir (str): The directory path where the image files are located.
-        transform (callable): A function/transform to apply to the image data.
-        shuffle (bool): Whether to shuffle the dataset.
-        load_to_memory (bool): Whether to load all images into memory.
-        filenames (list): A list of file paths for the image files.
-        images (list): A list of loaded images (if load_to_memory is True).
     """
     
     def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
@@ -392,13 +374,16 @@ class NoClassDataset(Dataset):
         self.transform = transform
         self.shuffle = shuffle
         self.load_to_memory = load_to_memory
-        self.filenames = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f))]
+        self.filenames = [
+            os.path.join(data_dir, f) 
+            for f in os.listdir(data_dir) 
+            if os.path.isfile(os.path.join(data_dir, f))
+        ]
         if self.shuffle:
             self.shuffle_dataset()
         if self.load_to_memory:
             self.images = [self.load_image(f) for f in self.filenames]
     
-    #@lru_cache(maxsize=None)
     def load_image(self, img_path):
         """
         Load an image from the given file path.
@@ -446,8 +431,8 @@ class NoClassDataset(Dataset):
             img = self.transform(img)
         else:
             img = ToTensor()(img)
-        # Return both the image and its filename
         return img, self.filenames[index]
+
 
 class spacrDataset(Dataset):
     def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
