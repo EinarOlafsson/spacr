@@ -1709,9 +1709,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class representing a cache with a maximum size.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        max_size (int): The maximum size of the cache.</span>
-<span class="sd">        cache (OrderedDict): The cache data structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_size</span><span class="p">):</span>
@@ -1749,15 +1748,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        d_k (int): The dimension of the key and query vectors.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        d_k (int): The dimension of the key and query vectors.</span>
-
-<span class="sd">    Methods:</span>
-<span class="sd">        forward(Q, K, V): Performs the forward pass of the attention mechanism.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_k</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ScaledDotProductAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d_k</span> <span class="o">=</span> <span class="n">d_k</span>
@@ -1773,7 +1764,6 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: The output tensor of shape (batch_size, seq_len_q, d_k).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
         <span class="n">attention_probs</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
@@ -1783,7 +1773,7 @@
 <span class="k">class</span> <span class="nc">SelfAttention</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Self-Attention module that applies scaled dot-product attention mechanism.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        in_channels (int): Number of input channels.</span>
 <span class="sd">        d_k (int): Dimensionality of the key and query vectors.</span>
@@ -1799,10 +1789,10 @@
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Forward pass of the SelfAttention module.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Input tensor of shape (batch_size, in_channels).</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Output tensor of shape (batch_size, d_k).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3737,7 +3727,9 @@
         <span class="k">return</span> <span class="n">img</span></div>
 
     
-<span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="preprocess_image_v1">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.preprocess_image_v1">[docs]</a>
+<span class="k">def</span> <span class="nf">preprocess_image_v1</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
@@ -3753,7 +3745,8 @@
 
     <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
     <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">input_tensor</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">input_tensor</span></div>
+
 
 <div class="viewcode-block" id="SaliencyMapGenerator">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SaliencyMapGenerator">[docs]</a>
@@ -4286,11 +4279,14 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<span class="k">def</span> <span class="nf">remove_highly_correlated_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_highly_correlated_columns_v1">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.remove_highly_correlated_columns_v1">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_highly_correlated_columns_v1</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
     <span class="n">corr_matrix</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
     <span class="n">upper_tri</span> <span class="o">=</span> <span class="n">corr_matrix</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">corr_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
     <span class="n">to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">upper_tri</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">upper_tri</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="filter_columns">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.filter_columns">[docs]</a>
