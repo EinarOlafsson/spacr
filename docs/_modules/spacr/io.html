@@ -412,21 +412,11 @@
 <div class="viewcode-block" id="CombineLoaders">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders">[docs]</a>
 <span class="k">class</span> <span class="nc">CombineLoaders</span><span class="p">:</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class that combines multiple data loaders into a single iterator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        train_loaders (list): A list of data loaders.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        :no-index:</span>
-<span class="sd">        train_loaders (list): A list of data loaders.</span>
-<span class="sd">        loader_iters (list): A list of iterator objects for each data loader.</span>
-
-<span class="sd">    Methods:</span>
-<span class="sd">        __iter__(): Returns the iterator object itself.</span>
-<span class="sd">        __next__(): Returns the next batch from one of the data loaders.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        StopIteration: If all data loaders have been exhausted.</span>
@@ -442,14 +432,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span> <span class="o">=</span> <span class="p">[</span><span class="nb">iter</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">train_loaders</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="CombineLoaders.__iter__">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.__iter__">[docs]</a>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
-
-<div class="viewcode-block" id="CombineLoaders.__next__">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.__next__">[docs]</a>
     <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">:</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">)</span>
@@ -463,7 +448,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="k">raise</span> <span class="ne">StopIteration</span></div>
-</div>
 
 
 <div class="viewcode-block" id="CombinedDataset">

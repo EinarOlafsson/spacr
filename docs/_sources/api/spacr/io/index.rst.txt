@@ -23,31 +23,6 @@ Module Contents
    :param train_loaders: A list of data loaders.
    :type train_loaders: list
 
-   .. attribute:: 
-
-      no-index:
-
-   .. attribute:: train_loaders
-
-      A list of data loaders.
-
-      :type: list
-
-   .. attribute:: loader_iters
-
-      A list of iterator objects for each data loader.
-
-      :type: list
-
-   .. method:: __iter__()
-
-      Returns the iterator object itself.
-
-   .. method:: __next__()
-
-      Returns the next batch from one of the data loaders.
-      
-
    :raises StopIteration: If all data loaders have been exhausted.
 
 

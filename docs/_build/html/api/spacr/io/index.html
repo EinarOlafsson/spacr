@@ -129,54 +129,18 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>train_loaders</strong> (<em>list</em>) – A list of data loaders.</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>StopIteration</strong> – If all data loaders have been exhausted.</p>
+</dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders.train_loaders">
 <span class="sig-name descname"><span class="pre">train_loaders</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.train_loaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.train_loaders" title="Link to this definition"></a></dt>
-<dd><p>A list of data loaders.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders.loader_iters">
 <span class="sig-name descname"><span class="pre">loader_iters</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.loader_iters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.loader_iters" title="Link to this definition"></a></dt>
-<dd><p>A list of iterator objects for each data loader.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.io.CombineLoaders.__iter__">
-<span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.__iter__" title="Link to this definition"></a></dt>
-<dd><p>Returns the iterator object itself.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.io.CombineLoaders.__next__">
-<span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.__next__" title="Link to this definition"></a></dt>
-<dd><p>Returns the next batch from one of the data loaders.</p>
-</dd></dl>
-
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>StopIteration</strong> – If all data loaders have been exhausted.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">train_loaders</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.train_loaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">loader_iters</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.loader_iters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -436,9 +400,9 @@ this estimate can still be inaccurate, because (1) an otherwise complete batch c
 be broken into multiple ones and (2) more than one batch worth of samples can be
 dropped when <code class="xref py py-attr docutils literal notranslate"><span class="pre">drop_last</span></code> is set. Unfortunately, PyTorch can not detect such
 cases in general.</p>
-<p>See <a href="#id2"><span class="problematic" id="id3">`Dataset Types`_</span></a> for more details on these two types of datasets and how
+<p>See <a href="#id1"><span class="problematic" id="id2">`Dataset Types`_</span></a> for more details on these two types of datasets and how
 <code class="xref py py-class docutils literal notranslate"><span class="pre">IterableDataset</span></code> interacts with
-<a href="#id4"><span class="problematic" id="id5">`Multi-process data loading`_</span></a>.</p>
+<a href="#id3"><span class="problematic" id="id4">`Multi-process data loading`_</span></a>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
