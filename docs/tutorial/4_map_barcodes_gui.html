@@ -73,10 +73,12 @@
 
     .bottom-right {
       flex: 1;
-      position: relative;
       display: flex;
       flex-direction: column;
+      position: relative;
       padding-bottom: 10px;
+      min-height: 0;
+      /* Prevent overflow pushing layout */
     }
 
     .bottom-row {
@@ -116,8 +118,9 @@
     }
 
     .console-output {
-      flex: 1;
+      flex: none;
       width: 100%;
+      height: 100%;
       padding: 10px;
       background: #222;
       overflow-y: auto;
@@ -162,6 +165,35 @@
       width: 200px;
     }
 
+    .button-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      width: calc(100% - 20px);
+      box-sizing: border-box;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-description {
+      color: #ccc;
+      font-size: 14px;
+      max-width: 300px;
+      background-color: #2a2a2a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      flex: 1;
+    }
+
     .help-box {
       position: fixed;
       top: 50%;
@@ -199,11 +231,16 @@
       background-color: #007bff;
     }
 
+    .settings-button-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
     .dropdown {
       display: none;
       position: absolute;
-      left: 100%;
-      bottom: 60px;
+      top: -180%;
+      left: 30%;
       background-color: #2a2a2a;
       border: 1px solid #444;
       border-radius: 10px;
@@ -211,7 +248,9 @@
       max-height: 300px;
       overflow-y: auto;
       z-index: 3;
+      margin-top: 8px;
     }
+
 
     .dropdown label {
       display: block;
@@ -276,17 +315,20 @@
           <div class="console-output" id="console-output"></div>
         </div>
         <div class="button-bar">
-          <button class="gui-button" title="Run tutorial sequence." onclick="runTutorial()"
-            style="background-image: url('../resources/icons/run.png');"></button>
-          <button class="gui-button" title="Stop current process."
-            onclick="showHelp('Stop button stops all running processes.')"
-            style="background-image: url('../resources/icons/abort.png');"></button>
-          <button class="gui-button" title="Download files." onclick="showHelp('Download the processed files.')"
-            style="background-image: url('../resources/icons/download.png');"></button>
-          <button class="gui-button" title="Import saved settings."
-            onclick="showHelp('Import previous settings from file.')"
-            style="background-image: url('../resources/icons/settings.png');"></button>
-          <button class="settings-button" onclick="toggleDropdown()">Settings</button>
+          <div class="button-container">
+            <button class="gui-button" title="Run tutorial sequence." onclick="handleButton('Run')"
+              style="background-image: url('../resources/icons/run.png');"></button>
+            <button class="gui-button" title="Stop current process." onclick="handleButton('Stop')"
+              style="background-image: url('../resources/icons/abort.png');"></button>
+            <button class="gui-button" title="Download files." onclick="handleButton('Download')"
+              style="background-image: url('../resources/icons/download.png');"></button>
+            <button class="gui-button" title="Import saved settings." onclick="handleButton('Import')"
+              style="background-image: url('../resources/icons/settings.png');"></button>
+            <button class="settings-button" onclick="handleButton('Settings')">Settings</button>
+          </div>
+          <div class="button-description" id="button-description">
+            Hover or click a button to see what it does.
+          </div>
           <div class="dropdown" id="dropdown-menu"></div>
         </div>
       </div>
@@ -618,11 +660,8 @@
     };
 
     const pageSettings = [
-      "denoise", "src", "delete_intermediate", "preprocess", "masks", "save", "consolidate", "batch_size", "test_mode", "test_images", "magnification", "custom_regex", "metadata_type", "n_jobs", "randomize",
-      "verbose", "remove_background_cell", "remove_background_nucleus", "remove_background_pathogen", "cell_diamiter", "nucleus_diamiter", "pathogen_diamiter", "cell_channel", "nucleus_channel", "pathogen_channel",
-      "channels", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "cell_background", "cell_Signal_to_noise", "cell_CP_prob",
-      "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "cell_FT", "pathogen_FT", "plot", "figuresize", "cmap", "normalize", "normalize_plots", "examples_to_plot", "pathogen_model", "merge_pathogens", "filter",
-      "lower_percentile", "timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "all_to_mip", "upscale", "upscale_factor", "adjust_cells"
+      "src", "grna", "barcodes", "plate_dict", "test", "verbose",
+      "pc", "pc_loc", "nc", "nc_loc"
     ];
 
     const thisPageCategories = filterCategoriesForPage(
@@ -719,6 +758,34 @@
     function updateImage(index) {
       const img = document.getElementById('tutorial-image');
       img.src = imagePaths[index];
+    }
+
+    function handleButton(action) {
+      const descBox = document.getElementById('button-description');
+      switch (action) {
+        case 'Run':
+          runTutorial();
+          descBox.innerText = 'Starts the tutorial sequence using current settings.';
+          break;
+        case 'Stop':
+          showHelp('Stop button stops all running processes.');
+          descBox.innerText = 'Stops any running processing or tutorial.';
+          break;
+        case 'Download':
+          showHelp('Download the processed files.');
+          descBox.innerText = 'Downloads the test dataset.';
+          break;
+        case 'Import':
+          showHelp('Import previous settings from file.');
+          descBox.innerText = 'Imports saved settings from a preveous run.';
+          break;
+        case 'Settings':
+          toggleDropdown();
+          descBox.innerText = 'Open and adjust all available processing settings.';
+          break;
+        default:
+          descBox.innerText = 'Hover or click a button to see what it does.';
+      }
     }
 
     function showHelp(text) {
