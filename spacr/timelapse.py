@@ -7,7 +7,7 @@ from IPython.display import display
 from IPython.display import Image as ipyimage
 import trackpy as tp
 from btrack import datasets as btrack_datasets
-from skimage.measure import regionprops, regionprops_table
+from skimage.measure import regionprops_table
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit, linear_sum_assignment
 

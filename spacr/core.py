@@ -145,7 +145,7 @@ def preprocess_generate_masks(settings):
                         parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
                         #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
                         print(f'Adjusting cell masks with nuclei and pathogen masks')
-                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
+                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
                         stop = time.time()
                         adjust_time = (stop-start)/60
                         print(f'Cell mask adjustment: {adjust_time} min.')
@@ -243,6 +243,7 @@ def generate_cellpose_masks(src, settings, object_type):
         
     if object_type not in cellpose_channels:
         raise ValueError(f"Error: No channels were specified for object_type '{object_type}'. Check your settings.")
+    
     channels = cellpose_channels[object_type]
 
     #cellpose_batch_size = _get_cellpose_batch_size()

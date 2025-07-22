@@ -1,4 +1,13 @@
-import logging, os
+import logging, os, builtins
+
+def silent_print(*args, **kwargs):
+    if "Welcome to CellposeSAM" in str(args[0]):
+        return  # skip the banner
+    return _original_print(*args, **kwargs)
+
+_original_print = builtins.print
+builtins.print = silent_print
+
 
 from . import core
 from . import io
@@ -22,7 +31,6 @@ from . import app_classify
 from . import app_sequencing
 from . import app_umap
 from . import submodules
-from . import openai
 from . import ml
 from . import toxo
 from . import spacr_cellpose
