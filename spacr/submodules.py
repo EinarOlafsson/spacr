@@ -20,8 +20,7 @@ from IPython.display import display
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from math import pi
-from scipy.stats import chi2_contingency, pearsonr
-from scipy.spatial.distance import cosine
+from scipy.stats import chi2_contingency
 
 from sklearn.metrics import mean_absolute_error
 from skimage.measure import regionprops, label as sklabel 

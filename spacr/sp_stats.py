@@ -1,7 +1,6 @@
 from scipy.stats import shapiro, normaltest, levene, ttest_ind, mannwhitneyu, kruskal, f_oneway
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 import scikit_posthocs as sp
-import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency, fisher_exact
 import itertools

@@ -551,9 +551,7 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     size_dict = set_element_size()
     
     settings_width = size_dict['settings_width']
-    
-    print(settings_width)
-    
+        
     # Create a PanedWindow for the settings panel
     settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, width=settings_width)
     vertical_container.add(settings_paned_window, stretch="always")
