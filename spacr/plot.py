@@ -1,4 +1,4 @@
-import os, random, cv2, glob, math, torch, skimage
+import os, random, cv2, glob, math, torch, itertools
 
 import numpy as np
 import pandas as pd
@@ -11,27 +11,19 @@ import scipy.stats as stats
 import statsmodels.api as sm
 import imageio.v2 as imageio
 from IPython.display import display
-from skimage.segmentation import find_boundaries
 from skimage import measure
 from skimage.measure import find_contours, label, regionprops
-from skimage.segmentation import mark_boundaries
 from skimage.transform import resize as sk_resize
 import scikit_posthocs as sp
 from scipy.stats import chi2_contingency
 import tifffile as tiff
 
-from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal
+from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal, levene, shapiro
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-from scipy.stats import ttest_ind, mannwhitneyu, levene, wilcoxon, kruskal, normaltest, shapiro
-import itertools
 import pingouin as pg
 
 from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
-
-import matplotlib.patches as patches
-from collections import defaultdict
-from matplotlib.gridspec import GridSpec
 from matplotlib_venn import venn2
 
 def plot_image_mask_overlay(

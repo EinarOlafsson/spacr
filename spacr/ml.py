@@ -14,21 +14,18 @@ from IPython.display import display
 import scipy.stats as st
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-from statsmodels.tools import add_constant
 from statsmodels.regression.mixed_linear_model import MixedLM
-from statsmodels.tools.sm_exceptions import PerfectSeparationError
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.genmod.families import Binomial
 from statsmodels.genmod.families.links import logit
 from statsmodels.othermod.betareg import BetaModel
-from scipy.optimize import minimize
 from scipy.special import gammaln, psi, expit
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer
 from patsy import dmatrices
 
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.metrics import classification_report
+from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
@@ -37,7 +34,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.metrics import classification_report, precision_recall_curve
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
-from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, hamming, jaccard, braycurtis
+from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, braycurtis
 from xgboost import XGBClassifier
 
 import numpy as np

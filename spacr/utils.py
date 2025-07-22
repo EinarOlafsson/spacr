@@ -1,8 +1,11 @@
+
 import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback
+
 import numpy as np
 import pandas as pd
 from cellpose import models as cp_models
 from cellpose import denoise
+from functools import partial
 
 from skimage import morphology
 from skimage.measure import label, regionprops_table, regionprops
@@ -37,7 +40,6 @@ from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 import torchvision.transforms as transforms
 from torchvision.models import resnet50
-from torchvision.utils import make_grid
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -69,9 +71,7 @@ from huggingface_hub import list_repo_files
 #from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
-
 import umap.umap_ as umap
-#import umap
 
 def _generate_mask_random_cmap(mask):
     """
@@ -1286,7 +1286,7 @@ def _pivot_counts_table(db_path):
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
-def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+def _get_cellpose_channels_v2(src, nucleus_channel, pathogen_channel, cell_channel):
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
     pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
@@ -1314,7 +1314,7 @@ def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel)
 
     return cellpose_channels
     
-def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_channel):
+def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
 
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
@@ -1343,6 +1343,7 @@ def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_chann
             cellpose_channels['cell'] = [0,1]
         else:
             cellpose_channels['cell'] = [0,0]
+            
     return cellpose_channels
 
 def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None):
@@ -4671,7 +4672,54 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
 
     return out.astype(np.uint16)
 
-def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
+def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, overlap_threshold, perimeter_threshold):
+    start = time.perf_counter()
+
+    parasite_path = os.path.join(parasite_folder, file_name)
+    cell_path = os.path.join(cell_folder, file_name)
+    nuclei_path = os.path.join(nuclei_folder, file_name)
+
+    if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
+        raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
+
+    parasite_mask = np.load(parasite_path, allow_pickle=True)
+    cell_mask = np.load(cell_path, allow_pickle=True)
+    nuclei_mask = np.load(nuclei_path, allow_pickle=True)
+
+    merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
+    #merged_cell_mask = _merge_cells_without_nucleus(merged_cell_mask, nuclei_mask)
+
+    np.save(cell_path, merged_cell_mask)
+
+    end = time.perf_counter()
+    return end - start
+
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+    
+    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
+    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
+    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
+
+    if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
+        raise ValueError("The number of files in the folders do not match.")
+
+    n_jobs = n_jobs or max(1, cpu_count() - 2)
+
+    time_ls = []
+    files_to_process = len(parasite_files)
+    process_fn = partial(process_mask_file_adjust_cell,
+                         parasite_folder=parasite_folder,
+                         cell_folder=cell_folder,
+                         nuclei_folder=nuclei_folder,
+                         overlap_threshold=overlap_threshold,
+                         perimeter_threshold=perimeter_threshold)
+
+    with Pool(n_jobs) as pool:
+        for i, duration in enumerate(pool.imap_unordered(process_fn, parasite_files), 1):
+            time_ls.append(duration)
+            print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
+
+def adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
 
     """
     Process all npy files in the given folders. Merge and relabel cells in cell masks
