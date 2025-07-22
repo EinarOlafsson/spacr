@@ -5,23 +5,7 @@ import numpy as np
 from adjustText import adjust_text
 import pandas as pd
 from scipy.stats import fisher_exact
-from IPython.display import display
-from matplotlib.legend import Legend
-from matplotlib.transforms import Bbox
-from brokenaxes import brokenaxes
-
-import os
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from scipy.spatial.distance import cosine
-from scipy.stats import pearsonr
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.metrics import mean_absolute_error
-
-
 from matplotlib.gridspec import GridSpec
 
 def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location',point_size=50, figsize=20, threshold=0,save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 20]]):

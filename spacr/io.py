@@ -1,10 +1,9 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime, traceback
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
 from collections import defaultdict, Counter
 from pathlib import Path
-from functools import partial
 from matplotlib.animation import FuncAnimation
 from IPython.display import display
 from skimage.util import img_as_uint
