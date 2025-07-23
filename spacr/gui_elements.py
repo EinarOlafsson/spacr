@@ -50,18 +50,18 @@ def create_menu_bar(root):
     gui_apps = {
         "Mask": lambda: initiate_root(root, settings_type='mask'),
         "Measure": lambda: initiate_root(root, settings_type='measure'),
-        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
-        "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
+        "Annotate (Beta)": lambda: initiate_root(root, settings_type='annotate'),
+        #"Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
         "Classify": lambda: initiate_root(root, settings_type='classify'),
-        "Umap": lambda: initiate_root(root, settings_type='umap'),
-        "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
+        #"Umap": lambda: initiate_root(root, settings_type='umap'),
+        #"Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
         "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
-        "Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
-        "Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
+        #"Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
+        #"Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
         "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
         "Regression": lambda: initiate_root(root, settings_type='regression'),
         "Activation": lambda: initiate_root(root, settings_type='activation'),
-        "Recruitment": lambda: initiate_root(root, settings_type='recruitment')
+        "Recruitment (Beta)": lambda: initiate_root(root, settings_type='recruitment')
     }
 
     # Create the menu bar
