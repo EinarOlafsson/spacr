@@ -11,6 +11,12 @@ def convert_to_number(value):
             return float(value)
         except ValueError:
             raise ValueError(f"Unable to convert '{value}' to an integer or float.")
+        
+def start_annotate_app():
+    from spacr.gui import MainApp
+    from multiprocessing import set_start_method
+    set_start_method('spawn', force=True)
+    MainApp(default_app='annotate').mainloop()
 
 def initiate_annotation_app(parent_frame):
     from .gui_utils import generate_annotate_fields, annotate_app, convert_to_number

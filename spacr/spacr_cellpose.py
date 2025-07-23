@@ -5,7 +5,6 @@ from cellpose import models as cp_models
 from IPython.display import display
 from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
-from scipy.ndimage import binary_fill_holes
 
 def parse_cellpose4_output(output):
     """
