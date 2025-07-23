@@ -1314,7 +1314,7 @@ def _get_cellpose_channels_v2(src, nucleus_channel, pathogen_channel, cell_chann
 
     return cellpose_channels
     
-def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_channel):
 
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
@@ -1344,6 +1344,38 @@ def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel)
         else:
             cellpose_channels['cell'] = [0,0]
             
+    return cellpose_channels
+
+def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+    cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
+    nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
+    pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
+
+    if any(os.path.exists(p) for p in [cell_mask_path, nucleus_mask_path, pathogen_mask_path]):
+        if any(c is None for c in [nucleus_channel, pathogen_channel, cell_channel]):
+            print('Warning: Cellpose masks already exist. Unexpected behaviour if any channel is None while masks exist.')
+
+    def capped(val):
+        return min(val, 2)
+
+    cellpose_channels = {}
+
+    if nucleus_channel is not None:
+        c = capped(nucleus_channel)
+        cellpose_channels['nucleus'] = [c, c]
+
+    if pathogen_channel is not None:
+        c = capped(pathogen_channel)
+        cellpose_channels['pathogen'] = [c, c]
+
+    if cell_channel is not None:
+        c = capped(cell_channel)
+        if nucleus_channel is not None:
+            n = capped(nucleus_channel)
+            cellpose_channels['cell'] = [n, c]
+        else:
+            cellpose_channels['cell'] = [c, c]
+
     return cellpose_channels
 
 def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None):
