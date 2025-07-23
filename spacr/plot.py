@@ -760,7 +760,63 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
 
     return stack
 
+
 def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
+    """
+    Plot randomly selected arrays from a given directory or a single .npz/.npy file.
+
+    Parameters:
+    - src (str): The directory path or file path containing the arrays.
+    - figuresize (int): The size of the figure (default: 10).
+    - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
+    - nr (int): The number of arrays to plot (default: 1).
+    - normalize (bool): Whether to normalize the arrays (default: True).
+    - q1 (int): The lower percentile for normalization (default: 1).
+    - q2 (int): The upper percentile for normalization (default: 99).
+    """
+    from .utils import normalize_to_dtype
+
+    mask_cmap = random_cmap()
+    paths = []
+
+    if src.endswith('.npz') or src.endswith('.npy'):
+        paths = [src]
+    else:
+        paths = [os.path.join(src, f) for f in os.listdir(src) if f.endswith(('.npy', '.npz'))]
+        paths = random.sample(paths, min(nr, len(paths)))
+
+    for path in paths:
+        print(f'Image path: {path}')
+        if path.endswith('.npz'):
+            with np.load(path) as data:
+                key = list(data.keys())[0]  # assume first key
+                img = data[key][0]          # get first image in batch
+        else:
+            img = np.load(path)
+
+        if normalize:
+            img = normalize_to_dtype(array=img, p1=q1, p2=q2)
+
+        if img.ndim == 3:
+            array_nr = img.shape[2]
+            fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
+            if array_nr == 1:
+                axs = [axs]  # ensure iterable
+            for channel in range(array_nr):
+                i = img[:, :, channel]
+                axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
+                axs[channel].set_title(f'Channel {channel}', size=24)
+                axs[channel].axis('off')
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+            ax.imshow(img, cmap=plt.get_cmap(cmap))
+            ax.set_title('Channel 0', size=24)
+            ax.axis('off')
+
+        fig.tight_layout()
+        plt.show()
+
+def plot_arrays_v1(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
     """
     Plot randomly selected arrays from a given directory.
 
@@ -780,6 +836,7 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
     
     mask_cmap = random_cmap()
     paths = []
+
     for file in os.listdir(src):
         if file.endswith('.npy'):
             path = os.path.join(src, file)

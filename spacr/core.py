@@ -238,6 +238,7 @@ def generate_cellpose_masks(src, settings, object_type):
     model_name = object_settings['model_name']
     
     cellpose_channels = _get_cellpose_channels(src, settings['nucleus_channel'], settings['pathogen_channel'], settings['cell_channel'])
+    
     if settings['verbose']:
         print(cellpose_channels)
         
