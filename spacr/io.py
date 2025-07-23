@@ -1256,11 +1256,8 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
                 normalized_stack = normalized_stack[..., channels]
 
                 save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
-                np.savez(save_loc, data=normalized_stack, filenames=filenames_batch)
-                print(f"batch_index: {batch_index} saving to {save_loc}")
-                
+                np.savez(save_loc, data=normalized_stack, filenames=filenames_batch)                
                 if batch_index == 0:
-                    print("i is 0 plotting normalized channels")
                     print(f"plotting: {save_loc}")
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
                 
