@@ -1355,24 +1355,32 @@ def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel)
         if any(c is None for c in [nucleus_channel, pathogen_channel, cell_channel]):
             print('Warning: Cellpose masks already exist. Unexpected behaviour if any channel is None while masks exist.')
 
-    # Build the input list and assign unique capped indices
-    input_channels = {'nucleus': nucleus_channel, 'pathogen': pathogen_channel, 'cell': cell_channel}
-    valid_inputs = {k: v for k, v in input_channels.items() if v is not None}
+    # Enforced order: nucleus → cell → pathogen
+    logical_order = []
+    if nucleus_channel is not None:
+        logical_order.append(('nucleus', nucleus_channel))
+    if cell_channel is not None:
+        logical_order.append(('cell', cell_channel))
+    if pathogen_channel is not None:
+        logical_order.append(('pathogen', pathogen_channel))
 
-    # Assign new capped and unique indices in order of appearance
-    remap = {}
-    for new_index, (key, _) in zip(range(3), valid_inputs.items()):
-        remap[valid_inputs[key]] = new_index
+    # Remove duplicate values while preserving first occurrence
+    seen = set()
+    ordered_channels = []
+    for name, ch in logical_order:
+        if ch not in seen:
+            ordered_channels.append(ch)
+            seen.add(ch)
 
+    # Map actual channel values to capped indices
+    remap = {ch: min(i, 2) for i, ch in enumerate(ordered_channels)}
+
+    # Final channel assignments
     cellpose_channels = {}
 
     if nucleus_channel is not None:
         c = remap[nucleus_channel]
         cellpose_channels['nucleus'] = [c, c]
-
-    if pathogen_channel is not None:
-        c = remap[pathogen_channel]
-        cellpose_channels['pathogen'] = [c, c]
 
     if cell_channel is not None:
         c = remap[cell_channel]
@@ -1381,6 +1389,10 @@ def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel)
             cellpose_channels['cell'] = [n, c]
         else:
             cellpose_channels['cell'] = [c, c]
+
+    if pathogen_channel is not None:
+        c = remap[pathogen_channel]
+        cellpose_channels['pathogen'] = [c, c]
 
     return cellpose_channels
 
