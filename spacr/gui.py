@@ -22,6 +22,7 @@ class MainApp(tk.Tk):
         for monitor in get_monitors():
             if monitor.x <= x < monitor.x + monitor.width and monitor.y <= y < monitor.y + monitor.height:
                 width = monitor.width
+                self.width = width
                 height = monitor.height
                 break
         else:
@@ -42,22 +43,22 @@ class MainApp(tk.Tk):
         self.main_gui_apps = {
             "Mask": (lambda frame: initiate_root(self, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
             "Measure": (lambda frame: initiate_root(self, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
-            "Annotate": (lambda frame: initiate_root(self, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
-            "Make Masks": (lambda frame: initiate_root(self, 'make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
+            #"Annotate": (lambda frame: initiate_root(self, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
+            #"Make Masks": (lambda frame: initiate_root(self, 'make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
             "Classify": (lambda frame: initiate_root(self, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
         }
 
         self.additional_gui_apps = {
-            "Umap": (lambda frame: initiate_root(self, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
-            "Train Cellpose": (lambda frame: initiate_root(self, 'train_cellpose'), "Train custom Cellpose models."),
-            "ML Analyze": (lambda frame: initiate_root(self, 'ml_analyze'), "Machine learning analysis of data."),
-            "Cellpose Masks": (lambda frame: initiate_root(self, 'cellpose_masks'), "Generate Cellpose masks."),
-            "Cellpose All": (lambda frame: initiate_root(self, 'cellpose_all'), "Run Cellpose on all images."),
+            #"Umap": (lambda frame: initiate_root(self, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
+            #"Train Cellpose": (lambda frame: initiate_root(self, 'train_cellpose'), "Train custom Cellpose models."),
+            #"ML Analyze": (lambda frame: initiate_root(self, 'ml_analyze'), "Machine learning analysis of data."),
+            #"Cellpose Masks": (lambda frame: initiate_root(self, 'cellpose_masks'), "Generate Cellpose masks."),
+            #"Cellpose All": (lambda frame: initiate_root(self, 'cellpose_all'), "Run Cellpose on all images."),
             "Map Barcodes": (lambda frame: initiate_root(self, 'map_barcodes'), "Map barcodes to data."),
             "Regression": (lambda frame: initiate_root(self, 'regression'), "Perform regression analysis."),
-            "Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data."),
+            #"Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data."),
             "Activation": (lambda frame: initiate_root(self, 'activation'), "Generate activation maps of computer vision models and measure channel-activation correlation."),
-            "Plaque": (lambda frame: initiate_root(self, 'analyze_plaques'), "Analyze plaque data.")
+            #"Plaque": (lambda frame: initiate_root(self, 'analyze_plaques'), "Analyze plaque data.")
         }
 
         self.selected_app = tk.StringVar()
@@ -88,6 +89,13 @@ class MainApp(tk.Tk):
         set_dark_style(ttk.Style(), containers=[self.content_frame, self.inner_frame])
 
         self.create_startup_screen()
+        
+    def _update_wraplength(self, event):
+        if self.description_label.winfo_exists():
+            # Use the actual width of the inner_frame as a proxy for full width
+            available_width = self.inner_frame.winfo_width()
+            if available_width > 0:
+                self.description_label.config(wraplength=int(available_width * 0.9))  # or 0.9
 
     def create_startup_screen(self):
         self.clear_frame(self.inner_frame)
@@ -99,15 +107,25 @@ class MainApp(tk.Tk):
         additional_buttons_frame = tk.Frame(self.inner_frame)
         additional_buttons_frame.pack(pady=10)
         set_dark_style(ttk.Style(), containers=[additional_buttons_frame])
-
-        description_frame = tk.Frame(self.inner_frame, height=70)
+        
+        description_frame = tk.Frame(self.inner_frame)
         description_frame.pack(fill=tk.X, pady=10)
-        description_frame.pack_propagate(False)
+        description_frame.columnconfigure(0, weight=1)
+        
         set_dark_style(ttk.Style(), containers=[description_frame])
+        style_out = set_dark_style(ttk.Style())
+        font_loader = style_out['font_loader']
+        font_size = style_out['font_size']
+        
+        self.description_label = tk.Label( description_frame, text="", wraplength=int(self.width * 0.9), justify="center", font=font_loader.get_font(size=font_size), fg=self.color_settings['fg_color'], bg=self.color_settings['bg_color'])
+        
+        # Pack it without expanding
+        self.description_label.pack(pady=10)
 
-        self.description_label = tk.Label(description_frame, text="", wraplength=800, justify="center", font=('Helvetica', 12), fg=self.color_settings['fg_color'], bg=self.color_settings['bg_color'])
-        self.description_label.pack(fill=tk.BOTH, pady=10)
-
+        # Force character width and center it
+        self.description_label.configure(width=int(self.width * 0.5 // 7))
+        self.description_label.pack_configure(anchor='center')
+        
         logo_button = spacrButton(main_buttons_frame, text="SpaCr", command=lambda: self.load_app("logo_spacr", initiate_root), icon_name="logo_spacr", size=100, show_text=False)
         logo_button.grid(row=0, column=0, padx=5, pady=5)
         self.main_buttons[logo_button] = "SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens."
@@ -125,6 +143,7 @@ class MainApp(tk.Tk):
             self.additional_buttons[button] = app_desc
 
         self.update_description()
+        self.inner_frame.bind("<Configure>", self._update_wraplength)
 
     def update_description(self):
         for button, desc in {**self.main_buttons, **self.additional_buttons}.items():
