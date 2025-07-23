@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime, readlif
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -22,7 +22,6 @@ import seaborn as sns
 from nd2reader import ND2Reader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
-import readlif
 from pylibCZIrw import czi as pyczi
 
 def process_non_tif_non_2D_images(folder):
