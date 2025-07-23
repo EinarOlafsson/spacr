@@ -4,6 +4,7 @@ from multiprocessing import set_start_method
 from .gui_elements import spacrButton, create_menu_bar, set_dark_style
 from .gui_core import initiate_root
 from screeninfo import get_monitors
+import webbrowser
 
 class MainApp(tk.Tk):
     def __init__(self, default_app=None):
@@ -126,9 +127,11 @@ class MainApp(tk.Tk):
         self.description_label.configure(width=int(self.width * 0.5 // 7))
         self.description_label.pack_configure(anchor='center')
         
-        logo_button = spacrButton(main_buttons_frame, text="SpaCr", command=lambda: self.load_app("logo_spacr", initiate_root), icon_name="logo_spacr", size=100, show_text=False)
+        #logo_button = spacrButton(main_buttons_frame, text="SpaCR", command=lambda: self.load_app("logo_spacr", initiate_root), icon_name="logo_spacr", size=100, show_text=False)
+        logo_button = spacrButton(main_buttons_frame,text="SpaCR",command=lambda: webbrowser.open_new("https://einarolafsson.github.io/spacr/tutorial/"),icon_name="logo_spacr",size=100,show_text=False)
+        
         logo_button.grid(row=0, column=0, padx=5, pady=5)
-        self.main_buttons[logo_button] = "SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens."
+        self.main_buttons[logo_button] = "spaCR provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens. Click to open the spaCR tutorial in your browser."
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
             app_func, app_desc = app_data
