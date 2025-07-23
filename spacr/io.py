@@ -1132,6 +1132,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
 def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={}):
     from .utils import print_progress
+    from .plot import plot_arrays
 
     """
     Concatenates and normalizes channel data from multiple files and saves the normalized data.
@@ -1154,6 +1155,8 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
     """
 
     channels = [item for item in channels if item is not None]
+    
+    print(f"Generating concatenated and normalized channel data for channels: {channels}")
 
     paths = []
     time_ls = []
@@ -1174,7 +1177,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
                         name = parts[0] + '_' + parts[1] + '_' + parts[2]
                     array = np.load(path)
                     stack_region.append(array)
-                    filenames_region.append(os.path.basename(path))
+                    filenames_region.append(os.path.basename(path))                    
                 stop = time.time()
                 duration = stop - start
                 time_ls.append(duration)
@@ -1192,6 +1195,10 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
                 
                 save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
                 np.savez(save_loc, data=normalized_stack, filenames=filenames_region)
+                
+                if i == 0:
+                    plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
+                
                 print(save_loc)
                 del stack, normalized_stack
         except Exception as e:
@@ -1250,6 +1257,13 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
 
                 save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
                 np.savez(save_loc, data=normalized_stack, filenames=filenames_batch)
+                print(f"batch_index: {batch_index} saving to {save_loc}")
+                
+                if batch_index == 0:
+                    print("i is 0 plotting normalized channels")
+                    print(f"plotting: {save_loc}")
+                    plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
+                
                 batch_index += 1
                 del stack, normalized_stack
                 stack_ls = []
