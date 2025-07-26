@@ -44,22 +44,15 @@ class MainApp(tk.Tk):
         self.main_gui_apps = {
             "Mask": (lambda frame: initiate_root(self, 'mask'), "Generate cellpose masks for cells, nuclei and pathogen images."),
             "Measure": (lambda frame: initiate_root(self, 'measure'), "Measure single object intensity and morphological feature. Crop and save single object image"),
-            #"Annotate": (lambda frame: initiate_root(self, 'annotate'), "Annotation single object images on a grid. Annotations are saved to database."),
-            #"Make Masks": (lambda frame: initiate_root(self, 'make_masks'), "Adjust pre-existing Cellpose models to your specific dataset for improved performance"),
             "Classify": (lambda frame: initiate_root(self, 'classify'), "Train Torch Convolutional Neural Networks (CNNs) or Transformers to classify single object images."),
         }
 
         self.additional_gui_apps = {
-            #"Umap": (lambda frame: initiate_root(self, 'umap'), "Generate UMAP embeddings with datapoints represented as images."),
-            #"Train Cellpose": (lambda frame: initiate_root(self, 'train_cellpose'), "Train custom Cellpose models."),
-            #"ML Analyze": (lambda frame: initiate_root(self, 'ml_analyze'), "Machine learning analysis of data."),
-            #"Cellpose Masks": (lambda frame: initiate_root(self, 'cellpose_masks'), "Generate Cellpose masks."),
-            #"Cellpose All": (lambda frame: initiate_root(self, 'cellpose_all'), "Run Cellpose on all images."),
+            "ML Analyze": (lambda frame: initiate_root(self, 'ml_analyze'), "Machine learning analysis of data."),
             "Map Barcodes": (lambda frame: initiate_root(self, 'map_barcodes'), "Map barcodes to data."),
             "Regression": (lambda frame: initiate_root(self, 'regression'), "Perform regression analysis."),
-            #"Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data."),
+            "Recruitment": (lambda frame: initiate_root(self, 'recruitment'), "Analyze recruitment data."),
             "Activation": (lambda frame: initiate_root(self, 'activation'), "Generate activation maps of computer vision models and measure channel-activation correlation."),
-            #"Plaque": (lambda frame: initiate_root(self, 'analyze_plaques'), "Analyze plaque data.")
         }
 
         self.selected_app = tk.StringVar()

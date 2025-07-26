@@ -463,14 +463,13 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
     from .core import generate_image_umap, preprocess_generate_masks
-    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
+    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models
     from .submodules import analyze_recruitment
     from .ml import generate_ml_scores, perform_regression
     from .submodules import train_cellpose, analyze_plaques
-    from .io import process_non_tif_non_2D_images, generate_cellpose_train_test, generate_dataset
+    from .io import process_non_tif_non_2D_images
     from .measure import measure_crop
-    from .sim import run_multiple_simulations
-    from .deep_spacr import deep_spacr, apply_model_to_tar
+    from .deep_spacr import deep_spacr
     from .sequencing import generate_barecode_mapping
     
     process_stdout_stderr(q)
@@ -482,9 +481,6 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 1
     elif settings_type == 'measure':
         function = measure_crop
-        imports = 1
-    elif settings_type == 'simulation':
-        function = run_multiple_simulations
         imports = 1
     elif settings_type == 'classify':
         function = deep_spacr

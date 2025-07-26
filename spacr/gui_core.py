@@ -1266,36 +1266,29 @@ def initiate_root(parent, settings_type='mask'):
     fig_queue = Queue()
     parent_frame, vertical_container, horizontal_container, settings_container = setup_frame(parent_frame)
 
-    if settings_type == 'annotate':
-        from .app_annotate import initiate_annotation_app
-        initiate_annotation_app(horizontal_container)
-    elif settings_type == 'make_masks':
-        from .app_make_masks import initiate_make_mask_app
-        initiate_make_mask_app(horizontal_container)
+    scrollable_frame, vars_dict = setup_settings_panel(settings_container, settings_type)
+    print('setup_settings_panel')
+    canvas, canvas_widget = setup_plot_section(vertical_container, settings_type)
+    console_output, _ = setup_console(vertical_container) #, chatbot)
+    button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
+    
+    if num_cores > 12:
+        _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
     else:
-        scrollable_frame, vars_dict = setup_settings_panel(settings_container, settings_type)
-        print('setup_settings_panel')
-        canvas, canvas_widget = setup_plot_section(vertical_container, settings_type)
-        console_output, _ = setup_console(vertical_container) #, chatbot)
-        button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
-        
-        if num_cores > 12:
-            _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
-        else:
-            usage_bars = []
+        usage_bars = []
 
-        set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
-        description_text = descriptions.get(settings_type, "No description available for this module.")
-        
-        q.put(f"Console")
-        q.put(f" ")
-        q.put(description_text)
-        
-        process_console_queue()
-        process_fig_queue()
-        create_menu_bar(parent)
-        after_id = parent_window.after(uppdate_frequency, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
-        parent_window.after_tasks.append(after_id)
+    set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
+    description_text = descriptions.get(settings_type, "No description available for this module.")
+    
+    q.put(f"Console")
+    q.put(f" ")
+    q.put(description_text)
+    
+    process_console_queue()
+    process_fig_queue()
+    create_menu_bar(parent)
+    after_id = parent_window.after(uppdate_frequency, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
+    parent_window.after_tasks.append(after_id)
 
     print("Root initialization complete")
     return parent_frame, vars_dict
