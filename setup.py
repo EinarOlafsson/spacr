@@ -72,10 +72,10 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "1.0.6"
+VERSION = "1.0.0"
 
 setup(
-    name="spacr",
+    name="spacr-nightly",
     version=VERSION,
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
@@ -92,7 +92,6 @@ setup(
             'mask=spacr.app_mask:start_mask_app',
             'measure=spacr.app_measure:start_measure_app',
             'make_masks=spacr.app_make_masks:gui_make_masks',
-            #'annotate=spacr.app_annotate:gui_annotate',
             'annotate=spacr.app_annotate:start_annotate_app',
             'classify=spacr.app_classify:start_classify_app',
             'sim=spacr.app_sim:gui_sim',
