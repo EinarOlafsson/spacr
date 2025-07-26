@@ -162,3 +162,6 @@ spacr.log
 spacr_tutorial_doc.ipynb
 tutorial.ipynb
 tutorial_colab.ipynb
+
+#do not include docs
+/docs
