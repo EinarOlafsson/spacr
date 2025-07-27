@@ -114,7 +114,43 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_image_mask_overlay">
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_image_mask_overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(2,</span> <span class="pre">98)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_pdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'outlines'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_tiffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_on_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_outlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_image_mask_overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_image_mask_overlay" title="Link to this definition"></a></dt>
-<dd><p>Plot image and mask overlays.</p>
+<dd><p>Plot multi-channel microscopy image overlays with cell, nucleus, and pathogen masks.</p>
+<p>This function visualizes microscopy images with optional mask overlays for different object types.
+It supports contour and filled mask modes, object filtering based on size and intensity, and saving output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Path to the <cite>.npy</cite> image stack (H x W x C).</p></li>
+<li><p><strong>channels</strong> (<em>list</em>) – Indices of the image channels to display.</p></li>
+<li><p><strong>cell_channel</strong> (<em>int</em><em> or </em><em>None</em>) – Channel index for the cell mask intensity.</p></li>
+<li><p><strong>nucleus_channel</strong> (<em>int</em><em> or </em><em>None</em>) – Channel index for the nucleus mask intensity.</p></li>
+<li><p><strong>pathogen_channel</strong> (<em>int</em><em> or </em><em>None</em>) – Channel index for the pathogen mask intensity.</p></li>
+<li><p><strong>figuresize</strong> (<em>int</em>) – Base figure size for each subplot. Default is 10.</p></li>
+<li><p><strong>percentiles</strong> (<em>tuple</em>) – Percentile range for image normalization. Default is (2, 98).</p></li>
+<li><p><strong>thickness</strong> (<em>int</em>) – Thickness of mask contour outlines. Default is 3.</p></li>
+<li><p><strong>save_pdf</strong> (<em>bool</em>) – If True, saves a PDF of the overlaid image. Default is True.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – ‘outlines’ or ‘filled’. Determines how masks are rendered. Default is ‘outlines’.</p></li>
+<li><p><strong>export_tiffs</strong> (<em>bool</em>) – If True, exports grayscale TIFFs for each image channel. Default is False.</p></li>
+<li><p><strong>all_on_all</strong> (<em>bool</em>) – If True, overlays all outlines on all channels. Default is False.</p></li>
+<li><p><strong>all_outlines</strong> (<em>bool</em>) – If True, overlays all outlines on non-matching channels. Default is False.</p></li>
+<li><p><strong>filter_dict</strong> (<em>dict</em><em> or </em><em>None</em>) – <p>Dictionary of filtering thresholds for each object type, e.g.,
+{</p>
+<blockquote>
+<div><p>’cell’: [(min_area, max_area), (min_intensity, max_intensity)],
+‘nucleus’: […],
+‘pathogen’: […]</p>
+</div></blockquote>
+<p>}</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generated overlay figure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

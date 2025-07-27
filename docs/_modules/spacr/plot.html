@@ -133,24 +133,37 @@
 
 <div class="viewcode-block" id="plot_image_mask_overlay">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_image_mask_overlay">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_image_mask_overlay</span><span class="p">(</span>
-    <span class="n">file</span><span class="p">,</span>
-    <span class="n">channels</span><span class="p">,</span>
-    <span class="n">cell_channel</span><span class="p">,</span>
-    <span class="n">nucleus_channel</span><span class="p">,</span>
-    <span class="n">pathogen_channel</span><span class="p">,</span>
-    <span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">98</span><span class="p">),</span>
-    <span class="n">thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;outlines&#39;</span><span class="p">,</span>
-    <span class="n">export_tiffs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">all_on_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">all_outlines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">filter_dict</span><span class="o">=</span><span class="kc">None</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot image and mask overlays.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">plot_image_mask_overlay</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">channels</span><span class="p">,</span><span class="n">cell_channel</span><span class="p">,</span><span class="n">nucleus_channel</span><span class="p">,</span><span class="n">pathogen_channel</span><span class="p">,</span><span class="n">figuresize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">percentiles</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">98</span><span class="p">),</span><span class="n">thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;outlines&#39;</span><span class="p">,</span><span class="n">export_tiffs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">all_on_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">all_outlines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">filter_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot multi-channel microscopy image overlays with cell, nucleus, and pathogen masks.</span>
 
+<span class="sd">    This function visualizes microscopy images with optional mask overlays for different object types. </span>
+<span class="sd">    It supports contour and filled mask modes, object filtering based on size and intensity, and saving output.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file (str): Path to the `.npy` image stack (H x W x C).</span>
+<span class="sd">        channels (list): Indices of the image channels to display.</span>
+<span class="sd">        cell_channel (int or None): Channel index for the cell mask intensity.</span>
+<span class="sd">        nucleus_channel (int or None): Channel index for the nucleus mask intensity.</span>
+<span class="sd">        pathogen_channel (int or None): Channel index for the pathogen mask intensity.</span>
+<span class="sd">        figuresize (int): Base figure size for each subplot. Default is 10.</span>
+<span class="sd">        percentiles (tuple): Percentile range for image normalization. Default is (2, 98).</span>
+<span class="sd">        thickness (int): Thickness of mask contour outlines. Default is 3.</span>
+<span class="sd">        save_pdf (bool): If True, saves a PDF of the overlaid image. Default is True.</span>
+<span class="sd">        mode (str): &#39;outlines&#39; or &#39;filled&#39;. Determines how masks are rendered. Default is &#39;outlines&#39;.</span>
+<span class="sd">        export_tiffs (bool): If True, exports grayscale TIFFs for each image channel. Default is False.</span>
+<span class="sd">        all_on_all (bool): If True, overlays all outlines on all channels. Default is False.</span>
+<span class="sd">        all_outlines (bool): If True, overlays all outlines on non-matching channels. Default is False.</span>
+<span class="sd">        filter_dict (dict or None): Dictionary of filtering thresholds for each object type, e.g.,</span>
+<span class="sd">            {</span>
+<span class="sd">                &#39;cell&#39;: [(min_area, max_area), (min_intensity, max_intensity)],</span>
+<span class="sd">                &#39;nucleus&#39;: [...],</span>
+<span class="sd">                &#39;pathogen&#39;: [...]</span>
+<span class="sd">            }</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.figure.Figure: The generated overlay figure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">random_color_cmap</span><span class="p">(</span><span class="n">n_labels</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a random color map for a given number of labels.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

@@ -13,7 +13,47 @@ Module Contents
 
 .. py:function:: plot_image_mask_overlay(file, channels, cell_channel, nucleus_channel, pathogen_channel, figuresize=10, percentiles=(2, 98), thickness=3, save_pdf=True, mode='outlines', export_tiffs=False, all_on_all=False, all_outlines=False, filter_dict=None)
 
-   Plot image and mask overlays.
+   Plot multi-channel microscopy image overlays with cell, nucleus, and pathogen masks.
+
+   This function visualizes microscopy images with optional mask overlays for different object types.
+   It supports contour and filled mask modes, object filtering based on size and intensity, and saving output.
+
+   :param file: Path to the `.npy` image stack (H x W x C).
+   :type file: str
+   :param channels: Indices of the image channels to display.
+   :type channels: list
+   :param cell_channel: Channel index for the cell mask intensity.
+   :type cell_channel: int or None
+   :param nucleus_channel: Channel index for the nucleus mask intensity.
+   :type nucleus_channel: int or None
+   :param pathogen_channel: Channel index for the pathogen mask intensity.
+   :type pathogen_channel: int or None
+   :param figuresize: Base figure size for each subplot. Default is 10.
+   :type figuresize: int
+   :param percentiles: Percentile range for image normalization. Default is (2, 98).
+   :type percentiles: tuple
+   :param thickness: Thickness of mask contour outlines. Default is 3.
+   :type thickness: int
+   :param save_pdf: If True, saves a PDF of the overlaid image. Default is True.
+   :type save_pdf: bool
+   :param mode: 'outlines' or 'filled'. Determines how masks are rendered. Default is 'outlines'.
+   :type mode: str
+   :param export_tiffs: If True, exports grayscale TIFFs for each image channel. Default is False.
+   :type export_tiffs: bool
+   :param all_on_all: If True, overlays all outlines on all channels. Default is False.
+   :type all_on_all: bool
+   :param all_outlines: If True, overlays all outlines on non-matching channels. Default is False.
+   :type all_outlines: bool
+   :param filter_dict: Dictionary of filtering thresholds for each object type, e.g.,
+                       {
+                           'cell': [(min_area, max_area), (min_intensity, max_intensity)],
+                           'nucleus': [...],
+                           'pathogen': [...]
+                       }
+   :type filter_dict: dict or None
+
+   :returns: The generated overlay figure.
+   :rtype: matplotlib.figure.Figure
 
 
 .. py:function:: plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, print_object_number=True)
