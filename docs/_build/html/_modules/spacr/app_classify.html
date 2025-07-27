@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
@@ -108,6 +109,16 @@
 <div class="viewcode-block" id="start_classify_app">
 <a class="viewcode-back" href="../../api/spacr/app_classify/index.html#spacr.app_classify.start_classify_app">[docs]</a>
 <span class="k">def</span> <span class="nf">start_classify_app</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Launch the spaCR GUI with the Classify application preloaded.</span>
+
+<span class="sd">    This function initializes the main GUI window with &quot;Classify&quot; set as the default active application.</span>
+<span class="sd">    It then starts the Tkinter main event loop to display the interface.</span>
+
+<span class="sd">    Typical use case:</span>
+<span class="sd">        Called from the command line or another script to directly launch the Classify module of spaCR.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">MainApp</span><span class="p">(</span><span class="n">default_app</span><span class="o">=</span><span class="s2">&quot;Classify&quot;</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span></div>
 

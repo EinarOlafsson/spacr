@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
@@ -423,7 +424,27 @@
 <div class="viewcode-block" id="test_model_core">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.test_model_core">[docs]</a>
 <span class="k">def</span> <span class="nf">test_model_core</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">loader</span><span class="p">,</span> <span class="n">loader_name</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">loss_type</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a trained model on a test DataLoader and return performance metrics and predictions.</span>
+
+<span class="sd">    This function evaluates a binary classification model using a specified loss function, computes</span>
+<span class="sd">    classification metrics, and logs predictions, targets, and file-level results.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (torch.nn.Module): The trained PyTorch model to evaluate.</span>
+<span class="sd">        loader (torch.utils.data.DataLoader): DataLoader providing test data and labels.</span>
+<span class="sd">        loader_name (str): Identifier name for the loader (used for logging/debugging).</span>
+<span class="sd">        epoch (int): Current epoch number (used for metric tracking).</span>
+<span class="sd">        loss_type (str): Type of loss function to use for reporting (e.g., &#39;bce&#39;, &#39;focal&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - data_df (pd.DataFrame): DataFrame containing classification metrics for the test set.</span>
+<span class="sd">            - prediction_pos_probs (list): List of predicted probabilities for the positive class.</span>
+<span class="sd">            - all_labels (list): Ground truth binary labels.</span>
+<span class="sd">            - results_df (pd.DataFrame): Per-sample results, including filename, true label, predicted label,</span>
+<span class="sd">              and probability for class 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">calculate_loss</span><span class="p">,</span> <span class="n">classification_metrics</span>
     <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>

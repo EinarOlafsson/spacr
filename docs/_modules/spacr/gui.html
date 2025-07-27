@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
@@ -114,6 +115,23 @@
 <div class="viewcode-block" id="MainApp">
 <a class="viewcode-back" href="../../api/spacr/gui/index.html#spacr.gui.MainApp">[docs]</a>
 <span class="k">class</span> <span class="nc">MainApp</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The main graphical user interface (GUI) window for launching various SpaCr modules.</span>
+
+<span class="sd">    This class creates a full-screen, themed Tkinter application with buttons to launch</span>
+<span class="sd">    sub-GUIs for image mask generation, measurement, classification, and advanced analysis</span>
+<span class="sd">    tools like regression, barcode mapping, and model activation visualization.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        default_app (str, optional): If specified, directly launches the corresponding application view.</span>
+<span class="sd">                                     Should match a key in `main_gui_apps` or `additional_gui_apps`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        main_gui_apps (dict): Mapping of main application names to functions and descriptions.</span>
+<span class="sd">        additional_gui_apps (dict): Mapping of optional analysis modules to functions and descriptions.</span>
+<span class="sd">        main_buttons (dict): Maps main GUI buttons to their description text.</span>
+<span class="sd">        additional_buttons (dict): Maps additional GUI buttons to their description text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_app</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -320,6 +338,12 @@
 <div class="viewcode-block" id="gui_app">
 <a class="viewcode-back" href="../../api/spacr/gui/index.html#spacr.gui.gui_app">[docs]</a>
 <span class="k">def</span> <span class="nf">gui_app</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Launch the main SpaCr GUI.</span>
+
+<span class="sd">    This function initializes and runs the `MainApp` class with no default app specified,</span>
+<span class="sd">    allowing users to select functionality from the startup screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">MainApp</span><span class="p">()</span>
     <span class="n">app</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span></div>
 

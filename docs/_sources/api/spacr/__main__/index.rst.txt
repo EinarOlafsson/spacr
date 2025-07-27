@@ -1,0 +1,11 @@
+spacr.__main__
+==============
+
+.. py:module:: spacr.__main__
+
+.. autoapi-nested-parse::
+
+   Copyright © 2025 Something
+
+
+

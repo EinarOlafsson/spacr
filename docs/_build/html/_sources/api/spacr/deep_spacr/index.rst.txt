@@ -101,6 +101,30 @@ Module Contents
 
 .. py:function:: test_model_core(model, loader, loader_name, epoch, loss_type)
 
+   Evaluate a trained model on a test DataLoader and return performance metrics and predictions.
+
+   This function evaluates a binary classification model using a specified loss function, computes
+   classification metrics, and logs predictions, targets, and file-level results.
+
+   :param model: The trained PyTorch model to evaluate.
+   :type model: torch.nn.Module
+   :param loader: DataLoader providing test data and labels.
+   :type loader: torch.utils.data.DataLoader
+   :param loader_name: Identifier name for the loader (used for logging/debugging).
+   :type loader_name: str
+   :param epoch: Current epoch number (used for metric tracking).
+   :type epoch: int
+   :param loss_type: Type of loss function to use for reporting (e.g., 'bce', 'focal').
+   :type loss_type: str
+
+   :returns:     - data_df (pd.DataFrame): DataFrame containing classification metrics for the test set.
+                 - prediction_pos_probs (list): List of predicted probabilities for the positive class.
+                 - all_labels (list): Ground truth binary labels.
+                 - results_df (pd.DataFrame): Per-sample results, including filename, true label, predicted label,
+                   and probability for class 1.
+   :rtype: tuple
+
+
 .. py:function:: test_model_performance(loaders, model, loader_name_list, epoch, loss_type)
 
    Test the performance of a model on given data loaders.

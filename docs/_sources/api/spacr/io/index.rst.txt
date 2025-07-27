@@ -32,6 +32,12 @@ Module Contents
    .. py:attribute:: loader_iters
 
 
+   .. py:method:: __iter__()
+
+
+   .. py:method:: __next__()
+
+
 .. py:class:: CombinedDataset(datasets, shuffle=True)
 
    Bases: :py:obj:`torch.utils.data.Dataset`
@@ -57,6 +63,12 @@ Module Contents
    .. py:attribute:: shuffle
       :value: True
 
+
+
+   .. py:method:: __getitem__(index)
+
+
+   .. py:method:: __len__()
 
 
 .. py:class:: NoClassDataset(data_dir, transform=None, shuffle=True, load_to_memory=False)
@@ -109,9 +121,30 @@ Module Contents
 
 
 
+   .. py:method:: __len__()
+
+      Get the total number of images in the dataset.
+
+      :returns: The number of images in the dataset.
+      :rtype: int
+
+
+
    .. py:method:: shuffle_dataset()
 
       Shuffle the dataset.
+
+
+
+   .. py:method:: __getitem__(index)
+
+      Get the image and its corresponding filename at the given index.
+
+      :param index: The index of the image in the dataset.
+      :type index: int
+
+      :returns: A tuple containing the image and its filename.
+      :rtype: tuple
 
 
 
@@ -172,10 +205,16 @@ Module Contents
    .. py:method:: load_image(img_path)
 
 
+   .. py:method:: __len__()
+
+
    .. py:method:: shuffle_dataset()
 
 
    .. py:method:: get_plate(filepath)
+
+
+   .. py:method:: __getitem__(index)
 
 
 .. py:class:: spacrDataLoader(*args, preload_batches=1, **kwargs)
@@ -215,7 +254,16 @@ Module Contents
    .. py:attribute:: pin_memory
 
 
+   .. py:method:: __iter__()
+
+
+   .. py:method:: __next__()
+
+
    .. py:method:: cleanup()
+
+
+   .. py:method:: __del__()
 
 
 .. py:class:: TarImageDataset(tar_path, transform=None)
@@ -246,6 +294,12 @@ Module Contents
    .. py:attribute:: transform
       :value: None
 
+
+
+   .. py:method:: __len__()
+
+
+   .. py:method:: __getitem__(idx)
 
 
 .. py:function:: load_images_from_paths(images_by_key)

@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
@@ -3790,6 +3791,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">channels</span></div>
 
     
+<div class="viewcode-block" id="SelectChannels.__call__">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels.__call__">[docs]</a>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">if</span> <span class="mi">1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
@@ -3799,6 +3802,7 @@
         <span class="k">if</span> <span class="mi">3</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
             <span class="n">img</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Zero out the blue channel</span>
         <span class="k">return</span> <span class="n">img</span></div>
+</div>
 
     
 <div class="viewcode-block" id="preprocess_image_v1">
@@ -4206,6 +4210,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="GradCAM.__call__">
+<a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.GradCAM.__call__">[docs]</a>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
@@ -4251,6 +4257,7 @@
             <span class="n">handle</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
             
         <span class="k">return</span> <span class="n">cam</span></div>
+</div>
 
 
 <div class="viewcode-block" id="show_cam_on_image">

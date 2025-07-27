@@ -49,6 +49,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
@@ -221,7 +222,34 @@ all_labels (list): The true labels for each prediction.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_core">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">test_model_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#test_model_core"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.test_model_core" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate a trained model on a test DataLoader and return performance metrics and predictions.</p>
+<p>This function evaluates a binary classification model using a specified loss function, computes
+classification metrics, and logs predictions, targets, and file-level results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>torch.nn.Module</em>) – The trained PyTorch model to evaluate.</p></li>
+<li><p><strong>loader</strong> (<em>torch.utils.data.DataLoader</em>) – DataLoader providing test data and labels.</p></li>
+<li><p><strong>loader_name</strong> (<em>str</em>) – Identifier name for the loader (used for logging/debugging).</p></li>
+<li><p><strong>epoch</strong> (<em>int</em>) – Current epoch number (used for metric tracking).</p></li>
+<li><p><strong>loss_type</strong> (<em>str</em>) – Type of loss function to use for reporting (e.g., ‘bce’, ‘focal’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>data_df (pd.DataFrame): DataFrame containing classification metrics for the test set.</p></li>
+<li><p>prediction_pos_probs (list): List of predicted probabilities for the positive class.</p></li>
+<li><p>all_labels (list): Ground truth binary labels.</p></li>
+<li><p>results_df (pd.DataFrame): Per-sample results, including filename, true label, predicted label,
+and probability for class 1.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_performance">

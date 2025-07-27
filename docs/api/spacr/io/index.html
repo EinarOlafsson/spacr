@@ -49,6 +49,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
@@ -139,6 +140,16 @@
 <span class="sig-name descname"><span class="pre">loader_iters</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.loader_iters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.loader_iters" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.CombineLoaders.__iter__">
+<span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.__iter__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.CombineLoaders.__next__">
+<span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.__next__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -172,6 +183,16 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.shuffle">
 <span class="sig-name descname"><span class="pre">shuffle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#CombinedDataset.shuffle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombinedDataset.shuffle" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.CombinedDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombinedDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombinedDataset.__getitem__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.CombinedDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombinedDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombinedDataset.__len__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -234,9 +255,40 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset.__len__" title="Link to this definition"></a></dt>
+<dd><p>Get the total number of images in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of images in the dataset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.NoClassDataset.shuffle_dataset">
 <span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset.shuffle_dataset" title="Link to this definition"></a></dt>
 <dd><p>Shuffle the dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.NoClassDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#NoClassDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.NoClassDataset.__getitem__" title="Link to this definition"></a></dt>
+<dd><p>Get the image and its corresponding filename at the given index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – The index of the image in the dataset.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the image and its filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -300,6 +352,11 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.__len__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.shuffle_dataset">
 <span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.shuffle_dataset" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -307,6 +364,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.get_plate">
 <span class="sig-name descname"><span class="pre">get_plate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.get_plate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.get_plate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.__getitem__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -355,8 +417,23 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataLoader.__iter__">
+<span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.__iter__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataLoader.__next__">
+<span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.__next__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.cleanup">
 <span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.cleanup" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.spacrDataLoader.__del__">
+<span class="sig-name descname"><span class="pre">__del__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.__del__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.__del__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -395,6 +472,16 @@ access to individual image files without unpacking the archive to disk.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset.transform">
 <span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/io.html#TarImageDataset.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.TarImageDataset.transform" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.TarImageDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#TarImageDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.TarImageDataset.__len__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.io.TarImageDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#TarImageDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.TarImageDataset.__getitem__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

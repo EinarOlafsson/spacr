@@ -48,7 +48,13 @@ Module Contents
 
 
 
+   .. py:method:: __len__()
+
+
    .. py:method:: apply_augmentation(image, label, aug_idx)
+
+
+   .. py:method:: __getitem__(idx)
 
 
 .. py:function:: train_cellpose(settings)

@@ -49,6 +49,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
@@ -117,9 +118,9 @@
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>An abstract class representing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>.</p>
 <p>All datasets that represent a map from keys to data samples should subclass
-it. All subclasses should overwrite <code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code>, supporting fetching a
+it. All subclasses should overwrite <a class="reference internal" href="#spacr.submodules.CellposeLazyDataset.__getitem__" title="spacr.submodules.CellposeLazyDataset.__getitem__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code></a>, supporting fetching a
 data sample for a given key. Subclasses could also optionally overwrite
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">__len__()</span></code>, which is expected to return the size of the dataset by many
+<a class="reference internal" href="#spacr.submodules.CellposeLazyDataset.__len__" title="spacr.submodules.CellposeLazyDataset.__len__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__len__()</span></code></a>, which is expected to return the size of the dataset by many
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> implementations and the default options
 of <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. Subclasses could also
 optionally implement <code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitems__()</span></code>, for speedup batched samples
@@ -152,8 +153,18 @@ dataset with non-integral indices/keys, a custom sampler must be provided.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.__len__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.apply_augmentation">
 <span class="sig-name descname"><span class="pre">apply_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aug_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.apply_augmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.apply_augmentation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.__getitem__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

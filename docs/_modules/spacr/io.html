@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/__main__/index.html">spacr.__main__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
@@ -461,9 +462,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span> <span class="o">=</span> <span class="p">[</span><span class="nb">iter</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">train_loaders</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="CombineLoaders.__iter__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.__iter__">[docs]</a>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
+
+<div class="viewcode-block" id="CombineLoaders.__next__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.__next__">[docs]</a>
     <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">:</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">)</span>
@@ -477,6 +483,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+</div>
 
 
 <div class="viewcode-block" id="CombinedDataset">
@@ -512,15 +519,21 @@
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="CombinedDataset.__getitem__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombinedDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">dataset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="n">index</span> <span class="o">-=</span> <span class="n">length</span>
+            <span class="n">index</span> <span class="o">-=</span> <span class="n">length</span></div>
+
+<div class="viewcode-block" id="CombinedDataset.__len__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombinedDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_length</span></div>
+</div>
 
     
 <div class="viewcode-block" id="NoClassDataset">
@@ -582,6 +595,8 @@
         <span class="k">return</span> <span class="n">img</span></div>
 
     
+<div class="viewcode-block" id="NoClassDataset.__len__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the total number of images in the dataset.</span>
@@ -589,7 +604,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            int: The number of images in the dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span></div>
+
     
 <div class="viewcode-block" id="NoClassDataset.shuffle_dataset">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset.shuffle_dataset">[docs]</a>
@@ -601,6 +617,8 @@
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span></div>
 
     
+<div class="viewcode-block" id="NoClassDataset.__getitem__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the image and its corresponding filename at the given index.</span>
@@ -620,6 +638,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">ToTensor</span><span class="p">()(</span><span class="n">img</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+</div>
 
 
 
@@ -696,8 +715,11 @@
         <span class="k">return</span> <span class="n">img</span></div>
 
 
+<div class="viewcode-block" id="spacrDataset.__len__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="spacrDataset.shuffle_dataset">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.shuffle_dataset">[docs]</a>
@@ -714,6 +736,8 @@
         <span class="k">return</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="spacrDataset.__getitem__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
@@ -724,6 +748,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">filename</span></div>
+</div>
 
     
 <div class="viewcode-block" id="spacrDataLoader">
@@ -794,10 +819,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">batch</span>
 
+<div class="viewcode-block" id="spacrDataLoader.__iter__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.__iter__">[docs]</a>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_preloading</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
+
+<div class="viewcode-block" id="spacrDataLoader.__next__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.__next__">[docs]</a>
     <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">StopIteration</span>
@@ -815,7 +845,8 @@
 
             <span class="k">return</span> <span class="n">next_batch</span>
         <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">StopIteration</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+
 
 <div class="viewcode-block" id="spacrDataLoader.cleanup">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.cleanup">[docs]</a>
@@ -826,8 +857,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="spacrDataLoader.__del__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.__del__">[docs]</a>
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+</div>
 
 
 <div class="viewcode-block" id="TarImageDataset">
@@ -860,9 +894,14 @@
         <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tar_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">getmembers</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">isfile</span><span class="p">()]</span>
 
+<div class="viewcode-block" id="TarImageDataset.__len__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="TarImageDataset.__getitem__">
+<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tar_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
@@ -873,6 +912,7 @@
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span></div>
+</div>
 
     
 <div class="viewcode-block" id="load_images_from_paths">

@@ -857,6 +857,9 @@ Module Contents
    .. py:attribute:: channels
 
 
+   .. py:method:: __call__(img)
+
+
 .. py:function:: preprocess_image_v1(image_path, image_size=224, channels=[1, 2, 3], normalize=True)
 
 .. py:class:: SaliencyMapGenerator(model)
@@ -942,6 +945,9 @@ Module Contents
 
 
    .. py:method:: forward(input)
+
+
+   .. py:method:: __call__(x, index=None)
 
 
 .. py:function:: show_cam_on_image(img, mask)

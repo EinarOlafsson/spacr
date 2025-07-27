@@ -31,11 +31,13 @@ autoapi_dirs               = [os.path.abspath(
 )]
 autoapi_root               = 'api'
 autoapi_add_toctree_entry  = True
-autoapi_options            = [
+autoapi_options = [
     'members',
     'undoc-members',
     'show-inheritance',
+    'special-members',
 ]
+autoapi_python_class_content = 'class'  # Only show class-level docs, skip module variables
 autoapi_ignore             = ['*/tests/*']
 
 # -- Options for HTML output -------------------------------------------------
