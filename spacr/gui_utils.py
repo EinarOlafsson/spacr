@@ -9,7 +9,7 @@ import psutil
 from PIL import Image, ImageTk
 from screeninfo import get_monitors
 
-from .gui_elements import AnnotateApp, spacrEntry, spacrCheck, spacrCombo
+from .gui_elements import spacrEntry, spacrCheck, spacrCombo
 
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -208,114 +208,6 @@ def cancel_after_tasks(frame):
             frame.after_cancel(task)
         frame.after_tasks.clear()
 
-def annotate(settings):
-    from .settings import set_annotate_default_settings
-    settings = set_annotate_default_settings(settings)
-    src  = settings['src']
-
-    db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    c.execute('PRAGMA table_info(png_list)')
-    cols = c.fetchall()
-    if settings['annotation_column'] not in [col[1] for col in cols]:
-        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
-    conn.commit()
-    conn.close()
-
-    root = tk.Tk()
-    
-    root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
-    
-    db_path = os.path.join(settings['src'], 'measurements/measurements.db')
-
-    app = AnnotateApp(root,
-                      db_path=db_path,
-                      src=settings['src'],
-                      image_type=settings['image_type'],
-                      channels=settings['channels'],
-                      image_size=settings['img_size'],
-                      annotation_column=settings['annotation_column'],
-                      normalize=settings['normalize'],
-                      percentiles=settings['percentiles'],
-                      measurement=settings['measurement'],
-                      threshold=settings['threshold'],
-                      normalize_channels=settings['normalize_channels'])
-    
-    app.load_images()
-    root.mainloop()
-
-def generate_annotate_fields(frame):
-    from .settings import set_annotate_default_settings
-    from .gui_elements import set_dark_style
-
-    style_out = set_dark_style(ttk.Style())
-    font_loader = style_out['font_loader']
-    font_size = style_out['font_size'] - 2
-
-    vars_dict = {}
-    settings = set_annotate_default_settings(settings={})
-    
-    for setting in settings:
-        vars_dict[setting] = {
-            'entry': ttk.Entry(frame),
-            'value': settings[setting]
-        }
-
-    # Arrange input fields and labels
-    for row, (name, data) in enumerate(vars_dict.items()):
-        tk.Label(
-            frame,
-            text=f"{name.replace('_', ' ').capitalize()}:",
-            bg=style_out['bg_color'],
-            fg=style_out['fg_color'],
-            font=font_loader.get_font(size=font_size)
-        ).grid(row=row, column=0)
-
-        value = data['value']
-        if isinstance(value, list):
-            string_value = ','.join(map(str, value))
-        elif isinstance(value, (int, float, bool)):
-            string_value = str(value)
-        elif value is None:
-            string_value = ''
-        else:
-            string_value = value
-
-        data['entry'].insert(0, string_value)
-        data['entry'].grid(row=row, column=1)
-
-    return vars_dict
-
-def run_annotate_app(vars_dict, parent_frame):
-    settings = {key: data['entry'].get() for key, data in vars_dict.items()}
-    settings['channels'] = settings['channels'].split(',')
-    settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
-    settings['percentiles'] = list(map(int, settings['percentiles'].split(',')))  # Convert string to list of integers
-    settings['normalize'] = settings['normalize'].lower() == 'true'
-    settings['normalize_channels'] = settings['channels'].split(',')
-    settings['rows'] = int(settings['rows'])
-    settings['columns'] = int(settings['columns'])
-    settings['measurement'] = settings['measurement'].split(',')
-    settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
-
-    # Clear previous content instead of destroying the root
-    if hasattr(parent_frame, 'winfo_children'):
-        for widget in parent_frame.winfo_children():
-            widget.destroy()
-
-    # Start the annotate application in the same root window
-    annotate_app(parent_frame, settings)
-
-# Global list to keep references to PhotoImage objects
-global_image_refs = []
-
-def annotate_app(parent_frame, settings):
-    global global_image_refs
-    global_image_refs.clear()
-    root = parent_frame.winfo_toplevel()
-    annotate_with_image_refs(settings, root, lambda: load_next_app(root))
-
 def load_next_app(root):
     # Get the next app function and arguments
     next_app_func = root.next_app_func
@@ -334,37 +226,6 @@ def load_next_app(root):
             new_root.geometry(f"{width}x{height}")
             new_root.title("SpaCr Application")
             next_app_func(new_root, *next_app_args)
-
-def annotate_with_image_refs(settings, root, shutdown_callback):
-    from .settings import set_annotate_default_settings
-
-    settings = set_annotate_default_settings(settings)
-    src = settings['src']
-
-    db = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    c.execute('PRAGMA table_info(png_list)')
-    cols = c.fetchall()
-    if settings['annotation_column'] not in [col[1] for col in cols]:
-        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
-    conn.commit()
-    conn.close()
-
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    root.geometry(f"{screen_width}x{screen_height}")
-
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'], outline=settings['outline'], outline_threshold_factor=settings['outline_threshold_factor'], outline_sigma=settings['outline_sigma'])
-
-    # Set the canvas background to black
-    root.configure(bg='black')
-
-    # Store the shutdown function and next app details in the root
-    root.current_app_exit_func = lambda: [app.shutdown(), shutdown_callback()]
-
-    # Call load_images after setting up the root window
-    app.load_images()
 
 def convert_settings_dict_for_gui(settings):
     from torchvision import models as torch_models
@@ -462,7 +323,7 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
         
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     
-    from .core import generate_image_umap, preprocess_generate_masks
+    from .core import preprocess_generate_masks
     from .spacr_cellpose import identify_masks_finetune, check_cellpose_models
     from .submodules import analyze_recruitment
     from .ml import generate_ml_scores, perform_regression
@@ -505,9 +366,6 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         imports = 2
     elif settings_type == 'recruitment':
         function = analyze_recruitment
-        imports = 1
-    elif settings_type == 'umap':
-        function = generate_image_umap
         imports = 1
     elif settings_type == 'analyze_plaques':
         function = analyze_plaques
