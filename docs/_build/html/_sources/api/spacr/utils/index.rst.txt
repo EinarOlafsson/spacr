@@ -1145,7 +1145,11 @@ Module Contents
    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
 
 
-.. py:function:: adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
+.. py:function:: process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, overlap_threshold, perimeter_threshold)
+
+.. py:function:: adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None)
+
+.. py:function:: adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
 
    Process all npy files in the given folders. Merge and relabel cells in cell masks
    based on parasite overlap and cell perimeter sharing conditions.

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.io &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.io &mdash; spacr 1.0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/documentation_options.js?v=aec50437"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -46,13 +46,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/spacr/index.html">spacr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/index.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_annotate/index.html">spacr.app_annotate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_classify/index.html">spacr.app_classify</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_make_masks/index.html">spacr.app_make_masks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_measure/index.html">spacr.app_measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_sequencing/index.html">spacr.app_sequencing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/app_umap/index.html">spacr.app_umap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/core/index.html">spacr.core</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/deep_spacr/index.html">spacr.deep_spacr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui/index.html">spacr.gui</a></li>
@@ -66,7 +63,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
@@ -107,13 +103,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for spacr.io</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sqlite3</span><span class="o">,</span> <span class="nn">gc</span><span class="o">,</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">tarfile</span><span class="o">,</span> <span class="nn">cellpose</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">queue</span><span class="o">,</span> <span class="nn">tifffile</span><span class="o">,</span> <span class="nn">czifile</span><span class="o">,</span> <span class="nn">atexit</span><span class="o">,</span> <span class="nn">datetime</span><span class="o">,</span> <span class="nn">traceback</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sqlite3</span><span class="o">,</span> <span class="nn">gc</span><span class="o">,</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">cv2</span><span class="o">,</span> <span class="nn">tarfile</span><span class="o">,</span> <span class="nn">cellpose</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">queue</span><span class="o">,</span> <span class="nn">tifffile</span><span class="o">,</span> <span class="nn">czifile</span><span class="o">,</span> <span class="nn">atexit</span><span class="o">,</span> <span class="nn">datetime</span><span class="o">,</span> <span class="nn">readlif</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageOps</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">Counter</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">matplotlib.animation</span> <span class="kn">import</span> <span class="n">FuncAnimation</span>
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
 <span class="kn">from</span> <span class="nn">skimage.util</span> <span class="kn">import</span> <span class="n">img_as_uint</span>
@@ -132,7 +127,6 @@
 <span class="kn">from</span> <span class="nn">nd2reader</span> <span class="kn">import</span> <span class="n">ND2Reader</span>
 <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">import</span> <span class="nn">readlif</span>
 <span class="kn">from</span> <span class="nn">pylibCZIrw</span> <span class="kn">import</span> <span class="n">czi</span> <span class="k">as</span> <span class="n">pyczi</span>
 
 <div class="viewcode-block" id="process_non_tif_non_2D_images">
@@ -1386,6 +1380,7 @@
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.concatenate_and_normalize">[docs]</a>
 <span class="k">def</span> <span class="nf">concatenate_and_normalize</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">save_dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_arrays</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Concatenates and normalizes channel data from multiple files and saves the normalized data.</span>
@@ -1408,6 +1403,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">channels</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating concatenated and normalized channel data for channels: </span><span class="si">{</span><span class="n">channels</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1428,7 +1425,7 @@
                         <span class="n">name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                     <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
                     <span class="n">stack_region</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-                    <span class="n">filenames_region</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+                    <span class="n">filenames_region</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>                    
                 <span class="n">stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
                 <span class="n">duration</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">start</span>
                 <span class="n">time_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
@@ -1446,6 +1443,10 @@
                 
                 <span class="n">save_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_fldr</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_norm_timelapse.npz&#39;</span><span class="p">)</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">save_loc</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">normalized_stack</span><span class="p">,</span> <span class="n">filenames</span><span class="o">=</span><span class="n">filenames_region</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">plot_arrays</span><span class="p">(</span><span class="n">save_loc</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">],</span> <span class="n">nr</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nr&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                
                 <span class="nb">print</span><span class="p">(</span><span class="n">save_loc</span><span class="p">)</span>
                 <span class="k">del</span> <span class="n">stack</span><span class="p">,</span> <span class="n">normalized_stack</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1503,7 +1504,11 @@
                 <span class="n">normalized_stack</span> <span class="o">=</span> <span class="n">normalized_stack</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">channels</span><span class="p">]</span>
 
                 <span class="n">save_loc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_fldr</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;stack_</span><span class="si">{</span><span class="n">batch_index</span><span class="si">}</span><span class="s1">_norm.npz&#39;</span><span class="p">)</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">save_loc</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">normalized_stack</span><span class="p">,</span> <span class="n">filenames</span><span class="o">=</span><span class="n">filenames_batch</span><span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">save_loc</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">normalized_stack</span><span class="p">,</span> <span class="n">filenames</span><span class="o">=</span><span class="n">filenames_batch</span><span class="p">)</span>                
+                <span class="k">if</span> <span class="n">batch_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plotting: </span><span class="si">{</span><span class="n">save_loc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">plot_arrays</span><span class="p">(</span><span class="n">save_loc</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;figuresize&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">],</span> <span class="n">nr</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;nr&#39;</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                
                 <span class="n">batch_index</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">del</span> <span class="n">stack</span><span class="p">,</span> <span class="n">normalized_stack</span>
                 <span class="n">stack_ls</span> <span class="o">=</span> <span class="p">[]</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.core &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.core &mdash; spacr 1.0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,14 +15,14 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=aec50437"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="spacr.deep_spacr" href="../deep_spacr/index.html" />
-    <link rel="prev" title="spacr.app_umap" href="../app_umap/index.html" /> 
+    <link rel="prev" title="spacr.app_sequencing" href="../app_sequencing/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,13 +49,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">spacr</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../app_annotate/index.html">spacr.app_annotate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_classify/index.html">spacr.app_classify</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../app_make_masks/index.html">spacr.app_make_masks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_mask/index.html">spacr.app_mask</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_measure/index.html">spacr.app_measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../app_sequencing/index.html">spacr.app_sequencing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../app_umap/index.html">spacr.app_umap</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.core</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../deep_spacr/index.html">spacr.deep_spacr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../gui/index.html">spacr.gui</a></li>
@@ -69,7 +66,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
@@ -126,63 +122,6 @@
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.core.generate_image_umap">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_image_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#generate_image_umap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_image_umap" title="Link to this definition"></a></dt>
-<dd><p>Generate UMAP or tSNE embedding and visualize the data with clustering.</p>
-<p>Parameters:
-settings (dict): Dictionary containing the following keys:
-src (str): Source directory containing the data.
-row_limit (int): Limit the number of rows to process.
-tables (list): List of table names to read from the database.
-visualize (str): Visualization type.
-image_nr (int): Number of images to display.
-dot_size (int): Size of dots in the scatter plot.
-n_neighbors (int): Number of neighbors for UMAP.
-figuresize (int): Size of the figure.
-black_background (bool): Whether to use a black background.
-remove_image_canvas (bool): Whether to remove the image canvas.
-plot_outlines (bool): Whether to plot outlines.
-plot_points (bool): Whether to plot points.
-smooth_lines (bool): Whether to smooth lines.
-verbose (bool): Whether to print verbose output.
-embedding_by_controls (bool): Whether to use embedding from controls.
-col_to_compare (str): Column to compare for control-based embedding.
-pos (str): Positive control value.
-neg (str): Negative control value.
-clustering (str): Clustering method (‘DBSCAN’ or ‘KMeans’).
-exclude (list): List of columns to exclude from the analysis.
-plot_images (bool): Whether to plot images.
-reduction_method (str): Dimensionality reduction method (‘UMAP’ or ‘tSNE’).
-save_figure (bool): Whether to save the figure as a PDF.</p>
-<p>Returns:
-pd.DataFrame: DataFrame with the original data and an additional column ‘cluster’ containing the cluster identity.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.core.reducer_hyperparameter_search">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">reducer_hyperparameter_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbscan_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#reducer_hyperparameter_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.reducer_hyperparameter_search" title="Link to this definition"></a></dt>
-<dd><p>Perform a hyperparameter search for UMAP or tSNE on the given data.</p>
-<p>Parameters:
-settings (dict): Dictionary containing the following keys:
-src (str): Source directory containing the data.
-row_limit (int): Limit the number of rows to process.
-tables (list): List of table names to read from the database.
-filter_by (str): Column to filter the data.
-sample_size (int): Number of samples to use for the hyperparameter search.
-remove_highly_correlated (bool): Whether to remove highly correlated columns.
-log_data (bool): Whether to log transform the data.
-verbose (bool): Whether to print verbose output.
-reduction_method (str): Dimensionality reduction method (‘UMAP’ or ‘tSNE’).
-reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.
-dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.
-kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.
-pointsize (int): Size of the points in the scatter plot.
-save (bool): Whether to save the resulting plot as a file.</p>
-<p>Returns:
-None</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_screen_graphs">
 <span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_screen_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#generate_screen_graphs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_screen_graphs" title="Link to this definition"></a></dt>
 <dd><p>Generate screen graphs for different measurements in a given source directory.</p>
@@ -216,7 +155,7 @@ results (list): List of corresponding result DataFrames.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../app_umap/index.html" class="btn btn-neutral float-left" title="spacr.app_umap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../app_sequencing/index.html" class="btn btn-neutral float-left" title="spacr.app_sequencing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../deep_spacr/index.html" class="btn btn-neutral float-right" title="spacr.deep_spacr" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -10,13 +10,10 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /api/spacr/app_annotate/index
    /api/spacr/app_classify/index
-   /api/spacr/app_make_masks/index
    /api/spacr/app_mask/index
    /api/spacr/app_measure/index
    /api/spacr/app_sequencing/index
-   /api/spacr/app_umap/index
    /api/spacr/core/index
    /api/spacr/deep_spacr/index
    /api/spacr/gui/index
@@ -30,7 +27,6 @@ Submodules
    /api/spacr/plot/index
    /api/spacr/sequencing/index
    /api/spacr/settings/index
-   /api/spacr/sim/index
    /api/spacr/sp_stats/index
    /api/spacr/spacr_cellpose/index
    /api/spacr/submodules/index

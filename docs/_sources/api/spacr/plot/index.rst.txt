@@ -106,6 +106,20 @@ Module Contents
 
 .. py:function:: plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99)
 
+   Plot randomly selected arrays from a given directory or a single .npz/.npy file.
+
+   Parameters:
+   - src (str): The directory path or file path containing the arrays.
+   - figuresize (int): The size of the figure (default: 10).
+   - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
+   - nr (int): The number of arrays to plot (default: 1).
+   - normalize (bool): Whether to normalize the arrays (default: True).
+   - q1 (int): The lower percentile for normalization (default: 1).
+   - q2 (int): The upper percentile for normalization (default: 99).
+
+
+.. py:function:: plot_arrays_v1(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99)
+
    Plot randomly selected arrays from a given directory.
 
    Parameters:

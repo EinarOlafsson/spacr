@@ -8,8 +8,6 @@ spacr.gui_utils
 
 
 
-
-
 Module Contents
 ---------------
 
@@ -97,21 +95,7 @@ Module Contents
 
 .. py:function:: cancel_after_tasks(frame)
 
-.. py:function:: annotate(settings)
-
-.. py:function:: generate_annotate_fields(frame)
-
-.. py:function:: run_annotate_app(vars_dict, parent_frame)
-
-.. py:data:: global_image_refs
-   :value: []
-
-
-.. py:function:: annotate_app(parent_frame, settings)
-
 .. py:function:: load_next_app(root)
-
-.. py:function:: annotate_with_image_refs(settings, root, shutdown_callback)
 
 .. py:function:: convert_settings_dict_for_gui(settings)
 
