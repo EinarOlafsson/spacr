@@ -191,6 +191,25 @@
 <div class="viewcode-block" id="toggle_settings">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.toggle_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">toggle_settings</span><span class="p">(</span><span class="n">button_scrollable_frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes and displays a dropdown menu to toggle visibility of categorized GUI settings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        button_scrollable_frame (tk.Widget): A scrollable frame where the dropdown menu will be placed.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If `vars_dict` is not initialized.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Imports setting categories and hides all setting widgets initially.</span>
+<span class="sd">        - Adds a dropdown menu that lets users toggle the visibility of settings belonging to each category.</span>
+<span class="sd">        - When a category is selected, it toggles visibility for all settings in that category.</span>
+<span class="sd">        - Updates the dropdown appearance based on which categories are currently active.</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        vars_dict (dict): A dictionary mapping setting keys to (label, widget, _, frame) tuples.</span>
+<span class="sd">            Must be initialized before calling this function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">vars_dict</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">categories</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">hide_all_settings</span>
@@ -234,6 +253,37 @@
 <div class="viewcode-block" id="display_figure">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.display_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">display_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays a matplotlib figure within a Tkinter GUI canvas, enabling interactive features such as:</span>
+<span class="sd">    - Zooming with mouse scroll</span>
+<span class="sd">    - Navigation via left/right click</span>
+<span class="sd">    - Context menu for saving or modifying the figure</span>
+<span class="sd">    - Dynamic annotation visibility based on zoom level</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The figure to display in the GUI.</span>
+
+<span class="sd">    Global Variables:</span>
+<span class="sd">        canvas (FigureCanvasTkAgg): The current canvas used for displaying the figure.</span>
+<span class="sd">        canvas_widget (tk.Widget): The widget associated with the canvas.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Destroys any existing canvas before rendering the new figure.</span>
+<span class="sd">        - Initializes zooming around cursor position using scroll wheel.</span>
+<span class="sd">        - Binds left/right clicks to navigate between figures (via show_previous_figure / show_next_figure).</span>
+<span class="sd">        - Adds a right-click context menu to save as PNG/PDF, modify figure, or reset zoom.</span>
+<span class="sd">        - Preserves original axis limits for reset functionality.</span>
+<span class="sd">        - Dynamically toggles text label visibility depending on zoom.</span>
+<span class="sd">        - Applies consistent dark theme styling for background and context menu.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Assumes `show_previous_figure()`, `show_next_figure()`, `set_dark_style()`, </span>
+<span class="sd">          `save_figure_as_format()`, `modify_figure()`, and `process_fig_queue()` are defined elsewhere.</span>
+<span class="sd">        - Should be called after global `canvas` and `canvas_widget` have been initialized.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If canvas_widget is not properly initialized prior to calling this function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span>
 
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">save_figure_as_format</span><span class="p">,</span> <span class="n">modify_figure</span>
@@ -448,6 +498,18 @@
 <div class="viewcode-block" id="clear_unused_figures">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.clear_unused_figures">[docs]</a>
 <span class="k">def</span> <span class="nf">clear_unused_figures</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clears figures from memory that are not within ±20 of the current figure index to reduce memory usage.</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        figures (collections.deque): A deque of currently stored matplotlib figures.</span>
+<span class="sd">        figure_index (int): Index of the currently displayed figure.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Retains only figures within 20 indices before and after the current figure_index.</span>
+<span class="sd">        - Updates the figure_index to remain within valid bounds of the updated figures deque.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">global</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span>
 
     <span class="n">lower_bound</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">figure_index</span> <span class="o">-</span> <span class="mi">20</span><span class="p">)</span>
@@ -461,6 +523,20 @@
 <div class="viewcode-block" id="show_previous_figure">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.show_previous_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">show_previous_figure</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays the previous figure in the global figures list, if available.</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        figure_index (int): Current index of the displayed figure.</span>
+<span class="sd">        figures (list): List of matplotlib figures.</span>
+<span class="sd">        fig_queue (queue.Queue): Queue of figures to be displayed later (unused here).</span>
+<span class="sd">        index_control (tk.IntVar or custom object): UI controller for setting and tracking current index.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Decrements figure_index.</span>
+<span class="sd">        - Standardizes and displays the previous figure.</span>
+<span class="sd">        - Updates index_control to reflect the new figure index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
     <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">index_control</span>
     
@@ -475,6 +551,20 @@
 <div class="viewcode-block" id="show_next_figure">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.show_next_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">show_next_figure</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays the next figure in the figures list or loads one from the queue if at the end.</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        figure_index (int): Current index of the displayed figure.</span>
+<span class="sd">        figures (list): List of existing matplotlib figures.</span>
+<span class="sd">        fig_queue (queue.Queue): Queue of figures to display when user navigates forward.</span>
+<span class="sd">        index_control (tk.IntVar or custom object): UI control to sync figure index display.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - If not at the end of figures list, increments index and displays the next figure.</span>
+<span class="sd">        - If at the end and the figure queue is not empty, loads and displays the next figure from the queue.</span>
+<span class="sd">        - Updates index_control to reflect the current position.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
     <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">index_control</span>
     <span class="k">if</span> <span class="n">figure_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">figure_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
@@ -497,6 +587,27 @@
 <div class="viewcode-block" id="process_fig_queue">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.process_fig_queue">[docs]</a>
 <span class="k">def</span> <span class="nf">process_fig_queue</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes the figure queue and updates the GUI with new figures as they arrive.</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        canvas (FigureCanvasTkAgg): The current canvas displaying the figure.</span>
+<span class="sd">        fig_queue (queue.Queue): Queue containing matplotlib figures to be displayed.</span>
+<span class="sd">        canvas_widget (tk.Widget): The widget holding the canvas.</span>
+<span class="sd">        parent_frame (tk.Frame): Parent frame that manages periodic GUI updates.</span>
+<span class="sd">        uppdate_frequency (int): Delay in milliseconds between re-checking the queue.</span>
+<span class="sd">        figures (collections.deque): A deque holding all currently active figures.</span>
+<span class="sd">        figure_index (int): Index of the currently displayed figure.</span>
+<span class="sd">        index_control (tk.IntVar or similar): Control object for syncing figure index in GUI.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Retrieves and displays figures from fig_queue.</span>
+<span class="sd">        - Standardizes figure appearance using `standardize_figure`.</span>
+<span class="sd">        - Maintains a fixed-size deque (max 100) by discarding oldest figures.</span>
+<span class="sd">        - If no figure is currently displayed, it displays the first one.</span>
+<span class="sd">        - Sets slider/index control to match the latest figure.</span>
+<span class="sd">        - Reschedules itself using `after()` to poll for new figures continuously.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">index_control</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
 
@@ -538,10 +649,25 @@
         <span class="n">parent_frame</span><span class="o">.</span><span class="n">after_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">after_id</span><span class="p">)</span></div>
 
 
-
 <div class="viewcode-block" id="update_figure">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.update_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">update_figure</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates the currently displayed figure based on slider value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value (str or int): Index of the figure to display.</span>
+<span class="sd">    </span>
+<span class="sd">    Globals:</span>
+<span class="sd">        figure_index (int): Index of the current figure.</span>
+<span class="sd">        figures (deque): Deque of matplotlib figures.</span>
+<span class="sd">        index_control (spacrSlider): Slider control for index selection.</span>
+
+<span class="sd">    Effects:</span>
+<span class="sd">        - Updates the canvas with the selected figure.</span>
+<span class="sd">        - Applies standard formatting to the figure.</span>
+<span class="sd">        - Sets the slider and index state accordingly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">standardize_figure</span>
     <span class="k">global</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">index_control</span>
     
@@ -561,6 +687,28 @@
 <div class="viewcode-block" id="setup_plot_section">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.setup_plot_section">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_plot_section</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes the figure display section and associated slider for navigating figures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vertical_container (tk.PanedWindow or tk.Frame): Parent container.</span>
+<span class="sd">        settings_type (str): Mode to configure specific behaviors (e.g. &#39;map_barcodes&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (canvas, canvas_widget)</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        canvas, canvas_widget: For figure rendering.</span>
+<span class="sd">        figures (deque): Storage of figures.</span>
+<span class="sd">        figure_index (int): Current index.</span>
+<span class="sd">        index_control (spacrSlider): Slider widget for navigating figure list.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Displays initial blank figure.</span>
+<span class="sd">        - Adds slider for figure navigation.</span>
+<span class="sd">        - Applies dark style.</span>
+<span class="sd">        - Optionally shows media for &#39;map_barcodes&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">index_control</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">display_media_in_plot_frame</span>
 
@@ -638,6 +786,17 @@
 <div class="viewcode-block" id="set_globals">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.set_globals">[docs]</a>
 <span class="k">def</span> <span class="nf">set_globals</span><span class="p">(</span><span class="n">thread_control_var</span><span class="p">,</span> <span class="n">q_var</span><span class="p">,</span> <span class="n">console_output_var</span><span class="p">,</span> <span class="n">parent_frame_var</span><span class="p">,</span> <span class="n">vars_dict_var</span><span class="p">,</span> <span class="n">canvas_var</span><span class="p">,</span> <span class="n">canvas_widget_var</span><span class="p">,</span> <span class="n">scrollable_frame_var</span><span class="p">,</span> <span class="n">fig_queue_var</span><span class="p">,</span> <span class="n">progress_bar_var</span><span class="p">,</span> <span class="n">usage_bars_var</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assigns external references to global variables for use throughout the GUI.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *_var: Various widget and control object references.</span>
+
+<span class="sd">    Globals Set:</span>
+<span class="sd">        thread_control, q, console_output, parent_frame, vars_dict,</span>
+<span class="sd">        canvas, canvas_widget, scrollable_frame, fig_queue,</span>
+<span class="sd">        progress_bar, usage_bars</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">usage_bars</span>
     <span class="n">thread_control</span> <span class="o">=</span> <span class="n">thread_control_var</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">q_var</span>
@@ -658,6 +817,21 @@
 <div class="viewcode-block" id="import_settings">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.import_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">import_settings</span><span class="p">(</span><span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Imports a settings CSV and applies it to the GUI panel for a specific mode.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings_type (str): Type of settings to load (&#39;mask&#39;, &#39;measure&#39;, &#39;classify&#39;, etc.)</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        vars_dict: Dictionary of GUI widget references.</span>
+<span class="sd">        scrollable_frame: Frame that holds the settings widgets.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Reads key-value settings from CSV.</span>
+<span class="sd">        - Applies them to the current settings panel.</span>
+<span class="sd">        - Updates `vars_dict` accordingly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_scrollable_frame</span>
 
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">,</span> <span class="n">hide_all_settings</span>
@@ -722,6 +896,25 @@
 <div class="viewcode-block" id="setup_settings_panel">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.setup_settings_panel">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_settings_panel</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates the scrollable settings panel for a given analysis type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vertical_container (tk.PanedWindow or tk.Frame): Parent container.</span>
+<span class="sd">        settings_type (str): One of the predefined modes such as &#39;mask&#39;, &#39;classify&#39;, etc.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (scrollable_frame, vars_dict)</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        vars_dict: Dict mapping setting names to widget metadata.</span>
+<span class="sd">        scrollable_frame: Frame containing all input widgets.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - Initializes and populates settings UI.</span>
+<span class="sd">        - Loads defaults depending on `settings_type`.</span>
+<span class="sd">        - Applies theme and layout configuration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">,</span> <span class="n">set_default_analyze_screen</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">deep_spacr_defaults</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span>
@@ -797,6 +990,20 @@
 <div class="viewcode-block" id="setup_console">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.setup_console">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_console</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets up a scrollable console output section with hover effect and dark theme styling.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vertical_container (tk.PanedWindow or tk.Frame): Parent container to attach the console.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            console_output (tk.Text): The text widget for console output.</span>
+<span class="sd">            console_frame (tk.Frame): The frame containing the console.</span>
+
+<span class="sd">    Globals Set:</span>
+<span class="sd">        console_output: Reference to the console&#39;s text widget.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">console_output</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span>
     
@@ -857,6 +1064,26 @@
 <div class="viewcode-block" id="setup_button_section">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.setup_button_section">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_button_section</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">abort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">import_btn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates the button section with control buttons (run, abort, download, import) and a progress bar.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        horizontal_container (tk.PanedWindow or tk.Frame): Container to add the button section.</span>
+<span class="sd">        settings_type (str): Workflow type to adjust button behavior.</span>
+<span class="sd">        run (bool): Whether to include a &quot;Run&quot; button.</span>
+<span class="sd">        abort (bool): Whether to include an &quot;Abort&quot; button.</span>
+<span class="sd">        download (bool): Whether to include a &quot;Download&quot; button.</span>
+<span class="sd">        import_btn (bool): Whether to include a &quot;Settings Import&quot; button.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            button_scrollable_frame (spacrFrame): The frame holding the buttons.</span>
+<span class="sd">            btn_col (int): Final column index after placing buttons.</span>
+
+<span class="sd">    Globals Set:</span>
+<span class="sd">        run_button, abort_button, download_dataset_button, import_button, progress_bar</span>
+<span class="sd">        button_frame, button_scrollable_frame, thread_control, q, fig_queue, vars_dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">button_frame</span><span class="p">,</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">run_button</span><span class="p">,</span> <span class="n">abort_button</span><span class="p">,</span> <span class="n">download_dataset_button</span><span class="p">,</span> <span class="n">import_button</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">progress_bar</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">download_hug_dataset</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_element_size</span>
@@ -916,6 +1143,23 @@
 <div class="viewcode-block" id="setup_usage_panel">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.setup_usage_panel">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_usage_panel</span><span class="p">(</span><span class="n">horizontal_container</span><span class="p">,</span> <span class="n">btn_col</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates the system usage panel displaying RAM, VRAM, GPU, and CPU core usage as progress bars.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        horizontal_container (tk.PanedWindow or tk.Frame): Container for the usage panel.</span>
+<span class="sd">        btn_col (int): Starting column index from button section (not used directly here).</span>
+<span class="sd">        uppdate_frequency (int): Update interval for usage stats in milliseconds.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            usage_scrollable_frame (spacrFrame): Frame containing the usage bars.</span>
+<span class="sd">            usage_bars (list): List of spacrProgressBar widgets for RAM, VRAM, GPU, and CPU cores.</span>
+<span class="sd">            usg_col (int): Column index used for placement in the parent container.</span>
+
+<span class="sd">    Globals Set:</span>
+<span class="sd">        usage_bars: List of progress bars used to update usage statistics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">usage_bars</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span><span class="p">,</span> <span class="n">set_element_size</span>
 
@@ -1052,6 +1296,14 @@
 <div class="viewcode-block" id="initiate_abort">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.initiate_abort">[docs]</a>
 <span class="k">def</span> <span class="nf">initiate_abort</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Terminates the currently running threaded process if any, and resets the control flags.</span>
+
+<span class="sd">    Globals:</span>
+<span class="sd">        thread_control (dict): Holds the active thread and abort flag.</span>
+<span class="sd">        q (queue.Queue): Message queue for status updates.</span>
+<span class="sd">        parent_frame: Not used directly, but kept for potential extension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">parent_frame</span>
     <span class="k">if</span> <span class="n">thread_control</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_thread&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1206,6 +1458,19 @@
 <div class="viewcode-block" id="start_process">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.start_process">[docs]</a>
 <span class="k">def</span> <span class="nf">start_process</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Starts a multiprocessing task based on the provided settings type and GUI settings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        q (multiprocessing.Queue, optional): Queue for logging or progress updates.</span>
+<span class="sd">        fig_queue (multiprocessing.Queue, optional): Queue for passing figures or plot data.</span>
+<span class="sd">        settings_type (str): Type of processing task to run (e.g., &#39;mask&#39;, &#39;measure&#39;).</span>
+
+<span class="sd">    Globals Used:</span>
+<span class="sd">        thread_control (dict): Controls the running thread and abort flags.</span>
+<span class="sd">        vars_dict (dict): Holds current GUI settings.</span>
+<span class="sd">        parent_frame (tk.Frame): Main parent GUI frame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">parent_frame</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">check_settings</span><span class="p">,</span> <span class="n">expected_types</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">run_function_gui</span><span class="p">,</span> <span class="n">set_cpu_affinity</span><span class="p">,</span> <span class="n">initialize_cuda</span><span class="p">,</span> <span class="n">display_gif_in_plot_frame</span><span class="p">,</span> <span class="n">print_widget_structure</span>
@@ -1260,6 +1525,17 @@
 <div class="viewcode-block" id="process_console_queue">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.process_console_queue">[docs]</a>
 <span class="k">def</span> <span class="nf">process_console_queue</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodically reads from the message queue and updates the console widget with formatted messages.</span>
+<span class="sd">    Supports special formatting for errors, warnings, and progress updates.</span>
+
+<span class="sd">    Globals Used:</span>
+<span class="sd">        q (Queue): Queue for status and log messages.</span>
+<span class="sd">        console_output (tk.Text): The console widget.</span>
+<span class="sd">        parent_frame (tk.Frame): The main GUI frame containing the console.</span>
+<span class="sd">        progress_bar (spacrProgressBar): Progress bar updated with progress information.</span>
+<span class="sd">        uppdate_frequency (int): Refresh rate in milliseconds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">q</span><span class="p">,</span> <span class="n">console_output</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">process_console_queue</span>
 
     <span class="c1"># Initialize function attribute if it doesn&#39;t exist</span>
@@ -1350,6 +1626,18 @@
 <div class="viewcode-block" id="main_thread_update_function">
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.main_thread_update_function">[docs]</a>
 <span class="k">def</span> <span class="nf">main_thread_update_function</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodically triggers updates on the GUI&#39;s canvas or figures from a queue.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root (tk.Tk): Root GUI window.</span>
+<span class="sd">        q (Queue): Message queue (currently unused inside function).</span>
+<span class="sd">        fig_queue (Queue): Queue for figure data (currently unused inside function).</span>
+<span class="sd">        canvas_widget (tk.Widget): Canvas widget to refresh.</span>
+
+<span class="sd">    Globals Used:</span>
+<span class="sd">        uppdate_frequency (int): Interval for update scheduling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">uppdate_frequency</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
@@ -1364,7 +1652,12 @@
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.cleanup_previous_instance">[docs]</a>
 <span class="k">def</span> <span class="nf">cleanup_previous_instance</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Cleans up resources from the previous application instance.</span>
+<span class="sd">    Cleans up any remnants of the previous application run, including GUI widgets,</span>
+<span class="sd">    background tasks, queues, threads, and canvas elements.</span>
+
+<span class="sd">    Globals Modified:</span>
+<span class="sd">        parent_frame, usage_bars, figures, figure_index, thread_control,</span>
+<span class="sd">        canvas, q, fig_queue</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">usage_bars</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span>
 
@@ -1427,14 +1720,21 @@
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.initiate_root">[docs]</a>
 <span class="k">def</span> <span class="nf">initiate_root</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initializes the root window and sets up the GUI components based on the specified settings type.</span>
+<span class="sd">    Initializes and builds the GUI based on the selected settings type.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        parent (tkinter.Tk or tkinter.Toplevel): The parent window for the GUI.</span>
-<span class="sd">        settings_type (str, optional): The type of settings to be displayed in the GUI. Defaults to &#39;mask&#39;.</span>
+<span class="sd">        parent (tk.Tk or tk.Toplevel): Root window for the GUI.</span>
+<span class="sd">        settings_type (str): Type of settings to configure (e.g., &#39;mask&#39;, &#39;measure&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            parent_frame (tk.Frame): The root GUI container.</span>
+<span class="sd">            vars_dict (dict): Dictionary of user-configurable variables.</span>
+
+<span class="sd">    Globals Set:</span>
+<span class="sd">        q, fig_queue, thread_control, parent_frame, scrollable_frame, </span>
+<span class="sd">        button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, </span>
+<span class="sd">        progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">global</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">thread_control</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">button_frame</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_widget</span><span class="p">,</span> <span class="n">button_scrollable_frame</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">,</span> <span class="n">uppdate_frequency</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">figure_index</span><span class="p">,</span> <span class="n">index_control</span><span class="p">,</span> <span class="n">usage_bars</span>

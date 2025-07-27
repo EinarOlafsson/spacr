@@ -189,77 +189,369 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.toggle_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">toggle_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">button_scrollable_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#toggle_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.toggle_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initializes and displays a dropdown menu to toggle visibility of categorized GUI settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>button_scrollable_frame</strong> (<em>tk.Widget</em>) – A scrollable frame where the dropdown menu will be placed.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>vars_dict</cite> is not initialized.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Imports setting categories and hides all setting widgets initially.</p></li>
+<li><p>Adds a dropdown menu that lets users toggle the visibility of settings belonging to each category.</p></li>
+<li><p>When a category is selected, it toggles visibility for all settings in that category.</p></li>
+<li><p>Updates the dropdown appearance based on which categories are currently active.</p></li>
+</ul>
+</dd>
+<dt>Globals:</dt><dd><dl class="simple">
+<dt>vars_dict (dict): A dictionary mapping setting keys to (label, widget, _, frame) tuples.</dt><dd><p>Must be initialized before calling this function.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.display_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">display_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#display_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.display_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Displays a matplotlib figure within a Tkinter GUI canvas, enabling interactive features such as:
+- Zooming with mouse scroll
+- Navigation via left/right click
+- Context menu for saving or modifying the figure
+- Dynamic annotation visibility based on zoom level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The figure to display in the GUI.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Global Variables:</dt><dd><p>canvas (FigureCanvasTkAgg): The current canvas used for displaying the figure.
+canvas_widget (tk.Widget): The widget associated with the canvas.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Destroys any existing canvas before rendering the new figure.</p></li>
+<li><p>Initializes zooming around cursor position using scroll wheel.</p></li>
+<li><p>Binds left/right clicks to navigate between figures (via show_previous_figure / show_next_figure).</p></li>
+<li><p>Adds a right-click context menu to save as PNG/PDF, modify figure, or reset zoom.</p></li>
+<li><p>Preserves original axis limits for reset functionality.</p></li>
+<li><p>Dynamically toggles text label visibility depending on zoom.</p></li>
+<li><p>Applies consistent dark theme styling for background and context menu.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Assumes <cite>show_previous_figure()</cite>, <cite>show_next_figure()</cite>, <cite>set_dark_style()</cite>,
+<cite>save_figure_as_format()</cite>, <cite>modify_figure()</cite>, and <cite>process_fig_queue()</cite> are defined elsewhere.</p></li>
+<li><p>Should be called after global <cite>canvas</cite> and <cite>canvas_widget</cite> have been initialized.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If canvas_widget is not properly initialized prior to calling this function.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.clear_unused_figures">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">clear_unused_figures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#clear_unused_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.clear_unused_figures" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Clears figures from memory that are not within ±20 of the current figure index to reduce memory usage.</p>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>figures (collections.deque): A deque of currently stored matplotlib figures.
+figure_index (int): Index of the currently displayed figure.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Retains only figures within 20 indices before and after the current figure_index.</p></li>
+<li><p>Updates the figure_index to remain within valid bounds of the updated figures deque.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.show_previous_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">show_previous_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#show_previous_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.show_previous_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Displays the previous figure in the global figures list, if available.</p>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>figure_index (int): Current index of the displayed figure.
+figures (list): List of matplotlib figures.
+fig_queue (queue.Queue): Queue of figures to be displayed later (unused here).
+index_control (tk.IntVar or custom object): UI controller for setting and tracking current index.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Decrements figure_index.</p></li>
+<li><p>Standardizes and displays the previous figure.</p></li>
+<li><p>Updates index_control to reflect the new figure index.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.show_next_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">show_next_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#show_next_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.show_next_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Displays the next figure in the figures list or loads one from the queue if at the end.</p>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>figure_index (int): Current index of the displayed figure.
+figures (list): List of existing matplotlib figures.
+fig_queue (queue.Queue): Queue of figures to display when user navigates forward.
+index_control (tk.IntVar or custom object): UI control to sync figure index display.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>If not at the end of figures list, increments index and displays the next figure.</p></li>
+<li><p>If at the end and the figure queue is not empty, loads and displays the next figure from the queue.</p></li>
+<li><p>Updates index_control to reflect the current position.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.process_fig_queue">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">process_fig_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#process_fig_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.process_fig_queue" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Processes the figure queue and updates the GUI with new figures as they arrive.</p>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>canvas (FigureCanvasTkAgg): The current canvas displaying the figure.
+fig_queue (queue.Queue): Queue containing matplotlib figures to be displayed.
+canvas_widget (tk.Widget): The widget holding the canvas.
+parent_frame (tk.Frame): Parent frame that manages periodic GUI updates.
+uppdate_frequency (int): Delay in milliseconds between re-checking the queue.
+figures (collections.deque): A deque holding all currently active figures.
+figure_index (int): Index of the currently displayed figure.
+index_control (tk.IntVar or similar): Control object for syncing figure index in GUI.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Retrieves and displays figures from fig_queue.</p></li>
+<li><p>Standardizes figure appearance using <cite>standardize_figure</cite>.</p></li>
+<li><p>Maintains a fixed-size deque (max 100) by discarding oldest figures.</p></li>
+<li><p>If no figure is currently displayed, it displays the first one.</p></li>
+<li><p>Sets slider/index control to match the latest figure.</p></li>
+<li><p>Reschedules itself using <cite>after()</cite> to poll for new figures continuously.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.update_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">update_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#update_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.update_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Updates the currently displayed figure based on slider value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em><em> or </em><em>int</em>) – Index of the figure to display.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>figure_index (int): Index of the current figure.
+figures (deque): Deque of matplotlib figures.
+index_control (spacrSlider): Slider control for index selection.</p>
+</dd>
+<dt>Effects:</dt><dd><ul class="simple">
+<li><p>Updates the canvas with the selected figure.</p></li>
+<li><p>Applies standard formatting to the figure.</p></li>
+<li><p>Sets the slider and index state accordingly.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.setup_plot_section">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_plot_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertical_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#setup_plot_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_plot_section" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the figure display section and associated slider for navigating figures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertical_container</strong> (<em>tk.PanedWindow</em><em> or </em><em>tk.Frame</em>) – Parent container.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – Mode to configure specific behaviors (e.g. ‘map_barcodes’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(canvas, canvas_widget)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>canvas, canvas_widget: For figure rendering.
+figures (deque): Storage of figures.
+figure_index (int): Current index.
+index_control (spacrSlider): Slider widget for navigating figure list.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Displays initial blank figure.</p></li>
+<li><p>Adds slider for figure navigation.</p></li>
+<li><p>Applies dark style.</p></li>
+<li><p>Optionally shows media for ‘map_barcodes’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.set_globals">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">set_globals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_control_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_output_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollable_frame_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_bars_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#set_globals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.set_globals" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Assigns external references to global variables for use throughout the GUI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*_var</strong> – Various widget and control object references.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Set:</dt><dd><p>thread_control, q, console_output, parent_frame, vars_dict,
+canvas, canvas_widget, scrollable_frame, fig_queue,
+progress_bar, usage_bars</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.import_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">import_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#import_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.import_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Imports a settings CSV and applies it to the GUI panel for a specific mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings_type</strong> (<em>str</em>) – Type of settings to load (‘mask’, ‘measure’, ‘classify’, etc.)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>vars_dict: Dictionary of GUI widget references.
+scrollable_frame: Frame that holds the settings widgets.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Reads key-value settings from CSV.</p></li>
+<li><p>Applies them to the current settings panel.</p></li>
+<li><p>Updates <cite>vars_dict</cite> accordingly.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.setup_settings_panel">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_settings_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertical_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#setup_settings_panel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_settings_panel" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates the scrollable settings panel for a given analysis type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertical_container</strong> (<em>tk.PanedWindow</em><em> or </em><em>tk.Frame</em>) – Parent container.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – One of the predefined modes such as ‘mask’, ‘classify’, etc.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(scrollable_frame, vars_dict)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>vars_dict: Dict mapping setting names to widget metadata.
+scrollable_frame: Frame containing all input widgets.</p>
+</dd>
+<dt>Behavior:</dt><dd><ul class="simple">
+<li><p>Initializes and populates settings UI.</p></li>
+<li><p>Loads defaults depending on <cite>settings_type</cite>.</p></li>
+<li><p>Applies theme and layout configuration.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.setup_console">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_console</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertical_container</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#setup_console"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_console" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets up a scrollable console output section with hover effect and dark theme styling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vertical_container</strong> (<em>tk.PanedWindow</em><em> or </em><em>tk.Frame</em>) – Parent container to attach the console.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>console_output (tk.Text): The text widget for console output.
+console_frame (tk.Frame): The frame containing the console.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Set:</dt><dd><p>console_output: Reference to the console’s text widget.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.setup_button_section">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_button_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizontal_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_btn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#setup_button_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_button_section" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates the button section with control buttons (run, abort, download, import) and a progress bar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>horizontal_container</strong> (<em>tk.PanedWindow</em><em> or </em><em>tk.Frame</em>) – Container to add the button section.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – Workflow type to adjust button behavior.</p></li>
+<li><p><strong>run</strong> (<em>bool</em>) – Whether to include a “Run” button.</p></li>
+<li><p><strong>abort</strong> (<em>bool</em>) – Whether to include an “Abort” button.</p></li>
+<li><p><strong>download</strong> (<em>bool</em>) – Whether to include a “Download” button.</p></li>
+<li><p><strong>import_btn</strong> (<em>bool</em>) – Whether to include a “Settings Import” button.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>button_scrollable_frame (spacrFrame): The frame holding the buttons.
+btn_col (int): Final column index after placing buttons.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Set:</dt><dd><p>run_button, abort_button, download_dataset_button, import_button, progress_bar
+button_frame, button_scrollable_frame, thread_control, q, fig_queue, vars_dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.setup_usage_panel">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">setup_usage_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizontal_container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btn_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uppdate_frequency</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#setup_usage_panel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.setup_usage_panel" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates the system usage panel displaying RAM, VRAM, GPU, and CPU core usage as progress bars.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>horizontal_container</strong> (<em>tk.PanedWindow</em><em> or </em><em>tk.Frame</em>) – Container for the usage panel.</p></li>
+<li><p><strong>btn_col</strong> (<em>int</em>) – Starting column index from button section (not used directly here).</p></li>
+<li><p><strong>uppdate_frequency</strong> (<em>int</em>) – Update interval for usage stats in milliseconds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>usage_scrollable_frame (spacrFrame): Frame containing the usage bars.
+usage_bars (list): List of spacrProgressBar widgets for RAM, VRAM, GPU, and CPU cores.
+usg_col (int): Column index used for placement in the parent container.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Set:</dt><dd><p>usage_bars: List of progress bars used to update usage statistics.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.initiate_abort">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">initiate_abort</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#initiate_abort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.initiate_abort" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Terminates the currently running threaded process if any, and resets the control flags.</p>
+<dl class="simple">
+<dt>Globals:</dt><dd><p>thread_control (dict): Holds the active thread and abort flag.
+q (queue.Queue): Message queue for status updates.
+parent_frame: Not used directly, but kept for potential extension.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.check_src_folders_files">
@@ -272,40 +564,94 @@ If any path is missing, prompts the user to edit or remove invalid paths.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.start_process">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">start_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#start_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.start_process" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Starts a multiprocessing task based on the provided settings type and GUI settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> (<em>multiprocessing.Queue</em><em>, </em><em>optional</em>) – Queue for logging or progress updates.</p></li>
+<li><p><strong>fig_queue</strong> (<em>multiprocessing.Queue</em><em>, </em><em>optional</em>) – Queue for passing figures or plot data.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – Type of processing task to run (e.g., ‘mask’, ‘measure’).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Used:</dt><dd><p>thread_control (dict): Controls the running thread and abort flags.
+vars_dict (dict): Holds current GUI settings.
+parent_frame (tk.Frame): Main parent GUI frame.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.process_console_queue">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">process_console_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#process_console_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.process_console_queue" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Periodically reads from the message queue and updates the console widget with formatted messages.
+Supports special formatting for errors, warnings, and progress updates.</p>
+<dl class="simple">
+<dt>Globals Used:</dt><dd><p>q (Queue): Queue for status and log messages.
+console_output (tk.Text): The console widget.
+parent_frame (tk.Frame): The main GUI frame containing the console.
+progress_bar (spacrProgressBar): Progress bar updated with progress information.
+uppdate_frequency (int): Refresh rate in milliseconds.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.main_thread_update_function">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">main_thread_update_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#main_thread_update_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.main_thread_update_function" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Periodically triggers updates on the GUI’s canvas or figures from a queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>tk.Tk</em>) – Root GUI window.</p></li>
+<li><p><strong>q</strong> (<em>Queue</em>) – Message queue (currently unused inside function).</p></li>
+<li><p><strong>fig_queue</strong> (<em>Queue</em>) – Queue for figure data (currently unused inside function).</p></li>
+<li><p><strong>canvas_widget</strong> (<em>tk.Widget</em>) – Canvas widget to refresh.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Used:</dt><dd><p>uppdate_frequency (int): Interval for update scheduling.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.cleanup_previous_instance">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">cleanup_previous_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#cleanup_previous_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.cleanup_previous_instance" title="Link to this definition"></a></dt>
-<dd><p>Cleans up resources from the previous application instance.</p>
+<dd><p>Cleans up any remnants of the previous application run, including GUI widgets,
+background tasks, queues, threads, and canvas elements.</p>
+<dl class="simple">
+<dt>Globals Modified:</dt><dd><p>parent_frame, usage_bars, figures, figure_index, thread_control,
+canvas, q, fig_queue</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.initiate_root">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">initiate_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mask'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#initiate_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.initiate_root" title="Link to this definition"></a></dt>
-<dd><p>Initializes the root window and sets up the GUI components based on the specified settings type.</p>
+<dd><p>Initializes and builds the GUI based on the selected settings type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parent</strong> (<em>tkinter.Tk</em><em> or </em><em>tkinter.Toplevel</em>) – The parent window for the GUI.</p></li>
-<li><p><strong>settings_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of settings to be displayed in the GUI. Defaults to ‘mask’.</p></li>
+<li><p><strong>parent</strong> (<em>tk.Tk</em><em> or </em><em>tk.Toplevel</em>) – Root window for the GUI.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – Type of settings to configure (e.g., ‘mask’, ‘measure’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the parent frame and the dictionary of variables used in the GUI.</p>
+<dd class="field-even"><p>parent_frame (tk.Frame): The root GUI container.
+vars_dict (dict): Dictionary of user-configurable variables.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Globals Set:</dt><dd><p>q, fig_queue, thread_control, parent_frame, scrollable_frame,
+button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame,
+progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars</p>
 </dd>
 </dl>
 </dd></dl>

@@ -170,11 +170,99 @@ Module Contents
 
 .. py:function:: generate_activation_map(settings)
 
+   Generate activation maps (Grad-CAM or saliency) from a trained model applied to a dataset stored in a tar archive.
+
+   This function loads a model, computes class activation maps or saliency maps for each input image, and saves the
+   results as images. Optionally, it plots batch-wise grids of maps and stores correlation results and image metadata
+   into an SQL database.
+
+   :param settings: Dictionary of parameters controlling activation map generation. Key fields include:
+
+                    Required paths:
+                        - dataset (str): Path to the `.tar` archive containing images.
+                        - model_path (str): Path to the trained PyTorch model (.pt or .pth).
+
+                    Model and method:
+                        - model_type (str): Model architecture used (e.g., 'maxvit').
+                        - cam_type (str): One of ['gradcam', 'gradcam_pp', 'saliency_image', 'saliency_channel'].
+                        - target_layer (str or None): Name of the target layer for Grad-CAM (optional, required for Grad-CAM variants).
+
+                    Input transforms:
+                        - image_size (int): Size to center-crop images to (e.g., 224).
+                        - normalize_input (bool): Whether to normalize images to [-1, 1] range.
+                        - channels (list): Channel indices to select from input data (e.g., [0,1,2]).
+
+                    Inference:
+                        - batch_size (int): Number of images per inference batch.
+                        - shuffle (bool): Whether to shuffle image order in DataLoader.
+                        - n_jobs (int): Number of parallel DataLoader workers (default is CPU count - 4).
+
+                    Output control:
+                        - save (bool): If True, saves individual activation maps to disk.
+                        - plot (bool): If True, generates and saves batch-wise PDF grid plots.
+                        - overlay (bool): If True, overlays activation maps on input images.
+                        - correlation (bool): If True, computes activation correlation features (e.g., Manders').
+
+                    Correlation-specific:
+                        - manders_thresholds (list or float): Threshold(s) for calculating Manders' coefficients.
+   :type settings: dict
+
+   :returns:     - PNG or JPEG activation maps organized by predicted class and well.
+                 - PDF files with batch-wise overlay plots if `plot=True`.
+                 - Activation image metadata and correlations saved to SQL database if `save=True`.
+   :rtype: None. The following outputs are saved
+
+
 .. py:function:: visualize_classes(model, dtype, class_names, **kwargs)
+
+   Visualize synthetic input images that maximize class activation.
+
+   :param model: The trained classification model.
+   :type model: torch.nn.Module
+   :param dtype: Data type or domain tag used for visualization.
+   :type dtype: str
+   :param class_names: List of class names (length 2 assumed for binary classification).
+   :type class_names: list
+   :param \*\*kwargs: Additional keyword arguments passed to `class_visualization()`.
+
+   :returns: None. Displays matplotlib plots of class visualizations.
+
 
 .. py:function:: visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=[1, 2, 3], normalize=True, save_integrated_grads=False, save_dir='integrated_grads')
 
+   Visualize integrated gradients for PNG images in a directory.
+
+   :param src: Directory containing `.png` images.
+   :type src: str
+   :param model_path: Path to the trained PyTorch model.
+   :type model_path: str
+   :param target_label_idx: Index of the target class label.
+   :type target_label_idx: int
+   :param image_size: Image size after preprocessing (center crop).
+   :type image_size: int
+   :param channels: List of channels to extract (1-indexed).
+   :type channels: list
+   :param normalize: Whether to normalize image input to [-1, 1].
+   :type normalize: bool
+   :param save_integrated_grads: Whether to save integrated gradient maps.
+   :type save_integrated_grads: bool
+   :param save_dir: Directory to save integrated gradient outputs.
+   :type save_dir: str
+
+   :returns: None. Displays overlays and optionally saves saliency maps.
+
+
 .. py:class:: SmoothGrad(model, n_samples=50, stdev_spread=0.15)
+
+   Compute SmoothGrad saliency maps from a trained model.
+
+   :param model: Trained classification model.
+   :type model: torch.nn.Module
+   :param n_samples: Number of noise samples to average.
+   :type n_samples: int
+   :param stdev_spread: Standard deviation of noise relative to input range.
+   :type stdev_spread: float
+
 
    .. py:attribute:: model
 
@@ -193,6 +281,28 @@ Module Contents
 
 
 .. py:function:: visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1, 2, 3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad')
+
+   Visualize SmoothGrad maps for PNG images in a folder.
+
+   :param src: Path to directory containing `.png` images.
+   :type src: str
+   :param model_path: Path to trained PyTorch model file.
+   :type model_path: str
+   :param target_label_idx: Index of the class to explain.
+   :type target_label_idx: int
+   :param image_size: Size for center cropping during preprocessing.
+   :type image_size: int
+   :param channels: Channel indices to extract from images.
+   :type channels: list
+   :param normalize: Whether to normalize inputs to [-1, 1].
+   :type normalize: bool
+   :param save_smooth_grad: If True, saves saliency maps to disk.
+   :type save_smooth_grad: bool
+   :param save_dir: Folder where smooth grad maps are saved.
+   :type save_dir: str
+
+   :returns: None. Displays overlay figures and optionally saves maps to disk.
+
 
 .. py:function:: deep_spacr(settings={})
 
@@ -269,7 +379,80 @@ Module Contents
 
 .. py:function:: model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=0.0001, epochs=10)
 
+   Perform knowledge distillation from one or more teacher models to a student model.
+
+   :param teacher_paths: Paths to pretrained teacher model files (.pth).
+   :type teacher_paths: list of str
+   :param student_save_path: Output path for the saved student model.
+   :type student_save_path: str
+   :param data_loader: DataLoader for training data.
+   :type data_loader: torch.utils.data.DataLoader
+   :param device: Device to use ('cpu' or 'cuda').
+   :type device: str
+   :param student_model_name: Name of the student model architecture (e.g., 'maxvit_t').
+   :type student_model_name: str
+   :param pretrained: Whether to initialize the student model with ImageNet weights.
+   :type pretrained: bool
+   :param dropout_rate: Dropout rate for the student model.
+   :type dropout_rate: float or None
+   :param use_checkpoint: Whether to use gradient checkpointing.
+   :type use_checkpoint: bool
+   :param alpha: Weighting factor between cross-entropy and distillation loss.
+   :type alpha: float
+   :param temperature: Temperature scaling for soft targets.
+   :type temperature: float
+   :param lr: Learning rate for optimizer.
+   :type lr: float
+   :param epochs: Number of training epochs.
+   :type epochs: int
+
+   :returns: The trained student model after knowledge distillation.
+   :rtype: TorchModel
+
+
 .. py:function:: model_fusion(model_paths, save_path, device='cpu', model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, aggregator='mean')
 
+   Fuse multiple trained models by combining their parameters using a specified aggregation method.
+
+   :param model_paths: List of paths to model checkpoints to be fused.
+   :type model_paths: list of str
+   :param save_path: Path where the fused model will be saved.
+   :type save_path: str
+   :param device: Device to use ('cpu' or 'cuda').
+   :type device: str
+   :param model_name: Model architecture to use when initializing.
+   :type model_name: str
+   :param pretrained: Whether to initialize with pretrained weights.
+   :type pretrained: bool
+   :param dropout_rate: Dropout rate to apply to the model.
+   :type dropout_rate: float or None
+   :param use_checkpoint: Whether to use gradient checkpointing.
+   :type use_checkpoint: bool
+   :param aggregator: Aggregation strategy to combine weights. One of {'mean', 'geomean', 'median', 'sum', 'max', 'min'}.
+   :type aggregator: str
+
+   :returns: The fused model with combined weights.
+   :rtype: TorchModel
+
+
 .. py:function:: annotate_filter_vision(settings)
+
+   Annotate and filter a CSV file with experimental metadata and optionally remove training samples.
+
+   :param settings: Configuration dictionary with keys:
+                    - 'src' (str or list): Paths to CSV annotation files.
+                    - 'cells' (dict): Mapping of cell types to annotation labels.
+                    - 'cell_loc' (str): Column name for cell type annotations.
+                    - 'pathogens' (dict): Mapping of pathogens to annotation labels.
+                    - 'pathogen_loc' (str): Column name for pathogen annotations.
+                    - 'treatments' (dict): Mapping of treatments to annotation labels.
+                    - 'treatment_loc' (str): Column name for treatment annotations.
+                    - 'filter_column' (str or None): Column to filter on.
+                    - 'upper_threshold' (float): Upper bound for filtering.
+                    - 'lower_threshold' (float): Lower bound for filtering.
+                    - 'remove_train' (bool): If True, removes rows present in training folders.
+   :type settings: dict
+
+   :returns: None. Saves filtered and annotated CSVs to disk.
+
 

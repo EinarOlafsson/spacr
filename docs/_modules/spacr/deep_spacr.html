@@ -791,7 +791,50 @@
 <div class="viewcode-block" id="generate_activation_map">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.generate_activation_map">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_activation_map</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate activation maps (Grad-CAM or saliency) from a trained model applied to a dataset stored in a tar archive.</span>
+
+<span class="sd">    This function loads a model, computes class activation maps or saliency maps for each input image, and saves the</span>
+<span class="sd">    results as images. Optionally, it plots batch-wise grids of maps and stores correlation results and image metadata </span>
+<span class="sd">    into an SQL database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary of parameters controlling activation map generation. Key fields include:</span>
+
+<span class="sd">            Required paths:</span>
+<span class="sd">                - dataset (str): Path to the `.tar` archive containing images.</span>
+<span class="sd">                - model_path (str): Path to the trained PyTorch model (.pt or .pth).</span>
+
+<span class="sd">            Model and method:</span>
+<span class="sd">                - model_type (str): Model architecture used (e.g., &#39;maxvit&#39;).</span>
+<span class="sd">                - cam_type (str): One of [&#39;gradcam&#39;, &#39;gradcam_pp&#39;, &#39;saliency_image&#39;, &#39;saliency_channel&#39;].</span>
+<span class="sd">                - target_layer (str or None): Name of the target layer for Grad-CAM (optional, required for Grad-CAM variants).</span>
+
+<span class="sd">            Input transforms:</span>
+<span class="sd">                - image_size (int): Size to center-crop images to (e.g., 224).</span>
+<span class="sd">                - normalize_input (bool): Whether to normalize images to [-1, 1] range.</span>
+<span class="sd">                - channels (list): Channel indices to select from input data (e.g., [0,1,2]).</span>
+
+<span class="sd">            Inference:</span>
+<span class="sd">                - batch_size (int): Number of images per inference batch.</span>
+<span class="sd">                - shuffle (bool): Whether to shuffle image order in DataLoader.</span>
+<span class="sd">                - n_jobs (int): Number of parallel DataLoader workers (default is CPU count - 4).</span>
+
+<span class="sd">            Output control:</span>
+<span class="sd">                - save (bool): If True, saves individual activation maps to disk.</span>
+<span class="sd">                - plot (bool): If True, generates and saves batch-wise PDF grid plots.</span>
+<span class="sd">                - overlay (bool): If True, overlays activation maps on input images.</span>
+<span class="sd">                - correlation (bool): If True, computes activation correlation features (e.g., Manders&#39;).</span>
+
+<span class="sd">            Correlation-specific:</span>
+<span class="sd">                - manders_thresholds (list or float): Threshold(s) for calculating Manders&#39; coefficients.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. The following outputs are saved:</span>
+<span class="sd">            - PNG or JPEG activation maps organized by predicted class and well.</span>
+<span class="sd">            - PDF files with batch-wise overlay plots if `plot=True`.</span>
+<span class="sd">            - Activation image metadata and correlations saved to SQL database if `save=True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">SaliencyMapGenerator</span><span class="p">,</span> <span class="n">GradCAMGenerator</span><span class="p">,</span> <span class="n">SelectChannels</span><span class="p">,</span> <span class="n">activation_maps_to_database</span><span class="p">,</span> <span class="n">activation_correlations_to_database</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">calculate_activation_correlations</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">TarImageDataset</span>
@@ -953,7 +996,18 @@
 <div class="viewcode-block" id="visualize_classes">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.visualize_classes">[docs]</a>
 <span class="k">def</span> <span class="nf">visualize_classes</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">class_names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize synthetic input images that maximize class activation.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        model (torch.nn.Module): The trained classification model.</span>
+<span class="sd">        dtype (str): Data type or domain tag used for visualization.</span>
+<span class="sd">        class_names (list): List of class names (length 2 assumed for binary classification).</span>
+<span class="sd">        **kwargs: Additional keyword arguments passed to `class_visualization()`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays matplotlib plots of class visualizations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">class_visualization</span>
 
     <span class="k">for</span> <span class="n">target_y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>  <span class="c1"># Assuming binary classification</span>
@@ -968,7 +1022,22 @@
 <div class="viewcode-block" id="visualize_integrated_gradients">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.visualize_integrated_gradients">[docs]</a>
 <span class="k">def</span> <span class="nf">visualize_integrated_gradients</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">target_label_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_integrated_grads</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;integrated_grads&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize integrated gradients for PNG images in a directory.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Directory containing `.png` images.</span>
+<span class="sd">        model_path (str): Path to the trained PyTorch model.</span>
+<span class="sd">        target_label_idx (int): Index of the target class label.</span>
+<span class="sd">        image_size (int): Image size after preprocessing (center crop).</span>
+<span class="sd">        channels (list): List of channels to extract (1-indexed).</span>
+<span class="sd">        normalize (bool): Whether to normalize image input to [-1, 1].</span>
+<span class="sd">        save_integrated_grads (bool): Whether to save integrated gradient maps.</span>
+<span class="sd">        save_dir (str): Directory to save integrated gradient outputs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays overlays and optionally saves saliency maps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">IntegratedGradients</span><span class="p">,</span> <span class="n">preprocess_image</span>
 
     <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
@@ -1020,6 +1089,15 @@
 <div class="viewcode-block" id="SmoothGrad">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.SmoothGrad">[docs]</a>
 <span class="k">class</span> <span class="nc">SmoothGrad</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute SmoothGrad saliency maps from a trained model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (torch.nn.Module): Trained classification model.</span>
+<span class="sd">        n_samples (int): Number of noise samples to average.</span>
+<span class="sd">        stdev_spread (float): Standard deviation of noise relative to input range.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">stdev_spread</span><span class="o">=</span><span class="mf">0.15</span><span class="p">):</span>
 <div class="viewcode-block" id="SmoothGrad.model">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.SmoothGrad.model">[docs]</a>
@@ -1058,7 +1136,22 @@
 <div class="viewcode-block" id="visualize_smooth_grad">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.visualize_smooth_grad">[docs]</a>
 <span class="k">def</span> <span class="nf">visualize_smooth_grad</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">target_label_idx</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_smooth_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;smooth_grad&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize SmoothGrad maps for PNG images in a folder.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Path to directory containing `.png` images.</span>
+<span class="sd">        model_path (str): Path to trained PyTorch model file.</span>
+<span class="sd">        target_label_idx (int): Index of the class to explain.</span>
+<span class="sd">        image_size (int): Size for center cropping during preprocessing.</span>
+<span class="sd">        channels (list): Channel indices to extract from images.</span>
+<span class="sd">        normalize (bool): Whether to normalize inputs to [-1, 1].</span>
+<span class="sd">        save_smooth_grad (bool): If True, saves saliency maps to disk.</span>
+<span class="sd">        save_dir (str): Folder where smooth grad maps are saved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays overlay figures and optionally saves maps to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">preprocess_image</span>
 
     <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
@@ -1218,7 +1311,26 @@
 <div class="viewcode-block" id="model_knowledge_transfer">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.model_knowledge_transfer">[docs]</a>
 <span class="k">def</span> <span class="nf">model_knowledge_transfer</span><span class="p">(</span><span class="n">teacher_paths</span><span class="p">,</span> <span class="n">student_save_path</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span> <span class="n">student_model_name</span><span class="o">=</span><span class="s1">&#39;maxvit_t&#39;</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform knowledge distillation from one or more teacher models to a student model.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        teacher_paths (list of str): Paths to pretrained teacher model files (.pth).</span>
+<span class="sd">        student_save_path (str): Output path for the saved student model.</span>
+<span class="sd">        data_loader (torch.utils.data.DataLoader): DataLoader for training data.</span>
+<span class="sd">        device (str): Device to use (&#39;cpu&#39; or &#39;cuda&#39;).</span>
+<span class="sd">        student_model_name (str): Name of the student model architecture (e.g., &#39;maxvit_t&#39;).</span>
+<span class="sd">        pretrained (bool): Whether to initialize the student model with ImageNet weights.</span>
+<span class="sd">        dropout_rate (float or None): Dropout rate for the student model.</span>
+<span class="sd">        use_checkpoint (bool): Whether to use gradient checkpointing.</span>
+<span class="sd">        alpha (float): Weighting factor between cross-entropy and distillation loss.</span>
+<span class="sd">        temperature (float): Temperature scaling for soft targets.</span>
+<span class="sd">        lr (float): Learning rate for optimizer.</span>
+<span class="sd">        epochs (int): Number of training epochs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        TorchModel: The trained student model after knowledge distillation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">TorchModel</span>
 
     <span class="c1"># Adjust filename to reflect knowledge-distillation if desired</span>
@@ -1325,7 +1437,22 @@
 <div class="viewcode-block" id="model_fusion">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.model_fusion">[docs]</a>
 <span class="k">def</span> <span class="nf">model_fusion</span><span class="p">(</span><span class="n">model_paths</span><span class="p">,</span><span class="n">save_path</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;maxvit_t&#39;</span><span class="p">,</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">aggregator</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fuse multiple trained models by combining their parameters using a specified aggregation method.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        model_paths (list of str): List of paths to model checkpoints to be fused.</span>
+<span class="sd">        save_path (str): Path where the fused model will be saved.</span>
+<span class="sd">        device (str): Device to use (&#39;cpu&#39; or &#39;cuda&#39;).</span>
+<span class="sd">        model_name (str): Model architecture to use when initializing.</span>
+<span class="sd">        pretrained (bool): Whether to initialize with pretrained weights.</span>
+<span class="sd">        dropout_rate (float or None): Dropout rate to apply to the model.</span>
+<span class="sd">        use_checkpoint (bool): Whether to use gradient checkpointing.</span>
+<span class="sd">        aggregator (str): Aggregation strategy to combine weights. One of {&#39;mean&#39;, &#39;geomean&#39;, &#39;median&#39;, &#39;sum&#39;, &#39;max&#39;, &#39;min&#39;}.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        TorchModel: The fused model with combined weights.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">TorchModel</span>
     
     <span class="k">if</span> <span class="n">save_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pth&#39;</span><span class="p">):</span>
@@ -1428,7 +1555,26 @@
 <div class="viewcode-block" id="annotate_filter_vision">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.annotate_filter_vision">[docs]</a>
 <span class="k">def</span> <span class="nf">annotate_filter_vision</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Annotate and filter a CSV file with experimental metadata and optionally remove training samples.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Configuration dictionary with keys:</span>
+<span class="sd">            - &#39;src&#39; (str or list): Paths to CSV annotation files.</span>
+<span class="sd">            - &#39;cells&#39; (dict): Mapping of cell types to annotation labels.</span>
+<span class="sd">            - &#39;cell_loc&#39; (str): Column name for cell type annotations.</span>
+<span class="sd">            - &#39;pathogens&#39; (dict): Mapping of pathogens to annotation labels.</span>
+<span class="sd">            - &#39;pathogen_loc&#39; (str): Column name for pathogen annotations.</span>
+<span class="sd">            - &#39;treatments&#39; (dict): Mapping of treatments to annotation labels.</span>
+<span class="sd">            - &#39;treatment_loc&#39; (str): Column name for treatment annotations.</span>
+<span class="sd">            - &#39;filter_column&#39; (str or None): Column to filter on.</span>
+<span class="sd">            - &#39;upper_threshold&#39; (float): Upper bound for filtering.</span>
+<span class="sd">            - &#39;lower_threshold&#39; (float): Lower bound for filtering.</span>
+<span class="sd">            - &#39;remove_train&#39; (bool): If True, removes rows present in training folders.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Saves filtered and annotated CSVs to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">annotate_conditions</span><span class="p">,</span> <span class="n">correct_metadata</span>
     
     <span class="k">def</span> <span class="nf">filter_csv_by_png</span><span class="p">(</span><span class="n">csv_file</span><span class="p">):</span>
