@@ -637,11 +637,6 @@
 <span class="sd">        pin_memory (bool): If True, pre-load all images into memory using multiprocessing. Default is False.</span>
 <span class="sd">        specific_files (list[str], optional): Specific image file paths to load instead of scanning `data_dir`.</span>
 <span class="sd">        specific_labels (list[int], optional): Corresponding labels for `specific_files`.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        filenames (list[str]): List of full paths to image files.</span>
-<span class="sd">        labels (list[int]): List of integer labels corresponding to `filenames`.</span>
-<span class="sd">        images (list[PIL.Image] or None): Preloaded images if `pin_memory=True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">loader_classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">specific_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">specific_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <div class="viewcode-block" id="spacrDataset.data_dir">
@@ -840,81 +835,6 @@
 
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="NoClassDataset_v1">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1">[docs]</a>
-<span class="k">class</span> <span class="nc">NoClassDataset_v1</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A PyTorch Dataset for loading unlabeled images from a single directory.</span>
-
-<span class="sd">    This dataset does not assign class labels and is useful for inference,</span>
-<span class="sd">    visualization, or unsupervised learning.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        data_dir (str): Path to the directory containing image files.</span>
-<span class="sd">        transform (callable, optional): A function/transform to apply to the images.</span>
-<span class="sd">        shuffle (bool): Whether to shuffle the dataset. Default is True.</span>
-<span class="sd">        load_to_memory (bool): Whether to preload all images into memory. Default is False.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        filenames (list): List of full paths to image files.</span>
-<span class="sd">        images (list): List of preloaded images if `load_to_memory` is True.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">load_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<div class="viewcode-block" id="NoClassDataset_v1.data_dir">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.data_dir">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span></div>
-
-<div class="viewcode-block" id="NoClassDataset_v1.transform">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.transform">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span></div>
-
-<div class="viewcode-block" id="NoClassDataset_v1.shuffle">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.shuffle">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span></div>
-
-<div class="viewcode-block" id="NoClassDataset_v1.load_to_memory">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.load_to_memory">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span> <span class="o">=</span> <span class="n">load_to_memory</span></div>
-
-<div class="viewcode-block" id="NoClassDataset_v1.filenames">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.filenames">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span></div>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shuffle_dataset</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">]</span>
-    
-<div class="viewcode-block" id="NoClassDataset_v1.load_image">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.load_image">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">):</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">img</span></div>
-
-
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
-
-<div class="viewcode-block" id="NoClassDataset_v1.shuffle_dataset">
-<a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.shuffle_dataset">[docs]</a>
-    <span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
-            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_to_memory</span><span class="p">:</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">ToTensor</span><span class="p">()(</span><span class="n">img</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="TarImageDataset">

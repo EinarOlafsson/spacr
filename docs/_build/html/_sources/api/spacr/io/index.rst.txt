@@ -137,24 +137,6 @@ Module Contents
    :param specific_labels: Corresponding labels for `specific_files`.
    :type specific_labels: list[int], optional
 
-   .. attribute:: filenames
-
-      List of full paths to image files.
-
-      :type: list[str]
-
-   .. attribute:: labels
-
-      List of integer labels corresponding to `filenames`.
-
-      :type: list[int]
-
-   .. attribute:: images
-
-      Preloaded images if `pin_memory=True`.
-
-      :type: list[PIL.Image] or None
-
 
    .. py:attribute:: data_dir
 
@@ -264,65 +246,6 @@ Module Contents
 
 
    .. py:method:: cleanup()
-
-
-.. py:class:: NoClassDataset_v1(data_dir, transform=None, shuffle=True, load_to_memory=False)
-
-   Bases: :py:obj:`torch.utils.data.Dataset`
-
-
-   A PyTorch Dataset for loading unlabeled images from a single directory.
-
-   This dataset does not assign class labels and is useful for inference,
-   visualization, or unsupervised learning.
-
-   :param data_dir: Path to the directory containing image files.
-   :type data_dir: str
-   :param transform: A function/transform to apply to the images.
-   :type transform: callable, optional
-   :param shuffle: Whether to shuffle the dataset. Default is True.
-   :type shuffle: bool
-   :param load_to_memory: Whether to preload all images into memory. Default is False.
-   :type load_to_memory: bool
-
-   .. attribute:: filenames
-
-      List of full paths to image files.
-
-      :type: list
-
-   .. attribute:: images
-
-      List of preloaded images if `load_to_memory` is True.
-
-      :type: list
-
-
-   .. py:attribute:: data_dir
-
-
-   .. py:attribute:: transform
-      :value: None
-
-
-
-   .. py:attribute:: shuffle
-      :value: True
-
-
-
-   .. py:attribute:: load_to_memory
-      :value: False
-
-
-
-   .. py:attribute:: filenames
-
-
-   .. py:method:: load_image(img_path)
-
-
-   .. py:method:: shuffle_dataset()
 
 
 .. py:class:: TarImageDataset(tar_path, transform=None)
