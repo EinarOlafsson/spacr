@@ -114,6 +114,99 @@
 <div class="viewcode-block" id="preprocess_generate_masks">
 <a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.preprocess_generate_masks">[docs]</a>
 <span class="k">def</span> <span class="nf">preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocess image data and generate Cellpose segmentation masks for cells, nuclei, and pathogens.</span>
+
+<span class="sd">    This function supports preprocessing, metadata conversion, Cellpose-based mask generation, optional</span>
+<span class="sd">    mask adjustment, result plotting, and intermediate file cleanup. It handles batch operations and </span>
+<span class="sd">    supports advanced timelapse and channel-specific configurations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary containing the following keys:</span>
+
+<span class="sd">            General settings:</span>
+<span class="sd">                - src (str or list): Path(s) to input folders. Required.</span>
+<span class="sd">                - denoise (bool): Apply denoising during preprocessing. Default is False.</span>
+<span class="sd">                - delete_intermediate (bool): Delete intermediate files after processing. Default is False.</span>
+<span class="sd">                - preprocess (bool): Perform preprocessing. Default is True.</span>
+<span class="sd">                - masks (bool): Generate masks using Cellpose. Default is True.</span>
+<span class="sd">                - save (bool or list of bool): Whether to save outputs per object type. Default is True.</span>
+<span class="sd">                - consolidate (bool): Consolidate input folder structure. Default is False.</span>
+<span class="sd">                - batch_size (int): Number of files processed per batch. Default is 50.</span>
+<span class="sd">                - test_mode (bool): Enable test mode with limited data. Default is False.</span>
+<span class="sd">                - test_images (int): Number of test images to use. Default is 10.</span>
+<span class="sd">                - magnification (int): Magnification of input data. Default is 20.</span>
+<span class="sd">                - custom_regex (str or None): Regex for filename parsing in auto metadata mode.</span>
+<span class="sd">                - metadata_type (str): Metadata type; &quot;cellvoyager&quot; or &quot;auto&quot;. Default is &quot;cellvoyager&quot;.</span>
+<span class="sd">                - n_jobs (int): Number of parallel processes. Default is os.cpu_count() - 4.</span>
+<span class="sd">                - randomize (bool): Randomize processing order. Default is True.</span>
+<span class="sd">                - verbose (bool): Print full settings table. Default is True.</span>
+
+<span class="sd">            Channel background correction:</span>
+<span class="sd">                - remove_background_cell (bool): Remove background from cell channel. Default is False.</span>
+<span class="sd">                - remove_background_nucleus (bool): Remove background from nucleus channel. Default is False.</span>
+<span class="sd">                - remove_background_pathogen (bool): Remove background from pathogen channel. Default is False.</span>
+
+<span class="sd">            Channel diameter and index settings:</span>
+<span class="sd">                - cell_diamiter (float or None): Cell diameter estimate for Cellpose.</span>
+<span class="sd">                - nucleus_diamiter (float or None): Nucleus diameter estimate for Cellpose.</span>
+<span class="sd">                - pathogen_diamiter (float or None): Pathogen diameter estimate for Cellpose.</span>
+<span class="sd">                - cell_channel (int or None): Channel index for cell. Default is None.</span>
+<span class="sd">                - nucleus_channel (int or None): Channel index for nucleus. Default is None.</span>
+<span class="sd">                - pathogen_channel (int or None): Channel index for pathogen. Default is None.</span>
+<span class="sd">                - channels (list): List of channel indices to include. Default is [0, 1, 2, 3].</span>
+
+<span class="sd">            Cellpose parameters:</span>
+<span class="sd">                - pathogen_background (float): Background intensity for pathogen. Default is 100.</span>
+<span class="sd">                - pathogen_Signal_to_noise (float): SNR threshold for pathogen. Default is 10.</span>
+<span class="sd">                - pathogen_CP_prob (float): Cellpose probability threshold for pathogen. Default is 0.</span>
+<span class="sd">                - cell_background (float): Background intensity for cell. Default is 100.</span>
+<span class="sd">                - cell_Signal_to_noise (float): SNR threshold for cell. Default is 10.</span>
+<span class="sd">                - cell_CP_prob (float): Cellpose probability threshold for cell. Default is 0.</span>
+<span class="sd">                - nucleus_background (float): Background intensity for nucleus. Default is 100.</span>
+<span class="sd">                - nucleus_Signal_to_noise (float): SNR threshold for nucleus. Default is 10.</span>
+<span class="sd">                - nucleus_CP_prob (float): Cellpose probability threshold for nucleus. Default is 0.</span>
+<span class="sd">                - nucleus_FT (float): Intensity scaling factor for nucleus. Default is 1.0.</span>
+<span class="sd">                - cell_FT (float): Intensity scaling factor for cell. Default is 1.0.</span>
+<span class="sd">                - pathogen_FT (float): Intensity scaling factor for pathogen. Default is 1.0.</span>
+
+<span class="sd">            Plotting settings:</span>
+<span class="sd">                - plot (bool): Enable plotting. Default is False.</span>
+<span class="sd">                - figuresize (int or float): Figure size for plots. Default is 10.</span>
+<span class="sd">                - cmap (str): Colormap used for plotting. Default is &quot;inferno&quot;.</span>
+<span class="sd">                - normalize (bool): Normalize image intensities before processing. Default is True.</span>
+<span class="sd">                - normalize_plots (bool): Normalize intensity for plotting. Default is True.</span>
+<span class="sd">                - examples_to_plot (int): Number of examples to plot. Default is 1.</span>
+
+<span class="sd">            Analysis settings:</span>
+<span class="sd">                - pathogen_model (str or None): Custom model for pathogen (&quot;toxo_pv_lumen&quot; or &quot;toxo_cyto&quot;).</span>
+<span class="sd">                - merge_pathogens (bool): Whether to merge multiple pathogen types. Default is False.</span>
+<span class="sd">                - filter (bool): Apply percentile filter. Default is False.</span>
+<span class="sd">                - lower_percentile (float): Lower percentile for intensity filtering. Default is 2.</span>
+
+<span class="sd">            Timelapse settings:</span>
+<span class="sd">                - timelapse (bool): Enable timelapse mode. Default is False.</span>
+<span class="sd">                - fps (int): Frames per second for timelapse export. Default is 2.</span>
+<span class="sd">                - timelapse_displacement (float or None): Max displacement for object tracking.</span>
+<span class="sd">                - timelapse_memory (int): Memory for tracking algorithm. Default is 3.</span>
+<span class="sd">                - timelapse_frame_limits (list): Frame limits for tracking. Default is [5].</span>
+<span class="sd">                - timelapse_remove_transient (bool): Remove short-lived objects. Default is False.</span>
+<span class="sd">                - timelapse_mode (str): Tracking algorithm. Default is &quot;trackpy&quot;.</span>
+<span class="sd">                - timelapse_objects (str or None): Object type for tracking.</span>
+
+<span class="sd">            Miscellaneous:</span>
+<span class="sd">                - all_to_mip (bool): Convert all input to MIP. Default is False.</span>
+<span class="sd">                - upscale (bool): Upscale images prior to processing. Default is False.</span>
+<span class="sd">                - upscale_factor (float): Upscaling factor. Default is 2.0.</span>
+<span class="sd">                - adjust_cells (bool): Adjust cell masks based on nuclei and pathogen. Default is False.</span>
+<span class="sd">                - use_sam_cell (bool): Use SAM model for cell segmentation. Default is False.</span>
+<span class="sd">                - use_sam_nucleus (bool): Use SAM model for nucleus segmentation. Default is False.</span>
+<span class="sd">                - use_sam_pathogen (bool): Use SAM model for pathogen segmentation. Default is False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None: All outputs (masks, merged arrays, plots, databases) are saved to disk under the source folder(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">preprocess_img_data</span><span class="p">,</span> <span class="n">_load_and_concatenate_arrays</span><span class="p">,</span> <span class="n">convert_to_yokogawa</span><span class="p">,</span> <span class="n">convert_separate_files_to_yokogawa</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_image_mask_overlay</span><span class="p">,</span> <span class="n">plot_arrays</span>

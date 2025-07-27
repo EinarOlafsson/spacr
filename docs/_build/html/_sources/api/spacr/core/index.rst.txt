@@ -11,6 +11,98 @@ Module Contents
 
 .. py:function:: preprocess_generate_masks(settings)
 
+   Preprocess image data and generate Cellpose segmentation masks for cells, nuclei, and pathogens.
+
+   This function supports preprocessing, metadata conversion, Cellpose-based mask generation, optional
+   mask adjustment, result plotting, and intermediate file cleanup. It handles batch operations and
+   supports advanced timelapse and channel-specific configurations.
+
+   :param settings: Dictionary containing the following keys:
+
+                    General settings:
+                        - src (str or list): Path(s) to input folders. Required.
+                        - denoise (bool): Apply denoising during preprocessing. Default is False.
+                        - delete_intermediate (bool): Delete intermediate files after processing. Default is False.
+                        - preprocess (bool): Perform preprocessing. Default is True.
+                        - masks (bool): Generate masks using Cellpose. Default is True.
+                        - save (bool or list of bool): Whether to save outputs per object type. Default is True.
+                        - consolidate (bool): Consolidate input folder structure. Default is False.
+                        - batch_size (int): Number of files processed per batch. Default is 50.
+                        - test_mode (bool): Enable test mode with limited data. Default is False.
+                        - test_images (int): Number of test images to use. Default is 10.
+                        - magnification (int): Magnification of input data. Default is 20.
+                        - custom_regex (str or None): Regex for filename parsing in auto metadata mode.
+                        - metadata_type (str): Metadata type; "cellvoyager" or "auto". Default is "cellvoyager".
+                        - n_jobs (int): Number of parallel processes. Default is os.cpu_count() - 4.
+                        - randomize (bool): Randomize processing order. Default is True.
+                        - verbose (bool): Print full settings table. Default is True.
+
+                    Channel background correction:
+                        - remove_background_cell (bool): Remove background from cell channel. Default is False.
+                        - remove_background_nucleus (bool): Remove background from nucleus channel. Default is False.
+                        - remove_background_pathogen (bool): Remove background from pathogen channel. Default is False.
+
+                    Channel diameter and index settings:
+                        - cell_diamiter (float or None): Cell diameter estimate for Cellpose.
+                        - nucleus_diamiter (float or None): Nucleus diameter estimate for Cellpose.
+                        - pathogen_diamiter (float or None): Pathogen diameter estimate for Cellpose.
+                        - cell_channel (int or None): Channel index for cell. Default is None.
+                        - nucleus_channel (int or None): Channel index for nucleus. Default is None.
+                        - pathogen_channel (int or None): Channel index for pathogen. Default is None.
+                        - channels (list): List of channel indices to include. Default is [0, 1, 2, 3].
+
+                    Cellpose parameters:
+                        - pathogen_background (float): Background intensity for pathogen. Default is 100.
+                        - pathogen_Signal_to_noise (float): SNR threshold for pathogen. Default is 10.
+                        - pathogen_CP_prob (float): Cellpose probability threshold for pathogen. Default is 0.
+                        - cell_background (float): Background intensity for cell. Default is 100.
+                        - cell_Signal_to_noise (float): SNR threshold for cell. Default is 10.
+                        - cell_CP_prob (float): Cellpose probability threshold for cell. Default is 0.
+                        - nucleus_background (float): Background intensity for nucleus. Default is 100.
+                        - nucleus_Signal_to_noise (float): SNR threshold for nucleus. Default is 10.
+                        - nucleus_CP_prob (float): Cellpose probability threshold for nucleus. Default is 0.
+                        - nucleus_FT (float): Intensity scaling factor for nucleus. Default is 1.0.
+                        - cell_FT (float): Intensity scaling factor for cell. Default is 1.0.
+                        - pathogen_FT (float): Intensity scaling factor for pathogen. Default is 1.0.
+
+                    Plotting settings:
+                        - plot (bool): Enable plotting. Default is False.
+                        - figuresize (int or float): Figure size for plots. Default is 10.
+                        - cmap (str): Colormap used for plotting. Default is "inferno".
+                        - normalize (bool): Normalize image intensities before processing. Default is True.
+                        - normalize_plots (bool): Normalize intensity for plotting. Default is True.
+                        - examples_to_plot (int): Number of examples to plot. Default is 1.
+
+                    Analysis settings:
+                        - pathogen_model (str or None): Custom model for pathogen ("toxo_pv_lumen" or "toxo_cyto").
+                        - merge_pathogens (bool): Whether to merge multiple pathogen types. Default is False.
+                        - filter (bool): Apply percentile filter. Default is False.
+                        - lower_percentile (float): Lower percentile for intensity filtering. Default is 2.
+
+                    Timelapse settings:
+                        - timelapse (bool): Enable timelapse mode. Default is False.
+                        - fps (int): Frames per second for timelapse export. Default is 2.
+                        - timelapse_displacement (float or None): Max displacement for object tracking.
+                        - timelapse_memory (int): Memory for tracking algorithm. Default is 3.
+                        - timelapse_frame_limits (list): Frame limits for tracking. Default is [5].
+                        - timelapse_remove_transient (bool): Remove short-lived objects. Default is False.
+                        - timelapse_mode (str): Tracking algorithm. Default is "trackpy".
+                        - timelapse_objects (str or None): Object type for tracking.
+
+                    Miscellaneous:
+                        - all_to_mip (bool): Convert all input to MIP. Default is False.
+                        - upscale (bool): Upscale images prior to processing. Default is False.
+                        - upscale_factor (float): Upscaling factor. Default is 2.0.
+                        - adjust_cells (bool): Adjust cell masks based on nuclei and pathogen. Default is False.
+                        - use_sam_cell (bool): Use SAM model for cell segmentation. Default is False.
+                        - use_sam_nucleus (bool): Use SAM model for nucleus segmentation. Default is False.
+                        - use_sam_pathogen (bool): Use SAM model for pathogen segmentation. Default is False.
+   :type settings: dict
+
+   :returns: All outputs (masks, merged arrays, plots, databases) are saved to disk under the source folder(s).
+   :rtype: None
+
+
 .. py:function:: generate_cellpose_masks(src, settings, object_type)
 
 .. py:function:: generate_screen_graphs(settings)
