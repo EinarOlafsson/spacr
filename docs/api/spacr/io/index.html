@@ -589,15 +589,70 @@ where each value is a list of loaded images.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.convert_numpy_to_tiff">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_numpy_to_tiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#convert_numpy_to_tiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.convert_numpy_to_tiff" title="Link to this definition"></a></dt>
-<dd><p>Converts all numpy files in a folder to TIFF format and saves them in a subdirectory ‘tiff’.</p>
-<p>Args:
-folder_path (str): The path to the folder containing numpy files.</p>
+<dd><p>Converts all <cite>.npy</cite> files in a specified folder to <cite>.tif</cite> files and saves them
+in a subdirectory named ‘tiff’ within the same folder.
+:param folder_path: The path to the folder containing <cite>.npy</cite> files.
+:type folder_path: str
+:param limit: The maximum number of <cite>.npy</cite> files to convert.</p>
+<blockquote>
+<div><p>If None, all <cite>.npy</cite> files in the folder will be converted. Defaults to None.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function creates a subdirectory named ‘tiff’ within the specified folder
+if it does not already exist.</p></li>
+<li><p>Only files with a <cite>.npy</cite> extension are processed. Other files are ignored.</p></li>
+<li><p>The converted <cite>.tif</cite> files are saved in the ‘tiff’ subdirectory with the
+same base name as the original <cite>.npy</cite> files.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<p>convert_numpy_to_tiff(‘/path/to/folder’, limit=10)</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_cellpose_train_test">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#generate_cellpose_train_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.generate_cellpose_train_test" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Splits a dataset of images and their corresponding masks into training and testing sets,
+and copies the files into separate directories for each set.
+:param src: The source directory containing the images and a subdirectory named ‘masks’</p>
+<blockquote>
+<div><p>with the corresponding mask files. Images and masks should have the same filenames.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>test_split</strong> (<em>float</em><em>, </em><em>optional</em>) – The proportion of the dataset to allocate to the test set.
+Defaults to 0.1 (10%).</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – If the ‘masks’ subdirectory or any required mask file is missing.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Creates ‘train’ and ‘test’ directories (and their ‘masks’ subdirectories) in the parent
+directory of <cite>src</cite>.</p></li>
+<li><p>Copies the images and masks into the respective directories based on the split.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>If <cite>src</cite> is ‘/data/dataset’, the function will create:
+- ‘/data/train’ and ‘/data/train/masks’ for the training set.
+- ‘/data/test’ and ‘/data/test/masks’ for the testing set.</p>
+<dl class="simple">
+<dt>Prints:</dt><dd><ul class="simple">
+<li><p>The number of images with masks found in the source directory.</p></li>
+<li><p>The number of files in the training and testing sets.</p></li>
+<li><p>Progress messages while copying files to the respective directories.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.parse_gz_files">
@@ -621,7 +676,37 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#generate_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.generate_dataset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generates a dataset by processing image paths from a database, creating temporary tar files,
+and combining them into a final tar archive.
+:param settings: A dictionary of settings for dataset generation. Defaults to an empty dictionary.</p>
+<blockquote>
+<div><p>The settings dictionary may include the following keys:
+- ‘src’ (str or list): Source directory or list of directories containing the database and images.
+- ‘file_metadata’ (str, optional): Metadata to filter files in the database.
+- ‘sample’ (int or list, optional): Number of images to sample or a list of specific samples.
+- ‘experiment’ (str): Name of the experiment for naming the final tar file.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The path to the final tar archive containing the dataset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> – If the database file is not found in the source directory.</p></li>
+<li><p><strong>ValueError</strong> – If the settings dictionary is missing required keys or contains invalid values.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses multiprocessing to parallelize the creation of temporary tar files.</p></li>
+<li><p>Temporary files and directories are cleaned up after the final tar file is created.</p></li>
+<li><p>If a tar file with the same name already exists, a warning is issued, and a new name is generated.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_loaders">
@@ -647,49 +732,380 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_training_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_training_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#generate_training_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.generate_training_dataset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generates training and testing datasets based on the provided settings.
+This function supports multiple dataset generation modes, including:
+- ‘annotation’: Uses annotations to create datasets.
+- ‘metadata’: Uses metadata to create datasets.
+- ‘measurement’: Uses measurement-based filtering to create datasets.
+- ‘metadata_annotation’: Combines metadata and annotations to create datasets.
+:param settings: A dictionary containing configuration options for dataset generation.</p>
+<blockquote>
+<div><p>Key settings include:
+- ‘src’: List of source directories containing measurement databases.
+- ‘tables’: List of database tables to use (e.g., [‘cell’, ‘nucleus’]).
+- ‘dataset_mode’: Mode of dataset generation (‘annotation’, ‘metadata’, ‘measurement’, ‘metadata_annotation’).
+- ‘class_metadata’: List of class labels for metadata-based selection.
+- ‘annotated_classes’: List of annotated classes for annotation-based selection.
+- ‘annotation_column’: Column name for annotation-based selection.
+- ‘metadata_item_1_name’, ‘metadata_item_1_value’: Metadata filtering criteria.
+- ‘metadata_item_2_name’, ‘metadata_item_2_value’: Additional metadata filtering criteria.
+- ‘custom_measurement’: Custom measurement formula for measurement-based selection.
+- ‘channel_of_interest’: Channel to use for measurement-based selection.
+- ‘png_type’: Type of PNG images to retrieve.
+- ‘size’: Number of samples per class.
+- ‘test_split’: Fraction of data to use for testing.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>train_class_dir (str): Path to the directory containing training data.</p></li>
+<li><p>test_class_dir (str): Path to the directory containing testing data.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If an invalid dataset mode is provided in the settings.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function creates new directories for training and testing datasets if they do not already exist.</p></li>
+<li><p>The smallest class size is used to balance the dataset in metadata-based selection.</p></li>
+<li><p>Measurement-based selection uses quantiles to split data into lower and upper recruitment groups.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.training_dataset_from_annotation">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#training_dataset_from_annotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.training_dataset_from_annotation" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generates a list of image paths grouped by annotated classes from a database.
+This function connects to a SQLite database, retrieves image paths and their
+corresponding annotations, and organizes them into separate lists based on
+the specified annotated classes. If only one annotated class is provided,
+the function balances the dataset by sampling an equal number of images
+from the specified class and the remaining images.
+:param db_path: Path to the SQLite database file.
+:type db_path: str
+:param dst: Destination directory for the output (not used in this function).
+:type dst: str
+:param annotation_column: The column name in the database containing</p>
+<blockquote>
+<div><p>the annotations. Defaults to ‘test’.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>annotated_classes</strong> (<em>tuple</em><em>, </em><em>optional</em>) – A tuple of integers representing the
+classes to filter and group the image paths. Defaults to (1, 2).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of lists, where each inner list contains the image paths
+corresponding to a specific annotated class. If only one class is provided,
+the second list contains a balanced sample of images from other classes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sqlite3.Error</strong> – If there is an issue connecting to or querying the database.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function assumes the database table is named ‘png_list’ and contains
+columns ‘png_path’ and the specified annotation column.</p></li>
+<li><p>If only one annotated class is provided, the function balances the dataset
+by sampling an equal number of images from the specified class and the
+remaining images.</p></li>
+<li><p>The <cite>dst</cite> parameter is currently unused in the function logic.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.training_dataset_from_annotation_metadata">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">training_dataset_from_annotation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotated_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_type_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'columnID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['c1',</span> <span class="pre">'c2']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#training_dataset_from_annotation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.training_dataset_from_annotation_metadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generates a list of image paths grouped by annotated classes from a database,
+filtered by metadata and annotation criteria.
+:param db_path: Path to the SQLite database containing image metadata.
+:type db_path: str
+:param dst: Destination path for saving the output (not used in the function).
+:type dst: str
+:param annotation_column: Column name in the database containing annotation labels.</p>
+<blockquote>
+<div><p>Defaults to ‘test’.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>annotated_classes</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Tuple of annotation class labels to filter the data.
+Defaults to (1, 2).</p></li>
+<li><p><strong>metadata_type_by</strong> (<em>str</em><em>, </em><em>optional</em>) – Metadata type to filter by, either ‘rowID’ or ‘columnID’.
+Defaults to ‘columnID’.</p></li>
+<li><p><strong>class_metadata</strong> (<em>list</em><em>, </em><em>optional</em>) – List of metadata values to filter the data.
+Must match the format of the metadata_type_by. Defaults to [‘c1’, ‘c2’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of lists, where each inner list contains image paths for a specific class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>metadata_type_by</cite> is not ‘rowID’ or ‘columnID’.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If only one annotated class is provided, the function balances the dataset by sampling
+an equal number of images from the remaining classes.</p></li>
+<li><p>The function connects to the SQLite database, retrieves image paths and annotations,
+filters them based on metadata and annotation criteria, and groups them by class.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_dataset_from_lists">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset_from_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#generate_dataset_from_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.generate_dataset_from_lists" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generates a dataset by splitting provided file paths into training and testing sets
+and organizing them into corresponding directories.
+:param dst: The destination directory where the dataset will be created.
+:type dst: str
+:param class_data: A list where each element is a list of file paths</p>
+<blockquote>
+<div><p>corresponding to a specific class.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>classes</strong> (<em>list</em><em> of </em><em>str</em>) – A list of class names corresponding to the data in <cite>class_data</cite>.</p></li>
+<li><p><strong>test_split</strong> (<em>float</em><em>, </em><em>optional</em>) – The proportion of data to be used for testing. Defaults to 0.1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the length of <cite>class_data</cite> does not match the length of <cite>classes</cite>.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple containing the paths to the training and testing directories.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function creates subdirectories for each class under <cite>train</cite> and <cite>test</cite> directories
+within the destination directory.</p></li>
+<li><p>Files are copied from their original locations to the appropriate class subdirectories.</p></li>
+<li><p>The function prints progress during file copying and provides a summary of the number
+of files in each class for both training and testing sets.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.convert_separate_files_to_yokogawa">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_separate_files_to_yokogawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#convert_separate_files_to_yokogawa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.convert_separate_files_to_yokogawa" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Converts and organizes microscopy image files into a Yokogawa-compatible format.
+This function processes image files in a specified folder, groups them by metadata
+extracted using a regular expression, and assigns them to wells in a multi-plate
+format. It performs Maximum Intensity Projection (MIP) if multiple slices are present
+for a given region and saves the processed images with a standardized naming convention.
+:param folder: Path to the folder containing the image files to process.
+:type folder: str
+:param regex: Regular expression pattern to extract metadata from filenames.</p>
+<blockquote>
+<div><p>The pattern should define the following named groups:
+- ‘plateID’ (optional): Plate identifier (default is ‘1’).
+- ‘wellID’ (mandatory): Well identifier.
+- ‘fieldID’ (optional): Field identifier (default is ‘1’).
+- ‘timeID’ (optional): Timepoint identifier (default is 1).
+- ‘chanID’ (optional): Channel identifier (default is 1).
+- ‘sliceID’ (optional): Z-slice identifier.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>The function saves processed TIFF files in the specified folder and</dt><dd><p>generates a CSV log file (<cite>rename_log.csv</cite>) containing the mapping
+of original filenames to the new filenames.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the ‘wellID’ group is missing or None in the regex match.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Files that do not match the provided regex pattern are skipped.</p></li>
+<li><p>If multiple slices exist for a region, a Maximum Intensity Projection (MIP)
+is performed along the Z-axis.</p></li>
+<li><p>The function assigns wells sequentially across plates, starting from “plate1_A01”.</p></li>
+<li><p>The output filenames follow the format:
+<cite>{assigned_well}_T{timeID:04d}F{fieldID:03d}L01C{chanID:02d}.tif</cite>.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.convert_to_yokogawa">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">convert_to_yokogawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#convert_to_yokogawa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.convert_to_yokogawa" title="Link to this definition"></a></dt>
-<dd><p>Detects file type in the folder and converts them
-to Yokogawa-style naming with Maximum Intensity Projection (MIP).</p>
+<dd><p>Converts microscopy image files in a folder to Yokogawa-style TIFF filenames.</p>
+<p>This function processes raw microscopy images in various formats (ND2, CZI, LIF, TIFF, PNG, JPEG, BMP)
+and converts them into a standardized Yokogawa naming scheme using maximum intensity projections (MIPs).
+Each image is assigned a unique well location (e.g., plate1_A01) across one or more 384-well plates.
+The output files are saved in the same directory with renamed filenames. A CSV log is generated
+to track the mapping between original files and the renamed TIFFs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – Path to the directory containing the input microscopy files.</p></li>
+<li><p><strong>Formats</strong> (<em>Supported</em>)</p></li>
+<li><p><strong>-----------------</strong></p></li>
+<li><p><strong>.nd2</strong> (<em>-</em>)</p></li>
+<li><p><strong>.czi</strong> (<em>-</em>)</p></li>
+<li><p><strong>.lif</strong> (<em>-</em>)</p></li>
+<li><p><strong>.tif</strong> (<em>-</em>)</p></li>
+<li><p><strong>.tiff</strong> (<em>Image files</em><em> (</em><em>processed using tifffile</em><em>)</em>)</p></li>
+<li><p><strong>.png</strong> (<em>Image files</em><em> (</em><em>processed using tifffile</em><em>)</em>)</p></li>
+<li><p><strong>.jpg</strong> (<em>Image files</em><em> (</em><em>processed using tifffile</em><em>)</em>)</p></li>
+<li><p><strong>.jpeg</strong> (<em>Image files</em><em> (</em><em>processed using tifffile</em><em>)</em>)</p></li>
+<li><p><strong>.bmp</strong> (<em>Image files</em><em> (</em><em>processed using tifffile</em><em>)</em>)</p></li>
+<li><p><strong>Behavior</strong></p></li>
+<li><p><strong>--------</strong></p></li>
+<li><p><strong>Z-stacks.</strong> (<em>- Computes maximum intensity projections across</em>)</p></li>
+<li><p><strong>filenames</strong> (<em>- Generates Yokogawa-style</em>)</p></li>
+<li><p><strong>timepoints</strong> (<em>- Handles</em>)</p></li>
+<li><p><strong>Z-stacks</strong></p></li>
+<li><p><strong>channels</strong></p></li>
+<li><p><strong>fields</strong></p></li>
+<li><p><strong>format.</strong> (<em>and scenes depending on</em>)</p></li>
+<li><p><strong>scenes.</strong> (<em>- Avoids reusing well positions across multiple files and</em>)</p></li>
+<li><p><strong>structures.</strong> (<em>- Skips malformed</em><em> or </em><em>incomplete image</em>)</p></li>
+<li><p><strong>folder.</strong> (<em>- Logs all renamed output files to rename_log.csv in the same</em>)</p></li>
+<li><p><strong>Output</strong></p></li>
+<li><p><strong>------</strong></p></li>
+<li><p><strong>filenames.</strong> (<em>- Converted TIFF images saved in the input folder with Yokogawa-style</em>)</p></li>
+<li><p><strong>columns</strong> (<em>- A CSV log rename_log.csv containing</em>) – ‘Original File’, ‘Renamed TIFF’, ‘ext’, ‘time’, ‘field’, ‘channel’, ‘z’, ‘scene’, ‘slice’, ‘well’</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Requires <cite>ND2Reader</cite>, <cite>pyczi</cite>, <cite>readlif</cite>, <cite>tifffile</cite>, and <cite>pandas</cite>.</p></li>
+<li><p>Handles multi-dimensional images (2D, 3D, 4D).</p></li>
+<li><p>Images with unsupported dimensions or structure are skipped with warnings.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">convert_to_yokogawa</span><span class="p">(</span><span class="s2">&quot;/path/to/raw_images&quot;</span><span class="p">)</span>
+<span class="go">Processing complete. Files saved in /path/to/raw_images and rename log saved as rename_log.csv.</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.apply_augmentation">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">apply_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#apply_augmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.apply_augmentation" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Applies the specified augmentation method to the given image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>numpy.ndarray</em>) – The input image to be augmented.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The augmentation method to apply. Supported methods are:
+- ‘rotate90’: Rotates the image 90 degrees clockwise.
+- ‘rotate180’: Rotates the image 180 degrees.
+- ‘rotate270’: Rotates the image 90 degrees counterclockwise.
+- ‘flip_h’: Flips the image horizontally.
+- ‘flip_v’: Flips the image vertically.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The augmented image. If the method is not recognized,
+the original image is returned unchanged.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.process_instruction">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">process_instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#process_instruction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.process_instruction" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Processes an instruction entry by reading source image and mask files,
+optionally applying augmentations, and saving the processed results
+to specified destinations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entry</strong> (<em>dict</em>) – <p>A dictionary containing the following keys:
+- “src_img” (str): Path to the source image file.
+- “src_msk” (str): Path to the source mask file.
+- “augment” (dict or None): Augmentation parameters to apply</p>
+<blockquote>
+<div><p>to the image and mask. If None, no augmentation is applied.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>”dst_img” (str): Path to save the processed image.</p></li>
+<li><p>”dst_msk” (str): Path to save the processed mask.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Always returns 1 to indicate successful processing.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.prepare_cellpose_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">prepare_cellpose_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#prepare_cellpose_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.prepare_cellpose_dataset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Prepares a dataset for training Cellpose by organizing images and masks into
+train and test subsets, with optional data augmentation.
+:param input_root: Path to the root directory containing subdirectories</p>
+<blockquote>
+<div><p>with images and corresponding masks. Each subdirectory should have
+a “masks” folder containing the mask files.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>augment_data</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, performs data augmentation to
+increase the dataset size. Defaults to False.</p></li>
+<li><p><strong>train_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of the dataset to use for
+training. The rest will be used for testing. Defaults to 0.8.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes to use for
+processing the dataset. If None, uses the number of available CPUs
+minus one. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If no valid datasets with images and masks are found in the
+input_root directory.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function scans the input_root directory for subdirectories
+containing images and masks, and organizes them into train and test
+subsets.</p></li>
+<li><p>If augment_data is True, the dataset is augmented using predefined
+augmentation methods (e.g., rotations and flips).</p></li>
+<li><p>The processed dataset is saved in a new directory named
+“cellpose_dataset” within the input_root directory.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<p>prepare_cellpose_dataset(“/path/to/datasets”, augment_data=True, train_fraction=0.75, n_jobs=4)</p>
+</dd></dl>
 
 </section>
 </section>

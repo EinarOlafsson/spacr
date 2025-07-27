@@ -305,6 +305,41 @@ Module Contents
 
 .. py:function:: run_function_gui(settings_type, settings, q, fig_queue, stop_requested)
 
+   Executes a specific function based on the provided settings type in a GUI context.
+   :param settings_type: Specifies the type of operation to perform.
+                         Supported values include:
+                         - 'mask': Preprocess and generate masks.
+                         - 'measure': Perform crop measurements.
+                         - 'classify': Execute deep_spacr classification.
+                         - 'train_cellpose': Train a Cellpose model.
+                         - 'ml_analyze': Generate machine learning scores.
+                         - 'cellpose_masks': Identify and fine-tune Cellpose masks.
+                         - 'cellpose_all': Check Cellpose models.
+                         - 'map_barcodes': Generate barcode mappings.
+                         - 'regression': Perform regression analysis.
+                         - 'recruitment': Analyze recruitment data.
+                         - 'analyze_plaques': Analyze plaques.
+                         - 'convert': Process non-TIF or non-2D images.
+   :type settings_type: str
+   :param settings: Configuration settings required for the selected function.
+   :type settings: dict
+   :param q: Queue for sending messages or logs.
+   :type q: multiprocessing.Queue
+   :param fig_queue: Queue for sending figures or visual data.
+   :type fig_queue: multiprocessing.Queue
+   :param stop_requested: Shared value to signal when processing should stop.
+   :type stop_requested: multiprocessing.Value
+
+   :raises ValueError: If an invalid `settings_type` is provided.
+   :raises Exception: If an error occurs during the execution of the selected function.
+
+   .. rubric:: Notes
+
+   - The function dynamically imports and executes the appropriate module based on `settings_type`.
+   - Any errors encountered during execution are logged to the queue and printed to the console.
+   - The `stop_requested` flag is set to 1 upon completion or error.
+
+
 .. py:function:: hide_all_settings(vars_dict, categories)
 
    Function to initially hide all settings in the GUI.
@@ -316,7 +351,57 @@ Module Contents
 
 .. py:function:: setup_frame(parent_frame)
 
+   Sets up the main GUI layout within the given parent frame. This function creates a
+   resizable layout using `PanedWindow` and `Frame` widgets, and applies a dark style
+   to the elements.
+   :param parent_frame: The parent frame where the layout will be configured.
+   :type parent_frame: tk.Frame
+
+   :returns:
+
+             A tuple containing the following elements:
+                 - parent_frame (tk.Frame): The parent frame with the configured layout.
+                 - vertical_container (tk.PanedWindow): The vertical container in the right frame.
+                 - horizontal_container (tk.PanedWindow): The horizontal container in the right frame.
+                 - settings_container (tk.PanedWindow): The settings container on the left side.
+   :rtype: tuple
+
+   Layout Details:
+       - The main layout is divided into a left settings container and a right frame.
+       - The right frame contains a vertical container at the top and a horizontal
+         container at the bottom.
+       - The layout is resizable, with the left and right sections separated by a sash.
+   .. rubric:: Notes
+
+   - The function applies a dark style to the widgets using `set_dark_style`.
+   - The initial sash position is set to one-fourth of the screen width.
+   - Example content is added to the settings container for demonstration purposes.
+
+
 .. py:function:: download_hug_dataset(q, vars_dict)
+
+   Downloads a dataset and settings files from the Hugging Face Hub and updates the provided variables dictionary.
+
+   :param q: A queue object used for logging messages during the download process.
+   :type q: queue.Queue
+   :param vars_dict: A dictionary containing variables to be updated. If 'src' is present in the dictionary,
+                     the third element of 'src' will be updated with the downloaded dataset path.
+   :type vars_dict: dict
+
+   The function performs the following steps:
+       1. Downloads a dataset from the Hugging Face Hub using the specified repository ID and subfolder.
+       2. Updates the 'src' variable in `vars_dict` with the local path of the downloaded dataset, if applicable.
+       3. Logs the dataset download status to the provided queue.
+       4. Downloads settings files from another repository on the Hugging Face Hub.
+       5. Logs the settings download status to the provided queue.
+
+   .. rubric:: Notes
+
+   - The dataset is downloaded to a local directory under the user's home directory named "datasets".
+   - Any exceptions during the download process are caught and logged to the queue.
+
+   :raises None: All exceptions are handled internally and logged to the queue.
+
 
 .. py:function:: download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5)
 
@@ -346,15 +431,56 @@ Module Contents
 
 .. py:function:: display_media_in_plot_frame(media_path, parent_frame)
 
-   Display an MP4, AVI, or GIF and play it on repeat in the parent_frame, fully filling the frame while maintaining aspect ratio.
+   Display a media file (MP4, AVI, or GIF) in a Tkinter frame, playing it on repeat
+   while fully filling the frame and maintaining the aspect ratio.
+
+   :param media_path: The file path to the media file (MP4, AVI, or GIF).
+   :type media_path: str
+   :param parent_frame: The Tkinter frame where the media will be displayed.
+   :type parent_frame: tk.Frame
+
+   Behavior:
+       - For MP4 and AVI files:
+           - Uses OpenCV to read and play the video.
+           - Resizes and crops the video to fully fill the parent frame while maintaining aspect ratio.
+           - Plays the video on repeat.
+       - For GIF files:
+           - Uses PIL to read and play the GIF.
+           - Resizes and crops the GIF to fully fill the parent frame while maintaining aspect ratio.
+           - Plays the GIF on repeat.
+
+   :raises ValueError: If the file format is not supported (only MP4, AVI, and GIF are supported).
+
+   .. rubric:: Notes
+
+   - The function clears any existing widgets in the parent frame before displaying the media.
+   - The parent frame is configured to expand and adapt to the media's aspect ratio.
 
 
 .. py:function:: print_widget_structure(widget, indent=0)
 
-   Recursively print the widget structure.
+   Recursively prints the structure of a Tkinter widget and its children.
+   :param widget: The root widget whose structure is to be printed.
+   :type widget: tk.Widget
+   :param indent: The indentation level for the current widget.
+                  Defaults to 0.
+   :type indent: int, optional
+
+   Prints:
+       The widget's name and class, followed by the names and classes of
+       its child widgets, indented to represent the widget hierarchy.
 
 
 .. py:function:: get_screen_dimensions()
+
+   Retrieves the dimensions of the primary monitor's screen.
+
+   :returns:
+
+             A tuple containing the screen width and height in pixels
+                    as (screen_width, screen_height).
+   :rtype: tuple
+
 
 .. py:function:: convert_to_number(value)
 

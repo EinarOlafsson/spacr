@@ -409,13 +409,57 @@ Module Contents
 
 .. py:function:: convert_numpy_to_tiff(folder_path, limit=None)
 
-   Converts all numpy files in a folder to TIFF format and saves them in a subdirectory 'tiff'.
+   Converts all `.npy` files in a specified folder to `.tif` files and saves them
+   in a subdirectory named 'tiff' within the same folder.
+   :param folder_path: The path to the folder containing `.npy` files.
+   :type folder_path: str
+   :param limit: The maximum number of `.npy` files to convert.
+                 If None, all `.npy` files in the folder will be converted. Defaults to None.
+   :type limit: int, optional
 
-   Args:
-   folder_path (str): The path to the folder containing numpy files.
+   :returns: None
+
+   .. rubric:: Notes
+
+   - The function creates a subdirectory named 'tiff' within the specified folder
+     if it does not already exist.
+   - Only files with a `.npy` extension are processed. Other files are ignored.
+   - The converted `.tif` files are saved in the 'tiff' subdirectory with the
+     same base name as the original `.npy` files.
+
+   .. rubric:: Example
+
+   convert_numpy_to_tiff('/path/to/folder', limit=10)
 
 
 .. py:function:: generate_cellpose_train_test(src, test_split=0.1)
+
+   Splits a dataset of images and their corresponding masks into training and testing sets,
+   and copies the files into separate directories for each set.
+   :param src: The source directory containing the images and a subdirectory named 'masks'
+               with the corresponding mask files. Images and masks should have the same filenames.
+   :type src: str
+   :param test_split: The proportion of the dataset to allocate to the test set.
+                      Defaults to 0.1 (10%).
+   :type test_split: float, optional
+
+   :raises FileNotFoundError: If the 'masks' subdirectory or any required mask file is missing.
+
+   Side Effects:
+       - Creates 'train' and 'test' directories (and their 'masks' subdirectories) in the parent
+         directory of `src`.
+       - Copies the images and masks into the respective directories based on the split.
+   .. rubric:: Example
+
+   If `src` is '/data/dataset', the function will create:
+   - '/data/train' and '/data/train/masks' for the training set.
+   - '/data/test' and '/data/test/masks' for the testing set.
+
+   Prints:
+       - The number of images with masks found in the source directory.
+       - The number of files in the training and testing sets.
+       - Progress messages while copying files to the respective directories.
+
 
 .. py:function:: parse_gz_files(folder_path)
 
@@ -431,6 +475,29 @@ Module Contents
 
 
 .. py:function:: generate_dataset(settings={})
+
+   Generates a dataset by processing image paths from a database, creating temporary tar files,
+   and combining them into a final tar archive.
+   :param settings: A dictionary of settings for dataset generation. Defaults to an empty dictionary.
+                    The settings dictionary may include the following keys:
+                    - 'src' (str or list): Source directory or list of directories containing the database and images.
+                    - 'file_metadata' (str, optional): Metadata to filter files in the database.
+                    - 'sample' (int or list, optional): Number of images to sample or a list of specific samples.
+                    - 'experiment' (str): Name of the experiment for naming the final tar file.
+   :type settings: dict, optional
+
+   :returns: The path to the final tar archive containing the dataset.
+   :rtype: str
+
+   :raises FileNotFoundError: If the database file is not found in the source directory.
+   :raises ValueError: If the settings dictionary is missing required keys or contains invalid values.
+
+   .. rubric:: Notes
+
+   - The function uses multiprocessing to parallelize the creation of temporary tar files.
+   - Temporary files and directories are cleaned up after the final tar file is created.
+   - If a tar file with the same name already exists, a warning is issued, and a new name is generated.
+
 
 .. py:function:: generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc', 'pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False)
 
@@ -456,23 +523,315 @@ Module Contents
 
 .. py:function:: generate_training_dataset(settings)
 
+   Generates training and testing datasets based on the provided settings.
+   This function supports multiple dataset generation modes, including:
+   - 'annotation': Uses annotations to create datasets.
+   - 'metadata': Uses metadata to create datasets.
+   - 'measurement': Uses measurement-based filtering to create datasets.
+   - 'metadata_annotation': Combines metadata and annotations to create datasets.
+   :param settings: A dictionary containing configuration options for dataset generation.
+                    Key settings include:
+                    - 'src': List of source directories containing measurement databases.
+                    - 'tables': List of database tables to use (e.g., ['cell', 'nucleus']).
+                    - 'dataset_mode': Mode of dataset generation ('annotation', 'metadata', 'measurement', 'metadata_annotation').
+                    - 'class_metadata': List of class labels for metadata-based selection.
+                    - 'annotated_classes': List of annotated classes for annotation-based selection.
+                    - 'annotation_column': Column name for annotation-based selection.
+                    - 'metadata_item_1_name', 'metadata_item_1_value': Metadata filtering criteria.
+                    - 'metadata_item_2_name', 'metadata_item_2_value': Additional metadata filtering criteria.
+                    - 'custom_measurement': Custom measurement formula for measurement-based selection.
+                    - 'channel_of_interest': Channel to use for measurement-based selection.
+                    - 'png_type': Type of PNG images to retrieve.
+                    - 'size': Number of samples per class.
+                    - 'test_split': Fraction of data to use for testing.
+   :type settings: dict
+
+   :returns:
+
+             A tuple containing:
+                 - train_class_dir (str): Path to the directory containing training data.
+                 - test_class_dir (str): Path to the directory containing testing data.
+   :rtype: tuple
+
+   :raises ValueError: If an invalid dataset mode is provided in the settings.
+
+   .. rubric:: Notes
+
+   - The function creates new directories for training and testing datasets if they do not already exist.
+   - The smallest class size is used to balance the dataset in metadata-based selection.
+   - Measurement-based selection uses quantiles to split data into lower and upper recruitment groups.
+
+
 .. py:function:: training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2))
+
+   Generates a list of image paths grouped by annotated classes from a database.
+   This function connects to a SQLite database, retrieves image paths and their
+   corresponding annotations, and organizes them into separate lists based on
+   the specified annotated classes. If only one annotated class is provided,
+   the function balances the dataset by sampling an equal number of images
+   from the specified class and the remaining images.
+   :param db_path: Path to the SQLite database file.
+   :type db_path: str
+   :param dst: Destination directory for the output (not used in this function).
+   :type dst: str
+   :param annotation_column: The column name in the database containing
+                             the annotations. Defaults to 'test'.
+   :type annotation_column: str, optional
+   :param annotated_classes: A tuple of integers representing the
+                             classes to filter and group the image paths. Defaults to (1, 2).
+   :type annotated_classes: tuple, optional
+
+   :returns: A list of lists, where each inner list contains the image paths
+             corresponding to a specific annotated class. If only one class is provided,
+             the second list contains a balanced sample of images from other classes.
+   :rtype: list
+
+   :raises sqlite3.Error: If there is an issue connecting to or querying the database.
+
+   .. rubric:: Notes
+
+   - The function assumes the database table is named 'png_list' and contains
+     columns 'png_path' and the specified annotation column.
+   - If only one annotated class is provided, the function balances the dataset
+     by sampling an equal number of images from the specified class and the
+     remaining images.
+   - The `dst` parameter is currently unused in the function logic.
+
 
 .. py:function:: training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=['c1', 'c2'])
 
+   Generates a list of image paths grouped by annotated classes from a database,
+   filtered by metadata and annotation criteria.
+   :param db_path: Path to the SQLite database containing image metadata.
+   :type db_path: str
+   :param dst: Destination path for saving the output (not used in the function).
+   :type dst: str
+   :param annotation_column: Column name in the database containing annotation labels.
+                             Defaults to 'test'.
+   :type annotation_column: str, optional
+   :param annotated_classes: Tuple of annotation class labels to filter the data.
+                             Defaults to (1, 2).
+   :type annotated_classes: tuple, optional
+   :param metadata_type_by: Metadata type to filter by, either 'rowID' or 'columnID'.
+                            Defaults to 'columnID'.
+   :type metadata_type_by: str, optional
+   :param class_metadata: List of metadata values to filter the data.
+                          Must match the format of the metadata_type_by. Defaults to ['c1', 'c2'].
+   :type class_metadata: list, optional
+
+   :returns: A list of lists, where each inner list contains image paths for a specific class.
+   :rtype: list
+
+   :raises ValueError: If `metadata_type_by` is not 'rowID' or 'columnID'.
+
+   .. rubric:: Notes
+
+   - If only one annotated class is provided, the function balances the dataset by sampling
+     an equal number of images from the remaining classes.
+   - The function connects to the SQLite database, retrieves image paths and annotations,
+     filters them based on metadata and annotation criteria, and groups them by class.
+
+
 .. py:function:: generate_dataset_from_lists(dst, class_data, classes, test_split=0.1)
+
+   Generates a dataset by splitting provided file paths into training and testing sets
+   and organizing them into corresponding directories.
+   :param dst: The destination directory where the dataset will be created.
+   :type dst: str
+   :param class_data: A list where each element is a list of file paths
+                      corresponding to a specific class.
+   :type class_data: list of list of str
+   :param classes: A list of class names corresponding to the data in `class_data`.
+   :type classes: list of str
+   :param test_split: The proportion of data to be used for testing. Defaults to 0.1.
+   :type test_split: float, optional
+
+   :raises ValueError: If the length of `class_data` does not match the length of `classes`.
+
+   :returns: A tuple containing the paths to the training and testing directories.
+   :rtype: tuple
+
+   .. rubric:: Notes
+
+   - The function creates subdirectories for each class under `train` and `test` directories
+     within the destination directory.
+   - Files are copied from their original locations to the appropriate class subdirectories.
+   - The function prints progress during file copying and provides a summary of the number
+     of files in each class for both training and testing sets.
+
 
 .. py:function:: convert_separate_files_to_yokogawa(folder, regex)
 
+   Converts and organizes microscopy image files into a Yokogawa-compatible format.
+   This function processes image files in a specified folder, groups them by metadata
+   extracted using a regular expression, and assigns them to wells in a multi-plate
+   format. It performs Maximum Intensity Projection (MIP) if multiple slices are present
+   for a given region and saves the processed images with a standardized naming convention.
+   :param folder: Path to the folder containing the image files to process.
+   :type folder: str
+   :param regex: Regular expression pattern to extract metadata from filenames.
+                 The pattern should define the following named groups:
+                 - 'plateID' (optional): Plate identifier (default is '1').
+                 - 'wellID' (mandatory): Well identifier.
+                 - 'fieldID' (optional): Field identifier (default is '1').
+                 - 'timeID' (optional): Timepoint identifier (default is 1).
+                 - 'chanID' (optional): Channel identifier (default is 1).
+                 - 'sliceID' (optional): Z-slice identifier.
+   :type regex: str
+
+   :returns:
+
+             The function saves processed TIFF files in the specified folder and
+                   generates a CSV log file (`rename_log.csv`) containing the mapping
+                   of original filenames to the new filenames.
+   :rtype: None
+
+   :raises ValueError: If the 'wellID' group is missing or None in the regex match.
+
+   .. rubric:: Notes
+
+   - Files that do not match the provided regex pattern are skipped.
+   - If multiple slices exist for a region, a Maximum Intensity Projection (MIP)
+     is performed along the Z-axis.
+   - The function assigns wells sequentially across plates, starting from "plate1_A01".
+   - The output filenames follow the format:
+     `{assigned_well}_T{timeID:04d}F{fieldID:03d}L01C{chanID:02d}.tif`.
+
+
 .. py:function:: convert_to_yokogawa(folder)
 
-   Detects file type in the folder and converts them
-   to Yokogawa-style naming with Maximum Intensity Projection (MIP).
+   Converts microscopy image files in a folder to Yokogawa-style TIFF filenames.
+
+   This function processes raw microscopy images in various formats (ND2, CZI, LIF, TIFF, PNG, JPEG, BMP)
+   and converts them into a standardized Yokogawa naming scheme using maximum intensity projections (MIPs).
+   Each image is assigned a unique well location (e.g., plate1_A01) across one or more 384-well plates.
+   The output files are saved in the same directory with renamed filenames. A CSV log is generated
+   to track the mapping between original files and the renamed TIFFs.
+
+   :param folder: Path to the directory containing the input microscopy files.
+   :type folder: str
+   :param Supported Formats:
+   :param -----------------:
+   :param - `.nd2`:
+   :type - `.nd2`: Nikon ND2 format (processed using ND2Reader)
+   :param - `.czi`:
+   :type - `.czi`: Zeiss CZI format (processed using pyczi)
+   :param - `.lif`:
+   :type - `.lif`: Leica LIF format (processed using readlif)
+   :param - `.tif`:
+   :type - `.tif`: Image files (processed using tifffile)
+   :param `.tiff`:
+   :type `.tiff`: Image files (processed using tifffile)
+   :param `.png`:
+   :type `.png`: Image files (processed using tifffile)
+   :param `.jpg`:
+   :type `.jpg`: Image files (processed using tifffile)
+   :param `.jpeg`:
+   :type `.jpeg`: Image files (processed using tifffile)
+   :param `.bmp`:
+   :type `.bmp`: Image files (processed using tifffile)
+   :param Behavior:
+   :param --------:
+   :param - Computes maximum intensity projections across Z-stacks.:
+   :param - Generates Yokogawa-style filenames:
+   :type - Generates Yokogawa-style filenames: `plateX_<WELL>_T####F###L01C##.tif`
+   :param - Handles timepoints:
+   :param Z-stacks:
+   :param channels:
+   :param fields:
+   :param and scenes depending on format.:
+   :param - Avoids reusing well positions across multiple files and scenes.:
+   :param - Skips malformed or incomplete image structures.:
+   :param - Logs all renamed output files to `rename_log.csv` in the same folder.:
+   :param Output:
+   :param ------:
+   :param - Converted TIFF images saved in the input folder with Yokogawa-style filenames.:
+   :param - A CSV log `rename_log.csv` containing columns: 'Original File', 'Renamed TIFF', 'ext', 'time', 'field', 'channel', 'z', 'scene', 'slice', 'well'
+
+   .. rubric:: Notes
+
+   - Requires `ND2Reader`, `pyczi`, `readlif`, `tifffile`, and `pandas`.
+   - Handles multi-dimensional images (2D, 3D, 4D).
+   - Images with unsupported dimensions or structure are skipped with warnings.
+
+   .. rubric:: Example
+
+   >>> convert_to_yokogawa("/path/to/raw_images")
+   Processing complete. Files saved in /path/to/raw_images and rename log saved as rename_log.csv.
 
 
 .. py:function:: apply_augmentation(image, method)
 
+   Applies the specified augmentation method to the given image.
+
+   :param image: The input image to be augmented.
+   :type image: numpy.ndarray
+   :param method: The augmentation method to apply. Supported methods are:
+                  - 'rotate90': Rotates the image 90 degrees clockwise.
+                  - 'rotate180': Rotates the image 180 degrees.
+                  - 'rotate270': Rotates the image 90 degrees counterclockwise.
+                  - 'flip_h': Flips the image horizontally.
+                  - 'flip_v': Flips the image vertically.
+   :type method: str
+
+   :returns: The augmented image. If the method is not recognized,
+             the original image is returned unchanged.
+   :rtype: numpy.ndarray
+
+
 .. py:function:: process_instruction(entry)
 
+   Processes an instruction entry by reading source image and mask files,
+   optionally applying augmentations, and saving the processed results
+   to specified destinations.
+
+   :param entry: A dictionary containing the following keys:
+                 - "src_img" (str): Path to the source image file.
+                 - "src_msk" (str): Path to the source mask file.
+                 - "augment" (dict or None): Augmentation parameters to apply
+                   to the image and mask. If None, no augmentation is applied.
+                 - "dst_img" (str): Path to save the processed image.
+                 - "dst_msk" (str): Path to save the processed mask.
+   :type entry: dict
+
+   :returns: Always returns 1 to indicate successful processing.
+   :rtype: int
+
+
 .. py:function:: prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None)
+
+   Prepares a dataset for training Cellpose by organizing images and masks into
+   train and test subsets, with optional data augmentation.
+   :param input_root: Path to the root directory containing subdirectories
+                      with images and corresponding masks. Each subdirectory should have
+                      a "masks" folder containing the mask files.
+   :type input_root: str
+   :param augment_data: If True, performs data augmentation to
+                        increase the dataset size. Defaults to False.
+   :type augment_data: bool, optional
+   :param train_fraction: Fraction of the dataset to use for
+                          training. The rest will be used for testing. Defaults to 0.8.
+   :type train_fraction: float, optional
+   :param n_jobs: Number of parallel processes to use for
+                  processing the dataset. If None, uses the number of available CPUs
+                  minus one. Defaults to None.
+   :type n_jobs: int, optional
+
+   :raises ValueError: If no valid datasets with images and masks are found in the
+       input_root directory.
+
+   .. rubric:: Notes
+
+   - The function scans the input_root directory for subdirectories
+     containing images and masks, and organizes them into train and test
+     subsets.
+   - If augment_data is True, the dataset is augmented using predefined
+     augmentation methods (e.g., rotations and flips).
+   - The processed dataset is saved in a new directory named
+     "cellpose_dataset" within the input_root directory.
+
+   .. rubric:: Example
+
+   prepare_cellpose_dataset("/path/to/datasets", augment_data=True, train_fraction=0.75, n_jobs=4)
+
 

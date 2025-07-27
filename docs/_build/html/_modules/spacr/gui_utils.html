@@ -614,7 +614,6 @@
     <span class="k">return</span> <span class="n">variables</span></div>
 
 
-
 <div class="viewcode-block" id="spacrFigShow">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.spacrFigShow">[docs]</a>
 <span class="k">def</span> <span class="nf">spacrFigShow</span><span class="p">(</span><span class="n">fig_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -676,6 +675,35 @@
 <div class="viewcode-block" id="run_function_gui">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.run_function_gui">[docs]</a>
 <span class="k">def</span> <span class="nf">run_function_gui</span><span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">stop_requested</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Executes a specific function based on the provided settings type in a GUI context.</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings_type (str): Specifies the type of operation to perform. </span>
+<span class="sd">            Supported values include:</span>
+<span class="sd">            - &#39;mask&#39;: Preprocess and generate masks.</span>
+<span class="sd">            - &#39;measure&#39;: Perform crop measurements.</span>
+<span class="sd">            - &#39;classify&#39;: Execute deep_spacr classification.</span>
+<span class="sd">            - &#39;train_cellpose&#39;: Train a Cellpose model.</span>
+<span class="sd">            - &#39;ml_analyze&#39;: Generate machine learning scores.</span>
+<span class="sd">            - &#39;cellpose_masks&#39;: Identify and fine-tune Cellpose masks.</span>
+<span class="sd">            - &#39;cellpose_all&#39;: Check Cellpose models.</span>
+<span class="sd">            - &#39;map_barcodes&#39;: Generate barcode mappings.</span>
+<span class="sd">            - &#39;regression&#39;: Perform regression analysis.</span>
+<span class="sd">            - &#39;recruitment&#39;: Analyze recruitment data.</span>
+<span class="sd">            - &#39;analyze_plaques&#39;: Analyze plaques.</span>
+<span class="sd">            - &#39;convert&#39;: Process non-TIF or non-2D images.</span>
+<span class="sd">        settings (dict): Configuration settings required for the selected function.</span>
+<span class="sd">        q (multiprocessing.Queue): Queue for sending messages or logs.</span>
+<span class="sd">        fig_queue (multiprocessing.Queue): Queue for sending figures or visual data.</span>
+<span class="sd">        stop_requested (multiprocessing.Value): Shared value to signal when processing should stop.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If an invalid `settings_type` is provided.</span>
+<span class="sd">        Exception: If an error occurs during the execution of the selected function.</span>
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function dynamically imports and executes the appropriate module based on `settings_type`.</span>
+<span class="sd">        - Any errors encountered during execution are logged to the queue and printed to the console.</span>
+<span class="sd">        - The `stop_requested` flag is set to 1 upon completion or error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">preprocess_generate_masks</span>
     <span class="kn">from</span> <span class="nn">.spacr_cellpose</span> <span class="kn">import</span> <span class="n">identify_masks_finetune</span><span class="p">,</span> <span class="n">check_cellpose_models</span>
@@ -769,6 +797,28 @@
 <div class="viewcode-block" id="setup_frame">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.setup_frame">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_frame</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets up the main GUI layout within the given parent frame. This function creates a </span>
+<span class="sd">    resizable layout using `PanedWindow` and `Frame` widgets, and applies a dark style </span>
+<span class="sd">    to the elements.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        parent_frame (tk.Frame): The parent frame where the layout will be configured.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the following elements:</span>
+<span class="sd">            - parent_frame (tk.Frame): The parent frame with the configured layout.</span>
+<span class="sd">            - vertical_container (tk.PanedWindow): The vertical container in the right frame.</span>
+<span class="sd">            - horizontal_container (tk.PanedWindow): The horizontal container in the right frame.</span>
+<span class="sd">            - settings_container (tk.PanedWindow): The settings container on the left side.</span>
+<span class="sd">    Layout Details:</span>
+<span class="sd">        - The main layout is divided into a left settings container and a right frame.</span>
+<span class="sd">        - The right frame contains a vertical container at the top and a horizontal </span>
+<span class="sd">          container at the bottom.</span>
+<span class="sd">        - The layout is resizable, with the left and right sections separated by a sash.</span>
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function applies a dark style to the widgets using `set_dark_style`.</span>
+<span class="sd">        - The initial sash position is set to one-fourth of the screen width.</span>
+<span class="sd">        - Example content is added to the settings container for demonstration purposes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span><span class="p">,</span> <span class="n">set_element_size</span>
 
     <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">)</span>
@@ -818,10 +868,31 @@
     <span class="k">return</span> <span class="n">parent_frame</span><span class="p">,</span> <span class="n">vertical_container</span><span class="p">,</span> <span class="n">horizontal_container</span><span class="p">,</span> <span class="n">settings_container</span></div>
 
 
-
 <div class="viewcode-block" id="download_hug_dataset">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.download_hug_dataset">[docs]</a>
 <span class="k">def</span> <span class="nf">download_hug_dataset</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">vars_dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downloads a dataset and settings files from the Hugging Face Hub and updates the provided variables dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        q (queue.Queue): A queue object used for logging messages during the download process.</span>
+<span class="sd">        vars_dict (dict): A dictionary containing variables to be updated. If &#39;src&#39; is present in the dictionary,</span>
+<span class="sd">                          the third element of &#39;src&#39; will be updated with the downloaded dataset path.</span>
+
+<span class="sd">    The function performs the following steps:</span>
+<span class="sd">        1. Downloads a dataset from the Hugging Face Hub using the specified repository ID and subfolder.</span>
+<span class="sd">        2. Updates the &#39;src&#39; variable in `vars_dict` with the local path of the downloaded dataset, if applicable.</span>
+<span class="sd">        3. Logs the dataset download status to the provided queue.</span>
+<span class="sd">        4. Downloads settings files from another repository on the Hugging Face Hub.</span>
+<span class="sd">        5. Logs the settings download status to the provided queue.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The dataset is downloaded to a local directory under the user&#39;s home directory named &quot;datasets&quot;.</span>
+<span class="sd">        - Any exceptions during the download process are caught and logged to the queue.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        None: All exceptions are handled internally and logged to the queue.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dataset_repo_id</span> <span class="o">=</span> <span class="s2">&quot;einarolafsson/toxo_mito&quot;</span>
     <span class="n">settings_repo_id</span> <span class="o">=</span> <span class="s2">&quot;einarolafsson/spacr_settings&quot;</span>
     <span class="n">dataset_subfolder</span> <span class="o">=</span> <span class="s2">&quot;plate1&quot;</span>
@@ -1004,6 +1075,31 @@
 <div class="viewcode-block" id="display_media_in_plot_frame">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.display_media_in_plot_frame">[docs]</a>
 <span class="k">def</span> <span class="nf">display_media_in_plot_frame</span><span class="p">(</span><span class="n">media_path</span><span class="p">,</span> <span class="n">parent_frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display a media file (MP4, AVI, or GIF) in a Tkinter frame, playing it on repeat </span>
+<span class="sd">    while fully filling the frame and maintaining the aspect ratio.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        media_path (str): The file path to the media file (MP4, AVI, or GIF).</span>
+<span class="sd">        parent_frame (tk.Frame): The Tkinter frame where the media will be displayed.</span>
+
+<span class="sd">    Behavior:</span>
+<span class="sd">        - For MP4 and AVI files:</span>
+<span class="sd">            - Uses OpenCV to read and play the video.</span>
+<span class="sd">            - Resizes and crops the video to fully fill the parent frame while maintaining aspect ratio.</span>
+<span class="sd">            - Plays the video on repeat.</span>
+<span class="sd">        - For GIF files:</span>
+<span class="sd">            - Uses PIL to read and play the GIF.</span>
+<span class="sd">            - Resizes and crops the GIF to fully fill the parent frame while maintaining aspect ratio.</span>
+<span class="sd">            - Plays the GIF on repeat.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the file format is not supported (only MP4, AVI, and GIF are supported).</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function clears any existing widgets in the parent frame before displaying the media.</span>
+<span class="sd">        - The parent frame is configured to expand and adapt to the media&#39;s aspect ratio.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Display an MP4, AVI, or GIF and play it on repeat in the parent_frame, fully filling the frame while maintaining aspect ratio.&quot;&quot;&quot;</span>
     <span class="c1"># Clear parent_frame if it contains any previous widgets</span>
     <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">parent_frame</span><span class="o">.</span><span class="n">winfo_children</span><span class="p">():</span>
@@ -1152,7 +1248,16 @@
 <div class="viewcode-block" id="print_widget_structure">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.print_widget_structure">[docs]</a>
 <span class="k">def</span> <span class="nf">print_widget_structure</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively print the widget structure.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively prints the structure of a Tkinter widget and its children.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        widget (tk.Widget): The root widget whose structure is to be printed.</span>
+<span class="sd">        indent (int, optional): The indentation level for the current widget. </span>
+<span class="sd">            Defaults to 0.</span>
+<span class="sd">    Prints:</span>
+<span class="sd">        The widget&#39;s name and class, followed by the names and classes of </span>
+<span class="sd">        its child widgets, indented to represent the widget hierarchy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Print the widget&#39;s name and class</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">indent</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">widget</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">widget</span><span class="o">.</span><span class="n">winfo_class</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     
@@ -1164,6 +1269,13 @@
 <div class="viewcode-block" id="get_screen_dimensions">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.get_screen_dimensions">[docs]</a>
 <span class="k">def</span> <span class="nf">get_screen_dimensions</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves the dimensions of the primary monitor&#39;s screen.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the screen width and height in pixels </span>
+<span class="sd">               as (screen_width, screen_height).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">monitor</span> <span class="o">=</span> <span class="n">get_monitors</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get the primary monitor</span>
     <span class="n">screen_width</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span>
     <span class="n">screen_height</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span>
