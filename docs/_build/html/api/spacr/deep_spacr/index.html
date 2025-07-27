@@ -114,12 +114,84 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.apply_model">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">apply_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#apply_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.apply_model" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply a trained binary classification model to a folder of images.</p>
+<p>Loads a PyTorch model and applies it to images in the specified folder using batch inference.
+Supports optional normalization and GPU acceleration. Outputs prediction probabilities and
+saves results as a CSV file alongside the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em>) – Path to a folder containing input images (e.g., PNG, JPG).</p></li>
+<li><p><strong>model_path</strong> (<em>str</em>) – Path to a trained PyTorch model file (.pt or .pth).</p></li>
+<li><p><strong>image_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size to center-crop input images to. Default is 224.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of images to process per batch. Default is 64.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, normalize images to [-1, 1] using ImageNet-style transform. Default is True.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of subprocesses to use for data loading. Default is 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A DataFrame with two columns:</dt><dd><ul class="simple">
+<li><p>”path”: Filenames of processed images.</p></li>
+<li><p>”pred”: Model output probabilities (sigmoid of logits).</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Saves:</dt><dd><p>A CSV file named like &lt;model_path&gt;&lt;YYMMDD&gt;_&lt;ext&gt;_test_result.csv, containing the prediction results.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Uses GPU if available, otherwise runs on CPU.</p></li>
+<li><p>Assumes model outputs raw logits for binary classification (sigmoid is applied).</p></li>
+<li><p>The input folder must contain only images readable by <cite>PIL.Image.open</cite>.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.apply_model_to_tar">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">apply_model_to_tar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#apply_model_to_tar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.apply_model_to_tar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply a trained model to images stored inside a tar archive.</p>
+<p>Loads a model and applies it to images within a <cite>.tar</cite> archive using batch inference. Results are
+filtered by a probability threshold and saved to a CSV. Supports GPU acceleration and normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following keys:
+- tar_path (str): Path to the tar archive with input images.
+- model_path (str): Path to the trained PyTorch model (.pt/.pth).
+- image_size (int): Center crop size for input images. Default is 224.
+- batch_size (int): Batch size for DataLoader. Default is 64.
+- normalize (bool): Apply normalization to [-1, 1]. Default is True.
+- n_jobs (int): Number of workers for data loading. Default is system CPU count - 4.
+- verbose (bool): If True, print progress and model details.
+- score_threshold (float): Probability threshold for positive classification (used in result filtering).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>DataFrame with:</dt><dd><ul class="simple">
+<li><p>”path”: Filenames inside the tar archive.</p></li>
+<li><p>”pred”: Model prediction scores (sigmoid output).</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Saves:</dt><dd><p>A CSV file with prediction results to the same directory as the tar file.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.evaluate_model_performance">
@@ -262,7 +334,88 @@ all_labels (list): The true labels for each prediction.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.deep_spacr">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">deep_spacr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#deep_spacr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.deep_spacr" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Run deep learning-based classification workflow on microscopy data using SpaCr.</p>
+<p>This function handles dataset generation, model training, and inference using a trained model on tar-archived image datasets.
+Settings are filled using <cite>deep_spacr_defaults</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – <p>Dictionary of settings with the following keys:</p>
+<dl class="simple">
+<dt>General:</dt><dd><ul class="simple">
+<li><p>src (str): Path to the input dataset.</p></li>
+<li><p>dataset (str): Path to a dataset archive.</p></li>
+<li><p>dataset_mode (str): Dataset generation mode. Typically ‘metadata’.</p></li>
+<li><p>file_type (str): Type of input files (e.g., ‘cell_png’).</p></li>
+<li><p>file_metadata (str or None): Path to file-level metadata, if available.</p></li>
+<li><p>sample (int or None): Limit to N random samples for development/testing.</p></li>
+<li><p>experiment (str): Experiment name prefix. Default is ‘exp.’.</p></li>
+</ul>
+</dd>
+<dt>Annotation and class mapping:</dt><dd><ul class="simple">
+<li><p>annotation_column (str): Metadata column containing class annotations.</p></li>
+<li><p>annotated_classes (list): List of class IDs used for training (e.g., [1, 2]).</p></li>
+<li><p>classes (list): Class labels (e.g., [‘nc’, ‘pc’]).</p></li>
+<li><p>class_metadata (list of lists): Mapping of classes to metadata terms (e.g., [[‘c1’], [‘c2’]]).</p></li>
+<li><p>metadata_type_by (str): How to interpret metadata structure. Typically ‘columnID’.</p></li>
+</ul>
+</dd>
+<dt>Image processing:</dt><dd><ul class="simple">
+<li><p>channel_of_interest (int): Channel index to use for classification.</p></li>
+<li><p>png_type (str): Type of image format (e.g., ‘cell_png’).</p></li>
+<li><p>image_size (int): Input size (e.g., 224 for 224x224 crop).</p></li>
+<li><p>train_channels (list): Channels to use for training (e.g., [‘r’, ‘g’, ‘b’]).</p></li>
+<li><p>normalize (bool): Whether to normalize input images. Default is True.</p></li>
+<li><p>augment (bool): Whether to apply data augmentation.</p></li>
+</ul>
+</dd>
+<dt>Model and training:</dt><dd><ul class="simple">
+<li><p>model_type (str): Model architecture (e.g., ‘maxvit_t’).</p></li>
+<li><p>optimizer_type (str): Optimizer (e.g., ‘adamw’).</p></li>
+<li><p>schedule (str): Learning rate scheduler (‘reduce_lr_on_plateau’ or ‘step_lr’).</p></li>
+<li><p>loss_type (str): Loss function (‘focal_loss’ or ‘binary_cross_entropy_with_logits’).</p></li>
+<li><p>dropout_rate (float): Dropout probability.</p></li>
+<li><p>init_weights (bool): Initialize model with pretrained weights.</p></li>
+<li><p>amsgrad (bool): Use AMSGrad variant of AdamW optimizer.</p></li>
+<li><p>use_checkpoint (bool): Enable checkpointing.</p></li>
+<li><p>intermedeate_save (bool): Save intermediate models during training.</p></li>
+</ul>
+</dd>
+<dt>Training control:</dt><dd><ul class="simple">
+<li><p>train (bool): Enable training phase.</p></li>
+<li><p>test (bool): Enable evaluation on test set.</p></li>
+<li><p>train_DL_model (bool): Enable deep learning model training.</p></li>
+<li><p>generate_training_dataset (bool): Enable generation of train/test splits.</p></li>
+<li><p>test_split (float): Proportion of data used for testing.</p></li>
+<li><p>val_split (float): Fraction of training set used for validation.</p></li>
+<li><p>epochs (int): Number of training epochs.</p></li>
+<li><p>batch_size (int): Batch size for training and inference.</p></li>
+<li><p>learning_rate (float): Learning rate.</p></li>
+<li><p>weight_decay (float): L2 regularization strength.</p></li>
+<li><p>gradient_accumulation (bool): Accumulate gradients over multiple steps.</p></li>
+<li><p>gradient_accumulation_steps (int): Number of steps per gradient update.</p></li>
+</ul>
+</dd>
+<dt>Inference:</dt><dd><ul class="simple">
+<li><p>apply_model_to_dataset (bool): Run prediction on tar dataset.</p></li>
+<li><p>tar_path (str): Path to tar file for inference input.</p></li>
+<li><p>model_path (str): Path to trained model file.</p></li>
+<li><p>score_threshold (float): Probability threshold for binary classification.</p></li>
+</ul>
+</dd>
+<dt>Execution:</dt><dd><ul class="simple">
+<li><p>n_jobs (int): Number of parallel workers.</p></li>
+<li><p>pin_memory (bool): Whether to use pinned memory in DataLoader.</p></li>
+<li><p>verbose (bool): Print training and evaluation progress.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. All outputs (trained models, predictions, settings) are saved to disk.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.model_knowledge_transfer">

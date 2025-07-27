@@ -13,7 +13,70 @@ Module Contents
 
 .. py:function:: apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10)
 
+   Apply a trained binary classification model to a folder of images.
+
+   Loads a PyTorch model and applies it to images in the specified folder using batch inference.
+   Supports optional normalization and GPU acceleration. Outputs prediction probabilities and
+   saves results as a CSV file alongside the model.
+
+   :param src: Path to a folder containing input images (e.g., PNG, JPG).
+   :type src: str
+   :param model_path: Path to a trained PyTorch model file (.pt or .pth).
+   :type model_path: str
+   :param image_size: Size to center-crop input images to. Default is 224.
+   :type image_size: int, optional
+   :param batch_size: Number of images to process per batch. Default is 64.
+   :type batch_size: int, optional
+   :param normalize: If True, normalize images to [-1, 1] using ImageNet-style transform. Default is True.
+   :type normalize: bool, optional
+   :param n_jobs: Number of subprocesses to use for data loading. Default is 10.
+   :type n_jobs: int, optional
+
+   :returns:
+
+             A DataFrame with two columns:
+                 - "path": Filenames of processed images.
+                 - "pred": Model output probabilities (sigmoid of logits).
+   :rtype: pandas.DataFrame
+
+   Saves:
+       A CSV file named like <model_path><YYMMDD>_<ext>_test_result.csv, containing the prediction results.
+
+   .. rubric:: Notes
+
+   - Uses GPU if available, otherwise runs on CPU.
+   - Assumes model outputs raw logits for binary classification (sigmoid is applied).
+   - The input folder must contain only images readable by `PIL.Image.open`.
+
+
 .. py:function:: apply_model_to_tar(settings={})
+
+   Apply a trained model to images stored inside a tar archive.
+
+   Loads a model and applies it to images within a `.tar` archive using batch inference. Results are
+   filtered by a probability threshold and saved to a CSV. Supports GPU acceleration and normalization.
+
+   :param settings: Dictionary with the following keys:
+                    - tar_path (str): Path to the tar archive with input images.
+                    - model_path (str): Path to the trained PyTorch model (.pt/.pth).
+                    - image_size (int): Center crop size for input images. Default is 224.
+                    - batch_size (int): Batch size for DataLoader. Default is 64.
+                    - normalize (bool): Apply normalization to [-1, 1]. Default is True.
+                    - n_jobs (int): Number of workers for data loading. Default is system CPU count - 4.
+                    - verbose (bool): If True, print progress and model details.
+                    - score_threshold (float): Probability threshold for positive classification (used in result filtering).
+   :type settings: dict
+
+   :returns:
+
+             DataFrame with:
+                 - "path": Filenames inside the tar archive.
+                 - "pred": Model prediction scores (sigmoid output).
+   :rtype: pandas.DataFrame
+
+   Saves:
+       A CSV file with prediction results to the same directory as the tar file.
+
 
 .. py:function:: evaluate_model_performance(model, loader, epoch, loss_type)
 
@@ -132,6 +195,77 @@ Module Contents
 .. py:function:: visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1, 2, 3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad')
 
 .. py:function:: deep_spacr(settings={})
+
+   Run deep learning-based classification workflow on microscopy data using SpaCr.
+
+   This function handles dataset generation, model training, and inference using a trained model on tar-archived image datasets.
+   Settings are filled using `deep_spacr_defaults`.
+
+   :param settings: Dictionary of settings with the following keys:
+
+                    General:
+                        - src (str): Path to the input dataset.
+                        - dataset (str): Path to a dataset archive.
+                        - dataset_mode (str): Dataset generation mode. Typically 'metadata'.
+                        - file_type (str): Type of input files (e.g., 'cell_png').
+                        - file_metadata (str or None): Path to file-level metadata, if available.
+                        - sample (int or None): Limit to N random samples for development/testing.
+                        - experiment (str): Experiment name prefix. Default is 'exp.'.
+
+                    Annotation and class mapping:
+                        - annotation_column (str): Metadata column containing class annotations.
+                        - annotated_classes (list): List of class IDs used for training (e.g., [1, 2]).
+                        - classes (list): Class labels (e.g., ['nc', 'pc']).
+                        - class_metadata (list of lists): Mapping of classes to metadata terms (e.g., [['c1'], ['c2']]).
+                        - metadata_type_by (str): How to interpret metadata structure. Typically 'columnID'.
+
+                    Image processing:
+                        - channel_of_interest (int): Channel index to use for classification.
+                        - png_type (str): Type of image format (e.g., 'cell_png').
+                        - image_size (int): Input size (e.g., 224 for 224x224 crop).
+                        - train_channels (list): Channels to use for training (e.g., ['r', 'g', 'b']).
+                        - normalize (bool): Whether to normalize input images. Default is True.
+                        - augment (bool): Whether to apply data augmentation.
+
+                    Model and training:
+                        - model_type (str): Model architecture (e.g., 'maxvit_t').
+                        - optimizer_type (str): Optimizer (e.g., 'adamw').
+                        - schedule (str): Learning rate scheduler ('reduce_lr_on_plateau' or 'step_lr').
+                        - loss_type (str): Loss function ('focal_loss' or 'binary_cross_entropy_with_logits').
+                        - dropout_rate (float): Dropout probability.
+                        - init_weights (bool): Initialize model with pretrained weights.
+                        - amsgrad (bool): Use AMSGrad variant of AdamW optimizer.
+                        - use_checkpoint (bool): Enable checkpointing.
+                        - intermedeate_save (bool): Save intermediate models during training.
+
+                    Training control:
+                        - train (bool): Enable training phase.
+                        - test (bool): Enable evaluation on test set.
+                        - train_DL_model (bool): Enable deep learning model training.
+                        - generate_training_dataset (bool): Enable generation of train/test splits.
+                        - test_split (float): Proportion of data used for testing.
+                        - val_split (float): Fraction of training set used for validation.
+                        - epochs (int): Number of training epochs.
+                        - batch_size (int): Batch size for training and inference.
+                        - learning_rate (float): Learning rate.
+                        - weight_decay (float): L2 regularization strength.
+                        - gradient_accumulation (bool): Accumulate gradients over multiple steps.
+                        - gradient_accumulation_steps (int): Number of steps per gradient update.
+
+                    Inference:
+                        - apply_model_to_dataset (bool): Run prediction on tar dataset.
+                        - tar_path (str): Path to tar file for inference input.
+                        - model_path (str): Path to trained model file.
+                        - score_threshold (float): Probability threshold for binary classification.
+
+                    Execution:
+                        - n_jobs (int): Number of parallel workers.
+                        - pin_memory (bool): Whether to use pinned memory in DataLoader.
+                        - verbose (bool): Print training and evaluation progress.
+   :type settings: dict
+
+   :returns: None. All outputs (trained models, predictions, settings) are saved to disk.
+
 
 .. py:function:: model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=0.0001, epochs=10)
 

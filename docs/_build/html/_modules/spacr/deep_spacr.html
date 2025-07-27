@@ -123,7 +123,34 @@
 <div class="viewcode-block" id="apply_model">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.apply_model">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_model</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a trained binary classification model to a folder of images.</span>
+
+<span class="sd">    Loads a PyTorch model and applies it to images in the specified folder using batch inference.</span>
+<span class="sd">    Supports optional normalization and GPU acceleration. Outputs prediction probabilities and</span>
+<span class="sd">    saves results as a CSV file alongside the model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Path to a folder containing input images (e.g., PNG, JPG).</span>
+<span class="sd">        model_path (str): Path to a trained PyTorch model file (.pt or .pth).</span>
+<span class="sd">        image_size (int, optional): Size to center-crop input images to. Default is 224.</span>
+<span class="sd">        batch_size (int, optional): Number of images to process per batch. Default is 64.</span>
+<span class="sd">        normalize (bool, optional): If True, normalize images to [-1, 1] using ImageNet-style transform. Default is True.</span>
+<span class="sd">        n_jobs (int, optional): Number of subprocesses to use for data loading. Default is 10.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: A DataFrame with two columns:</span>
+<span class="sd">            - &quot;path&quot;: Filenames of processed images.</span>
+<span class="sd">            - &quot;pred&quot;: Model output probabilities (sigmoid of logits).</span>
+
+<span class="sd">    Saves:</span>
+<span class="sd">        A CSV file named like &lt;model_path&gt;&lt;YYMMDD&gt;_&lt;ext&gt;_test_result.csv, containing the prediction results.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Uses GPU if available, otherwise runs on CPU.</span>
+<span class="sd">        - Assumes model outputs raw logits for binary classification (sigmoid is applied).</span>
+<span class="sd">        - The input folder must contain only images readable by `PIL.Image.open`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">NoClassDataset</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span>
     
@@ -181,7 +208,31 @@
 <div class="viewcode-block" id="apply_model_to_tar">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.apply_model_to_tar">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_model_to_tar</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a trained model to images stored inside a tar archive.</span>
+
+<span class="sd">    Loads a model and applies it to images within a `.tar` archive using batch inference. Results are</span>
+<span class="sd">    filtered by a probability threshold and saved to a CSV. Supports GPU acceleration and normalization.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary with the following keys:</span>
+<span class="sd">            - tar_path (str): Path to the tar archive with input images.</span>
+<span class="sd">            - model_path (str): Path to the trained PyTorch model (.pt/.pth).</span>
+<span class="sd">            - image_size (int): Center crop size for input images. Default is 224.</span>
+<span class="sd">            - batch_size (int): Batch size for DataLoader. Default is 64.</span>
+<span class="sd">            - normalize (bool): Apply normalization to [-1, 1]. Default is True.</span>
+<span class="sd">            - n_jobs (int): Number of workers for data loading. Default is system CPU count - 4.</span>
+<span class="sd">            - verbose (bool): If True, print progress and model details.</span>
+<span class="sd">            - score_threshold (float): Probability threshold for positive classification (used in result filtering).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: DataFrame with:</span>
+<span class="sd">            - &quot;path&quot;: Filenames inside the tar archive.</span>
+<span class="sd">            - &quot;pred&quot;: Model prediction scores (sigmoid output).</span>
+
+<span class="sd">    Saves:</span>
+<span class="sd">        A CSV file with prediction results to the same directory as the tar file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">TarImageDataset</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">process_vision_results</span><span class="p">,</span> <span class="n">print_progress</span>
 
@@ -1059,6 +1110,78 @@
 <div class="viewcode-block" id="deep_spacr">
 <a class="viewcode-back" href="../../api/spacr/deep_spacr/index.html#spacr.deep_spacr.deep_spacr">[docs]</a>
 <span class="k">def</span> <span class="nf">deep_spacr</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run deep learning-based classification workflow on microscopy data using SpaCr.</span>
+
+<span class="sd">    This function handles dataset generation, model training, and inference using a trained model on tar-archived image datasets. </span>
+<span class="sd">    Settings are filled using `deep_spacr_defaults`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary of settings with the following keys:</span>
+
+<span class="sd">            General:</span>
+<span class="sd">                - src (str): Path to the input dataset.</span>
+<span class="sd">                - dataset (str): Path to a dataset archive.</span>
+<span class="sd">                - dataset_mode (str): Dataset generation mode. Typically &#39;metadata&#39;.</span>
+<span class="sd">                - file_type (str): Type of input files (e.g., &#39;cell_png&#39;).</span>
+<span class="sd">                - file_metadata (str or None): Path to file-level metadata, if available.</span>
+<span class="sd">                - sample (int or None): Limit to N random samples for development/testing.</span>
+<span class="sd">                - experiment (str): Experiment name prefix. Default is &#39;exp.&#39;.</span>
+
+<span class="sd">            Annotation and class mapping:</span>
+<span class="sd">                - annotation_column (str): Metadata column containing class annotations.</span>
+<span class="sd">                - annotated_classes (list): List of class IDs used for training (e.g., [1, 2]).</span>
+<span class="sd">                - classes (list): Class labels (e.g., [&#39;nc&#39;, &#39;pc&#39;]).</span>
+<span class="sd">                - class_metadata (list of lists): Mapping of classes to metadata terms (e.g., [[&#39;c1&#39;], [&#39;c2&#39;]]).</span>
+<span class="sd">                - metadata_type_by (str): How to interpret metadata structure. Typically &#39;columnID&#39;.</span>
+
+<span class="sd">            Image processing:</span>
+<span class="sd">                - channel_of_interest (int): Channel index to use for classification.</span>
+<span class="sd">                - png_type (str): Type of image format (e.g., &#39;cell_png&#39;).</span>
+<span class="sd">                - image_size (int): Input size (e.g., 224 for 224x224 crop).</span>
+<span class="sd">                - train_channels (list): Channels to use for training (e.g., [&#39;r&#39;, &#39;g&#39;, &#39;b&#39;]).</span>
+<span class="sd">                - normalize (bool): Whether to normalize input images. Default is True.</span>
+<span class="sd">                - augment (bool): Whether to apply data augmentation.</span>
+
+<span class="sd">            Model and training:</span>
+<span class="sd">                - model_type (str): Model architecture (e.g., &#39;maxvit_t&#39;).</span>
+<span class="sd">                - optimizer_type (str): Optimizer (e.g., &#39;adamw&#39;).</span>
+<span class="sd">                - schedule (str): Learning rate scheduler (&#39;reduce_lr_on_plateau&#39; or &#39;step_lr&#39;).</span>
+<span class="sd">                - loss_type (str): Loss function (&#39;focal_loss&#39; or &#39;binary_cross_entropy_with_logits&#39;).</span>
+<span class="sd">                - dropout_rate (float): Dropout probability.</span>
+<span class="sd">                - init_weights (bool): Initialize model with pretrained weights.</span>
+<span class="sd">                - amsgrad (bool): Use AMSGrad variant of AdamW optimizer.</span>
+<span class="sd">                - use_checkpoint (bool): Enable checkpointing.</span>
+<span class="sd">                - intermedeate_save (bool): Save intermediate models during training.</span>
+
+<span class="sd">            Training control:</span>
+<span class="sd">                - train (bool): Enable training phase.</span>
+<span class="sd">                - test (bool): Enable evaluation on test set.</span>
+<span class="sd">                - train_DL_model (bool): Enable deep learning model training.</span>
+<span class="sd">                - generate_training_dataset (bool): Enable generation of train/test splits.</span>
+<span class="sd">                - test_split (float): Proportion of data used for testing.</span>
+<span class="sd">                - val_split (float): Fraction of training set used for validation.</span>
+<span class="sd">                - epochs (int): Number of training epochs.</span>
+<span class="sd">                - batch_size (int): Batch size for training and inference.</span>
+<span class="sd">                - learning_rate (float): Learning rate.</span>
+<span class="sd">                - weight_decay (float): L2 regularization strength.</span>
+<span class="sd">                - gradient_accumulation (bool): Accumulate gradients over multiple steps.</span>
+<span class="sd">                - gradient_accumulation_steps (int): Number of steps per gradient update.</span>
+
+<span class="sd">            Inference:</span>
+<span class="sd">                - apply_model_to_dataset (bool): Run prediction on tar dataset.</span>
+<span class="sd">                - tar_path (str): Path to tar file for inference input.</span>
+<span class="sd">                - model_path (str): Path to trained model file.</span>
+<span class="sd">                - score_threshold (float): Probability threshold for binary classification.</span>
+
+<span class="sd">            Execution:</span>
+<span class="sd">                - n_jobs (int): Number of parallel workers.</span>
+<span class="sd">                - pin_memory (bool): Whether to use pinned memory in DataLoader.</span>
+<span class="sd">                - verbose (bool): Print training and evaluation progress.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. All outputs (trained models, predictions, settings) are saved to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">deep_spacr_defaults</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">generate_training_dataset</span><span class="p">,</span> <span class="n">generate_dataset</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span>
