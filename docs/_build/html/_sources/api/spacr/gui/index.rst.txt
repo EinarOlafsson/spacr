@@ -16,15 +16,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Tk`
 
 
-   The main graphical user interface (GUI) window for launching various SpaCr modules.
-
-   This class creates a full-screen, themed Tkinter application with buttons to launch
-   sub-GUIs for image mask generation, measurement, classification, and advanced analysis
-   tools like regression, barcode mapping, and model activation visualization.
-
-   :param default_app: If specified, directly launches the corresponding application view.
-                       Should match a key in `main_gui_apps` or `additional_gui_apps`.
-   :type default_app: str, optional
+   Return a new Toplevel widget on screen SCREENNAME. A new Tcl interpreter will
+   be created. BASENAME will be used for the identification of the profile file (see
+   readprofile).
+   It is constructed from sys.argv[0] without extensions if None is given. CLASSNAME
+   is the name of the widget class.
 
 
    .. py:attribute:: color_settings

@@ -281,6 +281,9 @@ Module Contents
 
 .. py:class:: spacrGraph(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, log_y=False, log_x=False, error_bar_type='std', remove_outliers=False, theme='pastel', representation='object', paired=False, all_to_all=True, compare_group=None, graph_name=None)
 
+   Class for creating grouped plots with optional statistical tests and data preprocessing.
+
+
    .. py:attribute:: df
 
 

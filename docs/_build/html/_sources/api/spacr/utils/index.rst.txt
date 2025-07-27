@@ -161,10 +161,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Scaled Dot-Product Attention module.
-
-   :param d_k: The dimension of the key and query vectors.
-   :type d_k: int
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: d_k
@@ -191,12 +188,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Self-Attention module that applies scaled dot-product attention mechanism.
-
-   :param in_channels: Number of input channels.
-   :type in_channels: int
-   :param d_k: Dimensionality of the key and query vectors.
-   :type d_k: int
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: W_q
@@ -228,36 +220,10 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
+   Initializes the ScaledDotProductAttention module.
 
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   :param d_k: The dimension of the key and query vectors.
+   :type d_k: int
 
 
    .. py:attribute:: d_k
@@ -284,12 +250,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Self-Attention module that applies scaled dot-product attention mechanism.
-
-   :param in_channels: Number of input channels.
-   :type in_channels: int
-   :param d_k: Dimensionality of the key and query vectors.
-   :type d_k: int
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: W_q
@@ -321,10 +282,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Early Fusion module for image classification.
-
-   :param in_channels: Number of input channels.
-   :type in_channels: int
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: conv1
@@ -347,36 +305,10 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
+   Initializes the SpatialAttention module.
 
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   :param kernel_size: The size of the convolutional kernel. Default is 7.
+   :type kernel_size: int
 
 
    .. py:attribute:: conv1
@@ -402,36 +334,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
-
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: dilated_conv1
@@ -451,36 +354,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
-
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: early_fusion
@@ -506,36 +380,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
-
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: model_name
@@ -595,36 +440,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
-
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:attribute:: alpha
@@ -645,36 +461,7 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
-
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
+   Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
 
    .. py:method:: initialize_base(base_model_dict, dropout_rate, use_checkpoint, init_weights)

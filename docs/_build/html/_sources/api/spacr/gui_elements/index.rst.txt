@@ -91,6 +91,14 @@ Module Contents
 
 .. py:class:: spacrFont(font_name, font_style, font_size=12)
 
+   Initializes the FontLoader class.
+
+   Parameters:
+   - font_name: str, the name of the font (e.g., 'OpenSans').
+   - font_style: str, the style of the font (e.g., 'Regular', 'Bold').
+   - font_size: int, the size of the font (default: 12).
+
+
    .. py:attribute:: font_name
 
 
@@ -141,15 +149,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   A custom container widget that manages multiple resizable panes arranged
-   either vertically or horizontally, separated by draggable sashes.
+   Construct a frame widget with the parent MASTER.
 
-   :param parent: The parent widget.
-   :type parent: tk.Widget
-   :param orient: Orientation of the layout ('tk.VERTICAL' or 'tk.HORIZONTAL'). Default is vertical.
-   :type orient: str
-   :param bg: Background color of the container and sashes. Defaults to 'lightgrey'.
-   :type bg: str
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: orient
@@ -206,7 +210,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: bg_color
@@ -264,7 +272,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: bg_color
@@ -319,7 +331,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: bg_color
@@ -407,7 +423,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: variable
@@ -512,7 +532,16 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Checkbutton`
 
 
-   Ttk Checkbutton widget which is either in on- or off-state.
+   Construct a Ttk Checkbutton widget with the parent master.
+
+   STANDARD OPTIONS
+
+       class, compound, cursor, image, state, style, takefocus,
+       text, textvariable, underline, width
+
+   WIDGET-SPECIFIC OPTIONS
+
+       command, offvalue, onvalue, variable
 
 
    .. py:attribute:: text
@@ -533,11 +562,15 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Progressbar`
 
 
-   Ttk Progressbar widget shows the status of a long-running
-   operation. They can operate in two modes: determinate mode shows the
-   amount completed relative to the total amount of work to be done, and
-   indeterminate mode provides an animated display to let the user know
-   that something is happening.
+   Construct a Ttk Progressbar with parent master.
+
+   STANDARD OPTIONS
+
+       class, cursor, style, takefocus
+
+   WIDGET-SPECIFIC OPTIONS
+
+       orient, length, mode, maximum, value, variable, phase
 
 
    .. py:attribute:: fg_color
@@ -597,7 +630,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: specified_length
@@ -742,8 +779,15 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Frame`
 
 
-   Ttk Frame widget is a container, used to group other widgets
-   together.
+   Construct a Ttk Frame with parent master.
+
+   STANDARD OPTIONS
+
+       class, cursor, style, takefocus
+
+   WIDGET-SPECIFIC OPTIONS
+
+       borderwidth, relief, padding, width, height
 
 
    .. py:attribute:: inactive_color
@@ -769,7 +813,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: text
@@ -819,7 +867,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Construct a frame widget with the parent MASTER.
+
+   Valid resource names: background, bd, bg, borderwidth, class,
+   colormap, container, cursor, height, highlightbackground,
+   highlightcolor, highlightthickness, relief, takefocus, visual, width.
 
 
    .. py:attribute:: text
@@ -928,8 +980,15 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Frame`
 
 
-   Ttk Frame widget is a container, used to group other widgets
-   together.
+   Construct a Ttk Frame with parent master.
+
+   STANDARD OPTIONS
+
+       class, cursor, style, takefocus
+
+   WIDGET-SPECIFIC OPTIONS
+
+       borderwidth, relief, padding, width, height
 
 
    .. py:attribute:: text

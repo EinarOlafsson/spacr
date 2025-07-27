@@ -211,7 +211,12 @@ based on the current screen size.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFont">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrFont</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">font_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_style</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFont"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFont" title="Link to this definition"></a></dt>
-<dd><dl class="py attribute">
+<dd><p>Initializes the FontLoader class.</p>
+<p>Parameters:
+- font_name: str, the name of the font (e.g., ‘OpenSans’).
+- font_style: str, the style of the font (e.g., ‘Regular’, ‘Bold’).
+- font_size: int, the size of the font (default: 12).</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFont.font_name">
 <span class="sig-name descname"><span class="pre">font_name</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFont.font_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFont.font_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -264,17 +269,10 @@ based on the current screen size.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrContainer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrContainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">tk.VERTICAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrContainer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>A custom container widget that manages multiple resizable panes arranged
-either vertically or horizontally, separated by draggable sashes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>parent</strong> (<em>tk.Widget</em>) – The parent widget.</p></li>
-<li><p><strong>orient</strong> (<em>str</em>) – Orientation of the layout (‘tk.VERTICAL’ or ‘tk.HORIZONTAL’). Default is vertical.</p></li>
-<li><p><strong>bg</strong> (<em>str</em>) – Background color of the container and sashes. Defaults to ‘lightgrey’.</p></li>
-</ul>
-</dd>
-</dl>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrContainer.orient">
 <span class="sig-name descname"><span class="pre">orient</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'vertical'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrContainer.orient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrContainer.orient" title="Link to this definition"></a></dt>
@@ -346,7 +344,10 @@ either vertically or horizontally, separated by draggable sashes.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrEntry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textvariable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrEntry" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrEntry.bg_color">
 <span class="sig-name descname"><span class="pre">bg_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dark_gray'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrEntry.bg_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrEntry.bg_color" title="Link to this definition"></a></dt>
@@ -413,7 +414,10 @@ either vertically or horizontally, separated by draggable sashes.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrCheck">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrCheck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrCheck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrCheck" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrCheck.bg_color">
 <span class="sig-name descname"><span class="pre">bg_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'black'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrCheck.bg_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrCheck.bg_color" title="Link to this definition"></a></dt>
@@ -475,7 +479,10 @@ either vertically or horizontally, separated by draggable sashes.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrCombo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrCombo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textvariable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrCombo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrCombo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrCombo.bg_color">
 <span class="sig-name descname"><span class="pre">bg_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'black'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrCombo.bg_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrCombo.bg_color" title="Link to this definition"></a></dt>
@@ -582,7 +589,10 @@ either vertically or horizontally, separated by draggable sashes.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrDropdownMenu">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrDropdownMenu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrDropdownMenu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrDropdownMenu" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrDropdownMenu.variable">
 <span class="sig-name descname"><span class="pre">variable</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrDropdownMenu.variable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrDropdownMenu.variable" title="Link to this definition"></a></dt>
@@ -714,7 +724,16 @@ either vertically or horizontally, separated by draggable sashes.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrCheckbutton">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrCheckbutton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrCheckbutton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrCheckbutton" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.ttk.Checkbutton</span></code></p>
-<p>Ttk Checkbutton widget which is either in on- or off-state.</p>
+<p>Construct a Ttk Checkbutton widget with the parent master.</p>
+<p>STANDARD OPTIONS</p>
+<blockquote>
+<div><p>class, compound, cursor, image, state, style, takefocus,
+text, textvariable, underline, width</p>
+</div></blockquote>
+<p>WIDGET-SPECIFIC OPTIONS</p>
+<blockquote>
+<div><p>command, offvalue, onvalue, variable</p>
+</div></blockquote>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrCheckbutton.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrCheckbutton.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrCheckbutton.text" title="Link to this definition"></a></dt>
@@ -736,11 +755,15 @@ either vertically or horizontally, separated by draggable sashes.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrProgressBar">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrProgressBar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrProgressBar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrProgressBar" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.ttk.Progressbar</span></code></p>
-<p>Ttk Progressbar widget shows the status of a long-running
-operation. They can operate in two modes: determinate mode shows the
-amount completed relative to the total amount of work to be done, and
-indeterminate mode provides an animated display to let the user know
-that something is happening.</p>
+<p>Construct a Ttk Progressbar with parent master.</p>
+<p>STANDARD OPTIONS</p>
+<blockquote>
+<div><p>class, cursor, style, takefocus</p>
+</div></blockquote>
+<p>WIDGET-SPECIFIC OPTIONS</p>
+<blockquote>
+<div><p>orient, length, mode, maximum, value, variable, phase</p>
+</div></blockquote>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrProgressBar.fg_color">
 <span class="sig-name descname"><span class="pre">fg_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'white'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrProgressBar.fg_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrProgressBar.fg_color" title="Link to this definition"></a></dt>
@@ -807,7 +830,10 @@ that something is happening.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSlider">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrSlider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knob_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'center'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSlider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSlider" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSlider.specified_length">
 <span class="sig-name descname"><span class="pre">specified_length</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSlider.specified_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSlider.specified_length" title="Link to this definition"></a></dt>
@@ -976,8 +1002,15 @@ that something is happening.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFrame">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFrame" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.ttk.Frame</span></code></p>
-<p>Ttk Frame widget is a container, used to group other widgets
-together.</p>
+<p>Construct a Ttk Frame with parent master.</p>
+<p>STANDARD OPTIONS</p>
+<blockquote>
+<div><p>class, cursor, style, takefocus</p>
+</div></blockquote>
+<p>WIDGET-SPECIFIC OPTIONS</p>
+<blockquote>
+<div><p>borderwidth, relief, padding, width, height</p>
+</div></blockquote>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFrame.inactive_color">
 <span class="sig-name descname"><span class="pre">inactive_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dark_gray'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFrame.inactive_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFrame.inactive_color" title="Link to this definition"></a></dt>
@@ -1004,7 +1037,10 @@ together.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrLabel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrLabel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrLabel.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrLabel.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrLabel.text" title="Link to this definition"></a></dt>
@@ -1061,7 +1097,10 @@ together.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrButton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icon_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.text" title="Link to this definition"></a></dt>
@@ -1193,8 +1232,15 @@ together.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrSwitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.ttk.Frame</span></code></p>
-<p>Ttk Frame widget is a container, used to group other widgets
-together.</p>
+<p>Construct a Ttk Frame with parent master.</p>
+<p>STANDARD OPTIONS</p>
+<blockquote>
+<div><p>class, cursor, style, takefocus</p>
+</div></blockquote>
+<p>WIDGET-SPECIFIC OPTIONS</p>
+<blockquote>
+<div><p>borderwidth, relief, padding, width, height</p>
+</div></blockquote>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.text" title="Link to this definition"></a></dt>

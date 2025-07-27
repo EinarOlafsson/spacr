@@ -180,27 +180,7 @@ Module Contents
    Bases: :py:obj:`io.TextIOBase`
 
 
-   A custom text stream that writes messages to a queue.
-
-   This class is useful for redirecting text output (e.g., from `print` statements)
-   to a thread-safe queue, which can then be processed elsewhere.
-
-   .. attribute:: q
-
-      The queue where messages will be written.
-
-      :type: queue.Queue
-
-   .. method:: write(msg
-
-      str) -> None:
-      Writes a non-empty message to the queue.
-
-   .. method:: flush() -> None
-
-      
-      No-op method to comply with the TextIOBase interface.
-      
+   Initialize self.  See help(type(self)) for accurate signature.
 
 
    .. py:attribute:: q
@@ -299,7 +279,18 @@ Module Contents
 
 .. py:function:: spacrFigShow(fig_queue=None)
 
-   Replacement for plt.show() that queues figures instead of displaying them.
+   Displays the current matplotlib figure or adds it to a queue.
+
+   This function retrieves the current matplotlib figure using `plt.gcf()`.
+   If a `fig_queue` is provided, the figure is added to the queue.
+   Otherwise, the figure is displayed using the `show()` method.
+   After the figure is either queued or displayed, it is closed using `plt.close()`.
+
+   :param fig_queue: A queue to store the figure.
+                     If None, the figure is displayed instead.
+   :type fig_queue: queue.Queue, optional
+
+   :returns: None
 
 
 .. py:function:: function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imports=1)

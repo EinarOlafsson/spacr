@@ -116,16 +116,11 @@
 <dt class="sig sig-object py" id="spacr.gui.MainApp">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui.</span></span><span class="sig-name descname"><span class="pre">MainApp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_app</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Tk</span></code></p>
-<p>The main graphical user interface (GUI) window for launching various SpaCr modules.</p>
-<p>This class creates a full-screen, themed Tkinter application with buttons to launch
-sub-GUIs for image mask generation, measurement, classification, and advanced analysis
-tools like regression, barcode mapping, and model activation visualization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>default_app</strong> (<em>str</em><em>, </em><em>optional</em>) – If specified, directly launches the corresponding application view.
-Should match a key in <cite>main_gui_apps</cite> or <cite>additional_gui_apps</cite>.</p>
-</dd>
-</dl>
+<p>Return a new Toplevel widget on screen SCREENNAME. A new Tcl interpreter will
+be created. BASENAME will be used for the identification of the profile file (see
+readprofile).
+It is constructed from sys.argv[0] without extensions if None is given. CLASSNAME
+is the name of the widget class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui.MainApp.color_settings">
 <span class="sig-name descname"><span class="pre">color_settings</span></span><a class="reference internal" href="../../../_modules/spacr/gui.html#MainApp.color_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui.MainApp.color_settings" title="Link to this definition"></a></dt>

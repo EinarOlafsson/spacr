@@ -37,7 +37,7 @@ autoapi_options = [
     'show-inheritance',
     'special-members',
 ]
-autoapi_python_class_content = 'class'  # Only show class-level docs, skip module variables
+autoapi_python_class_content = 'init'  # Only show class-level docs, skip module variables
 autoapi_ignore             = ['*/tests/*']
 
 # -- Options for HTML output -------------------------------------------------

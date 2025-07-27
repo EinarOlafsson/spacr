@@ -619,7 +619,19 @@
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.spacrFigShow">[docs]</a>
 <span class="k">def</span> <span class="nf">spacrFigShow</span><span class="p">(</span><span class="n">fig_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Replacement for plt.show() that queues figures instead of displaying them.</span>
+<span class="sd">    Displays the current matplotlib figure or adds it to a queue.</span>
+
+<span class="sd">    This function retrieves the current matplotlib figure using `plt.gcf()`. </span>
+<span class="sd">    If a `fig_queue` is provided, the figure is added to the queue. </span>
+<span class="sd">    Otherwise, the figure is displayed using the `show()` method. </span>
+<span class="sd">    After the figure is either queued or displayed, it is closed using `plt.close()`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fig_queue (queue.Queue, optional): A queue to store the figure. </span>
+<span class="sd">                                           If None, the figure is displayed instead.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">fig_queue</span><span class="p">:</span>
