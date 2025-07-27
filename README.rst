@@ -69,6 +69,31 @@ If using Windows, switch to Linux—it's free, open-source, and better.
 **Linux GUI requirement:**  
 SpaCr GUI requires Tkinter.  **b.** Downstream submodules available for extended analyses at each stage.
 
+**Install stable version (main):**
+
+::
+
+   pip install spacr
+
+**Install nightly version:**
+
+::
+
+   pip install spacr-nightly
+
+**Launch GUI (stable):**
+
+::
+
+   spacr
+
+**Launch GUI (nightly):**
+
+::
+
+   spacrn
+
+
 
 Example Notebooks
 -----------------
