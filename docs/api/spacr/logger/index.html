@@ -114,7 +114,25 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.logger.configure_logger">
 <span class="sig-prename descclassname"><span class="pre">spacr.logger.</span></span><span class="sig-name descname"><span class="pre">configure_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spacr.log'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/logger.html#configure_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.logger.configure_logger" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Configure the global logging system to log INFO-level messages to a file.</p>
+<p>This function sets up logging to write messages to a file located in the user’s
+home directory. The log format includes timestamp, module name, log level, and message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_file_name</strong> (<em>str</em>) – Name of the log file. The file will be saved in the user’s
+home directory. Default is ‘spacr.log’.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">configure_logger</span><span class="p">()</span>
+<span class="go"># Logs will be saved to ~/spacr.log</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">configure_logger</span><span class="p">(</span><span class="s1">&#39;custom.log&#39;</span><span class="p">)</span>
+<span class="go"># Logs will be saved to ~/custom.log</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="spacr.logger.logger">
@@ -124,7 +142,33 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.logger.log_function_call">
 <span class="sig-prename descclassname"><span class="pre">spacr.logger.</span></span><span class="sig-name descname"><span class="pre">log_function_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/logger.html#log_function_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.logger.log_function_call" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Decorator that logs the function call, its arguments, return value, and any exceptions.</p>
+<dl class="simple">
+<dt>Logs:</dt><dd><ul class="simple">
+<li><p>Function name and arguments on call</p></li>
+<li><p>Return value on successful completion</p></li>
+<li><p>Exception traceback if an error is raised</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – The target function to decorate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The wrapped function with logging enabled.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>&#64;log_function_call
+def multiply(a, b):</p>
+<blockquote>
+<div><p>return a * b</p>
+</div></blockquote>
+</dd></dl>
 
 </section>
 </section>

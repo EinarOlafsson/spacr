@@ -19,15 +19,75 @@ Module Contents
 
 .. py:function:: restart_gui_app(root)
 
-   Restarts the GUI application by destroying the current instance
-   and launching a fresh one.
+   Restarts the SpaCr GUI application by destroying the current root window
+   and launching a fresh instance.
+
+   :param root: The current Tkinter root window to be destroyed.
+   :type root: tk.Tk
+
+   .. note:: The new instance is launched by importing and invoking `gui_app()`.
 
 
 .. py:function:: create_menu_bar(root)
 
+   Creates a top-level menu bar for the SpaCr GUI containing shortcuts to all
+   major application modules and help resources.
+
+   :param root: The root window where the menu bar will be attached.
+   :type root: tk.Tk
+
+   Adds:
+       - A 'SpaCr Applications' menu with links to:
+         'Mask', 'Measure', 'Classify', 'ML Analyze', 'Map Barcodes',
+         'Regression', 'Activation', and 'Recruitment'.
+       - A Help option linking to the online documentation.
+       - An Exit option to quit the application.
+
+
 .. py:function:: set_element_size()
 
+   Calculates and returns standardized UI element dimensions
+   based on the current screen size.
+
+   :returns:
+
+             A dictionary with element dimensions including:
+                 - 'btn_size' (int): Size of buttons.
+                 - 'bar_size' (int): Height of progress bars.
+                 - 'settings_width' (int): Width of the settings panel.
+                 - 'panel_width' (int): Width of the plotting panel.
+                 - 'panel_height' (int): Height of the bottom control panel.
+   :rtype: dict
+
+
 .. py:function:: set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family='OpenSans', font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray')
+
+   Applies a dark theme to the SpaCr GUI using the provided styling options.
+
+   :param style: The ttk style instance to configure.
+   :type style: ttk.Style
+   :param parent_frame: The top-level container to apply styles to.
+   :type parent_frame: tk.Widget, optional
+   :param containers: Additional containers (ttk.Frame or tk.Frame) to style.
+   :type containers: list, optional
+   :param widgets: List of individual widgets to apply colors and fonts.
+   :type widgets: list, optional
+   :param font_family: Font family for all labels and buttons.
+   :type font_family: str
+   :param font_size: Font size for all text elements.
+   :type font_size: int
+   :param bg_color: Background color.
+   :type bg_color: str
+   :param fg_color: Foreground/text color.
+   :type fg_color: str
+   :param active_color: Highlight or selected color.
+   :type active_color: str
+   :param inactive_color: Secondary background color.
+   :type inactive_color: str
+
+   :returns: Style parameters used, including resolved font and color values.
+   :rtype: dict
+
 
 .. py:class:: spacrFont(font_name, font_style, font_size=12)
 
@@ -81,7 +141,15 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom container widget that manages multiple resizable panes arranged
+   either vertically or horizontally, separated by draggable sashes.
+
+   :param parent: The parent widget.
+   :type parent: tk.Widget
+   :param orient: Orientation of the layout ('tk.VERTICAL' or 'tk.HORIZONTAL'). Default is vertical.
+   :type orient: str
+   :param bg: Background color of the container and sashes. Defaults to 'lightgrey'.
+   :type bg: str
 
 
    .. py:attribute:: orient

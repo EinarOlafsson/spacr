@@ -673,9 +673,32 @@
 
 <span class="k">def</span> <span class="nf">_measure_intensity_distance</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">nucleus_mask</span><span class="p">,</span> <span class="n">pathogen_mask</span><span class="p">,</span> <span class="n">channel_arrays</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute Gaussian-smoothed intensity-weighted centroid distances for each cell object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Measure the distance from the intensity-weighted center of mass (COM) of each cell to the nucleus and pathogen.</span>
 
+<span class="sd">    For each labeled cell in the `cell_mask`, the function computes:</span>
+<span class="sd">      - A Gaussian-blurred version of each channel in `channel_arrays`</span>
+<span class="sd">      - The center of mass (COM) of intensity within the cell</span>
+<span class="sd">      - The Euclidean distance from the COM to the nearest nucleus and pathogen pixels</span>
+<span class="sd">    The distances are calculated using distance transforms of the inverse masks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cell_mask (ndarray): 2D array with labeled cells (0 = background, 1..N = cell labels).</span>
+<span class="sd">        nucleus_mask (ndarray): 2D binary mask (non-zero = nucleus pixels).</span>
+<span class="sd">        pathogen_mask (ndarray): 2D binary mask (non-zero = pathogen pixels).</span>
+<span class="sd">        channel_arrays (ndarray): 3D array (H, W, C) of image intensities.</span>
+<span class="sd">        settings (dict): Dictionary containing configuration. Expected key:</span>
+<span class="sd">            - &#39;distance_gaussian_sigma&#39; (float): Sigma for Gaussian blur (default: 1.0).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: DataFrame with one row per cell and columns:</span>
+<span class="sd">            - &#39;label&#39;: Cell label</span>
+<span class="sd">            - &#39;cell_channel_X_distance_to_nucleus&#39;: Distance from cell COM in channel X to nucleus</span>
+<span class="sd">            - &#39;cell_channel_X_distance_to_pathogen&#39;: Distance from cell COM in channel X to pathogen</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If the COM is outside image bounds or undefined, NaNs are returned.</span>
+<span class="sd">        - Multiple channels are supported and processed independently.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;distance_gaussian_sigma&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="n">cell_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span>
     <span class="n">cell_labels</span> <span class="o">=</span> <span class="n">cell_labels</span><span class="p">[</span><span class="n">cell_labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
@@ -911,25 +934,58 @@
 
 <span class="c1">#@log_function_call</span>
 <span class="k">def</span> <span class="nf">_measure_crop_core</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">time_ls</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Measure and crop the images based on specified settings.</span>
+<span class="sd">    Core function for processing a single `.npy` image file containing multichannel image data and object masks.</span>
+<span class="sd">    Performs filtering, mask refinement, measurement extraction, image cropping, and optional saving of</span>
+<span class="sd">    processed masks, PNGs, and cropped arrays.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    - index: int</span>
-<span class="sd">        The index of the image.</span>
-<span class="sd">    - time_ls: list</span>
-<span class="sd">        The list of time points.</span>
-<span class="sd">    - file: str</span>
-<span class="sd">        The file path of the image.</span>
-<span class="sd">    - settings: dict</span>
-<span class="sd">        The dictionary containing the settings for measurement and cropping.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        index (int): Index of the image being processed (used for tracking).</span>
+<span class="sd">        time_ls (list): List used to record processing duration per file for average timing.</span>
+<span class="sd">        file (str): Filename of the `.npy` stack to process (must exist in `settings[&#39;src&#39;]`).</span>
+<span class="sd">        settings (dict): Dictionary of processing options as defined in `get_measure_crop_settings()`. Key options include:</span>
+
+<span class="sd">            - src (str): Source folder containing `.npy` files.</span>
+<span class="sd">            - experiment (str): Experiment name for saving to database.</span>
+<span class="sd">            - verbose (bool): If True, print conversion and processing info.</span>
+<span class="sd">            - plot (bool): If True, generate matplotlib figures and return them.</span>
+<span class="sd">            - channels (list[int]): List of channel indices to extract for measurements.</span>
+<span class="sd">            - cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim (int or None): Indices for masks.</span>
+<span class="sd">            - cytoplasm (bool): If True, generate and process cytoplasm masks.</span>
+<span class="sd">            - uninfected (bool): If True, include only uninfected cells.</span>
+<span class="sd">            - *_min_size (int): Minimum object size in pixels for cell, nucleus, pathogen, cytoplasm.</span>
+<span class="sd">            - save_measurements (bool): If True, compute and save morphology and intensity metrics to database.</span>
+<span class="sd">            - radial_dist, manders_thresholds, homogeneity, homogeneity_distances (various): Parameters for advanced measurements.</span>
+<span class="sd">            - save_png, save_arrays (bool): If True, save PNGs and cropped arrays for each object.</span>
+<span class="sd">            - png_dims (list[int]): Channel indices to use for PNG image generation.</span>
+<span class="sd">            - normalize (list[int] or False): Percentiles for normalization or False to skip.</span>
+<span class="sd">            - normalize_by (str): &#39;png&#39; or &#39;fov&#39; for normalization reference.</span>
+<span class="sd">            - png_size (list or list[list]): Size(s) of cropped PNGs, e.g., [224, 224] or [[224, 224], ...].</span>
+<span class="sd">            - crop_mode (list[str]): Which objects to crop (&#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;, &#39;cytoplasm&#39;).</span>
+<span class="sd">            - dialate_pngs (bool or list[bool]): Whether to dilate cropped region for PNG.</span>
+<span class="sd">            - dialate_png_ratios (float or list[float]): Dilation radius as fraction of diameter.</span>
+<span class="sd">            - use_bounding_box (bool): If True, crop bounding box around each object with padding.</span>
+<span class="sd">            - timelapse (bool): If True, handle relabeling for timelapse data.</span>
+<span class="sd">            - timelapse_objects (str): Which objects to track over time (&#39;cell&#39;, &#39;nucleus&#39;).</span>
+<span class="sd">            - n_jobs (int): Number of parallel jobs.</span>
+<span class="sd">            - test_mode (bool): If True, limit number of images and enable plotting.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - cropped_images: list</span>
-<span class="sd">        A list of cropped images.</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - index (int): Same as input, used for indexing.</span>
+<span class="sd">            - average_time (float): Average time per file across all calls.</span>
+<span class="sd">            - cells (int): Number of cells processed (or 0 if error).</span>
+<span class="sd">            - figs (dict): Dictionary of matplotlib figures, if plotting is enabled.</span>
+<span class="sd">                Keys are labeled with file names and processing stages.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Saves measurement data into SQLite databases using `_merge_and_save_to_database`.</span>
+<span class="sd">        - Supports dilation of PNG crops and flexible normalization strategies.</span>
+<span class="sd">        - Designed for batch use in multiprocessing workflows.</span>
+<span class="sd">        - All intermediate object masks are optionally filtered by size and merged with overlaps.</span>
+<span class="sd">        - Relabeling ensures parent-child consistency when necessary (e.g., nucleus within cells).</span>
+<span class="sd">        - Errors during processing are caught and traceback printed; the image is skipped.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_plot_cropped_arrays</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_merge_overlapping_objects</span><span class="p">,</span> <span class="n">_filter_object</span><span class="p">,</span> <span class="n">_relabel_parent_with_child_labels</span><span class="p">,</span> <span class="n">_exclude_objects</span><span class="p">,</span> <span class="n">normalize_to_dtype</span><span class="p">,</span> <span class="n">filepaths_to_database</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_merge_and_save_to_database</span><span class="p">,</span> <span class="n">_crop_center</span><span class="p">,</span> <span class="n">_find_bounding_box</span><span class="p">,</span> <span class="n">_generate_names</span><span class="p">,</span> <span class="n">_get_percentiles</span>
@@ -1191,17 +1247,60 @@
 <div class="viewcode-block" id="measure_crop">
 <a class="viewcode-back" href="../../api/spacr/measure/index.html#spacr.measure.measure_crop">[docs]</a>
 <span class="k">def</span> <span class="nf">measure_crop</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-<span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Measure the crop of an image based on the provided settings.</span>
+<span class="sd">    Main driver function to process `.npy` image stacks in a given folder or list of folders.</span>
+<span class="sd">    Applies morphological measurements, generates cropped images (PNGs), and saves object-level </span>
+<span class="sd">    metrics and optional visuals using multiprocessing for speed.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        settings (dict): The settings for measuring the crop.</span>
+<span class="sd">        settings (dict): Dictionary of processing parameters. Use `get_measure_crop_settings()` to populate defaults.</span>
+<span class="sd">        Key settings include:</span>
+
+<span class="sd">            - src (str or list[str]): Path(s) to folder(s) containing `.npy` stacks.</span>
+<span class="sd">            - experiment (str): Experiment name to store alongside outputs in the database.</span>
+<span class="sd">            - test_mode (bool): If True, limit number of images and enable plotting.</span>
+<span class="sd">            - verbose (bool): Print processing info.</span>
+<span class="sd">            - channels (list[int]): Channels to use for intensity measurements and PNG generation.</span>
+<span class="sd">            - plot (bool): If True, save figures to memory and optionally to disk.</span>
+<span class="sd">            - n_jobs (int): Number of parallel processes (defaults to CPU count minus 2).</span>
+<span class="sd">            - cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim (int or None): Indices of object masks in the stack.</span>
+<span class="sd">            - cytoplasm (bool): If True, derive cytoplasmic mask.</span>
+<span class="sd">            - *_min_size (int): Minimum pixel size thresholds for object filtering.</span>
+<span class="sd">            - merge_edge_pathogen_cells (bool): If True, merge pathogen/cell masks at edges.</span>
+<span class="sd">            - timelapse (bool): If True, enable temporal relabeling and GIF generation.</span>
+<span class="sd">            - timelapse_objects (str): Which object type to track temporally (&quot;nucleus&quot; or &quot;cell&quot;).</span>
+<span class="sd">            - save_measurements (bool): Save morphology and intensity features to SQLite DB.</span>
+<span class="sd">            - save_png, save_arrays (bool): Save per-object cropped PNGs and/or subarrays.</span>
+<span class="sd">            - png_dims (list[int]): Channel indices to render in PNG.</span>
+<span class="sd">            - png_size (list[int] or list[list[int]]): PNG crop size in pixels (width, height).</span>
+<span class="sd">            - crop_mode (list[str]): Which objects to crop (e.g., [&#39;cell&#39;, &#39;nucleus&#39;]).</span>
+<span class="sd">            - normalize (list[int] or False): Percentiles for intensity normalization or False to skip.</span>
+<span class="sd">            - normalize_by (str): &#39;png&#39; or &#39;fov&#39;—reference frame for normalization.</span>
+<span class="sd">            - dialate_pngs (bool or list[bool]): Whether to dilate PNG masks before cropping.</span>
+<span class="sd">            - dialate_png_ratios (float or list[float]): Dilation factor relative to object size.</span>
+<span class="sd">            - use_bounding_box (bool): Use bounding box rather than minimal crop.</span>
+<span class="sd">            - delete_intermediate (bool): If True, delete original input arrays after processing.</span>
+
+<span class="sd">    Workflow:</span>
+<span class="sd">        - Validates and normalizes input settings.</span>
+<span class="sd">        - Applies multiprocessing to process each `.npy` file using `_measure_crop_core()`.</span>
+<span class="sd">        - Saves measurement outputs (morphology, intensity) to database.</span>
+<span class="sd">        - Generates per-object crops as PNGs or arrays, optionally normalized and resized.</span>
+<span class="sd">        - If `timelapse=True`, generates summary mask GIFs across timepoints.</span>
+<span class="sd">        - Reports progress and CPU usage throughout execution.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        None. Results are written to disk and/or SQLite DBs. Completion is reported via print statements.</span>
 
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: For invalid or missing keys in `settings`.</span>
+<span class="sd">        Warnings are printed to console for most incorrect parameter combinations.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The `settings[&#39;src&#39;]` directory is expected to contain `.npy` files and typically ends with `/merged`.</span>
+<span class="sd">        - Processing uses up to `settings[&#39;n_jobs&#39;]` CPU cores but reserves 6 cores by default.</span>
+<span class="sd">        - Errors during file processing are handled per file; execution continues for remaining files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_save_settings_to_db</span>
     <span class="kn">from</span> <span class="nn">.timelapse</span> <span class="kn">import</span> <span class="n">_timelapse_masks_to_gif</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">measure_test_mode</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">delete_intermedeate_files</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">format_path_for_system</span><span class="p">,</span> <span class="n">normalize_src_path</span>
@@ -1362,6 +1461,34 @@
 <div class="viewcode-block" id="generate_cellpose_train_set">
 <a class="viewcode-back" href="../../api/spacr/measure/index.html#spacr.measure.generate_cellpose_train_set">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_cellpose_train_set</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">min_objects</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepares a Cellpose training dataset by extracting images and corresponding masks </span>
+<span class="sd">    from one or more processed spaCR folders. Filters objects by minimum count per mask.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        folders (list[str]): List of source directories. Each must contain:</span>
+<span class="sd">                             - a `masks/` folder with segmentation masks</span>
+<span class="sd">                             - the corresponding raw images at the top level.</span>
+<span class="sd">        dst (str): Destination folder where the training dataset will be saved.</span>
+<span class="sd">                   Two subfolders will be created: `dst/masks` and `dst/imgs`.</span>
+<span class="sd">        min_objects (int): Minimum number of objects (excluding background) required</span>
+<span class="sd">                           in a mask to be included in the training set.</span>
+
+<span class="sd">    Workflow:</span>
+<span class="sd">        - Iterates through each folder and its `masks/` subfolder.</span>
+<span class="sd">        - For each `.tif` or `.png` mask, counts the number of unique objects.</span>
+<span class="sd">        - If `nr_of_objects &gt;= min_objects`, the mask and corresponding image are copied</span>
+<span class="sd">          to `dst/masks` and `dst/imgs`, respectively.</span>
+<span class="sd">        - Output files are renamed using `experiment_id + &#39;_&#39; + original_filename` to avoid collisions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Selected images and masks are copied to the target location.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Skips any unreadable or malformed mask files.</span>
+<span class="sd">        - Assumes mask files use 0 for background and positive integers for labeled objects.</span>
+<span class="sd">        - This function does not validate image-mask alignment—ensure file naming is consistent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="s1">&#39;masks&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="s1">&#39;imgs&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1393,6 +1520,28 @@
 <div class="viewcode-block" id="get_object_counts">
 <a class="viewcode-back" href="../../api/spacr/measure/index.html#spacr.measure.get_object_counts">[docs]</a>
 <span class="k">def</span> <span class="nf">get_object_counts</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads the object count summary from the SQLite database and returns aggregated statistics.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Source directory containing a `measurements/measurements.db` file </span>
+<span class="sd">                   generated by the `measure_crop()` pipeline.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: A summary table with one row per `count_type`, including:</span>
+<span class="sd">            - total_object_count: Sum of object counts across all files for that type.</span>
+<span class="sd">            - avg_object_count_per_file_name: Mean object count per file.</span>
+
+<span class="sd">    Example Output:</span>
+<span class="sd">        count_type      total_object_count   avg_object_count_per_file_name</span>
+<span class="sd">        -----------     -------------------  -------------------------------</span>
+<span class="sd">        nucleus         10500                87.5</span>
+<span class="sd">        cell            10892                90.77</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Requires the presence of an `object_counts` table in the database.</span>
+<span class="sd">        - Fails with an exception if the table does not exist or database is missing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">database_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;measurements/measurements.db&#39;</span><span class="p">)</span>
     <span class="c1"># Connect to the SQLite database</span>
     <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>

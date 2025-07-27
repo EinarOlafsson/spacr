@@ -119,24 +119,93 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.restart_gui_app">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">restart_gui_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#restart_gui_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.restart_gui_app" title="Link to this definition"></a></dt>
-<dd><p>Restarts the GUI application by destroying the current instance
-and launching a fresh one.</p>
+<dd><p>Restarts the SpaCr GUI application by destroying the current root window
+and launching a fresh instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>root</strong> (<em>tk.Tk</em>) – The current Tkinter root window to be destroyed.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The new instance is launched by importing and invoking <cite>gui_app()</cite>.</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.create_menu_bar">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">create_menu_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#create_menu_bar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.create_menu_bar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates a top-level menu bar for the SpaCr GUI containing shortcuts to all
+major application modules and help resources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>root</strong> (<em>tk.Tk</em>) – The root window where the menu bar will be attached.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Adds:</dt><dd><ul class="simple">
+<li><p>A ‘SpaCr Applications’ menu with links to:
+‘Mask’, ‘Measure’, ‘Classify’, ‘ML Analyze’, ‘Map Barcodes’,
+‘Regression’, ‘Activation’, and ‘Recruitment’.</p></li>
+<li><p>A Help option linking to the online documentation.</p></li>
+<li><p>An Exit option to quit the application.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.set_element_size">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">set_element_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#set_element_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.set_element_size" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates and returns standardized UI element dimensions
+based on the current screen size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A dictionary with element dimensions including:</dt><dd><ul class="simple">
+<li><p>’btn_size’ (int): Size of buttons.</p></li>
+<li><p>’bar_size’ (int): Height of progress bars.</p></li>
+<li><p>’settings_width’ (int): Width of the settings panel.</p></li>
+<li><p>’panel_width’ (int): Width of the plotting panel.</p></li>
+<li><p>’panel_height’ (int): Height of the bottom control panel.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.set_dark_style">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">set_dark_style</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">style</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">containers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widgets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OpenSans'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fg_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dark_gray'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#set_dark_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.set_dark_style" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Applies a dark theme to the SpaCr GUI using the provided styling options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>style</strong> (<em>ttk.Style</em>) – The ttk style instance to configure.</p></li>
+<li><p><strong>parent_frame</strong> (<em>tk.Widget</em><em>, </em><em>optional</em>) – The top-level container to apply styles to.</p></li>
+<li><p><strong>containers</strong> (<em>list</em><em>, </em><em>optional</em>) – Additional containers (ttk.Frame or tk.Frame) to style.</p></li>
+<li><p><strong>widgets</strong> (<em>list</em><em>, </em><em>optional</em>) – List of individual widgets to apply colors and fonts.</p></li>
+<li><p><strong>font_family</strong> (<em>str</em>) – Font family for all labels and buttons.</p></li>
+<li><p><strong>font_size</strong> (<em>int</em>) – Font size for all text elements.</p></li>
+<li><p><strong>bg_color</strong> (<em>str</em>) – Background color.</p></li>
+<li><p><strong>fg_color</strong> (<em>str</em>) – Foreground/text color.</p></li>
+<li><p><strong>active_color</strong> (<em>str</em>) – Highlight or selected color.</p></li>
+<li><p><strong>inactive_color</strong> (<em>str</em>) – Secondary background color.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Style parameters used, including resolved font and color values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFont">
@@ -194,7 +263,17 @@ and launching a fresh one.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrContainer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrContainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">tk.VERTICAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrContainer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
+<p>A custom container widget that manages multiple resizable panes arranged
+either vertically or horizontally, separated by draggable sashes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>tk.Widget</em>) – The parent widget.</p></li>
+<li><p><strong>orient</strong> (<em>str</em>) – Orientation of the layout (‘tk.VERTICAL’ or ‘tk.HORIZONTAL’). Default is vertical.</p></li>
+<li><p><strong>bg</strong> (<em>str</em>) – Background color of the container and sashes. Defaults to ‘lightgrey’.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrContainer.orient">
 <span class="sig-name descname"><span class="pre">orient</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'vertical'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrContainer.orient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrContainer.orient" title="Link to this definition"></a></dt>

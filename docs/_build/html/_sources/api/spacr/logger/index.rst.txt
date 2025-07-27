@@ -13,7 +13,45 @@ Module Contents
 
 .. py:function:: configure_logger(log_file_name='spacr.log')
 
+   Configure the global logging system to log INFO-level messages to a file.
+
+   This function sets up logging to write messages to a file located in the user's
+   home directory. The log format includes timestamp, module name, log level, and message.
+
+   :param log_file_name: Name of the log file. The file will be saved in the user's
+                         home directory. Default is 'spacr.log'.
+   :type log_file_name: str
+
+   .. rubric:: Example
+
+   >>> configure_logger()
+   # Logs will be saved to ~/spacr.log
+
+   >>> configure_logger('custom.log')
+   # Logs will be saved to ~/custom.log
+
+
 .. py:data:: logger
 
 .. py:function:: log_function_call(func)
+
+   Decorator that logs the function call, its arguments, return value, and any exceptions.
+
+   Logs:
+       - Function name and arguments on call
+       - Return value on successful completion
+       - Exception traceback if an error is raised
+
+   :param func: The target function to decorate.
+   :type func: Callable
+
+   :returns: The wrapped function with logging enabled.
+   :rtype: Callable
+
+   .. rubric:: Example
+
+   @log_function_call
+   def multiply(a, b):
+       return a * b
+
 

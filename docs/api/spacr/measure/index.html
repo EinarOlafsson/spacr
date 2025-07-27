@@ -185,15 +185,71 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.measure_crop">
 <span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">measure_crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/measure.html#measure_crop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.measure_crop" title="Link to this definition"></a></dt>
-<dd><p>Measure the crop of an image based on the provided settings.</p>
+<dd><p>Main driver function to process <cite>.npy</cite> image stacks in a given folder or list of folders.
+Applies morphological measurements, generates cropped images (PNGs), and saves object-level
+metrics and optional visuals using multiprocessing for speed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – The settings for measuring the crop.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>dict</em>) – Dictionary of processing parameters. Use <cite>get_measure_crop_settings()</cite> to populate defaults.</p></li>
+<li><p><strong>include</strong> (<em>Key settings</em>) – <ul>
+<li><p>src (str or list[str]): Path(s) to folder(s) containing <cite>.npy</cite> stacks.</p></li>
+<li><p>experiment (str): Experiment name to store alongside outputs in the database.</p></li>
+<li><p>test_mode (bool): If True, limit number of images and enable plotting.</p></li>
+<li><p>verbose (bool): Print processing info.</p></li>
+<li><p>channels (list[int]): Channels to use for intensity measurements and PNG generation.</p></li>
+<li><p>plot (bool): If True, save figures to memory and optionally to disk.</p></li>
+<li><p>n_jobs (int): Number of parallel processes (defaults to CPU count minus 2).</p></li>
+<li><p>cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim (int or None): Indices of object masks in the stack.</p></li>
+<li><p>cytoplasm (bool): If True, derive cytoplasmic mask.</p></li>
+<li><p><a href="#id1"><span class="problematic" id="id2">*</span></a>_min_size (int): Minimum pixel size thresholds for object filtering.</p></li>
+<li><p>merge_edge_pathogen_cells (bool): If True, merge pathogen/cell masks at edges.</p></li>
+<li><p>timelapse (bool): If True, enable temporal relabeling and GIF generation.</p></li>
+<li><p>timelapse_objects (str): Which object type to track temporally (“nucleus” or “cell”).</p></li>
+<li><p>save_measurements (bool): Save morphology and intensity features to SQLite DB.</p></li>
+<li><p>save_png, save_arrays (bool): Save per-object cropped PNGs and/or subarrays.</p></li>
+<li><p>png_dims (list[int]): Channel indices to render in PNG.</p></li>
+<li><p>png_size (list[int] or list[list[int]]): PNG crop size in pixels (width, height).</p></li>
+<li><p>crop_mode (list[str]): Which objects to crop (e.g., [‘cell’, ‘nucleus’]).</p></li>
+<li><p>normalize (list[int] or False): Percentiles for intensity normalization or False to skip.</p></li>
+<li><p>normalize_by (str): ‘png’ or ‘fov’—reference frame for normalization.</p></li>
+<li><p>dialate_pngs (bool or list[bool]): Whether to dilate PNG masks before cropping.</p></li>
+<li><p>dialate_png_ratios (float or list[float]): Dilation factor relative to object size.</p></li>
+<li><p>use_bounding_box (bool): Use bounding box rather than minimal crop.</p></li>
+<li><p>delete_intermediate (bool): If True, delete original input arrays after processing.</p></li>
+</ul>
+</p></li>
+</ul>
 </dd>
 </dl>
+<dl class="simple">
+<dt>Workflow:</dt><dd><ul class="simple">
+<li><p>Validates and normalizes input settings.</p></li>
+<li><p>Applies multiprocessing to process each <cite>.npy</cite> file using <cite>_measure_crop_core()</cite>.</p></li>
+<li><p>Saves measurement outputs (morphology, intensity) to database.</p></li>
+<li><p>Generates per-object crops as PNGs or arrays, optionally normalized and resized.</p></li>
+<li><p>If <cite>timelapse=True</cite>, generates summary mask GIFs across timepoints.</p></li>
+<li><p>Reports progress and CPU usage throughout execution.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None. Results are written to disk and/or SQLite DBs. Completion is reported via print statements.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – For invalid or missing keys in <cite>settings</cite>.</p></li>
+<li><p><strong>Warnings are printed to console for most incorrect parameter combinations.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The <cite>settings[‘src’]</cite> directory is expected to contain <cite>.npy</cite> files and typically ends with <cite>/merged</cite>.</p></li>
+<li><p>Processing uses up to <cite>settings[‘n_jobs’]</cite> CPU cores but reserves 6 cores by default.</p></li>
+<li><p>Errors during file processing are handled per file; execution continues for remaining files.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
@@ -214,12 +270,80 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.generate_cellpose_train_set">
 <span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_train_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/measure.html#generate_cellpose_train_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.generate_cellpose_train_set" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Prepares a Cellpose training dataset by extracting images and corresponding masks
+from one or more processed spaCR folders. Filters objects by minimum count per mask.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folders</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of source directories. Each must contain:
+- a <cite>masks/</cite> folder with segmentation masks
+- the corresponding raw images at the top level.</p></li>
+<li><p><strong>dst</strong> (<em>str</em>) – Destination folder where the training dataset will be saved.
+Two subfolders will be created: <cite>dst/masks</cite> and <cite>dst/imgs</cite>.</p></li>
+<li><p><strong>min_objects</strong> (<em>int</em>) – Minimum number of objects (excluding background) required
+in a mask to be included in the training set.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Workflow:</dt><dd><ul class="simple">
+<li><p>Iterates through each folder and its <cite>masks/</cite> subfolder.</p></li>
+<li><p>For each <cite>.tif</cite> or <cite>.png</cite> mask, counts the number of unique objects.</p></li>
+<li><p>If <cite>nr_of_objects &gt;= min_objects</cite>, the mask and corresponding image are copied
+to <cite>dst/masks</cite> and <cite>dst/imgs</cite>, respectively.</p></li>
+<li><p>Output files are renamed using <cite>experiment_id + ‘_’ + original_filename</cite> to avoid collisions.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None. Selected images and masks are copied to the target location.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Skips any unreadable or malformed mask files.</p></li>
+<li><p>Assumes mask files use 0 for background and positive integers for labeled objects.</p></li>
+<li><p>This function does not validate image-mask alignment—ensure file naming is consistent.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.measure.get_object_counts">
 <span class="sig-prename descclassname"><span class="pre">spacr.measure.</span></span><span class="sig-name descname"><span class="pre">get_object_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/measure.html#get_object_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.measure.get_object_counts" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Reads the object count summary from the SQLite database and returns aggregated statistics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>src</strong> (<em>str</em>) – Source directory containing a <cite>measurements/measurements.db</cite> file
+generated by the <cite>measure_crop()</cite> pipeline.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A summary table with one row per <cite>count_type</cite>, including:</dt><dd><ul class="simple">
+<li><p>total_object_count: Sum of object counts across all files for that type.</p></li>
+<li><p>avg_object_count_per_file_name: Mean object count per file.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Example Output:</dt><dd><p>count_type      total_object_count   avg_object_count_per_file_name
+———–     ——————-  ——————————-
+nucleus         10500                87.5
+cell            10892                90.77</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Requires the presence of an <cite>object_counts</cite> table in the database.</p></li>
+<li><p>Fails with an exception if the table does not exist or database is missing.</p></li>
+</ul>
+</dd></dl>
 
 </section>
 </section>

@@ -238,7 +238,20 @@
 
 
 <span class="k">def</span> <span class="nf">_load_images_and_labels</span><span class="p">(</span><span class="n">image_files</span><span class="p">,</span> <span class="n">label_files</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load image and label files from disk and optionally normalize intensity.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image_files (list[str]): List of paths to image files.</span>
+<span class="sd">        label_files (list[str]): List of paths to label (mask) files.</span>
+<span class="sd">        invert (bool): If True, invert the intensity of input images.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        images (list[np.ndarray]): List of loaded image arrays.</span>
+<span class="sd">        labels (list[np.ndarray]): List of loaded label arrays.</span>
+<span class="sd">        image_names (list[str]): List of image file names (no paths).</span>
+<span class="sd">        label_names (list[str]): List of label file names (no paths).</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">invert_image</span>
     
     <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
@@ -299,7 +312,29 @@
 <span class="k">def</span> <span class="nf">_load_normalized_images_and_labels</span><span class="p">(</span><span class="n">image_files</span><span class="p">,</span> <span class="n">label_files</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  
                                        <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">remove_background</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
                                        <span class="n">background</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">Signal_to_noise</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">target_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load, normalize, and optionally resize images and labels for downstream analysis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image_files (list[str]): List of paths to image files.</span>
+<span class="sd">        label_files (list[str] or None): List of paths to label (mask) files.</span>
+<span class="sd">        channels (list[int] or None): Indices of image channels to retain.</span>
+<span class="sd">        percentiles (list[int, int] or None): Percentile range for intensity normalization.</span>
+<span class="sd">        invert (bool): If True, invert image intensity.</span>
+<span class="sd">        visualize (bool): If True, display plots of raw and normalized images.</span>
+<span class="sd">        remove_background (bool): If True, zero pixels below `background` threshold.</span>
+<span class="sd">        background (float): Background intensity threshold.</span>
+<span class="sd">        Signal_to_noise (float): Minimum signal-to-noise ratio used to detect saturation.</span>
+<span class="sd">        target_height (int or None): Target height for image resizing.</span>
+<span class="sd">        target_width (int or None): Target width for image resizing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        normalized_images (list[np.ndarray]): List of normalized image arrays.</span>
+<span class="sd">        labels (list[np.ndarray]): List of label arrays (resized if needed).</span>
+<span class="sd">        image_names (list[str]): List of image file names.</span>
+<span class="sd">        label_names (list[str]): List of label file names.</span>
+<span class="sd">        orig_dims (list[Tuple[int, int]]): Original dimensions of each image before resizing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">normalize_and_visualize</span><span class="p">,</span> <span class="n">plot_resize</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">invert_image</span><span class="p">,</span> <span class="n">apply_mask</span>
     <span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span> <span class="k">as</span> <span class="n">resizescikit</span>
@@ -591,6 +626,23 @@
 <div class="viewcode-block" id="spacrDataset">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_dir (str): Root directory containing subfolders for each class.</span>
+<span class="sd">        loader_classes (list[str]): List of class names corresponding to subfolder names in `data_dir`.</span>
+<span class="sd">        transform (callable, optional): Transform to apply to images (e.g., torchvision transforms).</span>
+<span class="sd">        shuffle (bool): Whether to shuffle the dataset. Default is True.</span>
+<span class="sd">        pin_memory (bool): If True, pre-load all images into memory using multiprocessing. Default is False.</span>
+<span class="sd">        specific_files (list[str], optional): Specific image file paths to load instead of scanning `data_dir`.</span>
+<span class="sd">        specific_labels (list[int], optional): Corresponding labels for `specific_files`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        filenames (list[str]): List of full paths to image files.</span>
+<span class="sd">        labels (list[int]): List of integer labels corresponding to `filenames`.</span>
+<span class="sd">        images (list[PIL.Image] or None): Preloaded images if `pin_memory=True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">loader_classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">specific_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">specific_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <div class="viewcode-block" id="spacrDataset.data_dir">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.data_dir">[docs]</a>
@@ -682,6 +734,24 @@
 <div class="viewcode-block" id="spacrDataLoader">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrDataLoader</span><span class="p">(</span><span class="n">DataLoader</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom DataLoader with background batch preloading support using multiprocessing.</span>
+
+<span class="sd">    Extends:</span>
+<span class="sd">        torch.utils.data.DataLoader</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *args: Arguments passed to the base DataLoader.</span>
+<span class="sd">        preload_batches (int): Number of batches to preload in a background process. Default is 1.</span>
+<span class="sd">        **kwargs: Keyword arguments passed to the base DataLoader. Supports all standard DataLoader arguments.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        preload_batches (int): Number of batches to preload ahead of time.</span>
+<span class="sd">        batch_queue (Queue): Thread/process-safe queue storing preloaded batches.</span>
+<span class="sd">        process (multiprocessing.Process or None): Background process for preloading batches.</span>
+<span class="sd">        current_batch_index (int): Index of the current batch being yielded.</span>
+<span class="sd">        pin_memory (bool): Whether to pin memory (typically required for CUDA).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">preload_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrDataLoader.preload_batches">
@@ -775,6 +845,22 @@
 <div class="viewcode-block" id="NoClassDataset_v1">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1">[docs]</a>
 <span class="k">class</span> <span class="nc">NoClassDataset_v1</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A PyTorch Dataset for loading unlabeled images from a single directory.</span>
+
+<span class="sd">    This dataset does not assign class labels and is useful for inference,</span>
+<span class="sd">    visualization, or unsupervised learning.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_dir (str): Path to the directory containing image files.</span>
+<span class="sd">        transform (callable, optional): A function/transform to apply to the images.</span>
+<span class="sd">        shuffle (bool): Whether to shuffle the dataset. Default is True.</span>
+<span class="sd">        load_to_memory (bool): Whether to preload all images into memory. Default is False.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        filenames (list): List of full paths to image files.</span>
+<span class="sd">        images (list): List of preloaded images if `load_to_memory` is True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">load_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <div class="viewcode-block" id="NoClassDataset_v1.data_dir">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.NoClassDataset_v1.data_dir">[docs]</a>
@@ -834,6 +920,19 @@
 <div class="viewcode-block" id="TarImageDataset">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset">[docs]</a>
 <span class="k">class</span> <span class="nc">TarImageDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A PyTorch Dataset for loading images directly from a .tar archive without extraction.</span>
+
+<span class="sd">    This is useful for large datasets stored as compressed tar archives, enabling on-the-fly </span>
+<span class="sd">    access to individual image files without unpacking the archive to disk.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tar_path (str): Path to the .tar archive containing image files.</span>
+<span class="sd">        transform (callable, optional): Optional transform to be applied on a sample.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        members (List[TarInfo]): List of image members in the tar archive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tar_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <div class="viewcode-block" id="TarImageDataset.tar_path">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset.tar_path">[docs]</a>
@@ -866,8 +965,24 @@
 <div class="viewcode-block" id="load_images_from_paths">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.load_images_from_paths">[docs]</a>
 <span class="k">def</span> <span class="nf">load_images_from_paths</span><span class="p">(</span><span class="n">images_by_key</span><span class="p">):</span>
-    <span class="n">images_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load images from a dictionary mapping keys to lists of image file paths.</span>
 
+<span class="sd">    Each key in the input dictionary corresponds to a list of file paths. The function</span>
+<span class="sd">    loads each image as a NumPy array and returns a new dictionary with the same keys,</span>
+<span class="sd">    where each value is a list of loaded images.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        images_by_key (dict): A dictionary where each key maps to a list of image file paths (str).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary where each key maps to a list of NumPy arrays representing the loaded images.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Images are loaded using PIL and converted to NumPy arrays.</span>
+<span class="sd">        - Any image that fails to load will be skipped, and an error message will be printed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">images_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">paths</span> <span class="ow">in</span> <span class="n">images_by_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">images_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
@@ -878,6 +993,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading image from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">images_dict</span></div>
+
 
 
 <span class="c1">#@log_function_call </span>
@@ -1042,7 +1158,33 @@
     <span class="k">return</span> <span class="n">sorted_file_lists</span>
 
 <span class="k">def</span> <span class="nf">_move_to_chan_folder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">timelapse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">metadata_type</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Organize image files in a source directory into channel-specific subfolders </span>
+<span class="sd">    based on metadata extracted from filenames using a regular expression.</span>
+
+<span class="sd">    This function assumes filenames contain fields like plate ID, well ID, field ID, </span>
+<span class="sd">    channel ID, and time point. It parses these from the filename using the provided </span>
+<span class="sd">    regex, reformats the filename, and moves the file into a subdirectory named after </span>
+<span class="sd">    the channel ID.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str or Path): Path to the source directory containing image files.</span>
+<span class="sd">        regex (str): Regular expression to extract metadata from filenames. </span>
+<span class="sd">                     Expected named groups: plateID, wellID, fieldID, chanID, timeID.</span>
+<span class="sd">        timelapse (bool, optional): Whether to include the timeID in the new filename. Defaults to False.</span>
+<span class="sd">        metadata_type (str, optional): Special handling for specific metadata types. </span>
+<span class="sd">                                       If &#39;cq1&#39;, converts wellID to CQ1 format. Defaults to &#39;&#39;.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Only `.tif` and `.png` files are processed.</span>
+<span class="sd">        - Files are copied into folders named after their channel ID.</span>
+<span class="sd">        - A backup of the original files is moved to a new `orig/` folder.</span>
+<span class="sd">        - Skips files that do not match the regex or are missing required groups.</span>
+<span class="sd">        - Issues warnings if destination files already exist.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_safe_int_convert</span><span class="p">,</span> <span class="n">_convert_cq1_well_id</span>
     
     <span class="n">src_path</span> <span class="o">=</span> <span class="n">src</span>
@@ -1106,9 +1248,28 @@
 
 <span class="k">def</span> <span class="nf">_merge_channels</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Merge the channels in the given source directory and save the merged files in a &#39;stack&#39; directory without using multiprocessing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Merge single-channel image files from multiple folders into multi-channel NumPy arrays.</span>
 
+<span class="sd">    This function assumes the source directory `src` contains subdirectories named as channel </span>
+<span class="sd">    identifiers (e.g., &#39;0&#39;, &#39;01&#39;, ..., &#39;100&#39;), each holding single-channel image files </span>
+<span class="sd">    with identical filenames. It merges images with the same name across these folders </span>
+<span class="sd">    into a single multi-channel `.npy` file stored in the `stack/` subdirectory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str or Path): Path to the parent directory containing channel subfolders.</span>
+<span class="sd">        plot (bool, optional): If True, plot the merged arrays after processing using `plot_arrays`. Defaults to False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: The number of matching channel folders that were merged.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Only processes if `stack/` directory is empty.</span>
+<span class="sd">        - Output is saved as `.npy` files in `src/stack/`.</span>
+<span class="sd">        - Channel folders must be named as integers or zero-padded strings from &#39;0&#39; to &#39;100&#39;.</span>
+<span class="sd">        - Files are matched by filename across all channel folders.</span>
+<span class="sd">        - Skips if a file is not present in all channels or is not a file.</span>
+<span class="sd">        - Uses `_merge_file` to perform the merging operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_arrays</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span>
     
@@ -1379,9 +1540,6 @@
 <div class="viewcode-block" id="concatenate_and_normalize">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.concatenate_and_normalize">[docs]</a>
 <span class="k">def</span> <span class="nf">concatenate_and_normalize</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">save_dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span>
-    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_arrays</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Concatenates and normalizes channel data from multiple files and saves the normalized data.</span>
 
@@ -1401,7 +1559,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        str: The directory path where the concatenated and normalized channel data is saved.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_arrays</span>
+    
     <span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">channels</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
     
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating concatenated and normalized channel data for channels: </span><span class="si">{</span><span class="n">channels</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1782,12 +1942,7 @@
 <span class="c1">#@log_function_call</span>
 <div class="viewcode-block" id="preprocess_img_data">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.preprocess_img_data">[docs]</a>
-<span class="k">def</span> <span class="nf">preprocess_img_data</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
-    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_arrays</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_run_test_mode</span><span class="p">,</span> <span class="n">_get_regex</span>
-    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_settings_preprocess_img_data</span>
-<span class="w">    </span>
+<span class="k">def</span> <span class="nf">preprocess_img_data</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>    
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.</span>
 
@@ -1814,6 +1969,11 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_arrays</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_run_test_mode</span><span class="p">,</span> <span class="n">_get_regex</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_settings_preprocess_img_data</span>
+    
     <span class="n">src</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
     
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">src</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>

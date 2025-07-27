@@ -175,6 +175,23 @@
 <div class="viewcode-block" id="calculate_p_values">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.calculate_p_values">[docs]</a>
 <span class="k">def</span> <span class="nf">calculate_p_values</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate p-values for model coefficients using residuals and t-statistics.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : np.ndarray</span>
+<span class="sd">        The input feature matrix used for fitting the model.</span>
+<span class="sd">    y : np.ndarray</span>
+<span class="sd">        The target variable.</span>
+<span class="sd">    model : object</span>
+<span class="sd">        A fitted sklearn linear model (must have `.predict` and `.coef_` attributes).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        An array of p-values corresponding to each coefficient in the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Predict y values</span>
     <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
     <span class="c1"># Calculate residuals</span>
@@ -197,6 +214,25 @@
 <div class="viewcode-block" id="perform_mixed_model">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.perform_mixed_model">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_mixed_model</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform mixed effects regression and return the fitted model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : pd.Series or np.ndarray</span>
+<span class="sd">        Target variable.</span>
+<span class="sd">    X : pd.DataFrame</span>
+<span class="sd">        Feature matrix.</span>
+<span class="sd">    groups : pd.Series or np.ndarray</span>
+<span class="sd">        Grouping variable for mixed model.</span>
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        Regularization strength for Ridge regression when multicollinearity is detected.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    statsmodels.regression.mixed_linear_model.MixedLMResults</span>
+<span class="sd">        Fitted mixed model results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Ensure groups are defined correctly and check for multicollinearity</span>
     <span class="k">if</span> <span class="n">groups</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Groups must be defined for mixed model regression&quot;</span><span class="p">)</span>
@@ -221,7 +257,25 @@
 <div class="viewcode-block" id="create_volcano_filename">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.create_volcano_filename">[docs]</a>
 <span class="k">def</span> <span class="nf">create_volcano_filename</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">regression_type</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create and return the volcano plot filename based on regression type and alpha.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct the file name for saving the volcano plot.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    csv_path : str</span>
+<span class="sd">        Path to the CSV file containing model results.</span>
+<span class="sd">    regression_type : str</span>
+<span class="sd">        Type of regression performed.</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        Alpha value (used for quantile regression naming).</span>
+<span class="sd">    dst : str or None</span>
+<span class="sd">        Destination directory to save the file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Full path for the output volcano plot PDF file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">volcano_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">csv_path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_volcano_plot.pdf&#39;</span>
     <span class="n">volcano_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">regression_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">volcano_filename</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">regression_type</span> <span class="o">!=</span> <span class="s1">&#39;quantile&#39;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">volcano_filename</span><span class="si">}</span><span class="s2">&quot;</span>
 
@@ -233,7 +287,23 @@
 <div class="viewcode-block" id="scale_variables">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.scale_variables">[docs]</a>
 <span class="k">def</span> <span class="nf">scale_variables</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scale independent (X) and dependent (y) variables using MinMaxScaler.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Min-max scale both independent and dependent variables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : pd.DataFrame</span>
+<span class="sd">        Feature matrix.</span>
+<span class="sd">    y : np.ndarray</span>
+<span class="sd">        Target variable.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X_scaled : pd.DataFrame</span>
+<span class="sd">        Scaled feature matrix.</span>
+<span class="sd">    y_scaled : np.ndarray</span>
+<span class="sd">        Scaled target variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">scaler_X</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">()</span>
     <span class="n">scaler_y</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">()</span>
     
@@ -243,71 +313,22 @@
     <span class="k">return</span> <span class="n">X_scaled</span><span class="p">,</span> <span class="n">y_scaled</span></div>
 
 
-<div class="viewcode-block" id="process_model_coefficients_v1">
-<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.process_model_coefficients_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">process_model_coefficients_v1</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">regression_type</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">controls</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return DataFrame of model coefficients and p-values.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">regression_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ols&#39;</span><span class="p">,</span> <span class="s1">&#39;gls&#39;</span><span class="p">,</span> <span class="s1">&#39;wls&#39;</span><span class="p">,</span> <span class="s1">&#39;rlm&#39;</span><span class="p">,</span> <span class="s1">&#39;glm&#39;</span><span class="p">,</span> <span class="s1">&#39;mixed&#39;</span><span class="p">,</span> <span class="s1">&#39;quantile&#39;</span><span class="p">,</span> <span class="s1">&#39;logit&#39;</span><span class="p">,</span> <span class="s1">&#39;probit&#39;</span><span class="p">,</span> <span class="s1">&#39;poisson&#39;</span><span class="p">]:</span>
-        <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span>
-        <span class="n">p_values</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pvalues</span>
-
-        <span class="n">coef_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">coefs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-            <span class="s1">&#39;coefficient&#39;</span><span class="p">:</span> <span class="n">coefs</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-            <span class="s1">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">p_values</span><span class="o">.</span><span class="n">values</span>
-        <span class="p">})</span>
-
-    <span class="k">elif</span> <span class="n">regression_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ridge&#39;</span><span class="p">,</span> <span class="s1">&#39;lasso&#39;</span><span class="p">]:</span>
-        <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="n">p_values</span> <span class="o">=</span> <span class="n">calculate_p_values</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
-
-        <span class="n">coef_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="s1">&#39;coefficient&#39;</span><span class="p">:</span> <span class="n">coefs</span><span class="p">,</span>
-            <span class="s1">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">p_values</span>
-        <span class="p">})</span>
-        
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span>
-        <span class="n">intercept</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">intercept_</span>
-        <span class="n">feature_names</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">design_info</span><span class="o">.</span><span class="n">column_names</span>
-
-        <span class="n">coef_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">feature_names</span><span class="p">,</span>
-            <span class="s1">&#39;coefficient&#39;</span><span class="p">:</span> <span class="n">coefs</span>
-        <span class="p">})</span>
-        <span class="n">coef_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;coefficient&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">intercept</span>
-        <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># Placeholder since sklearn doesn&#39;t provide p-values</span>
-
-    <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;-log10(p_value)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">])</span>
-    <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[(.*?)\]&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="s1">&#39;nc&#39;</span> <span class="k">if</span> <span class="n">nc</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;pc&#39;</span> <span class="k">if</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="p">(</span><span class="s1">&#39;control&#39;</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">controls</span> <span class="k">else</span> <span class="s1">&#39;other&#39;</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">coef_df</span><span class="p">[</span><span class="o">~</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;row|column&#39;</span><span class="p">)]</span></div>
-
-
-<div class="viewcode-block" id="check_distribution_v1">
-<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_distribution_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">check_distribution_v1</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the type of distribution to recommend a model.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected binary data.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;logit&#39;</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected continuous data between 0 and 1 (excluding 0 and 1).&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;beta&#39;</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected continuous data between 0 and 1 (including 0 or 1).&quot;</span><span class="p">)</span>
-        <span class="c1"># Consider quasi-binomial regression</span>
-        <span class="k">return</span> <span class="s1">&#39;quasi_binomial&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using OLS as a fallback.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;ols&#39;</span></div>
-
-
 <div class="viewcode-block" id="select_glm_family">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.select_glm_family">[docs]</a>
 <span class="k">def</span> <span class="nf">select_glm_family</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Select the appropriate GLM family based on the data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Automatically select a GLM family based on the nature of the dependent variable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : np.ndarray</span>
+<span class="sd">        Target variable.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sm.families.Family</span>
+<span class="sd">        GLM family appropriate for the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using Binomial family (for binary data).&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">Binomial</span><span class="p">()</span>
@@ -325,7 +346,21 @@
 <div class="viewcode-block" id="prepare_formula">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.prepare_formula">[docs]</a>
 <span class="k">def</span> <span class="nf">prepare_formula</span><span class="p">(</span><span class="n">dependent_variable</span><span class="p">,</span> <span class="n">random_row_column_effects</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the regression formula using random effects for plate, row, and column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare the formula for regression modeling based on model design.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dependent_variable : str</span>
+<span class="sd">        Name of the dependent variable.</span>
+<span class="sd">    random_row_column_effects : bool, optional</span>
+<span class="sd">        Whether to include row and column IDs as random effects.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Regression formula string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">random_row_column_effects</span><span class="p">:</span>
         <span class="c1"># Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dependent_variable</span><span class="si">}</span><span class="s1"> ~ fraction:grna + gene_fraction:gene&#39;</span>
@@ -335,9 +370,26 @@
 <div class="viewcode-block" id="fit_mixed_model">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.fit_mixed_model">[docs]</a>
 <span class="k">def</span> <span class="nf">fit_mixed_model</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">formula</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_histogram</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit a mixed linear model with random effects for plate, row, and column.</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit the mixed model with plate, row_name, and columnID as random effects and return results.&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input data.</span>
+<span class="sd">    formula : str</span>
+<span class="sd">        Regression formula.</span>
+<span class="sd">    dst : str</span>
+<span class="sd">        Output folder to save diagnostic plots.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mixed_model : statsmodels.regression.mixed_linear_model.MixedLMResults</span>
+<span class="sd">        Fitted model.</span>
+<span class="sd">    coef_df : pd.DataFrame</span>
+<span class="sd">        DataFrame of coefficients and p-values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_histogram</span>
     <span class="c1"># Specify random effects for plate, row, and column</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> 
                         <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> 
@@ -367,8 +419,21 @@
 <div class="viewcode-block" id="check_and_clean_data">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_and_clean_data">[docs]</a>
 <span class="k">def</span> <span class="nf">check_and_clean_data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dependent_variable</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly.&quot;&quot;&quot;</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate and preprocess a DataFrame before model fitting.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input data.</span>
+<span class="sd">    dependent_variable : str</span>
+<span class="sd">        Name of the dependent variable column.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Cleaned and validated DataFrame, ready for model fitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">handle_missing_values</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle missing values in specified columns.&quot;&quot;&quot;</span>
         <span class="n">missing_summary</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -448,30 +513,33 @@
     <span class="k">return</span> <span class="n">df_cleaned</span></div>
 
 
-<div class="viewcode-block" id="check_normality_v1">
-<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_normality_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">check_normality_v1</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the data is normally distributed using the Shapiro-Wilk test.&quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">shapiro</span>
-
-    <span class="n">stat</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">shapiro</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span>
-    <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="n">alpha</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> is normally distributed (fail to reject H0)&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> is not normally distributed (reject H0)&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
 <div class="viewcode-block" id="minimum_cell_simulation">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.minimum_cell_simulation">[docs]</a>
 <span class="k">def</span> <span class="nf">minimum_cell_simulation</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">num_repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">smoothing</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.</span>
-<span class="sd">    Detect and mark the elbow point (inflection) with smoothing and tolerance control.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Estimate the minimum number of cells required per well to stabilize phenotype measurements.</span>
 
+<span class="sd">    This function simulates phenotype score stability by repeatedly subsampling increasing numbers</span>
+<span class="sd">    of cells per well, calculating the mean absolute difference from the full-well mean. It identifies</span>
+<span class="sd">    the minimal sample size (elbow point) at which the average difference drops below a user-defined</span>
+<span class="sd">    tolerance, smoothed across wells.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary with keys:</span>
+<span class="sd">            - &#39;score_data&#39; (list or str): CSV path(s) with cell-level data.</span>
+<span class="sd">            - &#39;score_column&#39; (str): Column name of the phenotype score.</span>
+<span class="sd">            - &#39;tolerance&#39; (float or int): Allowed deviation from true mean (e.g. 0.02 for 2%).</span>
+<span class="sd">            - &#39;min_cell_count&#39; (int or None): Optional fixed value for annotation.</span>
+<span class="sd">            - &#39;count_data&#39; (list): Used to define the output folder for figure saving.</span>
+<span class="sd">        num_repeats (int, optional): Number of times to resample for each sample size. Default is 10.</span>
+<span class="sd">        sample_size (int, optional): Number of top wells to simulate (by cell count). Default is 100.</span>
+<span class="sd">        tolerance (float or int, optional): Tolerance threshold to define the elbow point. Default is 0.02.</span>
+<span class="sd">        smoothing (int, optional): Window size for smoothing the mean absolute difference curve. Default is 10.</span>
+<span class="sd">        increment (int, optional): Step size between tested sample sizes. Default is 10.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Estimated minimal required number of cells (elbow point).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">correct_metadata_column_names</span>
 
     <span class="c1"># Load and process data</span>
@@ -603,7 +671,24 @@
 <div class="viewcode-block" id="process_model_coefficients">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.process_model_coefficients">[docs]</a>
 <span class="k">def</span> <span class="nf">process_model_coefficients</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">regression_type</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">controls</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return DataFrame of model coefficients, standard errors, and p-values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract model coefficients, standard errors, and p-values into a DataFrame with annotations.</span>
+
+<span class="sd">    Supports various regression types including beta, OLS, GLM, ridge, lasso, and quasi-binomial.</span>
+<span class="sd">    Adds classification labels (nc, pc, control, other) and computes -log10(p-values).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Fitted regression model object.</span>
+<span class="sd">        regression_type (str): Type of regression (e.g., &#39;beta&#39;, &#39;ols&#39;, &#39;glm&#39;, &#39;ridge&#39;, &#39;lasso&#39;).</span>
+<span class="sd">        X (pd.DataFrame): Feature matrix used for fitting the model.</span>
+<span class="sd">        y (np.ndarray): Target values used in model fitting.</span>
+<span class="sd">        nc (str): Identifier for negative control features.</span>
+<span class="sd">        pc (str): Identifier for positive control features.</span>
+<span class="sd">        controls (list): List of gRNAs used as general controls.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Table of coefficients, p-values, and annotations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">if</span> <span class="n">regression_type</span> <span class="o">==</span> <span class="s1">&#39;beta&#39;</span><span class="p">:</span>
         <span class="c1"># Extract coefficients and standard errors</span>
@@ -663,7 +748,24 @@
 <div class="viewcode-block" id="check_distribution">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_distribution">[docs]</a>
 <span class="k">def</span> <span class="nf">check_distribution</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the distribution of y and recommend an appropriate model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze distribution of the target variable and recommend appropriate regression model.</span>
+
+<span class="sd">    Checks for:</span>
+<span class="sd">    - Binary data (logit)</span>
+<span class="sd">    - Continuous [0, 1) data (beta)</span>
+<span class="sd">    - Continuous [0, 1] data (quasi-binomial)</span>
+<span class="sd">    - Normal distribution (OLS)</span>
+<span class="sd">    - Beta distribution fit</span>
+<span class="sd">    - Default to GLM otherwise</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y (np.ndarray): Dependent variable values.</span>
+<span class="sd">        epsilon (float, optional): Threshold for boundary proximity detection. Default is 1e-6.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Suggested regression model name (e.g., &#39;logit&#39;, &#39;beta&#39;, &#39;ols&#39;, &#39;glm&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1"># Check if the dependent variable is binary (only 0 and 1)</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
@@ -710,7 +812,25 @@
 <div class="viewcode-block" id="pick_glm_family_and_link">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.pick_glm_family_and_link">[docs]</a>
 <span class="k">def</span> <span class="nf">pick_glm_family_and_link</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Select the appropriate GLM family and link function based on data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select the appropriate GLM family and link function based on distribution of y.</span>
+
+<span class="sd">    Inspects binary, count, proportion, normal, and overdispersed data and maps to:</span>
+<span class="sd">    - Binomial with Logit link</span>
+<span class="sd">    - Gaussian with Identity link</span>
+<span class="sd">    - Poisson with Log link</span>
+<span class="sd">    - Inverse Gaussian with Log link</span>
+<span class="sd">    - Negative Binomial with Log link</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y (np.ndarray): Response variable to inspect.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        sm.families.Family: GLM family object with appropriate link function.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If data is suitable for Beta regression, which GLM cannot handle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Binary data detected. Using Binomial family with Logit link.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">Binomial</span><span class="p">(</span><span class="n">link</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">Logit</span><span class="p">())</span>
@@ -748,6 +868,24 @@
 <div class="viewcode-block" id="regression_model">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.regression_model">[docs]</a>
 <span class="k">def</span> <span class="nf">regression_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">regression_type</span><span class="o">=</span><span class="s1">&#39;ols&#39;</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cov_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit a regression model of the specified type to the data.</span>
+
+<span class="sd">    Supports multiple regression types: OLS, GLM, beta, logit, probit, ridge, lasso, and mixed models.</span>
+<span class="sd">    Automatically performs hyperparameter tuning (alpha) for lasso and ridge if alpha is 0 or None.</span>
+<span class="sd">    For GLMs, prints McFadden&#39;s pseudo R². For regularized models, prints MSE and coefficient table.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        X (pd.DataFrame): Design matrix of independent variables.</span>
+<span class="sd">        y (pd.Series or np.ndarray): Dependent variable.</span>
+<span class="sd">        regression_type (str): Type of regression (&#39;ols&#39;, &#39;glm&#39;, &#39;beta&#39;, &#39;logit&#39;, &#39;probit&#39;, &#39;lasso&#39;, &#39;ridge&#39;, &#39;mixed&#39;).</span>
+<span class="sd">        groups (array-like, optional): Grouping variable for mixed models.</span>
+<span class="sd">        alpha (float): Regularization strength for lasso and ridge.</span>
+<span class="sd">        cov_type (str, optional): Covariance estimator type for OLS (e.g., &#39;HC3&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        model: Fitted model object (statsmodels or sklearn estimator).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">plot_regression_line</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper to plot regression line for lasso and ridge models.&quot;&quot;&quot;</span>
         <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -819,7 +957,29 @@
 <span class="k">def</span> <span class="nf">regression</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">dependent_variable</span><span class="o">=</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="n">regression_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                <span class="n">random_row_column_effects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nc</span><span class="o">=</span><span class="s1">&#39;233460&#39;</span><span class="p">,</span> <span class="n">pc</span><span class="o">=</span><span class="s1">&#39;220950&#39;</span><span class="p">,</span> <span class="n">controls</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
                <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cov_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform regression analysis on a DataFrame with optional plotting and mixed effects support.</span>
+
+<span class="sd">    Handles data cleaning, formula preparation, scaling, model fitting, and coefficient extraction.</span>
+<span class="sd">    Automatically determines appropriate regression type if not specified.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input data.</span>
+<span class="sd">        csv_path (str): Path to input CSV used for labeling plots/files.</span>
+<span class="sd">        dependent_variable (str): Name of column to regress against.</span>
+<span class="sd">        regression_type (str, optional): Type of regression (auto-detected if None).</span>
+<span class="sd">        alpha (float): Regularization parameter for lasso/ridge.</span>
+<span class="sd">        random_row_column_effects (bool): Whether to model row/column as random effects.</span>
+<span class="sd">        nc (str): Identifier for negative controls.</span>
+<span class="sd">        pc (str): Identifier for positive controls.</span>
+<span class="sd">        controls (list): List of general control gRNAs.</span>
+<span class="sd">        dst (str, optional): Destination folder for output files.</span>
+<span class="sd">        cov_type (str, optional): Covariance estimator for OLS.</span>
+<span class="sd">        plot (bool): Whether to generate volcano plot.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (fitted model, coefficients DataFrame, regression type used)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">volcano_plot</span><span class="p">,</span> <span class="n">plot_histogram</span>
     <span class="c1">#from .ml import create_volcano_filename, check_and_clean_data, prepare_formula, scale_variables</span>
         
@@ -874,7 +1034,14 @@
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.save_summary_to_file">[docs]</a>
 <span class="k">def</span> <span class="nf">save_summary_to_file</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="s1">&#39;summary.csv&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Save the model&#39;s summary output to a CSV or text file.</span>
+<span class="sd">    Save the model&#39;s summary output to a text or CSV file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Fitted statsmodels model with a `.summary()` method.</span>
+<span class="sd">        file_path (str): Output path to save the summary (e.g., &#39;summary.txt&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Get the summary as a string</span>
     <span class="n">summary_str</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">as_text</span><span class="p">()</span>
@@ -887,7 +1054,58 @@
 <div class="viewcode-block" id="perform_regression">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.perform_regression">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_regression</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform full regression analysis pipeline for pooled CRISPR-Cas9 screens.</span>
+
+<span class="sd">    This function integrates data loading, filtering, transformation, regression modeling, </span>
+<span class="sd">    statistical significance assessment, visualization, and optional downstream Toxoplasma-specific analysis. </span>
+<span class="sd">    It handles both grna-level and gene-level aggregation and outputs results with optional metadata integration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary containing regression settings. Recommended to start with </span>
+<span class="sd">                         `get_perform_regression_default_settings()` to initialize.</span>
+
+<span class="sd">    Required Keys in `settings`:</span>
+<span class="sd">        - score_data (str or list): Path(s) to CSV(s) containing phenotypic scores.</span>
+<span class="sd">        - count_data (str or list): Path(s) to CSV(s) containing barcode abundance counts.</span>
+<span class="sd">        - dependent_variable (str): Column name in `score_data` to use as dependent variable.</span>
+<span class="sd">        - regression_type (str or None): Type of regression model to use (&#39;ols&#39;, &#39;glm&#39;, &#39;lasso&#39;, etc.).</span>
+<span class="sd">        - filter_value (list): Values to exclude from `filter_column`.</span>
+<span class="sd">        - filter_column (str): Column in data to apply exclusion filter.</span>
+<span class="sd">        - plateID (str): Identifier to use when reconstructing `prc` labels.</span>
+<span class="sd">        - alpha (float): Regularization strength for lasso/ridge regressions.</span>
+<span class="sd">        - random_row_column_effects (bool): If True, treat row/column as random effects.</span>
+<span class="sd">        - negative_control (str): Label for negative controls.</span>
+<span class="sd">        - positive_control (str): Label for positive controls.</span>
+<span class="sd">        - controls (list): List of control gRNAs for estimating coefficient threshold.</span>
+<span class="sd">        - volcano (str): Type of volcano plot to generate (&#39;all&#39;, &#39;gene&#39;, &#39;grna&#39;).</span>
+<span class="sd">        - transform (bool): Whether to transform dependent variable.</span>
+<span class="sd">        - agg_type (str): Aggregation method for per-well phenotypes (&#39;mean&#39;, &#39;median&#39;, etc.).</span>
+<span class="sd">        - metadata_files (str or list): Metadata CSV(s) to merge with regression results.</span>
+<span class="sd">        - toxo (bool): If True, generate Toxoplasma-specific downstream plots.</span>
+<span class="sd">        - threshold_method (str): Method to calculate effect size threshold (&#39;std&#39; or &#39;var&#39;).</span>
+<span class="sd">        - threshold_multiplier (float): Multiplier for threshold method.</span>
+<span class="sd">        - outlier_detection (bool): Whether to remove grnas with outlier well counts.</span>
+<span class="sd">        - cov_type (str or None): Covariance type for OLS (e.g., &#39;HC3&#39;).</span>
+<span class="sd">        - verbose (bool): Whether to print verbose output.</span>
+<span class="sd">        - x_lim, y_lims: Optional axes limits for volcano plots.</span>
+<span class="sd">        - tolerance (float): Tolerance for determining minimal cell count via simulation.</span>
+<span class="sd">        - min_cell_count (int or None): Minimum number of cells per well for inclusion.</span>
+<span class="sd">        - min_n (int): Minimum number of replicates for inclusion in filtered results.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: </span>
+<span class="sd">            &#39;results&#39;: Full coefficient table (pandas DataFrame).</span>
+<span class="sd">            &#39;significant&#39;: Filtered table of statistically significant hits (pandas DataFrame).</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Saves regression results, metadata-merged results, volcano plots, and phenotype plots to disk.</span>
+<span class="sd">        - Optionally generates publication-ready plots for Toxoplasma gene expression and phenotype scores.</span>
+<span class="sd">        - Writes cell count, well-grna, and well-gene plots to disk.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If required keys are missing or regression type is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_plates</span><span class="p">,</span> <span class="n">plot_data_from_csv</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">merge_regression_res_with_metadata</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">calculate_shortest_distance</span><span class="p">,</span> <span class="n">correct_metadata</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_perform_regression_default_settings</span>
@@ -1330,7 +1548,27 @@
 <div class="viewcode-block" id="process_reads">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.process_reads">[docs]</a>
 <span class="k">def</span> <span class="nf">process_reads</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">fraction_threshold</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">filter_column</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filter_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process barcode count data and compute fractional abundance of each gRNA per well.</span>
+
+<span class="sd">    This function loads a count table, standardizes metadata columns, computes the </span>
+<span class="sd">    relative abundance of each gRNA in a well (`fraction`), and filters based on a </span>
+<span class="sd">    minimum threshold. It also parses `grna` strings into gene-level information if </span>
+<span class="sd">    applicable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        csv_path (str or pd.DataFrame): Path to CSV file or preloaded DataFrame with count data.</span>
+<span class="sd">        fraction_threshold (float): Minimum fraction of reads per well for inclusion.</span>
+<span class="sd">        plate (str): Plate identifier to use if not present in metadata.</span>
+<span class="sd">        filter_column (str or list, optional): Columns to filter values from.</span>
+<span class="sd">        filter_value (str or list, optional): Values to exclude from filter_column(s).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Filtered DataFrame with columns [&#39;prc&#39;, &#39;grna&#39;, &#39;fraction&#39;].</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If required metadata columns are missing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">correct_metadata</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
@@ -1405,6 +1643,18 @@
 <div class="viewcode-block" id="apply_transformation">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.apply_transformation">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">transform</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a mathematical transformation to a variable.</span>
+
+<span class="sd">    Supported transformations include logarithm, square root, and square.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        X (array-like): Input variable or DataFrame column.</span>
+<span class="sd">        transform (str): Type of transformation (&#39;log&#39;, &#39;sqrt&#39;, or &#39;square&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        FunctionTransformer or None: Transformer object, or None if transform is unrecognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">transform</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
         <span class="n">transformer</span> <span class="o">=</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">transform</span> <span class="o">==</span> <span class="s1">&#39;sqrt&#39;</span><span class="p">:</span>
@@ -1419,7 +1669,17 @@
 <div class="viewcode-block" id="check_normality">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_normality">[docs]</a>
 <span class="k">def</span> <span class="nf">check_normality</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the data is normally distributed using the Shapiro-Wilk test.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if data follows a normal distribution using the Shapiro-Wilk test.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (array-like): Data to test for normality.</span>
+<span class="sd">        variable_name (str): Name of the variable (used in print statements).</span>
+<span class="sd">        verbose (bool): Whether to print test results and interpretation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if data is normally distributed (p &gt; 0.05), False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stat</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">shapiro</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shapiro-Wilk Test for </span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">Statistic: </span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">, P-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1436,6 +1696,17 @@
 <div class="viewcode-block" id="clean_controls">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.clean_controls">[docs]</a>
 <span class="k">def</span> <span class="nf">clean_controls</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="n">values</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove rows from a DataFrame based on specified control values in a given column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame.</span>
+<span class="sd">        values (list): List of control values to remove.</span>
+<span class="sd">        column (str): Column from which to remove control values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Filtered DataFrame with control rows removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
@@ -1447,6 +1718,30 @@
 <div class="viewcode-block" id="process_scores">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.process_scores">[docs]</a>
 <span class="k">def</span> <span class="nf">process_scores</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dependent_variable</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">min_cell_count</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">agg_type</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">regression_type</span><span class="o">=</span><span class="s1">&#39;ols&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aggregate and transform single-cell phenotype scores for regression input.</span>
+
+<span class="sd">    Groups phenotypic measurements by well (`prc`) and applies optional aggregation </span>
+<span class="sd">    (mean, median, quantile). Filters out wells with low cell counts. Optionally applies </span>
+<span class="sd">    mathematical transformation and checks for normality of the dependent variable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame with single-cell phenotype scores.</span>
+<span class="sd">        dependent_variable (str): Name of the phenotype column to model.</span>
+<span class="sd">        plate (str): Plate ID to assign if not present in metadata.</span>
+<span class="sd">        min_cell_count (int): Minimum number of cells per well to retain.</span>
+<span class="sd">        agg_type (str): Aggregation method (&#39;mean&#39;, &#39;median&#39;, &#39;quantile&#39;, None).</span>
+<span class="sd">        transform (str or None): Optional transformation (&#39;log&#39;, &#39;sqrt&#39;, or &#39;square&#39;).</span>
+<span class="sd">        regression_type (str): Type of regression (affects aggregation logic for &#39;poisson&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (aggregated_df, dependent_variable_name)</span>
+<span class="sd">            - aggregated_df: Aggregated and filtered phenotype DataFrame.</span>
+<span class="sd">            - dependent_variable_name: Possibly transformed column name used for modeling.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If required metadata columns are missing or aggregation type is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">calculate_shortest_distance</span><span class="p">,</span> <span class="n">correct_metadata</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="s1">&#39;prcfo&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -1527,7 +1822,51 @@
 <div class="viewcode-block" id="generate_ml_scores">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.generate_ml_scores">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_ml_scores</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform machine learning analysis on single-cell measurement data from one or more screen sources.</span>
+
+<span class="sd">    This function loads and merges measurement databases, computes additional features (e.g., recruitment</span>
+<span class="sd">    scores, shortest distance between compartments), handles annotations (for supervised classification),</span>
+<span class="sd">    trains a machine learning model (e.g., XGBoost), computes SHAP values, and generates output files </span>
+<span class="sd">    including predictions, importance scores, SHAP plots, and well-level heatmaps.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary of analysis parameters and options. Required keys include:</span>
+<span class="sd">            - &#39;src&#39; (str or list): Path(s) to screen folders with measurement databases.</span>
+<span class="sd">            - &#39;channel_of_interest&#39; (int): Channel index used for computing recruitment scores.</span>
+<span class="sd">            - &#39;location_column&#39; (str): Column used to group wells for training (e.g., &#39;columnID&#39;).</span>
+<span class="sd">            - &#39;positive_control&#39; (str): Value of `location_column` representing positive control wells.</span>
+<span class="sd">            - &#39;negative_control&#39; (str): Value of `location_column` representing negative control wells.</span>
+<span class="sd">            - &#39;exclude&#39; (list): List of feature names to exclude.</span>
+<span class="sd">            - &#39;n_repeats&#39; (int): Number of repetitions for permutation importance.</span>
+<span class="sd">            - &#39;top_features&#39; (int): Number of top features to keep and plot.</span>
+<span class="sd">            - &#39;reg_alpha&#39;, &#39;reg_lambda&#39; (float): Regularization strength for XGBoost.</span>
+<span class="sd">            - &#39;learning_rate&#39; (float): Learning rate for XGBoost.</span>
+<span class="sd">            - &#39;n_estimators&#39; (int): Number of boosting rounds for the model.</span>
+<span class="sd">            - &#39;test_size&#39; (float): Fraction of labeled data to use for testing.</span>
+<span class="sd">            - &#39;model_type_ml&#39; (str): Type of model to use (&#39;xgboost&#39;, &#39;random_forest&#39;, etc.).</span>
+<span class="sd">            - &#39;n_jobs&#39; (int): Number of parallel jobs.</span>
+<span class="sd">            - &#39;remove_low_variance_features&#39; (bool): Whether to drop near-constant features.</span>
+<span class="sd">            - &#39;remove_highly_correlated_features&#39; (bool): Whether to drop redundant features.</span>
+<span class="sd">            - &#39;prune_features&#39; (bool): Whether to perform SelectKBest-based pruning.</span>
+<span class="sd">            - &#39;cross_validation&#39; (bool): Whether to use 5-fold cross-validation.</span>
+<span class="sd">            - &#39;heatmap_feature&#39; (str): Feature to plot as a plate heatmap.</span>
+<span class="sd">            - &#39;grouping&#39; (str): Column used to group wells in the heatmap (e.g., &#39;prc&#39;).</span>
+<span class="sd">            - &#39;min_max&#39; (tuple): Min/max range for heatmap normalization.</span>
+<span class="sd">            - &#39;minimum_cell_count&#39; (int): Minimum number of cells per well for heatmap inclusion.</span>
+<span class="sd">            - &#39;cmap&#39; (str): Colormap for the heatmap.</span>
+<span class="sd">            - &#39;save_to_db&#39; (bool): If True, update the database with prediction column.</span>
+<span class="sd">            - &#39;verbose&#39; (bool): If True, print detailed logs.</span>
+<span class="sd">            - &#39;annotation_column&#39; (str or None): If provided, annotate data from the `png_list` table.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: </span>
+<span class="sd">            - output (list): Includes DataFrames and model objects from the `ml_analysis` function.</span>
+<span class="sd">            - plate_heatmap (matplotlib.Figure): Plate-level heatmap of the selected feature.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If required columns are missing or specified features are not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_merge_data</span><span class="p">,</span> <span class="n">_read_db</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_plates</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_ml_results_paths</span><span class="p">,</span> <span class="n">add_column_to_database</span><span class="p">,</span> <span class="n">calculate_shortest_distance</span>
@@ -1666,29 +2005,51 @@
 <div class="viewcode-block" id="ml_analysis">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.ml_analysis">[docs]</a>
 <span class="k">def</span> <span class="nf">ml_analysis</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">location_column</span><span class="o">=</span><span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="n">positive_control</span><span class="o">=</span><span class="s1">&#39;c2&#39;</span><span class="p">,</span> <span class="n">negative_control</span><span class="o">=</span><span class="s1">&#39;c1&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">top_features</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">reg_alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">reg_lambda</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.00001</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;xgboost&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">remove_low_variance_features</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_highly_correlated_features</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prune_features</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cross_validation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates permutation importance for numerical features in the dataframe,</span>
-<span class="sd">    comparing groups based on specified column values and uses the model to predict </span>
-<span class="sd">    the class for all other rows in the dataframe.</span>
+<span class="sd">    Train a machine learning classifier to distinguish between positive and negative control wells,</span>
+<span class="sd">    compute feature importance via permutation and model-based methods, and assign predictions to all rows.</span>
+
+<span class="sd">    This function supports several classifier types (XGBoost, random forest, logistic regression, etc.),</span>
+<span class="sd">    with options for feature selection, cross-validation, and SHAP-ready output. It returns predictions,</span>
+<span class="sd">    probability estimates, and feature importances, and computes classification metrics.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    df (pandas.DataFrame): The DataFrame containing the data.</span>
-<span class="sd">    feature_string (str): String to filter features that contain this substring.</span>
-<span class="sd">    location_column (str): Column name to use for comparing groups.</span>
-<span class="sd">    positive_control, negative_control (str): Values in location_column to create subsets for comparison.</span>
-<span class="sd">    exclude (list or str, optional): Columns to exclude from features.</span>
-<span class="sd">    n_repeats (int): Number of repeats for permutation importance.</span>
-<span class="sd">    top_features (int): Number of top features to plot based on permutation importance.</span>
-<span class="sd">    n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.</span>
-<span class="sd">    test_size (float): Proportion of the dataset to include in the test split.</span>
-<span class="sd">    random_state (int): Random seed for reproducibility.</span>
-<span class="sd">    model_type (str): Type of model to use (&#39;random_forest&#39;, &#39;logistic_regression&#39;, &#39;gradient_boosting&#39;, &#39;xgboost&#39;).</span>
-<span class="sd">    n_jobs (int): Number of jobs to run in parallel for applicable models.</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame with features and metadata.</span>
+<span class="sd">        channel_of_interest (int): Channel index used for filtering relevant features.</span>
+<span class="sd">        location_column (str): Column that defines grouping (e.g., &#39;columnID&#39;) to select control wells.</span>
+<span class="sd">        positive_control (str or list): Identifier(s) in `location_column` for positive control group.</span>
+<span class="sd">        negative_control (str or list): Identifier(s) in `location_column` for negative control group.</span>
+<span class="sd">        exclude (list or str, optional): Feature names or substrings to exclude from analysis.</span>
+<span class="sd">        n_repeats (int): Number of repetitions for permutation importance calculation.</span>
+<span class="sd">        top_features (int): Number of top features to retain and visualize.</span>
+<span class="sd">        reg_alpha (float): L1 regularization term (only for XGBoost).</span>
+<span class="sd">        reg_lambda (float): L2 regularization term (only for XGBoost).</span>
+<span class="sd">        learning_rate (float): Learning rate for gradient-based models (e.g., XGBoost).</span>
+<span class="sd">        n_estimators (int): Number of trees or boosting iterations.</span>
+<span class="sd">        test_size (float): Fraction of labeled data used for testing.</span>
+<span class="sd">        model_type (str): Model type to train: &#39;xgboost&#39;, &#39;random_forest&#39;, &#39;logistic_regression&#39;, or &#39;gradient_boosting&#39;.</span>
+<span class="sd">        n_jobs (int): Number of CPU cores to use (where supported).</span>
+<span class="sd">        remove_low_variance_features (bool): If True, drop near-constant features.</span>
+<span class="sd">        remove_highly_correlated_features (bool): If True, drop features with high pairwise correlation.</span>
+<span class="sd">        prune_features (bool): If True, apply SelectKBest to reduce features before training.</span>
+<span class="sd">        cross_validation (bool): If True, use 5-fold stratified cross-validation instead of single split.</span>
+<span class="sd">        verbose (bool): If True, print detailed logs and show diagnostic plots.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    pandas.DataFrame: The original dataframe with added prediction and data usage columns.</span>
-<span class="sd">    pandas.DataFrame: DataFrame containing the importances and standard deviations.</span>
+<span class="sd">        list:</span>
+<span class="sd">            - [0] df (pd.DataFrame): Original DataFrame with added predictions, probabilities, and metadata.</span>
+<span class="sd">            - [1] permutation_df (pd.DataFrame): Permutation importance for top features.</span>
+<span class="sd">            - [2] feature_importance_df (pd.DataFrame): Model-based feature importance scores (if supported).</span>
+<span class="sd">            - [3] model (sklearn-compatible): Trained model object.</span>
+<span class="sd">            - [4] X_train (pd.DataFrame): Training feature matrix.</span>
+<span class="sd">            - [5] X_test (pd.DataFrame): Test feature matrix.</span>
+<span class="sd">            - [6] y_train (pd.Series): Training target labels.</span>
+<span class="sd">            - [7] y_test (pd.Series): Test target labels.</span>
+<span class="sd">            - [8] metrics_df (pd.DataFrame): Summary classification metrics (precision, recall, f1).</span>
+<span class="sd">            - [9] features (list): Final list of features used in training.</span>
+<span class="sd">        list:</span>
+<span class="sd">            - [0] permutation_fig (matplotlib.Figure): Bar plot of permutation importances.</span>
+<span class="sd">            - [1] feature_importance_fig (matplotlib.Figure): Bar plot of model importances.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">filter_dataframe_features</span>
@@ -1903,18 +2264,17 @@
 <div class="viewcode-block" id="shap_analysis">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.shap_analysis">[docs]</a>
 <span class="k">def</span> <span class="nf">shap_analysis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
-<span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Performs SHAP analysis on the given model and data.</span>
+<span class="sd">    Compute and return a SHAP summary plot figure for a trained model.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    model: The trained model.</span>
-<span class="sd">    X_train (pandas.DataFrame): Training feature set.</span>
-<span class="sd">    X_test (pandas.DataFrame): Testing feature set.</span>
+<span class="sd">        model: A trained machine learning model compatible with SHAP.</span>
+<span class="sd">        X_train (pd.DataFrame): Training features used to initialize the SHAP explainer.</span>
+<span class="sd">        X_test (pd.DataFrame): Test features for which SHAP values will be computed.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">    fig: Matplotlib figure object containing the SHAP summary plot.</span>
+<span class="sd">        matplotlib.figure.Figure: SHAP summary plot figure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">Explainer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">)</span>
     <span class="n">shap_values</span> <span class="o">=</span> <span class="n">explainer</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
     <span class="c1"># Create a new figure</span>
@@ -1931,14 +2291,15 @@
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.find_optimal_threshold">[docs]</a>
 <span class="k">def</span> <span class="nf">find_optimal_threshold</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Find the optimal threshold for binary classification based on the F1-score.</span>
+<span class="sd">    Determine the optimal decision threshold that maximizes the F1-score </span>
+<span class="sd">    based on predicted probabilities.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    y_true (array-like): True binary labels.</span>
-<span class="sd">    y_pred_proba (array-like): Predicted probabilities for the positive class.</span>
+<span class="sd">        y_true (array-like): Ground-truth binary labels.</span>
+<span class="sd">        y_pred_proba (array-like): Predicted class probabilities (positive class).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    float: The optimal threshold.</span>
+<span class="sd">        float: Threshold that yields the highest F1-score.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred_proba</span><span class="p">)</span>
     <span class="n">f1_scores</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span><span class="p">)</span>
@@ -1949,17 +2310,19 @@
 
 <span class="k">def</span> <span class="nf">_calculate_similarity</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">col_to_compare</span><span class="p">,</span> <span class="n">val1</span><span class="p">,</span> <span class="n">val2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate similarity scores of each well to the positive and negative controls using various metrics.</span>
-<span class="sd">    </span>
+<span class="sd">    Calculate similarity scores between each sample and the mean profile of two control groups </span>
+<span class="sd">    using multiple distance metrics (Euclidean, Cosine, Mahalanobis, Manhattan, Minkowski, Chebyshev, Bray-Curtis).</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">    df (pandas.DataFrame): DataFrame containing the data.</span>
-<span class="sd">    features (list): List of feature columns to use for similarity calculation.</span>
-<span class="sd">    col_to_compare (str): Column name to use for comparing groups.</span>
-<span class="sd">    val1, val2 (str): Values in col_to_compare to create subsets for comparison.</span>
+<span class="sd">        df (pd.DataFrame): DataFrame containing feature data and control labels.</span>
+<span class="sd">        features (list of str): Feature columns to use in similarity calculations.</span>
+<span class="sd">        col_to_compare (str): Column name used to identify control group membership.</span>
+<span class="sd">        val1 (str or list): Value(s) indicating the positive control group.</span>
+<span class="sd">        val2 (str or list): Value(s) indicating the negative control group.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    pandas.DataFrame: DataFrame with similarity scores.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        pd.DataFrame: Input DataFrame with appended similarity score columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
     <span class="c1"># Separate positive and negative control wells</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">pos_control</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_to_compare</span><span class="p">]</span> <span class="o">==</span> <span class="n">val1</span><span class="p">][</span><span class="n">features</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
@@ -2014,7 +2377,33 @@
 <div class="viewcode-block" id="interperate_vision_model">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.interperate_vision_model">[docs]</a>
 <span class="k">def</span> <span class="nf">interperate_vision_model</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform feature interpretation on vision model predictions using feature importance, </span>
+<span class="sd">    permutation importance, and SHAP analysis.</span>
+
+<span class="sd">    Steps:</span>
+<span class="sd">        1. Loads and merges measurement and score data.</span>
+<span class="sd">        2. Computes Random Forest feature importances.</span>
+<span class="sd">        3. Computes permutation-based feature importances.</span>
+<span class="sd">        4. Runs SHAP analysis on selected features.</span>
+<span class="sd">        5. Aggregates SHAP values by compartment and channel and visualizes them using radar plots.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary containing configuration options, including:</span>
+<span class="sd">            - src (str): Path to measurement database.</span>
+<span class="sd">            - tables (list): List of tables to include.</span>
+<span class="sd">            - score_column (str): Column with predicted or measured scores.</span>
+<span class="sd">            - top_features (int): Number of features to retain and plot.</span>
+<span class="sd">            - shap (bool): Whether to perform SHAP analysis.</span>
+<span class="sd">            - shap_sample (bool): Whether to subsample data before SHAP.</span>
+<span class="sd">            - feature_importance (bool): Whether to compute Random Forest importance.</span>
+<span class="sd">            - permutation_importance (bool): Whether to compute permutation importance.</span>
+<span class="sd">            - n_jobs (int): Number of parallel jobs for model training and permutation.</span>
+<span class="sd">            - save (bool): Whether to save result CSVs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Merged and scored dataset used for interpretation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_merge_data</span><span class="p">,</span> <span class="n">_results_to_csv</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_interperate_vision_model_defaults</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span>

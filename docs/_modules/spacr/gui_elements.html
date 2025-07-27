@@ -122,8 +122,14 @@
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.restart_gui_app">[docs]</a>
 <span class="k">def</span> <span class="nf">restart_gui_app</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Restarts the GUI application by destroying the current instance</span>
-<span class="sd">    and launching a fresh one.</span>
+<span class="sd">    Restarts the SpaCr GUI application by destroying the current root window </span>
+<span class="sd">    and launching a fresh instance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root (tk.Tk): The current Tkinter root window to be destroyed.</span>
+<span class="sd">    </span>
+<span class="sd">    Note:</span>
+<span class="sd">        The new instance is launched by importing and invoking `gui_app()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Destroy the current root window</span>
@@ -140,6 +146,20 @@
 <div class="viewcode-block" id="create_menu_bar">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.create_menu_bar">[docs]</a>
 <span class="k">def</span> <span class="nf">create_menu_bar</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a top-level menu bar for the SpaCr GUI containing shortcuts to all</span>
+<span class="sd">    major application modules and help resources.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root (tk.Tk): The root window where the menu bar will be attached.</span>
+
+<span class="sd">    Adds:</span>
+<span class="sd">        - A &#39;SpaCr Applications&#39; menu with links to:</span>
+<span class="sd">          &#39;Mask&#39;, &#39;Measure&#39;, &#39;Classify&#39;, &#39;ML Analyze&#39;, &#39;Map Barcodes&#39;,</span>
+<span class="sd">          &#39;Regression&#39;, &#39;Activation&#39;, and &#39;Recruitment&#39;.</span>
+<span class="sd">        - A Help option linking to the online documentation.</span>
+<span class="sd">        - An Exit option to quit the application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui</span> <span class="kn">import</span> <span class="n">initiate_root</span>
     <span class="n">gui_apps</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;Mask&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">initiate_root</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">),</span>
@@ -179,7 +199,18 @@
 <div class="viewcode-block" id="set_element_size">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.set_element_size">[docs]</a>
 <span class="k">def</span> <span class="nf">set_element_size</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates and returns standardized UI element dimensions </span>
+<span class="sd">    based on the current screen size.</span>
 
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary with element dimensions including:</span>
+<span class="sd">            - &#39;btn_size&#39; (int): Size of buttons.</span>
+<span class="sd">            - &#39;bar_size&#39; (int): Height of progress bars.</span>
+<span class="sd">            - &#39;settings_width&#39; (int): Width of the settings panel.</span>
+<span class="sd">            - &#39;panel_width&#39; (int): Width of the plotting panel.</span>
+<span class="sd">            - &#39;panel_height&#39; (int): Height of the bottom control panel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">screen_width</span><span class="p">,</span> <span class="n">screen_height</span> <span class="o">=</span> <span class="n">pyautogui</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
     <span class="n">screen_area</span> <span class="o">=</span> <span class="n">screen_width</span> <span class="o">*</span> <span class="n">screen_height</span>
     
@@ -203,7 +234,24 @@
 <div class="viewcode-block" id="set_dark_style">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.set_dark_style">[docs]</a>
 <span class="k">def</span> <span class="nf">set_dark_style</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">parent_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">widgets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s2">&quot;OpenSans&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">bg_color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">fg_color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">active_color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">inactive_color</span><span class="o">=</span><span class="s1">&#39;dark_gray&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies a dark theme to the SpaCr GUI using the provided styling options.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        style (ttk.Style): The ttk style instance to configure.</span>
+<span class="sd">        parent_frame (tk.Widget, optional): The top-level container to apply styles to.</span>
+<span class="sd">        containers (list, optional): Additional containers (ttk.Frame or tk.Frame) to style.</span>
+<span class="sd">        widgets (list, optional): List of individual widgets to apply colors and fonts.</span>
+<span class="sd">        font_family (str): Font family for all labels and buttons.</span>
+<span class="sd">        font_size (int): Font size for all text elements.</span>
+<span class="sd">        bg_color (str): Background color.</span>
+<span class="sd">        fg_color (str): Foreground/text color.</span>
+<span class="sd">        active_color (str): Highlight or selected color.</span>
+<span class="sd">        inactive_color (str): Secondary background color.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Style parameters used, including resolved font and color values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">active_color</span> <span class="o">==</span> <span class="s1">&#39;teal&#39;</span><span class="p">:</span>
         <span class="n">active_color</span> <span class="o">=</span> <span class="s1">&#39;#008080&#39;</span>
     <span class="k">if</span> <span class="n">inactive_color</span> <span class="o">==</span> <span class="s1">&#39;dark_gray&#39;</span><span class="p">:</span>
@@ -378,6 +426,15 @@
 <div class="viewcode-block" id="spacrContainer">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrContainer</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom container widget that manages multiple resizable panes arranged </span>
+<span class="sd">    either vertically or horizontally, separated by draggable sashes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): The parent widget.</span>
+<span class="sd">        orient (str): Orientation of the layout (&#39;tk.VERTICAL&#39; or &#39;tk.HORIZONTAL&#39;). Default is vertical.</span>
+<span class="sd">        bg (str): Background color of the container and sashes. Defaults to &#39;lightgrey&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrContainer.orient">
