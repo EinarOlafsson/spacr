@@ -245,20 +245,22 @@
 <dt class="sig sig-object py" id="spacr.io.spacrDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
-<p>Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_dir</strong> (<em>str</em>) – Root directory containing subfolders for each class.</p></li>
-<li><p><strong>loader_classes</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of class names corresponding to subfolder names in <cite>data_dir</cite>.</p></li>
-<li><p><strong>transform</strong> (<em>callable</em><em>, </em><em>optional</em>) – Transform to apply to images (e.g., torchvision transforms).</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle the dataset. Default is True.</p></li>
-<li><p><strong>pin_memory</strong> (<em>bool</em>) – If True, pre-load all images into memory using multiprocessing. Default is False.</p></li>
-<li><p><strong>specific_files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Specific image file paths to load instead of scanning <cite>data_dir</cite>.</p></li>
-<li><p><strong>specific_labels</strong> (<em>list</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Corresponding labels for <cite>specific_files</cite>.</p></li>
-</ul>
-</dd>
-</dl>
+<p>An abstract class representing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>.</p>
+<p>All datasets that represent a map from keys to data samples should subclass
+it. All subclasses should overwrite <code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code>, supporting fetching a
+data sample for a given key. Subclasses could also optionally overwrite
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">__len__()</span></code>, which is expected to return the size of the dataset by many
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> implementations and the default options
+of <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. Subclasses could also
+optionally implement <code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitems__()</span></code>, for speedup batched samples
+loading. This method accepts list of indices of samples of batch and returns
+list of samples.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code> by default constructs an index
+sampler that yields integral indices.  To make it work with a map-style
+dataset with non-integral indices/keys, a custom sampler must be provided.</p>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.data_dir">
 <span class="sig-name descname"><span class="pre">data_dir</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.data_dir" title="Link to this definition"></a></dt>

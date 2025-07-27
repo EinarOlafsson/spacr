@@ -120,22 +120,22 @@ Module Contents
    Bases: :py:obj:`torch.utils.data.Dataset`
 
 
-   Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.
+   An abstract class representing a :class:`Dataset`.
 
-   :param data_dir: Root directory containing subfolders for each class.
-   :type data_dir: str
-   :param loader_classes: List of class names corresponding to subfolder names in `data_dir`.
-   :type loader_classes: list[str]
-   :param transform: Transform to apply to images (e.g., torchvision transforms).
-   :type transform: callable, optional
-   :param shuffle: Whether to shuffle the dataset. Default is True.
-   :type shuffle: bool
-   :param pin_memory: If True, pre-load all images into memory using multiprocessing. Default is False.
-   :type pin_memory: bool
-   :param specific_files: Specific image file paths to load instead of scanning `data_dir`.
-   :type specific_files: list[str], optional
-   :param specific_labels: Corresponding labels for `specific_files`.
-   :type specific_labels: list[int], optional
+   All datasets that represent a map from keys to data samples should subclass
+   it. All subclasses should overwrite :meth:`__getitem__`, supporting fetching a
+   data sample for a given key. Subclasses could also optionally overwrite
+   :meth:`__len__`, which is expected to return the size of the dataset by many
+   :class:`~torch.utils.data.Sampler` implementations and the default options
+   of :class:`~torch.utils.data.DataLoader`. Subclasses could also
+   optionally implement :meth:`__getitems__`, for speedup batched samples
+   loading. This method accepts list of indices of samples of batch and returns
+   list of samples.
+
+   .. note::
+     :class:`~torch.utils.data.DataLoader` by default constructs an index
+     sampler that yields integral indices.  To make it work with a map-style
+     dataset with non-integral indices/keys, a custom sampler must be provided.
 
 
    .. py:attribute:: data_dir
