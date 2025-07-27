@@ -154,13 +154,8 @@
 <span class="sd">        export_tiffs (bool): If True, exports grayscale TIFFs for each image channel. Default is False.</span>
 <span class="sd">        all_on_all (bool): If True, overlays all outlines on all channels. Default is False.</span>
 <span class="sd">        all_outlines (bool): If True, overlays all outlines on non-matching channels. Default is False.</span>
-<span class="sd">        filter_dict (dict or None): Dictionary of filtering thresholds for each object type.</span>
-<span class="sd">            Example format:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;cell&#39;: [(min_area, max_area), (min_intensity, max_intensity)],</span>
-<span class="sd">                    &#39;nucleus&#39;: [...],</span>
-<span class="sd">                    &#39;pathogen&#39;: [...]</span>
-<span class="sd">                }</span>
+<span class="sd">        filter_dict (dict or None): Dictionary of filtering thresholds for each object type. </span>
+<span class="sd">            For example: {&quot;cell&quot;: [(min_area, max_area), (min_intensity, max_intensity)]}</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.figure.Figure: The generated overlay figure.</span>
