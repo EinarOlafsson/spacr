@@ -22,11 +22,11 @@ Badges
 .. |logo| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
    :height: 100
 
-+--------------------------------------+------------------------------------------+
-| |logo|                               | **spaCR**                                |
-|                                      | Spatial phenotype analysis of CRISPR-    |
-|                                      | Cas9 screens (SpaCr).                    |
-+--------------------------------------+------------------------------------------+
++------------------------------------------------+----------------------------------------------------+
+| |logo|                                         | **spaCR**                                          |
+|                                                | Spatial phenotype analysis of CRISPR-              |
+|                                                | Cas9 screens (spaCR).                              |
++------------------------------------------------+----------------------------------------------------+
 
 The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understanding host clearance mechanisms and how pathogens evade them. SpaCr is a Python-based software package for generating single-cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.
 
@@ -37,12 +37,12 @@ Features
 -  **Object Measurements:** Measurements for each object including scikit-image regionprops, intensity percentiles, shannon-entropy, Pearson’s and Manders’ correlations, homogeneity, and radial distribution. Measurements are saved to a SQL database in object-level tables.
 -  **Crop Images:** Save objects (cells, nuclei, pathogen, cytoplasm) as images. Object image paths are saved in a SQL database.
 -  **Train CNNs or Transformers:** Train Torch models to classify single object images.
--  **Manual Annotation:** Supports manual annotation of single-cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
--  **Finetune Cellpose Models:** Adjust pre-existing Cellpose models to your specific dataset for improved performance.
--  **Timelapse Data Support:** Track objects in timelapse image data.
--  **Simulations:** Simulate spatial phenotype screens.
+-  **Manual Annotation (nightly):** Supports manual annotation of single-cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
+-  **Finetune Cellpose Models (nightly):** Adjust pre-existing Cellpose models to your specific dataset for improved performance.
+-  **Timelapse Data Support (nightly):** Track objects in timelapse image data.
+-  **Simulations (nightly):** Simulate spatial phenotype screens.
 -  **Sequencing:** Map FASTQ reads to barcode and gRNA barcode metadata.
--  **Misc:** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
+-  **Misc (nightly):** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
 .. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/flow_chart_v3.png
    :alt: SpaCr workflow
@@ -51,9 +51,8 @@ Features
 **Overview and data organization of spaCR.**
 
 **a.** Schematic workflow of the spaCR pipeline for pooled image-based CRISPR screens. Microscopy images (TIFF, LIF, CZI, NDI) and sequencing reads (FASTQ) are used as inputs (black). The main modules (teal) are: (1) Mask: generates object masks for cells, nuclei, pathogens, and cytoplasm; (2) Measure: extracts object-level features and crops object images, storing quantitative data in an SQL database; (3) Classify—applies machine learning (ML, e.g., XGBoost) or deep learning (DL, e.g., PyTorch) models to classify objects, summarizing results as well-level classification scores; (4) Map Barcodes: extracts and maps row, column, and gRNA barcodes from sequencing data to corresponding wells; (5) Regression: estimates gRNA effect sizes and gene scores via multiple linear regression using well-level summary statistics.
-**b.** Downstream submodules available for extended analyses at each stage.
-**c.** Output folder structure for each module, including locations for raw and processed images, masks, object-level measurements, datasets, and results.
-**d.** List of all spaCR package modules.
+**b.** Output folder structure for each module, including locations for raw and processed images, masks, object-level measurements, datasets, and results.
+**c.** List of all spaCR package modules.
 
 Installation
 ------------
@@ -68,23 +67,8 @@ If using Windows, switch to Linux—it's free, open-source, and better.
    brew install libomp hdf5 cmake openssl
 
 **Linux GUI requirement:**  
-SpaCr GUI requires Tkinter.  
+SpaCr GUI requires Tkinter.  **b.** Downstream submodules available for extended analyses at each stage.
 
-::
-
-   sudo apt-get install python3-tk
-
-**Installation:**
-
-::
-
-   pip install spacr
-
-**Run SpaCr GUI:**
-
-::
-
-   spacr
 
 Example Notebooks
 -----------------
