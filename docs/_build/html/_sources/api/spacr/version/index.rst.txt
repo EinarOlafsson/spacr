@@ -29,11 +29,11 @@ Module Contents
       spacr version: 	FunctionDef.version(name='version',
                           position=Position(lineno=562, col_offset=0, end_lineno=562, end_col_offset=11),
                           decorators=None,
-                          args=<Arguments l.562 at 0x7e59bf260df0>,
+                          args=<Arguments l.562 at 0x7fac04be5df0>,
                           returns=None,
                           type_params=[],
-                          doc_node=<Const.str l.563 at 0x7e59bf4aea30>,
-                          body=[<Return l.569 at 0x7e59bf4aecd0>]) 
+                          doc_node=<Const.str l.563 at 0x7fac04e2da30>,
+                          body=[<Return l.569 at 0x7fac04e2dcd0>]) 
       platform:       	linux 
       python version: 	Uninferable 
       torch version:  	torch-deploy-1.8"""
