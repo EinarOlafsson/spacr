@@ -224,7 +224,100 @@ supports advanced timelapse and channel-specific configurations.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_cellpose_masks">
 <span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#generate_cellpose_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_cellpose_masks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate segmentation masks for a specific object type using Cellpose.</p>
+<p>This function applies a Cellpose-based segmentation pipeline to images in <cite>.npz</cite> format, using settings
+for batch size, object type (cell, nucleus, pathogen), filtering, plotting, and timelapse options.
+Masks are optionally filtered, saved, tracked (for timelapse), and summarized into a SQLite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em>) – Path to the source folder containing <cite>.npz</cite> files with image stacks.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – <p>Dictionary of settings used to control preprocessing and segmentation. Includes:</p>
+<dl class="simple">
+<dt>General settings:</dt><dd><ul>
+<li><p>src (str): Source directory.</p></li>
+<li><p>denoise (bool): Apply denoising before processing.</p></li>
+<li><p>delete_intermediate (bool): Remove intermediate files after processing.</p></li>
+<li><p>preprocess (bool): Enable preprocessing.</p></li>
+<li><p>masks (bool): Enable mask generation.</p></li>
+<li><p>save (bool): Save mask outputs.</p></li>
+<li><p>consolidate (bool): Consolidate image folders.</p></li>
+<li><p>batch_size (int): Batch size for processing.</p></li>
+<li><p>test_mode (bool): Enable test mode with limited image count.</p></li>
+<li><p>test_images (int): Number of test images to process.</p></li>
+<li><p>magnification (int): Image magnification level.</p></li>
+<li><p>custom_regex (str or None): Regex pattern for file parsing (metadata_type = ‘auto’).</p></li>
+<li><p>metadata_type (str): One of “cellvoyager” or “auto”.</p></li>
+<li><p>n_jobs (int): Number of parallel workers.</p></li>
+<li><p>randomize (bool): Shuffle file order before processing.</p></li>
+<li><p>verbose (bool): Print full settings to console.</p></li>
+</ul>
+</dd>
+<dt>Channel/background/cellpose settings:</dt><dd><ul>
+<li><p>remove_background_cell/nucleus/pathogen (bool): Whether to subtract background from channel.</p></li>
+<li><p>cell_diamiter / nucleus_diamiter / pathogen_diamiter (float or None): Estimated diameter.</p></li>
+<li><p>cell_channel / nucleus_channel / pathogen_channel (int or None): Channel index.</p></li>
+<li><p>channels (list): List of channels to include in stack.</p></li>
+<li><p>cell/background/SNR/CP_prob/FT (float): Intensity/cellpose thresholds and scaling.</p></li>
+<li><p>pathogen_model (str or None): Custom model for pathogen segmentation (e.g. “toxo_pv_lumen”).</p></li>
+</ul>
+</dd>
+<dt>Plotting:</dt><dd><ul>
+<li><p>plot (bool): Plot masks or overlay visualizations.</p></li>
+<li><p>figuresize (int): Matplotlib figure size.</p></li>
+<li><p>cmap (str): Colormap to use (e.g. “inferno”).</p></li>
+<li><p>normalize (bool): Normalize input intensities.</p></li>
+<li><p>normalize_plots (bool): Normalize for plots.</p></li>
+<li><p>examples_to_plot (int): How many examples to plot.</p></li>
+</ul>
+</dd>
+<dt>Filtering and merging:</dt><dd><ul>
+<li><p>merge_pathogens (bool): Whether to merge pathogen objects.</p></li>
+<li><p>filter (bool): Apply filtering on masks.</p></li>
+<li><p>lower_percentile (float): Intensity filter threshold.</p></li>
+<li><p>merge (bool): Merge adjacent objects if needed.</p></li>
+</ul>
+</dd>
+<dt>Timelapse:</dt><dd><ul>
+<li><p>timelapse (bool): Enable object tracking across timepoints.</p></li>
+<li><p>timelapse_displacement (float or None): Max tracking displacement.</p></li>
+<li><p>timelapse_memory (int): Trackpy memory.</p></li>
+<li><p>timelapse_frame_limits (list): Frames to include in timelapse batch.</p></li>
+<li><p>timelapse_remove_transient (bool): Remove transient objects.</p></li>
+<li><p>timelapse_mode (str): One of “trackpy”, “btrack”, or “iou”.</p></li>
+<li><p>timelapse_objects (list or None): Subset of [‘cell’, ‘nucleus’, ‘pathogen’] to track.</p></li>
+</ul>
+</dd>
+<dt>Miscellaneous:</dt><dd><ul>
+<li><p>all_to_mip (bool): Convert Z-stacks to max projections.</p></li>
+<li><p>upscale (bool): Apply upscaling.</p></li>
+<li><p>upscale_factor (float): Upscaling factor.</p></li>
+<li><p>adjust_cells (bool): Refine cell masks with nucleus/pathogen.</p></li>
+<li><p>use_sam_cell/nucleus/pathogen (bool): Use SAM for mask generation.</p></li>
+</ul>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>object_type</strong> (<em>str</em>) – One of ‘cell’, ‘nucleus’, or ‘pathogen’. Determines which mask to generate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>Generated masks are stored in a <cite>*_mask_stack/</cite> folder.</p></li>
+<li><p>Object counts are written to <cite>measurements/measurements.db</cite>.</p></li>
+<li><p>Optional overlay plots are saved if enabled.</p></li>
+<li><p>Optional timelapse movies are saved in <cite>movies/</cite>.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None. Outputs are saved to disk</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the object_type is missing from the computed channel map, or if invalid tracking settings are provided.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_screen_graphs">

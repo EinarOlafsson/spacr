@@ -397,7 +397,85 @@
 <div class="viewcode-block" id="generate_cellpose_masks">
 <a class="viewcode-back" href="../../api/spacr/core/index.html#spacr.core.generate_cellpose_masks">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_cellpose_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate segmentation masks for a specific object type using Cellpose.</span>
+
+<span class="sd">    This function applies a Cellpose-based segmentation pipeline to images in `.npz` format, using settings </span>
+<span class="sd">    for batch size, object type (cell, nucleus, pathogen), filtering, plotting, and timelapse options. </span>
+<span class="sd">    Masks are optionally filtered, saved, tracked (for timelapse), and summarized into a SQLite database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Path to the source folder containing `.npz` files with image stacks.</span>
+<span class="sd">        settings (dict): Dictionary of settings used to control preprocessing and segmentation. Includes:</span>
+
+<span class="sd">            General settings:</span>
+<span class="sd">                - src (str): Source directory.</span>
+<span class="sd">                - denoise (bool): Apply denoising before processing.</span>
+<span class="sd">                - delete_intermediate (bool): Remove intermediate files after processing.</span>
+<span class="sd">                - preprocess (bool): Enable preprocessing.</span>
+<span class="sd">                - masks (bool): Enable mask generation.</span>
+<span class="sd">                - save (bool): Save mask outputs.</span>
+<span class="sd">                - consolidate (bool): Consolidate image folders.</span>
+<span class="sd">                - batch_size (int): Batch size for processing.</span>
+<span class="sd">                - test_mode (bool): Enable test mode with limited image count.</span>
+<span class="sd">                - test_images (int): Number of test images to process.</span>
+<span class="sd">                - magnification (int): Image magnification level.</span>
+<span class="sd">                - custom_regex (str or None): Regex pattern for file parsing (metadata_type = &#39;auto&#39;).</span>
+<span class="sd">                - metadata_type (str): One of &quot;cellvoyager&quot; or &quot;auto&quot;.</span>
+<span class="sd">                - n_jobs (int): Number of parallel workers.</span>
+<span class="sd">                - randomize (bool): Shuffle file order before processing.</span>
+<span class="sd">                - verbose (bool): Print full settings to console.</span>
+
+<span class="sd">            Channel/background/cellpose settings:</span>
+<span class="sd">                - remove_background_cell/nucleus/pathogen (bool): Whether to subtract background from channel.</span>
+<span class="sd">                - cell_diamiter / nucleus_diamiter / pathogen_diamiter (float or None): Estimated diameter.</span>
+<span class="sd">                - cell_channel / nucleus_channel / pathogen_channel (int or None): Channel index.</span>
+<span class="sd">                - channels (list): List of channels to include in stack.</span>
+<span class="sd">                - cell/background/SNR/CP_prob/FT (float): Intensity/cellpose thresholds and scaling.</span>
+<span class="sd">                - pathogen_model (str or None): Custom model for pathogen segmentation (e.g. &quot;toxo_pv_lumen&quot;).</span>
+
+<span class="sd">            Plotting:</span>
+<span class="sd">                - plot (bool): Plot masks or overlay visualizations.</span>
+<span class="sd">                - figuresize (int): Matplotlib figure size.</span>
+<span class="sd">                - cmap (str): Colormap to use (e.g. &quot;inferno&quot;).</span>
+<span class="sd">                - normalize (bool): Normalize input intensities.</span>
+<span class="sd">                - normalize_plots (bool): Normalize for plots.</span>
+<span class="sd">                - examples_to_plot (int): How many examples to plot.</span>
+
+<span class="sd">            Filtering and merging:</span>
+<span class="sd">                - merge_pathogens (bool): Whether to merge pathogen objects.</span>
+<span class="sd">                - filter (bool): Apply filtering on masks.</span>
+<span class="sd">                - lower_percentile (float): Intensity filter threshold.</span>
+<span class="sd">                - merge (bool): Merge adjacent objects if needed.</span>
+
+<span class="sd">            Timelapse:</span>
+<span class="sd">                - timelapse (bool): Enable object tracking across timepoints.</span>
+<span class="sd">                - timelapse_displacement (float or None): Max tracking displacement.</span>
+<span class="sd">                - timelapse_memory (int): Trackpy memory.</span>
+<span class="sd">                - timelapse_frame_limits (list): Frames to include in timelapse batch.</span>
+<span class="sd">                - timelapse_remove_transient (bool): Remove transient objects.</span>
+<span class="sd">                - timelapse_mode (str): One of &quot;trackpy&quot;, &quot;btrack&quot;, or &quot;iou&quot;.</span>
+<span class="sd">                - timelapse_objects (list or None): Subset of [&#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;] to track.</span>
+
+<span class="sd">            Miscellaneous:</span>
+<span class="sd">                - all_to_mip (bool): Convert Z-stacks to max projections.</span>
+<span class="sd">                - upscale (bool): Apply upscaling.</span>
+<span class="sd">                - upscale_factor (float): Upscaling factor.</span>
+<span class="sd">                - adjust_cells (bool): Refine cell masks with nucleus/pathogen.</span>
+<span class="sd">                - use_sam_cell/nucleus/pathogen (bool): Use SAM for mask generation.</span>
+
+<span class="sd">        object_type (str): One of &#39;cell&#39;, &#39;nucleus&#39;, or &#39;pathogen&#39;. Determines which mask to generate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Outputs are saved to disk:</span>
+<span class="sd">            - Generated masks are stored in a `*_mask_stack/` folder.</span>
+<span class="sd">            - Object counts are written to `measurements/measurements.db`.</span>
+<span class="sd">            - Optional overlay plots are saved if enabled.</span>
+<span class="sd">            - Optional timelapse movies are saved in `movies/`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the object_type is missing from the computed channel map, or if invalid tracking settings are provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_masks_to_masks_stack</span><span class="p">,</span> <span class="n">_filter_cp_masks</span><span class="p">,</span> <span class="n">_get_cellpose_batch_size</span><span class="p">,</span> <span class="n">_get_cellpose_channels</span><span class="p">,</span> <span class="n">_choose_model</span><span class="p">,</span> <span class="n">all_elements_match</span><span class="p">,</span> <span class="n">prepare_batch_for_segmentation</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span><span class="p">,</span> <span class="n">_save_object_counts_to_database</span><span class="p">,</span> <span class="n">_check_masks</span><span class="p">,</span> <span class="n">_get_avg_object_size</span>
     <span class="kn">from</span> <span class="nn">.timelapse</span> <span class="kn">import</span> <span class="n">_npz_to_movie</span><span class="p">,</span> <span class="n">_btrack_track_cells</span><span class="p">,</span> <span class="n">_trackpy_track_cells</span>
