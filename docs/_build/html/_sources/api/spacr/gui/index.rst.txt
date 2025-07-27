@@ -26,30 +26,6 @@ Module Contents
                        Should match a key in `main_gui_apps` or `additional_gui_apps`.
    :type default_app: str, optional
 
-   .. attribute:: main_gui_apps
-
-      :no-index: Mapping of main application names to functions and descriptions.
-
-      :type: dict
-
-   .. attribute:: additional_gui_apps
-
-      :no-index: Mapping of optional analysis modules to functions and descriptions.
-
-      :type: dict
-
-   .. attribute:: main_buttons
-
-      :no-index: Maps main GUI buttons to their description text.
-
-      :type: dict
-
-   .. attribute:: additional_buttons
-
-      :no-index: Maps additional GUI buttons to their description text.
-
-      :type: dict
-
 
    .. py:attribute:: color_settings
 
