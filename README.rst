@@ -20,10 +20,10 @@ Badges
 
 
 .. |logo| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
-   :height: 60
+   :height: 100
 
 +--------------------------------------+------------------------------------------+
-| |logo|                               | **SpaCr**                                |
+| |logo|                               | **spaCR**                                |
 |                                      | Spatial phenotype analysis of CRISPR-    |
 |                                      | Cas9 screens (SpaCr).                    |
 +--------------------------------------+------------------------------------------+
