@@ -13,16 +13,119 @@ Module Contents
 
 .. py:function:: initialize_cuda()
 
-   Initializes CUDA in the main process by performing a simple GPU operation.
+   Initializes CUDA for the main process if a compatible GPU is available.
+
+   This function checks if CUDA is available on the system. If it is, it allocates
+   a small tensor on the GPU to ensure that CUDA is properly initialized. A message
+   is printed to indicate whether CUDA was successfully initialized or if it is not
+   available.
+
+   .. note::
+
+      This function is intended to be used in environments where CUDA-enabled GPUs
+      are present and PyTorch is installed.
+
+   Prints:
+       - "CUDA initialized in the main process." if CUDA is available and initialized.
+       - "CUDA is not available." if no compatible GPU is detected.
 
 
 .. py:function:: set_high_priority(process)
 
+   Sets the priority of a given process to high.
+
+   On Windows systems, the process priority is set to HIGH_PRIORITY_CLASS.
+   On Unix-like systems, the process priority is adjusted to a higher level
+   by setting its niceness value to -10.
+
+   :param process: The process whose priority is to be adjusted.
+   :type process: psutil.Process
+
+   :raises psutil.AccessDenied: If the current user does not have permission to change
+       the priority of the process.
+   :raises psutil.NoSuchProcess: If the specified process does not exist.
+   :raises Exception: For any other errors encountered during the operation.
+
+   .. rubric:: Notes
+
+   - This function requires the `psutil` library to interact with system processes.
+   - Adjusting process priority may require elevated privileges depending on the
+     operating system and user permissions.
+
+
 .. py:function:: set_cpu_affinity(process)
+
+   Set the CPU affinity for a given process to use all available CPUs.
+
+   This function modifies the CPU affinity of the specified process, allowing
+   it to run on all CPUs available on the system.
+
+   :param process: A psutil.Process object representing the process
+                   whose CPU affinity is to be set.
+   :type process: psutil.Process
+
+   :raises psutil.NoSuchProcess: If the process does not exist.
+   :raises psutil.AccessDenied: If the process cannot be accessed due to insufficient permissions.
+   :raises psutil.ZombieProcess: If the process is a zombie process.
+
 
 .. py:function:: proceed_with_app(root, app_name, app_func)
 
+   Prepares the application window to load a new app by clearing the current
+   content frame and initializing the specified app.
+
+   :param root: The root window or parent container that
+                contains the content frame.
+   :type root: tk.Tk or tk.Toplevel
+   :param app_name: The name of the application to be loaded (not used in
+                    the current implementation but could be useful for logging or
+                    debugging purposes).
+   :type app_name: str
+   :param app_func: A function that initializes the new application
+                    within the content frame. It should accept the content frame as
+                    its only argument.
+   :type app_func: callable
+
+   Behavior:
+       - Destroys all widgets in the `content_frame` attribute of `root`
+         (if it exists).
+       - Calls `app_func` with `root.content_frame` to initialize the new
+         application.
+
+   .. note::
+
+      Ensure that `root` has an attribute `content_frame` that is a valid
+      tkinter container (e.g., a `tk.Frame`) before calling this function.
+
+
 .. py:function:: load_app(root, app_name, app_func)
+
+   Load a new application into the GUI framework.
+
+   This function handles the transition between applications in the GUI by
+   clearing the current canvas, canceling scheduled tasks, and invoking
+   exit functionality for specific applications if necessary.
+
+   :param root: The root object of the GUI, which contains the canvas,
+                after_tasks, and other application state.
+   :param app_name: The name of the application to load.
+   :type app_name: str
+   :param app_func: The function to initialize the new application.
+   :type app_func: callable
+
+   Behavior:
+       - Clears the current canvas if it exists.
+       - Cancels all scheduled `after` tasks associated with the root object.
+       - If the current application has an exit function and the new app is
+         not "Annotate" or "make_masks", the exit function is invoked before
+         proceeding to the new application.
+       - Proceeds to load the new application using the provided `app_func`.
+
+   .. note::
+
+      The `proceed_with_app` function is used internally to finalize the
+      transition to the new application.
+
 
 .. py:function:: parse_list(value)
 
@@ -62,7 +165,14 @@ Module Contents
 
 .. py:function:: process_stdout_stderr(q)
 
-   Redirect stdout and stderr to the queue q.
+   Redirects the standard output (stdout) and standard error (stderr) streams
+   to a queue for processing.
+
+   This function replaces the default `sys.stdout` and `sys.stderr` with
+   instances of `WriteToQueue`, which writes all output to the provided queue.
+
+   :param q: A queue object where the redirected output will be stored.
+   :type q: queue.Queue
 
 
 .. py:class:: WriteToQueue(q)
@@ -70,8 +180,27 @@ Module Contents
    Bases: :py:obj:`io.TextIOBase`
 
 
-   A custom file-like class that writes any output to a given queue.
-   This can be used to redirect stdout and stderr.
+   A custom text stream that writes messages to a queue.
+
+   This class is useful for redirecting text output (e.g., from `print` statements)
+   to a thread-safe queue, which can then be processed elsewhere.
+
+   .. attribute:: q
+
+      The queue where messages will be written.
+
+      :type: queue.Queue
+
+   .. method:: write(msg
+
+      str) -> None:
+      Writes a non-empty message to the queue.
+
+   .. method:: flush() -> None
+
+      
+      No-op method to comply with the TextIOBase interface.
+      
 
 
    .. py:attribute:: q
@@ -95,9 +224,78 @@ Module Contents
 
 .. py:function:: cancel_after_tasks(frame)
 
+   Cancels all scheduled 'after' tasks associated with a given frame.
+
+   This function checks if the provided frame object has an attribute
+   named 'after_tasks', which is expected to be a list of task IDs
+   scheduled using the `after` method (e.g., in a Tkinter application).
+   If such tasks exist, it cancels each of them using the `after_cancel`
+   method and then clears the list.
+
+   :param frame: An object (typically a Tkinter widget) that may have an
+                 'after_tasks' attribute containing scheduled task IDs.
+
+   :raises AttributeError: If the frame does not have the required methods
+       (`after_cancel` or `after_tasks` attribute).
+
+
 .. py:function:: load_next_app(root)
 
+   Loads the next application by invoking the function stored in the `next_app_func`
+   attribute of the provided `root` object. If the current root window has been
+   destroyed, a new root window is initialized before invoking the next application.
+
+   :param root: The current root window object, which contains the attributes
+                `next_app_func` (a callable for the next application) and
+                `next_app_args` (a tuple of arguments to pass to the callable).
+   :type root: tk.Tk
+
+   :raises tk.TclError: If the root window does not exist and needs to be reinitialized.
+
+
 .. py:function:: convert_settings_dict_for_gui(settings)
+
+   Converts a dictionary of settings into a format suitable for GUI representation.
+   This function processes a given settings dictionary and maps its keys and values
+   to a standardized format for GUI components. It handles special cases for specific
+   keys and assigns appropriate GUI element types (e.g., combo boxes, checkboxes,
+   entry fields) based on the value type or predefined rules.
+   :param settings: A dictionary containing key-value pairs of settings to be
+                    converted for GUI representation.
+   :type settings: dict
+
+   :returns:
+
+             A dictionary where each key corresponds to a GUI element, and the value
+                   is a tuple containing:
+                   - The type of GUI element (e.g., 'combo', 'check', 'entry').
+                   - A list of options for combo boxes or None for other types.
+                   - The default or current value for the GUI element.
+   :rtype: dict
+
+   Special Cases:
+       - Certain keys (e.g., 'metadata_type', 'channels', 'model_type') have predefined
+         options and default values, which are handled explicitly.
+       - Boolean values are represented as checkboxes.
+       - Numeric values (int or float) and strings are represented as entry fields.
+       - Lists are converted to strings and represented as entry fields.
+       - None values are represented as entry fields.
+   .. rubric:: Example
+
+   Input:
+       settings = {
+           'metadata_type': 'cellvoyager',
+           'channels': '[0,1,2,3]',
+           'use_gpu': True,
+           'learning_rate': 0.001,
+           'custom_list': [1, 2, 3]
+   Output:
+       {
+           'channels': ('combo', ['[0,1,2,3,4,5,6,7,8]', '[0,1,2,3,4,5,6,7]', ...], '[0,1,2,3]'),
+           'use_gpu': ('check', None, True),
+           'learning_rate': ('entry', None, 0.001),
+           'custom_list': ('entry', None, '[1, 2, 3]')
+
 
 .. py:function:: spacrFigShow(fig_queue=None)
 
