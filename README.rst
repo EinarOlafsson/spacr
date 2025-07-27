@@ -18,6 +18,12 @@ Badges
 ------
 |Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial|
 
+
+.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
+   :alt: spaCR logo
+   :height: 50
+   :align: left
+
 SpaCr
 =====
 
