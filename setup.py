@@ -72,7 +72,7 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "1.0.7"
+VERSION = "1.0.9"
 
 setup(
     name="spacr-nightly",
@@ -95,7 +95,7 @@ setup(
             'annotate=spacr.app_annotate:start_annotate_app',
             'classify=spacr.app_classify:start_classify_app',
             'sim=spacr.app_sim:gui_sim',
-            'spacr=spacr.gui:gui_app',
+            'spacrn=spacr.gui:gui_app',
         ],
     },
     extras_require={
