@@ -626,6 +626,18 @@
 <div class="viewcode-block" id="spacrDataset">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_dir (str): Root directory containing subfolders for each class.</span>
+<span class="sd">        loader_classes (list[str]): List of class names corresponding to subfolder names in `data_dir`.</span>
+<span class="sd">        transform (callable, optional): Transform to apply to images (e.g., torchvision transforms).</span>
+<span class="sd">        shuffle (bool): Whether to shuffle the dataset. Default is True.</span>
+<span class="sd">        pin_memory (bool): If True, pre-load all images into memory using multiprocessing. Default is False.</span>
+<span class="sd">        specific_files (list[str], optional): Specific image file paths to load instead of scanning `data_dir`.</span>
+<span class="sd">        specific_labels (list[int], optional): Corresponding labels for `specific_files`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">loader_classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">specific_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">specific_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <div class="viewcode-block" id="spacrDataset.data_dir">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.data_dir">[docs]</a>
@@ -727,13 +739,6 @@
 <span class="sd">        *args: Arguments passed to the base DataLoader.</span>
 <span class="sd">        preload_batches (int): Number of batches to preload in a background process. Default is 1.</span>
 <span class="sd">        **kwargs: Keyword arguments passed to the base DataLoader. Supports all standard DataLoader arguments.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        preload_batches (int): Number of batches to preload ahead of time.</span>
-<span class="sd">        batch_queue (Queue): Thread/process-safe queue storing preloaded batches.</span>
-<span class="sd">        process (multiprocessing.Process or None): Background process for preloading batches.</span>
-<span class="sd">        current_batch_index (int): Index of the current batch being yielded.</span>
-<span class="sd">        pin_memory (bool): Whether to pin memory (typically required for CUDA).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">preload_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
