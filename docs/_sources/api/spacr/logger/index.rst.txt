@@ -50,8 +50,8 @@ Module Contents
 
    .. rubric:: Example
 
-   @log_function_call
-   def multiply(a, b):
-       return a * b
+   >>> @log_function_call
+   ... def multiply(a, b):
+   ...     return a * b
 
 

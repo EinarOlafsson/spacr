@@ -76,7 +76,7 @@ Module Contents
                                 - n_jobs (int): Number of parallel processes (defaults to CPU count minus 2).
                                 - cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim (int or None): Indices of object masks in the stack.
                                 - cytoplasm (bool): If True, derive cytoplasmic mask.
-                                - *_min_size (int): Minimum pixel size thresholds for object filtering.
+                                - _min_size (int): Minimum pixel size thresholds for object filtering.
                                 - merge_edge_pathogen_cells (bool): If True, merge pathogen/cell masks at edges.
                                 - timelapse (bool): If True, enable temporal relabeling and GIF generation.
                                 - timelapse_objects (str): Which object type to track temporally ("nucleus" or "cell").

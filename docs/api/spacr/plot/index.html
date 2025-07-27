@@ -133,14 +133,17 @@ It supports contour and filled mask modes, object filtering based on size and in
 <li><p><strong>export_tiffs</strong> (<em>bool</em>) – If True, exports grayscale TIFFs for each image channel. Default is False.</p></li>
 <li><p><strong>all_on_all</strong> (<em>bool</em>) – If True, overlays all outlines on all channels. Default is False.</p></li>
 <li><p><strong>all_outlines</strong> (<em>bool</em>) – If True, overlays all outlines on non-matching channels. Default is False.</p></li>
-<li><p><strong>filter_dict</strong> (<em>dict</em><em> or </em><em>None</em>) – <p>Dictionary of filtering thresholds for each object type, e.g.,
-{</p>
+<li><p><strong>filter_dict</strong> (<em>dict</em><em> or </em><em>None</em>) – <p>Dictionary of filtering thresholds for each object type.
+Example format:</p>
 <blockquote>
-<div><p>’cell’: [(min_area, max_area), (min_intensity, max_intensity)],
+<div><dl class="simple">
+<dt>{</dt><dd><p>‘cell’: [(min_area, max_area), (min_intensity, max_intensity)],
 ‘nucleus’: […],
 ‘pathogen’: […]</p>
-</div></blockquote>
+</dd>
+</dl>
 <p>}</p>
+</div></blockquote>
 </p></li>
 </ul>
 </dd>

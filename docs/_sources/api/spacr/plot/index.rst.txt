@@ -44,12 +44,13 @@ Module Contents
    :type all_on_all: bool
    :param all_outlines: If True, overlays all outlines on non-matching channels. Default is False.
    :type all_outlines: bool
-   :param filter_dict: Dictionary of filtering thresholds for each object type, e.g.,
-                       {
-                           'cell': [(min_area, max_area), (min_intensity, max_intensity)],
-                           'nucleus': [...],
-                           'pathogen': [...]
-                       }
+   :param filter_dict: Dictionary of filtering thresholds for each object type.
+                       Example format:
+                           {
+                               'cell': [(min_area, max_area), (min_intensity, max_intensity)],
+                               'nucleus': [...],
+                               'pathogen': [...]
+                           }
    :type filter_dict: dict or None
 
    :returns: The generated overlay figure.

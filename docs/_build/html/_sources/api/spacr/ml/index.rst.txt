@@ -574,6 +574,7 @@ Module Contents
                  - [7] y_test (pd.Series): Test target labels.
                  - [8] metrics_df (pd.DataFrame): Summary classification metrics (precision, recall, f1).
                  - [9] features (list): Final list of features used in training.
+
              list:
                  - [0] permutation_fig (matplotlib.Figure): Bar plot of permutation importances.
                  - [1] feature_importance_fig (matplotlib.Figure): Bar plot of model importances.
