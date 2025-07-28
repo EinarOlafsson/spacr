@@ -16,34 +16,55 @@ spaCR provides a modular and extensible framework that supports:
 API Reference by Category
 =========================
 
-**Core Modules**
-- :doc:`Core Logic <api/spacr/core/index>`
-- :doc:`IO Utilities <api/spacr/io/index>`
-- :doc:`General Utilities <api/spacr/utils/index>`
-- :doc:`Settings <api/spacr/settings/index>`
-- :doc:`Statistics <api/spacr/sp_stats/index>`
+.. toctree::
+   :caption: Core Modules
+   :maxdepth: 1
 
-**Image Analysis**
-- :doc:`Measurement <api/spacr/measure/index>`
-- :doc:`Plotting <api/spacr/plot/index>`
-- :doc:`Cellpose Integration <api/spacr/spacr_cellpose/index>`
+   Core Logic <api/spacr/core/index>
+   IO Utilities <api/spacr/io/index>
+   General Utilities <api/spacr/utils/index>
+   Settings <api/spacr/settings/index>
+   Statistics <api/spacr/sp_stats/index>
 
-**Classification**
-- :doc:`Classical ML <api/spacr/ml/index>`
-- :doc:`Deep Learning <api/spacr/deep_spacr/index>`
+.. toctree::
+   :caption: Image Analysis
+   :maxdepth: 1
 
-**GUI Components**
-- :doc:`GUI Main App <api/spacr/gui/index>`
-- :doc:`GUI Core <api/spacr/gui_core/index>`
-- :doc:`GUI Elements <api/spacr/gui_elements/index>`
-- :doc:`GUI Utilities <api/spacr/gui_utils/index>`
+   Measurement <api/spacr/measure/index>
+   Plotting <api/spacr/plot/index>
+   Cellpose Integration <api/spacr/spacr_cellpose/index>
 
-**Sequencing & Submodules**
-- :doc:`Sequencing <api/spacr/sequencing/index>`
-- :doc:`Toxoplasma Tools <api/spacr/toxo/index>`
-- :doc:`Submodules <api/spacr/submodules/index>`
+.. toctree::
+   :caption: Classification
+   :maxdepth: 1
+
+   Classical ML <api/spacr/ml/index>
+   Deep Learning <api/spacr/deep_spacr/index>
+
+.. toctree::
+   :caption: GUI Components
+   :maxdepth: 1
+
+   GUI Main App <api/spacr/gui/index>
+   GUI Core <api/spacr/gui_core/index>
+   GUI Elements <api/spacr/gui_elements/index>
+   GUI Utilities <api/spacr/gui_utils/index>
+
+.. toctree::
+   :caption: Sequencing & Submodules
+   :maxdepth: 1
+
+   Sequencing <api/spacr/sequencing/index>
+   Toxoplasma Tools <api/spacr/toxo/index>
+   Submodules <api/spacr/submodules/index>
 
 GitHub Repository
 =================
 
 Visit the source code on GitHub: https://github.com/EinarOlafsson/spacr
+
+.. toctree::
+   :hidden:
+
+   api/index
+   
