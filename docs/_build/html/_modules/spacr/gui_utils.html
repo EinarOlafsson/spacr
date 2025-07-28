@@ -498,59 +498,28 @@
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.convert_settings_dict_for_gui">[docs]</a>
 <span class="k">def</span> <span class="nf">convert_settings_dict_for_gui</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Converts a dictionary of settings into a format suitable for GUI representation.</span>
+<span class="sd">    Convert a dictionary of settings into a format suitable for GUI rendering.</span>
 
-<span class="sd">    This function processes a given settings dictionary and maps its keys and values</span>
-<span class="sd">    to a standardized format for GUI components. It handles special cases for specific</span>
-<span class="sd">    keys and assigns appropriate GUI element types (e.g., combo boxes, checkboxes,</span>
-<span class="sd">    entry fields) based on the value type or predefined rules.</span>
+<span class="sd">    Each key in the input dictionary is mapped to a tuple of the form:</span>
+<span class="sd">    (input_type, options, default_value), where:</span>
+<span class="sd">    </span>
+<span class="sd">    - input_type (str): The type of GUI element. One of:</span>
+<span class="sd">        * &#39;combo&#39; for dropdown menus</span>
+<span class="sd">        * &#39;check&#39; for checkboxes</span>
+<span class="sd">        * &#39;entry&#39; for entry fields</span>
+<span class="sd">    - options (list or None): A list of selectable options for &#39;combo&#39; types, or None for other types.</span>
+<span class="sd">    - default_value: The current or default value to be displayed in the GUI.</span>
 
-<span class="sd">    :param settings: A dictionary containing key-value pairs of settings to be</span>
-<span class="sd">                     converted for GUI representation.</span>
+<span class="sd">    Special keys are mapped to pre-defined configurations with known option sets</span>
+<span class="sd">    (e.g., &#39;metadata_type&#39;, &#39;channels&#39;, &#39;model_type&#39;).</span>
+
+<span class="sd">    :param settings: Dictionary where keys are setting names and values are their current values.</span>
 <span class="sd">    :type settings: dict</span>
 
-<span class="sd">    :returns: A dictionary where each key corresponds to a GUI element, and the value</span>
-<span class="sd">              is a tuple containing:</span>
-<span class="sd">              </span>
-<span class="sd">              - The type of GUI element (e.g., &#39;combo&#39;, &#39;check&#39;, &#39;entry&#39;).</span>
-<span class="sd">              - A list of options for combo boxes or None for other types.</span>
-<span class="sd">              - The default or current value for the GUI element.</span>
+<span class="sd">    :return: Dictionary mapping setting names to tuples for GUI rendering.</span>
 <span class="sd">    :rtype: dict</span>
-
-<span class="sd">    .. rubric:: Special Cases</span>
-
-<span class="sd">    - Certain keys (e.g., &#39;metadata_type&#39;, &#39;channels&#39;, &#39;model_type&#39;) have predefined</span>
-<span class="sd">      options and default values, which are handled explicitly.</span>
-<span class="sd">    - Boolean values are represented as checkboxes.</span>
-<span class="sd">    - Numeric values (int or float) and strings are represented as entry fields.</span>
-<span class="sd">    - Lists are converted to strings and represented as entry fields.</span>
-<span class="sd">    - None values are represented as entry fields.</span>
-
-<span class="sd">    .. rubric:: Example</span>
-
-<span class="sd">    **Input**</span>
-
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        settings = {</span>
-<span class="sd">            &#39;metadata_type&#39;: &#39;cellvoyager&#39;,</span>
-<span class="sd">            &#39;channels&#39;: &#39;[0,1,2,3]&#39;,</span>
-<span class="sd">            &#39;use_gpu&#39;: True,</span>
-<span class="sd">            &#39;learning_rate&#39;: 0.001,</span>
-<span class="sd">            &#39;custom_list&#39;: [1, 2, 3]</span>
-<span class="sd">        }</span>
-
-<span class="sd">    **Output**</span>
-
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        {</span>
-<span class="sd">            &#39;channels&#39;: (&#39;combo&#39;, [&#39;[0,1,2,3,4,5,6,7,8]&#39;, &#39;[0,1,2,3,4,5,6,7]&#39;, ...], &#39;[0,1,2,3]&#39;),</span>
-<span class="sd">            &#39;use_gpu&#39;: (&#39;check&#39;, None, True),</span>
-<span class="sd">            &#39;learning_rate&#39;: (&#39;entry&#39;, None, 0.001),</span>
-<span class="sd">            &#39;custom_list&#39;: (&#39;entry&#39;, None, &#39;[1, 2, 3]&#39;)</span>
-<span class="sd">        }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">torch_models</span>
     <span class="n">torchvision_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">torch_models</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
     <span class="n">chans</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
