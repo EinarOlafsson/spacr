@@ -887,44 +887,48 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
+   A wrapper around torchvision ResNet models with optional dropout, checkpointing,
+   and a custom classifier head.
 
-   Your models should also subclass this class.
+   Supported ResNet variants: resnet18, resnet34, resnet50, resnet101, resnet152.
 
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
+   Initialize the ResNet model wrapper.
 
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
-
-   Initialize internal Module state, shared by both nn.Module and ScriptModule.
+   :param resnet_type: Which ResNet variant to use. Options: 'resnet18', 'resnet34', etc.
+   :type resnet_type: str
+   :param dropout_rate: Dropout rate to apply before the final layer.
+   :type dropout_rate: float or None
+   :param use_checkpoint: Whether to enable gradient checkpointing.
+   :type use_checkpoint: bool
+   :param init_weights: Either 'imagenet' to load pretrained weights or 'none'.
+   :type init_weights: str
 
 
    .. py:method:: initialize_base(base_model_dict, dropout_rate, use_checkpoint, init_weights)
 
+      Initialize the base model and classifier layers.
+
+      :param base_model_dict: Contains model constructor and weight enum.
+      :type base_model_dict: dict
+      :param dropout_rate: Dropout rate to use.
+      :type dropout_rate: float or None
+      :param use_checkpoint: Whether to use gradient checkpointing.
+      :type use_checkpoint: bool
+      :param init_weights: Weight initialization mode.
+      :type init_weights: str
+
+
 
    .. py:method:: forward(x)
+
+      Forward pass through ResNet and classification layers.
+
+      :param x: Input tensor of shape (N, 3, H, W).
+      :type x: torch.Tensor
+
+      :returns: Logits of shape (N,).
+      :rtype: torch.Tensor
+
 
 
 .. py:function:: split_my_dataset(dataset, split_ratio=0.1)
@@ -1761,16 +1765,7 @@ Module Contents
    SaliencyMapGenerator is a utility class for generating saliency maps and visualizing model predictions
    for PyTorch models in binary classification tasks.
 
-   .. attribute:: model
-
-      The PyTorch model for which saliency maps are computed.
-
-      :type: torch.nn.Module
-
    Initialize the SaliencyMapGenerator.
-
-   :param model: The model to analyze.
-   :type model: torch.nn.Module
 
 
    .. py:attribute:: model
@@ -1843,36 +1838,6 @@ Module Contents
 
    GradCAMGenerator generates Grad-CAM (Gradient-weighted Class Activation Mapping) visualizations
    for CNN-based PyTorch models, supporting binary classification tasks.
-
-   .. attribute:: model
-
-      The neural network model.
-
-      :type: torch.nn.Module
-
-   .. attribute:: target_layer
-
-      The name of the layer to extract activations and gradients from.
-
-      :type: str
-
-   .. attribute:: cam_type
-
-      Type of CAM method used (currently only 'gradcam').
-
-      :type: str
-
-   .. attribute:: gradients
-
-      Stored gradients from backward pass.
-
-      :type: torch.Tensor
-
-   .. attribute:: activations
-
-      Stored activations from forward pass.
-
-      :type: torch.Tensor
 
    Initialize the GradCAMGenerator and register hooks.
 
@@ -2035,51 +2000,16 @@ Module Contents
 
 .. py:class:: GradCAM(model, target_layers=None, use_cuda=True)
 
-   GradCAM (Gradient-weighted Class Activation Mapping) implementation for visualizing
-   the regions of an input image that are most important for a model's prediction.
-   .. attribute:: model
+   Compute Grad-CAM (Gradient-weighted Class Activation Mapping) for a given model and target layer(s).
 
-      The neural network model to analyze.
+   Initialize the GradCAM object.
 
-      :type: torch.nn.Module
-
-   .. attribute:: target_layers
-
-      List of layer names to target for GradCAM.
-      These layers should be part of the model and are used to extract feature maps.
-
-      :type: list of str, optional
-
-   .. attribute:: use_cuda
-
-      Whether to use GPU for computations. Defaults to True.
-
-      :type: bool
-
-   .. method:: forward(input)
-
-      
-      Performs a forward pass through the model with the given input.
-
-   .. method:: __call__(x, index=None)
-
-      
-      Computes the GradCAM heatmap for the given input tensor `x`.
-      Optionally, a specific class index can be provided to compute the heatmap
-      for that class. If no index is provided, the class with the highest score
-      is used.
-
-   :param model: The neural network model to analyze.
-   :type model: torch.nn.Module
-   :param target_layers: List of layer names to target for GradCAM.
-                         Defaults to None.
-   :type target_layers: list of str, optional
-   :param use_cuda: Whether to use GPU for computations. Defaults to True.
-   :type use_cuda: bool, optional
-
-   :returns: A heatmap (2D array) representing the importance of each region
-             in the input image for the model's prediction.
-   :rtype: numpy.ndarray
+   :param model: The model for which Grad-CAM will be computed.
+   :type model: nn.Module
+   :param target_layers: Names of layers to register hooks on.
+   :type target_layers: list of str
+   :param use_cuda: Whether to use CUDA (GPU) for computation.
+   :type use_cuda: bool
 
 
    .. py:attribute:: model
@@ -2097,8 +2027,28 @@ Module Contents
 
    .. py:method:: forward(input)
 
+      Run a forward pass through the model.
+
+      :param input: Input tensor.
+      :type input: torch.Tensor
+
+      :returns: Model output.
+      :rtype: torch.Tensor
+
+
 
    .. py:method:: __call__(x, index=None)
+
+      Compute the Grad-CAM heatmap for an input image.
+
+      :param x: Input tensor of shape (1, C, H, W).
+      :type x: torch.Tensor
+      :param index: Class index to compute gradients for. If None, uses the predicted class.
+      :type index: int or None
+
+      :returns: Normalized Grad-CAM heatmap of shape (H, W).
+      :rtype: numpy.ndarray
+
 
 
 .. py:function:: show_cam_on_image(img, mask)
@@ -2147,16 +2097,16 @@ Module Contents
    of a neural network to its input features. It approximates the integral of gradients
    along a straight path from a baseline to the input.
 
+   Initialize the IntegratedGradients instance.
+
+   :param model: A trained PyTorch model.
+   :type model: torch.nn.Module
+
    .. attribute:: model
 
       The PyTorch model to interpret.
 
       :type: torch.nn.Module
-
-   Initialize the IntegratedGradients instance.
-
-   :param model: A trained PyTorch model.
-   :type model: torch.nn.Module
 
 
    .. py:attribute:: model
