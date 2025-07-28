@@ -645,18 +645,6 @@ Module Contents
    :param out_channels: Number of output channels after convolution.
    :type out_channels: int
 
-   .. attribute:: dilated_conv1
-
-      Dilated 3×3 convolution layer.
-
-      :type: nn.Conv2d
-
-   .. attribute:: spatial_attention
-
-      1×1 convolution for spatial attention.
-
-      :type: nn.Conv2d
-
 
    .. py:attribute:: dilated_conv1
 
