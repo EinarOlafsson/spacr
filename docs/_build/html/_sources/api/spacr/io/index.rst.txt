@@ -459,34 +459,22 @@ Module Contents
 
 .. py:function:: generate_dataset(settings={})
 
-   Generates a dataset tar archive by sampling image paths from one or more measurement databases,
-   extracting and packaging selected images into a compressed `.tar` file.
+   Generates a tar archive containing a dataset of images collected from one or more database sources.
 
-   This function supports random sampling, chunked parallel processing, and multi-source input.
-   It reads from `measurements.db` files under the provided `src` folders, extracts file paths,
-   and packages them into a compressed dataset suitable for training or evaluation.
+   This function selects image paths from one or more SQLite databases, optionally samples from them,
+   and writes the images into a tar archive using multiprocessing to parallelize the process. Temporary tar
+   files are created and merged into a final tar file. The function also logs and saves dataset settings.
 
-   :param settings: Dictionary of settings with the following expected keys:
-                    - 'src' : str or list of str
-                        Path(s) to the directories containing `measurements/measurements.db`.
-                    - 'experiment' : str
-                        A name for the dataset; used in the output tar filename.
-                    - 'file_metadata' : str or None
-                        Optional metadata filter when generating the image path list.
-                    - 'sample' : int, list, or None
-                        If int: number of images to randomly sample.
-                        If list: list of indices to sample.
-                        If None: include all paths.
+   :param settings: Dictionary of user-defined settings. The following keys are used:
+
+                    - 'src' (str or list of str): Path(s) to the source folder(s) containing the database(s).
+                    - 'experiment' (str): Name of the experiment, used to name the output tar.
+                    - 'sample' (int or list, optional): If int, randomly sample that many images; if list, sample per src index.
+                    - 'file_metadata' (str, optional): Metadata column name used to filter/select files.
    :type settings: dict, optional
 
-   :returns: Path to the final `.tar` archive containing the dataset.
+   :returns: Path to the final tar archive containing the dataset.
    :rtype: str
-
-   .. rubric:: Notes
-
-   - Intermediate tar files are generated in a temporary folder and then merged.
-   - Automatically uses multiprocessing based on available CPU cores.
-   - The final `.tar` is saved under `datasets/` in the first provided `src` folder.
 
 
 .. py:function:: generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc', 'pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False)

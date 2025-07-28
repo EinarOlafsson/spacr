@@ -3058,38 +3058,26 @@
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.generate_dataset">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_dataset</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates a dataset tar archive by sampling image paths from one or more measurement databases,</span>
-<span class="sd">    extracting and packaging selected images into a compressed `.tar` file.</span>
+<span class="sd">    Generates a tar archive containing a dataset of images collected from one or more database sources.</span>
 
-<span class="sd">    This function supports random sampling, chunked parallel processing, and multi-source input.</span>
-<span class="sd">    It reads from `measurements.db` files under the provided `src` folders, extracts file paths,</span>
-<span class="sd">    and packages them into a compressed dataset suitable for training or evaluation.</span>
+<span class="sd">    This function selects image paths from one or more SQLite databases, optionally samples from them,</span>
+<span class="sd">    and writes the images into a tar archive using multiprocessing to parallelize the process. Temporary tar</span>
+<span class="sd">    files are created and merged into a final tar file. The function also logs and saves dataset settings.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    settings : dict, optional</span>
-<span class="sd">        Dictionary of settings with the following expected keys:</span>
-<span class="sd">        - &#39;src&#39; : str or list of str</span>
-<span class="sd">            Path(s) to the directories containing `measurements/measurements.db`.</span>
-<span class="sd">        - &#39;experiment&#39; : str</span>
-<span class="sd">            A name for the dataset; used in the output tar filename.</span>
-<span class="sd">        - &#39;file_metadata&#39; : str or None</span>
-<span class="sd">            Optional metadata filter when generating the image path list.</span>
-<span class="sd">        - &#39;sample&#39; : int, list, or None</span>
-<span class="sd">            If int: number of images to randomly sample.</span>
-<span class="sd">            If list: list of indices to sample.</span>
-<span class="sd">            If None: include all paths.</span>
-
+<span class="sd">        Dictionary of user-defined settings. The following keys are used:</span>
+<span class="sd">        </span>
+<span class="sd">        - &#39;src&#39; (str or list of str): Path(s) to the source folder(s) containing the database(s).</span>
+<span class="sd">        - &#39;experiment&#39; (str): Name of the experiment, used to name the output tar.</span>
+<span class="sd">        - &#39;sample&#39; (int or list, optional): If int, randomly sample that many images; if list, sample per src index.</span>
+<span class="sd">        - &#39;file_metadata&#39; (str, optional): Metadata column name used to filter/select files.</span>
+<span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        Path to the final `.tar` archive containing the dataset.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    - Intermediate tar files are generated in a temporary folder and then merged.</span>
-<span class="sd">    - Automatically uses multiprocessing based on available CPU cores.</span>
-<span class="sd">    - The final `.tar` is saved under `datasets/` in the first provided `src` folder.</span>
+<span class="sd">        Path to the final tar archive containing the dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">initiate_counter</span><span class="p">,</span> <span class="n">add_images_to_tar</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">generate_path_list_from_db</span><span class="p">,</span> <span class="n">correct_paths</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_generate_dataset_defaults</span>

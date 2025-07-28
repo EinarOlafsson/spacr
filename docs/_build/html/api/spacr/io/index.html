@@ -622,52 +622,28 @@ dictionaries containing the file paths for the ‘R1’ and ‘R2’ read direct
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#generate_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.generate_dataset" title="Link to this definition"></a></dt>
-<dd><p>Generates a dataset tar archive by sampling image paths from one or more measurement databases,
-extracting and packaging selected images into a compressed <cite>.tar</cite> file.</p>
-<p>This function supports random sampling, chunked parallel processing, and multi-source input.
-It reads from <cite>measurements.db</cite> files under the provided <cite>src</cite> folders, extracts file paths,
-and packages them into a compressed dataset suitable for training or evaluation.</p>
+<dd><p>Generates a tar archive containing a dataset of images collected from one or more database sources.</p>
+<p>This function selects image paths from one or more SQLite databases, optionally samples from them,
+and writes the images into a tar archive using multiprocessing to parallelize the process. Temporary tar
+files are created and merged into a final tar file. The function also logs and saves dataset settings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Dictionary of settings with the following expected keys:
-- ‘src’ : str or list of str</p>
-<blockquote>
-<div><p>Path(s) to the directories containing <cite>measurements/measurements.db</cite>.</p>
-</div></blockquote>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Dictionary of user-defined settings. The following keys are used:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>’experiment’<span class="classifier">str</span></dt><dd><p>A name for the dataset; used in the output tar filename.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’file_metadata’<span class="classifier">str or None</span></dt><dd><p>Optional metadata filter when generating the image path list.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’sample’<span class="classifier">int, list, or None</span></dt><dd><p>If int: number of images to randomly sample.
-If list: list of indices to sample.
-If None: include all paths.</p>
-</dd>
-</dl>
-</li>
+<li><p>’src’ (str or list of str): Path(s) to the source folder(s) containing the database(s).</p></li>
+<li><p>’experiment’ (str): Name of the experiment, used to name the output tar.</p></li>
+<li><p>’sample’ (int or list, optional): If int, randomly sample that many images; if list, sample per src index.</p></li>
+<li><p>’file_metadata’ (str, optional): Metadata column name used to filter/select files.</p></li>
 </ul>
 </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Path to the final <cite>.tar</cite> archive containing the dataset.</p>
+<dd class="field-even"><p>Path to the final tar archive containing the dataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>Intermediate tar files are generated in a temporary folder and then merged.</p></li>
-<li><p>Automatically uses multiprocessing based on available CPU cores.</p></li>
-<li><p>The final <cite>.tar</cite> is saved under <cite>datasets/</cite> in the first provided <cite>src</cite> folder.</p></li>
-</ul>
 </dd></dl>
 
 <dl class="py function">
