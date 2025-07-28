@@ -635,35 +635,43 @@
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.run_function_gui">[docs]</a>
 <span class="k">def</span> <span class="nf">run_function_gui</span><span class="p">(</span><span class="n">settings_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">fig_queue</span><span class="p">,</span> <span class="n">stop_requested</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Executes a specific function based on the provided settings type in a GUI context.</span>
-<span class="sd">    Parameters:</span>
-<span class="sd">        settings_type (str): Specifies the type of operation to perform. </span>
-<span class="sd">            Supported values include:</span>
-<span class="sd">            - &#39;mask&#39;: Preprocess and generate masks.</span>
-<span class="sd">            - &#39;measure&#39;: Perform crop measurements.</span>
-<span class="sd">            - &#39;classify&#39;: Execute deep_spacr classification.</span>
-<span class="sd">            - &#39;train_cellpose&#39;: Train a Cellpose model.</span>
-<span class="sd">            - &#39;ml_analyze&#39;: Generate machine learning scores.</span>
-<span class="sd">            - &#39;cellpose_masks&#39;: Identify and fine-tune Cellpose masks.</span>
-<span class="sd">            - &#39;cellpose_all&#39;: Check Cellpose models.</span>
-<span class="sd">            - &#39;map_barcodes&#39;: Generate barcode mappings.</span>
-<span class="sd">            - &#39;regression&#39;: Perform regression analysis.</span>
-<span class="sd">            - &#39;recruitment&#39;: Analyze recruitment data.</span>
-<span class="sd">            - &#39;analyze_plaques&#39;: Analyze plaques.</span>
-<span class="sd">            - &#39;convert&#39;: Process non-TIF or non-2D images.</span>
-<span class="sd">        settings (dict): Configuration settings required for the selected function.</span>
-<span class="sd">        q (multiprocessing.Queue): Queue for sending messages or logs.</span>
-<span class="sd">        fig_queue (multiprocessing.Queue): Queue for sending figures or visual data.</span>
-<span class="sd">        stop_requested (multiprocessing.Value): Shared value to signal when processing should stop.</span>
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If an invalid `settings_type` is provided.</span>
-<span class="sd">        Exception: If an error occurs during the execution of the selected function.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">        - The function dynamically imports and executes the appropriate module based on `settings_type`.</span>
-<span class="sd">        - Any errors encountered during execution are logged to the queue and printed to the console.</span>
-<span class="sd">        - The `stop_requested` flag is set to 1 upon completion or error.</span>
+<span class="sd">    Executes a specified processing function in the GUI context based on `settings_type`.</span>
+
+<span class="sd">    This function selects and runs one of the core `spaCR` processing functions </span>
+<span class="sd">    (e.g., segmentation, measurement, classification, barcode mapping) based on the </span>
+<span class="sd">    provided `settings_type` string. It wraps the execution with a logging mechanism </span>
+<span class="sd">    to redirect stdout/stderr to the GUI console and handles exceptions cleanly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    settings_type : str</span>
+<span class="sd">        A string indicating which processing function to execute. Supported values include:</span>
+<span class="sd">        &#39;mask&#39;, &#39;measure&#39;, &#39;classify&#39;, &#39;train_cellpose&#39;, &#39;ml_analyze&#39;, &#39;cellpose_masks&#39;,</span>
+<span class="sd">        &#39;cellpose_all&#39;, &#39;map_barcodes&#39;, &#39;regression&#39;, &#39;recruitment&#39;, &#39;analyze_plaques&#39;, &#39;convert&#39;.</span>
+
+<span class="sd">    settings : dict</span>
+<span class="sd">        A dictionary of parameters required by the selected function.</span>
+
+<span class="sd">    q : multiprocessing.Queue</span>
+<span class="sd">        Queue for redirecting standard output and errors to the GUI console.</span>
+
+<span class="sd">    fig_queue : multiprocessing.Queue</span>
+<span class="sd">        Queue used to transfer figures (e.g., plots) from the worker process to the GUI.</span>
+
+<span class="sd">    stop_requested : multiprocessing.Value</span>
+<span class="sd">        A shared value to signal whether execution has completed or was interrupted.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If an invalid `settings_type` is provided.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Redirects stdout/stderr to the GUI using `process_stdout_stderr`.</span>
+<span class="sd">    - Catches and reports any exceptions to the GUI queue.</span>
+<span class="sd">    - Sets `stop_requested.value = 1` when the task finishes (whether successful or not).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">preprocess_generate_masks</span>
     <span class="kn">from</span> <span class="nn">.spacr_cellpose</span> <span class="kn">import</span> <span class="n">identify_masks_finetune</span><span class="p">,</span> <span class="n">check_cellpose_models</span>
     <span class="kn">from</span> <span class="nn">.submodules</span> <span class="kn">import</span> <span class="n">analyze_recruitment</span>
@@ -757,26 +765,30 @@
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.setup_frame">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_frame</span><span class="p">(</span><span class="n">parent_frame</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Sets up the main GUI layout within the given parent frame. This function creates a </span>
-<span class="sd">    resizable layout using `PanedWindow` and `Frame` widgets, and applies a dark style </span>
-<span class="sd">    to the elements.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        parent_frame (tk.Frame): The parent frame where the layout will be configured.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing the following elements:</span>
-<span class="sd">            - parent_frame (tk.Frame): The parent frame with the configured layout.</span>
-<span class="sd">            - vertical_container (tk.PanedWindow): The vertical container in the right frame.</span>
-<span class="sd">            - horizontal_container (tk.PanedWindow): The horizontal container in the right frame.</span>
-<span class="sd">            - settings_container (tk.PanedWindow): The settings container on the left side.</span>
-<span class="sd">    Layout Details:</span>
-<span class="sd">        - The main layout is divided into a left settings container and a right frame.</span>
-<span class="sd">        - The right frame contains a vertical container at the top and a horizontal </span>
-<span class="sd">          container at the bottom.</span>
-<span class="sd">        - The layout is resizable, with the left and right sections separated by a sash.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">        - The function applies a dark style to the widgets using `set_dark_style`.</span>
-<span class="sd">        - The initial sash position is set to one-fourth of the screen width.</span>
-<span class="sd">        - Example content is added to the settings container for demonstration purposes.</span>
+<span class="sd">    Set up the main GUI layout within the given parent frame.</span>
+
+<span class="sd">    This function initializes a dark-themed, resizable GUI layout using `PanedWindow` </span>
+<span class="sd">    containers. It organizes the layout into left-hand settings, central vertical content, </span>
+<span class="sd">    and bottom horizontal panels. It also sets initial sash positions and layout weights.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent_frame : tk.Frame</span>
+<span class="sd">        The parent Tkinter frame to populate with the GUI layout.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - parent_frame (tk.Frame): The modified parent frame with the layout initialized.</span>
+<span class="sd">        - vertical_container (tk.PanedWindow): Top container in the right-hand area for main content.</span>
+<span class="sd">        - horizontal_container (tk.PanedWindow): Bottom container for additional widgets.</span>
+<span class="sd">        - settings_container (tk.PanedWindow): Left-hand container for GUI settings.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Uses `set_dark_style` and `set_element_size` from `gui_elements` to theme and size widgets.</span>
+<span class="sd">    - Dynamically positions the sash between the left and right panes to 25% of the screen width.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span><span class="p">,</span> <span class="n">set_element_size</span>
 
@@ -875,9 +887,9 @@
         <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download settings: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="download_dataset">
-<a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.download_dataset">[docs]</a>
-<span class="k">def</span> <span class="nf">download_dataset</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">,</span> <span class="n">local_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<div class="viewcode-block" id="download_darun_function_guitaset">
+<a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.download_darun_function_guitaset">[docs]</a>
+<span class="k">def</span> <span class="nf">download_darun_function_guitaset</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">,</span> <span class="n">local_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Downloads a dataset or settings files from Hugging Face and returns the local path.</span>
 
@@ -1206,17 +1218,7 @@
 
 <div class="viewcode-block" id="print_widget_structure">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.print_widget_structure">[docs]</a>
-<span class="k">def</span> <span class="nf">print_widget_structure</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Recursively prints the structure of a Tkinter widget and its children.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        widget (tk.Widget): The root widget whose structure is to be printed.</span>
-<span class="sd">        indent (int, optional): The indentation level for the current widget. </span>
-<span class="sd">            Defaults to 0.</span>
-<span class="sd">    Prints:</span>
-<span class="sd">        The widget&#39;s name and class, followed by the names and classes of </span>
-<span class="sd">        its child widgets, indented to represent the widget hierarchy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">print_widget_structure</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>    
     <span class="c1"># Print the widget&#39;s name and class</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">indent</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">widget</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">widget</span><span class="o">.</span><span class="n">winfo_class</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     
@@ -1228,13 +1230,6 @@
 <div class="viewcode-block" id="get_screen_dimensions">
 <a class="viewcode-back" href="../../api/spacr/gui_utils/index.html#spacr.gui_utils.get_screen_dimensions">[docs]</a>
 <span class="k">def</span> <span class="nf">get_screen_dimensions</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Retrieves the dimensions of the primary monitor&#39;s screen.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing the screen width and height in pixels </span>
-<span class="sd">               as (screen_width, screen_height).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">monitor</span> <span class="o">=</span> <span class="n">get_monitors</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get the primary monitor</span>
     <span class="n">screen_width</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span>
     <span class="n">screen_height</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span>

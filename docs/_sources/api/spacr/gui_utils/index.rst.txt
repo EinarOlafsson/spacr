@@ -288,39 +288,33 @@ Module Contents
 
 .. py:function:: run_function_gui(settings_type, settings, q, fig_queue, stop_requested)
 
-   Executes a specific function based on the provided settings type in a GUI context.
-   :param settings_type: Specifies the type of operation to perform.
-                         Supported values include:
-                         - 'mask': Preprocess and generate masks.
-                         - 'measure': Perform crop measurements.
-                         - 'classify': Execute deep_spacr classification.
-                         - 'train_cellpose': Train a Cellpose model.
-                         - 'ml_analyze': Generate machine learning scores.
-                         - 'cellpose_masks': Identify and fine-tune Cellpose masks.
-                         - 'cellpose_all': Check Cellpose models.
-                         - 'map_barcodes': Generate barcode mappings.
-                         - 'regression': Perform regression analysis.
-                         - 'recruitment': Analyze recruitment data.
-                         - 'analyze_plaques': Analyze plaques.
-                         - 'convert': Process non-TIF or non-2D images.
+   Executes a specified processing function in the GUI context based on `settings_type`.
+
+   This function selects and runs one of the core `spaCR` processing functions
+   (e.g., segmentation, measurement, classification, barcode mapping) based on the
+   provided `settings_type` string. It wraps the execution with a logging mechanism
+   to redirect stdout/stderr to the GUI console and handles exceptions cleanly.
+
+   :param settings_type: A string indicating which processing function to execute. Supported values include:
+                         'mask', 'measure', 'classify', 'train_cellpose', 'ml_analyze', 'cellpose_masks',
+                         'cellpose_all', 'map_barcodes', 'regression', 'recruitment', 'analyze_plaques', 'convert'.
    :type settings_type: str
-   :param settings: Configuration settings required for the selected function.
+   :param settings: A dictionary of parameters required by the selected function.
    :type settings: dict
-   :param q: Queue for sending messages or logs.
+   :param q: Queue for redirecting standard output and errors to the GUI console.
    :type q: multiprocessing.Queue
-   :param fig_queue: Queue for sending figures or visual data.
+   :param fig_queue: Queue used to transfer figures (e.g., plots) from the worker process to the GUI.
    :type fig_queue: multiprocessing.Queue
-   :param stop_requested: Shared value to signal when processing should stop.
+   :param stop_requested: A shared value to signal whether execution has completed or was interrupted.
    :type stop_requested: multiprocessing.Value
 
    :raises ValueError: If an invalid `settings_type` is provided.
-   :raises Exception: If an error occurs during the execution of the selected function.
 
    .. rubric:: Notes
 
-   - The function dynamically imports and executes the appropriate module based on `settings_type`.
-   - Any errors encountered during execution are logged to the queue and printed to the console.
-   - The `stop_requested` flag is set to 1 upon completion or error.
+   - Redirects stdout/stderr to the GUI using `process_stdout_stderr`.
+   - Catches and reports any exceptions to the GUI queue.
+   - Sets `stop_requested.value = 1` when the task finishes (whether successful or not).
 
 
 .. py:function:: hide_all_settings(vars_dict, categories)
@@ -334,31 +328,26 @@ Module Contents
 
 .. py:function:: setup_frame(parent_frame)
 
-   Sets up the main GUI layout within the given parent frame. This function creates a
-   resizable layout using `PanedWindow` and `Frame` widgets, and applies a dark style
-   to the elements.
-   :param parent_frame: The parent frame where the layout will be configured.
+   Set up the main GUI layout within the given parent frame.
+
+   This function initializes a dark-themed, resizable GUI layout using `PanedWindow`
+   containers. It organizes the layout into left-hand settings, central vertical content,
+   and bottom horizontal panels. It also sets initial sash positions and layout weights.
+
+   :param parent_frame: The parent Tkinter frame to populate with the GUI layout.
    :type parent_frame: tk.Frame
 
-   :returns:
-
-             A tuple containing the following elements:
-                 - parent_frame (tk.Frame): The parent frame with the configured layout.
-                 - vertical_container (tk.PanedWindow): The vertical container in the right frame.
-                 - horizontal_container (tk.PanedWindow): The horizontal container in the right frame.
-                 - settings_container (tk.PanedWindow): The settings container on the left side.
+   :returns: A tuple containing:
+             - parent_frame (tk.Frame): The modified parent frame with the layout initialized.
+             - vertical_container (tk.PanedWindow): Top container in the right-hand area for main content.
+             - horizontal_container (tk.PanedWindow): Bottom container for additional widgets.
+             - settings_container (tk.PanedWindow): Left-hand container for GUI settings.
    :rtype: tuple
 
-   Layout Details:
-       - The main layout is divided into a left settings container and a right frame.
-       - The right frame contains a vertical container at the top and a horizontal
-         container at the bottom.
-       - The layout is resizable, with the left and right sections separated by a sash.
    .. rubric:: Notes
 
-   - The function applies a dark style to the widgets using `set_dark_style`.
-   - The initial sash position is set to one-fourth of the screen width.
-   - Example content is added to the settings container for demonstration purposes.
+   - Uses `set_dark_style` and `set_element_size` from `gui_elements` to theme and size widgets.
+   - Dynamically positions the sash between the left and right panes to 25% of the screen width.
 
 
 .. py:function:: download_hug_dataset(q, vars_dict)
@@ -386,7 +375,7 @@ Module Contents
    :raises None: All exceptions are handled internally and logged to the queue.
 
 
-.. py:function:: download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5)
+.. py:function:: download_darun_function_guitaset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5)
 
    Downloads a dataset or settings files from Hugging Face and returns the local path.
 
@@ -442,28 +431,7 @@ Module Contents
 
 .. py:function:: print_widget_structure(widget, indent=0)
 
-   Recursively prints the structure of a Tkinter widget and its children.
-   :param widget: The root widget whose structure is to be printed.
-   :type widget: tk.Widget
-   :param indent: The indentation level for the current widget.
-                  Defaults to 0.
-   :type indent: int, optional
-
-   Prints:
-       The widget's name and class, followed by the names and classes of
-       its child widgets, indented to represent the widget hierarchy.
-
-
 .. py:function:: get_screen_dimensions()
-
-   Retrieves the dimensions of the primary monitor's screen.
-
-   :returns:
-
-             A tuple containing the screen width and height in pixels
-                    as (screen_width, screen_height).
-   :rtype: tuple
-
 
 .. py:function:: convert_to_number(value)
 

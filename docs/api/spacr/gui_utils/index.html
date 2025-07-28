@@ -420,44 +420,32 @@ If None, the figure is displayed instead.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.run_function_gui">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">run_function_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_requested</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#run_function_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.run_function_gui" title="Link to this definition"></a></dt>
-<dd><p>Executes a specific function based on the provided settings type in a GUI context.
-:param settings_type: Specifies the type of operation to perform.</p>
-<blockquote>
-<div><p>Supported values include:
-- ‘mask’: Preprocess and generate masks.
-- ‘measure’: Perform crop measurements.
-- ‘classify’: Execute deep_spacr classification.
-- ‘train_cellpose’: Train a Cellpose model.
-- ‘ml_analyze’: Generate machine learning scores.
-- ‘cellpose_masks’: Identify and fine-tune Cellpose masks.
-- ‘cellpose_all’: Check Cellpose models.
-- ‘map_barcodes’: Generate barcode mappings.
-- ‘regression’: Perform regression analysis.
-- ‘recruitment’: Analyze recruitment data.
-- ‘analyze_plaques’: Analyze plaques.
-- ‘convert’: Process non-TIF or non-2D images.</p>
-</div></blockquote>
+<dd><p>Executes a specified processing function in the GUI context based on <cite>settings_type</cite>.</p>
+<p>This function selects and runs one of the core <cite>spaCR</cite> processing functions
+(e.g., segmentation, measurement, classification, barcode mapping) based on the
+provided <cite>settings_type</cite> string. It wraps the execution with a logging mechanism
+to redirect stdout/stderr to the GUI console and handles exceptions cleanly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>settings</strong> (<em>dict</em>) – Configuration settings required for the selected function.</p></li>
-<li><p><strong>q</strong> (<em>multiprocessing.Queue</em>) – Queue for sending messages or logs.</p></li>
-<li><p><strong>fig_queue</strong> (<em>multiprocessing.Queue</em>) – Queue for sending figures or visual data.</p></li>
-<li><p><strong>stop_requested</strong> (<em>multiprocessing.Value</em>) – Shared value to signal when processing should stop.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – A string indicating which processing function to execute. Supported values include:
+‘mask’, ‘measure’, ‘classify’, ‘train_cellpose’, ‘ml_analyze’, ‘cellpose_masks’,
+‘cellpose_all’, ‘map_barcodes’, ‘regression’, ‘recruitment’, ‘analyze_plaques’, ‘convert’.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary of parameters required by the selected function.</p></li>
+<li><p><strong>q</strong> (<em>multiprocessing.Queue</em>) – Queue for redirecting standard output and errors to the GUI console.</p></li>
+<li><p><strong>fig_queue</strong> (<em>multiprocessing.Queue</em>) – Queue used to transfer figures (e.g., plots) from the worker process to the GUI.</p></li>
+<li><p><strong>stop_requested</strong> (<em>multiprocessing.Value</em>) – A shared value to signal whether execution has completed or was interrupted.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – If an invalid <cite>settings_type</cite> is provided.</p></li>
-<li><p><strong>Exception</strong> – If an error occurs during the execution of the selected function.</p></li>
-</ul>
+<dd class="field-even"><p><strong>ValueError</strong> – If an invalid <cite>settings_type</cite> is provided.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function dynamically imports and executes the appropriate module based on <cite>settings_type</cite>.</p></li>
-<li><p>Any errors encountered during execution are logged to the queue and printed to the console.</p></li>
-<li><p>The <cite>stop_requested</cite> flag is set to 1 upon completion or error.</p></li>
+<li><p>Redirects stdout/stderr to the GUI using <cite>process_stdout_stderr</cite>.</p></li>
+<li><p>Catches and reports any exceptions to the GUI queue.</p></li>
+<li><p>Sets <cite>stop_requested.value = 1</cite> when the task finishes (whether successful or not).</p></li>
 </ul>
 </dd></dl>
 
@@ -473,42 +461,29 @@ If None, the figure is displayed instead.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.setup_frame">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">setup_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#setup_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.setup_frame" title="Link to this definition"></a></dt>
-<dd><p>Sets up the main GUI layout within the given parent frame. This function creates a
-resizable layout using <cite>PanedWindow</cite> and <cite>Frame</cite> widgets, and applies a dark style
-to the elements.
-:param parent_frame: The parent frame where the layout will be configured.
-:type parent_frame: tk.Frame</p>
+<dd><p>Set up the main GUI layout within the given parent frame.</p>
+<p>This function initializes a dark-themed, resizable GUI layout using <cite>PanedWindow</cite>
+containers. It organizes the layout into left-hand settings, central vertical content,
+and bottom horizontal panels. It also sets initial sash positions and layout weights.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>A tuple containing the following elements:</dt><dd><ul class="simple">
-<li><p>parent_frame (tk.Frame): The parent frame with the configured layout.</p></li>
-<li><p>vertical_container (tk.PanedWindow): The vertical container in the right frame.</p></li>
-<li><p>horizontal_container (tk.PanedWindow): The horizontal container in the right frame.</p></li>
-<li><p>settings_container (tk.PanedWindow): The settings container on the left side.</p></li>
-</ul>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_frame</strong> (<em>tk.Frame</em>) – The parent Tkinter frame to populate with the GUI layout.</p>
 </dd>
-</dl>
-</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing:
+- parent_frame (tk.Frame): The modified parent frame with the layout initialized.
+- vertical_container (tk.PanedWindow): Top container in the right-hand area for main content.
+- horizontal_container (tk.PanedWindow): Bottom container for additional widgets.
+- settings_container (tk.PanedWindow): Left-hand container for GUI settings.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Layout Details:</dt><dd><ul class="simple">
-<li><p>The main layout is divided into a left settings container and a right frame.</p></li>
-<li><p>The right frame contains a vertical container at the top and a horizontal
-container at the bottom.</p></li>
-<li><p>The layout is resizable, with the left and right sections separated by a sash.</p></li>
-</ul>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function applies a dark style to the widgets using <cite>set_dark_style</cite>.</p></li>
-<li><p>The initial sash position is set to one-fourth of the screen width.</p></li>
-<li><p>Example content is added to the settings container for demonstration purposes.</p></li>
+<li><p>Uses <cite>set_dark_style</cite> and <cite>set_element_size</cite> from <cite>gui_elements</cite> to theme and size widgets.</p></li>
+<li><p>Dynamically positions the sash between the left and right panes to 25% of the screen width.</p></li>
 </ul>
 </dd></dl>
 
@@ -548,8 +523,8 @@ the third element of ‘src’ will be updated with the downloaded dataset path.
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.gui_utils.download_dataset">
-<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">download_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#download_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.download_dataset" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.gui_utils.download_darun_function_guitaset">
+<span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">download_darun_function_guitaset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subfolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#download_darun_function_guitaset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.download_darun_function_guitaset" title="Link to this definition"></a></dt>
 <dd><p>Downloads a dataset or settings files from Hugging Face and returns the local path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -632,39 +607,12 @@ while fully filling the frame and maintaining the aspect ratio.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.print_widget_structure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">print_widget_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#print_widget_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.print_widget_structure" title="Link to this definition"></a></dt>
-<dd><p>Recursively prints the structure of a Tkinter widget and its children.
-:param widget: The root widget whose structure is to be printed.
-:type widget: tk.Widget
-:param indent: The indentation level for the current widget.</p>
-<blockquote>
-<div><p>Defaults to 0.</p>
-</div></blockquote>
-<dl class="field-list simple">
-</dl>
-<dl class="simple">
-<dt>Prints:</dt><dd><p>The widget’s name and class, followed by the names and classes of
-its child widgets, indented to represent the widget hierarchy.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.get_screen_dimensions">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">get_screen_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#get_screen_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.get_screen_dimensions" title="Link to this definition"></a></dt>
-<dd><p>Retrieves the dimensions of the primary monitor’s screen.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>A tuple containing the screen width and height in pixels</dt><dd><p>as (screen_width, screen_height).</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_utils.convert_to_number">
