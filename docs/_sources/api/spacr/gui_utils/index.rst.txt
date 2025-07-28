@@ -236,45 +236,53 @@ Module Contents
 .. py:function:: convert_settings_dict_for_gui(settings)
 
    Converts a dictionary of settings into a format suitable for GUI representation.
+
    This function processes a given settings dictionary and maps its keys and values
    to a standardized format for GUI components. It handles special cases for specific
    keys and assigns appropriate GUI element types (e.g., combo boxes, checkboxes,
    entry fields) based on the value type or predefined rules.
+
    :param settings: A dictionary containing key-value pairs of settings to be
                     converted for GUI representation.
    :type settings: dict
 
-   :returns:
+   :returns: A dictionary where each key corresponds to a GUI element, and the value
+             is a tuple containing:
 
-             A dictionary where each key corresponds to a GUI element, and the value
-                   is a tuple containing:
-                   - The type of GUI element (e.g., 'combo', 'check', 'entry').
-                   - A list of options for combo boxes or None for other types.
-                   - The default or current value for the GUI element.
+             - The type of GUI element (e.g., 'combo', 'check', 'entry').
+             - A list of options for combo boxes or None for other types.
+             - The default or current value for the GUI element.
    :rtype: dict
 
-   Special Cases:
-       - Certain keys (e.g., 'metadata_type', 'channels', 'model_type') have predefined
-         options and default values, which are handled explicitly.
-       - Boolean values are represented as checkboxes.
-       - Numeric values (int or float) and strings are represented as entry fields.
-       - Lists are converted to strings and represented as entry fields.
-       - None values are represented as entry fields.
+   .. rubric:: Special Cases
+
+   - Certain keys (e.g., 'metadata_type', 'channels', 'model_type') have predefined
+     options and default values, which are handled explicitly.
+   - Boolean values are represented as checkboxes.
+   - Numeric values (int or float) and strings are represented as entry fields.
+   - Lists are converted to strings and represented as entry fields.
+   - None values are represented as entry fields.
+
    .. rubric:: Example
 
-   Input:
+   **Input**::
+
        settings = {
            'metadata_type': 'cellvoyager',
            'channels': '[0,1,2,3]',
            'use_gpu': True,
            'learning_rate': 0.001,
            'custom_list': [1, 2, 3]
-   Output:
+       }
+
+   **Output**::
+
        {
            'channels': ('combo', ['[0,1,2,3,4,5,6,7,8]', '[0,1,2,3,4,5,6,7]', ...], '[0,1,2,3]'),
            'use_gpu': ('check', None, True),
            'learning_rate': ('entry', None, 0.001),
            'custom_list': ('entry', None, '[1, 2, 3]')
+       }
 
 
 .. py:function:: spacrFigShow(fig_queue=None)
