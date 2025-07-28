@@ -288,9 +288,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.merge_touching_objects"><code class="docutils literal notranslate"><span class="pre">merge_touching_objects()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.remove_intensity_objects"><code class="docutils literal notranslate"><span class="pre">remove_intensity_objects()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.SelectChannels"><code class="docutils literal notranslate"><span class="pre">SelectChannels</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.SelectChannels.__call__"><code class="docutils literal notranslate"><span class="pre">SelectChannels.__call__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.SelectChannels.channels"><code class="docutils literal notranslate"><span class="pre">SelectChannels.channels</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">SelectChannels.__call__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">SelectChannels.channels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.utils.SelectChannels.__call__"><code class="docutils literal notranslate"><span class="pre">SelectChannels.__call__()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.preprocess_image_v1"><code class="docutils literal notranslate"><span class="pre">preprocess_image_v1()</span></code></a></li>
@@ -1113,8 +1113,8 @@
 <li><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing configuration settings.
 Must include a ‘timelapse’ key (boolean) to indicate if timelapse data is used.</p></li>
 <li><p><strong>source_folder</strong> (<em>str</em>) – Path to the source folder containing the database.</p></li>
-<li><p><strong>crop_mode</strong> (<em>str</em>) – Specifies the cropping mode. Can be one of the following:
-‘cell’, ‘nucleus’, ‘pathogen’, or ‘cytoplasm’.</p></li>
+<li><p><strong>crop_mode</strong> (<em>str</em>) – Specifies the cropping mode.
+Can be one of: ‘cell’, ‘nucleus’, ‘pathogen’, or ‘cytoplasm’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -1122,12 +1122,11 @@ Must include a ‘timelapse’ key (boolean) to indicate if timelapse data is us
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The function extracts metadata from the file names using <cite>_map_wells_png</cite>.</p></li>
-<li><p>Metadata columns include ‘plateID’, ‘rowID’, ‘columnID’, ‘fieldID’, and optionally
-‘time_id’, ‘prcfo’, and crop-specific IDs based on the <cite>crop_mode</cite>.</p></li>
-<li><p>The metadata and file paths are stored in a table named ‘png_list’ in the SQLite database.</p></li>
-</ul>
+<p>The function extracts metadata from the file names using <cite>_map_wells_png</cite>.</p>
+<p>Metadata columns include:
+- ‘plateID’, ‘rowID’, ‘columnID’, ‘fieldID’
+- optionally ‘time_id’, ‘prcfo’, and crop-specific IDs based on the <cite>crop_mode</cite>.</p>
+<p>The metadata and file paths are stored in a table named <cite>‘png_list’</cite> in the SQLite database.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1139,7 +1138,7 @@ Must include a ‘timelapse’ key (boolean) to indicate if timelapse data is us
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>img_paths</strong> (<em>list</em><em> of </em><em>str</em>) – List of file paths to the images.</p></li>
 <li><p><strong>source_folder</strong> (<em>str</em>) – Path to the source folder where the database will be stored.</p></li>
-<li><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing configuration settings. Expected keys:
+<li><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing configuration settings. Expected keys include:
 - ‘dataset’ (str): Path to the dataset file, used to name the database.
 - ‘cam_type’ (str): Camera type, used to name the database table.</p></li>
 </ul>
@@ -1149,12 +1148,10 @@ Must include a ‘timelapse’ key (boolean) to indicate if timelapse data is us
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The function assumes the existence of a helper function <cite>_map_wells_png</cite> to extract metadata
-from image file names.</p></li>
-<li><p>The database is created if it does not already exist.</p></li>
-<li><p>Data is appended to a table named based on the <cite>cam_type</cite> setting.</p></li>
-</ul>
+<p>The function assumes the existence of a helper function <cite>_map_wells_png</cite> to extract metadata
+from image file names.</p>
+<p>The database is created if it does not already exist.</p>
+<p>Data is appended to a table named based on the <cite>cam_type</cite> setting.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1245,46 +1242,42 @@ Handles special cases where values are lists, tuples, booleans, None, integers, 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.save_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">save_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'settings'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#save_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.save_settings" title="Link to this definition"></a></dt>
-<dd><p>Save a dictionary of settings to a CSV file.
-This function takes a dictionary of settings, processes it, and saves it
+<dd><p>Save a dictionary of settings to a CSV file.</p>
+<p>This function takes a dictionary of settings, processes it, and saves it
 as a CSV file in a specified directory. It also provides an option to
-display the settings as a DataFrame.
-:param settings: A dictionary containing the settings to be saved.
-:type settings: dict
-:param name: The base name for the output CSV file. Defaults to ‘settings’.
-:type name: str, optional
-:param show: If True, displays the settings as a DataFrame. Defaults to False.
-:type show: bool, optional</p>
-<dl class="simple">
-<dt>Behavior:</dt><dd><ul class="simple">
+display the settings as a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the settings to be saved.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The base name for the output CSV file. Defaults to ‘settings’.</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, displays the settings as a DataFrame. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If the ‘src’ key is not present in the settings dictionary.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
 <li><p>If the ‘src’ key in the settings dictionary is a list, the first element
 is used as the source directory, and the file name is appended with ‘_list’.</p></li>
 <li><p>If the ‘test_mode’ key exists in the settings dictionary, it is set to False.</p></li>
 <li><p>If the ‘plot’ key exists in the settings dictionary, it is set to False.</p></li>
+<li><p>A directory named ‘settings’ is created inside the source directory if it does not exist.</p></li>
+<li><p>The settings are saved as a CSV file in the ‘settings’ directory.</p></li>
+<li><p>The file path where the settings are saved is printed.</p></li>
 </ul>
-</dd>
-<dt>Side Effects:</dt><dd><ul class="simple">
-<li><p>Creates a directory named ‘settings’ inside the source directory if it does not exist.</p></li>
-<li><p>Saves the settings as a CSV file in the ‘settings’ directory.</p></li>
-<li><p>Prints the file path where the settings are saved.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>KeyError</strong> – If the ‘src’ key is not present in the settings dictionary.</p>
-</dd>
-</dl>
 <p class="rubric">Example</p>
-<dl class="simple">
-<dt>settings = {</dt><dd><p>‘src’: ‘/path/to/source’,
-‘test_mode’: True,
-‘plot’: True,
-‘param1’: 42</p>
-</dd>
-</dl>
-<p>}
-save_settings(settings, name=’experiment1’, show=True)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;/path/to/source&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;test_mode&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;plot&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;param1&#39;</span><span class="p">:</span> <span class="mi">42</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;experiment1&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -3273,25 +3266,21 @@ perfect boundary alignment and 0 indicates no alignment.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.utils.SelectChannels">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">SelectChannels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels" title="Link to this definition"></a></dt>
-<dd><p>A class to selectively retain specific color channels in an image tensor.
-.. attribute:: channels</p>
-<blockquote>
-<div><p>A list of integers representing the channels to retain.
-Valid values are:
-- 1 for the red channel
-- 2 for the green channel
-- 3 for the blue channel</p>
+<dd><p>Selectively retain specific color channels in an image tensor.</p>
+<p>This class zeroes out undesired color channels in a 3-channel image tensor,
+based on the specified list of channels to retain.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.SelectChannels.channels">
+<span class="sig-name descname"><span class="pre">channels</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels.channels" title="Link to this definition"></a></dt>
+<dd><p>List of 1-based indices for channels to retain.
+- 1: Red channel
+- 2: Green channel
+- 3: Blue channel</p>
 <dl class="field-list simple">
-<dt class="field-odd">type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of int</p>
 </dd>
 </dl>
-</div></blockquote>
-<dl class="py method">
-<dt class="sig sig-object py" id="spacr.utils.SelectChannels.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels.__call__" title="Link to this definition"></a></dt>
-<dd><p>Applies the channel selection to the input image tensor. Channels
-not specified in <cite>self.channels</cite> are zeroed out.</p>
 </dd></dl>
 
 <p class="rubric">Example</p>
@@ -3299,15 +3288,33 @@ not specified in <cite>self.channels</cite> are zeroed out.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">modified_img</span> <span class="o">=</span> <span class="n">select_channels</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>      <span class="c1"># Apply the transformation</span>
 </pre></div>
 </div>
+<p>Initialize the channel selector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channels</strong> (<em>list</em><em> of </em><em>int</em>) – List of 1-based channel indices to retain.</p>
+</dd>
+</dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.SelectChannels.channels">
-<span class="sig-name descname"><span class="pre">channels</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels.channels" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">channels</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="spacr.utils.SelectChannels.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels.__call__" title="Link to this definition"></a></dt>
+<dd><p>Apply channel selection to the image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>torch.Tensor</em>) – A 3-channel image tensor of shape (3, H, W).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Image tensor with non-selected channels zeroed out.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -3788,12 +3795,6 @@ the last convolutional layer as the primary target layer.</p>
 <p>This class implements the Integrated Gradients method to attribute the prediction
 of a neural network to its input features. It approximates the integral of gradients
 along a straight path from a baseline to the input.</p>
-<p>Initialize the IntegratedGradients instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>model</strong> (<em>torch.nn.Module</em>) – A trained PyTorch model.</p>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.utils.IntegratedGradients.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.IntegratedGradients.model" title="Link to this definition"></a></dt>
@@ -3805,6 +3806,12 @@ along a straight path from a baseline to the input.</p>
 </dl>
 </dd></dl>
 
+<p>Initialize the IntegratedGradients instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>torch.nn.Module</em>) – A trained PyTorch model.</p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id5">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>

@@ -26,18 +26,21 @@ Module Contents
    :type settings: dict
    :param source_folder: Path to the source folder containing the database.
    :type source_folder: str
-   :param crop_mode: Specifies the cropping mode. Can be one of the following:
-                     'cell', 'nucleus', 'pathogen', or 'cytoplasm'.
+   :param crop_mode: Specifies the cropping mode.
+                     Can be one of: 'cell', 'nucleus', 'pathogen', or 'cytoplasm'.
    :type crop_mode: str
 
    :raises sqlite3.OperationalError: If there is an issue connecting to or writing to the SQLite database.
 
    .. rubric:: Notes
 
-   - The function extracts metadata from the file names using `_map_wells_png`.
-   - Metadata columns include 'plateID', 'rowID', 'columnID', 'fieldID', and optionally
-     'time_id', 'prcfo', and crop-specific IDs based on the `crop_mode`.
-   - The metadata and file paths are stored in a table named 'png_list' in the SQLite database.
+   The function extracts metadata from the file names using `_map_wells_png`.
+
+   Metadata columns include:
+   - 'plateID', 'rowID', 'columnID', 'fieldID'
+   - optionally 'time_id', 'prcfo', and crop-specific IDs based on the `crop_mode`.
+
+   The metadata and file paths are stored in a table named `'png_list'` in the SQLite database.
 
 
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
@@ -48,7 +51,7 @@ Module Contents
    :type img_paths: list of str
    :param source_folder: Path to the source folder where the database will be stored.
    :type source_folder: str
-   :param settings: Dictionary containing configuration settings. Expected keys:
+   :param settings: Dictionary containing configuration settings. Expected keys include:
                     - 'dataset' (str): Path to the dataset file, used to name the database.
                     - 'cam_type' (str): Camera type, used to name the database table.
    :type settings: dict
@@ -57,10 +60,12 @@ Module Contents
 
    .. rubric:: Notes
 
-   - The function assumes the existence of a helper function `_map_wells_png` to extract metadata
-     from image file names.
-   - The database is created if it does not already exist.
-   - Data is appended to a table named based on the `cam_type` setting.
+   The function assumes the existence of a helper function `_map_wells_png` to extract metadata
+   from image file names.
+
+   The database is created if it does not already exist.
+
+   Data is appended to a table named based on the `cam_type` setting.
 
 
 .. py:function:: activation_correlations_to_database(df, img_paths, source_folder, settings)
@@ -134,9 +139,11 @@ Module Contents
 .. py:function:: save_settings(settings, name='settings', show=False)
 
    Save a dictionary of settings to a CSV file.
+
    This function takes a dictionary of settings, processes it, and saves it
    as a CSV file in a specified directory. It also provides an option to
    display the settings as a DataFrame.
+
    :param settings: A dictionary containing the settings to be saved.
    :type settings: dict
    :param name: The base name for the output CSV file. Defaults to 'settings'.
@@ -144,26 +151,27 @@ Module Contents
    :param show: If True, displays the settings as a DataFrame. Defaults to False.
    :type show: bool, optional
 
-   Behavior:
-       - If the 'src' key in the settings dictionary is a list, the first element
-         is used as the source directory, and the file name is appended with '_list'.
-       - If the 'test_mode' key exists in the settings dictionary, it is set to False.
-       - If the 'plot' key exists in the settings dictionary, it is set to False.
-   Side Effects:
-       - Creates a directory named 'settings' inside the source directory if it does not exist.
-       - Saves the settings as a CSV file in the 'settings' directory.
-       - Prints the file path where the settings are saved.
    :raises KeyError: If the 'src' key is not present in the settings dictionary.
+
+   .. rubric:: Notes
+
+   - If the 'src' key in the settings dictionary is a list, the first element
+     is used as the source directory, and the file name is appended with '_list'.
+   - If the 'test_mode' key exists in the settings dictionary, it is set to False.
+   - If the 'plot' key exists in the settings dictionary, it is set to False.
+   - A directory named 'settings' is created inside the source directory if it does not exist.
+   - The settings are saved as a CSV file in the 'settings' directory.
+   - The file path where the settings are saved is printed.
 
    .. rubric:: Example
 
-   settings = {
-       'src': '/path/to/source',
-       'test_mode': True,
-       'plot': True,
-       'param1': 42
-   }
-   save_settings(settings, name='experiment1', show=True)
+   >>> settings = {
+   ...     'src': '/path/to/source',
+   ...     'test_mode': True,
+   ...     'plot': True,
+   ...     'param1': 42
+   ... }
+   >>> save_settings(settings, name='experiment1', show=True)
 
 
 .. py:function:: print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type='')
@@ -1710,33 +1718,44 @@ Module Contents
 
 .. py:class:: SelectChannels(channels)
 
-   A class to selectively retain specific color channels in an image tensor.
+   Selectively retain specific color channels in an image tensor.
+
+   This class zeroes out undesired color channels in a 3-channel image tensor,
+   based on the specified list of channels to retain.
+
    .. attribute:: channels
 
-      A list of integers representing the channels to retain.
-      Valid values are:
-      - 1 for the red channel
-      - 2 for the green channel
-      - 3 for the blue channel
+      List of 1-based indices for channels to retain.
+      - 1: Red channel
+      - 2: Green channel
+      - 3: Blue channel
 
-      :type: list
-
-   .. method:: __call__(img)
-
-      
-      Applies the channel selection to the input image tensor. Channels
-      not specified in `self.channels` are zeroed out.
+      :type: list of int
 
    .. rubric:: Example
 
    >>> select_channels = SelectChannels([1, 3])  # Retain red and blue channels
    >>> modified_img = select_channels(img)      # Apply the transformation
 
+   Initialize the channel selector.
+
+   :param channels: List of 1-based channel indices to retain.
+   :type channels: list of int
+
 
    .. py:attribute:: channels
 
 
    .. py:method:: __call__(img)
+
+      Apply channel selection to the image.
+
+      :param img: A 3-channel image tensor of shape (3, H, W).
+      :type img: torch.Tensor
+
+      :returns: Image tensor with non-selected channels zeroed out.
+      :rtype: torch.Tensor
+
 
 
 .. py:function:: preprocess_image_v1(image_path, image_size=224, channels=[1, 2, 3], normalize=True)
@@ -2097,16 +2116,16 @@ Module Contents
    of a neural network to its input features. It approximates the integral of gradients
    along a straight path from a baseline to the input.
 
-   Initialize the IntegratedGradients instance.
-
-   :param model: A trained PyTorch model.
-   :type model: torch.nn.Module
-
    .. attribute:: model
 
       The PyTorch model to interpret.
 
       :type: torch.nn.Module
+
+   Initialize the IntegratedGradients instance.
+
+   :param model: A trained PyTorch model.
+   :type model: torch.nn.Module
 
 
    .. py:attribute:: model
