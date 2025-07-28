@@ -640,13 +640,13 @@ Module Contents
 
    .. attribute:: dilated_conv1
 
-      Dilated 3×3 convolution layer.
+      Dilated 3×3 convolution layer. :no-index:
 
       :type: nn.Conv2d
 
    .. attribute:: spatial_attention
 
-      1×1 convolution for spatial attention.
+      1×1 convolution for spatial attention. :no-index:
 
       :type: nn.Conv2d
 
@@ -710,25 +710,25 @@ Module Contents
 
    .. attribute:: early_fusion
 
-      Module to fuse input channels before feature extraction.
+      Module to fuse input channels before feature extraction. :no-index:
 
       :type: nn.Module
 
    .. attribute:: multi_scale_block_1
 
-      Multi-scale block with spatial attention.
+      Multi-scale block with spatial attention. :no-index:
 
       :type: nn.Module
 
    .. attribute:: fc1
 
-      Final fully connected layer for classification.
+      Final fully connected layer for classification. :no-index:
 
       :type: nn.Linear
 
    .. attribute:: use_checkpoint
 
-      Indicates whether gradient checkpointing is used.
+      Indicates whether gradient checkpointing is used. :no-index:
 
       :type: bool
 
@@ -803,43 +803,43 @@ Module Contents
 
    .. attribute:: model_name
 
-      Identifier of the chosen torchvision model.
+      Identifier of the chosen torchvision model. :no-index:
 
       :type: str
 
    .. attribute:: use_checkpoint
 
-      Indicates whether checkpointing is active.
+      Indicates whether checkpointing is active. :no-index:
 
       :type: bool
 
    .. attribute:: base_model
 
-      The pretrained feature extractor with classifier removed.
+      The pretrained feature extractor with classifier removed. :no-index:
 
       :type: nn.Module
 
    .. attribute:: num_ftrs
 
-      Number of output features from the base model.
+      Number of output features from the base model. :no-index:
 
       :type: int
 
    .. attribute:: use_dropout
 
-      Whether dropout is applied before classification.
+      Whether dropout is applied before classification. :no-index:
 
       :type: bool
 
    .. attribute:: dropout
 
-      Optional dropout layer before the classifier.
+      Optional dropout layer before the classifier. :no-index:
 
       :type: nn.Dropout
 
    .. attribute:: spacr_classifier
 
-      Final linear classifier mapping features to binary logits.
+      Final linear classifier mapping features to binary logits. :no-index:
 
       :type: nn.Linear
 
@@ -950,13 +950,13 @@ Module Contents
 
    .. attribute:: alpha
 
-      Scaling factor to balance the importance of classes.
+      Scaling factor to balance the importance of classes. :no-index:
 
       :type: float
 
    .. attribute:: gamma
 
-      Focusing factor to emphasize hard examples.
+      Focusing factor to emphasize hard examples. :no-index:
 
       :type: float
 
@@ -1895,75 +1895,19 @@ Module Contents
 
 .. py:class:: SaliencyMapGenerator(model)
 
-   SaliencyMapGenerator is a utility class for generating saliency maps and visualizing model predictions.
+   SaliencyMapGenerator is a utility class for generating saliency maps and visualizing model predictions
+   for PyTorch models in binary classification tasks.
+
    .. attribute:: model
 
       The PyTorch model for which saliency maps are computed.
 
       :type: torch.nn.Module
 
-   .. method:: __init__(model)
+   Initialize the SaliencyMapGenerator.
 
-      
-      Initializes the SaliencyMapGenerator with a given model.
-
-   .. method:: compute_saliency_maps(X, y)
-
-      
-      Computes saliency maps for the input data X and target labels y.
-      :param X: Input tensor with requires_grad enabled.
-      :type X: torch.Tensor
-      :param y: Target labels for the input data.
-      :type y: torch.Tensor
-      
-      :returns: Saliency maps with the same shape as X.
-      :rtype: torch.Tensor
-      
-
-   .. method:: compute_saliency_and_predictions(X)
-
-      
-      Computes both saliency maps and predictions for the input data X.
-      :param X: Input tensor with requires_grad enabled.
-      :type X: torch.Tensor
-      
-      :returns: A tuple containing saliency maps and predictions.
-      :rtype: tuple
-      
-
-   .. method:: plot_activation_grid(X, saliency, predictions, overlay=True, normalize=False)
-
-      
-      Plots a grid of input images with their corresponding saliency maps and predictions.
-      :param X: Input tensor of images.
-      :type X: torch.Tensor
-      :param saliency: Saliency maps corresponding to the input images.
-      :type saliency: torch.Tensor
-      :param predictions: Predicted class labels for the input images.
-      :type predictions: torch.Tensor
-      :param overlay: Whether to overlay the saliency map on the input image. Defaults to True.
-      :type overlay: bool, optional
-      :param normalize: Whether to normalize the input images. Defaults to False.
-      :type normalize: bool, optional
-      
-      :returns: The figure object containing the plotted grid.
-      :rtype: matplotlib.figure.Figure
-      
-
-   .. method:: percentile_normalize(img, lower_percentile=2, upper_percentile=98)
-
-      
-      Normalizes an image by clipping its values to the specified percentiles.
-      :param img: Input image to be normalized.
-      :type img: numpy.ndarray
-      :param lower_percentile: Lower percentile for normalization. Defaults to 2.
-      :type lower_percentile: int, optional
-      :param upper_percentile: Upper percentile for normalization. Defaults to 98.
-      :type upper_percentile: int, optional
-      
-      :returns: The normalized image.
-      :rtype: numpy.ndarray
-      
+   :param model: The model to analyze.
+   :type model: torch.nn.Module
 
 
    .. py:attribute:: model
@@ -1971,86 +1915,110 @@ Module Contents
 
    .. py:method:: compute_saliency_maps(X, y)
 
+      Compute saliency maps for the given inputs and target labels.
+
+      :param X: Input tensor with requires_grad enabled.
+      :type X: torch.Tensor
+      :param y: Ground truth labels for the input samples.
+      :type y: torch.Tensor
+
+      :returns: The computed saliency maps, same shape as input.
+      :rtype: torch.Tensor
+
+
 
    .. py:method:: compute_saliency_and_predictions(X)
+
+      Compute saliency maps and predictions for the given input batch.
+
+      :param X: Input tensor with requires_grad enabled.
+      :type X: torch.Tensor
+
+      :returns:     - torch.Tensor: Saliency maps for the input.
+                    - torch.Tensor: Predicted class labels.
+      :rtype: tuple
+
 
 
    .. py:method:: plot_activation_grid(X, saliency, predictions, overlay=True, normalize=False)
 
+      Plot a grid of input images with overlaid saliency maps and predicted labels.
+
+      :param X: Input tensor of images (N, C, H, W).
+      :type X: torch.Tensor
+      :param saliency: Corresponding saliency maps (N, C, H, W).
+      :type saliency: torch.Tensor
+      :param predictions: Predicted class labels (N,).
+      :type predictions: torch.Tensor
+      :param overlay: Whether to overlay saliency maps on input images. Default is True.
+      :type overlay: bool
+      :param normalize: Whether to normalize input images by percentiles. Default is False.
+      :type normalize: bool
+
+      :returns: A matplotlib figure object showing the grid.
+      :rtype: matplotlib.figure.Figure
+
+
 
    .. py:method:: percentile_normalize(img, lower_percentile=2, upper_percentile=98)
+
+      Normalize an image's intensity per channel using percentile clipping.
+
+      :param img: Image of shape (H, W, C) to be normalized.
+      :type img: np.ndarray
+      :param lower_percentile: Lower percentile for intensity clipping. Default is 2.
+      :type lower_percentile: int
+      :param upper_percentile: Upper percentile for intensity clipping. Default is 98.
+      :type upper_percentile: int
+
+      :returns: Percentile-normalized image.
+      :rtype: np.ndarray
+
 
 
 .. py:class:: GradCAMGenerator(model, target_layer, cam_type='gradcam')
 
-   GradCAMGenerator is a utility class for generating Grad-CAM (Gradient-weighted Class Activation Mapping) visualizations
-   for deep learning models. It supports binary classification tasks and provides methods for computing Grad-CAM maps,
-   predictions, and visualizing activation overlays.
+   GradCAMGenerator generates Grad-CAM (Gradient-weighted Class Activation Mapping) visualizations
+   for CNN-based PyTorch models, supporting binary classification tasks.
+
    .. attribute:: model
 
-      The neural network model for which Grad-CAM is computed.
+      The neural network model.
 
       :type: torch.nn.Module
 
    .. attribute:: target_layer
 
-      The name of the target layer in the model where Grad-CAM is applied.
+      The name of the layer to extract activations and gradients from.
 
       :type: str
 
    .. attribute:: cam_type
 
-      The type of CAM to generate (default is 'gradcam').
+      Type of CAM method used (currently only 'gradcam').
 
       :type: str
 
    .. attribute:: gradients
 
-      Stores the gradients of the target layer during backpropagation.
+      Stored gradients from backward pass.
 
       :type: torch.Tensor
 
    .. attribute:: activations
 
-      Stores the activations of the target layer during the forward pass.
+      Stored activations from forward pass.
 
       :type: torch.Tensor
 
-   .. method:: __init__(model, target_layer, cam_type='gradcam')
+   Initialize the GradCAMGenerator and register hooks.
 
-      
-      Initializes the GradCAMGenerator with the model, target layer, and CAM type.
-
-   .. method:: hook_layers()
-
-      
-      Hooks the target layer to capture activations during the forward pass and gradients during backpropagation.
-
-   .. method:: get_layer(model, target_layer)
-
-      
-      Recursively retrieves the specified target layer from the model.
-
-   .. method:: compute_gradcam_maps(X, y)
-
-      
-      Computes the Grad-CAM heatmaps for the input tensor `X` and target labels `y`.
-
-   .. method:: compute_gradcam_and_predictions(X)
-
-      
-      Computes both Grad-CAM heatmaps and predictions for the input tensor `X`.
-
-   .. method:: plot_activation_grid(X, gradcam, predictions, overlay=True, normalize=False)
-
-      
-      Plots a grid of input images with Grad-CAM overlays and predicted class labels.
-
-   .. method:: percentile_normalize(img, lower_percentile=2, upper_percentile=98)
-
-      
-      Normalizes an image's channels to the specified percentiles for better visualization.
-      
+   :param model: A trained PyTorch model.
+   :type model: torch.nn.Module
+   :param target_layer: The name of the layer to compute Grad-CAM on.
+   :type target_layer: str
+   :param cam_type: Type of CAM method (default is 'gradcam').
+   :type cam_type: str
 
 
    .. py:attribute:: model
@@ -2079,20 +2047,86 @@ Module Contents
 
    .. py:method:: hook_layers()
 
+      Register forward and backward hooks to capture activations and gradients
+      from the specified target layer during inference and backpropagation.
+
+
 
    .. py:method:: get_layer(model, target_layer)
+
+      Recursively retrieve a layer object from a nested model.
+
+      :param model: The model containing the layer.
+      :type model: torch.nn.Module
+      :param target_layer: Dot-separated string path to the desired layer.
+      :type target_layer: str
+
+      :returns: The resolved layer module.
+      :rtype: torch.nn.Module
+
 
 
    .. py:method:: compute_gradcam_maps(X, y)
 
+      Compute Grad-CAM heatmaps for an input batch and target labels.
+
+      :param X: Input tensor of shape (N, C, H, W).
+      :type X: torch.Tensor
+      :param y: Target labels (0 or 1) for each sample.
+      :type y: torch.Tensor
+
+      :returns: Grad-CAM heatmaps normalized to [0, 1] for each input.
+      :rtype: np.ndarray
+
+
 
    .. py:method:: compute_gradcam_and_predictions(X)
+
+      Compute Grad-CAM heatmaps and class predictions for a batch.
+
+      :param X: Input tensor of shape (N, C, H, W).
+      :type X: torch.Tensor
+
+      :returns:     - Grad-CAM heatmaps for each sample.
+                    - Predicted class labels (0 or 1).
+      :rtype: Tuple[torch.Tensor, torch.Tensor]
+
 
 
    .. py:method:: plot_activation_grid(X, gradcam, predictions, overlay=True, normalize=False)
 
+      Plot a grid of input images overlaid with Grad-CAM heatmaps.
+
+      :param X: Input image batch (N, C, H, W).
+      :type X: torch.Tensor
+      :param gradcam: Grad-CAM heatmaps (N, H, W).
+      :type gradcam: torch.Tensor
+      :param predictions: Predicted class labels.
+      :type predictions: torch.Tensor
+      :param overlay: Whether to overlay Grad-CAM on input images.
+      :type overlay: bool
+      :param normalize: Whether to normalize image intensities by percentiles.
+      :type normalize: bool
+
+      :returns: The generated grid figure.
+      :rtype: matplotlib.figure.Figure
+
+
 
    .. py:method:: percentile_normalize(img, lower_percentile=2, upper_percentile=98)
+
+      Normalize each channel of the input image to the specified percentiles.
+
+      :param img: Image array (H, W, C).
+      :type img: np.ndarray
+      :param lower_percentile: Lower clipping percentile.
+      :type lower_percentile: int
+      :param upper_percentile: Upper clipping percentile.
+      :type upper_percentile: int
+
+      :returns: Percentile-normalized image.
+      :rtype: np.ndarray
+
 
 
 .. py:function:: preprocess_image(image_path, normalize=True, image_size=224, channels=[1, 2, 3])
