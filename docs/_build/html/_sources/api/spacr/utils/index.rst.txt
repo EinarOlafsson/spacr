@@ -633,33 +633,29 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   A PyTorch module that implements a multi-scale block with attention mechanism.
-   This module consists of a dilated convolution layer followed by a spatial attention mechanism.
-   It is designed to process input feature maps and enhance them using attention.
+   A PyTorch module implementing a multi-scale convolutional block with spatial attention.
+
+   This module applies a dilated convolution followed by a spatial attention mechanism
+   to enhance input feature maps.
+
    .. attribute:: dilated_conv1
 
-      A 2D convolutional layer with a kernel size of 3, dilation of 1, and padding of 1.
+      Dilated 3×3 convolution layer.
 
       :type: nn.Conv2d
 
    .. attribute:: spatial_attention
 
-      A 2D convolutional layer with a kernel size of 1 for applying spatial attention.
+      1×1 convolution for spatial attention.
 
       :type: nn.Conv2d
 
-   .. method:: custom_forward(x)
+   Initialize the MultiScaleBlockWithAttention module.
 
-      
-      Performs the forward pass using the dilated convolution and spatial attention layers.
-
-   .. method:: forward(x)
-
-      
-      Calls the `custom_forward` method to process the input tensor.
-      
-
-   Initialize internal Module state, shared by both nn.Module and ScriptModule.
+   :param in_channels: Number of input channels.
+   :type in_channels: int
+   :param out_channels: Number of output channels after convolution.
+   :type out_channels: int
 
 
    .. py:attribute:: dilated_conv1
@@ -670,8 +666,26 @@ Module Contents
 
    .. py:method:: custom_forward(x)
 
+      Apply dilated convolution followed by spatial attention.
+
+      :param x: Input tensor of shape (N, C, H, W).
+      :type x: torch.Tensor
+
+      :returns: Output tensor after attention-enhanced feature transformation.
+      :rtype: torch.Tensor
+
+
 
    .. py:method:: forward(x)
+
+      Standard forward pass that delegates to `custom_forward`.
+
+      :param x: Input tensor.
+      :type x: torch.Tensor
+
+      :returns: Output tensor.
+      :rtype: torch.Tensor
+
 
 
 .. py:class:: CustomCellClassifier(num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate)
@@ -679,55 +693,57 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   A custom neural network module for cell classification tasks.
-   :param num_classes: The number of output classes for classification.
+   A custom neural network module for single-cell classification using early fusion and multi-scale attention.
+
+   This architecture supports optional gradient checkpointing for reduced memory usage during training.
+
+   :param num_classes: Number of output classes for classification.
    :type num_classes: int
-   :param pathogen_channel: The channel index for pathogen-related data (not currently used in the implementation).
+   :param pathogen_channel: Index of the pathogen channel (currently unused).
    :type pathogen_channel: int
-   :param use_attention: Whether to use attention mechanisms (not currently used in the implementation).
+   :param use_attention: Flag to enable attention modules (currently unused).
    :type use_attention: bool
-   :param use_checkpoint: Whether to use gradient checkpointing to save memory during training.
+   :param use_checkpoint: Whether to apply gradient checkpointing during the forward pass.
    :type use_checkpoint: bool
-   :param dropout_rate: The dropout rate to apply (not currently used in the implementation).
+   :param dropout_rate: Dropout rate (currently unused).
    :type dropout_rate: float
 
    .. attribute:: early_fusion
 
-      A module for early fusion of input channels.
+      Module to fuse input channels before feature extraction.
 
       :type: nn.Module
 
    .. attribute:: multi_scale_block_1
 
-      A multi-scale block with attention for feature extraction.
+      Multi-scale block with spatial attention.
 
       :type: nn.Module
 
    .. attribute:: fc1
 
-      A fully connected layer for classification.
+      Final fully connected layer for classification.
 
       :type: nn.Linear
 
    .. attribute:: use_checkpoint
 
-      Indicates whether gradient checkpointing is enabled.
+      Indicates whether gradient checkpointing is used.
 
       :type: bool
 
-   .. method:: custom_forward(x)
+   Initialize the classifier with early fusion and attention blocks.
 
-      
-      Performs the forward pass through the network without checkpointing.
-
-   .. method:: forward(x)
-
-      
-      Performs the forward pass through the network. If `use_checkpoint` is True,
-      gradient checkpointing is applied to save memory during training.
-      
-
-   Initialize internal Module state, shared by both nn.Module and ScriptModule.
+   :param num_classes: Number of classification categories.
+   :type num_classes: int
+   :param pathogen_channel: Unused; reserved for future feature fusion.
+   :type pathogen_channel: int
+   :param use_attention: Unused; reserved for attention gating.
+   :type use_attention: bool
+   :param use_checkpoint: Whether to use checkpointing to reduce memory.
+   :type use_checkpoint: bool
+   :param dropout_rate: Unused; reserved for future regularization.
+   :type dropout_rate: float
 
 
    .. py:attribute:: early_fusion
@@ -744,8 +760,26 @@ Module Contents
 
    .. py:method:: custom_forward(x)
 
+      Perform a standard forward pass without gradient checkpointing.
+
+      :param x: Input tensor of shape (N, C, H, W).
+      :type x: torch.Tensor
+
+      :returns: Logits for each class.
+      :rtype: torch.Tensor
+
+
 
    .. py:method:: forward(x)
+
+      Forward pass with optional gradient checkpointing.
+
+      :param x: Input tensor.
+      :type x: torch.Tensor
+
+      :returns: Output logits.
+      :rtype: torch.Tensor
+
 
 
 .. py:class:: TorchModel(model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False)
@@ -753,82 +787,72 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   A PyTorch model wrapper that initializes a base model from torchvision,
-   modifies it as needed, and adds a custom SPACR classifier.
+   A PyTorch wrapper for pretrained torchvision models with a custom SPACR classifier head.
+
+   This class supports custom dropout insertion and optional gradient checkpointing
+   for memory efficiency during training.
+
+   :param model_name: Name of the torchvision model to use (default: 'resnet50').
+   :type model_name: str
+   :param pretrained: Whether to load pretrained weights (default: True).
+   :type pretrained: bool
+   :param dropout_rate: Dropout probability applied before the classifier. If None, dropout is disabled.
+   :type dropout_rate: float or None
+   :param use_checkpoint: Whether to use gradient checkpointing for memory savings during training.
+   :type use_checkpoint: bool
+
    .. attribute:: model_name
 
-      The name of the base model to use (default: 'resnet50').
+      Identifier of the chosen torchvision model.
 
       :type: str
 
    .. attribute:: use_checkpoint
 
-      Whether to use gradient checkpointing for memory efficiency.
+      Indicates whether checkpointing is active.
 
       :type: bool
 
    .. attribute:: base_model
 
-      The initialized base model.
+      The pretrained feature extractor with classifier removed.
 
       :type: nn.Module
 
    .. attribute:: num_ftrs
 
-      The number of features output by the base model.
+      Number of output features from the base model.
 
       :type: int
 
    .. attribute:: use_dropout
 
-      Whether dropout is applied in the classifier.
+      Whether dropout is applied before classification.
 
       :type: bool
 
    .. attribute:: dropout
 
-      Dropout layer applied to the classifier (if enabled).
+      Optional dropout layer before the classifier.
 
       :type: nn.Dropout
 
    .. attribute:: spacr_classifier
 
-      Custom linear classifier for SPACR.
+      Final linear classifier mapping features to binary logits.
 
       :type: nn.Linear
 
-   .. method:: apply_dropout_rate(model, dropout_rate)
+   Initialize the TorchModel with optional dropout and checkpointing.
 
-      
-      Apply a specified dropout rate to all dropout layers in the model.
-
-   .. method:: init_base_model(pretrained)
-
-      
-      Initialize the base model from torchvision.models.
-
-   .. method:: get_weight_choice()
-
-      
-      Retrieve the default weight choice for the specified model, if available.
-
-   .. method:: get_num_ftrs()
-
-      
-      Determine the number of features output by the base model.
-
-   .. method:: init_spacr_classifier(dropout_rate)
-
-      
-      Initialize the SPACR classifier with an optional dropout layer.
-
-   .. method:: forward(x)
-
-      
-      Define the forward pass of the model, including the base model and classifier.
-      
-
-   Initialize internal Module state, shared by both nn.Module and ScriptModule.
+   :param model_name: The model architecture to load from torchvision.models.
+   :type model_name: str
+   :param pretrained: Whether to initialize with pretrained weights.
+   :type pretrained: bool
+   :param dropout_rate: Dropout rate for the classifier head.
+   :type dropout_rate: float or None
+   :param use_checkpoint: Whether to enable gradient checkpointing.
+   :type use_checkpoint: bool
 
 
    .. py:attribute:: model_name
@@ -849,37 +873,63 @@ Module Contents
 
    .. py:method:: apply_dropout_rate(model, dropout_rate)
 
-      Apply dropout rate to all dropout layers in the model.
+      Recursively set dropout probability for all nn.Dropout layers in the model.
+
+      :param model: The model to modify.
+      :type model: nn.Module
+      :param dropout_rate: New dropout probability.
+      :type dropout_rate: float
 
 
 
    .. py:method:: init_base_model(pretrained)
 
-      Initialize the base model from torchvision.models.
+      Load the base model from torchvision.models.
+
+      :param pretrained: Whether to load pretrained weights.
+      :type pretrained: bool
+
+      :returns: The base feature extractor.
+      :rtype: nn.Module
 
 
 
    .. py:method:: get_weight_choice()
 
-      Get weight choice if it exists for the model.
+      Get the default weights enum for the selected model.
+
+      :returns: Default weights or None.
+      :rtype: Optional[torchvision.models.WeightsEnum]
 
 
 
    .. py:method:: get_num_ftrs()
 
-      Determine the number of features output by the base model.
+      Determine output feature dimensionality from the base model.
+
+      :returns: Feature vector size.
+      :rtype: int
 
 
 
    .. py:method:: init_spacr_classifier(dropout_rate)
 
-      Initialize the SPACR classifier.
+      Create the final classification layer and optional dropout.
+
+      :param dropout_rate: Dropout probability. If None, dropout is skipped.
+      :type dropout_rate: float or None
 
 
 
    .. py:method:: forward(x)
 
-      Define the forward pass of the model.
+      Forward pass through base model, optional dropout, and final classifier.
+
+      :param x: Input image tensor of shape (N, 3, H, W).
+      :type x: torch.Tensor
+
+      :returns: Output logits of shape (N,).
+      :rtype: torch.Tensor
 
 
 
@@ -888,38 +938,34 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   A PyTorch implementation of the Focal Loss with logits, which is designed to address
-   class imbalance by down-weighting the loss assigned to well-classified examples.
+   Focal Loss with logits for binary classification.
+
+   This loss function is especially useful for addressing class imbalance by focusing more
+   on hard-to-classify examples.
+
+   :param alpha: Balancing factor for positive/negative examples. Default is 1.
+   :type alpha: float
+   :param gamma: Focusing parameter that down-weights easy examples. Default is 2.
+   :type gamma: float
 
    .. attribute:: alpha
 
-      A scaling factor to balance the importance of positive/negative examples.
-      Default is 1.
+      Scaling factor to balance the importance of classes.
 
       :type: float
 
    .. attribute:: gamma
 
-      A focusing parameter to reduce the relative loss for well-classified examples
-      and put more focus on hard, misclassified examples. Default is 2.
+      Focusing factor to emphasize hard examples.
 
       :type: float
 
-   .. method:: forward(logits, target)
+   Initialize the focal loss.
 
-      
-      Computes the focal loss between the predicted logits and the target labels.
-      
-      :param logits: The raw, unnormalized model outputs (logits).
-      :type logits: torch.Tensor
-      :param target: The ground truth labels (same shape as logits).
-      :type target: torch.Tensor
-      
-      :returns: The computed focal loss as a scalar value.
-      :rtype: torch.Tensor
-      
-
-   Initialize internal Module state, shared by both nn.Module and ScriptModule.
+   :param alpha: Balancing factor for positive/negative examples. Default is 1.
+   :type alpha: float
+   :param gamma: Focusing parameter to down-weight well-classified examples. Default is 2.
+   :type gamma: float
 
 
    .. py:attribute:: alpha
@@ -933,6 +979,17 @@ Module Contents
 
 
    .. py:method:: forward(logits, target)
+
+      Compute the focal loss between logits and targets.
+
+      :param logits: Predicted unnormalized scores (logits).
+      :type logits: torch.Tensor
+      :param target: Ground truth binary labels (same shape as logits).
+      :type target: torch.Tensor
+
+      :returns: Scalar focal loss value.
+      :rtype: torch.Tensor
+
 
 
 .. py:class:: ResNet(resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet')
