@@ -16,6 +16,23 @@ spaCR provides a modular and extensible framework that supports:
 This API reference documents all public classes, functions, and modules included in the  package. For usage examples, please refer to the tutorials and GUI walkthroughs in the documentation.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: API Modules
 
-   api/index
+   api/spacr/core/index
+   api/spacr/deep_spacr/index
+   api/spacr/gui/index
+   api/spacr/gui_core/index
+   api/spacr/gui_elements/index
+   api/spacr/gui_utils/index
+   api/spacr/io/index
+   api/spacr/measure/index
+   api/spacr/ml/index
+   api/spacr/plot/index
+   api/spacr/sequencing/index
+   api/spacr/settings/index
+   api/spacr/sp_stats/index
+   api/spacr/spacr_cellpose/index
+   api/spacr/submodules/index
+   api/spacr/toxo/index
+   api/spacr/utils/index
