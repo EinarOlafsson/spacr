@@ -698,30 +698,6 @@ Module Contents
    :param dropout_rate: Unused; reserved for future regularization.
    :type dropout_rate: float
 
-   .. attribute:: early_fusion
-
-      Module to fuse input channels before feature extraction.
-
-      :type: nn.Module
-
-   .. attribute:: multi_scale_block_1
-
-      Multi-scale block with spatial attention.
-
-      :type: nn.Module
-
-   .. attribute:: fc1
-
-      Final fully connected layer for classification.
-
-      :type: nn.Linear
-
-   .. attribute:: use_checkpoint
-
-      Indicates whether gradient checkpointing is used.
-
-      :type: bool
-
 
    .. py:attribute:: early_fusion
 
@@ -779,48 +755,6 @@ Module Contents
    :type dropout_rate: float or None
    :param use_checkpoint: Whether to enable gradient checkpointing.
    :type use_checkpoint: bool
-
-   .. attribute:: model_name
-
-      Identifier of the chosen torchvision model.
-
-      :type: str
-
-   .. attribute:: use_checkpoint
-
-      Indicates whether checkpointing is active.
-
-      :type: bool
-
-   .. attribute:: base_model
-
-      The pretrained feature extractor with classifier removed.
-
-      :type: nn.Module
-
-   .. attribute:: num_ftrs
-
-      Number of output features from the base model.
-
-      :type: int
-
-   .. attribute:: use_dropout
-
-      Whether dropout is applied before classification.
-
-      :type: bool
-
-   .. attribute:: dropout
-
-      Optional dropout layer before the classifier.
-
-      :type: nn.Dropout
-
-   .. attribute:: spacr_classifier
-
-      Final linear classifier mapping features to binary logits.
-
-      :type: nn.Linear
 
 
    .. py:attribute:: model_name
@@ -916,18 +850,6 @@ Module Contents
    :param gamma: Focusing parameter that down-weights easy examples. Default is 2.
    :type gamma: float
 
-   .. attribute:: alpha
-
-      Scaling factor to balance the importance of classes. :no-index:
-
-      :type: float
-
-   .. attribute:: gamma
-
-      Focusing factor to emphasize hard examples. :no-index:
-
-      :type: float
-
    Initialize the focal loss.
 
    :param alpha: Balancing factor for positive/negative examples. Default is 1.
@@ -965,63 +887,36 @@ Module Contents
    Bases: :py:obj:`torch.nn.Module`
 
 
-   A custom ResNet-based neural network model with optional dropout and checkpointing.
-   :param resnet_type: The type of ResNet to use. Options are 'resnet18', 'resnet34',
-                       'resnet50', 'resnet101', and 'resnet152'. Default is 'resnet50'.
-   :type resnet_type: str
-   :param dropout_rate: Dropout rate to apply after the first fully connected layer.
-                        If None, dropout is not applied. Default is None.
-   :type dropout_rate: float, optional
-   :param use_checkpoint: Whether to use checkpointing for memory efficiency during training.
-                          Default is False.
-   :type use_checkpoint: bool
-   :param init_weights: Initialization method for the ResNet weights. Options are 'imagenet'
-                        (pretrained on ImageNet) or 'none' (random initialization). Default is 'imagenet'.
-   :type init_weights: str
+   Base class for all neural network modules.
 
-   :raises ValueError: If an invalid `resnet_type` is provided.
-   :raises ValueError: If an invalid `init_weights` value is provided.
+   Your models should also subclass this class.
 
-   .. method:: forward(x)
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
 
-      
-      Performs a forward pass through the network.
+       import torch.nn as nn
+       import torch.nn.functional as F
 
-   .. attribute:: resnet
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
 
-      The base ResNet model.
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
 
-      :type: nn.Module
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
 
-   .. attribute:: fc1
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
 
-      The first fully connected layer.
-
-      :type: nn.Linear
-
-   .. attribute:: use_dropout
-
-      Indicates whether dropout is applied.
-
-      :type: bool
-
-   .. attribute:: use_checkpoint
-
-      Indicates whether checkpointing is used.
-
-      :type: bool
-
-   .. attribute:: dropout
-
-      Dropout layer, if `dropout_rate` is specified.
-
-      :type: nn.Dropout, optional
-
-   .. attribute:: fc2
-
-      The second fully connected layer.
-
-      :type: nn.Linear
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
 
    Initialize internal Module state, shared by both nn.Module and ScriptModule.
 
