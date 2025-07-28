@@ -271,7 +271,7 @@ transition to the new application.</p>
 <dd><p>Redirects the standard output (stdout) and standard error (stderr) streams
 to a queue for processing.</p>
 <p>This function replaces the default <cite>sys.stdout</cite> and <cite>sys.stderr</cite> with
-instances of <cite>WriteToQueue</cite>, which writes all output to the provided queue.</p>
+instances of <cite>WriteToQueue</cite>, which write all output to the provided queue.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>q</strong> (<em>queue.Queue</em>) – A queue object where the redirected output will be stored.</p>
@@ -292,16 +292,25 @@ instances of <cite>WriteToQueue</cite>, which writes all output to the provided 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_utils.WriteToQueue.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#WriteToQueue.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.WriteToQueue.write" title="Link to this definition"></a></dt>
-<dd><p>Write string to stream.
-Returns the number of characters written (which is always equal to
-the length of the string).</p>
+<dd><p>Write string to stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – The string message to write.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of characters written.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_utils.WriteToQueue.flush">
 <span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#WriteToQueue.flush"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.WriteToQueue.flush" title="Link to this definition"></a></dt>
 <dd><p>Flush write buffers, if applicable.</p>
-<p>This is not implemented for read-only and non-blocking streams.</p>
+<p>This is a no-op in this implementation.</p>
 </dd></dl>
 
 </dd></dl>
@@ -349,44 +358,51 @@ destroyed, a new root window is initialized before invoking the next application
 <dt class="sig sig-object py" id="spacr.gui_utils.convert_settings_dict_for_gui">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">convert_settings_dict_for_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#convert_settings_dict_for_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.convert_settings_dict_for_gui" title="Link to this definition"></a></dt>
 <dd><p>Converts a dictionary of settings into a format suitable for GUI representation.</p>
-<p>This function processes the input dictionary and maps each key-value pair
-to a tuple that defines the appropriate GUI component type, options (if applicable),
-and default value. It also handles special cases based on specific keys or data types.</p>
+<p>This function processes a given settings dictionary and maps its keys and values
+to a standardized format for GUI components. It handles special cases for specific
+keys and assigns appropriate GUI element types (e.g., combo boxes, checkboxes,
+entry fields) based on the value type or predefined rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing key-value pairs of settings to be converted.</p>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing key-value pairs of settings to be
+converted for GUI representation.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary where each key corresponds to a GUI element, and each value is a tuple:
-- The type of GUI element (e.g., ‘combo’, ‘check’, ‘entry’).
-- A list of options for combo boxes or None.
-- The default or current value for the GUI element.</p>
+<dd class="field-even"><p><p>A dictionary where each key corresponds to a GUI element, and the value
+is a tuple containing:</p>
+<ul class="simple">
+<li><p>The type of GUI element (e.g., ‘combo’, ‘check’, ‘entry’).</p></li>
+<li><p>A list of options for combo boxes or None for other types.</p></li>
+<li><p>The default or current value for the GUI element.</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-<dl class="simple">
-<dt><strong>Special Cases</strong>:</dt><dd><ul class="simple">
-<li><p>Keys like <code class="docutils literal notranslate"><span class="pre">'metadata_type'</span></code>, <code class="docutils literal notranslate"><span class="pre">'channels'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'model_type'</span></code> have predefined options.</p></li>
-<li><p>Boolean values are rendered as checkboxes.</p></li>
-<li><p>Numeric values and strings are represented with entry fields.</p></li>
-<li><p>Lists are converted to stringified versions and shown as entry fields.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> values default to entry fields.</p></li>
+<p class="rubric">Special Cases</p>
+<ul class="simple">
+<li><p>Certain keys (e.g., ‘metadata_type’, ‘channels’, ‘model_type’) have predefined
+options and default values, which are handled explicitly.</p></li>
+<li><p>Boolean values are represented as checkboxes.</p></li>
+<li><p>Numeric values (int or float) and strings are represented as entry fields.</p></li>
+<li><p>Lists are converted to strings and represented as entry fields.</p></li>
+<li><p>None values are represented as entry fields.</p></li>
 </ul>
-</dd>
-</dl>
-<p><strong>Example</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
+<p class="rubric">Example</p>
+<p><strong>Input</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;metadata_type&#39;</span><span class="p">:</span> <span class="s1">&#39;cellvoyager&#39;</span><span class="p">,</span>
     <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">,</span>
     <span class="s1">&#39;use_gpu&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
     <span class="s1">&#39;custom_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
 <span class="p">}</span>
-
-<span class="c1"># Output:</span>
-<span class="p">{</span>
+</pre></div>
+</div>
+<p><strong>Output</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;combo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;[0,1,2,3,4,5,6,7,8]&#39;</span><span class="p">,</span> <span class="s1">&#39;[0,1,2,3,4,5,6,7]&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="s1">&#39;[0,1,2,3]&#39;</span><span class="p">),</span>
     <span class="s1">&#39;use_gpu&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;entry&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span>
