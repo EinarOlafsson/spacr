@@ -17,31 +17,31 @@ API Reference by Category
 =========================
 
 **Core Modules**
-- :doc:
-- :doc:
-- :doc:
-- :doc:
-- :doc:
+- :doc:`Core Logic <api/spacr/core/index>`
+- :doc:`IO Utilities <api/spacr/io/index>`
+- :doc:`General Utilities <api/spacr/utils/index>`
+- :doc:`Settings <api/spacr/settings/index>`
+- :doc:`Statistics <api/spacr/sp_stats/index>`
 
 **Image Analysis**
-- :doc:
-- :doc:
-- :doc:
+- :doc:`Measurement <api/spacr/measure/index>`
+- :doc:`Plotting <api/spacr/plot/index>`
+- :doc:`Cellpose Integration <api/spacr/spacr_cellpose/index>`
 
 **Classification**
-- :doc:
-- :doc:
+- :doc:`Classical ML <api/spacr/ml/index>`
+- :doc:`Deep Learning <api/spacr/deep_spacr/index>`
 
 **GUI Components**
-- :doc:
-- :doc:
-- :doc:
-- :doc:
+- :doc:`GUI Main App <api/spacr/gui/index>`
+- :doc:`GUI Core <api/spacr/gui_core/index>`
+- :doc:`GUI Elements <api/spacr/gui_elements/index>`
+- :doc:`GUI Utilities <api/spacr/gui_utils/index>`
 
 **Sequencing & Submodules**
-- :doc:
-- :doc:
-- :doc:
+- :doc:`Sequencing <api/spacr/sequencing/index>`
+- :doc:`Toxoplasma Tools <api/spacr/toxo/index>`
+- :doc:`Submodules <api/spacr/submodules/index>`
 
 GitHub Repository
 =================
