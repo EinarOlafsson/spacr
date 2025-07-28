@@ -332,7 +332,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.recommend_target_layers"><code class="docutils literal notranslate"><span class="pre">recommend_target_layers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.IntegratedGradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.IntegratedGradients.model"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id5"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.IntegratedGradients.generate_integrated_gradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.generate_integrated_gradients()</span></code></a></li>
 </ul>
 </li>
@@ -2564,43 +2564,22 @@ missing values are filled with 0.0.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.fishers_odds">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">fishers_odds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phenotyp_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean_pred'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#fishers_odds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.fishers_odds" title="Link to this definition"></a></dt>
-<dd><p>Perform Fisher’s exact test on a DataFrame to evaluate the association between mutants
-and a binned phenotype score, and apply multiple testing correction.
-Parameters:
-———–
-df : pandas.DataFrame</p>
-<blockquote>
-<div><p>Input DataFrame containing mutant data and phenotype scores. The DataFrame should
-include a column specified by <cite>phenotyp_col</cite> and columns representing mutants.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>threshold<span class="classifier">float, optional, default=0.5</span></dt><dd><p>Threshold for binning the phenotype score. Rows with phenotype scores below this
-threshold are considered “high phenotype”.</p>
-</dd>
-<dt>phenotyp_col<span class="classifier">str, optional, default=’mean_pred’</span></dt><dd><p>Name of the column in <cite>df</cite> containing the phenotype scores.</p>
-</dd>
-</dl>
-<section id="returns">
-<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>pandas.DataFrame</dt><dd><p>A DataFrame containing the results of Fisher’s exact test for each mutant, including:
-- ‘Mutant’: Name of the mutant.
-- ‘OddsRatio’: The odds ratio from Fisher’s exact test.
-- ‘PValue’: The p-value from Fisher’s exact test.
-- ‘AdjustedPValue’: The Benjamini-Hochberg adjusted p-value (if applicable).</p>
-</dd>
-</dl>
-</section>
-<section id="notes">
-<h3>Notes:<a class="headerlink" href="#notes" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Mutants are identified as all columns in <cite>df</cite> except the last two columns and those
-explicitly excluded (e.g., ‘count_prc’, ‘mean_pathogen_area’).</p></li>
-<li><p>Rows with undefined odds ratios or p-values are removed from the results.</p></li>
-<li><p>If no valid p-values are available, an empty DataFrame is returned.</p></li>
-<li><p>Significant mutants are determined based on an adjusted p-value threshold of 0.05.</p></li>
+<dd><p>Perform Fisher’s exact test to evaluate the association between mutants and a binned phenotype score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – DataFrame containing binary mutant indicators and a phenotype score column.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold to bin the phenotype score. Defaults to 0.5.</p></li>
+<li><p><strong>phenotyp_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the column containing phenotype scores. Defaults to ‘mean_pred’.</p></li>
 </ul>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with columns ‘Mutant’, ‘OddsRatio’, ‘PValue’, and ‘AdjustedPValue’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -2631,16 +2610,16 @@ explicitly excluded (e.g., ‘count_prc’, ‘mean_pathogen_area’).</p></li>
 <li><p>Scale-Location: Scatter plot of standardized residuals to check for homoscedasticity.</p></li>
 </ol>
 </section>
-<section id="id1">
-<h3>Notes:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="notes">
+<h3>Notes:<a class="headerlink" href="#notes" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>This function uses matplotlib and seaborn for plotting.</p></li>
 <li><p>Ensure that the input model is fitted and contains the necessary attributes like <cite>resid</cite>,
 <cite>fittedvalues</cite>, and <cite>mse_resid</cite>.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <p>None</p>
 </section>
 </dd></dl>
@@ -2673,88 +2652,51 @@ A VIF value greater than 10 indicates high multicollinearity.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.lasso_reg">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">lasso_reg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merged_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lasso'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#lasso_reg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.lasso_reg" title="Link to this definition"></a></dt>
-<dd><p>Perform Lasso or Ridge regression on the given dataset.
-Parameters:
-———–
-merged_df : pandas.DataFrame</p>
-<blockquote>
-<div><p>A DataFrame containing the predictors and response variable.
-It must include the columns: ‘gene’, ‘grna’, ‘plateID’, ‘rowID’, ‘columnID’, and ‘pred’.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>alpha_value<span class="classifier">float, optional, default=0.01</span></dt><dd><p>The regularization strength. Higher values specify stronger regularization.</p>
-</dd>
-<dt>reg_type<span class="classifier">str, optional, default=’lasso’</span></dt><dd><p>The type of regression to perform. Options are:
-- ‘lasso’: Perform Lasso regression.
-- ‘ridge’: Perform Ridge regression.</p>
-</dd>
-</dl>
-<section id="id3">
-<h3>Returns:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>coeff_df<span class="classifier">pandas.DataFrame</span></dt><dd><p>A DataFrame containing the feature names and their corresponding coefficients
-from the regression model. The columns are:
-- ‘Feature’: The name of the feature.
-- ‘Coefficient’: The coefficient value for the feature.</p>
-</dd>
-</dl>
-</section>
-<section id="id4">
-<h3>Notes:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>The categorical predictors are one-hot encoded before fitting the regression model.</p></li>
-<li><p>The ‘drop=”first”’ parameter in OneHotEncoder is used to avoid the dummy variable trap.</p></li>
+<dd><p>Perform Lasso or Ridge regression on the input DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>merged_df</strong> (<em>pandas.DataFrame</em>) – DataFrame with columns ‘gene’, ‘grna’, ‘plateID’, ‘rowID’, ‘columnID’, and ‘pred’.</p></li>
+<li><p><strong>alpha_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Regularization strength. Defaults to 0.01.</p></li>
+<li><p><strong>reg_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of regression to perform, either ‘lasso’ or ‘ridge’. Defaults to ‘lasso’.</p></li>
 </ul>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with ‘Feature’ and ‘Coefficient’ columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.MLR">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">MLR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merged_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#MLR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.MLR" title="Link to this definition"></a></dt>
-<dd><p>Perform multiple linear regression (MLR) on the given dataset, optionally refining the model
-by filtering outliers, and extract interaction coefficients for analysis.
-:param merged_df: The input DataFrame containing the data for regression analysis.
-:type merged_df: pd.DataFrame
-:param refine_model: If True, refine the model by identifying and removing outliers</p>
-<blockquote>
-<div><p>based on standardized residuals and Cook’s distance.</p>
-</div></blockquote>
+<dd><p>Perform multiple linear regression (MLR) and extract interaction coefficients.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>A tuple containing:</dt><dd><ul class="simple">
-<li><p>max_effects (dict): A dictionary of maximum interaction effect sizes for each gene.</p></li>
-<li><dl class="simple">
-<dt>max_effects_pvalues (dict): A dictionary of p-values corresponding to the maximum</dt><dd><p>interaction effect sizes.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>merged_df</strong> (<em>pd.DataFrame</em>) – Input DataFrame with data for regression analysis.</p></li>
+<li><p><strong>refine_model</strong> (<em>bool</em>) – Whether to remove outliers before refitting the model.</p></li>
+</ul>
 </dd>
-</dl>
-</li>
-<li><p>model (statsmodels.regression.linear_model.RegressionResultsWrapper): The fitted
-regression model.</p></li>
-<li><dl class="simple">
-<dt>df (pd.DataFrame): A DataFrame containing the sorted interaction effects and their</dt><dd><p>corresponding p-values.</p>
-</dd>
-</dl>
-</li>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Contains:</dt><dd><ul class="simple">
+<li><p>max_effects (dict): Maximum interaction effect size per gene.</p></li>
+<li><p>max_effects_pvalues (dict): Corresponding p-values.</p></li>
+<li><p>model (statsmodels.regression.linear_model.RegressionResultsWrapper): Fitted regression model.</p></li>
+<li><p>df (pd.DataFrame): DataFrame with sorted interaction effects and p-values.</p></li>
 </ul>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The function uses the <cite>statsmodels</cite> library to fit an ordinary least squares (OLS) model.</p></li>
-<li><p>Interaction coefficients between genes and guide RNAs (grnas) are extracted and analyzed.</p></li>
-<li><p>Outliers are identified using standardized residuals and Cook’s distance, and the model
-is refitted if <cite>refine_model</cite> is True.</p></li>
-<li><p>The function generates a plot of the regression results using <cite>_reg_v_plot</cite>.</p></li>
-</ul>
-<p class="rubric">Example</p>
-<p>max_effects, max_effects_pvalues, model, df = MLR(merged_df, refine_model=True)</p>
 </dd></dl>
 
 <dl class="py function">
@@ -3129,10 +3071,10 @@ of the intersection divided by the size of the union of the sets.</p>
 <dd><p>Compute the Dice coefficient, a measure of overlap between two binary masks.
 The Dice coefficient is calculated as:</p>
 <blockquote>
-<div><p>Dice = 2 * <a href="#id8"><span class="problematic" id="id9">|A ∩ B|</span></a> / (<a href="#id10"><span class="problematic" id="id11">|A|</span></a> + <a href="#id12"><span class="problematic" id="id13">|B|</span></a>)</p>
+<div><p>Dice = 2 * <a href="#id4"><span class="problematic" id="id5">|A ∩ B|</span></a> / (<a href="#id6"><span class="problematic" id="id7">|A|</span></a> + <a href="#id8"><span class="problematic" id="id9">|B|</span></a>)</p>
 </div></blockquote>
-<p>where A and B are the two binary masks, <a href="#id14"><span class="problematic" id="id15">|A ∩ B|</span></a> is the size of their intersection,
-and <a href="#id16"><span class="problematic" id="id17">|A|</span></a> + <a href="#id18"><span class="problematic" id="id19">|B|</span></a> is the sum of their sizes.
+<p>where A and B are the two binary masks, <a href="#id10"><span class="problematic" id="id11">|A ∩ B|</span></a> is the size of their intersection,
+and <a href="#id12"><span class="problematic" id="id13">|A|</span></a> + <a href="#id14"><span class="problematic" id="id15">|B|</span></a> is the sum of their sizes.
 :param mask1: The first mask, can be any array-like structure.
 :type mask1: numpy.ndarray
 :param mask2: The second mask, can be any array-like structure.
@@ -3802,8 +3744,8 @@ along a straight path from a baseline to the input.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -4396,8 +4338,8 @@ already contain it.</p>
 <dt>folder<span class="classifier">str, optional</span></dt><dd><p>The folder name to include in the adjusted paths (default is ‘data’).</p>
 </dd>
 </dl>
-<section id="id6">
-<h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>tuple or list</dt><dd><p>If <cite>df</cite> is a DataFrame, returns a tuple containing the updated
 DataFrame and a list of adjusted file paths. If <cite>df</cite> is a list,
@@ -4405,8 +4347,8 @@ returns only the list of adjusted file paths.</p>
 </dd>
 </dl>
 </section>
-<section id="id7">
-<h3>Notes:<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Notes:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>If the input is a DataFrame and the ‘png_path’ column is missing, the
 function prints a message and returns the original DataFrame and None.</p></li>

@@ -1210,33 +1210,17 @@ Module Contents
 
 .. py:function:: fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred')
 
-   Perform Fisher's exact test on a DataFrame to evaluate the association between mutants
-   and a binned phenotype score, and apply multiple testing correction.
-   Parameters:
-   -----------
-   df : pandas.DataFrame
-       Input DataFrame containing mutant data and phenotype scores. The DataFrame should
-       include a column specified by `phenotyp_col` and columns representing mutants.
-   threshold : float, optional, default=0.5
-       Threshold for binning the phenotype score. Rows with phenotype scores below this
-       threshold are considered "high phenotype".
-   phenotyp_col : str, optional, default='mean_pred'
-       Name of the column in `df` containing the phenotype scores.
-   Returns:
-   --------
-   pandas.DataFrame
-       A DataFrame containing the results of Fisher's exact test for each mutant, including:
-       - 'Mutant': Name of the mutant.
-       - 'OddsRatio': The odds ratio from Fisher's exact test.
-       - 'PValue': The p-value from Fisher's exact test.
-       - 'AdjustedPValue': The Benjamini-Hochberg adjusted p-value (if applicable).
-   Notes:
-   ------
-   - Mutants are identified as all columns in `df` except the last two columns and those
-     explicitly excluded (e.g., 'count_prc', 'mean_pathogen_area').
-   - Rows with undefined odds ratios or p-values are removed from the results.
-   - If no valid p-values are available, an empty DataFrame is returned.
-   - Significant mutants are determined based on an adjusted p-value threshold of 0.05.
+   Perform Fisher's exact test to evaluate the association between mutants and a binned phenotype score.
+
+   :param df: DataFrame containing binary mutant indicators and a phenotype score column.
+   :type df: pandas.DataFrame
+   :param threshold: Threshold to bin the phenotype score. Defaults to 0.5.
+   :type threshold: float, optional
+   :param phenotyp_col: Name of the column containing phenotype scores. Defaults to 'mean_pred'.
+   :type phenotyp_col: str, optional
+
+   :returns: DataFrame with columns 'Mutant', 'OddsRatio', 'PValue', and 'AdjustedPValue'.
+   :rtype: pandas.DataFrame
 
 
 .. py:function:: model_metrics(model)
@@ -1290,64 +1274,36 @@ Module Contents
 
 .. py:function:: lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso')
 
-   Perform Lasso or Ridge regression on the given dataset.
-   Parameters:
-   -----------
-   merged_df : pandas.DataFrame
-       A DataFrame containing the predictors and response variable.
-       It must include the columns: 'gene', 'grna', 'plateID', 'rowID', 'columnID', and 'pred'.
-   alpha_value : float, optional, default=0.01
-       The regularization strength. Higher values specify stronger regularization.
-   reg_type : str, optional, default='lasso'
-       The type of regression to perform. Options are:
-       - 'lasso': Perform Lasso regression.
-       - 'ridge': Perform Ridge regression.
-   Returns:
-   --------
-   coeff_df : pandas.DataFrame
-       A DataFrame containing the feature names and their corresponding coefficients
-       from the regression model. The columns are:
-       - 'Feature': The name of the feature.
-       - 'Coefficient': The coefficient value for the feature.
-   Notes:
-   ------
-   - The categorical predictors are one-hot encoded before fitting the regression model.
-   - The 'drop="first"' parameter in OneHotEncoder is used to avoid the dummy variable trap.
+   Perform Lasso or Ridge regression on the input DataFrame.
+
+   :param merged_df: DataFrame with columns 'gene', 'grna', 'plateID', 'rowID', 'columnID', and 'pred'.
+   :type merged_df: pandas.DataFrame
+   :param alpha_value: Regularization strength. Defaults to 0.01.
+   :type alpha_value: float, optional
+   :param reg_type: Type of regression to perform, either 'lasso' or 'ridge'. Defaults to 'lasso'.
+   :type reg_type: str, optional
+
+   :returns: DataFrame with 'Feature' and 'Coefficient' columns.
+   :rtype: pandas.DataFrame
 
 
 .. py:function:: MLR(merged_df, refine_model)
 
-   Perform multiple linear regression (MLR) on the given dataset, optionally refining the model
-   by filtering outliers, and extract interaction coefficients for analysis.
-   :param merged_df: The input DataFrame containing the data for regression analysis.
+   Perform multiple linear regression (MLR) and extract interaction coefficients.
+
+   :param merged_df: Input DataFrame with data for regression analysis.
    :type merged_df: pd.DataFrame
-   :param refine_model: If True, refine the model by identifying and removing outliers
-                        based on standardized residuals and Cook's distance.
+   :param refine_model: Whether to remove outliers before refitting the model.
    :type refine_model: bool
 
    :returns:
 
-             A tuple containing:
-                 - max_effects (dict): A dictionary of maximum interaction effect sizes for each gene.
-                 - max_effects_pvalues (dict): A dictionary of p-values corresponding to the maximum
-                                               interaction effect sizes.
-                 - model (statsmodels.regression.linear_model.RegressionResultsWrapper): The fitted
-                   regression model.
-                 - df (pd.DataFrame): A DataFrame containing the sorted interaction effects and their
-                                      corresponding p-values.
+             Contains:
+                 - max_effects (dict): Maximum interaction effect size per gene.
+                 - max_effects_pvalues (dict): Corresponding p-values.
+                 - model (statsmodels.regression.linear_model.RegressionResultsWrapper): Fitted regression model.
+                 - df (pd.DataFrame): DataFrame with sorted interaction effects and p-values.
    :rtype: tuple
-
-   .. rubric:: Notes
-
-   - The function uses the `statsmodels` library to fit an ordinary least squares (OLS) model.
-   - Interaction coefficients between genes and guide RNAs (grnas) are extracted and analyzed.
-   - Outliers are identified using standardized residuals and Cook's distance, and the model
-     is refitted if `refine_model` is True.
-   - The function generates a plot of the regression results using `_reg_v_plot`.
-
-   .. rubric:: Example
-
-   max_effects, max_effects_pvalues, model, df = MLR(merged_df, refine_model=True)
 
 
 .. py:function:: get_files_from_dir(dir_path, file_extension='*')

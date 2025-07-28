@@ -329,7 +329,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.recommend_target_layers"><code class="docutils literal notranslate"><span class="pre">recommend_target_layers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.IntegratedGradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.IntegratedGradients.model"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#id5"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#id1"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.IntegratedGradients.generate_integrated_gradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.generate_integrated_gradients()</span></code></a></li>
 </ul>
 </li>
@@ -4481,33 +4481,15 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.fishers_odds">[docs]</a>
 <span class="k">def</span> <span class="nf">fishers_odds</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">phenotyp_col</span><span class="o">=</span><span class="s1">&#39;mean_pred&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform Fisher&#39;s exact test on a DataFrame to evaluate the association between mutants</span>
-<span class="sd">    and a binned phenotype score, and apply multiple testing correction.</span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">        Input DataFrame containing mutant data and phenotype scores. The DataFrame should</span>
-<span class="sd">        include a column specified by `phenotyp_col` and columns representing mutants.</span>
-<span class="sd">    threshold : float, optional, default=0.5</span>
-<span class="sd">        Threshold for binning the phenotype score. Rows with phenotype scores below this</span>
-<span class="sd">        threshold are considered &quot;high phenotype&quot;.</span>
-<span class="sd">    phenotyp_col : str, optional, default=&#39;mean_pred&#39;</span>
-<span class="sd">        Name of the column in `df` containing the phenotype scores.</span>
+<span class="sd">    Perform Fisher&#39;s exact test to evaluate the association between mutants and a binned phenotype score.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pandas.DataFrame): DataFrame containing binary mutant indicators and a phenotype score column.</span>
+<span class="sd">        threshold (float, optional): Threshold to bin the phenotype score. Defaults to 0.5.</span>
+<span class="sd">        phenotyp_col (str, optional): Name of the column containing phenotype scores. Defaults to &#39;mean_pred&#39;.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">    --------</span>
-<span class="sd">    pandas.DataFrame</span>
-<span class="sd">        A DataFrame containing the results of Fisher&#39;s exact test for each mutant, including:</span>
-<span class="sd">        - &#39;Mutant&#39;: Name of the mutant.</span>
-<span class="sd">        - &#39;OddsRatio&#39;: The odds ratio from Fisher&#39;s exact test.</span>
-<span class="sd">        - &#39;PValue&#39;: The p-value from Fisher&#39;s exact test.</span>
-<span class="sd">        - &#39;AdjustedPValue&#39;: The Benjamini-Hochberg adjusted p-value (if applicable).</span>
-<span class="sd">    Notes:</span>
-<span class="sd">    ------</span>
-<span class="sd">    - Mutants are identified as all columns in `df` except the last two columns and those</span>
-<span class="sd">      explicitly excluded (e.g., &#39;count_prc&#39;, &#39;mean_pathogen_area&#39;).</span>
-<span class="sd">    - Rows with undefined odds ratios or p-values are removed from the results.</span>
-<span class="sd">    - If no valid p-values are available, an empty DataFrame is returned.</span>
-<span class="sd">    - Significant mutants are determined based on an adjusted p-value threshold of 0.05.</span>
+<span class="sd">        pandas.DataFrame: DataFrame with columns &#39;Mutant&#39;, &#39;OddsRatio&#39;, &#39;PValue&#39;, and &#39;AdjustedPValue&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Binning based on phenotype score (e.g., above 0.8 as high)</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;high_phenotype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">phenotyp_col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span>
@@ -4650,29 +4632,15 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.lasso_reg">[docs]</a>
 <span class="k">def</span> <span class="nf">lasso_reg</span><span class="p">(</span><span class="n">merged_df</span><span class="p">,</span> <span class="n">alpha_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">reg_type</span><span class="o">=</span><span class="s1">&#39;lasso&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform Lasso or Ridge regression on the given dataset.</span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    merged_df : pandas.DataFrame</span>
-<span class="sd">        A DataFrame containing the predictors and response variable. </span>
-<span class="sd">        It must include the columns: &#39;gene&#39;, &#39;grna&#39;, &#39;plateID&#39;, &#39;rowID&#39;, &#39;columnID&#39;, and &#39;pred&#39;.</span>
-<span class="sd">    alpha_value : float, optional, default=0.01</span>
-<span class="sd">        The regularization strength. Higher values specify stronger regularization.</span>
-<span class="sd">    reg_type : str, optional, default=&#39;lasso&#39;</span>
-<span class="sd">        The type of regression to perform. Options are:</span>
-<span class="sd">        - &#39;lasso&#39;: Perform Lasso regression.</span>
-<span class="sd">        - &#39;ridge&#39;: Perform Ridge regression.</span>
+<span class="sd">    Perform Lasso or Ridge regression on the input DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        merged_df (pandas.DataFrame): DataFrame with columns &#39;gene&#39;, &#39;grna&#39;, &#39;plateID&#39;, &#39;rowID&#39;, &#39;columnID&#39;, and &#39;pred&#39;.</span>
+<span class="sd">        alpha_value (float, optional): Regularization strength. Defaults to 0.01.</span>
+<span class="sd">        reg_type (str, optional): Type of regression to perform, either &#39;lasso&#39; or &#39;ridge&#39;. Defaults to &#39;lasso&#39;.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">    --------</span>
-<span class="sd">    coeff_df : pandas.DataFrame</span>
-<span class="sd">        A DataFrame containing the feature names and their corresponding coefficients </span>
-<span class="sd">        from the regression model. The columns are:</span>
-<span class="sd">        - &#39;Feature&#39;: The name of the feature.</span>
-<span class="sd">        - &#39;Coefficient&#39;: The coefficient value for the feature.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">    ------</span>
-<span class="sd">    - The categorical predictors are one-hot encoded before fitting the regression model.</span>
-<span class="sd">    - The &#39;drop=&quot;first&quot;&#39; parameter in OneHotEncoder is used to avoid the dummy variable trap.</span>
+<span class="sd">        pandas.DataFrame: DataFrame with &#39;Feature&#39; and &#39;Coefficient&#39; columns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Separate predictors and response</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[[</span><span class="s1">&#39;gene&#39;</span><span class="p">,</span> <span class="s1">&#39;grna&#39;</span><span class="p">,</span> <span class="s1">&#39;plateID&#39;</span><span class="p">,</span> <span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="s1">&#39;columnID&#39;</span><span class="p">]]</span>
@@ -4704,31 +4672,19 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.MLR">[docs]</a>
 <span class="k">def</span> <span class="nf">MLR</span><span class="p">(</span><span class="n">merged_df</span><span class="p">,</span> <span class="n">refine_model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform multiple linear regression (MLR) on the given dataset, optionally refining the model </span>
-<span class="sd">    by filtering outliers, and extract interaction coefficients for analysis.</span>
+<span class="sd">    Perform multiple linear regression (MLR) and extract interaction coefficients.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        merged_df (pd.DataFrame): The input DataFrame containing the data for regression analysis.</span>
-<span class="sd">        refine_model (bool): If True, refine the model by identifying and removing outliers </span>
-<span class="sd">                             based on standardized residuals and Cook&#39;s distance.</span>
+<span class="sd">        merged_df (pd.DataFrame): Input DataFrame with data for regression analysis.</span>
+<span class="sd">        refine_model (bool): Whether to remove outliers before refitting the model.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing:</span>
-<span class="sd">            - max_effects (dict): A dictionary of maximum interaction effect sizes for each gene.</span>
-<span class="sd">            - max_effects_pvalues (dict): A dictionary of p-values corresponding to the maximum </span>
-<span class="sd">                                          interaction effect sizes.</span>
-<span class="sd">            - model (statsmodels.regression.linear_model.RegressionResultsWrapper): The fitted </span>
-<span class="sd">              regression model.</span>
-<span class="sd">            - df (pd.DataFrame): A DataFrame containing the sorted interaction effects and their </span>
-<span class="sd">                                 corresponding p-values.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">        - The function uses the `statsmodels` library to fit an ordinary least squares (OLS) model.</span>
-<span class="sd">        - Interaction coefficients between genes and guide RNAs (grnas) are extracted and analyzed.</span>
-<span class="sd">        - Outliers are identified using standardized residuals and Cook&#39;s distance, and the model </span>
-<span class="sd">          is refitted if `refine_model` is True.</span>
-<span class="sd">        - The function generates a plot of the regression results using `_reg_v_plot`.</span>
-<span class="sd">    Example:</span>
-<span class="sd">        max_effects, max_effects_pvalues, model, df = MLR(merged_df, refine_model=True)</span>
+<span class="sd">        tuple: Contains:</span>
+<span class="sd">            - max_effects (dict): Maximum interaction effect size per gene.</span>
+<span class="sd">            - max_effects_pvalues (dict): Corresponding p-values.</span>
+<span class="sd">            - model (statsmodels.regression.linear_model.RegressionResultsWrapper): Fitted regression model.</span>
+<span class="sd">            - df (pd.DataFrame): DataFrame with sorted interaction effects and p-values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">_reg_v_plot</span>
     
     <span class="c1">#model = smf.ols(&quot;pred ~ gene + grna + gene:grna + plate + row + column&quot;, merged_df).fit()</span>
