@@ -501,54 +501,29 @@ Module Contents
 
 .. py:function:: generate_training_dataset(settings)
 
-   Generates a training and testing dataset split based on different dataset modes
-   (annotation, metadata, measurement, or metadata_annotation).
+   Generate a training dataset from a SQLite database using measurement-based or annotation/metadata-based selection.
 
-   The function reads from measurement databases and associated PNG lists, selects image paths
-   based on class definitions and dataset mode, and creates balanced class datasets.
-   It then splits them into training and testing sets and returns the output directories.
+   Depending on the `settings`, this function selects images corresponding to high and low phenotypes (e.g., recruitment)
+   or based on metadata or manual annotation. Selected image paths are grouped by class and returned for further use
+   (e.g., saving to folders or training models).
 
-   :param settings: Dictionary of configuration options. Key options include:
-                    - 'src' : str or list of str
-                        Source directories containing measurements and image data.
-                    - 'tables' : list of str
-                        Data tables to include from the database (e.g. ['cell', 'nucleus']).
-                    - 'dataset_mode' : str
-                        Selection mode: 'annotation', 'metadata', 'measurement', or 'metadata_annotation'.
-                    - 'annotation_column' : str
-                        Column name used for annotated class labels (required if using annotation mode).
-                    - 'annotated_classes' : list of str
-                        Annotated class labels to use.
-                    - 'class_metadata' : list of str
-                        Class definitions for metadata-based selection.
-                    - 'metadata_item_1_name' : str
-                        Metadata key for pathogen.
-                    - 'metadata_item_1_value' : str
-                        Column in which to look up pathogen metadata.
-                    - 'metadata_item_2_name' : str
-                        Metadata key for treatment.
-                    - 'metadata_item_2_value' : str
-                        Column in which to look up treatment metadata.
-                    - 'metadata_type_by' : str
-                        Column used for metadata classification.
-                    - 'channel_of_interest' : int
-                        Channel index for calculating recruitment scores.
-                    - 'custom_measurement' : list of str, optional
-                        Optional override for recruitment score calculation.
-                    - 'size' : int
-                        Number of samples to select per class (for measurement mode).
-                    - 'test_split' : float
-                        Fraction of data to use for testing (e.g. 0.1 for 10%).
+   :param settings: Configuration dictionary with the following required keys:
+
+                    - 'class_metadata' (list of str): Metadata conditions to define classes (e.g., treatment names).
+                    - 'channel_of_interest' (int): Channel index used for computing recruitment scores.
+                    - 'png_type' (str): Type of PNG to retrieve ('raw', 'outline', etc.).
+                    - 'size' (int): Number of images to sample per class.
+                    - 'nuclei_limit' (int or None): Minimum nucleus size for filtering (used in _read_and_merge_data).
+                    - 'pathogen_limit' (int or None): Minimum pathogen size for filtering.
+                    - 'custom_measurement' (list of str or None): If provided, defines custom numerator and denominator columns.
+                    - 'classes' (list of str): Treatments to annotate using `annotate_conditions`.
+                    - 'metadata_type_by' (str): Column in the DB to use for metadata classification ('columnID' or 'rowID').
+                    - 'tables' (list of str): Tables to extract from database, e.g., ['cell', 'nucleus'].
+                    - 'dataset_mode' (str): Either 'annotation' or 'metadata'. Controls how class sizes are determined.
    :type settings: dict
 
-   :returns: * **train_class_dir** (*str*) -- Path to the directory containing the training dataset.
-             * **test_class_dir** (*str*) -- Path to the directory containing the testing dataset.
-
-   .. rubric:: Notes
-
-   - The function automatically balances class sizes based on the smallest available class.
-   - Output is saved in a new subfolder under each `src` path (e.g., `datasets/training/`).
-   - If the output folder already exists, a new one is created with an incremented suffix.
+   :returns: A list where each sublist contains paths to PNGs belonging to one class (e.g., low vs high recruitment).
+   :rtype: list of list of str
 
 
 .. py:function:: training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2))

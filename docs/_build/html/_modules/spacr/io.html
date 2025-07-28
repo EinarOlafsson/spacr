@@ -3302,61 +3302,33 @@
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.generate_training_dataset">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_training_dataset</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates a training and testing dataset split based on different dataset modes</span>
-<span class="sd">    (annotation, metadata, measurement, or metadata_annotation).</span>
+<span class="sd">    Generate a training dataset from a SQLite database using measurement-based or annotation/metadata-based selection.</span>
 
-<span class="sd">    The function reads from measurement databases and associated PNG lists, selects image paths</span>
-<span class="sd">    based on class definitions and dataset mode, and creates balanced class datasets.</span>
-<span class="sd">    It then splits them into training and testing sets and returns the output directories.</span>
+<span class="sd">    Depending on the `settings`, this function selects images corresponding to high and low phenotypes (e.g., recruitment)</span>
+<span class="sd">    or based on metadata or manual annotation. Selected image paths are grouped by class and returned for further use</span>
+<span class="sd">    (e.g., saving to folders or training models).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    settings : dict</span>
-<span class="sd">        Dictionary of configuration options. Key options include:</span>
-<span class="sd">        - &#39;src&#39; : str or list of str</span>
-<span class="sd">            Source directories containing measurements and image data.</span>
-<span class="sd">        - &#39;tables&#39; : list of str</span>
-<span class="sd">            Data tables to include from the database (e.g. [&#39;cell&#39;, &#39;nucleus&#39;]).</span>
-<span class="sd">        - &#39;dataset_mode&#39; : str</span>
-<span class="sd">            Selection mode: &#39;annotation&#39;, &#39;metadata&#39;, &#39;measurement&#39;, or &#39;metadata_annotation&#39;.</span>
-<span class="sd">        - &#39;annotation_column&#39; : str</span>
-<span class="sd">            Column name used for annotated class labels (required if using annotation mode).</span>
-<span class="sd">        - &#39;annotated_classes&#39; : list of str</span>
-<span class="sd">            Annotated class labels to use.</span>
-<span class="sd">        - &#39;class_metadata&#39; : list of str</span>
-<span class="sd">            Class definitions for metadata-based selection.</span>
-<span class="sd">        - &#39;metadata_item_1_name&#39; : str</span>
-<span class="sd">            Metadata key for pathogen.</span>
-<span class="sd">        - &#39;metadata_item_1_value&#39; : str</span>
-<span class="sd">            Column in which to look up pathogen metadata.</span>
-<span class="sd">        - &#39;metadata_item_2_name&#39; : str</span>
-<span class="sd">            Metadata key for treatment.</span>
-<span class="sd">        - &#39;metadata_item_2_value&#39; : str</span>
-<span class="sd">            Column in which to look up treatment metadata.</span>
-<span class="sd">        - &#39;metadata_type_by&#39; : str</span>
-<span class="sd">            Column used for metadata classification.</span>
-<span class="sd">        - &#39;channel_of_interest&#39; : int</span>
-<span class="sd">            Channel index for calculating recruitment scores.</span>
-<span class="sd">        - &#39;custom_measurement&#39; : list of str, optional</span>
-<span class="sd">            Optional override for recruitment score calculation.</span>
-<span class="sd">        - &#39;size&#39; : int</span>
-<span class="sd">            Number of samples to select per class (for measurement mode).</span>
-<span class="sd">        - &#39;test_split&#39; : float</span>
-<span class="sd">            Fraction of data to use for testing (e.g. 0.1 for 10%).</span>
+<span class="sd">        Configuration dictionary with the following required keys:</span>
+
+<span class="sd">        - &#39;class_metadata&#39; (list of str): Metadata conditions to define classes (e.g., treatment names).</span>
+<span class="sd">        - &#39;channel_of_interest&#39; (int): Channel index used for computing recruitment scores.</span>
+<span class="sd">        - &#39;png_type&#39; (str): Type of PNG to retrieve (&#39;raw&#39;, &#39;outline&#39;, etc.).</span>
+<span class="sd">        - &#39;size&#39; (int): Number of images to sample per class.</span>
+<span class="sd">        - &#39;nuclei_limit&#39; (int or None): Minimum nucleus size for filtering (used in _read_and_merge_data).</span>
+<span class="sd">        - &#39;pathogen_limit&#39; (int or None): Minimum pathogen size for filtering.</span>
+<span class="sd">        - &#39;custom_measurement&#39; (list of str or None): If provided, defines custom numerator and denominator columns.</span>
+<span class="sd">        - &#39;classes&#39; (list of str): Treatments to annotate using `annotate_conditions`.</span>
+<span class="sd">        - &#39;metadata_type_by&#39; (str): Column in the DB to use for metadata classification (&#39;columnID&#39; or &#39;rowID&#39;).</span>
+<span class="sd">        - &#39;tables&#39; (list of str): Tables to extract from database, e.g., [&#39;cell&#39;, &#39;nucleus&#39;].</span>
+<span class="sd">        - &#39;dataset_mode&#39; (str): Either &#39;annotation&#39; or &#39;metadata&#39;. Controls how class sizes are determined.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    train_class_dir : str</span>
-<span class="sd">        Path to the directory containing the training dataset.</span>
-
-<span class="sd">    test_class_dir : str</span>
-<span class="sd">        Path to the directory containing the testing dataset.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    - The function automatically balances class sizes based on the smallest available class.</span>
-<span class="sd">    - Output is saved in a new subfolder under each `src` path (e.g., `datasets/training/`).</span>
-<span class="sd">    - If the output folder already exists, a new one is created with an incremented suffix.</span>
+<span class="sd">    list of list of str</span>
+<span class="sd">        A list where each sublist contains paths to PNGs belonging to one class (e.g., low vs high recruitment).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Function to filter png_list_df by prcfo present in df without merging</span>
     <span class="k">def</span> <span class="nf">filter_png_list</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">]):</span>

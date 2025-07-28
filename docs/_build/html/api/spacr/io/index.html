@@ -670,106 +670,35 @@ files are created and merged into a final tar file. The function also logs and s
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.generate_training_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">generate_training_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#generate_training_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.generate_training_dataset" title="Link to this definition"></a></dt>
-<dd><p>Generates a training and testing dataset split based on different dataset modes
-(annotation, metadata, measurement, or metadata_annotation).</p>
-<p>The function reads from measurement databases and associated PNG lists, selects image paths
-based on class definitions and dataset mode, and creates balanced class datasets.
-It then splits them into training and testing sets and returns the output directories.</p>
+<dd><p>Generate a training dataset from a SQLite database using measurement-based or annotation/metadata-based selection.</p>
+<p>Depending on the <cite>settings</cite>, this function selects images corresponding to high and low phenotypes (e.g., recruitment)
+or based on metadata or manual annotation. Selected image paths are grouped by class and returned for further use
+(e.g., saving to folders or training models).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – <p>Dictionary of configuration options. Key options include:
-- ‘src’ : str or list of str</p>
-<blockquote>
-<div><p>Source directories containing measurements and image data.</p>
-</div></blockquote>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – <p>Configuration dictionary with the following required keys:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>’tables’<span class="classifier">list of str</span></dt><dd><p>Data tables to include from the database (e.g. [‘cell’, ‘nucleus’]).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’dataset_mode’<span class="classifier">str</span></dt><dd><p>Selection mode: ‘annotation’, ‘metadata’, ‘measurement’, or ‘metadata_annotation’.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’annotation_column’<span class="classifier">str</span></dt><dd><p>Column name used for annotated class labels (required if using annotation mode).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’annotated_classes’<span class="classifier">list of str</span></dt><dd><p>Annotated class labels to use.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’class_metadata’<span class="classifier">list of str</span></dt><dd><p>Class definitions for metadata-based selection.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’metadata_item_1_name’<span class="classifier">str</span></dt><dd><p>Metadata key for pathogen.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’metadata_item_1_value’<span class="classifier">str</span></dt><dd><p>Column in which to look up pathogen metadata.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’metadata_item_2_name’<span class="classifier">str</span></dt><dd><p>Metadata key for treatment.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’metadata_item_2_value’<span class="classifier">str</span></dt><dd><p>Column in which to look up treatment metadata.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’metadata_type_by’<span class="classifier">str</span></dt><dd><p>Column used for metadata classification.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’channel_of_interest’<span class="classifier">int</span></dt><dd><p>Channel index for calculating recruitment scores.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’custom_measurement’<span class="classifier">list of str, optional</span></dt><dd><p>Optional override for recruitment score calculation.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’size’<span class="classifier">int</span></dt><dd><p>Number of samples to select per class (for measurement mode).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>’test_split’<span class="classifier">float</span></dt><dd><p>Fraction of data to use for testing (e.g. 0.1 for 10%).</p>
-</dd>
-</dl>
-</li>
+<li><p>’class_metadata’ (list of str): Metadata conditions to define classes (e.g., treatment names).</p></li>
+<li><p>’channel_of_interest’ (int): Channel index used for computing recruitment scores.</p></li>
+<li><p>’png_type’ (str): Type of PNG to retrieve (‘raw’, ‘outline’, etc.).</p></li>
+<li><p>’size’ (int): Number of images to sample per class.</p></li>
+<li><p>’nuclei_limit’ (int or None): Minimum nucleus size for filtering (used in _read_and_merge_data).</p></li>
+<li><p>’pathogen_limit’ (int or None): Minimum pathogen size for filtering.</p></li>
+<li><p>’custom_measurement’ (list of str or None): If provided, defines custom numerator and denominator columns.</p></li>
+<li><p>’classes’ (list of str): Treatments to annotate using <cite>annotate_conditions</cite>.</p></li>
+<li><p>’metadata_type_by’ (str): Column in the DB to use for metadata classification (‘columnID’ or ‘rowID’).</p></li>
+<li><p>’tables’ (list of str): Tables to extract from database, e.g., [‘cell’, ‘nucleus’].</p></li>
+<li><p>’dataset_mode’ (str): Either ‘annotation’ or ‘metadata’. Controls how class sizes are determined.</p></li>
 </ul>
 </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>train_class_dir</strong> (<em>str</em>) – Path to the directory containing the training dataset.</p></li>
-<li><p><strong>test_class_dir</strong> (<em>str</em>) – Path to the directory containing the testing dataset.</p></li>
-</ul>
-</p>
+<dd class="field-even"><p>A list where each sublist contains paths to PNGs belonging to one class (e.g., low vs high recruitment).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of list of str</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The function automatically balances class sizes based on the smallest available class.</p></li>
-<li><p>Output is saved in a new subfolder under each <cite>src</cite> path (e.g., <cite>datasets/training/</cite>).</p></li>
-<li><p>If the output folder already exists, a new one is created with an incremented suffix.</p></li>
-</ul>
 </dd></dl>
 
 <dl class="py function">
