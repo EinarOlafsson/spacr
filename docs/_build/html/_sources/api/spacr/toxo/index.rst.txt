@@ -29,38 +29,22 @@ Module Contents
 
 .. py:function:: plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype', error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None)
 
-   Plots gene phenotypes with mean phenotype values and standard error, highlighting specific genes.
-   Parameters:
-   -----------
-   data : pandas.DataFrame
-       The input data containing phenotype information. Must include columns specified by `x_column`,
-       `data_column`, and `error_column`.
-   gene_list : list of str
-       A list of gene identifiers to highlight on the plot.
-   x_column : str, optional
-       The column name in `data` containing gene identifiers. Default is 'Gene ID'.
-   data_column : str, optional
-       The column name in `data` containing mean phenotype values.
-       Default is 'T.gondii GT1 CRISPR Phenotype - Mean Phenotype'.
-   error_column : str, optional
-       The column name in `data` containing standard error values.
-       Default is 'T.gondii GT1 CRISPR Phenotype - Standard Error'.
-   save_path : str or None, optional
-       The file path to save the plot as a PDF. If None, the plot is not saved. Default is None.
-   Returns:
-   --------
-   None
-       Displays the plot and optionally saves it to the specified file path.
-   Notes:
-   ------
-   - The function processes the `x_column` to extract gene identifiers if they contain underscores.
-   - The input data is filtered to ensure numeric values in `data_column` and `error_column`.
-   - Genes in `gene_list` are highlighted on the plot with scatter points and labels.
-   - Text labels are adjusted to avoid overlap using the `adjust_text` library.
-   - The plot includes a line for mean phenotype values and shaded areas for standard error.
-   Example:
-   --------
-   >>> plot_gene_phenotypes(data, ['Gene1', 'Gene2'], save_path='output.pdf')
+   Plot gene phenotype means with error bars, highlighting selected genes.
+
+   :param data: DataFrame with phenotype data.
+   :type data: pd.DataFrame
+   :param gene_list: List of gene identifiers to highlight.
+   :type gene_list: list of str
+   :param x_column: Column with gene identifiers. Default: 'Gene ID'.
+   :type x_column: str, optional
+   :param data_column: Column with mean phenotype values.
+   :type data_column: str, optional
+   :param error_column: Column with standard error values.
+   :type error_column: str, optional
+   :param save_path: Path to save PDF. If None, plot is not saved.
+   :type save_path: str or None, optional
+
+   :returns: None
 
 
 .. py:function:: plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=False, save_path=None)

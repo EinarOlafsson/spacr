@@ -1465,38 +1465,18 @@
 <a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.plot_gene_phenotypes">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_gene_phenotypes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">gene_list</span><span class="p">,</span> <span class="n">x_column</span><span class="o">=</span><span class="s1">&#39;Gene ID&#39;</span><span class="p">,</span> <span class="n">data_column</span><span class="o">=</span><span class="s1">&#39;T.gondii GT1 CRISPR Phenotype - Mean Phenotype&#39;</span><span class="p">,</span><span class="n">error_column</span><span class="o">=</span><span class="s1">&#39;T.gondii GT1 CRISPR Phenotype - Standard Error&#39;</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plots gene phenotypes with mean phenotype values and standard error, highlighting specific genes.</span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    data : pandas.DataFrame</span>
-<span class="sd">        The input data containing phenotype information. Must include columns specified by `x_column`, </span>
-<span class="sd">        `data_column`, and `error_column`.</span>
-<span class="sd">    gene_list : list of str</span>
-<span class="sd">        A list of gene identifiers to highlight on the plot.</span>
-<span class="sd">    x_column : str, optional</span>
-<span class="sd">        The column name in `data` containing gene identifiers. Default is &#39;Gene ID&#39;.</span>
-<span class="sd">    data_column : str, optional</span>
-<span class="sd">        The column name in `data` containing mean phenotype values. </span>
-<span class="sd">        Default is &#39;T.gondii GT1 CRISPR Phenotype - Mean Phenotype&#39;.</span>
-<span class="sd">    error_column : str, optional</span>
-<span class="sd">        The column name in `data` containing standard error values. </span>
-<span class="sd">        Default is &#39;T.gondii GT1 CRISPR Phenotype - Standard Error&#39;.</span>
-<span class="sd">    save_path : str or None, optional</span>
-<span class="sd">        The file path to save the plot as a PDF. If None, the plot is not saved. Default is None.</span>
+<span class="sd">    Plot gene phenotype means with error bars, highlighting selected genes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (pd.DataFrame): DataFrame with phenotype data.</span>
+<span class="sd">        gene_list (list of str): List of gene identifiers to highlight.</span>
+<span class="sd">        x_column (str, optional): Column with gene identifiers. Default: &#39;Gene ID&#39;.</span>
+<span class="sd">        data_column (str, optional): Column with mean phenotype values.</span>
+<span class="sd">        error_column (str, optional): Column with standard error values.</span>
+<span class="sd">        save_path (str or None, optional): Path to save PDF. If None, plot is not saved.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">    --------</span>
-<span class="sd">    None</span>
-<span class="sd">        Displays the plot and optionally saves it to the specified file path.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">    ------</span>
-<span class="sd">    - The function processes the `x_column` to extract gene identifiers if they contain underscores.</span>
-<span class="sd">    - The input data is filtered to ensure numeric values in `data_column` and `error_column`.</span>
-<span class="sd">    - Genes in `gene_list` are highlighted on the plot with scatter points and labels.</span>
-<span class="sd">    - Text labels are adjusted to avoid overlap using the `adjust_text` library.</span>
-<span class="sd">    - The plot includes a line for mean phenotype values and shaded areas for standard error.</span>
-<span class="sd">    Example:</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; plot_gene_phenotypes(data, [&#39;Gene1&#39;, &#39;Gene2&#39;], save_path=&#39;output.pdf&#39;)</span>
+<span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Ensure x_column is properly processed</span>

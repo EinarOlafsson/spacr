@@ -1120,51 +1120,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.plot_gene_phenotypes">
 <span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">plot_gene_phenotypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gene</span> <span class="pre">ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T.gondii</span> <span class="pre">GT1</span> <span class="pre">CRISPR</span> <span class="pre">Phenotype</span> <span class="pre">-</span> <span class="pre">Mean</span> <span class="pre">Phenotype'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T.gondii</span> <span class="pre">GT1</span> <span class="pre">CRISPR</span> <span class="pre">Phenotype</span> <span class="pre">-</span> <span class="pre">Standard</span> <span class="pre">Error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/toxo.html#plot_gene_phenotypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.toxo.plot_gene_phenotypes" title="Link to this definition"></a></dt>
-<dd><p>Plots gene phenotypes with mean phenotype values and standard error, highlighting specific genes.
-Parameters:
-———–
-data : pandas.DataFrame</p>
-<blockquote>
-<div><p>The input data containing phenotype information. Must include columns specified by <cite>x_column</cite>,
-<cite>data_column</cite>, and <cite>error_column</cite>.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>gene_list<span class="classifier">list of str</span></dt><dd><p>A list of gene identifiers to highlight on the plot.</p>
-</dd>
-<dt>x_column<span class="classifier">str, optional</span></dt><dd><p>The column name in <cite>data</cite> containing gene identifiers. Default is ‘Gene ID’.</p>
-</dd>
-<dt>data_column<span class="classifier">str, optional</span></dt><dd><p>The column name in <cite>data</cite> containing mean phenotype values.
-Default is ‘T.gondii GT1 CRISPR Phenotype - Mean Phenotype’.</p>
-</dd>
-<dt>error_column<span class="classifier">str, optional</span></dt><dd><p>The column name in <cite>data</cite> containing standard error values.
-Default is ‘T.gondii GT1 CRISPR Phenotype - Standard Error’.</p>
-</dd>
-<dt>save_path<span class="classifier">str or None, optional</span></dt><dd><p>The file path to save the plot as a PDF. If None, the plot is not saved. Default is None.</p>
-</dd>
-</dl>
-<section id="returns">
-<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>None</dt><dd><p>Displays the plot and optionally saves it to the specified file path.</p>
-</dd>
-</dl>
-</section>
-<section id="notes">
-<h3>Notes:<a class="headerlink" href="#notes" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>The function processes the <cite>x_column</cite> to extract gene identifiers if they contain underscores.</p></li>
-<li><p>The input data is filtered to ensure numeric values in <cite>data_column</cite> and <cite>error_column</cite>.</p></li>
-<li><p>Genes in <cite>gene_list</cite> are highlighted on the plot with scatter points and labels.</p></li>
-<li><p>Text labels are adjusted to avoid overlap using the <cite>adjust_text</cite> library.</p></li>
-<li><p>The plot includes a line for mean phenotype values and shaded areas for standard error.</p></li>
+<dd><p>Plot gene phenotype means with error bars, highlighting selected genes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – DataFrame with phenotype data.</p></li>
+<li><p><strong>gene_list</strong> (<em>list</em><em> of </em><em>str</em>) – List of gene identifiers to highlight.</p></li>
+<li><p><strong>x_column</strong> (<em>str</em><em>, </em><em>optional</em>) – Column with gene identifiers. Default: ‘Gene ID’.</p></li>
+<li><p><strong>data_column</strong> (<em>str</em><em>, </em><em>optional</em>) – Column with mean phenotype values.</p></li>
+<li><p><strong>error_column</strong> (<em>str</em><em>, </em><em>optional</em>) – Column with standard error values.</p></li>
+<li><p><strong>save_path</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to save PDF. If None, plot is not saved.</p></li>
 </ul>
-</section>
-<section id="example">
-<h3>Example:<a class="headerlink" href="#example" title="Link to this heading"></a></h3>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_gene_phenotypes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Gene1&#39;</span><span class="p">,</span> <span class="s1">&#39;Gene2&#39;</span><span class="p">],</span> <span class="n">save_path</span><span class="o">=</span><span class="s1">&#39;output.pdf&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
