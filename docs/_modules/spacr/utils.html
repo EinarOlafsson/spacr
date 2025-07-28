@@ -3526,21 +3526,7 @@
 <span class="sd">    A custom neural network module for single-cell classification using early fusion and multi-scale attention.</span>
 
 <span class="sd">    This architecture supports optional gradient checkpointing for reduced memory usage during training.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        num_classes (int): Number of output classes for classification.</span>
-<span class="sd">        pathogen_channel (int): Index of the pathogen channel (currently unused).</span>
-<span class="sd">        use_attention (bool): Flag to enable attention modules (currently unused).</span>
-<span class="sd">        use_checkpoint (bool): Whether to apply gradient checkpointing during the forward pass.</span>
-<span class="sd">        dropout_rate (float): Dropout rate (currently unused).</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        early_fusion (nn.Module): Module to fuse input channels before feature extraction. :no-index:</span>
-<span class="sd">        multi_scale_block_1 (nn.Module): Multi-scale block with spatial attention. :no-index:</span>
-<span class="sd">        fc1 (nn.Linear): Final fully connected layer for classification. :no-index:</span>
-<span class="sd">        use_checkpoint (bool): Indicates whether gradient checkpointing is used. :no-index:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">pathogen_channel</span><span class="p">,</span> <span class="n">use_attention</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the classifier with early fusion and attention blocks.</span>
@@ -3551,6 +3537,12 @@
 <span class="sd">            use_attention (bool): Unused; reserved for attention gating.</span>
 <span class="sd">            use_checkpoint (bool): Whether to use checkpointing to reduce memory.</span>
 <span class="sd">            dropout_rate (float): Unused; reserved for future regularization.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            early_fusion (nn.Module): Module to fuse input channels before feature extraction.</span>
+<span class="sd">            multi_scale_block_1 (nn.Module): Multi-scale block with spatial attention.</span>
+<span class="sd">            fc1 (nn.Linear): Final fully connected layer for classification.</span>
+<span class="sd">            use_checkpoint (bool): Indicates whether gradient checkpointing is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CustomCellClassifier</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 <div class="viewcode-block" id="CustomCellClassifier.early_fusion">

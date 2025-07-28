@@ -1953,61 +1953,6 @@ to enhance input feature maps.</p>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>A custom neural network module for single-cell classification using early fusion and multi-scale attention.</p>
 <p>This architecture supports optional gradient checkpointing for reduced memory usage during training.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_classes</strong> (<em>int</em>) – Number of output classes for classification.</p></li>
-<li><p><strong>pathogen_channel</strong> (<em>int</em>) – Index of the pathogen channel (currently unused).</p></li>
-<li><p><strong>use_attention</strong> (<em>bool</em>) – Flag to enable attention modules (currently unused).</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Whether to apply gradient checkpointing during the forward pass.</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em>) – Dropout rate (currently unused).</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.early_fusion">
-<span class="sig-name descname"><span class="pre">early_fusion</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.early_fusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.early_fusion" title="Link to this definition"></a></dt>
-<dd><p>Module to fuse input channels before feature extraction. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nn.Module</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.multi_scale_block_1">
-<span class="sig-name descname"><span class="pre">multi_scale_block_1</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.multi_scale_block_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.multi_scale_block_1" title="Link to this definition"></a></dt>
-<dd><p>Multi-scale block with spatial attention. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nn.Module</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.fc1">
-<span class="sig-name descname"><span class="pre">fc1</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.fc1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.fc1" title="Link to this definition"></a></dt>
-<dd><p>Final fully connected layer for classification. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nn.Linear</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.use_checkpoint">
-<span class="sig-name descname"><span class="pre">use_checkpoint</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.use_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.use_checkpoint" title="Link to this definition"></a></dt>
-<dd><p>Indicates whether gradient checkpointing is used. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
 <p>Initialize the classifier with early fusion and attention blocks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2020,6 +1965,50 @@ to enhance input feature maps.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.early_fusion">
+<span class="sig-name descname"><span class="pre">early_fusion</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.early_fusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.early_fusion" title="Link to this definition"></a></dt>
+<dd><p>Module to fuse input channels before feature extraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.multi_scale_block_1">
+<span class="sig-name descname"><span class="pre">multi_scale_block_1</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.multi_scale_block_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.multi_scale_block_1" title="Link to this definition"></a></dt>
+<dd><p>Multi-scale block with spatial attention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.fc1">
+<span class="sig-name descname"><span class="pre">fc1</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.fc1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.fc1" title="Link to this definition"></a></dt>
+<dd><p>Final fully connected layer for classification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Linear</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.CustomCellClassifier.use_checkpoint">
+<span class="sig-name descname"><span class="pre">use_checkpoint</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.use_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.CustomCellClassifier.use_checkpoint" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether gradient checkpointing is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id0">
 <span class="sig-name descname"><span class="pre">early_fusion</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#CustomCellClassifier.early_fusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>

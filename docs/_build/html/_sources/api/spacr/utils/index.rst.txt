@@ -685,41 +685,6 @@ Module Contents
 
    This architecture supports optional gradient checkpointing for reduced memory usage during training.
 
-   :param num_classes: Number of output classes for classification.
-   :type num_classes: int
-   :param pathogen_channel: Index of the pathogen channel (currently unused).
-   :type pathogen_channel: int
-   :param use_attention: Flag to enable attention modules (currently unused).
-   :type use_attention: bool
-   :param use_checkpoint: Whether to apply gradient checkpointing during the forward pass.
-   :type use_checkpoint: bool
-   :param dropout_rate: Dropout rate (currently unused).
-   :type dropout_rate: float
-
-   .. attribute:: early_fusion
-
-      Module to fuse input channels before feature extraction. :no-index:
-
-      :type: nn.Module
-
-   .. attribute:: multi_scale_block_1
-
-      Multi-scale block with spatial attention. :no-index:
-
-      :type: nn.Module
-
-   .. attribute:: fc1
-
-      Final fully connected layer for classification. :no-index:
-
-      :type: nn.Linear
-
-   .. attribute:: use_checkpoint
-
-      Indicates whether gradient checkpointing is used. :no-index:
-
-      :type: bool
-
    Initialize the classifier with early fusion and attention blocks.
 
    :param num_classes: Number of classification categories.
@@ -732,6 +697,30 @@ Module Contents
    :type use_checkpoint: bool
    :param dropout_rate: Unused; reserved for future regularization.
    :type dropout_rate: float
+
+   .. attribute:: early_fusion
+
+      Module to fuse input channels before feature extraction.
+
+      :type: nn.Module
+
+   .. attribute:: multi_scale_block_1
+
+      Multi-scale block with spatial attention.
+
+      :type: nn.Module
+
+   .. attribute:: fc1
+
+      Final fully connected layer for classification.
+
+      :type: nn.Linear
+
+   .. attribute:: use_checkpoint
+
+      Indicates whether gradient checkpointing is used.
+
+      :type: bool
 
 
    .. py:attribute:: early_fusion
