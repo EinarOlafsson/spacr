@@ -1191,33 +1191,22 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.filepaths_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">filepaths_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">crop_mode</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Insert image file paths and their associated metadata into a SQLite database.</span>
+<span class="sd">    Insert image paths and metadata into a SQLite database.</span>
 
-<span class="sd">    :param img_paths: List of image file paths to be processed.</span>
-<span class="sd">    :type img_paths: list of str</span>
-<span class="sd">    :param settings: Dictionary containing configuration settings.</span>
-<span class="sd">                     Must include a ``&#39;timelapse&#39;`` key (bool) to indicate if timelapse data is used.</span>
-<span class="sd">    :type settings: dict</span>
-<span class="sd">    :param source_folder: Path to the source folder containing the database.</span>
-<span class="sd">    :type source_folder: str</span>
-<span class="sd">    :param crop_mode: Specifies the cropping mode.</span>
-<span class="sd">                      Can be one of: ``&#39;cell&#39;``, ``&#39;nucleus&#39;``, ``&#39;pathogen&#39;``, or ``&#39;cytoplasm&#39;``.</span>
-<span class="sd">    :type crop_mode: str</span>
+<span class="sd">    Args:</span>
+<span class="sd">        img_paths (list of str): Image file paths to insert.</span>
+<span class="sd">        settings (dict): Configuration dictionary. Must contain a &#39;timelapse&#39; key (bool).</span>
+<span class="sd">        source_folder (str): Folder containing the SQLite database.</span>
+<span class="sd">        crop_mode (str): One of &#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;, or &#39;cytoplasm&#39;.</span>
 
-<span class="sd">    :raises sqlite3.OperationalError: If there is an issue connecting to or writing to the SQLite database.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        sqlite3.OperationalError: On database connection or write errors.</span>
 
-<span class="sd">    .. rubric:: Notes</span>
-
-<span class="sd">    The function extracts metadata from the file names using the helper function ``_map_wells_png``.</span>
-
-<span class="sd">    Metadata columns include:</span>
-
-<span class="sd">    - ``plateID``, ``rowID``, ``columnID``, ``fieldID``</span>
-<span class="sd">    - Optionally ``time_id``, ``prcfo``, and crop-specific IDs based on the ``crop_mode``.</span>
-
-<span class="sd">    The metadata and file paths are stored in a table named ``&#39;png_list&#39;`` in the SQLite database.</span>
+<span class="sd">    Notes:</span>
+<span class="sd">        Uses `_map_wells_png` to extract metadata like plateID, rowID, columnID, fieldID.</span>
+<span class="sd">        Extra fields like time_id or prcfo may be included depending on `crop_mode`.</span>
+<span class="sd">        Data is saved in the &#39;png_list&#39; table of the database.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
 
     <span class="n">png_df</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">png_df</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>

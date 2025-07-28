@@ -17,31 +17,24 @@ Module Contents
 
 .. py:function:: filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
-   Insert image file paths and their associated metadata into a SQLite database.
+   Insert image paths and metadata into a SQLite database.
 
-   :param img_paths: List of image file paths to be processed.
+   :param img_paths: Image file paths to insert.
    :type img_paths: list of str
-   :param settings: Dictionary containing configuration settings.
-                    Must include a ``'timelapse'`` key (bool) to indicate if timelapse data is used.
+   :param settings: Configuration dictionary. Must contain a 'timelapse' key (bool).
    :type settings: dict
-   :param source_folder: Path to the source folder containing the database.
+   :param source_folder: Folder containing the SQLite database.
    :type source_folder: str
-   :param crop_mode: Specifies the cropping mode.
-                     Can be one of: ``'cell'``, ``'nucleus'``, ``'pathogen'``, or ``'cytoplasm'``.
+   :param crop_mode: One of 'cell', 'nucleus', 'pathogen', or 'cytoplasm'.
    :type crop_mode: str
 
-   :raises sqlite3.OperationalError: If there is an issue connecting to or writing to the SQLite database.
+   :raises sqlite3.OperationalError: On database connection or write errors.
 
    .. rubric:: Notes
 
-   The function extracts metadata from the file names using the helper function ``_map_wells_png``.
-
-   Metadata columns include:
-
-   - ``plateID``, ``rowID``, ``columnID``, ``fieldID``
-   - Optionally ``time_id``, ``prcfo``, and crop-specific IDs based on the ``crop_mode``.
-
-   The metadata and file paths are stored in a table named ``'png_list'`` in the SQLite database.
+   Uses `_map_wells_png` to extract metadata like plateID, rowID, columnID, fieldID.
+   Extra fields like time_id or prcfo may be included depending on `crop_mode`.
+   Data is saved in the 'png_list' table of the database.
 
 
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)

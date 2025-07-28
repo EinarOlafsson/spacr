@@ -1105,30 +1105,24 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.filepaths_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">filepaths_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#filepaths_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.filepaths_to_database" title="Link to this definition"></a></dt>
-<dd><p>Insert image file paths and their associated metadata into a SQLite database.</p>
+<dd><p>Insert image paths and metadata into a SQLite database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>img_paths</strong> (<em>list</em><em> of </em><em>str</em>) – List of image file paths to be processed.</p></li>
-<li><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing configuration settings.
-Must include a <code class="docutils literal notranslate"><span class="pre">'timelapse'</span></code> key (bool) to indicate if timelapse data is used.</p></li>
-<li><p><strong>source_folder</strong> (<em>str</em>) – Path to the source folder containing the database.</p></li>
-<li><p><strong>crop_mode</strong> (<em>str</em>) – Specifies the cropping mode.
-Can be one of: <code class="docutils literal notranslate"><span class="pre">'cell'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nucleus'</span></code>, <code class="docutils literal notranslate"><span class="pre">'pathogen'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'cytoplasm'</span></code>.</p></li>
+<li><p><strong>img_paths</strong> (<em>list</em><em> of </em><em>str</em>) – Image file paths to insert.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Configuration dictionary. Must contain a ‘timelapse’ key (bool).</p></li>
+<li><p><strong>source_folder</strong> (<em>str</em>) – Folder containing the SQLite database.</p></li>
+<li><p><strong>crop_mode</strong> (<em>str</em>) – One of ‘cell’, ‘nucleus’, ‘pathogen’, or ‘cytoplasm’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – If there is an issue connecting to or writing to the SQLite database.</p>
+<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – On database connection or write errors.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>The function extracts metadata from the file names using the helper function <code class="docutils literal notranslate"><span class="pre">_map_wells_png</span></code>.</p>
-<p>Metadata columns include:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">plateID</span></code>, <code class="docutils literal notranslate"><span class="pre">rowID</span></code>, <code class="docutils literal notranslate"><span class="pre">columnID</span></code>, <code class="docutils literal notranslate"><span class="pre">fieldID</span></code></p></li>
-<li><p>Optionally <code class="docutils literal notranslate"><span class="pre">time_id</span></code>, <code class="docutils literal notranslate"><span class="pre">prcfo</span></code>, and crop-specific IDs based on the <code class="docutils literal notranslate"><span class="pre">crop_mode</span></code>.</p></li>
-</ul>
-<p>The metadata and file paths are stored in a table named <code class="docutils literal notranslate"><span class="pre">'png_list'</span></code> in the SQLite database.</p>
+<p>Uses <cite>_map_wells_png</cite> to extract metadata like plateID, rowID, columnID, fieldID.
+Extra fields like time_id or prcfo may be included depending on <cite>crop_mode</cite>.
+Data is saved in the ‘png_list’ table of the database.</p>
 </dd></dl>
 
 <dl class="py function">
