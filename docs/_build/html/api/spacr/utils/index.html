@@ -1124,7 +1124,20 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.activation_maps_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">activation_maps_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#activation_maps_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.activation_maps_to_database" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Store image paths and metadata in a SQLite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_paths</strong> (<em>list</em><em> of </em><em>str</em>) – Paths to image files.</p></li>
+<li><p><strong>source_folder</strong> (<em>str</em>) – Folder where the database is stored.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Must include ‘dataset’ and ‘cam_type’ keys.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – On database errors.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.activation_correlations_to_database">
@@ -2757,32 +2770,25 @@ for an image with dtype <cite>uint8</cite>, the maximum value is 255.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.resize_images_and_labels">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">resize_images_and_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_example</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#resize_images_and_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.resize_images_and_labels" title="Link to this definition"></a></dt>
-<dd><p>Resize images and labels to the specified target dimensions.
-This function resizes a list of images and their corresponding labels to the
-specified target height and width. It supports both 2D and 3D images. Optionally,
-it can display an example of the resizing process.
-:param images: A list of images to be resized. Each image can be a</p>
-<blockquote>
-<div><p>2D or 3D numpy array. If None, only labels will be resized.</p>
-</div></blockquote>
+<dd><p>Resize images and labels to the specified target dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>labels</strong> (<em>list</em><em> or </em><em>None</em>) – A list of labels to be resized. Each label should be
-a 2D numpy array. If None, only images will be resized.</p></li>
-<li><p><strong>target_height</strong> (<em>int</em>) – The target height for resizing.</p></li>
-<li><p><strong>target_width</strong> (<em>int</em>) – The target width for resizing.</p></li>
-<li><p><strong>show_example</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to display an example of the resizing
-process. Defaults to True.</p></li>
+<li><p><strong>images</strong> (<em>list</em><em> or </em><em>None</em>) – List of 2D or 3D numpy arrays representing input images.
+If None, only labels will be resized.</p></li>
+<li><p><strong>labels</strong> (<em>list</em><em> or </em><em>None</em>) – List of 2D numpy arrays representing label masks.
+If None, only images will be resized.</p></li>
+<li><p><strong>target_height</strong> (<em>int</em>) – Desired height of output arrays.</p></li>
+<li><p><strong>target_width</strong> (<em>int</em>) – Desired width of output arrays.</p></li>
+<li><p><strong>show_example</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to display an example of original vs resized output.
+Defaults to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>A tuple containing two lists:</dt><dd><ul class="simple">
-<li><p>resized_images (list): A list of resized images. If <cite>images</cite> is None,
-this will be an empty list.</p></li>
-<li><p>resized_labels (list): A list of resized labels. If <cite>labels</cite> is None,
-this will be an empty list.</p></li>
+<dt>A tuple (resized_images, resized_labels), where:</dt><dd><ul class="simple">
+<li><p>resized_images (list): List of resized image arrays. Empty if <cite>images</cite> is None.</p></li>
+<li><p>resized_labels (list): List of resized label arrays. Empty if <cite>labels</cite> is None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -2791,20 +2797,17 @@ this will be an empty list.</p></li>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple</p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If both <cite>images</cite> and <cite>labels</cite> are None.</p>
+</dd>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function uses <cite>resizescikit</cite> for resizing images and labels.</p></li>
-<li><p>For images, anti-aliasing is applied during resizing.</p></li>
-<li><p>For labels, resizing is performed with <cite>order=0</cite> to preserve label integrity.</p></li>
-<li><p>If <cite>show_example</cite> is True, the function uses <cite>plot_resize</cite> to visualize
-the original and resized images/labels.</p></li>
+<li><p>Uses <cite>resizescikit</cite> for resizing.</p></li>
+<li><p>Applies anti-aliasing when resizing images.</p></li>
+<li><p>Uses nearest-neighbor interpolation (<cite>order=0</cite>) for labels to preserve class values.</p></li>
+<li><p>Visualization of the resizing process is shown using <cite>plot_resize</cite> if <cite>show_example</cite> is True.</p></li>
 </ul>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If both <cite>images</cite> and <cite>labels</cite> are None.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -3029,27 +3032,29 @@ of the intersection divided by the size of the union of the sets.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.dice_coefficient">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">dice_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#dice_coefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.dice_coefficient" title="Link to this definition"></a></dt>
-<dd><p>Compute the Dice coefficient, a measure of overlap between two binary masks.
-The Dice coefficient is calculated as:</p>
-<blockquote>
-<div><p>Dice = 2 * <a href="#id4"><span class="problematic" id="id5">|A ∩ B|</span></a> / (<a href="#id6"><span class="problematic" id="id7">|A|</span></a> + <a href="#id8"><span class="problematic" id="id9">|B|</span></a>)</p>
-</div></blockquote>
-<p>where A and B are the two binary masks, <a href="#id10"><span class="problematic" id="id11">|A ∩ B|</span></a> is the size of their intersection,
-and <a href="#id12"><span class="problematic" id="id13">|A|</span></a> + <a href="#id14"><span class="problematic" id="id15">|B|</span></a> is the sum of their sizes.
-:param mask1: The first mask, can be any array-like structure.
-:type mask1: numpy.ndarray
-:param mask2: The second mask, can be any array-like structure.
-:type mask2: numpy.ndarray</p>
+<dd><p>Compute the Dice coefficient, a measure of overlap between two binary masks.</p>
+<dl class="simple">
+<dt>The Dice coefficient is defined as:</dt><dd><p>2 * <a href="#id4"><span class="problematic" id="id5">|A ∩ B|</span></a> / (<a href="#id6"><span class="problematic" id="id7">|A|</span></a> + <a href="#id8"><span class="problematic" id="id9">|B|</span></a>)</p>
+</dd>
+</dl>
+<p>where A and B are binary masks, <a href="#id10"><span class="problematic" id="id11">|A ∩ B|</span></a> is the number of overlapping non-zero elements,
+and <a href="#id12"><span class="problematic" id="id13">|A|</span></a> + <a href="#id14"><span class="problematic" id="id15">|B|</span></a> is the total number of non-zero elements in both masks.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>The Dice coefficient, ranging from 0.0 (no overlap) to 1.0 (perfect overlap).</dt><dd><p>If both masks are empty, the function returns 1.0.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mask1</strong> (<em>numpy.ndarray</em>) – First binary mask.</p></li>
+<li><p><strong>mask2</strong> (<em>numpy.ndarray</em>) – Second binary mask.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dice coefficient between 0.0 (no overlap) and 1.0 (perfect overlap).</dt><dd><p>Returns 1.0 if both masks are empty.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3086,26 +3091,20 @@ other pixels are 0.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.boundary_f1_score">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">boundary_f1_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#boundary_f1_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.boundary_f1_score" title="Link to this definition"></a></dt>
-<dd><p>Calculate the boundary F1 score between two binary masks.
-The boundary F1 score is a metric used to evaluate the similarity between
-the boundaries of two binary masks. It computes the harmonic mean of
-precision and recall for boundary detection.
-:param mask_true: Ground truth binary mask. Non-zero values are</p>
-<blockquote>
-<div><p>considered as the object.</p>
-</div></blockquote>
+<dd><p>Calculate the boundary F1 score between two binary masks.</p>
+<p>The boundary F1 score evaluates the alignment of object boundaries between
+predicted and ground truth masks. It computes the harmonic mean of boundary
+precision and recall after dilating the boundaries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mask_pred</strong> (<em>np.ndarray</em>) – Predicted binary mask. Non-zero values are
-considered as the object.</p></li>
-<li><p><strong>dilation_radius</strong> (<em>int</em><em>, </em><em>optional</em>) – Radius for boundary dilation when
-extracting boundaries. Defaults to 1.</p></li>
+<li><p><strong>mask_true</strong> (<em>np.ndarray</em>) – Ground truth binary mask. Non-zero values are considered foreground.</p></li>
+<li><p><strong>mask_pred</strong> (<em>np.ndarray</em>) – Predicted binary mask. Non-zero values are considered foreground.</p></li>
+<li><p><strong>dilation_radius</strong> (<em>int</em><em>, </em><em>optional</em>) – Radius used for boundary dilation to allow tolerance in matching. Defaults to 1.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The boundary F1 score, a value between 0 and 1, where 1 indicates
-perfect boundary alignment and 0 indicates no alignment.</p>
+<dd class="field-even"><p>Boundary F1 score between 0 (no boundary match) and 1 (perfect boundary alignment).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>

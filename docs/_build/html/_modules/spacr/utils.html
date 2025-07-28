@@ -1241,7 +1241,17 @@
 <div class="viewcode-block" id="activation_maps_to_database">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.activation_maps_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">activation_maps_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Store image paths and metadata in a SQLite database.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        img_paths (list of str): Paths to image files.</span>
+<span class="sd">        source_folder (str): Folder where the database is stored.</span>
+<span class="sd">        settings (dict): Must include &#39;dataset&#39; and &#39;cam_type&#39; keys.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        sqlite3.OperationalError: On database errors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span>
 
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
@@ -4799,32 +4809,30 @@
 <span class="k">def</span> <span class="nf">resize_images_and_labels</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">target_height</span><span class="p">,</span> <span class="n">target_width</span><span class="p">,</span> <span class="n">show_example</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Resize images and labels to the specified target dimensions.</span>
-<span class="sd">    This function resizes a list of images and their corresponding labels to the </span>
-<span class="sd">    specified target height and width. It supports both 2D and 3D images. Optionally, </span>
-<span class="sd">    it can display an example of the resizing process.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        images (list or None): A list of images to be resized. Each image can be a </span>
-<span class="sd">            2D or 3D numpy array. If None, only labels will be resized.</span>
-<span class="sd">        labels (list or None): A list of labels to be resized. Each label should be </span>
-<span class="sd">            a 2D numpy array. If None, only images will be resized.</span>
-<span class="sd">        target_height (int): The target height for resizing.</span>
-<span class="sd">        target_width (int): The target width for resizing.</span>
-<span class="sd">        show_example (bool, optional): Whether to display an example of the resizing </span>
-<span class="sd">            process. Defaults to True.</span>
+<span class="sd">        images (list or None): List of 2D or 3D numpy arrays representing input images.</span>
+<span class="sd">                               If None, only labels will be resized.</span>
+<span class="sd">        labels (list or None): List of 2D numpy arrays representing label masks.</span>
+<span class="sd">                               If None, only images will be resized.</span>
+<span class="sd">        target_height (int): Desired height of output arrays.</span>
+<span class="sd">        target_width (int): Desired width of output arrays.</span>
+<span class="sd">        show_example (bool, optional): Whether to display an example of original vs resized output.</span>
+<span class="sd">                                       Defaults to True.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing two lists:</span>
-<span class="sd">            - resized_images (list): A list of resized images. If `images` is None, </span>
-<span class="sd">              this will be an empty list.</span>
-<span class="sd">            - resized_labels (list): A list of resized labels. If `labels` is None, </span>
-<span class="sd">              this will be an empty list.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">        - The function uses `resizescikit` for resizing images and labels.</span>
-<span class="sd">        - For images, anti-aliasing is applied during resizing.</span>
-<span class="sd">        - For labels, resizing is performed with `order=0` to preserve label integrity.</span>
-<span class="sd">        - If `show_example` is True, the function uses `plot_resize` to visualize </span>
-<span class="sd">          the original and resized images/labels.</span>
+<span class="sd">        tuple: A tuple (resized_images, resized_labels), where:</span>
+<span class="sd">            - resized_images (list): List of resized image arrays. Empty if `images` is None.</span>
+<span class="sd">            - resized_labels (list): List of resized label arrays. Empty if `labels` is None.</span>
+
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If both `images` and `labels` are None.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Uses `resizescikit` for resizing.</span>
+<span class="sd">        - Applies anti-aliasing when resizing images.</span>
+<span class="sd">        - Uses nearest-neighbor interpolation (`order=0`) for labels to preserve class values.</span>
+<span class="sd">        - Visualization of the resizing process is shown using `plot_resize` if `show_example` is True.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_resize</span>
@@ -5119,16 +5127,20 @@
 <span class="k">def</span> <span class="nf">dice_coefficient</span><span class="p">(</span><span class="n">mask1</span><span class="p">,</span> <span class="n">mask2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the Dice coefficient, a measure of overlap between two binary masks.</span>
-<span class="sd">    The Dice coefficient is calculated as:</span>
-<span class="sd">        Dice = 2 * |A ∩ B| / (|A| + |B|)</span>
-<span class="sd">    where A and B are the two binary masks, |A ∩ B| is the size of their intersection,</span>
-<span class="sd">    and |A| + |B| is the sum of their sizes.</span>
+
+<span class="sd">    The Dice coefficient is defined as:</span>
+<span class="sd">        2 * |A ∩ B| / (|A| + |B|)</span>
+
+<span class="sd">    where A and B are binary masks, |A ∩ B| is the number of overlapping non-zero elements,</span>
+<span class="sd">    and |A| + |B| is the total number of non-zero elements in both masks.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        mask1 (numpy.ndarray): The first mask, can be any array-like structure.</span>
-<span class="sd">        mask2 (numpy.ndarray): The second mask, can be any array-like structure.</span>
+<span class="sd">        mask1 (numpy.ndarray): First binary mask.</span>
+<span class="sd">        mask2 (numpy.ndarray): Second binary mask.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        float: The Dice coefficient, ranging from 0.0 (no overlap) to 1.0 (perfect overlap).</span>
-<span class="sd">               If both masks are empty, the function returns 1.0.</span>
+<span class="sd">        float: Dice coefficient between 0.0 (no overlap) and 1.0 (perfect overlap).</span>
+<span class="sd">               Returns 1.0 if both masks are empty.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Convert to binary masks</span>
     <span class="n">mask1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -5178,19 +5190,18 @@
 <span class="k">def</span> <span class="nf">boundary_f1_score</span><span class="p">(</span><span class="n">mask_true</span><span class="p">,</span> <span class="n">mask_pred</span><span class="p">,</span> <span class="n">dilation_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the boundary F1 score between two binary masks.</span>
-<span class="sd">    The boundary F1 score is a metric used to evaluate the similarity between </span>
-<span class="sd">    the boundaries of two binary masks. It computes the harmonic mean of </span>
-<span class="sd">    precision and recall for boundary detection.</span>
+
+<span class="sd">    The boundary F1 score evaluates the alignment of object boundaries between</span>
+<span class="sd">    predicted and ground truth masks. It computes the harmonic mean of boundary</span>
+<span class="sd">    precision and recall after dilating the boundaries.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        mask_true (np.ndarray): Ground truth binary mask. Non-zero values are </span>
-<span class="sd">            considered as the object.</span>
-<span class="sd">        mask_pred (np.ndarray): Predicted binary mask. Non-zero values are </span>
-<span class="sd">            considered as the object.</span>
-<span class="sd">        dilation_radius (int, optional): Radius for boundary dilation when </span>
-<span class="sd">            extracting boundaries. Defaults to 1.</span>
+<span class="sd">        mask_true (np.ndarray): Ground truth binary mask. Non-zero values are considered foreground.</span>
+<span class="sd">        mask_pred (np.ndarray): Predicted binary mask. Non-zero values are considered foreground.</span>
+<span class="sd">        dilation_radius (int, optional): Radius used for boundary dilation to allow tolerance in matching. Defaults to 1.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        float: The boundary F1 score, a value between 0 and 1, where 1 indicates </span>
-<span class="sd">        perfect boundary alignment and 0 indicates no alignment.</span>
+<span class="sd">        float: Boundary F1 score between 0 (no boundary match) and 1 (perfect boundary alignment).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Assume extract_boundaries is defined to extract object boundaries with given dilation_radius</span>
     <span class="n">boundary_true</span> <span class="o">=</span> <span class="n">extract_boundaries</span><span class="p">(</span><span class="n">mask_true</span><span class="p">,</span> <span class="n">dilation_radius</span><span class="p">)</span>
