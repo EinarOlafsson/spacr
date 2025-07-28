@@ -4160,24 +4160,29 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.augment_single_image">[docs]</a>
 <span class="k">def</span> <span class="nf">augment_single_image</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Augments a single image by applying various transformations and saves the results.</span>
+<span class="sd">    Augment a single image by applying various transformations and saving the results.</span>
+
 <span class="sd">    This function reads an image from the specified file path, applies a series of </span>
 <span class="sd">    transformations (original, rotations, and flips), and saves the transformed images </span>
 <span class="sd">    to the destination directory with appropriate filenames.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        args (tuple): A tuple containing:</span>
-<span class="sd">            - img_path (str): The file path to the input image.</span>
-<span class="sd">            - dst (str): The destination directory where the augmented images will be saved.</span>
-<span class="sd">    Transformations applied:</span>
-<span class="sd">        - Original image (no transformation).</span>
-<span class="sd">        - 90-degree clockwise rotation.</span>
-<span class="sd">        - 180-degree rotation.</span>
-<span class="sd">        - 270-degree clockwise (or 90-degree counterclockwise) rotation.</span>
-<span class="sd">        - Horizontal flip.</span>
-<span class="sd">        - Vertical flip.</span>
-<span class="sd">    Output:</span>
-<span class="sd">        The augmented images are saved in the destination directory with filenames </span>
-<span class="sd">        indicating the type of transformation applied.</span>
+<span class="sd">            img_path (str): The file path to the input image.</span>
+<span class="sd">            dst (str): The destination directory where the augmented images will be saved.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        The following transformations are applied to the input image:</span>
+<span class="sd">        - Original image (no transformation)</span>
+<span class="sd">        - 90-degree clockwise rotation</span>
+<span class="sd">        - 180-degree rotation</span>
+<span class="sd">        - 270-degree clockwise rotation</span>
+<span class="sd">        - Horizontal flip</span>
+<span class="sd">        - Vertical flip</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        Saves the augmented images to the specified destination directory.</span>
+<span class="sd">        Filenames indicate the type of transformation applied.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">img_path</span><span class="p">,</span> <span class="n">dst</span> <span class="o">=</span> <span class="n">args</span>
     <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_UNCHANGED</span><span class="p">)</span>

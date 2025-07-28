@@ -2404,31 +2404,28 @@ the index of <cite>df</cite>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.augment_single_image">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">augment_single_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#augment_single_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.augment_single_image" title="Link to this definition"></a></dt>
-<dd><p>Augments a single image by applying various transformations and saves the results.
-This function reads an image from the specified file path, applies a series of
+<dd><p>Augment a single image by applying various transformations and saving the results.</p>
+<p>This function reads an image from the specified file path, applies a series of
 transformations (original, rotations, and flips), and saves the transformed images
-to the destination directory with appropriate filenames.
-:param args: A tuple containing:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>img_path (str): The file path to the input image.</p></li>
-<li><p>dst (str): The destination directory where the augmented images will be saved.</p></li>
-</ul>
-</div></blockquote>
+to the destination directory with appropriate filenames.</p>
 <dl class="field-list simple">
-</dl>
-<dl class="simple">
-<dt>Transformations applied:</dt><dd><ul class="simple">
-<li><p>Original image (no transformation).</p></li>
-<li><p>90-degree clockwise rotation.</p></li>
-<li><p>180-degree rotation.</p></li>
-<li><p>270-degree clockwise (or 90-degree counterclockwise) rotation.</p></li>
-<li><p>Horizontal flip.</p></li>
-<li><p>Vertical flip.</p></li>
-</ul>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>tuple</em>) – A tuple containing:
+img_path (str): The file path to the input image.
+dst (str): The destination directory where the augmented images will be saved.</p>
 </dd>
-<dt>Output:</dt><dd><p>The augmented images are saved in the destination directory with filenames
-indicating the type of transformation applied.</p>
+</dl>
+<p class="rubric">Notes</p>
+<p>The following transformations are applied to the input image:
+- Original image (no transformation)
+- 90-degree clockwise rotation
+- 180-degree rotation
+- 270-degree clockwise rotation
+- Horizontal flip
+- Vertical flip</p>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><p>Saves the augmented images to the specified destination directory.
+Filenames indicate the type of transformation applied.</p>
 </dd>
 </dl>
 </dd></dl>
