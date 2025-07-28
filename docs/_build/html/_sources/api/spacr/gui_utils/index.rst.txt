@@ -180,6 +180,11 @@ Module Contents
    Bases: :py:obj:`io.TextIOBase`
 
 
+   A file-like object that redirects writes to a queue.
+
+   :param q: The queue to write output to.
+   :type q: queue.Queue
+
    Initialize self.  See help(type(self)) for accurate signature.
 
 
