@@ -3616,21 +3616,6 @@
 
 <span class="sd">    This class supports custom dropout insertion and optional gradient checkpointing</span>
 <span class="sd">    for memory efficiency during training.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        model_name (str): Name of the torchvision model to use (default: &#39;resnet50&#39;).</span>
-<span class="sd">        pretrained (bool): Whether to load pretrained weights (default: True).</span>
-<span class="sd">        dropout_rate (float or None): Dropout probability applied before the classifier. If None, dropout is disabled.</span>
-<span class="sd">        use_checkpoint (bool): Whether to use gradient checkpointing for memory savings during training.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        model_name (str): Identifier of the chosen torchvision model. :no-index:</span>
-<span class="sd">        use_checkpoint (bool): Indicates whether checkpointing is active. :no-index:</span>
-<span class="sd">        base_model (nn.Module): The pretrained feature extractor with classifier removed. :no-index:</span>
-<span class="sd">        num_ftrs (int): Number of output features from the base model. :no-index:</span>
-<span class="sd">        use_dropout (bool): Whether dropout is applied before classification. :no-index:</span>
-<span class="sd">        dropout (nn.Dropout): Optional dropout layer before the classifier. :no-index:</span>
-<span class="sd">        spacr_classifier (nn.Linear): Final linear classifier mapping features to binary logits. :no-index:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;resnet50&#39;</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3641,6 +3626,15 @@
 <span class="sd">            pretrained (bool): Whether to initialize with pretrained weights.</span>
 <span class="sd">            dropout_rate (float or None): Dropout rate for the classifier head.</span>
 <span class="sd">            use_checkpoint (bool): Whether to enable gradient checkpointing.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            model_name (str): Identifier of the chosen torchvision model.</span>
+<span class="sd">            use_checkpoint (bool): Indicates whether checkpointing is active.</span>
+<span class="sd">            base_model (nn.Module): The pretrained feature extractor with classifier removed.</span>
+<span class="sd">            num_ftrs (int): Number of output features from the base model.</span>
+<span class="sd">            use_dropout (bool): Whether dropout is applied before classification.</span>
+<span class="sd">            dropout (nn.Dropout): Optional dropout layer before the classifier.</span>
+<span class="sd">            spacr_classifier (nn.Linear): Final linear classifier mapping features to binary logits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TorchModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 <div class="viewcode-block" id="TorchModel.model_name">

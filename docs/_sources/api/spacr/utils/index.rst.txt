@@ -769,57 +769,6 @@ Module Contents
    This class supports custom dropout insertion and optional gradient checkpointing
    for memory efficiency during training.
 
-   :param model_name: Name of the torchvision model to use (default: 'resnet50').
-   :type model_name: str
-   :param pretrained: Whether to load pretrained weights (default: True).
-   :type pretrained: bool
-   :param dropout_rate: Dropout probability applied before the classifier. If None, dropout is disabled.
-   :type dropout_rate: float or None
-   :param use_checkpoint: Whether to use gradient checkpointing for memory savings during training.
-   :type use_checkpoint: bool
-
-   .. attribute:: model_name
-
-      Identifier of the chosen torchvision model. :no-index:
-
-      :type: str
-
-   .. attribute:: use_checkpoint
-
-      Indicates whether checkpointing is active. :no-index:
-
-      :type: bool
-
-   .. attribute:: base_model
-
-      The pretrained feature extractor with classifier removed. :no-index:
-
-      :type: nn.Module
-
-   .. attribute:: num_ftrs
-
-      Number of output features from the base model. :no-index:
-
-      :type: int
-
-   .. attribute:: use_dropout
-
-      Whether dropout is applied before classification. :no-index:
-
-      :type: bool
-
-   .. attribute:: dropout
-
-      Optional dropout layer before the classifier. :no-index:
-
-      :type: nn.Dropout
-
-   .. attribute:: spacr_classifier
-
-      Final linear classifier mapping features to binary logits. :no-index:
-
-      :type: nn.Linear
-
    Initialize the TorchModel with optional dropout and checkpointing.
 
    :param model_name: The model architecture to load from torchvision.models.
@@ -830,6 +779,48 @@ Module Contents
    :type dropout_rate: float or None
    :param use_checkpoint: Whether to enable gradient checkpointing.
    :type use_checkpoint: bool
+
+   .. attribute:: model_name
+
+      Identifier of the chosen torchvision model.
+
+      :type: str
+
+   .. attribute:: use_checkpoint
+
+      Indicates whether checkpointing is active.
+
+      :type: bool
+
+   .. attribute:: base_model
+
+      The pretrained feature extractor with classifier removed.
+
+      :type: nn.Module
+
+   .. attribute:: num_ftrs
+
+      Number of output features from the base model.
+
+      :type: int
+
+   .. attribute:: use_dropout
+
+      Whether dropout is applied before classification.
+
+      :type: bool
+
+   .. attribute:: dropout
+
+      Optional dropout layer before the classifier.
+
+      :type: nn.Dropout
+
+   .. attribute:: spacr_classifier
+
+      Final linear classifier mapping features to binary logits.
+
+      :type: nn.Linear
 
 
    .. py:attribute:: model_name

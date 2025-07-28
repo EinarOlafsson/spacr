@@ -2072,93 +2072,6 @@ to enhance input feature maps.</p>
 <p>A PyTorch wrapper for pretrained torchvision models with a custom SPACR classifier head.</p>
 <p>This class supports custom dropout insertion and optional gradient checkpointing
 for memory efficiency during training.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_name</strong> (<em>str</em>) – Name of the torchvision model to use (default: ‘resnet50’).</p></li>
-<li><p><strong>pretrained</strong> (<em>bool</em>) – Whether to load pretrained weights (default: True).</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em><em> or </em><em>None</em>) – Dropout probability applied before the classifier. If None, dropout is disabled.</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em>) – Whether to use gradient checkpointing for memory savings during training.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.model_name">
-<span class="sig-name descname"><span class="pre">model_name</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.model_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.model_name" title="Link to this definition"></a></dt>
-<dd><p>Identifier of the chosen torchvision model. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.use_checkpoint">
-<span class="sig-name descname"><span class="pre">use_checkpoint</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.use_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.use_checkpoint" title="Link to this definition"></a></dt>
-<dd><p>Indicates whether checkpointing is active. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.base_model">
-<span class="sig-name descname"><span class="pre">base_model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.base_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.base_model" title="Link to this definition"></a></dt>
-<dd><p>The pretrained feature extractor with classifier removed. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nn.Module</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.num_ftrs">
-<span class="sig-name descname"><span class="pre">num_ftrs</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.num_ftrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.num_ftrs" title="Link to this definition"></a></dt>
-<dd><p>Number of output features from the base model. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.use_dropout">
-<span class="sig-name descname"><span class="pre">use_dropout</span></span><a class="headerlink" href="#spacr.utils.TorchModel.use_dropout" title="Link to this definition"></a></dt>
-<dd><p>Whether dropout is applied before classification. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.dropout">
-<span class="sig-name descname"><span class="pre">dropout</span></span><a class="headerlink" href="#spacr.utils.TorchModel.dropout" title="Link to this definition"></a></dt>
-<dd><p>Optional dropout layer before the classifier. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nn.Dropout</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.TorchModel.spacr_classifier">
-<span class="sig-name descname"><span class="pre">spacr_classifier</span></span><a class="headerlink" href="#spacr.utils.TorchModel.spacr_classifier" title="Link to this definition"></a></dt>
-<dd><p>Final linear classifier mapping features to binary logits. :no-index:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nn.Linear</p>
-</dd>
-</dl>
-</dd></dl>
-
 <p>Initialize the TorchModel with optional dropout and checkpointing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2170,6 +2083,83 @@ for memory efficiency during training.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.model_name">
+<span class="sig-name descname"><span class="pre">model_name</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.model_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.model_name" title="Link to this definition"></a></dt>
+<dd><p>Identifier of the chosen torchvision model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.use_checkpoint">
+<span class="sig-name descname"><span class="pre">use_checkpoint</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.use_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.use_checkpoint" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether checkpointing is active.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.base_model">
+<span class="sig-name descname"><span class="pre">base_model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.base_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.base_model" title="Link to this definition"></a></dt>
+<dd><p>The pretrained feature extractor with classifier removed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.num_ftrs">
+<span class="sig-name descname"><span class="pre">num_ftrs</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.num_ftrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.TorchModel.num_ftrs" title="Link to this definition"></a></dt>
+<dd><p>Number of output features from the base model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.use_dropout">
+<span class="sig-name descname"><span class="pre">use_dropout</span></span><a class="headerlink" href="#spacr.utils.TorchModel.use_dropout" title="Link to this definition"></a></dt>
+<dd><p>Whether dropout is applied before classification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.dropout">
+<span class="sig-name descname"><span class="pre">dropout</span></span><a class="headerlink" href="#spacr.utils.TorchModel.dropout" title="Link to this definition"></a></dt>
+<dd><p>Optional dropout layer before the classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Dropout</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.utils.TorchModel.spacr_classifier">
+<span class="sig-name descname"><span class="pre">spacr_classifier</span></span><a class="headerlink" href="#spacr.utils.TorchModel.spacr_classifier" title="Link to this definition"></a></dt>
+<dd><p>Final linear classifier mapping features to binary logits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nn.Linear</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id4">
 <span class="sig-name descname"><span class="pre">model_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'resnet50'</span></em><a class="reference internal" href="../../../_modules/spacr/utils.html#TorchModel.model_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
