@@ -1242,25 +1242,15 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.activation_maps_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">activation_maps_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Processes a list of image paths, extracts metadata, and stores the data in a SQLite database.</span>
+<span class="sd">    Store image paths and metadata in a SQLite database.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        img_paths (list of str): List of file paths to the images.</span>
-<span class="sd">        source_folder (str): Path to the source folder where the database will be stored.</span>
-<span class="sd">        settings (dict): Dictionary containing configuration settings. Expected keys include:</span>
-<span class="sd">            - &#39;dataset&#39; (str): Path to the dataset file, used to name the database.</span>
-<span class="sd">            - &#39;cam_type&#39; (str): Camera type, used to name the database table.</span>
+<span class="sd">        img_paths (list of str): Paths to image files.</span>
+<span class="sd">        source_folder (str): Folder where the database is stored.</span>
+<span class="sd">        settings (dict): Must include &#39;dataset&#39; and &#39;cam_type&#39; keys.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        sqlite3.OperationalError: If there is an issue with the SQLite database operation.</span>
-
-<span class="sd">    Notes:</span>
-<span class="sd">        The function assumes the existence of a helper function `_map_wells_png` to extract metadata</span>
-<span class="sd">        from image file names.</span>
-
-<span class="sd">        The database is created if it does not already exist.</span>
-
-<span class="sd">        Data is appended to a table named based on the `cam_type` setting.</span>
+<span class="sd">        sqlite3.OperationalError: On database errors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span>
 
@@ -1289,33 +1279,16 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.activation_correlations_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">activation_correlations_to_database</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">img_paths</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Saves activation correlation data to a SQLite database.</span>
-
-<span class="sd">    This function processes a DataFrame containing activation correlation data and </span>
-<span class="sd">    image paths, aligns the data, and stores it in a SQLite database. If the database </span>
-<span class="sd">    does not exist, it creates one.</span>
+<span class="sd">    Save activation correlation data to a SQLite database.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        df (pd.DataFrame): A DataFrame containing activation correlation data. </span>
-<span class="sd">            It must include a &#39;file_name&#39; column to align with the image paths.</span>
-<span class="sd">        img_paths (list): A list of image file paths.</span>
-<span class="sd">        source_folder (str): The root folder where the database will be stored.</span>
-<span class="sd">        settings (dict): A dictionary containing configuration settings. </span>
-<span class="sd">            Expected keys include:</span>
-<span class="sd">            - &#39;dataset&#39;: The dataset file path (used to name the database).</span>
-<span class="sd">            - &#39;cam_type&#39;: The camera type (used to name the database table).</span>
+<span class="sd">        df (pd.DataFrame): DataFrame with correlation data. Must include &#39;file_name&#39;.</span>
+<span class="sd">        img_paths (list): List of image file paths.</span>
+<span class="sd">        source_folder (str): Folder where the database is stored.</span>
+<span class="sd">        settings (dict): Must include &#39;dataset&#39; and &#39;cam_type&#39; keys.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        sqlite3.OperationalError: If there is an issue with the SQLite database </span>
-<span class="sd">            operation, such as a timeout or write error.</span>
-
-<span class="sd">    Notes:</span>
-<span class="sd">        - The function assumes the existence of a helper function `_map_wells_png` </span>
-<span class="sd">          to extract metadata from image file names.</span>
-<span class="sd">        - The `_create_database` function is used to initialize the database if it </span>
-<span class="sd">          does not already exist.</span>
-<span class="sd">        - The resulting database table is named using the `cam_type` value from </span>
-<span class="sd">          the `settings` dictionary, appended with &quot;_correlations&quot;.</span>
+<span class="sd">        sqlite3.OperationalError: On database errors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span>
 

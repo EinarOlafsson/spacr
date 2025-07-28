@@ -33,61 +33,32 @@ Module Contents
 
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
 
-   Processes a list of image paths, extracts metadata, and stores the data in a SQLite database.
+   Store image paths and metadata in a SQLite database.
 
-   :param img_paths: List of file paths to the images.
+   :param img_paths: Paths to image files.
    :type img_paths: list of str
-   :param source_folder: Path to the source folder where the database will be stored.
+   :param source_folder: Folder where the database is stored.
    :type source_folder: str
-   :param settings: Dictionary containing configuration settings. Expected keys include:
-                    - 'dataset' (str): Path to the dataset file, used to name the database.
-                    - 'cam_type' (str): Camera type, used to name the database table.
+   :param settings: Must include 'dataset' and 'cam_type' keys.
    :type settings: dict
 
-   :raises sqlite3.OperationalError: If there is an issue with the SQLite database operation.
-
-   .. rubric:: Notes
-
-   The function assumes the existence of a helper function `_map_wells_png` to extract metadata
-   from image file names.
-
-   The database is created if it does not already exist.
-
-   Data is appended to a table named based on the `cam_type` setting.
+   :raises sqlite3.OperationalError: On database errors.
 
 
 .. py:function:: activation_correlations_to_database(df, img_paths, source_folder, settings)
 
-   Saves activation correlation data to a SQLite database.
+   Save activation correlation data to a SQLite database.
 
-   This function processes a DataFrame containing activation correlation data and
-   image paths, aligns the data, and stores it in a SQLite database. If the database
-   does not exist, it creates one.
-
-   :param df: A DataFrame containing activation correlation data.
-              It must include a 'file_name' column to align with the image paths.
+   :param df: DataFrame with correlation data. Must include 'file_name'.
    :type df: pd.DataFrame
-   :param img_paths: A list of image file paths.
+   :param img_paths: List of image file paths.
    :type img_paths: list
-   :param source_folder: The root folder where the database will be stored.
+   :param source_folder: Folder where the database is stored.
    :type source_folder: str
-   :param settings: A dictionary containing configuration settings.
-                    Expected keys include:
-                    - 'dataset': The dataset file path (used to name the database).
-                    - 'cam_type': The camera type (used to name the database table).
+   :param settings: Must include 'dataset' and 'cam_type' keys.
    :type settings: dict
 
-   :raises sqlite3.OperationalError: If there is an issue with the SQLite database
-       operation, such as a timeout or write error.
-
-   .. rubric:: Notes
-
-   - The function assumes the existence of a helper function `_map_wells_png`
-     to extract metadata from image file names.
-   - The `_create_database` function is used to initialize the database if it
-     does not already exist.
-   - The resulting database table is named using the `cam_type` value from
-     the `settings` dictionary, appended with "_correlations".
+   :raises sqlite3.OperationalError: On database errors.
 
 
 .. py:function:: calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=[15, 50, 75])

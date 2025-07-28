@@ -1124,62 +1124,38 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.activation_maps_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">activation_maps_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#activation_maps_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.activation_maps_to_database" title="Link to this definition"></a></dt>
-<dd><p>Processes a list of image paths, extracts metadata, and stores the data in a SQLite database.</p>
+<dd><p>Store image paths and metadata in a SQLite database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>img_paths</strong> (<em>list</em><em> of </em><em>str</em>) – List of file paths to the images.</p></li>
-<li><p><strong>source_folder</strong> (<em>str</em>) – Path to the source folder where the database will be stored.</p></li>
-<li><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing configuration settings. Expected keys include:
-- ‘dataset’ (str): Path to the dataset file, used to name the database.
-- ‘cam_type’ (str): Camera type, used to name the database table.</p></li>
+<li><p><strong>img_paths</strong> (<em>list</em><em> of </em><em>str</em>) – Paths to image files.</p></li>
+<li><p><strong>source_folder</strong> (<em>str</em>) – Folder where the database is stored.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Must include ‘dataset’ and ‘cam_type’ keys.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – If there is an issue with the SQLite database operation.</p>
+<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – On database errors.</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The function assumes the existence of a helper function <cite>_map_wells_png</cite> to extract metadata
-from image file names.</p>
-<p>The database is created if it does not already exist.</p>
-<p>Data is appended to a table named based on the <cite>cam_type</cite> setting.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.activation_correlations_to_database">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">activation_correlations_to_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#activation_correlations_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.activation_correlations_to_database" title="Link to this definition"></a></dt>
-<dd><p>Saves activation correlation data to a SQLite database.</p>
-<p>This function processes a DataFrame containing activation correlation data and
-image paths, aligns the data, and stores it in a SQLite database. If the database
-does not exist, it creates one.</p>
+<dd><p>Save activation correlation data to a SQLite database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing activation correlation data.
-It must include a ‘file_name’ column to align with the image paths.</p></li>
-<li><p><strong>img_paths</strong> (<em>list</em>) – A list of image file paths.</p></li>
-<li><p><strong>source_folder</strong> (<em>str</em>) – The root folder where the database will be stored.</p></li>
-<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing configuration settings.
-Expected keys include:
-- ‘dataset’: The dataset file path (used to name the database).
-- ‘cam_type’: The camera type (used to name the database table).</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame with correlation data. Must include ‘file_name’.</p></li>
+<li><p><strong>img_paths</strong> (<em>list</em>) – List of image file paths.</p></li>
+<li><p><strong>source_folder</strong> (<em>str</em>) – Folder where the database is stored.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Must include ‘dataset’ and ‘cam_type’ keys.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – If there is an issue with the SQLite database
-operation, such as a timeout or write error.</p>
+<dd class="field-even"><p><strong>sqlite3.OperationalError</strong> – On database errors.</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The function assumes the existence of a helper function <cite>_map_wells_png</cite>
-to extract metadata from image file names.</p></li>
-<li><p>The <cite>_create_database</cite> function is used to initialize the database if it
-does not already exist.</p></li>
-<li><p>The resulting database table is named using the <cite>cam_type</cite> value from
-the <cite>settings</cite> dictionary, appended with “_correlations”.</p></li>
-</ul>
 </dd></dl>
 
 <dl class="py function">
