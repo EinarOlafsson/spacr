@@ -1201,11 +1201,6 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        sqlite3.OperationalError: On database connection or write errors.</span>
-
-<span class="sd">    Notes:</span>
-<span class="sd">        Uses `_map_wells_png` to extract metadata like plateID, rowID, columnID, fieldID.</span>
-<span class="sd">        Extra fields like time_id or prcfo may be included depending on `crop_mode`.</span>
-<span class="sd">        Data is saved in the &#39;png_list&#39; table of the database.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
 

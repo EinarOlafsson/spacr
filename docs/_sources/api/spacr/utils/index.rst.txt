@@ -30,12 +30,6 @@ Module Contents
 
    :raises sqlite3.OperationalError: On database connection or write errors.
 
-   .. rubric:: Notes
-
-   Uses `_map_wells_png` to extract metadata like plateID, rowID, columnID, fieldID.
-   Extra fields like time_id or prcfo may be included depending on `crop_mode`.
-   Data is saved in the 'png_list' table of the database.
-
 
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
 
