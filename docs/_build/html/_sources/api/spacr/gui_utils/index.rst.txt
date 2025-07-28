@@ -237,35 +237,27 @@ Module Contents
 
    Converts a dictionary of settings into a format suitable for GUI representation.
 
-   This function processes a given settings dictionary and maps its keys and values
-   to a standardized format for GUI components. It handles special cases for specific
-   keys and assigns appropriate GUI element types (e.g., combo boxes, checkboxes,
-   entry fields) based on the value type or predefined rules.
+   This function processes the input dictionary and maps each key-value pair
+   to a tuple that defines the appropriate GUI component type, options (if applicable),
+   and default value. It also handles special cases based on specific keys or data types.
 
-   :param settings: A dictionary containing key-value pairs of settings to be
-                    converted for GUI representation.
+   :param settings: A dictionary containing key-value pairs of settings to be converted.
    :type settings: dict
 
-   :returns: A dictionary where each key corresponds to a GUI element, and the value
-             is a tuple containing:
-
+   :returns: A dictionary where each key corresponds to a GUI element, and each value is a tuple:
              - The type of GUI element (e.g., 'combo', 'check', 'entry').
-             - A list of options for combo boxes or None for other types.
+             - A list of options for combo boxes or None.
              - The default or current value for the GUI element.
    :rtype: dict
 
-   .. rubric:: Special Cases
+   **Special Cases**:
+     - Keys like ``'metadata_type'``, ``'channels'``, and ``'model_type'`` have predefined options.
+     - Boolean values are rendered as checkboxes.
+     - Numeric values and strings are represented with entry fields.
+     - Lists are converted to stringified versions and shown as entry fields.
+     - ``None`` values default to entry fields.
 
-   - Certain keys (e.g., 'metadata_type', 'channels', 'model_type') have predefined
-     options and default values, which are handled explicitly.
-   - Boolean values are represented as checkboxes.
-   - Numeric values (int or float) and strings are represented as entry fields.
-   - Lists are converted to strings and represented as entry fields.
-   - None values are represented as entry fields.
-
-   .. rubric:: Example
-
-   **Input**::
+   **Example**::
 
        settings = {
            'metadata_type': 'cellvoyager',
@@ -275,8 +267,7 @@ Module Contents
            'custom_list': [1, 2, 3]
        }
 
-   **Output**::
-
+       # Output:
        {
            'channels': ('combo', ['[0,1,2,3,4,5,6,7,8]', '[0,1,2,3,4,5,6,7]', ...], '[0,1,2,3]'),
            'use_gpu': ('check', None, True),

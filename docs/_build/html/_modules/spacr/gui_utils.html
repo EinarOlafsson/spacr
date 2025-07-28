@@ -496,35 +496,27 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts a dictionary of settings into a format suitable for GUI representation.</span>
 
-<span class="sd">    This function processes a given settings dictionary and maps its keys and values</span>
-<span class="sd">    to a standardized format for GUI components. It handles special cases for specific</span>
-<span class="sd">    keys and assigns appropriate GUI element types (e.g., combo boxes, checkboxes, </span>
-<span class="sd">    entry fields) based on the value type or predefined rules.</span>
+<span class="sd">    This function processes the input dictionary and maps each key-value pair</span>
+<span class="sd">    to a tuple that defines the appropriate GUI component type, options (if applicable),</span>
+<span class="sd">    and default value. It also handles special cases based on specific keys or data types.</span>
 
-<span class="sd">    :param settings: A dictionary containing key-value pairs of settings to be </span>
-<span class="sd">                     converted for GUI representation.</span>
+<span class="sd">    :param settings: A dictionary containing key-value pairs of settings to be converted.</span>
 <span class="sd">    :type settings: dict</span>
 
-<span class="sd">    :returns: A dictionary where each key corresponds to a GUI element, and the value </span>
-<span class="sd">              is a tuple containing:</span>
-<span class="sd">              </span>
+<span class="sd">    :returns: A dictionary where each key corresponds to a GUI element, and each value is a tuple:</span>
 <span class="sd">              - The type of GUI element (e.g., &#39;combo&#39;, &#39;check&#39;, &#39;entry&#39;).</span>
-<span class="sd">              - A list of options for combo boxes or None for other types.</span>
+<span class="sd">              - A list of options for combo boxes or None.</span>
 <span class="sd">              - The default or current value for the GUI element.</span>
 <span class="sd">    :rtype: dict</span>
 
-<span class="sd">    .. rubric:: Special Cases</span>
+<span class="sd">    **Special Cases**:</span>
+<span class="sd">      - Keys like ``&#39;metadata_type&#39;``, ``&#39;channels&#39;``, and ``&#39;model_type&#39;`` have predefined options.</span>
+<span class="sd">      - Boolean values are rendered as checkboxes.</span>
+<span class="sd">      - Numeric values and strings are represented with entry fields.</span>
+<span class="sd">      - Lists are converted to stringified versions and shown as entry fields.</span>
+<span class="sd">      - ``None`` values default to entry fields.</span>
 
-<span class="sd">    - Certain keys (e.g., &#39;metadata_type&#39;, &#39;channels&#39;, &#39;model_type&#39;) have predefined</span>
-<span class="sd">      options and default values, which are handled explicitly.</span>
-<span class="sd">    - Boolean values are represented as checkboxes.</span>
-<span class="sd">    - Numeric values (int or float) and strings are represented as entry fields.</span>
-<span class="sd">    - Lists are converted to strings and represented as entry fields.</span>
-<span class="sd">    - None values are represented as entry fields.</span>
-
-<span class="sd">    .. rubric:: Example</span>
-
-<span class="sd">    **Input**::</span>
+<span class="sd">    **Example**::</span>
 
 <span class="sd">        settings = {</span>
 <span class="sd">            &#39;metadata_type&#39;: &#39;cellvoyager&#39;,</span>
@@ -534,8 +526,7 @@
 <span class="sd">            &#39;custom_list&#39;: [1, 2, 3]</span>
 <span class="sd">        }</span>
 
-<span class="sd">    **Output**::</span>
-
+<span class="sd">        # Output:</span>
 <span class="sd">        {</span>
 <span class="sd">            &#39;channels&#39;: (&#39;combo&#39;, [&#39;[0,1,2,3,4,5,6,7,8]&#39;, &#39;[0,1,2,3,4,5,6,7]&#39;, ...], &#39;[0,1,2,3]&#39;),</span>
 <span class="sd">            &#39;use_gpu&#39;: (&#39;check&#39;, None, True),</span>
