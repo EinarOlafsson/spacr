@@ -38,7 +38,20 @@ autoapi_options = [
     'special-members',
 ]
 autoapi_python_class_content = 'init'  # Only show class-level docs, skip module variables
-autoapi_ignore             = ['*/tests/*']
+
+autoapi_ignore = [
+    '*/tests/*',
+    '*/spacr/__main__.py',
+    '*/spacr/__init__.py',
+    '*/spacr/app_classify.py',
+    '*/spacr/app_mask.py',
+    '*/spacr/app_measure.py',
+    '*/spacr/app_sequencing.py',
+    '*/spacr/version.py',
+    '*/spacr/logger.py',
+    '*/spacr/logger.py',
+    '*/spacr/timelapse.py',
+]
 
 # -- Options for HTML output -------------------------------------------------
 html_theme      = 'sphinx_rtd_theme'
