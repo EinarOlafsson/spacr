@@ -3468,10 +3468,6 @@
 
 <span class="sd">    This module applies a dilated convolution followed by a spatial attention mechanism</span>
 <span class="sd">    to enhance input feature maps.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        dilated_conv1 (nn.Conv2d): Dilated 3×3 convolution layer. :no-index:</span>
-<span class="sd">        spatial_attention (nn.Conv2d): 1×1 convolution for spatial attention. :no-index:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3480,6 +3476,10 @@
 <span class="sd">        Args:</span>
 <span class="sd">            in_channels (int): Number of input channels.</span>
 <span class="sd">            out_channels (int): Number of output channels after convolution.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            dilated_conv1 (nn.Conv2d): Dilated 3×3 convolution layer.</span>
+<span class="sd">            spatial_attention (nn.Conv2d): 1×1 convolution for spatial attention.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MultiScaleBlockWithAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 <div class="viewcode-block" id="MultiScaleBlockWithAttention.dilated_conv1">

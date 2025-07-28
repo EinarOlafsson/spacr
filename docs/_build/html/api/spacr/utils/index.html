@@ -1894,10 +1894,19 @@ evaluation mode.</p>
 <p>A PyTorch module implementing a multi-scale convolutional block with spatial attention.</p>
 <p>This module applies a dilated convolution followed by a spatial attention mechanism
 to enhance input feature maps.</p>
+<p>Initialize the MultiScaleBlockWithAttention module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels</strong> (<em>int</em>) – Number of input channels.</p></li>
+<li><p><strong>out_channels</strong> (<em>int</em>) – Number of output channels after convolution.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.utils.MultiScaleBlockWithAttention.dilated_conv1">
 <span class="sig-name descname"><span class="pre">dilated_conv1</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#MultiScaleBlockWithAttention.dilated_conv1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.MultiScaleBlockWithAttention.dilated_conv1" title="Link to this definition"></a></dt>
-<dd><p>Dilated 3×3 convolution layer. :no-index:</p>
+<dd><p>Dilated 3×3 convolution layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>nn.Conv2d</p>
@@ -1908,7 +1917,7 @@ to enhance input feature maps.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.utils.MultiScaleBlockWithAttention.spatial_attention">
 <span class="sig-name descname"><span class="pre">spatial_attention</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#MultiScaleBlockWithAttention.spatial_attention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.MultiScaleBlockWithAttention.spatial_attention" title="Link to this definition"></a></dt>
-<dd><p>1×1 convolution for spatial attention. :no-index:</p>
+<dd><p>1×1 convolution for spatial attention.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>nn.Conv2d</p>
@@ -1916,15 +1925,6 @@ to enhance input feature maps.</p>
 </dl>
 </dd></dl>
 
-<p>Initialize the MultiScaleBlockWithAttention module.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>in_channels</strong> (<em>int</em>) – Number of input channels.</p></li>
-<li><p><strong>out_channels</strong> (<em>int</em>) – Number of output channels after convolution.</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id0">
 <span class="sig-name descname"><span class="pre">dilated_conv1</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#MultiScaleBlockWithAttention.dilated_conv1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>

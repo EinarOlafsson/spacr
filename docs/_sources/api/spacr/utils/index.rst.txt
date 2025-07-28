@@ -638,24 +638,24 @@ Module Contents
    This module applies a dilated convolution followed by a spatial attention mechanism
    to enhance input feature maps.
 
-   .. attribute:: dilated_conv1
-
-      Dilated 3×3 convolution layer. :no-index:
-
-      :type: nn.Conv2d
-
-   .. attribute:: spatial_attention
-
-      1×1 convolution for spatial attention. :no-index:
-
-      :type: nn.Conv2d
-
    Initialize the MultiScaleBlockWithAttention module.
 
    :param in_channels: Number of input channels.
    :type in_channels: int
    :param out_channels: Number of output channels after convolution.
    :type out_channels: int
+
+   .. attribute:: dilated_conv1
+
+      Dilated 3×3 convolution layer.
+
+      :type: nn.Conv2d
+
+   .. attribute:: spatial_attention
+
+      1×1 convolution for spatial attention.
+
+      :type: nn.Conv2d
 
 
    .. py:attribute:: dilated_conv1
