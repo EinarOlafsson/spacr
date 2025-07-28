@@ -36,3 +36,8 @@ This API reference documents all public classes, functions, and modules included
    api/spacr/submodules/index
    api/spacr/toxo/index
    api/spacr/utils/index
+
+GitHub Repository
+=================
+
+Visit the source code on GitHub: https://github.com/EinarOlafsson/spacr
