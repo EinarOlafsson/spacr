@@ -4287,34 +4287,34 @@
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.prepare_cellpose_dataset">[docs]</a>
 <span class="k">def</span> <span class="nf">prepare_cellpose_dataset</span><span class="p">(</span><span class="n">input_root</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">train_fraction</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Prepares a dataset for training Cellpose by organizing images and masks into</span>
-<span class="sd">    train and test subsets, with optional data augmentation.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        input_root (str): Path to the root directory containing subdirectories</span>
-<span class="sd">            with images and corresponding masks. Each subdirectory should have</span>
-<span class="sd">            a &quot;masks&quot; folder containing the mask files.</span>
-<span class="sd">        augment_data (bool, optional): If True, performs data augmentation to</span>
-<span class="sd">            increase the dataset size. Defaults to False.</span>
-<span class="sd">        train_fraction (float, optional): Fraction of the dataset to use for</span>
-<span class="sd">            training. The rest will be used for testing. Defaults to 0.8.</span>
-<span class="sd">        n_jobs (int, optional): Number of parallel processes to use for</span>
-<span class="sd">            processing the dataset. If None, uses the number of available CPUs</span>
-<span class="sd">            minus one. Defaults to None.</span>
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If no valid datasets with images and masks are found in the</span>
-<span class="sd">            input_root directory.</span>
-<span class="sd">    Notes:</span>
-<span class="sd">        - The function scans the input_root directory for subdirectories</span>
-<span class="sd">          containing images and masks, and organizes them into train and test</span>
-<span class="sd">          subsets.</span>
-<span class="sd">        - If augment_data is True, the dataset is augmented using predefined</span>
-<span class="sd">          augmentation methods (e.g., rotations and flips).</span>
-<span class="sd">        - The processed dataset is saved in a new directory named</span>
-<span class="sd">          &quot;cellpose_dataset&quot; within the input_root directory.</span>
-<span class="sd">    Example:</span>
-<span class="sd">        prepare_cellpose_dataset(&quot;/path/to/datasets&quot;, augment_data=True, train_fraction=0.75, n_jobs=4)</span>
+<span class="sd">    Prepare a training and testing dataset for Cellpose from multiple subdirectories containing TIFF images and corresponding masks.</span>
+
+<span class="sd">    This function scans all subfolders in `input_root` that contain a &quot;masks/&quot; directory, finds image-mask pairs,</span>
+<span class="sd">    and splits them into train/test sets. Optionally, it augments data using rotation and flipping to balance dataset sizes</span>
+<span class="sd">    across all datasets. All output is saved in a standardized format to a new &quot;cellpose_dataset/&quot; folder inside `input_root`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_root : str</span>
+<span class="sd">        Path to the folder containing one or more datasets. Each dataset should have a &#39;masks/&#39; subfolder with mask files</span>
+<span class="sd">        matching the TIFF filenames.</span>
+
+<span class="sd">    augment_data : bool, optional</span>
+<span class="sd">        If True, perform data augmentation (rotation/flipping) to increase or equalize the number of samples per dataset. </span>
+<span class="sd">        Default is False.</span>
+
+<span class="sd">    train_fraction : float, optional</span>
+<span class="sd">        Fraction of data to use for training. The rest will go to testing. Default is 0.8 (i.e., 80% train, 20% test).</span>
+
+<span class="sd">    n_jobs : int or None, optional</span>
+<span class="sd">        Number of parallel worker processes. If None, uses all available CPUs minus one.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        All output TIFFs are saved under `input_root/cellpose_dataset/train/` and `.../test/` folders with consistent naming.</span>
+<span class="sd">        A progress bar is printed to track the status of preprocessing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">print_progress</span>
 
     <span class="n">time_ls</span> <span class="o">=</span> <span class="p">[]</span>

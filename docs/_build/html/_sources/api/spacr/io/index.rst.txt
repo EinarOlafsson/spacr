@@ -747,38 +747,25 @@ Module Contents
 
 .. py:function:: prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None)
 
-   Prepares a dataset for training Cellpose by organizing images and masks into
-   train and test subsets, with optional data augmentation.
-   :param input_root: Path to the root directory containing subdirectories
-                      with images and corresponding masks. Each subdirectory should have
-                      a "masks" folder containing the mask files.
+   Prepare a training and testing dataset for Cellpose from multiple subdirectories containing TIFF images and corresponding masks.
+
+   This function scans all subfolders in `input_root` that contain a "masks/" directory, finds image-mask pairs,
+   and splits them into train/test sets. Optionally, it augments data using rotation and flipping to balance dataset sizes
+   across all datasets. All output is saved in a standardized format to a new "cellpose_dataset/" folder inside `input_root`.
+
+   :param input_root: Path to the folder containing one or more datasets. Each dataset should have a 'masks/' subfolder with mask files
+                      matching the TIFF filenames.
    :type input_root: str
-   :param augment_data: If True, performs data augmentation to
-                        increase the dataset size. Defaults to False.
+   :param augment_data: If True, perform data augmentation (rotation/flipping) to increase or equalize the number of samples per dataset.
+                        Default is False.
    :type augment_data: bool, optional
-   :param train_fraction: Fraction of the dataset to use for
-                          training. The rest will be used for testing. Defaults to 0.8.
+   :param train_fraction: Fraction of data to use for training. The rest will go to testing. Default is 0.8 (i.e., 80% train, 20% test).
    :type train_fraction: float, optional
-   :param n_jobs: Number of parallel processes to use for
-                  processing the dataset. If None, uses the number of available CPUs
-                  minus one. Defaults to None.
-   :type n_jobs: int, optional
+   :param n_jobs: Number of parallel worker processes. If None, uses all available CPUs minus one.
+   :type n_jobs: int or None, optional
 
-   :raises ValueError: If no valid datasets with images and masks are found in the
-       input_root directory.
-
-   .. rubric:: Notes
-
-   - The function scans the input_root directory for subdirectories
-     containing images and masks, and organizes them into train and test
-     subsets.
-   - If augment_data is True, the dataset is augmented using predefined
-     augmentation methods (e.g., rotations and flips).
-   - The processed dataset is saved in a new directory named
-     "cellpose_dataset" within the input_root directory.
-
-   .. rubric:: Example
-
-   prepare_cellpose_dataset("/path/to/datasets", augment_data=True, train_fraction=0.75, n_jobs=4)
+   :returns: All output TIFFs are saved under `input_root/cellpose_dataset/train/` and `.../test/` folders with consistent naming.
+             A progress bar is printed to track the status of preprocessing.
+   :rtype: None
 
 

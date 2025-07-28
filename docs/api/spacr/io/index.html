@@ -951,42 +951,29 @@ the original image is returned unchanged.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.prepare_cellpose_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">prepare_cellpose_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#prepare_cellpose_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.prepare_cellpose_dataset" title="Link to this definition"></a></dt>
-<dd><p>Prepares a dataset for training Cellpose by organizing images and masks into
-train and test subsets, with optional data augmentation.
-:param input_root: Path to the root directory containing subdirectories</p>
-<blockquote>
-<div><p>with images and corresponding masks. Each subdirectory should have
-a “masks” folder containing the mask files.</p>
-</div></blockquote>
+<dd><p>Prepare a training and testing dataset for Cellpose from multiple subdirectories containing TIFF images and corresponding masks.</p>
+<p>This function scans all subfolders in <cite>input_root</cite> that contain a “masks/” directory, finds image-mask pairs,
+and splits them into train/test sets. Optionally, it augments data using rotation and flipping to balance dataset sizes
+across all datasets. All output is saved in a standardized format to a new “cellpose_dataset/” folder inside <cite>input_root</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>augment_data</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, performs data augmentation to
-increase the dataset size. Defaults to False.</p></li>
-<li><p><strong>train_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of the dataset to use for
-training. The rest will be used for testing. Defaults to 0.8.</p></li>
-<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes to use for
-processing the dataset. If None, uses the number of available CPUs
-minus one. Defaults to None.</p></li>
+<li><p><strong>input_root</strong> (<em>str</em>) – Path to the folder containing one or more datasets. Each dataset should have a ‘masks/’ subfolder with mask files
+matching the TIFF filenames.</p></li>
+<li><p><strong>augment_data</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, perform data augmentation (rotation/flipping) to increase or equalize the number of samples per dataset.
+Default is False.</p></li>
+<li><p><strong>train_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of data to use for training. The rest will go to testing. Default is 0.8 (i.e., 80% train, 20% test).</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Number of parallel worker processes. If None, uses all available CPUs minus one.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If no valid datasets with images and masks are found in the
-input_root directory.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>All output TIFFs are saved under <cite>input_root/cellpose_dataset/train/</cite> and <cite>…/test/</cite> folders with consistent naming.
+A progress bar is printed to track the status of preprocessing.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The function scans the input_root directory for subdirectories
-containing images and masks, and organizes them into train and test
-subsets.</p></li>
-<li><p>If augment_data is True, the dataset is augmented using predefined
-augmentation methods (e.g., rotations and flips).</p></li>
-<li><p>The processed dataset is saved in a new directory named
-“cellpose_dataset” within the input_root directory.</p></li>
-</ul>
-<p class="rubric">Example</p>
-<p>prepare_cellpose_dataset(“/path/to/datasets”, augment_data=True, train_fraction=0.75, n_jobs=4)</p>
 </dd></dl>
 
 </section>
