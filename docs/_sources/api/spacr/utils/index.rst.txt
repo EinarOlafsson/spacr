@@ -33,18 +33,6 @@ Module Contents
 
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
 
-   Store image paths and metadata in a SQLite database.
-
-   :param img_paths: Paths to image files.
-   :type img_paths: list of str
-   :param source_folder: Folder where the database is stored.
-   :type source_folder: str
-   :param settings: Must include 'dataset' and 'cam_type' keys.
-   :type settings: dict
-
-   :raises sqlite3.OperationalError: On database errors.
-
-
 .. py:function:: activation_correlations_to_database(df, img_paths, source_folder, settings)
 
    Save activation correlation data to a SQLite database.

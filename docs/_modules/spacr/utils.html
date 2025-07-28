@@ -1241,17 +1241,7 @@
 <div class="viewcode-block" id="activation_maps_to_database">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.activation_maps_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">activation_maps_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Store image paths and metadata in a SQLite database.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        img_paths (list of str): Paths to image files.</span>
-<span class="sd">        source_folder (str): Folder where the database is stored.</span>
-<span class="sd">        settings (dict): Must include &#39;dataset&#39; and &#39;cam_type&#39; keys.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        sqlite3.OperationalError: On database errors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span>
 
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
