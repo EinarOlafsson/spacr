@@ -4787,14 +4787,14 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.apply_mask">[docs]</a>
 <span class="k">def</span> <span class="nf">apply_mask</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">output_value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Applies a circular mask to the given image, setting pixels outside the mask to a specified output value.</span>
-<span class="sd">    Parameters:</span>
-<span class="sd">        image (numpy.ndarray): The input image, which can be a grayscale or RGB image. </span>
-<span class="sd">                               It should be a 2D array for grayscale or a 3D array for RGB.</span>
-<span class="sd">        output_value (int, optional): The value to assign to pixels outside the circular mask. </span>
-<span class="sd">                                      Defaults to 0.</span>
+<span class="sd">    Apply a circular mask to an image, setting pixels outside the mask to a specified value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (np.ndarray): Input image (2D grayscale or 3D RGB array).</span>
+<span class="sd">        output_value (int, optional): Value for pixels outside the mask. Defaults to 0.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        numpy.ndarray: The masked image, where pixels outside the circular mask are set to `output_value`.</span>
+<span class="sd">        np.ndarray: Image with circular mask applied.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Assuming image is grayscale or RGB</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">create_circular_mask</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>

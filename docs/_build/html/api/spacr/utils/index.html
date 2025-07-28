@@ -2751,21 +2751,19 @@ distance from the center to the array’s edges.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.apply_mask">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">apply_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#apply_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.apply_mask" title="Link to this definition"></a></dt>
-<dd><p>Applies a circular mask to the given image, setting pixels outside the mask to a specified output value.
-:param image: The input image, which can be a grayscale or RGB image.</p>
-<blockquote>
-<div><p>It should be a 2D array for grayscale or a 3D array for RGB.</p>
-</div></blockquote>
+<dd><p>Apply a circular mask to an image, setting pixels outside the mask to a specified value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>output_value</strong> (<em>int</em><em>, </em><em>optional</em>) – The value to assign to pixels outside the circular mask.
-Defaults to 0.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>np.ndarray</em>) – Input image (2D grayscale or 3D RGB array).</p></li>
+<li><p><strong>output_value</strong> (<em>int</em><em>, </em><em>optional</em>) – Value for pixels outside the mask. Defaults to 0.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The masked image, where pixels outside the circular mask are set to <cite>output_value</cite>.</p>
+<dd class="field-even"><p>Image with circular mask applied.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>

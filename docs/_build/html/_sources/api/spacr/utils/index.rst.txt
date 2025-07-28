@@ -1344,16 +1344,15 @@ Module Contents
 
 .. py:function:: apply_mask(image, output_value=0)
 
-   Applies a circular mask to the given image, setting pixels outside the mask to a specified output value.
-   :param image: The input image, which can be a grayscale or RGB image.
-                 It should be a 2D array for grayscale or a 3D array for RGB.
-   :type image: numpy.ndarray
-   :param output_value: The value to assign to pixels outside the circular mask.
-                        Defaults to 0.
+   Apply a circular mask to an image, setting pixels outside the mask to a specified value.
+
+   :param image: Input image (2D grayscale or 3D RGB array).
+   :type image: np.ndarray
+   :param output_value: Value for pixels outside the mask. Defaults to 0.
    :type output_value: int, optional
 
-   :returns: The masked image, where pixels outside the circular mask are set to `output_value`.
-   :rtype: numpy.ndarray
+   :returns: Image with circular mask applied.
+   :rtype: np.ndarray
 
 
 .. py:function:: invert_image(image)
