@@ -375,7 +375,7 @@ Module Contents
    :raises None: All exceptions are handled internally and logged to the queue.
 
 
-.. py:function:: download_darun_function_guitaset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5)
+.. py:function:: download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5)
 
    Downloads a dataset or settings files from Hugging Face and returns the local path.
 
