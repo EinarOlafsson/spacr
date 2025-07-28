@@ -1188,6 +1188,26 @@
 <div class="viewcode-block" id="filepaths_to_database">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.filepaths_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">filepaths_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">crop_mode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inserts image file paths and their associated metadata into a SQLite database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        img_paths (list of str): List of image file paths to be processed.</span>
+<span class="sd">        settings (dict): Dictionary containing configuration settings. </span>
+<span class="sd">                         Must include a &#39;timelapse&#39; key (boolean) to indicate if timelapse data is used.</span>
+<span class="sd">        source_folder (str): Path to the source folder containing the database.</span>
+<span class="sd">        crop_mode (str): Specifies the cropping mode. Can be one of the following:</span>
+<span class="sd">                         &#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;, or &#39;cytoplasm&#39;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        sqlite3.OperationalError: If there is an issue connecting to or writing to the SQLite database.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function extracts metadata from the file names using `_map_wells_png`.</span>
+<span class="sd">        - Metadata columns include &#39;plateID&#39;, &#39;rowID&#39;, &#39;columnID&#39;, &#39;fieldID&#39;, and optionally </span>
+<span class="sd">          &#39;time_id&#39;, &#39;prcfo&#39;, and crop-specific IDs based on the `crop_mode`.</span>
+<span class="sd">        - The metadata and file paths are stored in a table named &#39;png_list&#39; in the SQLite database.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
 
@@ -1228,6 +1248,25 @@
 <div class="viewcode-block" id="activation_maps_to_database">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.activation_maps_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">activation_maps_to_database</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes a list of image paths, extracts metadata, and stores the data in a SQLite database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        img_paths (list of str): List of file paths to the images.</span>
+<span class="sd">        source_folder (str): Path to the source folder where the database will be stored.</span>
+<span class="sd">        settings (dict): Dictionary containing configuration settings. Expected keys:</span>
+<span class="sd">            - &#39;dataset&#39; (str): Path to the dataset file, used to name the database.</span>
+<span class="sd">            - &#39;cam_type&#39; (str): Camera type, used to name the database table.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        sqlite3.OperationalError: If there is an issue with the SQLite database operation.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function assumes the existence of a helper function `_map_wells_png` to extract metadata</span>
+<span class="sd">          from image file names.</span>
+<span class="sd">        - The database is created if it does not already exist.</span>
+<span class="sd">        - Data is appended to a table named based on the `cam_type` setting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span>
 
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
@@ -1254,6 +1293,35 @@
 <div class="viewcode-block" id="activation_correlations_to_database">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.activation_correlations_to_database">[docs]</a>
 <span class="k">def</span> <span class="nf">activation_correlations_to_database</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">img_paths</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves activation correlation data to a SQLite database.</span>
+
+<span class="sd">    This function processes a DataFrame containing activation correlation data and </span>
+<span class="sd">    image paths, aligns the data, and stores it in a SQLite database. If the database </span>
+<span class="sd">    does not exist, it creates one.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): A DataFrame containing activation correlation data. </span>
+<span class="sd">            It must include a &#39;file_name&#39; column to align with the image paths.</span>
+<span class="sd">        img_paths (list): A list of image file paths.</span>
+<span class="sd">        source_folder (str): The root folder where the database will be stored.</span>
+<span class="sd">        settings (dict): A dictionary containing configuration settings. </span>
+<span class="sd">            Expected keys include:</span>
+<span class="sd">            - &#39;dataset&#39;: The dataset file path (used to name the database).</span>
+<span class="sd">            - &#39;cam_type&#39;: The camera type (used to name the database table).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        sqlite3.OperationalError: If there is an issue with the SQLite database </span>
+<span class="sd">            operation, such as a timeout or write error.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function assumes the existence of a helper function `_map_wells_png` </span>
+<span class="sd">          to extract metadata from image file names.</span>
+<span class="sd">        - The `_create_database` function is used to initialize the database if it </span>
+<span class="sd">          does not already exist.</span>
+<span class="sd">        - The resulting database table is named using the `cam_type` value from </span>
+<span class="sd">          the `settings` dictionary, appended with &quot;_correlations&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_create_database</span>
 
     <span class="n">png_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">img_paths</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;png_path&#39;</span><span class="p">])</span>
@@ -1452,6 +1520,35 @@
 <div class="viewcode-block" id="save_settings">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.save_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save a dictionary of settings to a CSV file.</span>
+<span class="sd">    This function takes a dictionary of settings, processes it, and saves it </span>
+<span class="sd">    as a CSV file in a specified directory. It also provides an option to </span>
+<span class="sd">    display the settings as a DataFrame.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing the settings to be saved.</span>
+<span class="sd">        name (str, optional): The base name for the output CSV file. Defaults to &#39;settings&#39;.</span>
+<span class="sd">        show (bool, optional): If True, displays the settings as a DataFrame. Defaults to False.</span>
+<span class="sd">    Behavior:</span>
+<span class="sd">        - If the &#39;src&#39; key in the settings dictionary is a list, the first element </span>
+<span class="sd">          is used as the source directory, and the file name is appended with &#39;_list&#39;.</span>
+<span class="sd">        - If the &#39;test_mode&#39; key exists in the settings dictionary, it is set to False.</span>
+<span class="sd">        - If the &#39;plot&#39; key exists in the settings dictionary, it is set to False.</span>
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Creates a directory named &#39;settings&#39; inside the source directory if it does not exist.</span>
+<span class="sd">        - Saves the settings as a CSV file in the &#39;settings&#39; directory.</span>
+<span class="sd">        - Prints the file path where the settings are saved.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If the &#39;src&#39; key is not present in the settings dictionary.</span>
+<span class="sd">    Example:</span>
+<span class="sd">        settings = {</span>
+<span class="sd">            &#39;src&#39;: &#39;/path/to/source&#39;,</span>
+<span class="sd">            &#39;test_mode&#39;: True,</span>
+<span class="sd">            &#39;plot&#39;: True,</span>
+<span class="sd">            &#39;param1&#39;: 42</span>
+<span class="sd">        }</span>
+<span class="sd">        save_settings(settings, name=&#39;experiment1&#39;, show=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">settings_2</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     
@@ -1481,6 +1578,33 @@
 <div class="viewcode-block" id="print_progress">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.print_progress">[docs]</a>
 <span class="k">def</span> <span class="nf">print_progress</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="n">files_to_process</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">time_ls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the progress of a file processing operation along with estimated time information.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        files_processed (int or list): The number of files processed so far. If a list is provided, </span>
+<span class="sd">            its unique length will be used.</span>
+<span class="sd">        files_to_process (int or list): The total number of files to process. If a list is provided, </span>
+<span class="sd">            its unique length will be used.</span>
+<span class="sd">        n_jobs (int): The number of parallel jobs being used for processing.</span>
+<span class="sd">        time_ls (list, optional): A list of time durations for processing batches or files. Used to </span>
+<span class="sd">            calculate average time and estimated time left. Defaults to None.</span>
+<span class="sd">        batch_size (int or list, optional): The size of each batch being processed. If a list is </span>
+<span class="sd">            provided, its length will be used. Defaults to None.</span>
+<span class="sd">        operation_type (str, optional): A string describing the type of operation being performed. </span>
+<span class="sd">            Defaults to an empty string.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None: This function prints the progress and time information to the console.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If `time_ls` is provided, the function calculates the average time per batch or file and </span>
+<span class="sd">          estimates the time remaining for the operation.</span>
+<span class="sd">        - If `batch_size` is provided, the function calculates the average time per image within </span>
+<span class="sd">          a batch.</span>
+<span class="sd">        - Handles cases where inputs are lists or non-integer types by converting them to integers </span>
+<span class="sd">          or calculating their lengths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_processed</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">files_processed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files_processed</span><span class="p">))</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files_to_process</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -1516,6 +1640,20 @@
 <div class="viewcode-block" id="reset_mp">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.reset_mp">[docs]</a>
 <span class="k">def</span> <span class="nf">reset_mp</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resets the multiprocessing start method based on the operating system.</span>
+<span class="sd">    On Windows, the start method is set to &#39;spawn&#39; if it is not already set.</span>
+<span class="sd">    On Linux and macOS (Darwin), the start method is set to &#39;fork&#39; if it is not already set.</span>
+<span class="sd">    This function ensures compatibility with the multiprocessing module by</span>
+<span class="sd">    enforcing the appropriate start method for the current platform.</span>
+<span class="sd">    Note:</span>
+<span class="sd">        - The function uses `get_start_method` to retrieve the current start method.</span>
+<span class="sd">        - The `set_start_method` function is called with `force=True` to override</span>
+<span class="sd">          the existing start method if necessary.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If an invalid start method is encountered or if the start</span>
+<span class="sd">                    method cannot be set for some reason.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">current_method</span> <span class="o">=</span> <span class="n">get_start_method</span><span class="p">()</span>
     <span class="n">system</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
     
@@ -1530,6 +1668,23 @@
 <div class="viewcode-block" id="is_multiprocessing_process">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.is_multiprocessing_process">[docs]</a>
 <span class="k">def</span> <span class="nf">is_multiprocessing_process</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the given process is a multiprocessing process.</span>
+
+<span class="sd">    This function examines the command-line arguments of the provided process</span>
+<span class="sd">    to determine if it is associated with Python&#39;s multiprocessing module.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        process (psutil.Process): A psutil Process object representing the process to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the process is a multiprocessing process, False otherwise.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        psutil.NoSuchProcess: If the process no longer exists.</span>
+<span class="sd">        psutil.AccessDenied: If access to the process information is denied.</span>
+<span class="sd">        psutil.ZombieProcess: If the process is a zombie process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Check if the process is a multiprocessing process. &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">cmdline</span><span class="p">():</span>
@@ -1543,6 +1698,24 @@
 <div class="viewcode-block" id="close_file_descriptors">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.close_file_descriptors">[docs]</a>
 <span class="k">def</span> <span class="nf">close_file_descriptors</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Closes all open file descriptors starting from 3 up to the soft limit </span>
+<span class="sd">    of the maximum number of file descriptors allowed for the process.</span>
+
+<span class="sd">    This function is useful for cleaning up resources by ensuring that </span>
+<span class="sd">    no unnecessary file descriptors remain open. It skips standard input, </span>
+<span class="sd">    output, and error (file descriptors 0, 1, and 2).</span>
+
+<span class="sd">    Exceptions during the closing of file descriptors are caught and ignored.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The function uses the `resource` module to retrieve the soft limit </span>
+<span class="sd">        for the maximum number of file descriptors.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        OSError: If an error occurs while closing a file descriptor, it is </span>
+<span class="sd">        caught and ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Close file descriptors and shared memory objects. &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">resource</span>
 
@@ -1557,6 +1730,23 @@
 <div class="viewcode-block" id="close_multiprocessing_processes">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.close_multiprocessing_processes">[docs]</a>
 <span class="k">def</span> <span class="nf">close_multiprocessing_processes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Close all multiprocessing processes and clean up associated resources.</span>
+<span class="sd">    This function iterates through all running processes and terminates any</span>
+<span class="sd">    that are identified as multiprocessing processes, excluding the current</span>
+<span class="sd">    process. It waits for up to 5 seconds for each process to terminate and</span>
+<span class="sd">    logs the termination status. Additionally, it handles exceptions that may</span>
+<span class="sd">    occur during the termination process, such as access denial or the process</span>
+<span class="sd">    no longer existing.</span>
+<span class="sd">    After terminating the processes, it ensures that any open file descriptors</span>
+<span class="sd">    are properly closed.</span>
+<span class="sd">    Note:</span>
+<span class="sd">        This function relies on the `psutil` library to inspect and manage</span>
+<span class="sd">        processes, and assumes the existence of helper functions:</span>
+<span class="sd">        - `is_multiprocessing_process(proc)`: Determines if a process is a</span>
+<span class="sd">          multiprocessing process.</span>
+<span class="sd">        - `close_file_descriptors()`: Closes any open file descriptors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Close all multiprocessing processes. &quot;&quot;&quot;</span>
     <span class="n">current_pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">process_iter</span><span class="p">([</span><span class="s1">&#39;pid&#39;</span><span class="p">,</span> <span class="s1">&#39;cmdline&#39;</span><span class="p">]):</span>
@@ -1581,6 +1771,28 @@
 <div class="viewcode-block" id="check_mask_folder">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.check_mask_folder">[docs]</a>
 <span class="k">def</span> <span class="nf">check_mask_folder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="n">mask_fldr</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_mask_folder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">mask_fldr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks the status of a mask folder within a given source directory.</span>
+<span class="sd">        This function verifies whether the specified mask folder exists and </span>
+<span class="sd">        whether the number of mask files matches the number of stack files </span>
+<span class="sd">        in the corresponding stack folder. It returns a boolean indicating </span>
+<span class="sd">        whether further processing is needed.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            src (str): The source directory containing the &#39;masks&#39; and &#39;stack&#39; subdirectories.</span>
+<span class="sd">            mask_fldr (str): The name of the mask folder to check within the &#39;masks&#39; directory.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: </span>
+<span class="sd">                - True if the mask folder does not exist or if the number of mask files </span>
+<span class="sd">                  does not match the number of stack files.</span>
+<span class="sd">                - False if the mask folder exists and all masks have been generated.</span>
+<span class="sd">        Side Effects:</span>
+<span class="sd">            Prints a message if all masks have been generated for the specified mask folder.</span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; check_mask_folder(&#39;/home/user/data&#39;, &#39;experiment1&#39;)</span>
+<span class="sd">            All masks have been generated for experiment1</span>
+<span class="sd">            False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
     
     <span class="n">mask_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;masks&#39;</span><span class="p">,</span><span class="n">mask_fldr</span><span class="p">)</span>
     <span class="n">stack_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="s1">&#39;stack&#39;</span><span class="p">)</span>
@@ -1601,6 +1813,17 @@
 <div class="viewcode-block" id="smooth_hull_lines">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.smooth_hull_lines">[docs]</a>
 <span class="k">def</span> <span class="nf">smooth_hull_lines</span><span class="p">(</span><span class="n">cluster_data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Smooths the convex hull of a set of 2D points using spline interpolation.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        cluster_data (numpy.ndarray): A 2D array of shape (n_points, 2) representing </span>
+<span class="sd">                                       the coordinates of the points in the cluster.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: Two 1D numpy arrays representing the x and y coordinates of the smoothed </span>
+<span class="sd">               convex hull, respectively. Each array contains 100 points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">hull</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">cluster_data</span><span class="p">)</span>
     <span class="c1"># Extract vertices of the hull</span>
     <span class="n">vertices</span> <span class="o">=</span> <span class="n">hull</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">hull</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
@@ -1631,6 +1854,27 @@
     <span class="k">return</span> <span class="n">rgb_image</span>
 
 <span class="k">def</span> <span class="nf">_outline_and_overlay</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">rgb_image</span><span class="p">,</span> <span class="n">mask_dims</span><span class="p">,</span> <span class="n">outline_colors</span><span class="p">,</span> <span class="n">outline_thickness</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate outlines for specified mask dimensions and overlay them onto an RGB image.</span>
+
+<span class="sd">    This function processes a multi-dimensional mask to extract contours for each specified</span>
+<span class="sd">    dimension, creates outlines with specified thickness, and overlays these outlines onto</span>
+<span class="sd">    the provided RGB image using the given colors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (numpy.ndarray): The input image containing multi-dimensional masks.</span>
+<span class="sd">        rgb_image (numpy.ndarray): The RGB image onto which the outlines will be overlaid.</span>
+<span class="sd">        mask_dims (list[int]): A list of dimensions (indices) in the mask to process.</span>
+<span class="sd">        outline_colors (list[tuple[int, int, int]]): A list of RGB color tuples for the outlines.</span>
+<span class="sd">        outline_thickness (int): The thickness of the outlines to be drawn.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - overlayed_image (numpy.ndarray): The RGB image with outlines overlaid.</span>
+<span class="sd">            - outlines (list[numpy.ndarray]): A list of binary masks representing the outlines</span>
+<span class="sd">              for each processed dimension.</span>
+<span class="sd">            - image (numpy.ndarray): The original input image (unchanged).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">outlines</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">overlayed_image</span> <span class="o">=</span> <span class="n">rgb_image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -1687,6 +1931,20 @@
     <span class="k">return</span> <span class="n">well_format</span>
 
 <span class="k">def</span> <span class="nf">_get_cellpose_batch_size</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines the appropriate batch size for Cellpose based on the available GPU&#39;s VRAM.</span>
+
+<span class="sd">    This function checks if CUDA is available and retrieves the VRAM (Video RAM) of the first GPU device.</span>
+<span class="sd">    Based on the VRAM size, it assigns a batch size for Cellpose processing. If CUDA is not available</span>
+<span class="sd">    or an error occurs, a default batch size of 8 is returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: The batch size for Cellpose. Possible values are:</span>
+<span class="sd">             - 8 (default or if VRAM &lt; 8 GB)</span>
+<span class="sd">             - 16 (if 8 GB &lt;= VRAM &lt; 12 GB)</span>
+<span class="sd">             - 48 (if 12 GB &lt;= VRAM &lt; 24 GB)</span>
+<span class="sd">             - 96 (if VRAM &gt;= 24 GB)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Check if CUDA is available</span>
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
@@ -1709,6 +1967,32 @@
         <span class="k">return</span> <span class="mi">8</span>
 
 <span class="k">def</span> <span class="nf">_extract_filename_metadata</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">regular_expression</span><span class="p">,</span> <span class="n">metadata_type</span><span class="o">=</span><span class="s1">&#39;cellvoyager&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts metadata from a list of filenames based on a provided regular expression</span>
+<span class="sd">    and organizes the files into a dictionary grouped by metadata keys.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filenames (list of str): A list of filenames to process.</span>
+<span class="sd">        src (str): The source directory containing the files.</span>
+<span class="sd">        regular_expression (re.Pattern): A compiled regular expression used to extract metadata</span>
+<span class="sd">            from the filenames. The regex should define named groups such as &#39;plateID&#39;, &#39;wellID&#39;,</span>
+<span class="sd">            &#39;fieldID&#39;, &#39;chanID&#39;, &#39;timeID&#39;, and &#39;sliceID&#39; as applicable.</span>
+<span class="sd">        metadata_type (str, optional): The type of metadata to process. Defaults to &#39;cellvoyager&#39;.</span>
+<span class="sd">            If set to &#39;cq1&#39;, well IDs will be converted using `_convert_cq1_well_id`.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        defaultdict: A dictionary where keys are tuples of metadata values </span>
+<span class="sd">        (plate, well, field, channel, timeID, sliceID), and values are lists of file paths</span>
+<span class="sd">        corresponding to those metadata keys.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        IndexError: If the filename matches the regex but does not contain the expected groups.</span>
+<span class="sd">        Prints warnings for filenames that do not match the regex or fail to extract metadata.</span>
+<span class="sd">    Notes:</span>
+<span class="sd">        - The function assumes that the provided regular expression includes named groups</span>
+<span class="sd">          for extracting metadata.</span>
+<span class="sd">        - If a metadata group (e.g., &#39;timeID&#39; or &#39;sliceID&#39;) is not present in the regex,</span>
+<span class="sd">          its value will be set to `None`.</span>
+<span class="sd">        - The function handles numeric metadata values by converting them to integers</span>
+<span class="sd">          where applicable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">images_by_key</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
@@ -2337,6 +2621,35 @@
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">diamiter</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">_get_object_settings</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate and return a dictionary of settings for a specific object type.</span>
+<span class="sd">    This function configures object-specific settings based on the provided</span>
+<span class="sd">    `object_type` and `settings`. It supports three object types: &#39;cell&#39;,</span>
+<span class="sd">    &#39;nucleus&#39;, and &#39;pathogen&#39;. If an unsupported object type is provided, </span>
+<span class="sd">    a message is printed, and no settings are returned.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        object_type (str): The type of object to configure settings for. </span>
+<span class="sd">                           Supported values are &#39;cell&#39;, &#39;nucleus&#39;, and &#39;pathogen&#39;.</span>
+<span class="sd">        settings (dict): A dictionary containing global settings, which may include:</span>
+<span class="sd">            - &#39;magnification&#39; (float): Magnification level used to calculate diameter.</span>
+<span class="sd">            - &#39;nucleus_channel&#39; (optional): Specifies if a nucleus channel is present.</span>
+<span class="sd">            - &#39;cell_restore_type&#39; (optional): Restore type for cell objects.</span>
+<span class="sd">            - &#39;nucleus_restore_type&#39; (optional): Restore type for nucleus objects.</span>
+<span class="sd">            - &#39;pathogen_restore_type&#39; (optional): Restore type for pathogen objects.</span>
+<span class="sd">            - &#39;merge_pathogens&#39; (bool): Whether to merge pathogens.</span>
+<span class="sd">            - &#39;verbose&#39; (bool): Whether to print the generated settings.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing the configured settings for the specified object type.</span>
+<span class="sd">              The dictionary includes keys such as &#39;diameter&#39;, &#39;minimum_size&#39;, &#39;maximum_size&#39;,</span>
+<span class="sd">              &#39;merge&#39;, &#39;resample&#39;, &#39;remove_border_objects&#39;, &#39;model_name&#39;, &#39;filter_size&#39;,</span>
+<span class="sd">              &#39;filter_intensity&#39;, and &#39;restore_type&#39;.</span>
+<span class="sd">    Notes:</span>
+<span class="sd">        - The &#39;diameter&#39; is calculated using the `_get_diam` function based on the </span>
+<span class="sd">          magnification level and object type.</span>
+<span class="sd">        - The &#39;minimum_size&#39; and &#39;maximum_size&#39; are derived from the diameter.</span>
+<span class="sd">        - The &#39;model_name&#39; varies depending on the object type and other settings.</span>
+<span class="sd">        - If `settings[&#39;verbose&#39;]` is True, the generated settings are printed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">object_settings</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">object_settings</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_diam</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;magnification&#39;</span><span class="p">],</span> <span class="n">obj</span><span class="o">=</span><span class="n">object_type</span><span class="p">)</span>

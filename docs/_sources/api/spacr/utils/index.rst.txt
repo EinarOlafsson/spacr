@@ -17,9 +17,85 @@ Module Contents
 
 .. py:function:: filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
+   Inserts image file paths and their associated metadata into a SQLite database.
+
+   :param img_paths: List of image file paths to be processed.
+   :type img_paths: list of str
+   :param settings: Dictionary containing configuration settings.
+                    Must include a 'timelapse' key (boolean) to indicate if timelapse data is used.
+   :type settings: dict
+   :param source_folder: Path to the source folder containing the database.
+   :type source_folder: str
+   :param crop_mode: Specifies the cropping mode. Can be one of the following:
+                     'cell', 'nucleus', 'pathogen', or 'cytoplasm'.
+   :type crop_mode: str
+
+   :raises sqlite3.OperationalError: If there is an issue connecting to or writing to the SQLite database.
+
+   .. rubric:: Notes
+
+   - The function extracts metadata from the file names using `_map_wells_png`.
+   - Metadata columns include 'plateID', 'rowID', 'columnID', 'fieldID', and optionally
+     'time_id', 'prcfo', and crop-specific IDs based on the `crop_mode`.
+   - The metadata and file paths are stored in a table named 'png_list' in the SQLite database.
+
+
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
 
+   Processes a list of image paths, extracts metadata, and stores the data in a SQLite database.
+
+   :param img_paths: List of file paths to the images.
+   :type img_paths: list of str
+   :param source_folder: Path to the source folder where the database will be stored.
+   :type source_folder: str
+   :param settings: Dictionary containing configuration settings. Expected keys:
+                    - 'dataset' (str): Path to the dataset file, used to name the database.
+                    - 'cam_type' (str): Camera type, used to name the database table.
+   :type settings: dict
+
+   :raises sqlite3.OperationalError: If there is an issue with the SQLite database operation.
+
+   .. rubric:: Notes
+
+   - The function assumes the existence of a helper function `_map_wells_png` to extract metadata
+     from image file names.
+   - The database is created if it does not already exist.
+   - Data is appended to a table named based on the `cam_type` setting.
+
+
 .. py:function:: activation_correlations_to_database(df, img_paths, source_folder, settings)
+
+   Saves activation correlation data to a SQLite database.
+
+   This function processes a DataFrame containing activation correlation data and
+   image paths, aligns the data, and stores it in a SQLite database. If the database
+   does not exist, it creates one.
+
+   :param df: A DataFrame containing activation correlation data.
+              It must include a 'file_name' column to align with the image paths.
+   :type df: pd.DataFrame
+   :param img_paths: A list of image file paths.
+   :type img_paths: list
+   :param source_folder: The root folder where the database will be stored.
+   :type source_folder: str
+   :param settings: A dictionary containing configuration settings.
+                    Expected keys include:
+                    - 'dataset': The dataset file path (used to name the database).
+                    - 'cam_type': The camera type (used to name the database table).
+   :type settings: dict
+
+   :raises sqlite3.OperationalError: If there is an issue with the SQLite database
+       operation, such as a timeout or write error.
+
+   .. rubric:: Notes
+
+   - The function assumes the existence of a helper function `_map_wells_png`
+     to extract metadata from image file names.
+   - The `_create_database` function is used to initialize the database if it
+     does not already exist.
+   - The resulting database table is named using the `cam_type` value from
+     the `settings` dictionary, appended with "_correlations".
+
 
 .. py:function:: calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=[15, 50, 75])
 
@@ -57,28 +133,165 @@ Module Contents
 
 .. py:function:: save_settings(settings, name='settings', show=False)
 
+   Save a dictionary of settings to a CSV file.
+   This function takes a dictionary of settings, processes it, and saves it
+   as a CSV file in a specified directory. It also provides an option to
+   display the settings as a DataFrame.
+   :param settings: A dictionary containing the settings to be saved.
+   :type settings: dict
+   :param name: The base name for the output CSV file. Defaults to 'settings'.
+   :type name: str, optional
+   :param show: If True, displays the settings as a DataFrame. Defaults to False.
+   :type show: bool, optional
+
+   Behavior:
+       - If the 'src' key in the settings dictionary is a list, the first element
+         is used as the source directory, and the file name is appended with '_list'.
+       - If the 'test_mode' key exists in the settings dictionary, it is set to False.
+       - If the 'plot' key exists in the settings dictionary, it is set to False.
+   Side Effects:
+       - Creates a directory named 'settings' inside the source directory if it does not exist.
+       - Saves the settings as a CSV file in the 'settings' directory.
+       - Prints the file path where the settings are saved.
+   :raises KeyError: If the 'src' key is not present in the settings dictionary.
+
+   .. rubric:: Example
+
+   settings = {
+       'src': '/path/to/source',
+       'test_mode': True,
+       'plot': True,
+       'param1': 42
+   }
+   save_settings(settings, name='experiment1', show=True)
+
+
 .. py:function:: print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type='')
+
+   Prints the progress of a file processing operation along with estimated time information.
+
+   :param files_processed: The number of files processed so far. If a list is provided,
+                           its unique length will be used.
+   :type files_processed: int or list
+   :param files_to_process: The total number of files to process. If a list is provided,
+                            its unique length will be used.
+   :type files_to_process: int or list
+   :param n_jobs: The number of parallel jobs being used for processing.
+   :type n_jobs: int
+   :param time_ls: A list of time durations for processing batches or files. Used to
+                   calculate average time and estimated time left. Defaults to None.
+   :type time_ls: list, optional
+   :param batch_size: The size of each batch being processed. If a list is
+                      provided, its length will be used. Defaults to None.
+   :type batch_size: int or list, optional
+   :param operation_type: A string describing the type of operation being performed.
+                          Defaults to an empty string.
+   :type operation_type: str, optional
+
+   :returns: This function prints the progress and time information to the console.
+   :rtype: None
+
+   .. rubric:: Notes
+
+   - If `time_ls` is provided, the function calculates the average time per batch or file and
+     estimates the time remaining for the operation.
+   - If `batch_size` is provided, the function calculates the average time per image within
+     a batch.
+   - Handles cases where inputs are lists or non-integer types by converting them to integers
+     or calculating their lengths.
+
 
 .. py:function:: reset_mp()
 
+   Resets the multiprocessing start method based on the operating system.
+   On Windows, the start method is set to 'spawn' if it is not already set.
+   On Linux and macOS (Darwin), the start method is set to 'fork' if it is not already set.
+   This function ensures compatibility with the multiprocessing module by
+   enforcing the appropriate start method for the current platform.
+   .. note::
+
+      - The function uses `get_start_method` to retrieve the current start method.
+      - The `set_start_method` function is called with `force=True` to override
+        the existing start method if necessary.
+
+   :raises ValueError: If an invalid start method is encountered or if the start
+       method cannot be set for some reason.
+
+
 .. py:function:: is_multiprocessing_process(process)
 
-   Check if the process is a multiprocessing process.
+   Check if the given process is a multiprocessing process.
+
+   This function examines the command-line arguments of the provided process
+   to determine if it is associated with Python's multiprocessing module.
+
+   :param process: A psutil Process object representing the process to check.
+   :type process: psutil.Process
+
+   :returns: True if the process is a multiprocessing process, False otherwise.
+   :rtype: bool
+
+   :raises psutil.NoSuchProcess: If the process no longer exists.
+   :raises psutil.AccessDenied: If access to the process information is denied.
+   :raises psutil.ZombieProcess: If the process is a zombie process.
 
 
 .. py:function:: close_file_descriptors()
 
-   Close file descriptors and shared memory objects.
+   Closes all open file descriptors starting from 3 up to the soft limit
+   of the maximum number of file descriptors allowed for the process.
+
+   This function is useful for cleaning up resources by ensuring that
+   no unnecessary file descriptors remain open. It skips standard input,
+   output, and error (file descriptors 0, 1, and 2).
+
+   Exceptions during the closing of file descriptors are caught and ignored.
+
+   .. note::
+
+      The function uses the `resource` module to retrieve the soft limit
+      for the maximum number of file descriptors.
+
+   :raises OSError: If an error occurs while closing a file descriptor, it is
+   :raises caught and ignored.:
 
 
 .. py:function:: close_multiprocessing_processes()
 
-   Close all multiprocessing processes.
+   Close all multiprocessing processes and clean up associated resources.
+   This function iterates through all running processes and terminates any
+   that are identified as multiprocessing processes, excluding the current
+   process. It waits for up to 5 seconds for each process to terminate and
+   logs the termination status. Additionally, it handles exceptions that may
+   occur during the termination process, such as access denial or the process
+   no longer existing.
+   After terminating the processes, it ensures that any open file descriptors
+   are properly closed.
+   .. note::
+
+      This function relies on the `psutil` library to inspect and manage
+      processes, and assumes the existence of helper functions:
+      - `is_multiprocessing_process(proc)`: Determines if a process is a
+        multiprocessing process.
+      - `close_file_descriptors()`: Closes any open file descriptors.
 
 
 .. py:function:: check_mask_folder(src, mask_fldr)
 
 .. py:function:: smooth_hull_lines(cluster_data)
+
+   Smooths the convex hull of a set of 2D points using spline interpolation.
+
+   :param cluster_data: A 2D array of shape (n_points, 2) representing
+                        the coordinates of the points in the cluster.
+   :type cluster_data: numpy.ndarray
+
+   :returns:
+
+             Two 1D numpy arrays representing the x and y coordinates of the smoothed
+                    convex hull, respectively. Each array contains 100 points.
+   :rtype: tuple
+
 
 .. py:function:: mask_object_count(mask)
 
