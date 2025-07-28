@@ -37,8 +37,9 @@ Module Contents
    The function extracts metadata from the file names using the helper function ``_map_wells_png``.
 
    Metadata columns include:
-       - ``plateID``, ``rowID``, ``columnID``, ``fieldID``
-       - Optionally ``time_id``, ``prcfo``, and crop-specific IDs based on the ``crop_mode``.
+
+   - ``plateID``, ``rowID``, ``columnID``, ``fieldID``
+   - Optionally ``time_id``, ``prcfo``, and crop-specific IDs based on the ``crop_mode``.
 
    The metadata and file paths are stored in a table named ``'png_list'`` in the SQLite database.
 
