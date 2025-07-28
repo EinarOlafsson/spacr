@@ -1092,6 +1092,7 @@
              
   <section id="welcome-to-spacr">
 <h1>Welcome to SpaCr<a class="headerlink" href="#welcome-to-spacr" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://einarolafsson.github.io/spacr/index.html"><img alt="Docs" src="https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg" /></a> <a class="reference external" href="https://badge.fury.io/py/spacr"><img alt="PyPI version" src="https://badge.fury.io/py/spacr.svg" /></a> <a class="reference external" href="https://pypistats.org/packages/spacr"><img alt="Python version" src="https://img.shields.io/pypi/pyversions/spacr" /></a> <a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/LICENSE"><img alt="Licence: MIT" src="https://img.shields.io/github/license/EinarOlafsson/spacr" /></a> <a class="reference external" href="https://github.com/EinarOlafsson/spacr/"><img alt="repo size" src="https://img.shields.io/github/repo-size/EinarOlafsson/spacr" /></a> <a class="reference external" href="https://einarolafsson.github.io/spacr/tutorial/"><img alt="Tutorial" src="https://img.shields.io/badge/Tutorial-Click%20Here-brightgreen" /></a></p>
 <p><strong>spaCR</strong> (Spatial Phenotype Analysis of CRISPR Screens) is a Python toolkit for analyzing pooled CRISPR-Cas9 imaging screens. It integrates high-content imaging data with sequencing-based mutant identification to enable genotype-to-phenotype mapping at the single-cell level.</p>
 <p>spaCR provides a modular and extensible framework that supports:</p>
 <ul class="simple">
@@ -1102,6 +1103,24 @@
 <li><p><strong>Statistical analysis</strong>, including regression models to link genotypes to phenotypes.</p></li>
 <li><p><strong>Interactive visualization</strong> of results including Grad-CAMs and phenotype maps.</p></li>
 <li><p><strong>GUI tools</strong> for mask curation, annotation, and exploratory analysis.</p></li>
+</ul>
+</section>
+<section id="example-notebooks">
+<h1>Example Notebooks<a class="headerlink" href="#example-notebooks" title="Link to this heading"></a></h1>
+<p>The following example Jupyter notebooks illustrate common workflows using spaCR.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/1_spacr_generate_masks.ipynb">Generate masks</a>
+<em>Generate cell, nuclei, and pathogen segmentation masks from microscopy images using Cellpose.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/2_spacr_generate_mesurments_crop_images.ipynb">Capture single cell images and measurements</a>
+<em>Extract object-level measurements and crop single-cell images for downstream analysis.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/3a_spacr_machine_learning.ipynb">Machine learning based object classification</a>
+<em>Train traditional machine learning models (e.g., XGBoost) to classify cell phenotypes based on extracted features.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/3b_spacr_computer_vision.ipynb">Computer vision based object classification</a>
+<em>Train and evaluate deep learning models (PyTorch CNNs/Transformers) on cropped object images.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/4_spacr_map_barecodes.ipynb">Map sequencing barcodes</a>
+<em>Map sequencing reads to row, column, and gRNA barcodes for CRISPR screen genotype-phenotype mapping.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/5_spacr_train_cellpose.ipynb">Finetune cellpose models</a>
+<em>Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.</em></p></li>
 </ul>
 </section>
 <section id="api-reference-by-category">
