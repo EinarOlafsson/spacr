@@ -360,7 +360,7 @@ Module Contents
    :param variable: Tkinter variable to bind the checkbox state.
    :type variable: tk.BooleanVar
    :param \*args: Additional arguments passed to the parent Frame.
-   :param **kwargs: Additional arguments passed to the parent Frame.
+   :param \*\*kwargs: Additional arguments passed to the parent Frame.
 
    Initializes the custom checkbox widget and binds visual updates to variable state.
 

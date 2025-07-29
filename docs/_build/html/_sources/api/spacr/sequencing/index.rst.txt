@@ -165,29 +165,30 @@ Module Contents
    also computed.
 
    :param chunk_data: Contains either 9 or 10 elements:
+
                       For paired-end mode (10 elements):
-                          r1_chunk (list): List of strings, each 4-line block from R1 FASTQ.
-                          r2_chunk (list): List of strings, each 4-line block from R2 FASTQ.
-                          regex (str): Regex pattern with named groups ('rowID', 'columnID', 'grna').
-                          target_sequence (str): Sequence to anchor barcode extraction.
-                          offset_start (int): Offset from target_sequence to start consensus extraction.
-                          expected_end (int): Length of the region to extract.
-                          column_csv (str): Path to column barcode reference CSV.
-                          grna_csv (str): Path to gRNA barcode reference CSV.
-                          row_csv (str): Path to row barcode reference CSV.
-                          fill_na (bool): Whether to fill unmapped names with raw barcode sequences.
+                          - r1_chunk (list): List of strings, each 4-line block from R1 FASTQ.
+                          - r2_chunk (list): List of strings, each 4-line block from R2 FASTQ.
+                          - regex (str): Regex pattern with named groups ('rowID', 'columnID', 'grna').
+                          - target_sequence (str): Sequence to anchor barcode extraction.
+                          - offset_start (int): Offset from target_sequence to start consensus extraction.
+                          - expected_end (int): Length of the region to extract.
+                          - column_csv (str): Path to column barcode reference CSV.
+                          - grna_csv (str): Path to gRNA barcode reference CSV.
+                          - row_csv (str): Path to row barcode reference CSV.
+                          - fill_na (bool): Whether to fill unmapped names with raw barcode sequences.
 
                       For single-end mode (9 elements):
-                          Same as above, but r2_chunk is omitted.
+                          - Same as above, but r2_chunk is omitted.
    :type chunk_data: tuple
 
    :returns:
 
-                 df (pd.DataFrame): Full dataframe with columns:
-                     ['read', 'column_sequence', 'columnID', 'row_sequence', 'rowID',
-                      'grna_sequence', 'grna_name']
-                 unique_combinations (pd.DataFrame): Count of each unique (rowID, columnID, grna_name) triplet.
-                 qc_df (pd.DataFrame): Summary of missing values and total reads.
+                 - df (pd.DataFrame): Full dataframe with columns:
+                   ['read', 'column_sequence', 'columnID', 'row_sequence', 'rowID',
+                   'grna_sequence', 'grna_name']
+                 - unique_combinations (pd.DataFrame): Count of each unique (rowID, columnID, grna_name) triplet.
+                 - qc_df (pd.DataFrame): Summary of missing values and total reads.
    :rtype: tuple
 
 
@@ -316,9 +317,8 @@ Module Contents
    using a regular expression, maps them to row, column, and gRNA identifiers, and saves the results to disk.
    Results include the full annotated reads (optional), barcode combination counts, and a QC summary.
 
-   :param settings:
-                    Dictionary containing parameters required for barcode mapping. If not provided,
-                                           default values will be applied. Important keys include:
+   :param settings: Dictionary containing parameters required for barcode mapping. If not provided,
+                    default values will be applied. Important keys include:
                     - 'src' (str): Source directory containing gzipped FASTQ files.
                     - 'mode' (str): Either 'single' or 'paired' for single-end or paired-end processing.
                     - 'single_direction' (str): If 'single', specifies which read to use ('R1' or 'R2').
@@ -326,7 +326,9 @@ Module Contents
                     - 'target_sequence' (str): Anchor sequence to locate barcode start position.
                     - 'offset_start' (int): Offset from the anchor to the barcode start.
                     - 'expected_end' (int): Expected barcode region length.
-                    - 'column_csv', 'grna_csv', 'row_csv' (str): CSV files mapping sequences to names or IDs.
+                    - 'column_csv' (str): CSV file mapping column barcodes to names.
+                    - 'grna_csv' (str): CSV file mapping gRNA barcodes to names.
+                    - 'row_csv' (str): CSV file mapping row barcodes to names.
                     - 'save_h5' (bool): Whether to save annotated reads to HDF5.
                     - 'comp_type' (str): Compression algorithm for HDF5.
                     - 'comp_level' (int): Compression level for HDF5.
@@ -337,12 +339,10 @@ Module Contents
    :type settings: dict, optional
 
    Side Effects:
-       - Saves settings to file.
-       - Processes reads and saves outputs:
-           * annotated_reads.h5 (optional),
-           * unique_combinations.csv,
-           * qc.csv (missing value counts).
-
+       Saves the following files in the output directory:
+       - `annotated_reads.h5` (optional): Annotated read information in HDF5 format.
+       - `unique_combinations.csv`: Count table of (rowID, columnID, grna_name) triplets.
+       - `qc.csv`: Summary of missing values and read counts.
 
 
 .. py:function:: barecodes_reverse_complement(csv_file)

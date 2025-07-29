@@ -1294,36 +1294,36 @@ and maps those to known IDs using reference CSVs. Quality control data and uniqu
 also computed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>chunk_data</strong> (<em>tuple</em>) – <p>Contains either 9 or 10 elements:
-For paired-end mode (10 elements):</p>
-<blockquote>
-<div><p>r1_chunk (list): List of strings, each 4-line block from R1 FASTQ.
-r2_chunk (list): List of strings, each 4-line block from R2 FASTQ.
-regex (str): Regex pattern with named groups (‘rowID’, ‘columnID’, ‘grna’).
-target_sequence (str): Sequence to anchor barcode extraction.
-offset_start (int): Offset from target_sequence to start consensus extraction.
-expected_end (int): Length of the region to extract.
-column_csv (str): Path to column barcode reference CSV.
-grna_csv (str): Path to gRNA barcode reference CSV.
-row_csv (str): Path to row barcode reference CSV.
-fill_na (bool): Whether to fill unmapped names with raw barcode sequences.</p>
-</div></blockquote>
+<dd class="field-odd"><p><strong>chunk_data</strong> (<em>tuple</em>) – <p>Contains either 9 or 10 elements:</p>
 <dl class="simple">
-<dt>For single-end mode (9 elements):</dt><dd><p>Same as above, but r2_chunk is omitted.</p>
+<dt>For paired-end mode (10 elements):</dt><dd><ul class="simple">
+<li><p>r1_chunk (list): List of strings, each 4-line block from R1 FASTQ.</p></li>
+<li><p>r2_chunk (list): List of strings, each 4-line block from R2 FASTQ.</p></li>
+<li><p>regex (str): Regex pattern with named groups (‘rowID’, ‘columnID’, ‘grna’).</p></li>
+<li><p>target_sequence (str): Sequence to anchor barcode extraction.</p></li>
+<li><p>offset_start (int): Offset from target_sequence to start consensus extraction.</p></li>
+<li><p>expected_end (int): Length of the region to extract.</p></li>
+<li><p>column_csv (str): Path to column barcode reference CSV.</p></li>
+<li><p>grna_csv (str): Path to gRNA barcode reference CSV.</p></li>
+<li><p>row_csv (str): Path to row barcode reference CSV.</p></li>
+<li><p>fill_na (bool): Whether to fill unmapped names with raw barcode sequences.</p></li>
+</ul>
+</dd>
+<dt>For single-end mode (9 elements):</dt><dd><ul class="simple">
+<li><p>Same as above, but r2_chunk is omitted.</p></li>
+</ul>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>df (pd.DataFrame): Full dataframe with columns:</dt><dd><dl class="simple">
-<dt>[‘read’, ‘column_sequence’, ‘columnID’, ‘row_sequence’, ‘rowID’,</dt><dd><p>’grna_sequence’, ‘grna_name’]</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>unique_combinations (pd.DataFrame): Count of each unique (rowID, columnID, grna_name) triplet.
-qc_df (pd.DataFrame): Summary of missing values and total reads.</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>df (pd.DataFrame): Full dataframe with columns:
+[‘read’, ‘column_sequence’, ‘columnID’, ‘row_sequence’, ‘rowID’,
+‘grna_sequence’, ‘grna_name’]</p></li>
+<li><p>unique_combinations (pd.DataFrame): Count of each unique (rowID, columnID, grna_name) triplet.</p></li>
+<li><p>qc_df (pd.DataFrame): Summary of missing values and total reads.</p></li>
+</ul>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1428,43 +1428,32 @@ using a regular expression, maps them to row, column, and gRNA identifiers, and 
 Results include the full annotated reads (optional), barcode combination counts, and a QC summary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em><em>, </em><em>optional</em>) – <dl class="simple">
-<dt>Dictionary containing parameters required for barcode mapping. If not provided,</dt><dd><p>default values will be applied. Important keys include:</p>
-</dd>
-</dl>
-<ul class="simple">
-<li><p>’src’ (str): Source directory containing gzipped FASTQ files.</p></li>
-<li><p>’mode’ (str): Either ‘single’ or ‘paired’ for single-end or paired-end processing.</p></li>
-<li><p>’single_direction’ (str): If ‘single’, specifies which read to use (‘R1’ or ‘R2’).</p></li>
-<li><p>’regex’ (str): Regular expression with capture groups ‘rowID’, ‘columnID’, and ‘grna’.</p></li>
-<li><p>’target_sequence’ (str): Anchor sequence to locate barcode start position.</p></li>
-<li><p>’offset_start’ (int): Offset from the anchor to the barcode start.</p></li>
-<li><p>’expected_end’ (int): Expected barcode region length.</p></li>
-<li><p>’column_csv’, ‘grna_csv’, ‘row_csv’ (str): CSV files mapping sequences to names or IDs.</p></li>
-<li><p>’save_h5’ (bool): Whether to save annotated reads to HDF5.</p></li>
-<li><p>’comp_type’ (str): Compression algorithm for HDF5.</p></li>
-<li><p>’comp_level’ (int): Compression level for HDF5.</p></li>
-<li><p>’chunk_size’ (int): Number of reads to process per batch.</p></li>
-<li><p>’n_jobs’ (int): Number of parallel processes for barcode mapping.</p></li>
-<li><p>’test’ (bool): If True, only processes the first chunk for testing.</p></li>
-<li><p>’fill_na’ (bool): If True, fills unmapped barcodes with raw sequence instead of NaN.</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing parameters required for barcode mapping. If not provided,
+default values will be applied. Important keys include:
+- ‘src’ (str): Source directory containing gzipped FASTQ files.
+- ‘mode’ (str): Either ‘single’ or ‘paired’ for single-end or paired-end processing.
+- ‘single_direction’ (str): If ‘single’, specifies which read to use (‘R1’ or ‘R2’).
+- ‘regex’ (str): Regular expression with capture groups ‘rowID’, ‘columnID’, and ‘grna’.
+- ‘target_sequence’ (str): Anchor sequence to locate barcode start position.
+- ‘offset_start’ (int): Offset from the anchor to the barcode start.
+- ‘expected_end’ (int): Expected barcode region length.
+- ‘column_csv’ (str): CSV file mapping column barcodes to names.
+- ‘grna_csv’ (str): CSV file mapping gRNA barcodes to names.
+- ‘row_csv’ (str): CSV file mapping row barcodes to names.
+- ‘save_h5’ (bool): Whether to save annotated reads to HDF5.
+- ‘comp_type’ (str): Compression algorithm for HDF5.
+- ‘comp_level’ (int): Compression level for HDF5.
+- ‘chunk_size’ (int): Number of reads to process per batch.
+- ‘n_jobs’ (int): Number of parallel processes for barcode mapping.
+- ‘test’ (bool): If True, only processes the first chunk for testing.
+- ‘fill_na’ (bool): If True, fills unmapped barcodes with raw sequence instead of NaN.</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>Side Effects:</dt><dd><ul class="simple">
-<li><p>Saves settings to file.</p></li>
-<li><dl class="simple">
-<dt>Processes reads and saves outputs:</dt><dd><ul>
-<li><p>annotated_reads.h5 (optional),</p></li>
-<li><p>unique_combinations.csv,</p></li>
-<li><p>qc.csv (missing value counts).</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
+<dt>Side Effects:</dt><dd><p>Saves the following files in the output directory:
+- <cite>annotated_reads.h5</cite> (optional): Annotated read information in HDF5 format.
+- <cite>unique_combinations.csv</cite>: Count table of (rowID, columnID, grna_name) triplets.
+- <cite>qc.csv</cite>: Summary of missing values and read counts.</p>
 </dd>
 </dl>
 </dd></dl>

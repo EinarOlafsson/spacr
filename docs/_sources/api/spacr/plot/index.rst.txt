@@ -980,22 +980,22 @@ Module Contents
        - a grid of activation maps (e.g., saliency, Grad-CAM) for the same region
 
    :param settings: A dictionary containing the following keys:
-                    - 'src' (str): Source folder containing subfolders like 'merged', 'measurements', and 'datasets'.
-                    - 'name' (str): Filename (e.g., 'plate1_A01_01.tif') identifying the region/FOV of interest.
-                    - 'activation_db' (str): Filename of the activation measurement database (e.g., 'activations.db').
-                    - 'activation_mode' (str): Mode of activation ('saliency', 'gradcam', etc.); used to find the correct table.
-                    - 'channels' (list of int): Indices of input channels to use for the mask overlay.
-                    - 'cell_channel' (int): Channel index used to generate the cell mask.
-                    - 'nucleus_channel' (int): Channel index used to generate the nucleus mask.
-                    - 'pathogen_channel' (int): Channel index used to generate the pathogen mask.
-                    - 'percentiles' (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.
-                    - 'mode' (str): Image display mode for overlay ('rgb', 'stack', etc.).
-                    - 'export_tiffs' (bool): Whether to export TIFF images alongside overlays.
+                    'src' (str): Source folder containing subfolders like 'merged', 'measurements', and 'datasets'.
+                    'name' (str): Filename (e.g., 'plate1_A01_01.tif') identifying the region/FOV of interest.
+                    'activation_db' (str): Filename of the activation measurement database (e.g., 'activations.db').
+                    'activation_mode' (str): Mode of activation ('saliency', 'gradcam', etc.); used to find the correct table.
+                    'channels' (list of int): Indices of input channels to use for the mask overlay.
+                    'cell_channel' (int): Channel index used to generate the cell mask.
+                    'nucleus_channel' (int): Channel index used to generate the nucleus mask.
+                    'pathogen_channel' (int): Channel index used to generate the pathogen mask.
+                    'percentiles' (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.
+                    'mode' (str): Image display mode for overlay ('rgb', 'stack', etc.).
+                    'export_tiffs' (bool): Whether to export TIFF images alongside overlays.
    :type settings: dict
 
-   :returns:     - fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.
-                 - fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.
-                 - fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.
+   :returns:     fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.
+                 fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.
+                 fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.
    :rtype: tuple
 
    .. rubric:: Notes
