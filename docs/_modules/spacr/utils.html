@@ -7344,22 +7344,22 @@
 <span class="sd">    Plot a grid of images for each cluster based on the given labels and embeddings.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        embedding (np.ndarray): Embedding of data points used for visualization.</span>
-<span class="sd">        labels (np.ndarray): Cluster labels for each data point. A value of -1 indicates noise/outliers.</span>
+<span class="sd">        embedding (np.ndarray): Embedding of data points for visualization.</span>
+<span class="sd">        labels (np.ndarray): Cluster labels for each data point. A value of -1 indicates noise or outliers.</span>
 <span class="sd">        image_nr (int): Maximum number of images to display per cluster.</span>
-<span class="sd">        image_paths (list of str): File paths to the images corresponding to the data points.</span>
-<span class="sd">        colors (list of str): Colors used for each cluster in the plot.</span>
-<span class="sd">        figuresize (tuple): Figure size as (width, height).</span>
-<span class="sd">        black_background (bool): If True, the grid uses a black background.</span>
-<span class="sd">        verbose (bool): If True, prints additional progress information.</span>
+<span class="sd">        image_paths (list of str): File paths to images corresponding to the data points.</span>
+<span class="sd">        colors (list of str): List of colors for each cluster.</span>
+<span class="sd">        figuresize (tuple): Size of the figure (width, height).</span>
+<span class="sd">        black_background (bool): Whether to use a black background.</span>
+<span class="sd">        verbose (bool): Whether to print progress information.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        matplotlib.figure.Figure or None: The plotted figure with image grids, or None if no valid clusters.</span>
+<span class="sd">        matplotlib.figure.Figure or None: The generated figure, or None if no valid clusters are found.</span>
 
-<span class="sd">    Additional Info:</span>
-<span class="sd">        - Clusters with more than `image_nr` images are subsampled randomly.</span>
-<span class="sd">        - If all labels are -1, a message is printed and the function returns None.</span>
-<span class="sd">        - Uses an external `plot_grid` function to render the image grids.</span>
+<span class="sd">    Notes:</span>
+<span class="sd">        - Clusters larger than `image_nr` are randomly subsampled.</span>
+<span class="sd">        - If all labels are -1, the function returns None.</span>
+<span class="sd">        - Relies on an external `plot_grid` function for grid rendering.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">num_clusters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">[</span><span class="n">unique_labels</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -7386,20 +7386,22 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.plot_grid">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_grid</span><span class="p">(</span><span class="n">cluster_images</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">,</span> <span class="n">black_background</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plots a grid of images grouped by clusters with customizable figure size, background, and labels.</span>
+<span class="sd">    Plot a grid of images grouped by cluster with optional background and labels.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        cluster_images (dict): A dictionary where keys are cluster labels and values are lists of images </span>
-<span class="sd">                               belonging to each cluster.</span>
-<span class="sd">        colors (list): A list of RGB tuples representing the colors for each cluster.</span>
-<span class="sd">        figuresize (float): The base size of the figure. The actual size is adjusted based on the number of clusters.</span>
-<span class="sd">        black_background (bool): If True, the background of the plot will be black; otherwise, it will be white.</span>
-<span class="sd">        verbose (bool): If True, prints additional information about cluster labels and indices.</span>
+<span class="sd">        cluster_images (dict): Dictionary mapping cluster labels to lists of images.</span>
+<span class="sd">        colors (list): List of RGB tuples specifying colors for each cluster.</span>
+<span class="sd">        figuresize (float): Base figure size; actual size scales with the number of clusters.</span>
+<span class="sd">        black_background (bool): If True, use a black background; otherwise, use white.</span>
+<span class="sd">        verbose (bool): If True, print cluster labels and index info during plotting.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        matplotlib.figure.Figure: The generated figure containing the grid of images.</span>
+<span class="sd">        matplotlib.figure.Figure: The generated figure containing the image grid.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - The function dynamically adjusts the grid size for each cluster based on the number of images.</span>
-<span class="sd">        - Cluster labels are displayed beside the grid with corresponding colors.</span>
-<span class="sd">        - A maximum figure size is enforced to prevent excessively large plots.</span>
+<span class="sd">        - Grid size is dynamically adjusted per cluster.</span>
+<span class="sd">        - Cluster labels are shown alongside image grids using corresponding colors.</span>
+<span class="sd">        - A maximum figure size limit prevents overly large plots.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num_clusters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_images</span><span class="p">)</span>
     <span class="n">max_figsize</span> <span class="o">=</span> <span class="mi">200</span>  <span class="c1"># Set a maximum figure size</span>
@@ -8093,25 +8095,27 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.perform_statistical_tests">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_statistical_tests</span><span class="p">(</span><span class="n">all_df</span><span class="p">,</span> <span class="n">cluster_col</span><span class="o">=</span><span class="s1">&#39;cluster&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform statistical tests (ANOVA and Kruskal-Wallis) on numeric features grouped by a cluster column.</span>
-<span class="sd">    This function evaluates whether there are statistically significant differences </span>
-<span class="sd">    in the distributions of numeric features across groups defined by the `cluster_col`.</span>
+<span class="sd">    Perform ANOVA and Kruskal-Wallis tests on numeric features grouped by clusters.</span>
+
+<span class="sd">    This function evaluates whether numeric features differ significantly across groups </span>
+<span class="sd">    defined by the `cluster_col`.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        all_df (pd.DataFrame): The input DataFrame containing the data to analyze.</span>
-<span class="sd">        cluster_col (str, optional): The column name representing the cluster or group labels. </span>
-<span class="sd">                                     Defaults to &#39;cluster&#39;.</span>
+<span class="sd">        all_df (pd.DataFrame): DataFrame containing numeric features and cluster assignments.</span>
+<span class="sd">        cluster_col (str, optional): Name of the column indicating cluster/group labels. Defaults to &#39;cluster&#39;.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple:</span>
-<span class="sd">            - anova_df (pd.DataFrame): A DataFrame containing the results of the ANOVA test </span>
-<span class="sd">              with columns [&#39;Feature&#39;, &#39;ANOVA_Statistic&#39;, &#39;ANOVA_pValue&#39;].</span>
-<span class="sd">            - kruskal_df (pd.DataFrame): A DataFrame containing the results of the Kruskal-Wallis test </span>
-<span class="sd">              with columns [&#39;Feature&#39;, &#39;Kruskal_Statistic&#39;, &#39;Kruskal_pValue&#39;].</span>
+<span class="sd">            - anova_df (pd.DataFrame): ANOVA test results with columns </span>
+<span class="sd">              [&#39;Feature&#39;, &#39;ANOVA_Statistic&#39;, &#39;ANOVA_pValue&#39;].</span>
+<span class="sd">            - kruskal_df (pd.DataFrame): Kruskal-Wallis test results with columns </span>
+<span class="sd">              [&#39;Feature&#39;, &#39;Kruskal_Statistic&#39;, &#39;Kruskal_pValue&#39;].</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - The function first checks the normality of each numeric feature using the `check_normality` function.</span>
-<span class="sd">        - If the feature is normally distributed, an ANOVA test is performed.</span>
-<span class="sd">        - If the feature is not normally distributed, a Kruskal-Wallis test is performed.</span>
-<span class="sd">        - The `check_normality` function and statistical test functions (`f_oneway` and `kruskal`) </span>
-<span class="sd">          are assumed to be imported from appropriate libraries.</span>
+<span class="sd">        - Normality of each feature is assessed using `check_normality`.</span>
+<span class="sd">        - ANOVA is used for normally distributed features.</span>
+<span class="sd">        - Kruskal-Wallis is used for non-normal features.</span>
+<span class="sd">        - Assumes `check_normality`, `scipy.stats.f_oneway`, and `scipy.stats.kruskal` are available.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">numeric_features</span> <span class="o">=</span> <span class="n">all_df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">cluster_col</span> <span class="ow">in</span> <span class="n">numeric_features</span><span class="p">:</span>
@@ -8606,27 +8610,23 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.merge_regression_res_with_metadata">[docs]</a>
 <span class="k">def</span> <span class="nf">merge_regression_res_with_metadata</span><span class="p">(</span><span class="n">results_file</span><span class="p">,</span> <span class="n">metadata_file</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_metadata&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Merges regression results with metadata based on a common gene identifier.</span>
-<span class="sd">    This function reads two CSV files: one containing regression results and the other containing metadata.</span>
-<span class="sd">    It extracts and cleans gene identifiers from both files, merges them on the gene column, and saves the</span>
-<span class="sd">    merged dataframe to a new CSV file.</span>
+<span class="sd">    Merge regression results with metadata using gene identifiers.</span>
+
+<span class="sd">    Reads regression results and metadata from two CSV files, extracts gene identifiers,</span>
+<span class="sd">    merges the data on gene names, and saves the merged DataFrame.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        results_file (str): Path to the CSV file containing regression results. This file must have a </span>
-<span class="sd">                            &#39;feature&#39; column from which gene identifiers can be extracted.</span>
-<span class="sd">        metadata_file (str): Path to the CSV file containing metadata. This file must have a &#39;Gene ID&#39; </span>
-<span class="sd">                             column from which gene identifiers can be extracted.</span>
-<span class="sd">        name (str, optional): Suffix to append to the base name of the results file for the output file. </span>
-<span class="sd">                              Defaults to &#39;_metadata&#39;.</span>
+<span class="sd">        results_file (str): Path to the regression results CSV. Must contain a &#39;feature&#39; column.</span>
+<span class="sd">        metadata_file (str): Path to the metadata CSV. Must contain a &#39;Gene ID&#39; column.</span>
+<span class="sd">        name (str, optional): Suffix for the output file name. Defaults to &#39;_metadata&#39;.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        pandas.DataFrame: The merged dataframe containing data from both the regression results and metadata files.</span>
+<span class="sd">        pandas.DataFrame: Merged DataFrame with regression results and metadata.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - The &#39;feature&#39; column in the results file is expected to contain gene information in the format </span>
-<span class="sd">          &#39;[gene_name]&#39;, which will be extracted and cleaned.</span>
-<span class="sd">        - The &#39;Gene ID&#39; column in the metadata file is expected to contain gene information in the format </span>
-<span class="sd">          &#39;prefix_gene_name&#39;, from which the gene name will be extracted.</span>
-<span class="sd">        - Rows where gene extraction fails will not be dropped but will result in NaN values in the merged dataframe.</span>
-<span class="sd">        - The merged file is saved in the same directory as the results file, with the specified suffix added </span>
-<span class="sd">          to its name.</span>
+<span class="sd">        - Extracts gene names from &#39;feature&#39; (format: &#39;[gene]&#39;) and &#39;Gene ID&#39; (format: &#39;prefix_gene&#39;).</span>
+<span class="sd">        - Gene extraction failures result in NaNs in the merge but are not dropped.</span>
+<span class="sd">        - Output CSV is saved next to the input `results_file`, with the suffix appended.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Read the CSV files into dataframes</span>
     <span class="n">df_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">results_file</span><span class="p">)</span>
@@ -8669,22 +8669,17 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.process_vision_results">[docs]</a>
 <span class="k">def</span> <span class="nf">process_vision_results</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Processes vision results by extracting metadata from the &#39;path&#39; column, </span>
-<span class="sd">    applying a threshold to predictions, and adding new columns to the DataFrame.</span>
+<span class="sd">    Process vision results by extracting metadata from file paths and thresholding predictions.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        df (pd.DataFrame): A pandas DataFrame containing vision results. </span>
-<span class="sd">            Must include a &#39;path&#39; column with metadata and a &#39;pred&#39; column with prediction scores.</span>
-<span class="sd">        threshold (float, optional): The threshold value to classify predictions. </span>
-<span class="sd">            Defaults to 0.5.</span>
+<span class="sd">        df (pd.DataFrame): DataFrame with vision results. Must include &#39;path&#39; and &#39;pred&#39; columns.</span>
+<span class="sd">        threshold (float, optional): Threshold for classifying predictions. Defaults to 0.5.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: The modified DataFrame with additional columns:</span>
-<span class="sd">            - &#39;plateID&#39;: Extracted plate identifier from the &#39;path&#39; column.</span>
-<span class="sd">            - &#39;rowID&#39;: Extracted row identifier from the &#39;path&#39; column.</span>
-<span class="sd">            - &#39;columnID&#39;: Extracted column identifier from the &#39;path&#39; column.</span>
-<span class="sd">            - &#39;fieldID&#39;: Extracted field identifier from the &#39;path&#39; column.</span>
-<span class="sd">            - &#39;object&#39;: Extracted object identifier from the &#39;path&#39; column.</span>
-<span class="sd">            - &#39;prc&#39;: Concatenated string of &#39;plateID&#39;, &#39;rowID&#39;, and &#39;columnID&#39;.</span>
-<span class="sd">            - &#39;cv_predictions&#39;: Binary classification results based on the threshold.</span>
+<span class="sd">        pd.DataFrame: Modified DataFrame with added columns:</span>
+<span class="sd">            - &#39;plateID&#39;, &#39;rowID&#39;, &#39;columnID&#39;, &#39;fieldID&#39;, &#39;object&#39;: extracted from &#39;path&#39;</span>
+<span class="sd">            - &#39;prc&#39;: combination of &#39;plateID&#39;, &#39;rowID&#39;, and &#39;columnID&#39;</span>
+<span class="sd">            - &#39;cv_predictions&#39;: binary classification based on `threshold`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Split the &#39;path&#39; column using _map_wells function</span>

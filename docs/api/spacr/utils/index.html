@@ -4159,52 +4159,47 @@ the alpha channel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>embedding</strong> (<em>np.ndarray</em>) – Embedding of data points used for visualization.</p></li>
-<li><p><strong>labels</strong> (<em>np.ndarray</em>) – Cluster labels for each data point. A value of -1 indicates noise/outliers.</p></li>
+<li><p><strong>embedding</strong> (<em>np.ndarray</em>) – Embedding of data points for visualization.</p></li>
+<li><p><strong>labels</strong> (<em>np.ndarray</em>) – Cluster labels for each data point. A value of -1 indicates noise or outliers.</p></li>
 <li><p><strong>image_nr</strong> (<em>int</em>) – Maximum number of images to display per cluster.</p></li>
-<li><p><strong>image_paths</strong> (<em>list</em><em> of </em><em>str</em>) – File paths to the images corresponding to the data points.</p></li>
-<li><p><strong>colors</strong> (<em>list</em><em> of </em><em>str</em>) – Colors used for each cluster in the plot.</p></li>
-<li><p><strong>figuresize</strong> (<em>tuple</em>) – Figure size as (width, height).</p></li>
-<li><p><strong>black_background</strong> (<em>bool</em>) – If True, the grid uses a black background.</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints additional progress information.</p></li>
+<li><p><strong>image_paths</strong> (<em>list</em><em> of </em><em>str</em>) – File paths to images corresponding to the data points.</p></li>
+<li><p><strong>colors</strong> (<em>list</em><em> of </em><em>str</em>) – List of colors for each cluster.</p></li>
+<li><p><strong>figuresize</strong> (<em>tuple</em>) – Size of the figure (width, height).</p></li>
+<li><p><strong>black_background</strong> (<em>bool</em>) – Whether to use a black background.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print progress information.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The plotted figure with image grids, or None if no valid clusters.</p>
+<dd class="field-even"><p>The generated figure, or None if no valid clusters are found.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>matplotlib.figure.Figure or None</p>
 </dd>
 </dl>
-<dl class="simple">
-<dt>Additional Info:</dt><dd><ul class="simple">
-<li><p>Clusters with more than <cite>image_nr</cite> images are subsampled randomly.</p></li>
-<li><p>If all labels are -1, a message is printed and the function returns None.</p></li>
-<li><p>Uses an external <cite>plot_grid</cite> function to render the image grids.</p></li>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Clusters larger than <cite>image_nr</cite> are randomly subsampled.</p></li>
+<li><p>If all labels are -1, the function returns None.</p></li>
+<li><p>Relies on an external <cite>plot_grid</cite> function for grid rendering.</p></li>
 </ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.plot_grid">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">plot_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black_background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#plot_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.plot_grid" title="Link to this definition"></a></dt>
-<dd><p>Plots a grid of images grouped by clusters with customizable figure size, background, and labels.
-:param cluster_images: A dictionary where keys are cluster labels and values are lists of images</p>
-<blockquote>
-<div><p>belonging to each cluster.</p>
-</div></blockquote>
+<dd><p>Plot a grid of images grouped by cluster with optional background and labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>colors</strong> (<em>list</em>) – A list of RGB tuples representing the colors for each cluster.</p></li>
-<li><p><strong>figuresize</strong> (<em>float</em>) – The base size of the figure. The actual size is adjusted based on the number of clusters.</p></li>
-<li><p><strong>black_background</strong> (<em>bool</em>) – If True, the background of the plot will be black; otherwise, it will be white.</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints additional information about cluster labels and indices.</p></li>
+<li><p><strong>cluster_images</strong> (<em>dict</em>) – Dictionary mapping cluster labels to lists of images.</p></li>
+<li><p><strong>colors</strong> (<em>list</em>) – List of RGB tuples specifying colors for each cluster.</p></li>
+<li><p><strong>figuresize</strong> (<em>float</em>) – Base figure size; actual size scales with the number of clusters.</p></li>
+<li><p><strong>black_background</strong> (<em>bool</em>) – If True, use a black background; otherwise, use white.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print cluster labels and index info during plotting.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The generated figure containing the grid of images.</p>
+<dd class="field-even"><p>The generated figure containing the image grid.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>matplotlib.figure.Figure</p>
@@ -4212,9 +4207,9 @@ the alpha channel.</p>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function dynamically adjusts the grid size for each cluster based on the number of images.</p></li>
-<li><p>Cluster labels are displayed beside the grid with corresponding colors.</p></li>
-<li><p>A maximum figure size is enforced to prevent excessively large plots.</p></li>
+<li><p>Grid size is dynamically adjusted per cluster.</p></li>
+<li><p>Cluster labels are shown alongside image grids using corresponding colors.</p></li>
+<li><p>A maximum figure size limit prevents overly large plots.</p></li>
 </ul>
 </dd></dl>
 
@@ -4570,36 +4565,35 @@ random state of 42 for reproducibility.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.perform_statistical_tests">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">perform_statistical_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cluster'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#perform_statistical_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.perform_statistical_tests" title="Link to this definition"></a></dt>
-<dd><p>Perform statistical tests (ANOVA and Kruskal-Wallis) on numeric features grouped by a cluster column.
-This function evaluates whether there are statistically significant differences
-in the distributions of numeric features across groups defined by the <cite>cluster_col</cite>.
-:param all_df: The input DataFrame containing the data to analyze.
-:type all_df: pd.DataFrame
-:param cluster_col: The column name representing the cluster or group labels.</p>
-<blockquote>
-<div><p>Defaults to ‘cluster’.</p>
-</div></blockquote>
+<dd><p>Perform ANOVA and Kruskal-Wallis tests on numeric features grouped by clusters.</p>
+<p>This function evaluates whether numeric features differ significantly across groups
+defined by the <cite>cluster_col</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>anova_df (pd.DataFrame): A DataFrame containing the results of the ANOVA test
-with columns [‘Feature’, ‘ANOVA_Statistic’, ‘ANOVA_pValue’].</p></li>
-<li><p>kruskal_df (pd.DataFrame): A DataFrame containing the results of the Kruskal-Wallis test
-with columns [‘Feature’, ‘Kruskal_Statistic’, ‘Kruskal_pValue’].</p></li>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_df</strong> (<em>pd.DataFrame</em>) – DataFrame containing numeric features and cluster assignments.</p></li>
+<li><p><strong>cluster_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the column indicating cluster/group labels. Defaults to ‘cluster’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>anova_df (pd.DataFrame): ANOVA test results with columns
+[‘Feature’, ‘ANOVA_Statistic’, ‘ANOVA_pValue’].</p></li>
+<li><p>kruskal_df (pd.DataFrame): Kruskal-Wallis test results with columns
+[‘Feature’, ‘Kruskal_Statistic’, ‘Kruskal_pValue’].</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function first checks the normality of each numeric feature using the <cite>check_normality</cite> function.</p></li>
-<li><p>If the feature is normally distributed, an ANOVA test is performed.</p></li>
-<li><p>If the feature is not normally distributed, a Kruskal-Wallis test is performed.</p></li>
-<li><p>The <cite>check_normality</cite> function and statistical test functions (<cite>f_oneway</cite> and <cite>kruskal</cite>)
-are assumed to be imported from appropriate libraries.</p></li>
+<li><p>Normality of each feature is assessed using <cite>check_normality</cite>.</p></li>
+<li><p>ANOVA is used for normally distributed features.</p></li>
+<li><p>Kruskal-Wallis is used for non-normal features.</p></li>
+<li><p>Assumes <cite>check_normality</cite>, <cite>scipy.stats.f_oneway</cite>, and <cite>scipy.stats.kruskal</cite> are available.</p></li>
 </ul>
 </dd></dl>
 
@@ -4786,25 +4780,19 @@ not belonging to the largest cluster.
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.merge_regression_res_with_metadata">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">merge_regression_res_with_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_metadata'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#merge_regression_res_with_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.merge_regression_res_with_metadata" title="Link to this definition"></a></dt>
-<dd><p>Merges regression results with metadata based on a common gene identifier.
-This function reads two CSV files: one containing regression results and the other containing metadata.
-It extracts and cleans gene identifiers from both files, merges them on the gene column, and saves the
-merged dataframe to a new CSV file.
-:param results_file: Path to the CSV file containing regression results. This file must have a</p>
-<blockquote>
-<div><p>‘feature’ column from which gene identifiers can be extracted.</p>
-</div></blockquote>
+<dd><p>Merge regression results with metadata using gene identifiers.</p>
+<p>Reads regression results and metadata from two CSV files, extracts gene identifiers,
+merges the data on gene names, and saves the merged DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metadata_file</strong> (<em>str</em>) – Path to the CSV file containing metadata. This file must have a ‘Gene ID’
-column from which gene identifiers can be extracted.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Suffix to append to the base name of the results file for the output file.
-Defaults to ‘_metadata’.</p></li>
+<li><p><strong>results_file</strong> (<em>str</em>) – Path to the regression results CSV. Must contain a ‘feature’ column.</p></li>
+<li><p><strong>metadata_file</strong> (<em>str</em>) – Path to the metadata CSV. Must contain a ‘Gene ID’ column.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Suffix for the output file name. Defaults to ‘_metadata’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The merged dataframe containing data from both the regression results and metadata files.</p>
+<dd class="field-even"><p>Merged DataFrame with regression results and metadata.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pandas.DataFrame</p>
@@ -4812,40 +4800,29 @@ Defaults to ‘_metadata’.</p></li>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The ‘feature’ column in the results file is expected to contain gene information in the format
-‘[gene_name]’, which will be extracted and cleaned.</p></li>
-<li><p>The ‘Gene ID’ column in the metadata file is expected to contain gene information in the format
-‘prefix_gene_name’, from which the gene name will be extracted.</p></li>
-<li><p>Rows where gene extraction fails will not be dropped but will result in NaN values in the merged dataframe.</p></li>
-<li><p>The merged file is saved in the same directory as the results file, with the specified suffix added
-to its name.</p></li>
+<li><p>Extracts gene names from ‘feature’ (format: ‘[gene]’) and ‘Gene ID’ (format: ‘prefix_gene’).</p></li>
+<li><p>Gene extraction failures result in NaNs in the merge but are not dropped.</p></li>
+<li><p>Output CSV is saved next to the input <cite>results_file</cite>, with the suffix appended.</p></li>
 </ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.process_vision_results">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">process_vision_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#process_vision_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.process_vision_results" title="Link to this definition"></a></dt>
-<dd><p>Processes vision results by extracting metadata from the ‘path’ column,
-applying a threshold to predictions, and adding new columns to the DataFrame.
-:param df: A pandas DataFrame containing vision results.</p>
-<blockquote>
-<div><p>Must include a ‘path’ column with metadata and a ‘pred’ column with prediction scores.</p>
-</div></blockquote>
+<dd><p>Process vision results by extracting metadata from file paths and thresholding predictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – The threshold value to classify predictions.
-Defaults to 0.5.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame with vision results. Must include ‘path’ and ‘pred’ columns.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold for classifying predictions. Defaults to 0.5.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>The modified DataFrame with additional columns:</dt><dd><ul class="simple">
-<li><p>’plateID’: Extracted plate identifier from the ‘path’ column.</p></li>
-<li><p>’rowID’: Extracted row identifier from the ‘path’ column.</p></li>
-<li><p>’columnID’: Extracted column identifier from the ‘path’ column.</p></li>
-<li><p>’fieldID’: Extracted field identifier from the ‘path’ column.</p></li>
-<li><p>’object’: Extracted object identifier from the ‘path’ column.</p></li>
-<li><p>’prc’: Concatenated string of ‘plateID’, ‘rowID’, and ‘columnID’.</p></li>
-<li><p>’cv_predictions’: Binary classification results based on the threshold.</p></li>
+<dt>Modified DataFrame with added columns:</dt><dd><ul class="simple">
+<li><p>’plateID’, ‘rowID’, ‘columnID’, ‘fieldID’, ‘object’: extracted from ‘path’</p></li>
+<li><p>’prc’: combination of ‘plateID’, ‘rowID’, and ‘columnID’</p></li>
+<li><p>’cv_predictions’: binary classification based on <cite>threshold</cite></p></li>
 </ul>
 </dd>
 </dl>

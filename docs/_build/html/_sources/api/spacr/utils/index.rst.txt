@@ -2440,55 +2440,56 @@ Module Contents
 
    Plot a grid of images for each cluster based on the given labels and embeddings.
 
-   :param embedding: Embedding of data points used for visualization.
+   :param embedding: Embedding of data points for visualization.
    :type embedding: np.ndarray
-   :param labels: Cluster labels for each data point. A value of -1 indicates noise/outliers.
+   :param labels: Cluster labels for each data point. A value of -1 indicates noise or outliers.
    :type labels: np.ndarray
    :param image_nr: Maximum number of images to display per cluster.
    :type image_nr: int
-   :param image_paths: File paths to the images corresponding to the data points.
+   :param image_paths: File paths to images corresponding to the data points.
    :type image_paths: list of str
-   :param colors: Colors used for each cluster in the plot.
+   :param colors: List of colors for each cluster.
    :type colors: list of str
-   :param figuresize: Figure size as (width, height).
+   :param figuresize: Size of the figure (width, height).
    :type figuresize: tuple
-   :param black_background: If True, the grid uses a black background.
+   :param black_background: Whether to use a black background.
    :type black_background: bool
-   :param verbose: If True, prints additional progress information.
+   :param verbose: Whether to print progress information.
    :type verbose: bool
 
-   :returns: The plotted figure with image grids, or None if no valid clusters.
+   :returns: The generated figure, or None if no valid clusters are found.
    :rtype: matplotlib.figure.Figure or None
 
-   Additional Info:
-       - Clusters with more than `image_nr` images are subsampled randomly.
-       - If all labels are -1, a message is printed and the function returns None.
-       - Uses an external `plot_grid` function to render the image grids.
+   .. rubric:: Notes
+
+   - Clusters larger than `image_nr` are randomly subsampled.
+   - If all labels are -1, the function returns None.
+   - Relies on an external `plot_grid` function for grid rendering.
 
 
 .. py:function:: plot_grid(cluster_images, colors, figuresize, black_background, verbose)
 
-   Plots a grid of images grouped by clusters with customizable figure size, background, and labels.
-   :param cluster_images: A dictionary where keys are cluster labels and values are lists of images
-                          belonging to each cluster.
+   Plot a grid of images grouped by cluster with optional background and labels.
+
+   :param cluster_images: Dictionary mapping cluster labels to lists of images.
    :type cluster_images: dict
-   :param colors: A list of RGB tuples representing the colors for each cluster.
+   :param colors: List of RGB tuples specifying colors for each cluster.
    :type colors: list
-   :param figuresize: The base size of the figure. The actual size is adjusted based on the number of clusters.
+   :param figuresize: Base figure size; actual size scales with the number of clusters.
    :type figuresize: float
-   :param black_background: If True, the background of the plot will be black; otherwise, it will be white.
+   :param black_background: If True, use a black background; otherwise, use white.
    :type black_background: bool
-   :param verbose: If True, prints additional information about cluster labels and indices.
+   :param verbose: If True, print cluster labels and index info during plotting.
    :type verbose: bool
 
-   :returns: The generated figure containing the grid of images.
+   :returns: The generated figure containing the image grid.
    :rtype: matplotlib.figure.Figure
 
    .. rubric:: Notes
 
-   - The function dynamically adjusts the grid size for each cluster based on the number of images.
-   - Cluster labels are displayed beside the grid with corresponding colors.
-   - A maximum figure size is enforced to prevent excessively large plots.
+   - Grid size is dynamically adjusted per cluster.
+   - Cluster labels are shown alongside image grids using corresponding colors.
+   - A maximum figure size limit prevents overly large plots.
 
 
 .. py:function:: generate_path_list_from_db(db_path, file_metadata)
@@ -2788,30 +2789,30 @@ Module Contents
 
 .. py:function:: perform_statistical_tests(all_df, cluster_col='cluster')
 
-   Perform statistical tests (ANOVA and Kruskal-Wallis) on numeric features grouped by a cluster column.
-   This function evaluates whether there are statistically significant differences
-   in the distributions of numeric features across groups defined by the `cluster_col`.
-   :param all_df: The input DataFrame containing the data to analyze.
+   Perform ANOVA and Kruskal-Wallis tests on numeric features grouped by clusters.
+
+   This function evaluates whether numeric features differ significantly across groups
+   defined by the `cluster_col`.
+
+   :param all_df: DataFrame containing numeric features and cluster assignments.
    :type all_df: pd.DataFrame
-   :param cluster_col: The column name representing the cluster or group labels.
-                       Defaults to 'cluster'.
+   :param cluster_col: Name of the column indicating cluster/group labels. Defaults to 'cluster'.
    :type cluster_col: str, optional
 
    :returns:
 
-                 - anova_df (pd.DataFrame): A DataFrame containing the results of the ANOVA test
-                   with columns ['Feature', 'ANOVA_Statistic', 'ANOVA_pValue'].
-                 - kruskal_df (pd.DataFrame): A DataFrame containing the results of the Kruskal-Wallis test
-                   with columns ['Feature', 'Kruskal_Statistic', 'Kruskal_pValue'].
+                 - anova_df (pd.DataFrame): ANOVA test results with columns
+                   ['Feature', 'ANOVA_Statistic', 'ANOVA_pValue'].
+                 - kruskal_df (pd.DataFrame): Kruskal-Wallis test results with columns
+                   ['Feature', 'Kruskal_Statistic', 'Kruskal_pValue'].
    :rtype: tuple
 
    .. rubric:: Notes
 
-   - The function first checks the normality of each numeric feature using the `check_normality` function.
-   - If the feature is normally distributed, an ANOVA test is performed.
-   - If the feature is not normally distributed, a Kruskal-Wallis test is performed.
-   - The `check_normality` function and statistical test functions (`f_oneway` and `kruskal`)
-     are assumed to be imported from appropriate libraries.
+   - Normality of each feature is assessed using `check_normality`.
+   - ANOVA is used for normally distributed features.
+   - Kruskal-Wallis is used for non-normal features.
+   - Assumes `check_normality`, `scipy.stats.f_oneway`, and `scipy.stats.kruskal` are available.
 
 
 .. py:function:: combine_results(rf_df, anova_df, kruskal_df)
@@ -2966,55 +2967,43 @@ Module Contents
 
 .. py:function:: merge_regression_res_with_metadata(results_file, metadata_file, name='_metadata')
 
-   Merges regression results with metadata based on a common gene identifier.
-   This function reads two CSV files: one containing regression results and the other containing metadata.
-   It extracts and cleans gene identifiers from both files, merges them on the gene column, and saves the
-   merged dataframe to a new CSV file.
-   :param results_file: Path to the CSV file containing regression results. This file must have a
-                        'feature' column from which gene identifiers can be extracted.
+   Merge regression results with metadata using gene identifiers.
+
+   Reads regression results and metadata from two CSV files, extracts gene identifiers,
+   merges the data on gene names, and saves the merged DataFrame.
+
+   :param results_file: Path to the regression results CSV. Must contain a 'feature' column.
    :type results_file: str
-   :param metadata_file: Path to the CSV file containing metadata. This file must have a 'Gene ID'
-                         column from which gene identifiers can be extracted.
+   :param metadata_file: Path to the metadata CSV. Must contain a 'Gene ID' column.
    :type metadata_file: str
-   :param name: Suffix to append to the base name of the results file for the output file.
-                Defaults to '_metadata'.
+   :param name: Suffix for the output file name. Defaults to '_metadata'.
    :type name: str, optional
 
-   :returns: The merged dataframe containing data from both the regression results and metadata files.
+   :returns: Merged DataFrame with regression results and metadata.
    :rtype: pandas.DataFrame
 
    .. rubric:: Notes
 
-   - The 'feature' column in the results file is expected to contain gene information in the format
-     '[gene_name]', which will be extracted and cleaned.
-   - The 'Gene ID' column in the metadata file is expected to contain gene information in the format
-     'prefix_gene_name', from which the gene name will be extracted.
-   - Rows where gene extraction fails will not be dropped but will result in NaN values in the merged dataframe.
-   - The merged file is saved in the same directory as the results file, with the specified suffix added
-     to its name.
+   - Extracts gene names from 'feature' (format: '[gene]') and 'Gene ID' (format: 'prefix_gene').
+   - Gene extraction failures result in NaNs in the merge but are not dropped.
+   - Output CSV is saved next to the input `results_file`, with the suffix appended.
 
 
 .. py:function:: process_vision_results(df, threshold=0.5)
 
-   Processes vision results by extracting metadata from the 'path' column,
-   applying a threshold to predictions, and adding new columns to the DataFrame.
-   :param df: A pandas DataFrame containing vision results.
-              Must include a 'path' column with metadata and a 'pred' column with prediction scores.
+   Process vision results by extracting metadata from file paths and thresholding predictions.
+
+   :param df: DataFrame with vision results. Must include 'path' and 'pred' columns.
    :type df: pd.DataFrame
-   :param threshold: The threshold value to classify predictions.
-                     Defaults to 0.5.
+   :param threshold: Threshold for classifying predictions. Defaults to 0.5.
    :type threshold: float, optional
 
    :returns:
 
-             The modified DataFrame with additional columns:
-                 - 'plateID': Extracted plate identifier from the 'path' column.
-                 - 'rowID': Extracted row identifier from the 'path' column.
-                 - 'columnID': Extracted column identifier from the 'path' column.
-                 - 'fieldID': Extracted field identifier from the 'path' column.
-                 - 'object': Extracted object identifier from the 'path' column.
-                 - 'prc': Concatenated string of 'plateID', 'rowID', and 'columnID'.
-                 - 'cv_predictions': Binary classification results based on the threshold.
+             Modified DataFrame with added columns:
+                 - 'plateID', 'rowID', 'columnID', 'fieldID', 'object': extracted from 'path'
+                 - 'prc': combination of 'plateID', 'rowID', and 'columnID'
+                 - 'cv_predictions': binary classification based on `threshold`
    :rtype: pd.DataFrame
 
 
