@@ -1149,7 +1149,80 @@
 <div class="viewcode-block" id="set_default_settings_preprocess_generate_masks">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_settings_preprocess_generate_masks">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default settings for the preprocessing and mask generation pipeline using Cellpose or similar tools.</span>
+
+<span class="sd">    This function populates a settings dictionary with default values used during image preprocessing,</span>
+<span class="sd">    segmentation mask generation, background removal, plotting, timelapse handling, and more.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict): Optional dictionary with user-specified values. Defaults will only fill in missing keys.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing default configuration parameters for mask generation.</span>
+
+<span class="sd">    Default Parameters:</span>
+<span class="sd">        # Core pipeline toggles</span>
+<span class="sd">        - denoise (bool): Apply denoising to input images.</span>
+<span class="sd">        - src (str): Path to image source directory.</span>
+<span class="sd">        - delete_intermediate (bool): Delete intermediate files after processing.</span>
+<span class="sd">        - preprocess (bool): Whether to run preprocessing steps.</span>
+<span class="sd">        - masks (bool): Whether to generate segmentation masks.</span>
+<span class="sd">        - save (bool): Save outputs to disk.</span>
+<span class="sd">        - consolidate (bool): Combine mask outputs from multiple sources.</span>
+<span class="sd">        - batch_size (int): Number of images to process in parallel.</span>
+<span class="sd">        - test_mode (bool): Run in test mode for quick inspection.</span>
+<span class="sd">        - test_images (int): Number of images to use in test mode.</span>
+<span class="sd">        - magnification (int): Objective magnification used for imaging.</span>
+<span class="sd">        - custom_regex (str|None): Custom regex for file parsing if needed.</span>
+<span class="sd">        - metadata_type (str): Format of metadata (&#39;cellvoyager&#39;, etc.).</span>
+<span class="sd">        - n_jobs (int): Number of parallel jobs to use (default: CPU count - 4).</span>
+<span class="sd">        - randomize (bool): Shuffle processing order.</span>
+<span class="sd">        - verbose (bool): Print processing details.</span>
+<span class="sd">        - remove_background_{cell,nucleus,pathogen} (bool): Background subtraction toggles per channel.</span>
+
+<span class="sd">        # Object diameter estimates</span>
+<span class="sd">        - {cell,nucleus,pathogen}_diamiter (float|None): Expected diameter for each object type.</span>
+
+<span class="sd">        # Channel and background settings</span>
+<span class="sd">        - channels (list): List of image channel indices.</span>
+<span class="sd">        - {cell,nucleus,pathogen}_channel (int|None): Channel indices for each object type.</span>
+<span class="sd">        - {cell,nucleus,pathogen}_background (int): Background value for each channel.</span>
+<span class="sd">        - {cell,nucleus,pathogen}_Signal_to_noise (float): Threshold for SNR filtering.</span>
+<span class="sd">        - {cell,nucleus,pathogen}_CP_prob (float): Minimum Cellpose probability threshold.</span>
+<span class="sd">        - {cell,nucleus,pathogen}_FT (float): Feature threshold score.</span>
+
+<span class="sd">        # Plotting</span>
+<span class="sd">        - plot (bool): Enable visual output.</span>
+<span class="sd">        - figuresize (int): Plot size in inches.</span>
+<span class="sd">        - cmap (str): Color map for plots.</span>
+<span class="sd">        - normalize (bool): Normalize intensities for plotting.</span>
+<span class="sd">        - normalize_plots (bool): Normalize before visualizing masks.</span>
+<span class="sd">        - examples_to_plot (int): Number of plots to generate.</span>
+
+<span class="sd">        # Analysis settings</span>
+<span class="sd">        - pathogen_model (str|None): Optional path to pathogen model.</span>
+<span class="sd">        - merge_pathogens (bool): Merge all pathogen masks into one.</span>
+<span class="sd">        - filter (bool): Enable object filtering.</span>
+<span class="sd">        - lower_percentile (float): Intensity clipping lower bound.</span>
+
+<span class="sd">        # Timelapse tracking</span>
+<span class="sd">        - timelapse (bool): Enable timelapse mode.</span>
+<span class="sd">        - fps (int): Frames per second for exported timelapse.</span>
+<span class="sd">        - timelapse_displacement (float|None): Displacement threshold for linking.</span>
+<span class="sd">        - timelapse_memory (int): Maximum number of frames to retain object identity.</span>
+<span class="sd">        - timelapse_frame_limits (list): List of frames to keep.</span>
+<span class="sd">        - timelapse_remove_transient (bool): Remove transient objects.</span>
+<span class="sd">        - timelapse_mode (str): Tracking algorithm (&#39;trackpy&#39;, etc.).</span>
+<span class="sd">        - timelapse_objects (str|None): Object types to track.</span>
+
+<span class="sd">        # Miscellaneous</span>
+<span class="sd">        - all_to_mip (bool): Convert all frames to maximum intensity projection.</span>
+<span class="sd">        - upscale (bool): Upsample image resolution.</span>
+<span class="sd">        - upscale_factor (float): Upsampling multiplier.</span>
+<span class="sd">        - adjust_cells (bool): Morphologically adjust cell boundaries.</span>
+<span class="sd">        - use_sam_{cell,nucleus,pathogen} (bool): Use Segment Anything Model (SAM) for segmentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;denoise&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;delete_intermediate&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -1338,7 +1411,44 @@
 
 
 <span class="k">def</span> <span class="nf">_get_object_settings</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate object-specific segmentation parameters for Cellpose or similar models.</span>
 
+<span class="sd">    This function constructs a dictionary of settings tailored to the object type</span>
+<span class="sd">    (e.g., &#39;cell&#39;, &#39;nucleus&#39;, or &#39;pathogen&#39;) based on user input and default rules.</span>
+<span class="sd">    It dynamically adjusts diameter, model selection, and filtering options.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        object_type (str): Type of object to configure. Must be one of &#39;cell&#39;, &#39;nucleus&#39;, or &#39;pathogen&#39;.</span>
+<span class="sd">        settings (dict): Configuration dictionary containing global pipeline parameters such as</span>
+<span class="sd">                         &#39;magnification&#39;, diameter overrides, SAM usage flags, and verbosity.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Object-specific segmentation settings.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If object_type is not one of the supported types.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The estimated object diameter is computed from magnification using `_get_diam`.</span>
+<span class="sd">        - If explicit diameters (e.g., `cell_diamiter`) are provided in settings, they override the computed value.</span>
+<span class="sd">        - The model name is chosen based on object type and SAM usage.</span>
+<span class="sd">        - Verbose output is printed if `settings[&#39;verbose&#39;]` is True.</span>
+
+<span class="sd">    Example output structure:</span>
+<span class="sd">        {</span>
+<span class="sd">            &#39;diameter&#39;: 30.0,</span>
+<span class="sd">            &#39;minimum_size&#39;: 225.0,</span>
+<span class="sd">            &#39;maximum_size&#39;: 9000.0,</span>
+<span class="sd">            &#39;merge&#39;: False,</span>
+<span class="sd">            &#39;resample&#39;: True,</span>
+<span class="sd">            &#39;remove_border_objects&#39;: False,</span>
+<span class="sd">            &#39;model_name&#39;: &#39;cyto2&#39;,</span>
+<span class="sd">            &#39;filter_size&#39;: False,</span>
+<span class="sd">            &#39;filter_intensity&#39;: False,</span>
+<span class="sd">            &#39;restore_type&#39;: None</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_diam</span>
     <span class="n">object_settings</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1512,7 +1622,70 @@
 <div class="viewcode-block" id="get_measure_crop_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_measure_crop_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default configuration for object measurement and cropping.</span>
 
+<span class="sd">    This function initializes and returns a dictionary of settings used for </span>
+<span class="sd">    measuring and cropping segmented objects such as cells, nuclei, or pathogens.</span>
+<span class="sd">    It covers measurement parameters, image cropping/export options, </span>
+<span class="sd">    multiprocessing behavior, and test mode overrides.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict, optional): Existing settings dictionary to be updated with defaults.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Fully populated settings dictionary with default values applied.</span>
+
+<span class="sd">    Key Settings:</span>
+<span class="sd">        - Measurement:</span>
+<span class="sd">            &#39;save_measurements&#39; (bool): Whether to save measurement results.</span>
+<span class="sd">            &#39;radial_dist&#39; (bool): Compute radial distance profiles.</span>
+<span class="sd">            &#39;calculate_correlation&#39; (bool): Compute intensity correlations.</span>
+<span class="sd">            &#39;manders_thresholds&#39; (list): Thresholds (percentiles) for Manders overlap coefficient.</span>
+<span class="sd">            &#39;homogeneity&#39; (bool): Compute local homogeneity.</span>
+<span class="sd">            &#39;homogeneity_distances&#39; (list): Distances (in pixels) for homogeneity calculations.</span>
+
+<span class="sd">        - Cropping:</span>
+<span class="sd">            &#39;save_png&#39; (bool): Export cropped objects as PNGs.</span>
+<span class="sd">            &#39;save_arrays&#39; (bool): Save raw data arrays for cropped objects.</span>
+<span class="sd">            &#39;png_size&#39; (list): Output size of cropped PNGs [width, height].</span>
+<span class="sd">            &#39;png_dims&#39; (list): Channel indices to include in the output PNG.</span>
+<span class="sd">            &#39;normalize&#39; (bool): Apply intensity normalization.</span>
+<span class="sd">            &#39;normalize_by&#39; (str): Normalize based on object-level or global stats.</span>
+<span class="sd">            &#39;crop_mode&#39; (list): Objects to crop, e.g., [&#39;cell&#39;].</span>
+<span class="sd">            &#39;use_bounding_box&#39; (bool): Use tight bounding boxes instead of masks.</span>
+<span class="sd">            &#39;dialate_pngs&#39; (bool): Apply dilation to the object mask.</span>
+<span class="sd">            &#39;dialate_png_ratios&#39; (list): Dilation factors relative to object size.</span>
+
+<span class="sd">        - Timelapse:</span>
+<span class="sd">            &#39;timelapse&#39; (bool): Process timelapse series.</span>
+<span class="sd">            &#39;timelapse_objects&#39; (list): Objects to track over time.</span>
+
+<span class="sd">        - Miscellaneous:</span>
+<span class="sd">            &#39;src&#39; (str): Input directory path.</span>
+<span class="sd">            &#39;experiment&#39; (str): Name of the experiment.</span>
+<span class="sd">            &#39;test_mode&#39; (bool): Run in debug mode with fewer images and visual output.</span>
+<span class="sd">            &#39;test_nr&#39; (int): Number of test images to process.</span>
+<span class="sd">            &#39;plot&#39; (bool): Show debug plots.</span>
+<span class="sd">            &#39;n_jobs&#39; (int): Number of CPU threads to use.</span>
+<span class="sd">            &#39;verbose&#39; (bool): Enable verbose output.</span>
+
+<span class="sd">        - Object masks:</span>
+<span class="sd">            &#39;cell_mask_dim&#39;, &#39;nucleus_mask_dim&#39;, &#39;pathogen_mask_dim&#39; (int): Channels for respective masks.</span>
+<span class="sd">            &#39;cytoplasm&#39; (bool): Include cytoplasmic measurements.</span>
+<span class="sd">            &#39;merge_edge_pathogen_cells&#39; (bool): Option to merge pathogens at borders.</span>
+<span class="sd">            &#39;min_size&#39; (int): Minimum size for filtering objects by type.</span>
+
+<span class="sd">        - Advanced:</span>
+<span class="sd">            &#39;distance_gaussian_sigma&#39; (float): Smoothing factor for distance transforms.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - When &#39;test_mode&#39; is True, verbose and plot modes are automatically enabled.</span>
+<span class="sd">        - &#39;os.cpu_count()&#39; is used to allocate available cores for parallel processing.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        settings = get_measure_crop_settings()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;delete_intermediate&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     
@@ -1584,6 +1757,65 @@
 <div class="viewcode-block" id="set_default_analyze_screen">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_analyze_screen">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_analyze_screen</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default configuration for analyzing a CRISPR or compound screen.</span>
+
+<span class="sd">    This function populates a provided settings dictionary with defaults related to </span>
+<span class="sd">    feature extraction, model training, screen scoring, and heatmap visualization.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict): Dictionary of user-provided settings to be updated.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with all necessary keys and default values.</span>
+
+<span class="sd">    Key Settings:</span>
+<span class="sd">        - Input/Output:</span>
+<span class="sd">            &#39;src&#39; (str): Path to the screen results folder.</span>
+<span class="sd">            &#39;save_to_db&#39; (bool): If True, results will be saved to a database.</span>
+<span class="sd">            &#39;annotation_column&#39; (str or None): Column used to group conditions or annotate classes.</span>
+<span class="sd">            &#39;location_column&#39; (str): Column identifying spatial layout (e.g., &#39;columnID&#39;).</span>
+
+<span class="sd">        - Modeling:</span>
+<span class="sd">            &#39;model_type_ml&#39; (str): Machine learning model to use (&#39;xgboost&#39; by default).</span>
+<span class="sd">            &#39;learning_rate&#39; (float): Learning rate for boosting models.</span>
+<span class="sd">            &#39;n_estimators&#39; (int): Number of trees for boosting.</span>
+<span class="sd">            &#39;reg_alpha&#39; (float): L1 regularization coefficient.</span>
+<span class="sd">            &#39;reg_lambda&#39; (float): L2 regularization coefficient.</span>
+<span class="sd">            &#39;test_size&#39; (float): Proportion of data used for testing.</span>
+<span class="sd">            &#39;cross_validation&#39; (bool): Whether to perform cross-validation.</span>
+<span class="sd">            &#39;n_repeats&#39; (int): Number of repetitions for performance evaluation.</span>
+<span class="sd">            &#39;prune_features&#39; (bool): Whether to apply feature pruning.</span>
+
+<span class="sd">        - Feature selection:</span>
+<span class="sd">            &#39;remove_low_variance_features&#39; (bool): Exclude features with low variance.</span>
+<span class="sd">            &#39;remove_highly_correlated_features&#39; (bool): Exclude highly collinear features.</span>
+<span class="sd">            &#39;top_features&#39; (int): Number of top features to retain after training.</span>
+
+<span class="sd">        - Screen summarization:</span>
+<span class="sd">            &#39;heatmap_feature&#39; (str): Feature used for heatmap visualization (e.g., &#39;predictions&#39;).</span>
+<span class="sd">            &#39;grouping&#39; (str): How to summarize replicate data (&#39;mean&#39;, &#39;median&#39;, etc.).</span>
+<span class="sd">            &#39;min_max&#39; (str): Scaling mode for heatmap normalization (&#39;allq&#39;, &#39;robust&#39;, etc.).</span>
+<span class="sd">            &#39;cmap&#39; (str): Colormap used for heatmap plotting.</span>
+
+<span class="sd">        - Controls:</span>
+<span class="sd">            &#39;positive_control&#39; (str): Label for the positive control condition.</span>
+<span class="sd">            &#39;negative_control&#39; (str): Label for the negative control condition.</span>
+<span class="sd">            &#39;exclude&#39; (list or None): List of condition labels to exclude from analysis.</span>
+
+<span class="sd">        - Filtering:</span>
+<span class="sd">            &#39;minimum_cell_count&#39; (int): Minimum number of cells per well required for inclusion.</span>
+<span class="sd">            &#39;nuclei_limit&#39; (bool): Whether to apply a nuclei count filter.</span>
+<span class="sd">            &#39;pathogen_limit&#39; (int): Maximum number of pathogens per object.</span>
+
+<span class="sd">        - Miscellaneous:</span>
+<span class="sd">            &#39;channel_of_interest&#39; (int): Imaging channel used for downstream focus.</span>
+<span class="sd">            &#39;n_jobs&#39; (int): Number of parallel jobs to run (-1 uses all CPUs).</span>
+<span class="sd">            &#39;verbose&#39; (bool): Enable verbose logging.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        settings = set_default_analyze_screen({})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;annotation_column&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save_to_db&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -1619,6 +1851,67 @@
 <div class="viewcode-block" id="set_default_train_test_model">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_train_test_model">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_train_test_model</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default configuration for training and testing a deep learning classification model.</span>
+
+<span class="sd">    This function populates a provided dictionary with default settings used for model training, </span>
+<span class="sd">    including architecture, optimizer, augmentation, and hardware preferences.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict): Dictionary of user-provided settings to be updated.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with all necessary keys and default values.</span>
+
+<span class="sd">    Key Settings:</span>
+<span class="sd">        - Input/Output:</span>
+<span class="sd">            &#39;src&#39; (str): Path to dataset directory.</span>
+<span class="sd">            &#39;train&#39; (bool): Whether to perform training.</span>
+<span class="sd">            &#39;test&#39; (bool): Whether to run inference on test data.</span>
+<span class="sd">            &#39;classes&#39; (list): List of class labels (e.g., [&#39;nc&#39;, &#39;pc&#39;]).</span>
+
+<span class="sd">        - Model architecture:</span>
+<span class="sd">            &#39;model_type&#39; (str): Model architecture to use (e.g., &#39;maxvit_t&#39;).</span>
+<span class="sd">            &#39;init_weights&#39; (bool): Whether to initialize model with pretrained weights.</span>
+<span class="sd">            &#39;dropout_rate&#39; (float): Dropout rate applied before final layers.</span>
+
+<span class="sd">        - Optimizer and scheduler:</span>
+<span class="sd">            &#39;optimizer_type&#39; (str): Optimizer to use (e.g., &#39;adamw&#39;).</span>
+<span class="sd">            &#39;schedule&#39; (str): Learning rate scheduler (&#39;reduce_lr_on_plateau&#39; or &#39;step_lr&#39;).</span>
+<span class="sd">            &#39;amsgrad&#39; (bool): Use AMSGrad variant of Adam.</span>
+<span class="sd">            &#39;weight_decay&#39; (float): Weight decay regularization.</span>
+<span class="sd">            &#39;learning_rate&#39; (float): Initial learning rate.</span>
+
+<span class="sd">        - Loss function:</span>
+<span class="sd">            &#39;loss_type&#39; (str): Loss function to use (e.g., &#39;focal_loss&#39;, &#39;binary_cross_entropy_with_logits&#39;).</span>
+
+<span class="sd">        - Training hyperparameters:</span>
+<span class="sd">            &#39;batch_size&#39; (int): Batch size used during training.</span>
+<span class="sd">            &#39;epochs&#39; (int): Number of training epochs.</span>
+<span class="sd">            &#39;val_split&#39; (float): Proportion of data used for validation.</span>
+<span class="sd">            &#39;gradient_accumulation&#39; (bool): Enable gradient accumulation to simulate larger batch sizes.</span>
+<span class="sd">            &#39;gradient_accumulation_steps&#39; (int): Number of steps for accumulation.</span>
+<span class="sd">            &#39;pin_memory&#39; (bool): Pin memory in DataLoader.</span>
+
+<span class="sd">        - Image preprocessing:</span>
+<span class="sd">            &#39;image_size&#39; (int): Size to which images are resized (assumes square).</span>
+<span class="sd">            &#39;normalize&#39; (bool): Whether to apply normalization.</span>
+<span class="sd">            &#39;train_channels&#39; (list): List of channels to use for training (e.g., [&#39;r&#39;,&#39;g&#39;,&#39;b&#39;]).</span>
+<span class="sd">            &#39;augment&#39; (bool): Whether to apply data augmentation.</span>
+
+<span class="sd">        - Checkpointing:</span>
+<span class="sd">            &#39;use_checkpoint&#39; (bool): Save model checkpoints.</span>
+<span class="sd">            &#39;intermedeate_save&#39; (bool): Save intermediate models during training.</span>
+
+<span class="sd">        - Parallelization:</span>
+<span class="sd">            &#39;n_jobs&#39; (int): Number of parallel processes to use (default: available cores - 2).</span>
+
+<span class="sd">        - Miscellaneous:</span>
+<span class="sd">            &#39;verbose&#39; (bool): Enable detailed logging.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        settings = set_default_train_test_model({})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cores</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span>
 
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
@@ -1654,7 +1947,50 @@
 <div class="viewcode-block" id="set_generate_training_dataset_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_generate_training_dataset_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">set_generate_training_dataset_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default configuration for generating a training dataset from measurements and metadata.</span>
+
+<span class="sd">    This function populates the given dictionary with default values required for generating</span>
+<span class="sd">    a structured dataset for supervised learning based on annotated metadata or measurements.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with defaults if not already present.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with default keys and values for dataset generation.</span>
+
+<span class="sd">    Key Settings:</span>
+<span class="sd">        - Input/Output:</span>
+<span class="sd">            &#39;src&#39; (str): Path to source data.</span>
+<span class="sd">            &#39;png_type&#39; (str): Type of image to extract (e.g., &#39;cell_png&#39;).</span>
+
+<span class="sd">        - Metadata and labels:</span>
+<span class="sd">            &#39;dataset_mode&#39; (str): Mode to derive labels (&#39;metadata&#39; or &#39;measurement&#39;).</span>
+<span class="sd">            &#39;annotation_column&#39; (str): Name of column in metadata used for annotation.</span>
+<span class="sd">            &#39;annotated_classes&#39; (list): List of class indices (e.g., [1, 2]).</span>
+<span class="sd">            &#39;class_metadata&#39; (list): List of metadata values corresponding to each class.</span>
+<span class="sd">            &#39;metadata_item_1_name&#39; (list): Primary metadata variable (e.g., conditions).</span>
+<span class="sd">            &#39;metadata_item_1_value&#39; (list of list): Metadata values for each class.</span>
+<span class="sd">            &#39;metadata_item_2_name&#39; (list): Secondary metadata variable.</span>
+<span class="sd">            &#39;metadata_item_2_value&#39; (list of list): Values of secondary variable by class.</span>
+<span class="sd">            &#39;metadata_type_by&#39; (str): Column to use for metadata grouping (e.g., &#39;columnID&#39;).</span>
+
+<span class="sd">        - Table and image options:</span>
+<span class="sd">            &#39;tables&#39; (list or None): Table(s) to source data from (e.g., &#39;cell&#39;, &#39;nucleus&#39;).</span>
+<span class="sd">            &#39;channel_of_interest&#39; (int): Channel to use for class derivation or filtering.</span>
+<span class="sd">            &#39;custom_measurement&#39; (str or None): Measurement key to use for class label if in measurement mode.</span>
+
+<span class="sd">        - Limits and filters:</span>
+<span class="sd">            &#39;nuclei_limit&#39; (bool): Whether to filter based on number of nuclei.</span>
+<span class="sd">            &#39;pathogen_limit&#39; (bool): Whether to filter based on number of pathogens.</span>
+
+<span class="sd">        - Image settings:</span>
+<span class="sd">            &#39;size&#39; (int): Target image size (square width/height in pixels).</span>
+<span class="sd">            &#39;test_split&#39; (float): Fraction of data to reserve for testing.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        settings = set_generate_training_dataset_defaults({})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">])</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dataset_mode&#39;</span><span class="p">,</span><span class="s1">&#39;metadata&#39;</span><span class="p">)</span>
@@ -1682,7 +2018,70 @@
 <div class="viewcode-block" id="deep_spacr_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.deep_spacr_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">deep_spacr_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default arguments for deep learning analysis in spaCR.</span>
+
+<span class="sd">    This function fills in default arguments for training, testing, and applying deep learning</span>
+<span class="sd">    models on spaCR datasets, supporting both metadata and measurement-based annotations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default arguments.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to dataset.</span>
+<span class="sd">        dataset_mode (str): &#39;metadata&#39; or &#39;measurement&#39; mode for annotation.</span>
+<span class="sd">        annotation_column (str): Metadata column containing annotations.</span>
+<span class="sd">        annotated_classes (list): Class indices (e.g., [1, 2]).</span>
+<span class="sd">        classes (list): Class labels (e.g., [&#39;nc&#39;, &#39;pc&#39;]).</span>
+<span class="sd">        size (int): Image size for training.</span>
+<span class="sd">        test_split (float): Fraction of data reserved for testing.</span>
+<span class="sd">        class_metadata (list): Metadata values for each class.</span>
+<span class="sd">        metadata_type_by (str): Key used for metadata classification (e.g., &#39;columnID&#39;).</span>
+<span class="sd">        channel_of_interest (int): Channel used for classification or filtering.</span>
+<span class="sd">        custom_measurement (str or None): Measurement used for label derivation.</span>
+<span class="sd">        tables (list or None): Tables to extract measurements from (e.g., &#39;cell&#39;).</span>
+<span class="sd">        png_type (str): Image type used for training, e.g., &#39;cell_png&#39;.</span>
+<span class="sd">        custom_model (bool): Whether to load a custom model.</span>
+<span class="sd">        custom_model_path (str): Path to the custom model file.</span>
+<span class="sd">        train (bool): Whether to perform training.</span>
+<span class="sd">        test (bool): Whether to perform testing.</span>
+<span class="sd">        model_type (str): Model architecture (e.g., &#39;maxvit_t&#39;).</span>
+<span class="sd">        optimizer_type (str): Optimizer to use (e.g., &#39;adamw&#39;).</span>
+<span class="sd">        schedule (str): Learning rate schedule (&#39;reduce_lr_on_plateau&#39; or &#39;step_lr&#39;).</span>
+<span class="sd">        loss_type (str): Loss function (&#39;focal_loss&#39;, etc.).</span>
+<span class="sd">        normalize (bool): Whether to normalize input images.</span>
+<span class="sd">        image_size (int): Image dimensions (assumes square input).</span>
+<span class="sd">        batch_size (int): Batch size for training.</span>
+<span class="sd">        epochs (int): Number of training epochs.</span>
+<span class="sd">        val_split (float): Validation fraction from training data.</span>
+<span class="sd">        learning_rate (float): Initial learning rate.</span>
+<span class="sd">        weight_decay (float): Weight decay for optimizer.</span>
+<span class="sd">        dropout_rate (float): Dropout rate in model.</span>
+<span class="sd">        init_weights (bool): Whether to initialize weights.</span>
+<span class="sd">        amsgrad (bool): Use AMSGrad with Adam.</span>
+<span class="sd">        use_checkpoint (bool): Save and load checkpoints.</span>
+<span class="sd">        gradient_accumulation (bool): Use gradient accumulation.</span>
+<span class="sd">        gradient_accumulation_steps (int): Steps to accumulate gradients.</span>
+<span class="sd">        intermedeate_save (bool): Save intermediate weights.</span>
+<span class="sd">        pin_memory (bool): Use pin memory in DataLoader.</span>
+<span class="sd">        n_jobs (int): Number of CPU cores to use.</span>
+<span class="sd">        train_channels (list): Color channels for training (e.g., [&#39;r&#39;, &#39;g&#39;, &#39;b&#39;]).</span>
+<span class="sd">        augment (bool): Use data augmentation.</span>
+<span class="sd">        verbose (bool): Verbose output.</span>
+<span class="sd">        apply_model_to_dataset (bool): Whether to apply model after training.</span>
+<span class="sd">        file_metadata (str or None): Path to metadata for inference.</span>
+<span class="sd">        sample (str or None): Sample identifier.</span>
+<span class="sd">        experiment (str): Experiment identifier.</span>
+<span class="sd">        score_threshold (float): Classification threshold.</span>
+<span class="sd">        dataset (str): Path to dataset for inference.</span>
+<span class="sd">        model_path (str): Path to saved model file.</span>
+<span class="sd">        file_type (str): File type of images (e.g., &#39;cell_png&#39;).</span>
+<span class="sd">        generate_training_dataset (bool): Whether to generate training dataset.</span>
+<span class="sd">        train_DL_model (bool): Whether to train the deep learning model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cores</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">4</span>
     
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
@@ -1741,40 +2140,126 @@
 <div class="viewcode-block" id="get_train_test_model_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_train_test_model_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_train_test_model_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_model&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;classes&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;nc&#39;</span><span class="p">,</span><span class="s1">&#39;pc&#39;</span><span class="p">])</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;train_channels&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">])</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_type&#39;</span><span class="p">,</span> <span class="s1">&#39;maxvit_t&#39;</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;optimizer_type&#39;</span><span class="p">,</span> <span class="s1">&#39;adamw&#39;</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;schedule&#39;</span><span class="p">,</span> <span class="s1">&#39;reduce_lr_on_plateau&#39;</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;loss_type&#39;</span><span class="p">,</span> <span class="s1">&#39;focal_loss&#39;</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;image_size&#39;</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;epochs&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;val_split&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">,</span> <span class="mf">0.00001</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dropout_rate&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;init_weights&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;amsgrad&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_checkpoint&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;gradient_accumulation&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;gradient_accumulation_steps&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;intermedeate_save&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pin_memory&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;augment&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-     <span class="k">return</span> <span class="n">settings</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for training and testing a deep learning model.</span>
+
+<span class="sd">    This function populates the `settings` dictionary with default args used for</span>
+<span class="sd">    training and evaluating deep learning models in spaCR.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to input dataset.</span>
+<span class="sd">        train (bool): Whether to train the model.</span>
+<span class="sd">        test (bool): Whether to test the model.</span>
+<span class="sd">        custom_model (bool): Whether to load a custom model.</span>
+<span class="sd">        classes (list): List of class labels, e.g., [&#39;nc&#39;, &#39;pc&#39;].</span>
+<span class="sd">        train_channels (list): Channels to use for training (e.g., [&#39;r&#39;, &#39;g&#39;, &#39;b&#39;]).</span>
+<span class="sd">        model_type (str): Type of model architecture, e.g., &#39;maxvit_t&#39;.</span>
+<span class="sd">        optimizer_type (str): Optimizer to use, e.g., &#39;adamw&#39;.</span>
+<span class="sd">        schedule (str): Learning rate schedule (&#39;reduce_lr_on_plateau&#39; or &#39;step_lr&#39;).</span>
+<span class="sd">        loss_type (str): Loss function, e.g., &#39;focal_loss&#39;.</span>
+<span class="sd">        normalize (bool): Normalize images before training.</span>
+<span class="sd">        image_size (int): Input image size (square).</span>
+<span class="sd">        batch_size (int): Batch size for training.</span>
+<span class="sd">        epochs (int): Number of epochs.</span>
+<span class="sd">        val_split (float): Fraction of training data used for validation.</span>
+<span class="sd">        learning_rate (float): Initial learning rate.</span>
+<span class="sd">        weight_decay (float): Weight decay for regularization.</span>
+<span class="sd">        dropout_rate (float): Dropout rate for model.</span>
+<span class="sd">        init_weights (bool): Whether to initialize model weights.</span>
+<span class="sd">        amsgrad (bool): Use AMSGrad variant of Adam.</span>
+<span class="sd">        use_checkpoint (bool): Whether to use model checkpointing.</span>
+<span class="sd">        gradient_accumulation (bool): Use gradient accumulation across batches.</span>
+<span class="sd">        gradient_accumulation_steps (int): Steps to accumulate gradients before update.</span>
+<span class="sd">        intermedeate_save (bool): Save intermediate models during training.</span>
+<span class="sd">        pin_memory (bool): Enable pinned memory in DataLoader.</span>
+<span class="sd">        n_jobs (int): Number of CPU cores to use.</span>
+<span class="sd">        augment (bool): Whether to apply data augmentation.</span>
+<span class="sd">        verbose (bool): Enable verbose output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_model&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;classes&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;nc&#39;</span><span class="p">,</span><span class="s1">&#39;pc&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;train_channels&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">])</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_type&#39;</span><span class="p">,</span> <span class="s1">&#39;maxvit_t&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;optimizer_type&#39;</span><span class="p">,</span> <span class="s1">&#39;adamw&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;schedule&#39;</span><span class="p">,</span> <span class="s1">&#39;reduce_lr_on_plateau&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;loss_type&#39;</span><span class="p">,</span> <span class="s1">&#39;focal_loss&#39;</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;normalize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;image_size&#39;</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;epochs&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;val_split&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">,</span> <span class="mf">0.00001</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dropout_rate&#39;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;init_weights&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;amsgrad&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;use_checkpoint&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;gradient_accumulation&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;gradient_accumulation_steps&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;intermedeate_save&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pin_memory&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;augment&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">settings</span></div>
 
 
 <div class="viewcode-block" id="get_analyze_recruitment_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_analyze_recruitment_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_analyze_recruitment_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for recruitment analysis of host/pathogen protein localization.</span>
+
+<span class="sd">    This function populates the `settings` dictionary with default values for analyzing</span>
+<span class="sd">    recruitment of host proteins (e.g., ESCRT) to pathogens under various treatment conditions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to input dataset.</span>
+<span class="sd">        target (str): Protein target being analyzed.</span>
+<span class="sd">        cell_types (list): List of host cell types (e.g., [&#39;HeLa&#39;]).</span>
+<span class="sd">        cell_plate_metadata (list or None): Metadata for host cells.</span>
+<span class="sd">        pathogen_types (list): List of pathogen types.</span>
+<span class="sd">        pathogen_plate_metadata (list): Plate layout metadata for pathogens.</span>
+<span class="sd">        treatments (list): List of treatment conditions.</span>
+<span class="sd">        treatment_plate_metadata (list): Plate layout metadata for treatments.</span>
+<span class="sd">        channel_dims (list): List of image channel indices.</span>
+<span class="sd">        cell_chann_dim (int): Index of cell signal channel.</span>
+<span class="sd">        cell_mask_dim (int): Index of cell mask channel.</span>
+<span class="sd">        nucleus_chann_dim (int): Index of nucleus signal channel.</span>
+<span class="sd">        nucleus_mask_dim (int): Index of nucleus mask channel.</span>
+<span class="sd">        pathogen_chann_dim (int): Index of pathogen signal channel.</span>
+<span class="sd">        pathogen_mask_dim (int): Index of pathogen mask channel.</span>
+<span class="sd">        channel_of_interest (int): Channel to analyze for recruitment.</span>
+<span class="sd">        plot (bool): Whether to generate plots.</span>
+<span class="sd">        plot_nr (int): Number of plots to generate.</span>
+<span class="sd">        plot_control (bool): Include controls in plots.</span>
+<span class="sd">        figuresize (int): Size of generated figures.</span>
+<span class="sd">        pathogen_limit (int): Maximum pathogens per field.</span>
+<span class="sd">        nuclei_limit (int): Minimum nuclei required per field.</span>
+<span class="sd">        cells_per_well (int): Expected number of cells per well.</span>
+<span class="sd">        pathogen_size_range (list): Min/max area for pathogen inclusion.</span>
+<span class="sd">        nucleus_size_range (list): Min/max area for nucleus inclusion.</span>
+<span class="sd">        cell_size_range (list): Min/max area for cell inclusion.</span>
+<span class="sd">        pathogen_intensity_range (list): Min/max intensity for pathogen inclusion.</span>
+<span class="sd">        nucleus_intensity_range (list): Min/max intensity for nucleus inclusion.</span>
+<span class="sd">        cell_intensity_range (list): Min/max intensity for cell inclusion.</span>
+<span class="sd">        target_intensity_min (int): Minimum intensity for target signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span><span class="s1">&#39;protein&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_types&#39;</span><span class="p">,[</span><span class="s1">&#39;HeLa&#39;</span><span class="p">])</span>
@@ -1812,6 +2297,26 @@
 <div class="viewcode-block" id="get_default_test_cellpose_model_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_default_test_cellpose_model_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_default_test_cellpose_model_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for testing a Cellpose model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to input image directory.</span>
+<span class="sd">        model_path (str): Path to the Cellpose model.</span>
+<span class="sd">        save (bool): Whether to save outputs.</span>
+<span class="sd">        normalize (bool): Apply percentile normalization.</span>
+<span class="sd">        percentiles (tuple): Lower and upper percentiles for normalization.</span>
+<span class="sd">        batch_size (int): Number of images to process per batch.</span>
+<span class="sd">        CP_probability (float): Minimum probability for Cellpose mask inclusion.</span>
+<span class="sd">        FT (float): Flow threshold for Cellpose model.</span>
+<span class="sd">        target_size (int): Resize input images to this size for model inference.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_path&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
@@ -1827,6 +2332,27 @@
 <div class="viewcode-block" id="get_default_apply_cellpose_model_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_default_apply_cellpose_model_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_default_apply_cellpose_model_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for applying a trained Cellpose model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to input image directory.</span>
+<span class="sd">        model_path (str): Path to the Cellpose model.</span>
+<span class="sd">        save (bool): Whether to save outputs.</span>
+<span class="sd">        normalize (bool): Apply percentile normalization.</span>
+<span class="sd">        percentiles (tuple): Lower and upper percentiles for normalization.</span>
+<span class="sd">        batch_size (int): Number of images to process per batch.</span>
+<span class="sd">        CP_probability (float): Minimum probability for Cellpose mask inclusion.</span>
+<span class="sd">        FT (float): Flow threshold for Cellpose model.</span>
+<span class="sd">        circularize (bool): Convert masks to circular contours.</span>
+<span class="sd">        target_size (int): Resize input images to this size for model inference.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_path&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
@@ -1843,6 +2369,22 @@
 <div class="viewcode-block" id="default_settings_analyze_percent_positive">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.default_settings_analyze_percent_positive">[docs]</a>
 <span class="k">def</span> <span class="nf">default_settings_analyze_percent_positive</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for analyzing percent-positive cells based on intensity thresholding.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to data table.</span>
+<span class="sd">        tables (list): List of object types to analyze (e.g., [&#39;cell&#39;]).</span>
+<span class="sd">        filter_1 (list): Filtering rule, e.g., [&#39;cell_area&#39;, 1000].</span>
+<span class="sd">        value_col (str): Column name containing intensity values.</span>
+<span class="sd">        threshold (float): Threshold above which objects are considered positive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,[</span><span class="s1">&#39;cell&#39;</span><span class="p">])</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;filter_1&#39;</span><span class="p">,[</span><span class="s1">&#39;cell_area&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">])</span>
@@ -1854,6 +2396,24 @@
 <div class="viewcode-block" id="get_analyze_reads_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_analyze_reads_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_analyze_reads_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for analyzing NGS reads to extract barcodes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to FASTQ file or folder.</span>
+<span class="sd">        upstream (str): Sequence upstream of the barcode.</span>
+<span class="sd">        downstream (str): Sequence downstream of the barcode.</span>
+<span class="sd">        barecode_length_1 (int): Length of the first barcode.</span>
+<span class="sd">        barecode_length_2 (int): Length of the second barcode.</span>
+<span class="sd">        chunk_size (int): Number of reads to process per chunk.</span>
+<span class="sd">        test (bool): Enable test mode with limited read parsing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;upstream&#39;</span><span class="p">,</span> <span class="s1">&#39;CTTCTGGTAAATGGGGATGTCAAGTT&#39;</span><span class="p">)</span> 
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;downstream&#39;</span><span class="p">,</span> <span class="s1">&#39;GTTTAAGAGCTATGCTGGAAACAGCAG&#39;</span><span class="p">)</span> <span class="c1">#This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA</span>
@@ -1867,6 +2427,27 @@
 <div class="viewcode-block" id="get_map_barcodes_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_map_barcodes_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_map_barcodes_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for mapping extracted barcodes to plate, grna, and control metadata.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to barcode read count data.</span>
+<span class="sd">        grna (str): Path to gRNA-barcode mapping CSV.</span>
+<span class="sd">        barcodes (str): Path to screen barcode-to-well metadata CSV.</span>
+<span class="sd">        plate_dict (str): Stringified dictionary mapping plate IDs to logical names.</span>
+<span class="sd">        test (bool): Enable test mode with limited entries.</span>
+<span class="sd">        verbose (bool): Print detailed progress information.</span>
+<span class="sd">        pc (str): Positive control gRNA identifier.</span>
+<span class="sd">        pc_loc (str): Well location of the positive control.</span>
+<span class="sd">        nc (str): Negative control gRNA identifier.</span>
+<span class="sd">        nc_loc (str): Well location of the negative control.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;grna&#39;</span><span class="p">,</span> <span class="s1">&#39;/home/carruthers/Documents/grna_barcodes.csv&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;barcodes&#39;</span><span class="p">,</span> <span class="s1">&#39;/home/carruthers/Documents/SCREEN_BARCODES.csv&#39;</span><span class="p">)</span>
@@ -1883,6 +2464,31 @@
 <div class="viewcode-block" id="get_train_cellpose_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_train_cellpose_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_train_cellpose_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for training a Cellpose model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        model_name (str): Name to assign to the trained model.</span>
+<span class="sd">        model_type (str): Type of model, e.g., &#39;cyto&#39;, &#39;nuclei&#39;.</span>
+<span class="sd">        Signal_to_noise (int): Signal-to-noise ratio in training images.</span>
+<span class="sd">        background (int): Background intensity value.</span>
+<span class="sd">        remove_background (bool): Whether to subtract background.</span>
+<span class="sd">        learning_rate (float): Learning rate for optimization.</span>
+<span class="sd">        weight_decay (float): Weight decay (L2 penalty).</span>
+<span class="sd">        batch_size (int): Number of samples per batch.</span>
+<span class="sd">        n_epochs (int): Maximum number of training epochs.</span>
+<span class="sd">        from_scratch (bool): Whether to initialize weights randomly.</span>
+<span class="sd">        diameter (float): Estimated object diameter.</span>
+<span class="sd">        resize (bool): Whether to resize input images.</span>
+<span class="sd">        width_height (list): Target width and height for resizing.</span>
+<span class="sd">        verbose (bool): Print training progress.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span><span class="s1">&#39;new_model&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_type&#39;</span><span class="p">,</span><span class="s1">&#39;cyto&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;Signal_to_noise&#39;</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
@@ -1903,6 +2509,21 @@
 <div class="viewcode-block" id="set_generate_dataset_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_generate_dataset_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">set_generate_dataset_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for generating a dataset from raw data and metadata.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Root directory for the experiment.</span>
+<span class="sd">        file_metadata (str or None): Path to metadata CSV file.</span>
+<span class="sd">        experiment (str): Experiment identifier.</span>
+<span class="sd">        sample (str or None): Sample name or ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;file_metadata&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;experiment&#39;</span><span class="p">,</span><span class="s1">&#39;experiment_1&#39;</span><span class="p">)</span>
@@ -1913,6 +2534,46 @@
 <div class="viewcode-block" id="get_perform_regression_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_perform_regression_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_perform_regression_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for performing regression on phenotype data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        count_data (list): List of paths to count tables.</span>
+<span class="sd">        score_data (list): List of paths to score tables.</span>
+<span class="sd">        positive_control (str): Gene ID of positive control.</span>
+<span class="sd">        negative_control (str): Gene ID of negative control.</span>
+<span class="sd">        min_n (int): Minimum number of data points per group.</span>
+<span class="sd">        controls (list): List of guide RNA IDs to exclude.</span>
+<span class="sd">        fraction_threshold (float or None): Minimum fraction threshold.</span>
+<span class="sd">        dependent_variable (str): Name of response variable.</span>
+<span class="sd">        threshold_method (str): Method for outlier thresholding (e.g., &#39;std&#39;).</span>
+<span class="sd">        threshold_multiplier (float): Multiplier for thresholding.</span>
+<span class="sd">        target_unique_count (int): Minimum unique guides per gene.</span>
+<span class="sd">        transform (str or None): Apply transformation to input data (e.g., &#39;log&#39;).</span>
+<span class="sd">        log_x (bool): Apply log10 to x-values.</span>
+<span class="sd">        log_y (bool): Apply log10 to y-values.</span>
+<span class="sd">        x_lim (tuple or None): x-axis limits.</span>
+<span class="sd">        outlier_detection (bool): Enable outlier removal.</span>
+<span class="sd">        agg_type (str or None): Aggregation type (&#39;mean&#39;, &#39;median&#39;).</span>
+<span class="sd">        min_cell_count (int or None): Minimum cells per sample to include.</span>
+<span class="sd">        regression_type (str): Regression type (&#39;ols&#39;, &#39;quantile&#39;).</span>
+<span class="sd">        random_row_column_effects (bool): Include row/column as random effects.</span>
+<span class="sd">        split_axis_lims (str): Delimiter-separated axis ranges for plotting.</span>
+<span class="sd">        cov_type (str or None): Covariance estimator for robust standard errors.</span>
+<span class="sd">        alpha (float): Alpha level or quantile (for quantile regression).</span>
+<span class="sd">        filter_value (list): Values to keep in filter_column.</span>
+<span class="sd">        filter_column (str): Column name for filtering.</span>
+<span class="sd">        plateID (str): Plate ID used in analysis.</span>
+<span class="sd">        metadata_files (list): List of CSVs with gene metadata.</span>
+<span class="sd">        volcano (str): Label column for volcano plot.</span>
+<span class="sd">        toxo (bool): Whether to use Toxoplasma-specific annotations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;count_data&#39;</span><span class="p">,</span><span class="s1">&#39;list of paths&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;score_data&#39;</span><span class="p">,</span><span class="s1">&#39;list of paths&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;positive_control&#39;</span><span class="p">,</span><span class="s1">&#39;239740&#39;</span><span class="p">)</span>
@@ -1954,6 +2615,35 @@
 <div class="viewcode-block" id="get_check_cellpose_models_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_check_cellpose_models_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_check_cellpose_models_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for checking Cellpose model predictions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        batch_size (int): Number of images per batch.</span>
+<span class="sd">        CP_prob (float): Cellpose probability threshold.</span>
+<span class="sd">        flow_threshold (float): Threshold for mask flow consistency.</span>
+<span class="sd">        save (bool): Save output masks to disk.</span>
+<span class="sd">        normalize (bool): Normalize image intensities.</span>
+<span class="sd">        channels (list): Channel indices for [nucleus, cytoplasm].</span>
+<span class="sd">        percentiles (tuple or None): Intensity percentiles for normalization.</span>
+<span class="sd">        invert (bool): Invert image intensities.</span>
+<span class="sd">        plot (bool): Display Cellpose output.</span>
+<span class="sd">        diameter (float): Estimated object diameter.</span>
+<span class="sd">        grayscale (bool): Convert image to grayscale.</span>
+<span class="sd">        remove_background (bool): Subtract background intensity.</span>
+<span class="sd">        background (int): Background value to subtract.</span>
+<span class="sd">        Signal_to_noise (int): Signal-to-noise ratio assumption.</span>
+<span class="sd">        verbose (bool): Print debug info.</span>
+<span class="sd">        resize (bool): Resize image to target dimensions.</span>
+<span class="sd">        target_height (int or None): Resize target height.</span>
+<span class="sd">        target_width (int or None): Resize target width.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;CP_prob&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;flow_threshold&#39;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
@@ -1978,6 +2668,40 @@
 <div class="viewcode-block" id="get_identify_masks_finetune_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_identify_masks_finetune_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_identify_masks_finetune_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default args for identifying masks using fine-tuned Cellpose models.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Args:</span>
+<span class="sd">        src (str): Path to input image directory.</span>
+<span class="sd">        model_name (str): Pretrained Cellpose model name (e.g., &#39;cyto&#39;).</span>
+<span class="sd">        custom_model (str or None): Path to a fine-tuned model (.pth).</span>
+<span class="sd">        channels (list): Channel indices [nucleus, cytoplasm].</span>
+<span class="sd">        background (int): Background value to subtract.</span>
+<span class="sd">        remove_background (bool): Whether to subtract background.</span>
+<span class="sd">        Signal_to_noise (int): Assumed SNR of input.</span>
+<span class="sd">        CP_prob (float): Cellpose probability threshold.</span>
+<span class="sd">        diameter (float): Estimated diameter of objects.</span>
+<span class="sd">        batch_size (int): Number of images per batch.</span>
+<span class="sd">        flow_threshold (float): Flow consistency threshold.</span>
+<span class="sd">        save (bool): Save output masks to disk.</span>
+<span class="sd">        verbose (bool): Print debug information.</span>
+<span class="sd">        normalize (bool): Normalize image intensities.</span>
+<span class="sd">        percentiles (tuple or None): Percentile normalization bounds.</span>
+<span class="sd">        invert (bool): Invert intensities.</span>
+<span class="sd">        resize (bool): Resize image to target dimensions.</span>
+<span class="sd">        target_height (int or None): Resize target height.</span>
+<span class="sd">        target_width (int or None): Resize target width.</span>
+<span class="sd">        rescale (bool): Rescale image based on object size.</span>
+<span class="sd">        resample (bool): Resample image for consistent shape.</span>
+<span class="sd">        grayscale (bool): Convert to grayscale.</span>
+<span class="sd">        fill_in (bool): Fill in holes in masks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;cyto&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_model&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -2354,6 +3078,25 @@
 <div class="viewcode-block" id="check_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.check_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">check_settings</span><span class="p">(</span><span class="n">vars_dict</span><span class="p">,</span> <span class="n">expected_types</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate and parse GUI-derived variable inputs according to expected types.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vars_dict (dict): Dictionary mapping setting keys to a tuple of (label, widget, variable, category).</span>
+<span class="sd">        expected_types (dict): Dictionary of expected types for each setting key.</span>
+<span class="sd">        q (multiprocessing.Queue, optional): Queue to collect error messages. If None, a new queue is created.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - settings (dict): Parsed settings with values cast to the expected types.</span>
+<span class="sd">            - errors (list): List of error messages describing issues with format or type mismatches.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Supports nested structures such as list of lists and dicts.</span>
+<span class="sd">        - Handles conversions to str, int, float, bool, list, dict, and None.</span>
+<span class="sd">        - Custom parsing is performed for complex input types like Cellpose metadata or PNG config lists.</span>
+<span class="sd">        - Errors are collected and returned without interrupting the full parsing process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">parse_list</span>
 
     <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2469,15 +3212,27 @@
     <span class="c1"># Send all collected errors to the queue</span>
     <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
         <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-        
-    
-
     <span class="k">return</span> <span class="n">settings</span><span class="p">,</span> <span class="n">errors</span></div>
 
 
 <div class="viewcode-block" id="generate_fields">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.generate_fields">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_fields</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">scrollable_frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dynamically generate labeled input fields with tooltips in a scrollable Tkinter frame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        variables (dict): Dictionary mapping setting keys to (var_type, options, default_value).</span>
+<span class="sd">        scrollable_frame (ScrollableFrame): A scrollable frame widget to place the input fields into.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        vars_dict (dict): Dictionary mapping each setting key to a tuple of (label, widget, variable, parent frame).</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Uses `create_input_field` to generate the widgets.</span>
+<span class="sd">        - Attaches tooltips using `spacrToolTip` where available.</span>
+<span class="sd">        - Tooltips describe the expected format, data type, and function of each setting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">create_input_field</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">spacrToolTip</span>
     <span class="n">row</span> <span class="o">=</span> <span class="mi">1</span>
@@ -2794,6 +3549,28 @@
 <div class="viewcode-block" id="set_annotate_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_annotate_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">set_annotate_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default arguments for image annotation and visualization in the annotation tool.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to update with default annotation settings.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated dictionary containing defaults for:</span>
+<span class="sd">            - src: input path</span>
+<span class="sd">            - image_type: type of image files</span>
+<span class="sd">            - channels: channels to display</span>
+<span class="sd">            - img_size: image display size</span>
+<span class="sd">            - annotation_column: metadata column to use for annotation</span>
+<span class="sd">            - normalize: apply intensity normalization</span>
+<span class="sd">            - normalize_channels: which channels to normalize</span>
+<span class="sd">            - outline: None or comma-separated channel(s) used to generate outline</span>
+<span class="sd">            - outline_threshold_factor: scale factor for thresholding outlines</span>
+<span class="sd">            - outline_sigma: sigma for Gaussian blur during outline generation</span>
+<span class="sd">            - percentiles: intensity normalization range</span>
+<span class="sd">            - measurement: comma-separated measurement columns to display</span>
+<span class="sd">            - threshold: thresholds corresponding to measurement columns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;image_type&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_png&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="s2">&quot;r,g,b&quot;</span><span class="p">)</span>
