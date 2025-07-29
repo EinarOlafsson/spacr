@@ -7341,25 +7341,25 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.plot_clusters_grid">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_clusters_grid</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">image_nr</span><span class="p">,</span> <span class="n">image_paths</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">figuresize</span><span class="p">,</span> <span class="n">black_background</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plots a grid of images for each cluster based on the provided labels and embeddings.</span>
+<span class="sd">    Plot a grid of images for each cluster based on the given labels and embeddings.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        embedding (np.ndarray): The embedding of the data points, typically used for visualization.</span>
-<span class="sd">        labels (np.ndarray): Array of cluster labels for each data point. A label of -1 indicates noise or outliers.</span>
-<span class="sd">        image_nr (int): The maximum number of images to display per cluster.</span>
-<span class="sd">        image_paths (list of str): List of file paths to the images corresponding to the data points.</span>
-<span class="sd">        colors (list of str): List of colors to use for each cluster in the grid.</span>
-<span class="sd">        figuresize (tuple): Size of the figure to create (width, height).</span>
-<span class="sd">        black_background (bool): Whether to use a black background for the grid.</span>
-<span class="sd">        verbose (bool): If True, prints additional information during execution.</span>
+<span class="sd">        embedding (np.ndarray): Embedding of data points used for visualization.</span>
+<span class="sd">        labels (np.ndarray): Cluster labels for each data point. A value of -1 indicates noise/outliers.</span>
+<span class="sd">        image_nr (int): Maximum number of images to display per cluster.</span>
+<span class="sd">        image_paths (list of str): File paths to the images corresponding to the data points.</span>
+<span class="sd">        colors (list of str): Colors used for each cluster in the plot.</span>
+<span class="sd">        figuresize (tuple): Figure size as (width, height).</span>
+<span class="sd">        black_background (bool): If True, the grid uses a black background.</span>
+<span class="sd">        verbose (bool): If True, prints additional progress information.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        matplotlib.figure.Figure: The generated figure containing the grid of cluster images.</span>
+<span class="sd">        matplotlib.figure.Figure or None: The plotted figure with image grids, or None if no valid clusters.</span>
 
-<span class="sd">    Notes:</span>
-<span class="sd">        - If no clusters are found (i.e., all labels are -1), the function prints a message and returns None.</span>
-<span class="sd">        - Random sampling is used if the number of images in a cluster exceeds `image_nr`.</span>
-<span class="sd">        - The function relies on an external `plot_grid` function to create the grid visualization.</span>
+<span class="sd">    Additional Info:</span>
+<span class="sd">        - Clusters with more than `image_nr` images are subsampled randomly.</span>
+<span class="sd">        - If all labels are -1, a message is printed and the function returns None.</span>
+<span class="sd">        - Uses an external `plot_grid` function to render the image grids.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">num_clusters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">[</span><span class="n">unique_labels</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -7452,24 +7452,25 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.generate_path_list_from_db">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_path_list_from_db</span><span class="p">(</span><span class="n">db_path</span><span class="p">,</span> <span class="n">file_metadata</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates a list of file paths from a database based on the provided metadata.</span>
+<span class="sd">    Generate a list of file paths from a SQLite database using optional metadata filters.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        db_path (str): The file path to the SQLite database.</span>
-<span class="sd">        file_metadata (str | list[str] | None): Metadata to filter the file paths. </span>
-<span class="sd">            - If a string is provided, it filters paths containing the string.</span>
-<span class="sd">            - If a list of strings is provided, it filters paths containing any of the strings.</span>
-<span class="sd">            - If None or empty, retrieves all file paths.</span>
+<span class="sd">        db_path (str): Path to the SQLite database.</span>
+<span class="sd">        file_metadata (str | list[str] | None): Filter criteria for file paths.</span>
+<span class="sd">            - str: Only include paths containing the string.</span>
+<span class="sd">            - list of str: Include paths containing any of the strings.</span>
+<span class="sd">            - None or empty: Include all paths.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        list[str]: A list of file paths retrieved from the database. </span>
-<span class="sd">                   Returns an empty list if no paths match the criteria.</span>
-<span class="sd">                   Returns None if a database error or other exception occurs.</span>
+<span class="sd">        list[str] or None: List of matching file paths, or None if an error occurs.</span>
+
 <span class="sd">    Raises:</span>
-<span class="sd">        sqlite3.Error: If an error occurs while interacting with the SQLite database.</span>
-<span class="sd">        Exception: For any other unexpected errors.</span>
+<span class="sd">        sqlite3.Error: If a database operation fails.</span>
+<span class="sd">        Exception: For any other unexpected error.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - The function retrieves paths from the `png_list` table in the database.</span>
-<span class="sd">        - The `png_path` column is used to filter and retrieve the file paths.</span>
-<span class="sd">        - Results are fetched in batches of 1000 rows for efficiency.</span>
+<span class="sd">        - Paths are fetched from the &#39;png_list&#39; table using the &#39;png_path&#39; column.</span>
+<span class="sd">        - Results are retrieved in batches of 1000 rows for efficiency.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">all_paths</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -7513,30 +7514,25 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.correct_paths">[docs]</a>
 <span class="k">def</span> <span class="nf">correct_paths</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adjusts file paths in a DataFrame or a list to ensure they are correctly </span>
-<span class="sd">    prefixed with the specified base path and folder.</span>
-<span class="sd">    Parameters:</span>
-<span class="sd">    -----------</span>
-<span class="sd">    df : pandas.DataFrame or list</span>
-<span class="sd">        The input data containing file paths. If a DataFrame is provided, it </span>
-<span class="sd">        must contain a column named &#39;png_path&#39; with the file paths. If a list </span>
-<span class="sd">        is provided, it should directly contain the file paths.</span>
-<span class="sd">    base_path : str</span>
-<span class="sd">        The base directory path to prepend to the file paths if they do not </span>
-<span class="sd">        already contain it.</span>
-<span class="sd">    folder : str, optional</span>
-<span class="sd">        The folder name to include in the adjusted paths (default is &#39;data&#39;).</span>
+<span class="sd">    Adjust file paths to include the specified base directory and folder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pandas.DataFrame or list): Input containing file paths.</span>
+<span class="sd">            - If a DataFrame, it must have a &#39;png_path&#39; column.</span>
+<span class="sd">            - If a list, it should contain file path strings.</span>
+<span class="sd">        base_path (str): Base directory to prepend if not already present.</span>
+<span class="sd">        folder (str, optional): Folder name to insert into paths (default: &#39;data&#39;).</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">    --------</span>
-<span class="sd">    tuple or list</span>
-<span class="sd">        If `df` is a DataFrame, returns a tuple containing the updated </span>
-<span class="sd">        DataFrame and a list of adjusted file paths. If `df` is a list, </span>
-<span class="sd">        returns only the list of adjusted file paths.</span>
+<span class="sd">        tuple or list: </span>
+<span class="sd">            - If input is a DataFrame: (updated DataFrame, list of adjusted paths).</span>
+<span class="sd">            - If input is a list: list of adjusted paths.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the DataFrame does not contain a &#39;png_path&#39; column.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">    ------</span>
-<span class="sd">    - If the input is a DataFrame and the &#39;png_path&#39; column is missing, the </span>
-<span class="sd">      function prints a message and returns the original DataFrame and None.</span>
-<span class="sd">    - Paths that already contain the base path are left unchanged.</span>
+<span class="sd">        Paths already containing the base path are not modified.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
@@ -7971,22 +7967,16 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.load_image">[docs]</a>
 <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads an image from the specified file path, applies a series of transformations,</span>
-<span class="sd">    and returns the transformed image as a tensor.</span>
+<span class="sd">    Load and transform an image into a normalized tensor.</span>
 
-<span class="sd">    The transformations applied are:</span>
-<span class="sd">    - Resizing the image to 224x224 pixels.</span>
-<span class="sd">    - Converting the image to a tensor.</span>
-<span class="sd">    - Normalizing the image tensor using the mean [0.485, 0.456, 0.406] and</span>
-<span class="sd">      standard deviation [0.229, 0.224, 0.225].</span>
+<span class="sd">    Applies resizing to 224x224, converts to a tensor, and normalizes using</span>
+<span class="sd">    ImageNet mean and standard deviation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        image_path (str): The file path to the image to be loaded.</span>
+<span class="sd">        image_path (str): Path to the input image.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        torch.Tensor: A 4D tensor representing the transformed image, with shape</span>
-<span class="sd">        (1, 3, 224, 224), where 1 is the batch size, 3 is the number of color</span>
-<span class="sd">        channels (RGB), and 224x224 is the spatial resolution.</span>
+<span class="sd">        torch.Tensor: Transformed image tensor with shape (1, 3, 224, 224).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
         <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>

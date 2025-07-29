@@ -4155,33 +4155,35 @@ the alpha channel.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.plot_clusters_grid">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">plot_clusters_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black_background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#plot_clusters_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.plot_clusters_grid" title="Link to this definition"></a></dt>
-<dd><p>Plots a grid of images for each cluster based on the provided labels and embeddings.</p>
+<dd><p>Plot a grid of images for each cluster based on the given labels and embeddings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>embedding</strong> (<em>np.ndarray</em>) – The embedding of the data points, typically used for visualization.</p></li>
-<li><p><strong>labels</strong> (<em>np.ndarray</em>) – Array of cluster labels for each data point. A label of -1 indicates noise or outliers.</p></li>
-<li><p><strong>image_nr</strong> (<em>int</em>) – The maximum number of images to display per cluster.</p></li>
-<li><p><strong>image_paths</strong> (<em>list</em><em> of </em><em>str</em>) – List of file paths to the images corresponding to the data points.</p></li>
-<li><p><strong>colors</strong> (<em>list</em><em> of </em><em>str</em>) – List of colors to use for each cluster in the grid.</p></li>
-<li><p><strong>figuresize</strong> (<em>tuple</em>) – Size of the figure to create (width, height).</p></li>
-<li><p><strong>black_background</strong> (<em>bool</em>) – Whether to use a black background for the grid.</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints additional information during execution.</p></li>
+<li><p><strong>embedding</strong> (<em>np.ndarray</em>) – Embedding of data points used for visualization.</p></li>
+<li><p><strong>labels</strong> (<em>np.ndarray</em>) – Cluster labels for each data point. A value of -1 indicates noise/outliers.</p></li>
+<li><p><strong>image_nr</strong> (<em>int</em>) – Maximum number of images to display per cluster.</p></li>
+<li><p><strong>image_paths</strong> (<em>list</em><em> of </em><em>str</em>) – File paths to the images corresponding to the data points.</p></li>
+<li><p><strong>colors</strong> (<em>list</em><em> of </em><em>str</em>) – Colors used for each cluster in the plot.</p></li>
+<li><p><strong>figuresize</strong> (<em>tuple</em>) – Figure size as (width, height).</p></li>
+<li><p><strong>black_background</strong> (<em>bool</em>) – If True, the grid uses a black background.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints additional progress information.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The generated figure containing the grid of cluster images.</p>
+<dd class="field-even"><p>The plotted figure with image grids, or None if no valid clusters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+<dd class="field-odd"><p>matplotlib.figure.Figure or None</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>If no clusters are found (i.e., all labels are -1), the function prints a message and returns None.</p></li>
-<li><p>Random sampling is used if the number of images in a cluster exceeds <cite>image_nr</cite>.</p></li>
-<li><p>The function relies on an external <cite>plot_grid</cite> function to create the grid visualization.</p></li>
+<dl class="simple">
+<dt>Additional Info:</dt><dd><ul class="simple">
+<li><p>Clusters with more than <cite>image_nr</cite> images are subsampled randomly.</p></li>
+<li><p>If all labels are -1, a message is printed and the function returns None.</p></li>
+<li><p>Uses an external <cite>plot_grid</cite> function to render the image grids.</p></li>
 </ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -4219,81 +4221,67 @@ the alpha channel.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.generate_path_list_from_db">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">generate_path_list_from_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#generate_path_list_from_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.generate_path_list_from_db" title="Link to this definition"></a></dt>
-<dd><p>Generates a list of file paths from a database based on the provided metadata.
-:param db_path: The file path to the SQLite database.
-:type db_path: str
-:param file_metadata: Metadata to filter the file paths.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>If a string is provided, it filters paths containing the string.</p></li>
-<li><p>If a list of strings is provided, it filters paths containing any of the strings.</p></li>
-<li><p>If None or empty, retrieves all file paths.</p></li>
-</ul>
-</div></blockquote>
+<dd><p>Generate a list of file paths from a SQLite database using optional metadata filters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>A list of file paths retrieved from the database.</dt><dd><p>Returns an empty list if no paths match the criteria.
-Returns None if a database error or other exception occurs.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[str]</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sqlite3.Error</strong> – If an error occurs while interacting with the SQLite database.</p></li>
-<li><p><strong>Exception</strong> – For any other unexpected errors.</p></li>
+<li><p><strong>db_path</strong> (<em>str</em>) – Path to the SQLite database.</p></li>
+<li><p><strong>file_metadata</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Filter criteria for file paths.
+- str: Only include paths containing the string.
+- list of str: Include paths containing any of the strings.
+- None or empty: Include all paths.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of matching file paths, or None if an error occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str] or None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>sqlite3.Error</strong> – If a database operation fails.</p></li>
+<li><p><strong>Exception</strong> – For any other unexpected error.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>The function retrieves paths from the <cite>png_list</cite> table in the database.</p></li>
-<li><p>The <cite>png_path</cite> column is used to filter and retrieve the file paths.</p></li>
-<li><p>Results are fetched in batches of 1000 rows for efficiency.</p></li>
+<li><p>Paths are fetched from the ‘png_list’ table using the ‘png_path’ column.</p></li>
+<li><p>Results are retrieved in batches of 1000 rows for efficiency.</p></li>
 </ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.correct_paths">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">correct_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#correct_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.correct_paths" title="Link to this definition"></a></dt>
-<dd><p>Adjusts file paths in a DataFrame or a list to ensure they are correctly
-prefixed with the specified base path and folder.
-Parameters:
-———–
-df : pandas.DataFrame or list</p>
-<blockquote>
-<div><p>The input data containing file paths. If a DataFrame is provided, it
-must contain a column named ‘png_path’ with the file paths. If a list
-is provided, it should directly contain the file paths.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>base_path<span class="classifier">str</span></dt><dd><p>The base directory path to prepend to the file paths if they do not
-already contain it.</p>
-</dd>
-<dt>folder<span class="classifier">str, optional</span></dt><dd><p>The folder name to include in the adjusted paths (default is ‘data’).</p>
-</dd>
-</dl>
-<section id="id1">
-<h3>Returns:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>tuple or list</dt><dd><p>If <cite>df</cite> is a DataFrame, returns a tuple containing the updated
-DataFrame and a list of adjusted file paths. If <cite>df</cite> is a list,
-returns only the list of adjusted file paths.</p>
-</dd>
-</dl>
-</section>
-<section id="id2">
-<h3>Notes:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>If the input is a DataFrame and the ‘png_path’ column is missing, the
-function prints a message and returns the original DataFrame and None.</p></li>
-<li><p>Paths that already contain the base path are left unchanged.</p></li>
+<dd><p>Adjust file paths to include the specified base directory and folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em><em> or </em><em>list</em>) – Input containing file paths.
+- If a DataFrame, it must have a ‘png_path’ column.
+- If a list, it should contain file path strings.</p></li>
+<li><p><strong>base_path</strong> (<em>str</em>) – Base directory to prepend if not already present.</p></li>
+<li><p><strong>folder</strong> (<em>str</em><em>, </em><em>optional</em>) – Folder name to insert into paths (default: ‘data’).</p></li>
 </ul>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>If input is a DataFrame: (updated DataFrame, list of adjusted paths).</p></li>
+<li><p>If input is a list: list of adjusted paths.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple or list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the DataFrame does not contain a ‘png_path’ column.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Paths already containing the base path are not modified.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -4485,23 +4473,15 @@ labels (np.array): Cluster labels.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.load_image">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#load_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.load_image" title="Link to this definition"></a></dt>
-<dd><p>Loads an image from the specified file path, applies a series of transformations,
-and returns the transformed image as a tensor.</p>
-<p>The transformations applied are:
-- Resizing the image to 224x224 pixels.
-- Converting the image to a tensor.
-- Normalizing the image tensor using the mean [0.485, 0.456, 0.406] and</p>
-<blockquote>
-<div><p>standard deviation [0.229, 0.224, 0.225].</p>
-</div></blockquote>
+<dd><p>Load and transform an image into a normalized tensor.</p>
+<p>Applies resizing to 224x224, converts to a tensor, and normalizes using
+ImageNet mean and standard deviation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>image_path</strong> (<em>str</em>) – The file path to the image to be loaded.</p>
+<dd class="field-odd"><p><strong>image_path</strong> (<em>str</em>) – Path to the input image.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A 4D tensor representing the transformed image, with shape
-(1, 3, 224, 224), where 1 is the batch size, 3 is the number of color
-channels (RGB), and 224x224 is the spatial resolution.</p>
+<dd class="field-even"><p>Transformed image tensor with shape (1, 3, 224, 224).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>

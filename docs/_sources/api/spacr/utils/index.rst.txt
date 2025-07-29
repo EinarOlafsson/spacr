@@ -2438,33 +2438,32 @@ Module Contents
 
 .. py:function:: plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose)
 
-   Plots a grid of images for each cluster based on the provided labels and embeddings.
+   Plot a grid of images for each cluster based on the given labels and embeddings.
 
-   :param embedding: The embedding of the data points, typically used for visualization.
+   :param embedding: Embedding of data points used for visualization.
    :type embedding: np.ndarray
-   :param labels: Array of cluster labels for each data point. A label of -1 indicates noise or outliers.
+   :param labels: Cluster labels for each data point. A value of -1 indicates noise/outliers.
    :type labels: np.ndarray
-   :param image_nr: The maximum number of images to display per cluster.
+   :param image_nr: Maximum number of images to display per cluster.
    :type image_nr: int
-   :param image_paths: List of file paths to the images corresponding to the data points.
+   :param image_paths: File paths to the images corresponding to the data points.
    :type image_paths: list of str
-   :param colors: List of colors to use for each cluster in the grid.
+   :param colors: Colors used for each cluster in the plot.
    :type colors: list of str
-   :param figuresize: Size of the figure to create (width, height).
+   :param figuresize: Figure size as (width, height).
    :type figuresize: tuple
-   :param black_background: Whether to use a black background for the grid.
+   :param black_background: If True, the grid uses a black background.
    :type black_background: bool
-   :param verbose: If True, prints additional information during execution.
+   :param verbose: If True, prints additional progress information.
    :type verbose: bool
 
-   :returns: The generated figure containing the grid of cluster images.
-   :rtype: matplotlib.figure.Figure
+   :returns: The plotted figure with image grids, or None if no valid clusters.
+   :rtype: matplotlib.figure.Figure or None
 
-   .. rubric:: Notes
-
-   - If no clusters are found (i.e., all labels are -1), the function prints a message and returns None.
-   - Random sampling is used if the number of images in a cluster exceeds `image_nr`.
-   - The function relies on an external `plot_grid` function to create the grid visualization.
+   Additional Info:
+       - Clusters with more than `image_nr` images are subsampled randomly.
+       - If all labels are -1, a message is printed and the function returns None.
+       - Uses an external `plot_grid` function to render the image grids.
 
 
 .. py:function:: plot_grid(cluster_images, colors, figuresize, black_background, verbose)
@@ -2494,58 +2493,50 @@ Module Contents
 
 .. py:function:: generate_path_list_from_db(db_path, file_metadata)
 
-   Generates a list of file paths from a database based on the provided metadata.
-   :param db_path: The file path to the SQLite database.
+   Generate a list of file paths from a SQLite database using optional metadata filters.
+
+   :param db_path: Path to the SQLite database.
    :type db_path: str
-   :param file_metadata: Metadata to filter the file paths.
-                         - If a string is provided, it filters paths containing the string.
-                         - If a list of strings is provided, it filters paths containing any of the strings.
-                         - If None or empty, retrieves all file paths.
+   :param file_metadata: Filter criteria for file paths.
+                         - str: Only include paths containing the string.
+                         - list of str: Include paths containing any of the strings.
+                         - None or empty: Include all paths.
    :type file_metadata: str | list[str] | None
 
-   :returns:
+   :returns: List of matching file paths, or None if an error occurs.
+   :rtype: list[str] or None
 
-             A list of file paths retrieved from the database.
-                        Returns an empty list if no paths match the criteria.
-                        Returns None if a database error or other exception occurs.
-   :rtype: list[str]
-
-   :raises sqlite3.Error: If an error occurs while interacting with the SQLite database.
-   :raises Exception: For any other unexpected errors.
+   :raises sqlite3.Error: If a database operation fails.
+   :raises Exception: For any other unexpected error.
 
    .. rubric:: Notes
 
-   - The function retrieves paths from the `png_list` table in the database.
-   - The `png_path` column is used to filter and retrieve the file paths.
-   - Results are fetched in batches of 1000 rows for efficiency.
+   - Paths are fetched from the 'png_list' table using the 'png_path' column.
+   - Results are retrieved in batches of 1000 rows for efficiency.
 
 
 .. py:function:: correct_paths(df, base_path, folder='data')
 
-   Adjusts file paths in a DataFrame or a list to ensure they are correctly
-   prefixed with the specified base path and folder.
-   Parameters:
-   -----------
-   df : pandas.DataFrame or list
-       The input data containing file paths. If a DataFrame is provided, it
-       must contain a column named 'png_path' with the file paths. If a list
-       is provided, it should directly contain the file paths.
-   base_path : str
-       The base directory path to prepend to the file paths if they do not
-       already contain it.
-   folder : str, optional
-       The folder name to include in the adjusted paths (default is 'data').
-   Returns:
-   --------
-   tuple or list
-       If `df` is a DataFrame, returns a tuple containing the updated
-       DataFrame and a list of adjusted file paths. If `df` is a list,
-       returns only the list of adjusted file paths.
-   Notes:
-   ------
-   - If the input is a DataFrame and the 'png_path' column is missing, the
-     function prints a message and returns the original DataFrame and None.
-   - Paths that already contain the base path are left unchanged.
+   Adjust file paths to include the specified base directory and folder.
+
+   :param df: Input containing file paths.
+              - If a DataFrame, it must have a 'png_path' column.
+              - If a list, it should contain file path strings.
+   :type df: pandas.DataFrame or list
+   :param base_path: Base directory to prepend if not already present.
+   :type base_path: str
+   :param folder: Folder name to insert into paths (default: 'data').
+   :type folder: str, optional
+
+   :returns:     - If input is a DataFrame: (updated DataFrame, list of adjusted paths).
+                 - If input is a list: list of adjusted paths.
+   :rtype: tuple or list
+
+   :raises ValueError: If the DataFrame does not contain a 'png_path' column.
+
+   .. rubric:: Notes
+
+   Paths already containing the base path are not modified.
 
 
 .. py:function:: delete_folder(folder_path)
@@ -2724,21 +2715,15 @@ Module Contents
 
 .. py:function:: load_image(image_path)
 
-   Loads an image from the specified file path, applies a series of transformations,
-   and returns the transformed image as a tensor.
+   Load and transform an image into a normalized tensor.
 
-   The transformations applied are:
-   - Resizing the image to 224x224 pixels.
-   - Converting the image to a tensor.
-   - Normalizing the image tensor using the mean [0.485, 0.456, 0.406] and
-     standard deviation [0.229, 0.224, 0.225].
+   Applies resizing to 224x224, converts to a tensor, and normalizes using
+   ImageNet mean and standard deviation.
 
-   :param image_path: The file path to the image to be loaded.
+   :param image_path: Path to the input image.
    :type image_path: str
 
-   :returns: A 4D tensor representing the transformed image, with shape
-             (1, 3, 224, 224), where 1 is the batch size, 3 is the number of color
-             channels (RGB), and 224x224 is the spatial resolution.
+   :returns: Transformed image tensor with shape (1, 3, 224, 224).
    :rtype: torch.Tensor
 
 
