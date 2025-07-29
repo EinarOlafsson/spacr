@@ -38,6 +38,7 @@ autoapi_options = [
     'special-members',
 ]
 autoapi_python_class_content = 'both'  # Only show class-level docs, skip module variables
+autoapi_keep_files = True
 
 autoapi_ignore = [
     '*/tests/*',
