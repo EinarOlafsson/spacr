@@ -1098,19 +1098,54 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.io.process_non_tif_non_2D_images">
 <span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">process_non_tif_non_2D_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#process_non_tif_non_2D_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.process_non_tif_non_2D_images" title="Link to this definition"></a></dt>
-<dd><p>Processes all images in the folder and splits them into grayscale channels, preserving bit depth.</p>
+<dd><p>Process and standardize image files in a folder by converting or splitting them into grayscale TIFFs.</p>
+<p>This function supports various image formats (PNG, JPEG, CZI, ND2, TIFF) and ensures all output images
+are grayscale TIFF files saved with consistent naming based on dimensions (channel, z-plane, timepoint).</p>
+<p>For 2D grayscale images in non-TIFF formats, it converts them to TIFF.
+For 3D, 4D, or 5D images, it splits them into individual grayscale channels and saves them with suffixes
+(_C#, _Z#, _T#) to indicate channel, z-stack, and time point respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>folder</strong> (<em>str</em>) – Path to the folder containing image files to be processed.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Supported file extensions:</dt><dd><ul class="simple">
+<li><p>.tif, .tiff</p></li>
+<li><p>.png</p></li>
+<li><p>.jpg, .jpeg</p></li>
+<li><p>.czi</p></li>
+<li><p>.nd2</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p>Saves standardized grayscale TIFF images in the same folder with descriptive filenames.</p></li>
+<li><p>Prints a log message for each file processed or skipped.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">CombineLoaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders" title="Link to this definition"></a></dt>
-<dd><p>A class that combines multiple data loaders into a single iterator.</p>
+<dd><p>A class that combines multiple PyTorch data loaders into a single iterable.</p>
+<p>This class allows iteration over a mixed sequence of batches from several
+data loaders, yielding a tuple with the loader index and the corresponding batch.
+Once a loader is exhausted, it is removed from the iteration pool.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>train_loaders</strong> (<em>list</em>) – A list of data loaders.</p>
+<dd class="field-odd"><p><strong>train_loaders</strong> (<em>list</em>) – A list of PyTorch DataLoader objects.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>StopIteration</strong> – If all data loaders have been exhausted.</p>
+<dd class="field-even"><p><strong>StopIteration</strong> – When all data loaders are exhausted.</p>
+</dd>
+</dl>
+<p>Initialize the CombineLoaders instance.</p>
+<p>Converts each data loader into an iterator for independent traversal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>train_loaders</strong> (<em>list</em>) – List of torch.utils.data.DataLoader instances.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1126,12 +1161,39 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders.__iter__">
 <span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.__iter__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the iterator object (self).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The iterator object itself.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#spacr.io.CombineLoaders" title="spacr.io.CombineLoaders">CombineLoaders</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.CombineLoaders.__next__">
 <span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombineLoaders.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombineLoaders.__next__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the next batch from the available data loaders.</p>
+<p>Data loaders are shuffled at each step to randomize the batch source.
+If a data loader is exhausted, it is removed from the pool.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A tuple (i, batch) where i is the index of the originating loader,</dt><dd><p>and batch is the next batch of data from that loader.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>StopIteration</strong> – When all loaders have been exhausted.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1139,7 +1201,19 @@
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">CombinedDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombinedDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombinedDataset" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
-<p>A dataset that combines multiple datasets into one.</p>
+<p>A dataset that combines multiple datasets into one seamless dataset.</p>
+<p>This class supports optional shuffling across datasets and presents
+a unified indexing interface for training or evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>list</em>) – A list of PyTorch Dataset objects to combine.</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to shuffle the indices for data access. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initialize the CombinedDataset.</p>
+<p>Computes lengths of each dataset and optionally shuffles the access indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1171,12 +1245,34 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombinedDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombinedDataset.__getitem__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retrieve an item from the combined dataset.</p>
+<p>The method accounts for shuffling and maps the index to the appropriate dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – Index of the item in the combined dataset.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The item retrieved from the corresponding sub-dataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.CombinedDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#CombinedDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.CombinedDataset.__len__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the total length of the combined dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total number of items across all datasets.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1281,6 +1377,8 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.</p>
+<p>This dataset supports loading images either from directory structures organized by class or from explicit
+file and label lists. It supports optional preloading of all images into memory for faster access.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1291,6 +1389,22 @@
 <li><p><strong>pin_memory</strong> (<em>bool</em>) – If True, pre-load all images into memory using multiprocessing. Default is False.</p></li>
 <li><p><strong>specific_files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Specific image file paths to load instead of scanning <cite>data_dir</cite>.</p></li>
 <li><p><strong>specific_labels</strong> (<em>list</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Corresponding labels for <cite>specific_files</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initialize the spacrDataset.</p>
+<p>Constructs the dataset either by scanning the data directory or using provided file paths and labels.
+Optionally shuffles and preloads images into memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_dir</strong> (<em>str</em>) – Directory containing class subfolders.</p></li>
+<li><p><strong>loader_classes</strong> (<em>list</em>) – List of class names.</p></li>
+<li><p><strong>transform</strong> (<em>callable</em><em>, </em><em>optional</em>) – Transform function to apply to images.</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle the dataset. Default is True.</p></li>
+<li><p><strong>pin_memory</strong> (<em>bool</em>) – Whether to preload images into memory. Default is False.</p></li>
+<li><p><strong>specific_files</strong> (<em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of file paths to use directly.</p></li>
+<li><p><strong>specific_labels</strong> (<em>list</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – List of labels corresponding to specific files.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1332,27 +1446,73 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.load_image">
 <span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.load_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.load_image" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Load and return a single image with orientation correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>img_path</strong> (<em>str</em>) – Path to the image file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded RGB image.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PIL.Image</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.__len__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of samples in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total number of images.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.shuffle_dataset">
 <span class="sig-name descname"><span class="pre">shuffle_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.shuffle_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.shuffle_dataset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Shuffle the dataset filenames and labels in unison.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.get_plate">
 <span class="sig-name descname"><span class="pre">get_plate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.get_plate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.get_plate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Extract the plate identifier from the filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – Full path to the file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plate ID extracted from the filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataset.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataset.__getitem__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retrieve an image, its label, and the filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – Index of the image to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(image, label, filename)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1361,16 +1521,26 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.io.</span></span><span class="sig-name descname"><span class="pre">spacrDataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preload_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></p>
 <p>Custom DataLoader with background batch preloading support using multiprocessing.</p>
-<dl class="simple">
-<dt>Extends:</dt><dd><p>torch.utils.data.DataLoader</p>
-</dd>
-</dl>
+<p>This class extends <cite>torch.utils.data.DataLoader</cite> and adds asynchronous background
+preloading of a specified number of batches using a separate process or in-place loading
+if <cite>pin_memory=True</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> – Arguments passed to the base DataLoader.</p></li>
 <li><p><strong>preload_batches</strong> (<em>int</em>) – Number of batches to preload in a background process. Default is 1.</p></li>
 <li><p><strong>**kwargs</strong> – Keyword arguments passed to the base DataLoader. Supports all standard DataLoader arguments.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initialize the spacrDataLoader.</p>
+<p>Sets up the queue and multiprocessing process for background preloading of batches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – Arguments passed to torch.utils.data.DataLoader.</p></li>
+<li><p><strong>preload_batches</strong> (<em>int</em>) – Number of batches to preload. Default is 1.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments passed to the base DataLoader.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1402,22 +1572,38 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.__iter__">
 <span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.__iter__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the iterator and initiate background preloading.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.__next__">
 <span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.__next__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the next batch from the queue.</p>
+<p>If the queue is empty and the process has exited, raises StopIteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The next batch of data.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.cleanup">
 <span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.cleanup" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Cleanup method to terminate background preloading processes.</p>
+<p>Ensures graceful shutdown of worker processes at exit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.spacrDataLoader.__del__">
 <span class="sig-name descname"><span class="pre">__del__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#spacrDataLoader.__del__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.spacrDataLoader.__del__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Destructor to ensure cleanup is called when the object is deleted.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1447,6 +1633,15 @@ access to individual image files without unpacking the archive to disk.</p>
 </dl>
 </dd></dl>
 
+<p>Initialize the dataset and index image members from the tar archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tar_path</strong> (<em>str</em>) – Path to the .tar file.</p></li>
+<li><p><strong>transform</strong> (<em>callable</em><em>, </em><em>optional</em>) – Transform function to apply to each image.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset.tar_path">
 <span class="sig-name descname"><span class="pre">tar_path</span></span><a class="reference internal" href="../../../_modules/spacr/io.html#TarImageDataset.tar_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.TarImageDataset.tar_path" title="Link to this definition"></a></dt>
@@ -1460,12 +1655,33 @@ access to individual image files without unpacking the archive to disk.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#TarImageDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.TarImageDataset.__len__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of image files in the archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of image files.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.io.TarImageDataset.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/io.html#TarImageDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.io.TarImageDataset.__getitem__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retrieve an image by index directly from the tar archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Index of the image to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(PIL.Image.Image or transformed image, str) where the string is the file name.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

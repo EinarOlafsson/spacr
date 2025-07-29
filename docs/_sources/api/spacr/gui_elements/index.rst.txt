@@ -94,7 +94,7 @@ Module Contents
    
    Initializes the FontLoader class.
 
-   Parameters:
+   Args:
    - font_name: str, the name of the font (e.g., 'OpenSans').
    - font_style: str, the style of the font (e.g., 'Regular', 'Bold').
    - font_size: int, the size of the font (default: 12).
@@ -118,7 +118,7 @@ Module Contents
 
       Returns the font path based on the font name and style.
 
-      Parameters:
+      Args:
       - font_name: str, the name of the font.
       - font_style: str, the style of the font.
 
@@ -137,7 +137,7 @@ Module Contents
 
       Returns the font in the specified size.
 
-      Parameters:
+      Args:
       - size: int, the size of the font (optional).
 
       Returns:
@@ -160,11 +160,14 @@ Module Contents
    :param bg: Background color of the container and sashes. Defaults to 'lightgrey'.
    :type bg: str
 
-   Construct a frame widget with the parent MASTER.
+   Initialize the spacrContainer with the specified orientation and background color.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   :param parent: Parent widget.
+   :type parent: tk.Widget
+   :param orient: Layout orientation (tk.VERTICAL or tk.HORIZONTAL).
+   :type orient: str
+   :param bg: Background color. Defaults to 'lightgrey'.
+   :type bg: str, optional
 
 
    .. py:attribute:: orient
@@ -194,26 +197,70 @@ Module Contents
 
    .. py:method:: add(widget, stretch='always')
 
+      Add a new widget as a pane to the container.
+
+      :param widget: Widget to add.
+      :type widget: tk.Widget
+      :param stretch: Stretch policy (currently unused).
+      :type stretch: str
+
+
 
    .. py:method:: create_sash()
+
+      Create a draggable sash between panes.
+
 
 
    .. py:method:: reposition_panes()
 
+      Reposition panes and sashes within the container based on orientation.
+
+
 
    .. py:method:: on_configure(event)
+
+      Event handler triggered on container resize.
+
+      :param event: Tkinter event object.
+      :type event: tk.Event
+
 
 
    .. py:method:: on_enter_sash(event)
 
+      Change sash color on mouse enter.
+
+      :param event: Tkinter event object.
+      :type event: tk.Event
+
+
 
    .. py:method:: on_leave_sash(event)
+
+      Reset sash color on mouse leave.
+
+      :param event: Tkinter event object.
+      :type event: tk.Event
+
 
 
    .. py:method:: start_resize(event)
 
+      Initiate resizing behavior when mouse press begins on a sash.
+
+      :param event: Tkinter event object.
+      :type event: tk.Event
+
+
 
    .. py:method:: perform_resize(event)
+
+      Adjust pane sizes during mouse drag on a sash.
+
+      :param event: Tkinter event object.
+      :type event: tk.Event
+
 
 
 .. py:class:: spacrEntry(parent, textvariable=None, outline=False, width=None, *args, **kwargs)
@@ -221,13 +268,20 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom Tkinter entry widget with rounded corners, dark theme styling, and active/inactive color handling.
 
-   Construct a frame widget with the parent MASTER.
+   :param parent: Parent widget.
+   :type parent: tk.Widget
+   :param textvariable: Tkinter textvariable to bind to the entry.
+   :type textvariable: tk.StringVar, optional
+   :param outline: Whether to show an outline. Currently unused. Defaults to False.
+   :type outline: bool, optional
+   :param width: Width of the entry widget. Defaults to 220 if not provided.
+   :type width: int, optional
+   :param \*args: Additional arguments passed to the parent Frame.
+   :param **kwargs: Additional arguments passed to the parent Frame.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   Initialize the custom entry widget with dark theme and rounded styling.
 
 
    .. py:attribute:: bg_color
@@ -273,11 +327,23 @@ Module Contents
 
    .. py:method:: draw_rounded_rectangle(color)
 
+      Draws a rounded rectangle with the given color as background.
+
+      :param color: Fill color for the rounded rectangle.
+      :type color: str
+
+
 
    .. py:method:: on_focus_in(event)
 
+      Event handler for focus in. Changes the background to the active color.
+
+
 
    .. py:method:: on_focus_out(event)
+
+      Event handler for focus out. Reverts the background to the inactive color.
+
 
 
 .. py:class:: spacrCheck(parent, text='', variable=None, *args, **kwargs)
@@ -285,13 +351,18 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom checkbox widget with rounded square appearance and dark style.
 
-   Construct a frame widget with the parent MASTER.
+   :param parent: Parent widget.
+   :type parent: tk.Widget
+   :param text: Label text (currently unused).
+   :type text: str, optional
+   :param variable: Tkinter variable to bind the checkbox state.
+   :type variable: tk.BooleanVar
+   :param \*args: Additional arguments passed to the parent Frame.
+   :param **kwargs: Additional arguments passed to the parent Frame.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   Initializes the custom checkbox widget and binds visual updates to variable state.
 
 
    .. py:attribute:: bg_color
@@ -334,11 +405,26 @@ Module Contents
 
    .. py:method:: draw_rounded_square(color)
 
+      Draws a rounded square with border and fill.
+
+      :param color: The fill color based on the current checkbox state.
+      :type color: str
+
+
 
    .. py:method:: update_check(*args)
 
+      Redraws the checkbox based on the current value of the associated variable.
+
+
 
    .. py:method:: toggle_variable(event)
+
+      Toggles the value of the associated variable when the checkbox is clicked.
+
+      :param event: The mouse click event.
+      :type event: tk.Event
+
 
 
 .. py:class:: spacrCombo(parent, textvariable=None, values=None, width=None, *args, **kwargs)
@@ -346,13 +432,30 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom styled combo box widget with rounded edges and dropdown functionality.
 
-   Construct a frame widget with the parent MASTER.
+   This widget mimics a modern dropdown menu with dark-themed styling, allowing
+   users to select from a list of values in a visually appealing interface.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   :param parent: Parent widget.
+   :type parent: tk.Widget
+   :param textvariable: Variable linked to the combo box selection.
+   :type textvariable: tk.StringVar, optional
+   :param values: List of selectable values. Defaults to empty list.
+   :type values: list, optional
+   :param width: Width of the combo box in pixels. Defaults to 220.
+   :type width: int, optional
+
+   Initialize the combo box UI and style settings.
+
+   :param parent: The parent widget.
+   :type parent: tk.Widget
+   :param textvariable: A Tkinter StringVar linked to the selected value.
+   :type textvariable: tk.StringVar, optional
+   :param values: List of values to populate the dropdown.
+   :type values: list, optional
+   :param width: Width of the combo box. Defaults to 220 pixels.
+   :type width: int, optional
 
 
    .. py:attribute:: bg_color
@@ -419,20 +522,50 @@ Module Contents
 
    .. py:method:: draw_rounded_rectangle(color)
 
+      Draw a rounded rectangle on the canvas with the specified background color.
+
+      :param color: The fill color for the rounded rectangle.
+      :type color: str
+
+
 
    .. py:method:: on_click(event)
+
+      Handle click event on the combo box to toggle the dropdown menu.
+
+      :param event: The mouse click event.
+      :type event: tk.Event
+
 
 
    .. py:method:: open_dropdown()
 
+      Display the dropdown menu with available values.
+
+
 
    .. py:method:: close_dropdown()
+
+      Close the dropdown menu if it is open.
+
 
 
    .. py:method:: on_select(value)
 
+      Update the displayed label and internal variable when a value is selected.
+
+      :param value: The selected value from the dropdown.
+      :type value: str
+
+
 
    .. py:method:: set(value)
+
+      Programmatically set the combo box selection to the specified value.
+
+      :param value: The value to set in the combo box.
+      :type value: str
+
 
 
 .. py:class:: spacrDropdownMenu(parent, variable, options, command=None, font=None, size=50, **kwargs)
@@ -440,13 +573,44 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom dark-themed dropdown menu widget with rounded edges and hover interaction.
 
-   Construct a frame widget with the parent MASTER.
+   This widget displays a labeled button that reveals a menu of selectable options
+   when clicked. It supports external callback functions, styling updates, and dynamic
+   highlighting of active menu items.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   :param parent: Parent widget in which the dropdown menu is placed.
+   :type parent: tk.Widget
+   :param variable: A Tkinter variable to store the selected option.
+   :type variable: tk.StringVar
+   :param options: A list of option labels to populate the dropdown menu.
+   :type options: list
+   :param command: A function to call when an option is selected.
+   :type command: callable, optional
+   :param font: Font used for the button label.
+   :type font: tuple or tk.Font, optional
+   :param size: Height of the button in pixels. Defaults to 50.
+   :type size: int, optional
+   :param \*\*kwargs: Additional keyword arguments passed to the `tk.Frame` base class.
+
+   Initialize the spacrDropdownMenu with a canvas-based button and popup menu.
+
+   Sets up the button appearance, binds mouse interaction events,
+   and constructs the dropdown menu with the given options.
+
+   :param parent: Parent container.
+   :type parent: tk.Widget
+   :param variable: Variable that stores the selected option.
+   :type variable: tk.StringVar
+   :param options: List of strings representing the dropdown options.
+   :type options: list
+   :param command: Callback function when an option is selected.
+   :type command: callable, optional
+   :param font: Font used for the button text.
+   :type font: tk.Font or tuple, optional
+   :param size: Button height in pixels. Defaults to 50.
+   :type size: int, optional
+   :param \*\*kwargs: Additional keyword arguments for the Frame.
 
 
    .. py:attribute:: variable
@@ -527,23 +691,75 @@ Module Contents
 
    .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=20, **kwargs)
 
+      Draw a rounded rectangle polygon on the internal canvas.
+
+      :param x1: Top-left x coordinate.
+      :type x1: int
+      :param y1: Top-left y coordinate.
+      :type y1: int
+      :param x2: Bottom-right x coordinate.
+      :type x2: int
+      :param y2: Bottom-right y coordinate.
+      :type y2: int
+      :param radius: Radius of the corners. Defaults to 20.
+      :type radius: int, optional
+      :param \*\*kwargs: Canvas polygon configuration options (fill, outline, etc.).
+
+      :returns: Canvas item ID of the created polygon.
+      :rtype: int
+
+
 
    .. py:method:: on_enter(event=None)
+
+      Handle mouse enter event by updating the button's background color.
+
+      :param event: The event object. Defaults to None.
+      :type event: tk.Event, optional
+
 
 
    .. py:method:: on_leave(event=None)
 
+      Handle mouse leave event by resetting the button's background color.
+
+      :param event: The event object. Defaults to None.
+      :type event: tk.Event, optional
+
+
 
    .. py:method:: on_click(event=None)
+
+      Handle button click event to display the dropdown menu.
+
+      :param event: The event object. Defaults to None.
+      :type event: tk.Event, optional
+
 
 
    .. py:method:: post_menu()
 
+      Display the dropdown menu below the button using screen coordinates.
+
+
 
    .. py:method:: on_select(option)
 
+      Callback when an option is selected from the dropdown menu.
+
+      :param option: The selected option label.
+      :type option: str
+
+
 
    .. py:method:: update_styles(active_categories=None)
+
+      Update the styles of the dropdown menu entries based on active categories.
+
+      :param active_categories: List of option labels to highlight
+                                with the active color. If None, all entries are styled as inactive.
+      :type active_categories: list or None
+
 
 
 .. py:class:: spacrCheckbutton(parent, text='', variable=None, command=None, *args, **kwargs)
@@ -551,7 +767,22 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Checkbutton`
 
 
-   Ttk Checkbutton widget which is either in on- or off-state.
+   A dark-themed styled Checkbutton widget for use in the SpaCr GUI.
+
+   This class wraps a `ttk.Checkbutton` with a custom style and binds it to a
+   `BooleanVar`, allowing it to integrate seamlessly into dark-themed interfaces.
+
+   :param parent: The parent widget in which to place the checkbutton.
+   :type parent: tk.Widget
+   :param text: The label text displayed next to the checkbutton.
+   :type text: str, optional
+   :param variable: Variable linked to the checkbutton's state.
+                    If None, a new `BooleanVar` is created.
+   :type variable: tk.BooleanVar, optional
+   :param command: A callback function to execute when the checkbutton is toggled.
+   :type command: callable, optional
+   :param \*args: Additional positional arguments passed to `ttk.Checkbutton`.
+   :param \*\*kwargs: Additional keyword arguments passed to `ttk.Checkbutton`.
 
    Construct a Ttk Checkbutton widget with the parent master.
 
@@ -583,21 +814,28 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Progressbar`
 
 
-   Ttk Progressbar widget shows the status of a long-running
-   operation. They can operate in two modes: determinate mode shows the
-   amount completed relative to the total amount of work to be done, and
-   indeterminate mode provides an animated display to let the user know
-   that something is happening.
+   A dark-themed progress bar widget with optional progress label display.
 
-   Construct a Ttk Progressbar with parent master.
+   This class extends `ttk.Progressbar` and applies a dark visual theme consistent
+   with SpaCr GUI styling. It also provides an optional label that displays real-time
+   progress, operation type, and additional information.
 
-   STANDARD OPTIONS
+   :param parent: The parent widget in which to place the progress bar.
+   :type parent: tk.Widget
+   :param label: Whether to show a label below the progress bar. Defaults to True.
+   :type label: bool, optional
+   :param \*args: Additional positional arguments passed to `ttk.Progressbar`.
+   :param \*\*kwargs: Additional keyword arguments passed to `ttk.Progressbar`.
 
-       class, cursor, style, takefocus
+   Initialize the progress bar and optional label with dark theme styling.
 
-   WIDGET-SPECIFIC OPTIONS
+   Sets the initial value to 0, applies custom style attributes, and creates
+   a label for displaying progress information.
 
-       orient, length, mode, maximum, value, variable, phase
+   :param parent: Parent container for the widget.
+   :type parent: tk.Widget
+   :param label: Whether to show a label for progress updates. Defaults to True.
+   :type label: bool, optional
 
 
    .. py:attribute:: fg_color
@@ -648,8 +886,21 @@ Module Contents
 
    .. py:method:: set_label_position()
 
+      Place the progress label one row below the progress bar in the grid layout.
+
+      Should be called after the progress bar has been placed with `.grid(...)`.
+
+
 
    .. py:method:: update_label()
+
+      Update the progress label with current progress, operation type, and extra info.
+
+      Constructs a single-line status message with:
+      - Current progress value
+      - Operation type (if set)
+      - Additional info (if set)
+
 
 
 .. py:class:: spacrSlider(master=None, length=None, thickness=2, knob_radius=10, position='center', from_=0, to=100, value=None, show_index=False, command=None, **kwargs)
@@ -657,13 +908,59 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom slider widget with dark-themed styling, optional numeric entry, and mouse interaction.
 
-   Construct a frame widget with the parent MASTER.
+   This slider is designed for GUI applications where numeric control is needed,
+   supporting dynamic resizing, labeled value entry, and a callback on release.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   :param master: Parent widget.
+   :type master: tk.Widget
+   :param length: Fixed pixel length of the slider. If None, adapts to canvas width.
+   :type length: int, optional
+   :param thickness: Thickness of the slider bar in pixels. Defaults to 2.
+   :type thickness: int, optional
+   :param knob_radius: Radius of the slider knob in pixels. Defaults to 10.
+   :type knob_radius: int, optional
+   :param position: Alignment of slider within the frame. One of "left", "center", "right".
+   :type position: str, optional
+   :param from_: Minimum slider value.
+   :type from_: float
+   :param to: Maximum slider value.
+   :type to: float
+   :param value: Initial value. Defaults to `from_`.
+   :type value: float, optional
+   :param show_index: Whether to show an entry for numeric value. Defaults to False.
+   :type show_index: bool, optional
+   :param command: Function to call with the final value upon knob release.
+   :type command: Callable, optional
+   :param \*\*kwargs: Additional options passed to `tk.Frame`.
+
+   Initialize a custom dark-themed slider widget.
+
+   This slider supports mouse interaction, optional direct numeric input via an Entry,
+   and dynamically adapts its layout based on container resizing unless a fixed `length` is specified.
+
+   :param master: Parent widget.
+   :type master: tk.Widget, optional
+   :param length: Fixed length of the slider in pixels. If None, dynamically resizes with the container.
+   :type length: int, optional
+   :param thickness: Thickness of the slider bar in pixels. Default is 2.
+   :type thickness: int, optional
+   :param knob_radius: Radius of the draggable knob in pixels. Default is 10.
+   :type knob_radius: int, optional
+   :param position: Alignment of the slider within the frame. One of {"left", "center", "right"}. Default is "center".
+   :type position: str, optional
+   :param from_: Minimum value of the slider.
+   :type from_: float
+   :param to: Maximum value of the slider.
+   :type to: float
+   :param value: Initial value of the slider. Defaults to `from_` if not specified.
+   :type value: float, optional
+   :param show_index: If True, displays a text entry box to manually input the slider value. Default is False.
+   :type show_index: bool, optional
+   :param command: Optional function to be called with the final value when the knob is released.
+   :type command: Callable, optional
+   :param \*\*kwargs: Additional keyword arguments passed to the `tk.Frame` initializer.
 
 
    .. py:attribute:: specified_length
@@ -761,47 +1058,134 @@ Module Contents
 
    .. py:method:: resize_slider(event)
 
+      Recalculate slider dimensions and redraw upon resizing.
+
+      :param event: Resize event.
+      :type event: tk.Event
+
+
 
    .. py:method:: value_to_position(value)
+
+      Convert a numerical slider value to a pixel position on the canvas.
+
+      :param value: The numerical value to convert.
+      :type value: float
+
+      :returns: Corresponding position in pixels on the slider.
+      :rtype: float
+
 
 
    .. py:method:: position_to_value(position)
 
+      Convert a pixel position on the slider to a numerical value.
+
+      :param position: Pixel position on the slider.
+      :type position: float
+
+      :returns: Corresponding numerical slider value.
+      :rtype: float
+
+
 
    .. py:method:: draw_slider(inactive=False)
+
+      Draw the slider bar and knob on the canvas.
+
+      :param inactive: If True, draw knob in inactive color. Otherwise, use active color.
+      :type inactive: bool
+
 
 
    .. py:method:: move_knob(event)
 
+      Move the knob in response to mouse drag, updating internal value and position.
+
+      :param event: Motion event.
+      :type event: tk.Event
+
+
 
    .. py:method:: activate_knob(event)
+
+      Highlight knob and respond to click by positioning knob at mouse location.
+
+      :param event: Click event.
+      :type event: tk.Event
+
 
 
    .. py:method:: release_knob(event)
 
+      Finalize knob movement and call the `command` callback with final value.
+
+      :param event: Mouse release event.
+      :type event: tk.Event
+
+
 
    .. py:method:: set_to(new_to)
+
+      Change the maximum value (`to`) of the slider.
+
+      :param new_to: New upper bound of the slider.
+      :type new_to: float
+
 
 
    .. py:method:: get()
 
+      Get the current slider value.
+
+      :returns: Current value of the slider.
+      :rtype: float
+
+
 
    .. py:method:: set(value)
 
-      Set the slider's value and update the knob position.
+      Set the slider to a specific value and redraw.
+
+      :param value: New value to set (clipped to bounds).
+      :type value: float
 
 
 
    .. py:method:: jump_to_click(event)
 
+      Move the knob directly to the mouse click position.
+
+      :param event: Click event.
+      :type event: tk.Event
+
+
 
    .. py:method:: update_slider_from_entry(event)
 
-      Update the slider's value from the entry.
+      Update the slider from a value entered manually in the index entry.
+
+      :param event: Return key press event.
+      :type event: tk.Event
 
 
 
 .. py:function:: spacrScrollbarStyle(style, inactive_color, active_color)
+
+   Applies a custom vertical scrollbar style using the given colors.
+
+   This function defines a new ttk scrollbar style named 'Custom.Vertical.TScrollbar'.
+   It reuses the base elements from the 'clam' theme and sets the colors for active
+   and inactive states accordingly. If the required elements do not exist, it creates
+   them from the base theme.
+
+   :param style: The ttk Style object to configure.
+   :type style: ttk.Style
+   :param inactive_color: Hex or color name for the scrollbar in its default (inactive) state.
+   :type inactive_color: str
+   :param active_color: Hex or color name for the scrollbar when hovered or active.
+   :type active_color: str
+
 
 .. py:class:: spacrFrame(container, width=None, *args, bg='black', radius=20, scrollbar=True, textbox=False, **kwargs)
 
@@ -1101,7 +1485,7 @@ Module Contents
 
    Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.
 
-   Parameters:
+   Args:
    - fig: The Matplotlib figure object to modify.
    - scale_x: Scaling factor for the width of subplots (optional).
    - scale_y: Scaling factor for the height of subplots (optional).

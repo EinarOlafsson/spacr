@@ -285,7 +285,7 @@ Module Contents
 
    Wraps the run_multiple_simulations function to integrate with GUI processes.
 
-   Parameters:
+   Args:
    - settings: dict, The settings for the run_multiple_simulations function.
    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
@@ -326,7 +326,7 @@ Module Contents
 
    Function to initially hide all settings in the GUI.
 
-   Parameters:
+   Args:
    - categories: dict, The categories of settings with their corresponding settings.
    - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.
 

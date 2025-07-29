@@ -1622,7 +1622,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wraps the run_multiple_simulations function to integrate with GUI processes.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - settings: dict, The settings for the run_multiple_simulations function.</span>
 <span class="sd">    - q: multiprocessing.Queue, Queue for logging messages to the GUI.</span>
 <span class="sd">    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.</span>
@@ -1658,7 +1658,7 @@
 <span class="sd">    provided `settings_type` string. It wraps the execution with a logging mechanism </span>
 <span class="sd">    to redirect stdout/stderr to the GUI console and handles exceptions cleanly.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    settings_type : str</span>
 <span class="sd">        A string indicating which processing function to execute. Supported values include:</span>
@@ -1755,7 +1755,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to initially hide all settings in the GUI.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - categories: dict, The categories of settings with their corresponding settings.</span>
 <span class="sd">    - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1787,7 +1787,7 @@
 <span class="sd">    containers. It organizes the layout into left-hand settings, central vertical content, </span>
 <span class="sd">    and bottom horizontal panels. It also sets initial sash positions and layout weights.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    parent_frame : tk.Frame</span>
 <span class="sd">        The parent Tkinter frame to populate with the GUI layout.</span>
@@ -2066,7 +2066,7 @@
 <span class="sd">    Display a media file (MP4, AVI, or GIF) in a Tkinter frame, playing it on repeat </span>
 <span class="sd">    while fully filling the frame and maintaining the aspect ratio.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        media_path (str): The file path to the media file (MP4, AVI, or GIF).</span>
 <span class="sd">        parent_frame (tk.Frame): The Tkinter frame where the media will be displayed.</span>
 

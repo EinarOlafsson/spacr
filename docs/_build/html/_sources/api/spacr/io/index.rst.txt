@@ -13,17 +13,49 @@ Module Contents
 
 .. py:function:: process_non_tif_non_2D_images(folder)
 
-   Processes all images in the folder and splits them into grayscale channels, preserving bit depth.
+   Process and standardize image files in a folder by converting or splitting them into grayscale TIFFs.
+
+   This function supports various image formats (PNG, JPEG, CZI, ND2, TIFF) and ensures all output images
+   are grayscale TIFF files saved with consistent naming based on dimensions (channel, z-plane, timepoint).
+
+   For 2D grayscale images in non-TIFF formats, it converts them to TIFF.
+   For 3D, 4D, or 5D images, it splits them into individual grayscale channels and saves them with suffixes
+   (_C#, _Z#, _T#) to indicate channel, z-stack, and time point respectively.
+
+   :param folder: Path to the folder containing image files to be processed.
+   :type folder: str
+
+   Supported file extensions:
+       - .tif, .tiff
+       - .png
+       - .jpg, .jpeg
+       - .czi
+       - .nd2
+
+   Output:
+       - Saves standardized grayscale TIFF images in the same folder with descriptive filenames.
+       - Prints a log message for each file processed or skipped.
 
 
 .. py:class:: CombineLoaders(train_loaders)
 
-   A class that combines multiple data loaders into a single iterator.
+   A class that combines multiple PyTorch data loaders into a single iterable.
 
-   :param train_loaders: A list of data loaders.
+   This class allows iteration over a mixed sequence of batches from several
+   data loaders, yielding a tuple with the loader index and the corresponding batch.
+   Once a loader is exhausted, it is removed from the iteration pool.
+
+   :param train_loaders: A list of PyTorch DataLoader objects.
    :type train_loaders: list
 
-   :raises StopIteration: If all data loaders have been exhausted.
+   :raises StopIteration: When all data loaders are exhausted.
+
+   Initialize the CombineLoaders instance.
+
+   Converts each data loader into an iterator for independent traversal.
+
+   :param train_loaders: List of torch.utils.data.DataLoader instances.
+   :type train_loaders: list
 
 
    .. py:attribute:: train_loaders
@@ -34,8 +66,28 @@ Module Contents
 
    .. py:method:: __iter__()
 
+      Return the iterator object (self).
+
+      :returns: The iterator object itself.
+      :rtype: CombineLoaders
+
+
 
    .. py:method:: __next__()
+
+      Return the next batch from the available data loaders.
+
+      Data loaders are shuffled at each step to randomize the batch source.
+      If a data loader is exhausted, it is removed from the pool.
+
+      :returns:
+
+                A tuple (i, batch) where i is the index of the originating loader,
+                       and batch is the next batch of data from that loader.
+      :rtype: tuple
+
+      :raises StopIteration: When all loaders have been exhausted.
+
 
 
 .. py:class:: CombinedDataset(datasets, shuffle=True)
@@ -43,7 +95,19 @@ Module Contents
    Bases: :py:obj:`torch.utils.data.Dataset`
 
 
-   A dataset that combines multiple datasets into one.
+   A dataset that combines multiple datasets into one seamless dataset.
+
+   This class supports optional shuffling across datasets and presents
+   a unified indexing interface for training or evaluation.
+
+   :param datasets: A list of PyTorch Dataset objects to combine.
+   :type datasets: list
+   :param shuffle: Whether to shuffle the indices for data access. Defaults to True.
+   :type shuffle: bool, optional
+
+   Initialize the CombinedDataset.
+
+   Computes lengths of each dataset and optionally shuffles the access indices.
 
    :param datasets: A list of datasets to be combined.
    :type datasets: list
@@ -67,8 +131,25 @@ Module Contents
 
    .. py:method:: __getitem__(index)
 
+      Retrieve an item from the combined dataset.
+
+      The method accounts for shuffling and maps the index to the appropriate dataset.
+
+      :param index: Index of the item in the combined dataset.
+      :type index: int
+
+      :returns: The item retrieved from the corresponding sub-dataset.
+      :rtype: Any
+
+
 
    .. py:method:: __len__()
+
+      Return the total length of the combined dataset.
+
+      :returns: Total number of items across all datasets.
+      :rtype: int
+
 
 
 .. py:class:: NoClassDataset(data_dir, transform=None, shuffle=True, load_to_memory=False)
@@ -155,6 +236,9 @@ Module Contents
 
    Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.
 
+   This dataset supports loading images either from directory structures organized by class or from explicit
+   file and label lists. It supports optional preloading of all images into memory for faster access.
+
    :param data_dir: Root directory containing subfolders for each class.
    :type data_dir: str
    :param loader_classes: List of class names corresponding to subfolder names in `data_dir`.
@@ -168,6 +252,26 @@ Module Contents
    :param specific_files: Specific image file paths to load instead of scanning `data_dir`.
    :type specific_files: list[str], optional
    :param specific_labels: Corresponding labels for `specific_files`.
+   :type specific_labels: list[int], optional
+
+   Initialize the spacrDataset.
+
+   Constructs the dataset either by scanning the data directory or using provided file paths and labels.
+   Optionally shuffles and preloads images into memory.
+
+   :param data_dir: Directory containing class subfolders.
+   :type data_dir: str
+   :param loader_classes: List of class names.
+   :type loader_classes: list
+   :param transform: Transform function to apply to images.
+   :type transform: callable, optional
+   :param shuffle: Whether to shuffle the dataset. Default is True.
+   :type shuffle: bool
+   :param pin_memory: Whether to preload images into memory. Default is False.
+   :type pin_memory: bool
+   :param specific_files: List of file paths to use directly.
+   :type specific_files: list[str], optional
+   :param specific_labels: List of labels corresponding to specific files.
    :type specific_labels: list[int], optional
 
 
@@ -204,17 +308,53 @@ Module Contents
 
    .. py:method:: load_image(img_path)
 
+      Load and return a single image with orientation correction.
+
+      :param img_path: Path to the image file.
+      :type img_path: str
+
+      :returns: Loaded RGB image.
+      :rtype: PIL.Image
+
+
 
    .. py:method:: __len__()
+
+      Return the number of samples in the dataset.
+
+      :returns: Total number of images.
+      :rtype: int
+
 
 
    .. py:method:: shuffle_dataset()
 
+      Shuffle the dataset filenames and labels in unison.
+
+
 
    .. py:method:: get_plate(filepath)
 
+      Extract the plate identifier from the filename.
+
+      :param filepath: Full path to the file.
+      :type filepath: str
+
+      :returns: Plate ID extracted from the filename.
+      :rtype: str
+
+
 
    .. py:method:: __getitem__(index)
+
+      Retrieve an image, its label, and the filename.
+
+      :param index: Index of the image to retrieve.
+      :type index: int
+
+      :returns: (image, label, filename)
+      :rtype: tuple
+
 
 
 .. py:class:: spacrDataLoader(*args, preload_batches=1, **kwargs)
@@ -224,13 +364,23 @@ Module Contents
 
    Custom DataLoader with background batch preloading support using multiprocessing.
 
-   Extends:
-       torch.utils.data.DataLoader
+   This class extends `torch.utils.data.DataLoader` and adds asynchronous background
+   preloading of a specified number of batches using a separate process or in-place loading
+   if `pin_memory=True`.
 
    :param \*args: Arguments passed to the base DataLoader.
    :param preload_batches: Number of batches to preload in a background process. Default is 1.
    :type preload_batches: int
    :param \*\*kwargs: Keyword arguments passed to the base DataLoader. Supports all standard DataLoader arguments.
+
+   Initialize the spacrDataLoader.
+
+   Sets up the queue and multiprocessing process for background preloading of batches.
+
+   :param \*args: Arguments passed to torch.utils.data.DataLoader.
+   :param preload_batches: Number of batches to preload. Default is 1.
+   :type preload_batches: int
+   :param \*\*kwargs: Keyword arguments passed to the base DataLoader.
 
 
    .. py:attribute:: preload_batches
@@ -256,14 +406,34 @@ Module Contents
 
    .. py:method:: __iter__()
 
+      Return the iterator and initiate background preloading.
+
+      :returns: self
+
+
 
    .. py:method:: __next__()
+
+      Return the next batch from the queue.
+
+      If the queue is empty and the process has exited, raises StopIteration.
+
+      :returns: The next batch of data.
+
 
 
    .. py:method:: cleanup()
 
+      Cleanup method to terminate background preloading processes.
+
+      Ensures graceful shutdown of worker processes at exit.
+
+
 
    .. py:method:: __del__()
+
+      Destructor to ensure cleanup is called when the object is deleted.
+
 
 
 .. py:class:: TarImageDataset(tar_path, transform=None)
@@ -287,6 +457,13 @@ Module Contents
 
       :type: List[TarInfo]
 
+   Initialize the dataset and index image members from the tar archive.
+
+   :param tar_path: Path to the .tar file.
+   :type tar_path: str
+   :param transform: Transform function to apply to each image.
+   :type transform: callable, optional
+
 
    .. py:attribute:: tar_path
 
@@ -298,8 +475,23 @@ Module Contents
 
    .. py:method:: __len__()
 
+      Return the number of image files in the archive.
+
+      :returns: Number of image files.
+      :rtype: int
+
+
 
    .. py:method:: __getitem__(idx)
+
+      Retrieve an image by index directly from the tar archive.
+
+      :param idx: Index of the image to retrieve.
+      :type idx: int
+
+      :returns: (PIL.Image.Image or transformed image, str) where the string is the file name.
+      :rtype: tuple
+
 
 
 .. py:function:: load_images_from_paths(images_by_key)

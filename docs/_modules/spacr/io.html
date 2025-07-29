@@ -1118,11 +1118,51 @@
 <div class="viewcode-block" id="process_non_tif_non_2D_images">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.process_non_tif_non_2D_images">[docs]</a>
 <span class="k">def</span> <span class="nf">process_non_tif_non_2D_images</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Processes all images in the folder and splits them into grayscale channels, preserving bit depth.&quot;&quot;&quot;</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process and standardize image files in a folder by converting or splitting them into grayscale TIFFs.</span>
+
+<span class="sd">    This function supports various image formats (PNG, JPEG, CZI, ND2, TIFF) and ensures all output images </span>
+<span class="sd">    are grayscale TIFF files saved with consistent naming based on dimensions (channel, z-plane, timepoint).</span>
+
+<span class="sd">    For 2D grayscale images in non-TIFF formats, it converts them to TIFF.</span>
+<span class="sd">    For 3D, 4D, or 5D images, it splits them into individual grayscale channels and saves them with suffixes </span>
+<span class="sd">    (_C#, _Z#, _T#) to indicate channel, z-stack, and time point respectively.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        folder (str): Path to the folder containing image files to be processed.</span>
+
+<span class="sd">    Supported file extensions:</span>
+<span class="sd">        - .tif, .tiff</span>
+<span class="sd">        - .png</span>
+<span class="sd">        - .jpg, .jpeg</span>
+<span class="sd">        - .czi</span>
+<span class="sd">        - .nd2</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">        - Saves standardized grayscale TIFF images in the same folder with descriptive filenames.</span>
+<span class="sd">        - Prints a log message for each file processed or skipped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Helper function to save grayscale images</span>
     <span class="k">def</span> <span class="nf">save_grayscale_images</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a single grayscale image slice as a TIFF file with a descriptive filename.</span>
+
+<span class="sd">        The output filename is constructed from the base name and optionally includes</span>
+<span class="sd">        suffixes for channel (C#), z-plane (Z#), and timepoint (T#) to reflect its position</span>
+<span class="sd">        in a multidimensional dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image (np.ndarray): The grayscale image array to save.</span>
+<span class="sd">            base_name (str): The base filename (without extension).</span>
+<span class="sd">            folder (str): Directory in which to save the output TIFF.</span>
+<span class="sd">            dtype (np.dtype): Desired data type to cast the image before saving (e.g., np.uint8, np.uint16).</span>
+<span class="sd">            channel (int, optional): Channel index (1-based) to include in the filename.</span>
+<span class="sd">            z (int, optional): Z-plane index (1-based) to include in the filename.</span>
+<span class="sd">            t (int, optional): Timepoint index (1-based) to include in the filename.</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">            Saves the image as a `.tif` file in the specified folder with the constructed filename.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">suffix</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_C</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1136,7 +1176,27 @@
 
     <span class="c1"># Function to handle splitting of multi-dimensional images into grayscale channels</span>
     <span class="k">def</span> <span class="nf">split_channels</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Splits the image into channels and handles 3D, 4D, and 5D image cases.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split and save multi-dimensional image data into individual grayscale TIFF files.</span>
+
+<span class="sd">        This function handles 3D, 4D, and 5D images by separating each channel (and optionally</span>
+<span class="sd">        z-slices and timepoints) and saving each as an individual grayscale image using the</span>
+<span class="sd">        `save_grayscale_images` function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image (np.ndarray): Input image array with shape:</span>
+<span class="sd">                - 3D: (height, width, channels)</span>
+<span class="sd">                - 4D: (height, width, channels, z)</span>
+<span class="sd">                - 5D: (height, width, channels, z, t)</span>
+<span class="sd">            folder (str): Output directory where the grayscale images will be saved.</span>
+<span class="sd">            base_name (str): Base name used for constructing output filenames.</span>
+<span class="sd">            dtype (np.dtype): Desired data type to cast images before saving.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            2D grayscale images are ignored, as they should be handled separately.</span>
+<span class="sd">            The output TIFF filenames will include suffixes like `_C1`, `_Z1`, `_T1` to</span>
+<span class="sd">            indicate channel, z-plane, and timepoint respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="c1"># Grayscale image, already processed separately</span>
             <span class="k">return</span>
@@ -1161,7 +1221,29 @@
 
     <span class="c1"># Function to load images in various formats</span>
     <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads image from various formats and returns it as a numpy array along with its dtype.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load an image file of various supported formats and return it as a NumPy array.</span>
+
+<span class="sd">        Supports TIFF, PNG, JPEG, CZI, and ND2 image formats. Converts the image to a NumPy array</span>
+<span class="sd">        and returns it along with its data type for further processing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path (str): Path to the image file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: A tuple (image, dtype) where:</span>
+<span class="sd">                - image (np.ndarray): Loaded image as a NumPy array.</span>
+<span class="sd">                - dtype: Data type of the image (e.g., np.uint16, np.float32, etc.).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the file extension is not supported.</span>
+
+<span class="sd">        Supported formats:</span>
+<span class="sd">            - .tif, .tiff (TIFF)</span>
+<span class="sd">            - .png, .jpg, .jpeg (standard image formats)</span>
+<span class="sd">            - .czi (Zeiss CZI microscopy format)</span>
+<span class="sd">            - .nd2 (Nikon ND2 microscopy format)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         
         <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">]:</span>
@@ -1187,7 +1269,21 @@
 
     <span class="c1"># Function to check if an image is grayscale and save it as a TIFF if it isn&#39;t already</span>
     <span class="k">def</span> <span class="nf">convert_grayscale_to_tiff</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a grayscale image to TIFF format and save it, preserving the original bit depth.</span>
+
+<span class="sd">        This function is intended for grayscale (2D) images in non-TIFF formats (e.g., PNG, JPEG).</span>
+<span class="sd">        It converts the image to the specified dtype and saves it as a TIFF in the specified folder.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image (np.ndarray): Grayscale image as a NumPy array.</span>
+<span class="sd">            filename (str): Original filename (used to derive output name).</span>
+<span class="sd">            folder (str): Destination folder where the TIFF image will be saved.</span>
+<span class="sd">            dtype (np.dtype): Data type to cast the image before saving.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">base_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">output_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.tif&quot;</span><span class="p">)</span>
         <span class="n">tifffile</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
@@ -1428,16 +1524,28 @@
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders">[docs]</a>
 <span class="k">class</span> <span class="nc">CombineLoaders</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A class that combines multiple data loaders into a single iterator.</span>
+<span class="sd">    A class that combines multiple PyTorch data loaders into a single iterable.</span>
+
+<span class="sd">    This class allows iteration over a mixed sequence of batches from several</span>
+<span class="sd">    data loaders, yielding a tuple with the loader index and the corresponding batch.</span>
+<span class="sd">    Once a loader is exhausted, it is removed from the iteration pool.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        train_loaders (list): A list of data loaders.</span>
+<span class="sd">        train_loaders (list): A list of PyTorch DataLoader objects.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        StopIteration: If all data loaders have been exhausted.</span>
+<span class="sd">        StopIteration: When all data loaders are exhausted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_loaders</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the CombineLoaders instance.</span>
+
+<span class="sd">        Converts each data loader into an iterator for independent traversal.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_loaders (list): List of torch.utils.data.DataLoader instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="CombineLoaders.train_loaders">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.train_loaders">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_loaders</span> <span class="o">=</span> <span class="n">train_loaders</span></div>
@@ -1450,12 +1558,31 @@
 <div class="viewcode-block" id="CombineLoaders.__iter__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.__iter__">[docs]</a>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the iterator object (self).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            CombineLoaders: The iterator object itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="CombineLoaders.__next__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombineLoaders.__next__">[docs]</a>
     <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the next batch from the available data loaders.</span>
+
+<span class="sd">        Data loaders are shuffled at each step to randomize the batch source.</span>
+<span class="sd">        If a data loader is exhausted, it is removed from the pool.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: A tuple (i, batch) where i is the index of the originating loader,</span>
+<span class="sd">                   and batch is the next batch of data from that loader.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            StopIteration: When all loaders have been exhausted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">:</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">loader_iter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loader_iters</span><span class="p">):</span>
@@ -1475,14 +1602,26 @@
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombinedDataset">[docs]</a>
 <span class="k">class</span> <span class="nc">CombinedDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A dataset that combines multiple datasets into one.</span>
+<span class="sd">    A dataset that combines multiple datasets into one seamless dataset.</span>
+
+<span class="sd">    This class supports optional shuffling across datasets and presents</span>
+<span class="sd">    a unified indexing interface for training or evaluation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        datasets (list): A list of datasets to be combined.</span>
-<span class="sd">        shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to True.</span>
+<span class="sd">        datasets (list): A list of PyTorch Dataset objects to combine.</span>
+<span class="sd">        shuffle (bool, optional): Whether to shuffle the indices for data access. Defaults to True.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the CombinedDataset.</span>
+
+<span class="sd">        Computes lengths of each dataset and optionally shuffles the access indices.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            datasets (list): A list of datasets to be combined.</span>
+<span class="sd">            shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="CombinedDataset.datasets">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombinedDataset.datasets">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets</span></div>
@@ -1507,6 +1646,17 @@
 <div class="viewcode-block" id="CombinedDataset.__getitem__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombinedDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve an item from the combined dataset.</span>
+
+<span class="sd">        The method accounts for shuffling and maps the index to the appropriate dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index (int): Index of the item in the combined dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: The item retrieved from the corresponding sub-dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="p">):</span>
@@ -1517,6 +1667,12 @@
 <div class="viewcode-block" id="CombinedDataset.__len__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.CombinedDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the total length of the combined dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Total number of items across all datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_length</span></div>
 </div>
 
@@ -1632,6 +1788,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.</span>
 
+<span class="sd">    This dataset supports loading images either from directory structures organized by class or from explicit</span>
+<span class="sd">    file and label lists. It supports optional preloading of all images into memory for faster access.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        data_dir (str): Root directory containing subfolders for each class.</span>
 <span class="sd">        loader_classes (list[str]): List of class names corresponding to subfolder names in `data_dir`.</span>
@@ -1642,6 +1801,21 @@
 <span class="sd">        specific_labels (list[int], optional): Corresponding labels for `specific_files`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">loader_classes</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">specific_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">specific_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrDataset.</span>
+
+<span class="sd">        Constructs the dataset either by scanning the data directory or using provided file paths and labels.</span>
+<span class="sd">        Optionally shuffles and preloads images into memory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_dir (str): Directory containing class subfolders.</span>
+<span class="sd">            loader_classes (list): List of class names.</span>
+<span class="sd">            transform (callable, optional): Transform function to apply to images.</span>
+<span class="sd">            shuffle (bool): Whether to shuffle the dataset. Default is True.</span>
+<span class="sd">            pin_memory (bool): Whether to preload images into memory. Default is False.</span>
+<span class="sd">            specific_files (list[str], optional): List of file paths to use directly.</span>
+<span class="sd">            specific_labels (list[int], optional): List of labels corresponding to specific files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="spacrDataset.data_dir">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.data_dir">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span></div>
@@ -1694,6 +1868,15 @@
 <div class="viewcode-block" id="spacrDataset.load_image">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.load_image">[docs]</a>
     <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and return a single image with orientation correction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img_path (str): Path to the image file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PIL.Image: Loaded RGB image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">exif_transpose</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>  <span class="c1"># Handle image orientation</span>
         <span class="k">return</span> <span class="n">img</span></div>
@@ -1702,12 +1885,21 @@
 <div class="viewcode-block" id="spacrDataset.__len__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the number of samples in the dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Total number of images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrDataset.shuffle_dataset">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.shuffle_dataset">[docs]</a>
     <span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shuffle the dataset filenames and labels in unison.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">combined</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">))</span>
         <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">combined</span><span class="p">)</span></div>
@@ -1716,6 +1908,15 @@
 <div class="viewcode-block" id="spacrDataset.get_plate">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.get_plate">[docs]</a>
     <span class="k">def</span> <span class="nf">get_plate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract the plate identifier from the filename.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): Full path to the file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Plate ID extracted from the filename.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -1723,6 +1924,15 @@
 <div class="viewcode-block" id="spacrDataset.__getitem__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve an image, its label, and the filename.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index (int): Index of the image to retrieve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (image, label, filename)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1741,8 +1951,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Custom DataLoader with background batch preloading support using multiprocessing.</span>
 
-<span class="sd">    Extends:</span>
-<span class="sd">        torch.utils.data.DataLoader</span>
+<span class="sd">    This class extends `torch.utils.data.DataLoader` and adds asynchronous background</span>
+<span class="sd">    preloading of a specified number of batches using a separate process or in-place loading</span>
+<span class="sd">    if `pin_memory=True`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        *args: Arguments passed to the base DataLoader.</span>
@@ -1750,6 +1961,16 @@
 <span class="sd">        **kwargs: Keyword arguments passed to the base DataLoader. Supports all standard DataLoader arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">preload_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrDataLoader.</span>
+
+<span class="sd">        Sets up the queue and multiprocessing process for background preloading of batches.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args: Arguments passed to torch.utils.data.DataLoader.</span>
+<span class="sd">            preload_batches (int): Number of batches to preload. Default is 1.</span>
+<span class="sd">            **kwargs: Keyword arguments passed to the base DataLoader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrDataLoader.preload_batches">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.preload_batches">[docs]</a>
@@ -1775,6 +1996,12 @@
         <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_preload_next_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal method to fetch the next N batches and put them in the queue.</span>
+
+<span class="sd">        If `pin_memory` is True, batches are pinned to CUDA memory.</span>
+<span class="sd">        Stops if the iterator is exhausted or the stop event is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preload_batches</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="p">:</span>
@@ -1787,6 +2014,11 @@
             <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_start_preloading</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start a new background process to preload batches.</span>
+
+<span class="sd">        If `pin_memory` is True, loading is done in the main thread instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">())</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">:</span>
@@ -1796,6 +2028,15 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_preload_next_batches</span><span class="p">()</span>  <span class="c1"># Directly load if pin_memory is True</span>
 
     <span class="k">def</span> <span class="nf">_pin_memory_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursively pin memory for all tensors in the batch.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch: A batch of data, possibly a tuple, list, or tensor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The batch with pinned memory (if applicable).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">pin_memory</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
@@ -1806,6 +2047,12 @@
 <div class="viewcode-block" id="spacrDataLoader.__iter__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.__iter__">[docs]</a>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the iterator and initiate background preloading.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_preloading</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -1813,6 +2060,14 @@
 <div class="viewcode-block" id="spacrDataLoader.__next__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.__next__">[docs]</a>
     <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the next batch from the queue.</span>
+
+<span class="sd">        If the queue is empty and the process has exited, raises StopIteration.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The next batch of data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">StopIteration</span>
 
@@ -1835,6 +2090,11 @@
 <div class="viewcode-block" id="spacrDataLoader.cleanup">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.cleanup">[docs]</a>
     <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cleanup method to terminate background preloading processes.</span>
+
+<span class="sd">        Ensures graceful shutdown of worker processes at exit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
@@ -1844,6 +2104,9 @@
 <div class="viewcode-block" id="spacrDataLoader.__del__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.spacrDataLoader.__del__">[docs]</a>
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destructor to ensure cleanup is called when the object is deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 </div>
 
@@ -1864,7 +2127,15 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        members (List[TarInfo]): List of image members in the tar archive.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tar_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the dataset and index image members from the tar archive.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tar_path (str): Path to the .tar file.</span>
+<span class="sd">            transform (callable, optional): Transform function to apply to each image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="TarImageDataset.tar_path">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset.tar_path">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">tar_path</span> <span class="o">=</span> <span class="n">tar_path</span></div>
@@ -1881,12 +2152,27 @@
 <div class="viewcode-block" id="TarImageDataset.__len__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the number of image files in the archive.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of image files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TarImageDataset.__getitem__">
 <a class="viewcode-back" href="../../api/spacr/io/index.html#spacr.io.TarImageDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve an image by index directly from the tar archive.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idx (int): Index of the image to retrieve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (PIL.Image.Image or transformed image, str) where the string is the file name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tar_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">img_file</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>

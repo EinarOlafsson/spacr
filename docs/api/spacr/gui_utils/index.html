@@ -1435,7 +1435,7 @@ If None, the figure is displayed instead.</p>
 <dt class="sig sig-object py" id="spacr.gui_utils.function_gui_wrapper">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">function_gui_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#function_gui_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.function_gui_wrapper" title="Link to this definition"></a></dt>
 <dd><p>Wraps the run_multiple_simulations function to integrate with GUI processes.</p>
-<p>Parameters:
+<p>Args:
 - settings: dict, The settings for the run_multiple_simulations function.
 - q: multiprocessing.Queue, Queue for logging messages to the GUI.
 - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.</p>
@@ -1477,7 +1477,7 @@ to redirect stdout/stderr to the GUI console and handles exceptions cleanly.</p>
 <dt class="sig sig-object py" id="spacr.gui_utils.hide_all_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_utils.</span></span><span class="sig-name descname"><span class="pre">hide_all_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_utils.html#hide_all_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_utils.hide_all_settings" title="Link to this definition"></a></dt>
 <dd><p>Function to initially hide all settings in the GUI.</p>
-<p>Parameters:
+<p>Args:
 - categories: dict, The categories of settings with their corresponding settings.
 - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.</p>
 </dd></dl>

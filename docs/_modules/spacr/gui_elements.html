@@ -1319,7 +1319,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the FontLoader class.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        - font_name: str, the name of the font (e.g., &#39;OpenSans&#39;).</span>
 <span class="sd">        - font_style: str, the style of the font (e.g., &#39;Regular&#39;, &#39;Bold&#39;).</span>
 <span class="sd">        - font_size: int, the size of the font (default: 12).</span>
@@ -1352,7 +1352,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the font path based on the font name and style.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        - font_name: str, the name of the font.</span>
 <span class="sd">        - font_style: str, the style of the font.</span>
 
@@ -1397,7 +1397,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the font in the specified size.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        - size: int, the size of the font (optional).</span>
 
 <span class="sd">        Returns:</span>
@@ -1422,6 +1422,14 @@
 <span class="sd">        bg (str): Background color of the container and sashes. Defaults to &#39;lightgrey&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrContainer with the specified orientation and background color.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): Parent widget.</span>
+<span class="sd">            orient (str): Layout orientation (tk.VERTICAL or tk.HORIZONTAL).</span>
+<span class="sd">            bg (str, optional): Background color. Defaults to &#39;lightgrey&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrContainer.orient">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.orient">[docs]</a>
@@ -1452,6 +1460,13 @@
 <div class="viewcode-block" id="spacrContainer.add">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.add">[docs]</a>
     <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s1">&#39;always&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new widget as a pane to the container.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            widget (tk.Widget): Widget to add.</span>
+<span class="sd">            stretch (str): Stretch policy (currently unused).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding widget: </span><span class="si">{</span><span class="n">widget</span><span class="si">}</span><span class="s2"> with stretch: </span><span class="si">{</span><span class="n">stretch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">pane</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">)</span>
         <span class="n">pane</span><span class="o">.</span><span class="n">grid_propagate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -1467,6 +1482,9 @@
 <div class="viewcode-block" id="spacrContainer.create_sash">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.create_sash">[docs]</a>
     <span class="k">def</span> <span class="nf">create_sash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a draggable sash between panes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sash</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;sb_v_double_arrow&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="o">==</span> <span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="k">else</span> <span class="s1">&#39;sb_h_double_arrow&#39;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sash_thickness</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sash_thickness</span><span class="p">)</span>
         <span class="n">sash</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Enter&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_enter_sash</span><span class="p">)</span>
         <span class="n">sash</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Leave&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_leave_sash</span><span class="p">)</span>
@@ -1477,6 +1495,9 @@
 <div class="viewcode-block" id="spacrContainer.reposition_panes">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.reposition_panes">[docs]</a>
     <span class="k">def</span> <span class="nf">reposition_panes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reposition panes and sashes within the container based on orientation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">panes</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -1501,6 +1522,12 @@
 <div class="viewcode-block" id="spacrContainer.on_configure">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.on_configure">[docs]</a>
     <span class="k">def</span> <span class="nf">on_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Event handler triggered on container resize.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Tkinter event object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuring container: </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reposition_panes</span><span class="p">()</span></div>
 
@@ -1508,18 +1535,36 @@
 <div class="viewcode-block" id="spacrContainer.on_enter_sash">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.on_enter_sash">[docs]</a>
     <span class="k">def</span> <span class="nf">on_enter_sash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change sash color on mouse enter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Tkinter event object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">event</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrContainer.on_leave_sash">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.on_leave_sash">[docs]</a>
     <span class="k">def</span> <span class="nf">on_leave_sash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset sash color on mouse leave.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Tkinter event object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">event</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrContainer.start_resize">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.start_resize">[docs]</a>
     <span class="k">def</span> <span class="nf">start_resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initiate resizing behavior when mouse press begins on a sash.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Tkinter event object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sash</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">widget</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">y_root</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="o">==</span> <span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="k">else</span> <span class="n">event</span><span class="o">.</span><span class="n">x_root</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_size</span> <span class="o">=</span> <span class="n">sash</span><span class="o">.</span><span class="n">winfo_y</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="o">==</span> <span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="k">else</span> <span class="n">sash</span><span class="o">.</span><span class="n">winfo_x</span><span class="p">()</span>
@@ -1529,6 +1574,12 @@
 <div class="viewcode-block" id="spacrContainer.perform_resize">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.perform_resize">[docs]</a>
     <span class="k">def</span> <span class="nf">perform_resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjust pane sizes during mouse drag on a sash.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Tkinter event object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sash</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">widget</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">y_root</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="o">==</span> <span class="n">tk</span><span class="o">.</span><span class="n">VERTICAL</span> <span class="k">else</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">x_root</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">)</span>
         <span class="n">new_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_size</span> <span class="o">+</span> <span class="n">delta</span>
@@ -1556,7 +1607,20 @@
 <div class="viewcode-block" id="spacrEntry">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrEntry">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrEntry</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom Tkinter entry widget with rounded corners, dark theme styling, and active/inactive color handling.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): Parent widget.</span>
+<span class="sd">        textvariable (tk.StringVar, optional): Tkinter textvariable to bind to the entry.</span>
+<span class="sd">        outline (bool, optional): Whether to show an outline. Currently unused. Defaults to False.</span>
+<span class="sd">        width (int, optional): Width of the entry widget. Defaults to 220 if not provided.</span>
+<span class="sd">        *args, **kwargs: Additional arguments passed to the parent Frame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the custom entry widget with dark theme and rounded styling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         
         <span class="c1"># Set dark style</span>
@@ -1624,6 +1688,12 @@
 <div class="viewcode-block" id="spacrEntry.draw_rounded_rectangle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrEntry.draw_rounded_rectangle">[docs]</a>
     <span class="k">def</span> <span class="nf">draw_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draws a rounded rectangle with the given color as background.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            color (str): Fill color for the rounded rectangle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># Increased radius for more rounded corners</span>
         <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span>
         <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_width</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_height</span> <span class="o">-</span> <span class="mi">5</span>
@@ -1639,6 +1709,9 @@
 <div class="viewcode-block" id="spacrEntry.on_focus_in">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrEntry.on_focus_in">[docs]</a>
     <span class="k">def</span> <span class="nf">on_focus_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Event handler for focus in. Changes the background to the active color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">)</span></div>
 
@@ -1646,6 +1719,9 @@
 <div class="viewcode-block" id="spacrEntry.on_focus_out">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrEntry.on_focus_out">[docs]</a>
     <span class="k">def</span> <span class="nf">on_focus_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Event handler for focus out. Reverts the background to the inactive color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bg_color</span><span class="p">)</span></div>
 </div>
@@ -1654,7 +1730,19 @@
 <div class="viewcode-block" id="spacrCheck">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCheck">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrCheck</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom checkbox widget with rounded square appearance and dark style.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): Parent widget.</span>
+<span class="sd">        text (str, optional): Label text (currently unused).</span>
+<span class="sd">        variable (tk.BooleanVar): Tkinter variable to bind the checkbox state.</span>
+<span class="sd">        *args, **kwargs: Additional arguments passed to the parent Frame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the custom checkbox widget and binds visual updates to variable state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         
         <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
@@ -1708,6 +1796,12 @@
 <div class="viewcode-block" id="spacrCheck.draw_rounded_square">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCheck.draw_rounded_square">[docs]</a>
     <span class="k">def</span> <span class="nf">draw_rounded_square</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draws a rounded square with border and fill.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            color (str): The fill color based on the current checkbox state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Adjust the radius for more rounded corners</span>
         <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span>
         <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">18</span>
@@ -1727,12 +1821,21 @@
 <div class="viewcode-block" id="spacrCheck.update_check">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCheck.update_check">[docs]</a>
     <span class="k">def</span> <span class="nf">update_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redraws the checkbox based on the current value of the associated variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_rounded_square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrCheck.toggle_variable">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCheck.toggle_variable">[docs]</a>
     <span class="k">def</span> <span class="nf">toggle_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Toggles the value of the associated variable when the checkbox is clicked.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): The mouse click event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">get</span><span class="p">())</span></div>
 </div>
 
@@ -1740,7 +1843,28 @@
 <div class="viewcode-block" id="spacrCombo">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrCombo</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom styled combo box widget with rounded edges and dropdown functionality.</span>
+
+<span class="sd">    This widget mimics a modern dropdown menu with dark-themed styling, allowing</span>
+<span class="sd">    users to select from a list of values in a visually appealing interface.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): Parent widget.</span>
+<span class="sd">        textvariable (tk.StringVar, optional): Variable linked to the combo box selection.</span>
+<span class="sd">        values (list, optional): List of selectable values. Defaults to empty list.</span>
+<span class="sd">        width (int, optional): Width of the combo box in pixels. Defaults to 220.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the combo box UI and style settings.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): The parent widget.</span>
+<span class="sd">            textvariable (tk.StringVar, optional): A Tkinter StringVar linked to the selected value.</span>
+<span class="sd">            values (list, optional): List of values to populate the dropdown.</span>
+<span class="sd">            width (int, optional): Width of the combo box. Defaults to 220 pixels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         
         <span class="c1"># Set dark style</span>
@@ -1824,6 +1948,12 @@
 <div class="viewcode-block" id="spacrCombo.draw_rounded_rectangle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.draw_rounded_rectangle">[docs]</a>
     <span class="k">def</span> <span class="nf">draw_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a rounded rectangle on the canvas with the specified background color.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            color (str): The fill color for the rounded rectangle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># Increased radius for more rounded corners</span>
         <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span>
         <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_width</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_height</span> <span class="o">-</span> <span class="mi">5</span>
@@ -1840,6 +1970,12 @@
 <div class="viewcode-block" id="spacrCombo.on_click">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.on_click">[docs]</a>
     <span class="k">def</span> <span class="nf">on_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle click event on the combo box to toggle the dropdown menu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): The mouse click event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropdown_menu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">open_dropdown</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1849,6 +1985,9 @@
 <div class="viewcode-block" id="spacrCombo.open_dropdown">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.open_dropdown">[docs]</a>
     <span class="k">def</span> <span class="nf">open_dropdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display the dropdown menu with available values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">dropdown_menu</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1872,6 +2011,9 @@
 <div class="viewcode-block" id="spacrCombo.close_dropdown">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.close_dropdown">[docs]</a>
     <span class="k">def</span> <span class="nf">close_dropdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the dropdown menu if it is open.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropdown_menu</span><span class="p">:</span>
@@ -1882,6 +2024,12 @@
 <div class="viewcode-block" id="spacrCombo.on_select">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.on_select">[docs]</a>
     <span class="k">def</span> <span class="nf">on_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the displayed label and internal variable when a value is selected.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (str): The selected value from the dropdown.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">display_text</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">display_text</span><span class="p">)</span>
@@ -1892,6 +2040,12 @@
 <div class="viewcode-block" id="spacrCombo.set">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.set">[docs]</a>
     <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Programmatically set the combo box selection to the specified value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (str): The value to set in the combo box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">display_text</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">display_text</span><span class="p">)</span>
@@ -1902,8 +2056,38 @@
 <div class="viewcode-block" id="spacrDropdownMenu">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrDropdownMenu</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom dark-themed dropdown menu widget with rounded edges and hover interaction.</span>
 
+<span class="sd">    This widget displays a labeled button that reveals a menu of selectable options</span>
+<span class="sd">    when clicked. It supports external callback functions, styling updates, and dynamic</span>
+<span class="sd">    highlighting of active menu items.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): Parent widget in which the dropdown menu is placed.</span>
+<span class="sd">        variable (tk.StringVar): A Tkinter variable to store the selected option.</span>
+<span class="sd">        options (list): A list of option labels to populate the dropdown menu.</span>
+<span class="sd">        command (callable, optional): A function to call when an option is selected.</span>
+<span class="sd">        font (tuple or tk.Font, optional): Font used for the button label.</span>
+<span class="sd">        size (int, optional): Height of the button in pixels. Defaults to 50.</span>
+<span class="sd">        **kwargs: Additional keyword arguments passed to the `tk.Frame` base class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrDropdownMenu with a canvas-based button and popup menu.</span>
+
+<span class="sd">        Sets up the button appearance, binds mouse interaction events,</span>
+<span class="sd">        and constructs the dropdown menu with the given options.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): Parent container.</span>
+<span class="sd">            variable (tk.StringVar): Variable that stores the selected option.</span>
+<span class="sd">            options (list): List of strings representing the dropdown options.</span>
+<span class="sd">            command (callable, optional): Callback function when an option is selected.</span>
+<span class="sd">            font (tk.Font or tuple, optional): Font used for the button text.</span>
+<span class="sd">            size (int, optional): Button height in pixels. Defaults to 50.</span>
+<span class="sd">            **kwargs: Additional keyword arguments for the Frame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrDropdownMenu.variable">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.variable">[docs]</a>
@@ -2013,6 +2197,20 @@
 <div class="viewcode-block" id="spacrDropdownMenu.create_rounded_rectangle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.create_rounded_rectangle">[docs]</a>
     <span class="k">def</span> <span class="nf">create_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a rounded rectangle polygon on the internal canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x1 (int): Top-left x coordinate.</span>
+<span class="sd">            y1 (int): Top-left y coordinate.</span>
+<span class="sd">            x2 (int): Bottom-right x coordinate.</span>
+<span class="sd">            y2 (int): Bottom-right y coordinate.</span>
+<span class="sd">            radius (int, optional): Radius of the corners. Defaults to 20.</span>
+<span class="sd">            **kwargs: Canvas polygon configuration options (fill, outline, etc.).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Canvas item ID of the created polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">x1</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
             <span class="n">x2</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
@@ -2038,24 +2236,45 @@
 <div class="viewcode-block" id="spacrDropdownMenu.on_enter">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.on_enter">[docs]</a>
     <span class="k">def</span> <span class="nf">on_enter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle mouse enter event by updating the button&#39;s background color.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event, optional): The event object. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">itemconfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_bg</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrDropdownMenu.on_leave">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.on_leave">[docs]</a>
     <span class="k">def</span> <span class="nf">on_leave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle mouse leave event by resetting the button&#39;s background color.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event, optional): The event object. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">itemconfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_bg</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrDropdownMenu.on_click">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.on_click">[docs]</a>
     <span class="k">def</span> <span class="nf">on_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle button click event to display the dropdown menu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event, optional): The event object. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post_menu</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="spacrDropdownMenu.post_menu">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.post_menu">[docs]</a>
     <span class="k">def</span> <span class="nf">post_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display the dropdown menu below the button using screen coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_rootx</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_rooty</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">winfo_height</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">height</span><span class="p">)</span></div>
 
@@ -2063,6 +2282,12 @@
 <div class="viewcode-block" id="spacrDropdownMenu.on_select">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.on_select">[docs]</a>
     <span class="k">def</span> <span class="nf">on_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback when an option is selected from the dropdown menu.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            option (str): The selected option label.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">option</span><span class="p">)</span></div>
 
@@ -2070,6 +2295,13 @@
 <div class="viewcode-block" id="spacrDropdownMenu.update_styles">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.update_styles">[docs]</a>
     <span class="k">def</span> <span class="nf">update_styles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">active_categories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the styles of the dropdown menu entries based on active categories.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            active_categories (list or None): List of option labels to highlight</span>
+<span class="sd">                with the active color. If None, all entries are styled as inactive.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">widgets</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">active_categories</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2085,6 +2317,21 @@
 <div class="viewcode-block" id="spacrCheckbutton">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCheckbutton">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrCheckbutton</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Checkbutton</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dark-themed styled Checkbutton widget for use in the SpaCr GUI.</span>
+
+<span class="sd">    This class wraps a `ttk.Checkbutton` with a custom style and binds it to a</span>
+<span class="sd">    `BooleanVar`, allowing it to integrate seamlessly into dark-themed interfaces.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): The parent widget in which to place the checkbutton.</span>
+<span class="sd">        text (str, optional): The label text displayed next to the checkbutton.</span>
+<span class="sd">        variable (tk.BooleanVar, optional): Variable linked to the checkbutton&#39;s state.</span>
+<span class="sd">            If None, a new `BooleanVar` is created.</span>
+<span class="sd">        command (callable, optional): A callback function to execute when the checkbutton is toggled.</span>
+<span class="sd">        *args: Additional positional arguments passed to `ttk.Checkbutton`.</span>
+<span class="sd">        **kwargs: Additional keyword arguments passed to `ttk.Checkbutton`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrCheckbutton.text">
@@ -2107,7 +2354,30 @@
 <div class="viewcode-block" id="spacrProgressBar">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrProgressBar">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrProgressBar</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Progressbar</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dark-themed progress bar widget with optional progress label display.</span>
+
+<span class="sd">    This class extends `ttk.Progressbar` and applies a dark visual theme consistent</span>
+<span class="sd">    with SpaCr GUI styling. It also provides an optional label that displays real-time</span>
+<span class="sd">    progress, operation type, and additional information.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (tk.Widget): The parent widget in which to place the progress bar.</span>
+<span class="sd">        label (bool, optional): Whether to show a label below the progress bar. Defaults to True.</span>
+<span class="sd">        *args: Additional positional arguments passed to `ttk.Progressbar`.</span>
+<span class="sd">        **kwargs: Additional keyword arguments passed to `ttk.Progressbar`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the progress bar and optional label with dark theme styling.</span>
+
+<span class="sd">        Sets the initial value to 0, applies custom style attributes, and creates</span>
+<span class="sd">        a label for displaying progress information.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): Parent container for the widget.</span>
+<span class="sd">            label (bool, optional): Whether to show a label for progress updates. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># Get the style colors</span>
@@ -2196,6 +2466,11 @@
 <div class="viewcode-block" id="spacrProgressBar.set_label_position">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrProgressBar.set_label_position">[docs]</a>
     <span class="k">def</span> <span class="nf">set_label_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Place the progress label one row below the progress bar in the grid layout.</span>
+
+<span class="sd">        Should be called after the progress bar has been placed with `.grid(...)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="p">:</span>
             <span class="n">row_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rowID&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">col_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;columnID&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -2206,6 +2481,14 @@
 <div class="viewcode-block" id="spacrProgressBar.update_label">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrProgressBar.update_label">[docs]</a>
     <span class="k">def</span> <span class="nf">update_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the progress label with current progress, operation type, and extra info.</span>
+
+<span class="sd">        Constructs a single-line status message with:</span>
+<span class="sd">        - Current progress value</span>
+<span class="sd">        - Operation type (if set)</span>
+<span class="sd">        - Additional info (if set)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_label</span><span class="p">:</span>
             <span class="c1"># Start with the base progress information</span>
             <span class="n">label_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Processing: </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;maximum&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2231,7 +2514,45 @@
 <div class="viewcode-block" id="spacrSlider">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrSlider</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom slider widget with dark-themed styling, optional numeric entry, and mouse interaction.</span>
+
+<span class="sd">    This slider is designed for GUI applications where numeric control is needed,</span>
+<span class="sd">    supporting dynamic resizing, labeled value entry, and a callback on release.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        master (tk.Widget): Parent widget.</span>
+<span class="sd">        length (int, optional): Fixed pixel length of the slider. If None, adapts to canvas width.</span>
+<span class="sd">        thickness (int, optional): Thickness of the slider bar in pixels. Defaults to 2.</span>
+<span class="sd">        knob_radius (int, optional): Radius of the slider knob in pixels. Defaults to 10.</span>
+<span class="sd">        position (str, optional): Alignment of slider within the frame. One of &quot;left&quot;, &quot;center&quot;, &quot;right&quot;.</span>
+<span class="sd">        from_ (float): Minimum slider value.</span>
+<span class="sd">        to (float): Maximum slider value.</span>
+<span class="sd">        value (float, optional): Initial value. Defaults to `from_`.</span>
+<span class="sd">        show_index (bool, optional): Whether to show an entry for numeric value. Defaults to False.</span>
+<span class="sd">        command (Callable, optional): Function to call with the final value upon knob release.</span>
+<span class="sd">        **kwargs: Additional options passed to `tk.Frame`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">knob_radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">from_</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a custom dark-themed slider widget.</span>
+
+<span class="sd">        This slider supports mouse interaction, optional direct numeric input via an Entry,</span>
+<span class="sd">        and dynamically adapts its layout based on container resizing unless a fixed `length` is specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            master (tk.Widget, optional): Parent widget.</span>
+<span class="sd">            length (int, optional): Fixed length of the slider in pixels. If None, dynamically resizes with the container.</span>
+<span class="sd">            thickness (int, optional): Thickness of the slider bar in pixels. Default is 2.</span>
+<span class="sd">            knob_radius (int, optional): Radius of the draggable knob in pixels. Default is 10.</span>
+<span class="sd">            position (str, optional): Alignment of the slider within the frame. One of {&quot;left&quot;, &quot;center&quot;, &quot;right&quot;}. Default is &quot;center&quot;.</span>
+<span class="sd">            from_ (float): Minimum value of the slider.</span>
+<span class="sd">            to (float): Maximum value of the slider.</span>
+<span class="sd">            value (float, optional): Initial value of the slider. Defaults to `from_` if not specified.</span>
+<span class="sd">            show_index (bool, optional): If True, displays a text entry box to manually input the slider value. Default is False.</span>
+<span class="sd">            command (Callable, optional): Optional function to be called with the final value when the knob is released.</span>
+<span class="sd">            **kwargs: Additional keyword arguments passed to the `tk.Frame` initializer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">master</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="spacrSlider.specified_length">
@@ -2350,6 +2671,12 @@
 <div class="viewcode-block" id="spacrSlider.resize_slider">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.resize_slider">[docs]</a>
     <span class="k">def</span> <span class="nf">resize_slider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recalculate slider dimensions and redraw upon resizing.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Resize event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">specified_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specified_length</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2371,6 +2698,15 @@
 <div class="viewcode-block" id="spacrSlider.value_to_position">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.value_to_position">[docs]</a>
     <span class="k">def</span> <span class="nf">value_to_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a numerical slider value to a pixel position on the canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (float): The numerical value to convert.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Corresponding position in pixels on the slider.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">knob_radius</span>
         <span class="n">relative_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_</span><span class="p">)</span>
@@ -2380,6 +2716,15 @@
 <div class="viewcode-block" id="spacrSlider.position_to_value">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.position_to_value">[docs]</a>
     <span class="k">def</span> <span class="nf">position_to_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a pixel position on the slider to a numerical value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position (float): Pixel position on the slider.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Corresponding numerical slider value.</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_</span>
         <span class="n">relative_position</span> <span class="o">=</span> <span class="p">(</span><span class="n">position</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">knob_radius</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">knob_radius</span><span class="p">)</span>
@@ -2389,6 +2734,12 @@
 <div class="viewcode-block" id="spacrSlider.draw_slider">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.draw_slider">[docs]</a>
     <span class="k">def</span> <span class="nf">draw_slider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inactive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw the slider bar and knob on the canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inactive (bool): If True, draw knob in inactive color. Otherwise, use active color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">slider_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">create_line</span><span class="p">(</span>
@@ -2414,6 +2765,12 @@
 <div class="viewcode-block" id="spacrSlider.move_knob">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.move_knob">[docs]</a>
     <span class="k">def</span> <span class="nf">move_knob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move the knob in response to mouse drag, updating internal value and position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Motion event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_position</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">knob_radius</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">knob_radius</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">knob_position</span> <span class="o">=</span> <span class="n">new_position</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_to_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">knob_position</span><span class="p">)</span>
@@ -2431,6 +2788,12 @@
 <div class="viewcode-block" id="spacrSlider.activate_knob">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.activate_knob">[docs]</a>
     <span class="k">def</span> <span class="nf">activate_knob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Highlight knob and respond to click by positioning knob at mouse location.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Click event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_slider</span><span class="p">(</span><span class="n">inactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_knob</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
@@ -2438,6 +2801,12 @@
 <div class="viewcode-block" id="spacrSlider.release_knob">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.release_knob">[docs]</a>
     <span class="k">def</span> <span class="nf">release_knob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finalize knob movement and call the `command` callback with final value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Mouse release event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_slider</span><span class="p">(</span><span class="n">inactive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># Call the command with the final value when the knob is released</span></div>
@@ -2446,6 +2815,12 @@
 <div class="viewcode-block" id="spacrSlider.set_to">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.set_to">[docs]</a>
     <span class="k">def</span> <span class="nf">set_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_to</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the maximum value (`to`) of the slider.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            new_to (float): New upper bound of the slider.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">to</span> <span class="o">=</span> <span class="n">new_to</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">knob_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_to_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_slider</span><span class="p">(</span><span class="n">inactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
@@ -2454,13 +2829,24 @@
 <div class="viewcode-block" id="spacrSlider.get">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.get">[docs]</a>
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the current slider value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Current value of the slider.</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span></div>
 
 
 <div class="viewcode-block" id="spacrSlider.set">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.set">[docs]</a>
     <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the slider&#39;s value and update the knob position.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the slider to a specific value and redraw.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (float): New value to set (clipped to bounds).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">from_</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">))</span>  <span class="c1"># Ensure the value is within bounds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">knob_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_to_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_slider</span><span class="p">(</span><span class="n">inactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -2471,13 +2857,24 @@
 <div class="viewcode-block" id="spacrSlider.jump_to_click">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.jump_to_click">[docs]</a>
     <span class="k">def</span> <span class="nf">jump_to_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move the knob directly to the mouse click position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Click event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">activate_knob</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="spacrSlider.update_slider_from_entry">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.update_slider_from_entry">[docs]</a>
     <span class="k">def</span> <span class="nf">update_slider_from_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the slider&#39;s value from the entry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the slider from a value entered manually in the index entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event (tk.Event): Return key press event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_var</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
@@ -2491,6 +2888,19 @@
 <div class="viewcode-block" id="spacrScrollbarStyle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrScrollbarStyle">[docs]</a>
 <span class="k">def</span> <span class="nf">spacrScrollbarStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">inactive_color</span><span class="p">,</span> <span class="n">active_color</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies a custom vertical scrollbar style using the given colors.</span>
+
+<span class="sd">    This function defines a new ttk scrollbar style named &#39;Custom.Vertical.TScrollbar&#39;.</span>
+<span class="sd">    It reuses the base elements from the &#39;clam&#39; theme and sets the colors for active </span>
+<span class="sd">    and inactive states accordingly. If the required elements do not exist, it creates </span>
+<span class="sd">    them from the base theme.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        style (ttk.Style): The ttk Style object to configure.</span>
+<span class="sd">        inactive_color (str): Hex or color name for the scrollbar in its default (inactive) state.</span>
+<span class="sd">        active_color (str): Hex or color name for the scrollbar when hovered or active.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Check if custom elements already exist to avoid duplication</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">style</span><span class="o">.</span><span class="n">element_names</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;custom.Vertical.Scrollbar.trough&#39;</span><span class="p">):</span>
         <span class="n">style</span><span class="o">.</span><span class="n">element_create</span><span class="p">(</span><span class="s1">&#39;custom.Vertical.Scrollbar.trough&#39;</span><span class="p">,</span> <span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="s1">&#39;clam&#39;</span><span class="p">)</span>
@@ -3187,7 +3597,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - fig: The Matplotlib figure object to modify.</span>
 <span class="sd">    - scale_x: Scaling factor for the width of subplots (optional).</span>
 <span class="sd">    - scale_y: Scaling factor for the height of subplots (optional).</span>

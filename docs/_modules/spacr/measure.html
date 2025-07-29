@@ -1184,7 +1184,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Analyzes and extracts skeleton properties from labeled objects in a masked image based on microtubule staining intensities.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    image : numpy array</span>
 <span class="sd">        Intensity image where the microtubules are stained.</span>
 <span class="sd">    mask : numpy array</span>
@@ -1323,7 +1323,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a pandas DataFrame from the given radial distributions.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        - radial_distributions (dict): A dictionary containing the radial distributions.</span>
 <span class="sd">        - object_type (str): The type of object.</span>
 
@@ -1343,9 +1343,38 @@
 
 <span class="k">def</span> <span class="nf">_extended_regionprops_table</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">intensity_props</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate extended region properties table, adding a suite of advanced quantitative features.</span>
+<span class="sd">    Compute extended region properties for labeled objects in an image.</span>
+
+<span class="sd">    In addition to standard `regionprops_table` features, this function computes </span>
+<span class="sd">    a comprehensive set of intensity-based statistics for each labeled object, </span>
+<span class="sd">    including Gini coefficient, entropy, skewness, kurtosis, percentiles, and </span>
+<span class="sd">    fraction of pixels in the tails of the intensity distribution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        labels (ndarray): Labeled array of connected components.</span>
+<span class="sd">        image (ndarray): Intensity image used to compute intensity-based features.</span>
+<span class="sd">        intensity_props (list): List of region properties to compute using </span>
+<span class="sd">            `regionprops_table` (e.g., [&#39;label&#39;, &#39;area&#39;, &#39;mean_intensity&#39;]).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: DataFrame with standard and extended intensity features for each region.</span>
+
+<span class="sd">    Extended features include:</span>
+<span class="sd">        - integrated_intensity: Sum of pixel values.</span>
+<span class="sd">        - std_intensity: Standard deviation.</span>
+<span class="sd">        - median_intensity: Median pixel intensity.</span>
+<span class="sd">        - skew_intensity: Skewness of pixel intensity distribution.</span>
+<span class="sd">        - kurtosis_intensity: Kurtosis of pixel intensity distribution.</span>
+<span class="sd">        - mode_intensity: Most frequent pixel intensity.</span>
+<span class="sd">        - range_intensity: Peak-to-peak range (max - min).</span>
+<span class="sd">        - iqr_intensity: Interquartile range (75th - 25th percentile).</span>
+<span class="sd">        - cv_intensity: Coefficient of variation (std / mean).</span>
+<span class="sd">        - gini_intensity: Gini coefficient of intensity distribution.</span>
+<span class="sd">        - frac_high90: Fraction of pixels above 90th percentile.</span>
+<span class="sd">        - frac_low10: Fraction of pixels below 10th percentile.</span>
+<span class="sd">        - entropy_intensity: Shannon entropy of intensity distribution.</span>
+<span class="sd">        - percentile_X: Percentile value of pixel intensity for X ∈ {5, 10, 25, 75, 85, 95}.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
     <span class="k">def</span> <span class="nf">_gini</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
         <span class="c1"># Compute Gini coefficient (nan safe)</span>
         <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">array</span><span class="p">)])</span>
@@ -1437,7 +1466,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the homogeneity values for each region in the label mask.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        - label (ndarray): The label mask containing the regions.</span>
 <span class="sd">        - channel (ndarray): The image channel corresponding to the label mask.</span>
 <span class="sd">        - distances (list): The distances to calculate the homogeneity for.</span>
@@ -1639,7 +1668,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimates the blur of an image by computing the variance of its Laplacian.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    image (numpy.ndarray): The input image.</span>
 
 <span class="sd">    Returns:</span>
