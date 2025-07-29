@@ -1156,7 +1156,37 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.toxo.generate_score_heatmap">
 <span class="sig-prename descclassname"><span class="pre">spacr.toxo.</span></span><span class="sig-name descname"><span class="pre">generate_score_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/toxo.html#generate_score_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.toxo.generate_score_heatmap" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generates a score comparison heatmap and calculates MAE between classification scores and a reference fraction.</p>
+<p>This function:
+- Combines classification scores from multiple folders.
+- Calculates the control gRNA fractions for a specific gRNA.
+- Merges the fraction data with classification and cross-validation scores.
+- Plots a heatmap of scores.
+- Calculates Mean Absolute Error (MAE) between the prediction scores and the true fraction.
+- Optionally saves the resulting data and figure to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing:
+- ‘folders’: List of folders to search for classification CSVs.
+- ‘csv_name’: Name of the classification CSV file in each folder.
+- ‘data_column’: Column with predicted values to be compared.
+- ‘plateID’: Plate identifier (e.g., 1).
+- ‘columnID’: Column identifier (e.g., ‘c3’).
+- ‘csv’: Path to the control gRNA CSV file.
+- ‘control_sgrnas’: List of two control gRNA names.
+- ‘fraction_grna’: gRNA name for which the true fraction will be extracted.
+- ‘cv_csv’: Path to the CSV file with cross-validation predictions.
+- ‘data_column_cv’: Column name for cross-validation predictions.
+- ‘dst’: Output directory path (or None to disable saving).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The merged DataFrame with ‘fraction’, predicted scores, and cross-validation scores.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

@@ -1622,9 +1622,48 @@
 <div class="viewcode-block" id="generate_score_heatmap">
 <a class="viewcode-back" href="../../api/spacr/toxo/index.html#spacr.toxo.generate_score_heatmap">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_score_heatmap</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a score comparison heatmap and calculates MAE between classification scores and a reference fraction.</span>
+<span class="sd">    </span>
+<span class="sd">    This function:</span>
+<span class="sd">    - Combines classification scores from multiple folders.</span>
+<span class="sd">    - Calculates the control gRNA fractions for a specific gRNA.</span>
+<span class="sd">    - Merges the fraction data with classification and cross-validation scores.</span>
+<span class="sd">    - Plots a heatmap of scores.</span>
+<span class="sd">    - Calculates Mean Absolute Error (MAE) between the prediction scores and the true fraction.</span>
+<span class="sd">    - Optionally saves the resulting data and figure to disk.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing:</span>
+<span class="sd">            - &#39;folders&#39;: List of folders to search for classification CSVs.</span>
+<span class="sd">            - &#39;csv_name&#39;: Name of the classification CSV file in each folder.</span>
+<span class="sd">            - &#39;data_column&#39;: Column with predicted values to be compared.</span>
+<span class="sd">            - &#39;plateID&#39;: Plate identifier (e.g., 1).</span>
+<span class="sd">            - &#39;columnID&#39;: Column identifier (e.g., &#39;c3&#39;).</span>
+<span class="sd">            - &#39;csv&#39;: Path to the control gRNA CSV file.</span>
+<span class="sd">            - &#39;control_sgrnas&#39;: List of two control gRNA names.</span>
+<span class="sd">            - &#39;fraction_grna&#39;: gRNA name for which the true fraction will be extracted.</span>
+<span class="sd">            - &#39;cv_csv&#39;: Path to the CSV file with cross-validation predictions.</span>
+<span class="sd">            - &#39;data_column_cv&#39;: Column name for cross-validation predictions.</span>
+<span class="sd">            - &#39;dst&#39;: Output directory path (or None to disable saving).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: The merged DataFrame with &#39;fraction&#39;, predicted scores, and cross-validation scores.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">group_cv_score</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">plate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="n">data_column</span><span class="o">=</span><span class="s1">&#39;pred&#39;</span><span class="p">):</span>
-        
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Group and average cross-validation scores (or other predictions) for each well.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            csv (str): Path to the input CSV file.</span>
+<span class="sd">            plate (int, optional): Plate number to assign if not present in the file. Defaults to 1.</span>
+<span class="sd">            column (str, optional): Column (well) to filter on, e.g., &#39;c3&#39;. Defaults to &#39;c3&#39;.</span>
+<span class="sd">            data_column (str, optional): Column to average, e.g., prediction or score column. Defaults to &#39;pred&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: DataFrame with grouped average values and a &#39;prc&#39; identifier (plate_row_column).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;column_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">column</span><span class="p">]</span>
@@ -1638,6 +1677,21 @@
         <span class="k">return</span> <span class="n">grouped_df</span>
 
     <span class="k">def</span> <span class="nf">calculate_fraction_mixed_condition</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">plate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span> <span class="n">control_sgrnas</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TGGT1_220950_1&#39;</span><span class="p">,</span> <span class="s1">&#39;TGGT1_233460_4&#39;</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the fraction of control_sgrnas in a specified column and plate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            csv (str): Path to the input CSV file.</span>
+<span class="sd">            plate (int, optional): Plate number to filter on. Defaults to 1.</span>
+<span class="sd">            column (str, optional): Column name (e.g., &#39;c3&#39;) to filter on. Defaults to &#39;c3&#39;.</span>
+<span class="sd">            control_sgrnas (list of str, optional): List of two gRNA identifiers to include in the fraction calculation.</span>
+<span class="sd">                                                    Defaults to [&#39;TGGT1_220950_1&#39;, &#39;TGGT1_233460_4&#39;].</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: DataFrame with columns including:</span>
+<span class="sd">                - &#39;fraction&#39;: Fraction of each control_sgrna in its well.</span>
+<span class="sd">                - &#39;prc&#39;: Plate-row-column identifier.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>  
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">column</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">plate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -1700,6 +1754,22 @@
 
 
     <span class="k">def</span> <span class="nf">combine_classification_scores</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">,</span> <span class="n">data_column</span><span class="p">,</span> <span class="n">plate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combines classification scores from multiple CSV files across subfolders.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            folders (str or list of str): A folder or list of folders containing subdirectories </span>
+<span class="sd">                with CSV files named `csv_name`.</span>
+<span class="sd">            csv_name (str): The name of the CSV file to search for in each subdirectory.</span>
+<span class="sd">            data_column (str): The column name in the CSV to extract and average.</span>
+<span class="sd">            plate (int, optional): Plate number to assign to all rows. Defaults to 1.</span>
+<span class="sd">            column (str, optional): Column name to filter on, e.g., &#39;c3&#39;. Defaults to &#39;c3&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: Combined DataFrame with averaged `data_column` values from each source file.</span>
+<span class="sd">                            Each source contributes a uniquely named column, and the result includes a</span>
+<span class="sd">                            &#39;prc&#39; column (plate_row_column identifier).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Ensure `folders` is a list</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="n">folders</span><span class="p">]</span>
@@ -1747,7 +1817,17 @@
     
     <span class="k">def</span> <span class="nf">calculate_mae</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the MAE between each channel&#39;s predictions and the fraction column for all rows.</span>
+<span class="sd">        Calculates the Mean Absolute Error (MAE) between the &#39;fraction&#39; column and all other numeric columns</span>
+<span class="sd">        (excluding &#39;fraction&#39; and &#39;prc&#39;) for each row in the DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df (pandas.DataFrame): Input DataFrame containing a &#39;fraction&#39; column and prediction columns to compare.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: A DataFrame with columns [&#39;Channel&#39;, &#39;MAE&#39;, &#39;Row&#39;], where:</span>
+<span class="sd">                - &#39;Channel&#39; indicates the compared prediction column,</span>
+<span class="sd">                - &#39;MAE&#39; is the mean absolute error between that column and &#39;fraction&#39;,</span>
+<span class="sd">                - &#39;Row&#39; contains the &#39;prc&#39; identifier for the row.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Extract numeric columns excluding &#39;fraction&#39; and &#39;prc&#39;</span>
         <span class="n">channels</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;prc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span>
