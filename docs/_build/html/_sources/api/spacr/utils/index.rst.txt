@@ -2028,12 +2028,6 @@ Module Contents
    of a neural network to its input features. It approximates the integral of gradients
    along a straight path from a baseline to the input.
 
-   .. attribute:: model
-
-      The PyTorch model to interpret.
-
-      :type: torch.nn.Module
-
    Initialize the IntegratedGradients instance.
 
    :param model: A trained PyTorch model.

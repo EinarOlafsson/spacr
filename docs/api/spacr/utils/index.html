@@ -331,7 +331,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.recommend_target_layers"><code class="docutils literal notranslate"><span class="pre">recommend_target_layers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.IntegratedGradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.IntegratedGradients.model"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.IntegratedGradients.generate_integrated_gradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.generate_integrated_gradients()</span></code></a></li>
 </ul>
 </li>
@@ -3677,17 +3676,6 @@ the last convolutional layer as the primary target layer.</p>
 <p>This class implements the Integrated Gradients method to attribute the prediction
 of a neural network to its input features. It approximates the integral of gradients
 along a straight path from a baseline to the input.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.utils.IntegratedGradients.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.IntegratedGradients.model" title="Link to this definition"></a></dt>
-<dd><p>The PyTorch model to interpret.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.nn.Module</p>
-</dd>
-</dl>
-</dd></dl>
-
 <p>Initialize the IntegratedGradients instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3695,8 +3683,8 @@ along a straight path from a baseline to the input.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.utils.IntegratedGradients.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.IntegratedGradients.model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
